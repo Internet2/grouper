@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -120,7 +120,7 @@
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment"> * @since 1.0</em>
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment"> * @version $Id: HashCodeBuilder.java 1144929 2011-07-10 18:26:16Z ggregory $</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> <strong class="jxr_keyword">implements</strong> Builder&lt;Integer&gt; {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> <strong class="jxr_keyword">implements</strong> Builder&lt;Integer&gt; {
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     * A registry of objects used by reflection methods to detect cyclical object references and avoid infinite loops.</em>
@@ -172,7 +172,7 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isRegistered(Object value) {
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         Set&lt;IDKey&gt; registry = getRegistry();
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">return</strong> registry != <strong class="jxr_keyword">null</strong> &amp;&amp; registry.contains(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/IDKey.html">IDKey</a>(value));
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">return</strong> registry != <strong class="jxr_keyword">null</strong> &amp;&amp; registry.contains(<strong class="jxr_keyword">new</strong> <a name="IDKey" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/IDKey.html#IDKey">IDKey</a>(value));
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     <em class="jxr_javadoccomment">/**</em>
@@ -191,7 +191,7 @@
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     * @param excludeFields</em>
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">     *            Collection of String field names to exclude from use in calculation of hash code</em>
 <a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> reflectionAppend(Object object, Class&lt;?&gt; clazz, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> builder, <strong class="jxr_keyword">boolean</strong> useTransients,
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> reflectionAppend(Object object, Class&lt;?&gt; clazz, <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> builder, <strong class="jxr_keyword">boolean</strong> useTransients,
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>             String[] excludeFields) {
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">if</strong> (isRegistered(object)) {
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>             <strong class="jxr_keyword">return</strong>;
@@ -358,7 +358,7 @@
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">if</strong> (object == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"The object to build a hash code for must not be null"</span>);
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>         }
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> builder = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a>(initialNonZeroOddNumber, multiplierNonZeroOddNumber);
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <a name="HashCodeBuilder" href="../../../../../../../../../edu/inte<a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a>e/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> builder = <strong class="jxr_keyword">new</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a>(initialNonZeroOddNumber, multiplierNonZeroOddNumber);
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>         Class&lt;?&gt; clazz = object.getClass();
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>         reflectionAppend(object, clazz, builder, testTransients, excludeFields);
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">while</strong> (clazz.getSuperclass() != <strong class="jxr_keyword">null</strong> &amp;&amp; clazz != reflectUpToClass) {
@@ -492,7 +492,7 @@
 <a class="jxr_linenumber" name="L484" href="#L484">484</a>                 REGISTRY.set(<strong class="jxr_keyword">new</strong> HashSet&lt;IDKey&gt;());
 <a class="jxr_linenumber" name="L485" href="#L485">485</a>             }
 <a class="jxr_linenumber" name="L486" href="#L486">486</a>         }
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>         getRegistry().add(<strong class="jxr_keyword">new</strong> IDKey(value));
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         getRegistry().add(<strong class="jxr_keyword">new</strong> <a name="IDKey" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/IDKey.html#IDKey">IDKey</a>(value));
 <a class="jxr_linenumber" name="L488" href="#L488">488</a>     }
 <a class="jxr_linenumber" name="L489" href="#L489">489</a> 
 <a class="jxr_linenumber" name="L490" href="#L490">490</a>     <em class="jxr_javadoccomment">/**</em>
@@ -510,7 +510,7 @@
 <a class="jxr_linenumber" name="L502" href="#L502">502</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> unregister(Object value) {
 <a class="jxr_linenumber" name="L503" href="#L503">503</a>         Set&lt;IDKey&gt; registry = getRegistry();
 <a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">if</strong> (registry != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>             registry.remove(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/IDKey.html">IDKey</a>(value));
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>             registry.remove(<strong class="jxr_keyword">new</strong> <a name="IDKey" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/IDKey.html#IDKey">IDKey</a>(value));
 <a class="jxr_linenumber" name="L506" href="#L506">506</a>             <strong class="jxr_keyword">synchronized</strong> (HashCodeBuilder.<strong class="jxr_keyword">class</strong>) {
 <a class="jxr_linenumber" name="L507" href="#L507">507</a>                 <em class="jxr_comment">//read again</em>
 <a class="jxr_linenumber" name="L508" href="#L508">508</a>                 registry = getRegistry();
@@ -536,7 +536,7 @@
 <a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">     * Uses two hard coded choices for the constants needed to build a &lt;code&gt;hashCode&lt;/code&gt;.</em>
 <a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
 <a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a>() {
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a>() {
 <a class="jxr_linenumber" name="L532" href="#L532">532</a>         iConstant = 37;
 <a class="jxr_linenumber" name="L533" href="#L533">533</a>         iTotal = 17;
 <a class="jxr_linenumber" name="L534" href="#L534">534</a>     }
@@ -558,7 +558,7 @@
 <a class="jxr_linenumber" name="L550" href="#L550">550</a> <em class="jxr_javadoccomment">     * @throws IllegalArgumentException</em>
 <a class="jxr_linenumber" name="L551" href="#L551">551</a> <em class="jxr_javadoccomment">     *             if the number is zero or even</em>
 <a class="jxr_linenumber" name="L552" href="#L552">552</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a>(<strong class="jxr_keyword">int</strong> initialNonZeroOddNumber, <strong class="jxr_keyword">int</strong> multiplierNonZeroOddNumber) {
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a>(<strong class="jxr_keyword">int</strong> initialNonZeroOddNumber, <strong class="jxr_keyword">int</strong> multiplierNonZeroOddNumber) {
 <a class="jxr_linenumber" name="L554" href="#L554">554</a>         <strong class="jxr_keyword">if</strong> (initialNonZeroOddNumber == 0) {
 <a class="jxr_linenumber" name="L555" href="#L555">555</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"HashCodeBuilder requires a non zero initial value"</span>);
 <a class="jxr_linenumber" name="L556" href="#L556">556</a>         }
@@ -596,7 +596,7 @@
 <a class="jxr_linenumber" name="L588" href="#L588">588</a> <em class="jxr_javadoccomment">     *            the boolean to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L589" href="#L589">589</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L590" href="#L590">590</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">boolean</strong> value) {
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">boolean</strong> value) {
 <a class="jxr_linenumber" name="L592" href="#L592">592</a>         iTotal = iTotal * iConstant + (value ? 0 : 1);
 <a class="jxr_linenumber" name="L593" href="#L593">593</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L594" href="#L594">594</a>     }
@@ -610,7 +610,7 @@
 <a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L603" href="#L603">603</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L604" href="#L604">604</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">boolean</strong>[] array) {
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">boolean</strong>[] array) {
 <a class="jxr_linenumber" name="L606" href="#L606">606</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L607" href="#L607">607</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L608" href="#L608">608</a>         } <strong class="jxr_keyword">else</strong> {
@@ -632,7 +632,7 @@
 <a class="jxr_linenumber" name="L624" href="#L624">624</a> <em class="jxr_javadoccomment">     *            the byte to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L625" href="#L625">625</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L626" href="#L626">626</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L627" href="#L627">627</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(byte value) {
+<a class="jxr_linenumber" name="L627" href="#L627">627</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(byte value) {
 <a class="jxr_linenumber" name="L628" href="#L628">628</a>         iTotal = iTotal * iConstant + value;
 <a class="jxr_linenumber" name="L629" href="#L629">629</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L630" href="#L630">630</a>     }
@@ -648,7 +648,7 @@
 <a class="jxr_linenumber" name="L640" href="#L640">640</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L641" href="#L641">641</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L642" href="#L642">642</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L643" href="#L643">643</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(byte[] array) {
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(byte[] array) {
 <a class="jxr_linenumber" name="L644" href="#L644">644</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L645" href="#L645">645</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L646" href="#L646">646</a>         } <strong class="jxr_keyword">else</strong> {
@@ -668,7 +668,7 @@
 <a class="jxr_linenumber" name="L660" href="#L660">660</a> <em class="jxr_javadoccomment">     *            the char to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L662" href="#L662">662</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L663" href="#L663">663</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">char</strong> value) {
+<a class="jxr_linenumber" name="L663" href="#L663">663</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">char</strong> value) {
 <a class="jxr_linenumber" name="L664" href="#L664">664</a>         iTotal = iTotal * iConstant + value;
 <a class="jxr_linenumber" name="L665" href="#L665">665</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L666" href="#L666">666</a>     }
@@ -682,7 +682,7 @@
 <a class="jxr_linenumber" name="L674" href="#L674">674</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L675" href="#L675">675</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L676" href="#L676">676</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L677" href="#L677">677</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">char</strong>[] array) {
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">char</strong>[] array) {
 <a class="jxr_linenumber" name="L678" href="#L678">678</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L679" href="#L679">679</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L680" href="#L680">680</a>         } <strong class="jxr_keyword">else</strong> {
@@ -702,7 +702,7 @@
 <a class="jxr_linenumber" name="L694" href="#L694">694</a> <em class="jxr_javadoccomment">     *            the double to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L695" href="#L695">695</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L696" href="#L696">696</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L697" href="#L697">697</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">double</strong> value) {
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">double</strong> value) {
 <a class="jxr_linenumber" name="L698" href="#L698">698</a>         <strong class="jxr_keyword">return</strong> append(Double.doubleToLongBits(value));
 <a class="jxr_linenumber" name="L699" href="#L699">699</a>     }
 <a class="jxr_linenumber" name="L700" href="#L700">700</a> 
@@ -715,7 +715,7 @@
 <a class="jxr_linenumber" name="L707" href="#L707">707</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L708" href="#L708">708</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L709" href="#L709">709</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L710" href="#L710">710</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">double</strong>[] array) {
+<a class="jxr_linenumber" name="L710" href="#L710">710</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">double</strong>[] array) {
 <a class="jxr_linenumber" name="L711" href="#L711">711</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L712" href="#L712">712</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L713" href="#L713">713</a>         } <strong class="jxr_keyword">else</strong> {
@@ -735,7 +735,7 @@
 <a class="jxr_linenumber" name="L727" href="#L727">727</a> <em class="jxr_javadoccomment">     *            the float to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L728" href="#L728">728</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L729" href="#L729">729</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L730" href="#L730">730</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">float</strong> value) {
+<a class="jxr_linenumber" name="L730" href="#L730">730</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">float</strong> value) {
 <a class="jxr_linenumber" name="L731" href="#L731">731</a>         iTotal = iTotal * iConstant + Float.floatToIntBits(value);
 <a class="jxr_linenumber" name="L732" href="#L732">732</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L733" href="#L733">733</a>     }
@@ -749,7 +749,7 @@
 <a class="jxr_linenumber" name="L741" href="#L741">741</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L742" href="#L742">742</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L743" href="#L743">743</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L744" href="#L744">744</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">float</strong>[] array) {
+<a class="jxr_linenumber" name="L744" href="#L744">744</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">float</strong>[] array) {
 <a class="jxr_linenumber" name="L745" href="#L745">745</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L746" href="#L746">746</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L747" href="#L747">747</a>         } <strong class="jxr_keyword">else</strong> {
@@ -769,7 +769,7 @@
 <a class="jxr_linenumber" name="L761" href="#L761">761</a> <em class="jxr_javadoccomment">     *            the int to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L762" href="#L762">762</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L763" href="#L763">763</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L764" href="#L764">764</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">int</strong> value) {
+<a class="jxr_linenumber" name="L764" href="#L764">764</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">int</strong> value) {
 <a class="jxr_linenumber" name="L765" href="#L765">765</a>         iTotal = iTotal * iConstant + value;
 <a class="jxr_linenumber" name="L766" href="#L766">766</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L767" href="#L767">767</a>     }
@@ -783,7 +783,7 @@
 <a class="jxr_linenumber" name="L775" href="#L775">775</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L776" href="#L776">776</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L777" href="#L777">777</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L778" href="#L778">778</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">int</strong>[] array) {
+<a class="jxr_linenumber" name="L778" href="#L778">778</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">int</strong>[] array) {
 <a class="jxr_linenumber" name="L779" href="#L779">779</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L780" href="#L780">780</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L781" href="#L781">781</a>         } <strong class="jxr_keyword">else</strong> {
@@ -807,7 +807,7 @@
 <a class="jxr_linenumber" name="L799" href="#L799">799</a>     <em class="jxr_comment">//       Long.hashCode do. Ideally we should switch to &gt;&gt;&gt; at</em>
 <a class="jxr_linenumber" name="L800" href="#L800">800</a>     <em class="jxr_comment">//       some stage. There are backwards compat issues, so</em>
 <a class="jxr_linenumber" name="L801" href="#L801">801</a>     <em class="jxr_comment">//       that will have to wait for the time being. cf LANG-342.</em>
-<a class="jxr_linenumber" name="L802" href="#L802">802</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">long</strong> value) {
+<a class="jxr_linenumber" name="L802" href="#L802">802</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">long</strong> value) {
 <a class="jxr_linenumber" name="L803" href="#L803">803</a>         iTotal = iTotal * iConstant + ((<strong class="jxr_keyword">int</strong>) (value ^ (value &gt;&gt; 32)));
 <a class="jxr_linenumber" name="L804" href="#L804">804</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L805" href="#L805">805</a>     }
@@ -821,7 +821,7 @@
 <a class="jxr_linenumber" name="L813" href="#L813">813</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L814" href="#L814">814</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L815" href="#L815">815</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L816" href="#L816">816</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">long</strong>[] array) {
+<a class="jxr_linenumber" name="L816" href="#L816">816</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">long</strong>[] array) {
 <a class="jxr_linenumber" name="L817" href="#L817">817</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L818" href="#L818">818</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L819" href="#L819">819</a>         } <strong class="jxr_keyword">else</strong> {
@@ -841,7 +841,7 @@
 <a class="jxr_linenumber" name="L833" href="#L833">833</a> <em class="jxr_javadoccomment">     *            the Object to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L834" href="#L834">834</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L835" href="#L835">835</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L836" href="#L836">836</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(Object object) {
+<a class="jxr_linenumber" name="L836" href="#L836">836</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(Object object) {
 <a class="jxr_linenumber" name="L837" href="#L837">837</a>         <strong class="jxr_keyword">if</strong> (object == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L838" href="#L838">838</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L839" href="#L839">839</a> 
@@ -885,7 +885,7 @@
 <a class="jxr_linenumber" name="L877" href="#L877">877</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L878" href="#L878">878</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L879" href="#L879">879</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L880" href="#L880">880</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(Object[] array) {
+<a class="jxr_linenumber" name="L880" href="#L880">880</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(Object[] array) {
 <a class="jxr_linenumber" name="L881" href="#L881">881</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L882" href="#L882">882</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L883" href="#L883">883</a>         } <strong class="jxr_keyword">else</strong> {
@@ -905,7 +905,7 @@
 <a class="jxr_linenumber" name="L897" href="#L897">897</a> <em class="jxr_javadoccomment">     *            the short to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L898" href="#L898">898</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L899" href="#L899">899</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L900" href="#L900">900</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">short</strong> value) {
+<a class="jxr_linenumber" name="L900" href="#L900">900</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">short</strong> value) {
 <a class="jxr_linenumber" name="L901" href="#L901">901</a>         iTotal = iTotal * iConstant + value;
 <a class="jxr_linenumber" name="L902" href="#L902">902</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L903" href="#L903">903</a>     }
@@ -919,7 +919,7 @@
 <a class="jxr_linenumber" name="L911" href="#L911">911</a> <em class="jxr_javadoccomment">     *            the array to add to the &lt;code&gt;hashCode&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L912" href="#L912">912</a> <em class="jxr_javadoccomment">     * @return this</em>
 <a class="jxr_linenumber" name="L913" href="#L913">913</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L914" href="#L914">914</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> append(<strong class="jxr_keyword">short</strong>[] array) {
+<a class="jxr_linenumber" name="L914" href="#L914">914</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> append(<strong class="jxr_keyword">short</strong>[] array) {
 <a class="jxr_linenumber" name="L915" href="#L915">915</a>         <strong class="jxr_keyword">if</strong> (array == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L916" href="#L916">916</a>             iTotal = iTotal * iConstant;
 <a class="jxr_linenumber" name="L917" href="#L917">917</a>         } <strong class="jxr_keyword">else</strong> {
@@ -940,7 +940,7 @@
 <a class="jxr_linenumber" name="L932" href="#L932">932</a> <em class="jxr_javadoccomment">     * @return this HashCodeBuilder, used to chain calls.</em>
 <a class="jxr_linenumber" name="L933" href="#L933">933</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
 <a class="jxr_linenumber" name="L934" href="#L934">934</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L935" href="#L935">935</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html">HashCodeBuilder</a> appendSuper(<strong class="jxr_keyword">int</strong> superHashCode) {
+<a class="jxr_linenumber" name="L935" href="#L935">935</a>     <strong class="jxr_keyword">public</strong> <a name="HashCodeBuilder" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/lang3/builder/HashCodeBuilder.html#HashCodeBuilder">HashCodeBuilder</a> appendSuper(<strong class="jxr_keyword">int</strong> superHashCode) {
 <a class="jxr_linenumber" name="L936" href="#L936">936</a>         iTotal = iTotal * iConstant + superHashCode;
 <a class="jxr_linenumber" name="L937" href="#L937">937</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L938" href="#L938">938</a>     }
@@ -984,6 +984,6 @@
 <a class="jxr_linenumber" name="L976" href="#L976">976</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

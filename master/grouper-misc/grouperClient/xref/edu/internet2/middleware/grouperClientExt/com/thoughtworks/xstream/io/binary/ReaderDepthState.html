@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -47,27 +47,27 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * @author Joe Walnes</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">ReaderDepthState</a> {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">class</strong> <a name="ReaderDepthState" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html#ReaderDepthState">ReaderDepthState</a> {
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String EMPTY_STRING = <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">State</a> {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> State {
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          String name;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          String value;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          List attributes;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">boolean</strong> hasMoreChildren;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">State</a> parent;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          State parent;
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a> {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> Attribute {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          String name;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          String value;
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">State</a> current;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> State current;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> push() {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">State</a> newState = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">State</a>();
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          State newState = <strong class="jxr_keyword">new</strong> State();
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          newState.parent = current;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          current = newState;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
@@ -101,7 +101,7 @@
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      }
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addAttribute(String name, String value) {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a> attribute = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a>();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          Attribute attribute = <strong class="jxr_keyword">new</strong> Attribute();
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>          attribute.name = name;
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          attribute.value = value;
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">if</strong> (current.attributes == <strong class="jxr_keyword">null</strong>) {
@@ -116,7 +116,7 @@
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>             <em class="jxr_comment">// For short maps, it's faster to iterate then do a hashlookup.</em>
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">for</strong> (Iterator iterator = current.attributes.iterator(); iterator.hasNext();) {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a> attribute = (Attribute) iterator.next();
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 Attribute attribute = (Attribute) iterator.next();
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>                 <strong class="jxr_keyword">if</strong> (attribute.name.equals(name)) {
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>                     <strong class="jxr_keyword">return</strong> attribute.value;
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>                 }
@@ -129,7 +129,7 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">if</strong> (current.attributes == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>             <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a> attribute = (Attribute) current.attributes.get(index);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             Attribute attribute = (Attribute) current.attributes.get(index);
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">return</strong> attribute.value;
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         }
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">if</strong> (current.attributes == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a> attribute = (Attribute) current.attributes.get(index);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             Attribute attribute = (Attribute) current.attributes.get(index);
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>             <strong class="jxr_keyword">return</strong> attribute.name;
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         }
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
@@ -158,7 +158,7 @@
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>                 }
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> 
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>                 <strong class="jxr_keyword">public</strong> Object next() {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>                     <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a> attribute = (Attribute) attributeIterator.next();
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>                     Attribute attribute = (Attribute) attributeIterator.next();
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>                     <strong class="jxr_keyword">return</strong> attribute.name;
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>                 }
 <a class="jxr_linenumber" name="L156" href="#L156">156</a> 
@@ -172,6 +172,6 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

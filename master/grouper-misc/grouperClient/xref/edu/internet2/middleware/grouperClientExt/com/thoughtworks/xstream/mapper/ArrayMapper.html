@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -45,7 +45,7 @@
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @author Joe Walnes </em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/ArrayMapper.html">ArrayMapper</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/MapperWrapper.html">MapperWrapper</a> {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ArrayMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/ArrayMapper.html#ArrayMapper">ArrayMapper</a> <strong class="jxr_keyword">extends</strong> <a name="MapperWrapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/MapperWrapper.html#MapperWrapper">MapperWrapper</a> {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">static</strong> Collection BOXED_TYPES = Arrays.asList(
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>              <strong class="jxr_keyword">new</strong> Class[] {
@@ -59,15 +59,15 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>                      Double.<strong class="jxr_keyword">class</strong>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>              });
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/ArrayMapper.html">ArrayMapper</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> wrapped) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">public</strong> <a name="ArrayMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/ArrayMapper.html#ArrayMapper">ArrayMapper</a>(<a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> wrapped) {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">super</strong>(wrapped);
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * @deprecated As of 1.2, use {@link #ArrayMapper(Mapper)}</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/ArrayMapper.html">ArrayMapper</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/ClassMapper.html">ClassMapper</a> wrapped) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">this</strong>((Mapper)wrapped);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <a name="ArrayMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/ArrayMapper.html#ArrayMapper">ArrayMapper</a>(<a name="ClassMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/ClassMapper.html#ClassMapper">ClassMapper</a> wrapped) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">this</strong>((<a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a>)wrapped);
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> String serializedClass(Class type) {
@@ -104,7 +104,7 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <strong class="jxr_keyword">return</strong> arrayType(dimensions, componentType);
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>              } <strong class="jxr_keyword">catch</strong> (ClassNotFoundException e) {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/CannotResolveClassException.html">CannotResolveClassException</a>(elementName + <span class="jxr_string">" : "</span> + e.getMessage());
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="CannotResolveClassException" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/CannotResolveClassException.html#CannotResolveClassException">CannotResolveClassException</a>(elementName + <span class="jxr_string">" : "</span> + e.getMessage());
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>             }
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.realClass(elementName);
@@ -158,6 +158,6 @@
 <a class="jxr_linenumber" name="L150" href="#L150">150</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

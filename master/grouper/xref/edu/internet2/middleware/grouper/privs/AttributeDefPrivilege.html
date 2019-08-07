@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">  you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -63,7 +63,7 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> * @author  blair christensen.</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment"> * @version $Id: AttributeDefPrivilege.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html">AttributeDefPrivilege</a> <strong class="jxr_keyword">implements</strong> GrouperPrivilege, Comparable {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a> <strong class="jxr_keyword">implements</strong> GrouperPrivilege, Comparable {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   * filter some privs for access privs</em>
@@ -76,7 +76,7 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      Set&lt;Privilege&gt; result = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Privilege&gt;();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">for</strong> (Privilege privilege : privileges) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">for</strong> (<a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> privilege : privileges) {
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>        <strong class="jxr_keyword">if</strong> (Privilege.isAttributeDef(privilege)) {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          result.add(privilege);
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>        }
@@ -85,19 +85,19 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>    }
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>    
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>    <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> ATTR_ADMIN   = Privilege.getInstance(<span class="jxr_string">"attrAdmin"</span>);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> ATTR_ADMIN   = Privilege.getInstance(<span class="jxr_string">"attrAdmin"</span>);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>    
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>    <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> ATTR_OPTIN   = Privilege.getInstance(<span class="jxr_string">"attrOptin"</span>);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> ATTR_OPTIN   = Privilege.getInstance(<span class="jxr_string">"attrOptin"</span>);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>    <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> ATTR_OPTOUT  = Privilege.getInstance(<span class="jxr_string">"attrOptout"</span>);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> ATTR_OPTOUT  = Privilege.getInstance(<span class="jxr_string">"attrOptout"</span>);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>    
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>    <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> ATTR_READ    = Privilege.getInstance(<span class="jxr_string">"attrRead"</span>);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> ATTR_READ    = Privilege.getInstance(<span class="jxr_string">"attrRead"</span>);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>    <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> ATTR_UPDATE  = Privilege.getInstance(<span class="jxr_string">"attrUpdate"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> ATTR_UPDATE  = Privilege.getInstance(<span class="jxr_string">"attrUpdate"</span>);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>    <em class="jxr_javadoccomment">/** any of these constitutes ATTR_OPTIN on an attribute def</em>
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">   * note, keep most common/likely privs toward the front  */</em>
@@ -110,13 +110,13 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>       GrouperUtil.toSet(ATTR_OPTOUT, ATTR_UPDATE, ATTR_ADMIN));
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> 
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>   <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> ATTR_VIEW    = Privilege.getInstance(<span class="jxr_string">"attrView"</span>);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> ATTR_VIEW    = Privilege.getInstance(<span class="jxr_string">"attrView"</span>);
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> 
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>   <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> ATTR_DEF_ATTR_READ    = Privilege.getInstance(<span class="jxr_string">"attrDefAttrRead"</span>);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> ATTR_DEF_ATTR_READ    = Privilege.getInstance(<span class="jxr_string">"attrDefAttrRead"</span>);
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> 
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>   <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> ATTR_DEF_ATTR_UPDATE    = Privilege.getInstance(<span class="jxr_string">"attrDefAttrUpdate"</span>);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> ATTR_DEF_ATTR_UPDATE    = Privilege.getInstance(<span class="jxr_string">"attrDefAttrUpdate"</span>);
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>   
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>   <em class="jxr_javadoccomment">/** any of these constitutes VIEW on a group</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * note, keep most common/likely privs toward the front  */</em>
@@ -177,7 +177,7 @@
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">   * @param list</em>
 <a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">   * @return the privilege</em>
 <a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> listToPriv(String list) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> listToPriv(String list) {
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">return</strong> list2priv.get(list);
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>   }
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> 
@@ -186,7 +186,7 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">   * @param privilege</em>
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">   * @return the list name</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String privToList(<a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> privilege) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String privToList(<a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> privilege) {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     String listName = priv2list.get(privilege);
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">return</strong> listName;
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>   }
@@ -244,7 +244,7 @@
 <a class="jxr_linenumber" name="L236" href="#L236">236</a> 
 <a class="jxr_linenumber" name="L237" href="#L237">237</a> 
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>   <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef;
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>   <strong class="jxr_keyword">private</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef;
 <a class="jxr_linenumber" name="L240" href="#L240">240</a> 
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>   <em class="jxr_javadoccomment">/** */</em>
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> revokable;
@@ -256,10 +256,10 @@
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>   <strong class="jxr_keyword">private</strong> String  name;
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>   
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>   <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>   <strong class="jxr_keyword">private</strong> Subject owner;
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>   <strong class="jxr_keyword">private</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> owner;
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>   
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>   <em class="jxr_javadoccomment">/** */</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>   <strong class="jxr_keyword">private</strong> Subject subj;
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>   <strong class="jxr_keyword">private</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subj;
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> 
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>   <em class="jxr_javadoccomment">/** optionally link the audit id with the low level action */</em>
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>   <strong class="jxr_keyword">private</strong> String contextId;
@@ -274,9 +274,9 @@
 <a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">   * @param isRevokable1</em>
 <a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">   * @param contextId1 </em>
 <a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html">AttributeDefPrivilege</a>(
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a>   attributeDef1 , Subject subj1,   Subject owner1, 
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> priv, String  klass1,  <strong class="jxr_keyword">boolean</strong> isRevokable1, String contextId1
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a>(
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a>   attributeDef1 , <a name="Subject"<a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a>../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subj1,   <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> owner1, 
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> priv, String  klass1,  <strong class="jxr_keyword">boolean</strong> isRevokable1, String contextId1
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>   ) 
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>   {
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">this</strong>.attributeDef        = attributeDef1;
@@ -296,13 +296,13 @@
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == other) {
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <strong class="jxr_keyword">if</strong> (!(other instanceof AttributeDefPrivilege)) {
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <strong class="jxr_keyword">if</strong> (!(other instanceof <a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a>)) {
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>     }
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> EqualsBuilder()
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>       .append( <strong class="jxr_keyword">this</strong>.attributeDef, ( (AttributeDefPrivilege) other ).attributeDef )
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>       .append( <strong class="jxr_keyword">this</strong>.name, ( (AttributeDefPrivilege) other ).name )
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>       .append( <strong class="jxr_keyword">this</strong>.subj, ( (AttributeDefPrivilege) other ).subj )
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>       .append( <strong class="jxr_keyword">this</strong>.attributeDef, ( (<a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a>) other ).attributeDef )
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>       .append( <strong class="jxr_keyword">this</strong>.name, ( (<a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a>) other ).name )
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>       .append( <strong class="jxr_keyword">this</strong>.subj, ( (<a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a>) other ).subj )
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>       .isEquals();
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>   } <em class="jxr_comment">// public boolean equals(other)</em>
 <a class="jxr_linenumber" name="L300" href="#L300">300</a> 
@@ -322,7 +322,7 @@
 <a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">   * get the privilege, convert from name</em>
 <a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">   * @return named Privilege</em>
 <a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> getPrivilege() {
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>   <strong class="jxr_keyword">public</strong> <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> getPrivilege() {
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>     <strong class="jxr_keyword">return</strong> Privilege.getInstance(<strong class="jxr_keyword">this</strong>.name);
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>   }
 <a class="jxr_linenumber" name="L320" href="#L320">320</a>   
@@ -334,7 +334,7 @@
 <a class="jxr_linenumber" name="L326" href="#L326">326</a> <em class="jxr_javadoccomment">   * &lt;p/&gt;</em>
 <a class="jxr_linenumber" name="L327" href="#L327">327</a> <em class="jxr_javadoccomment">   * @return  {@link AttributeDef}</em>
 <a class="jxr_linenumber" name="L328" href="#L328">328</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> getAttributeDef() {
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> getAttributeDef() {
 <a class="jxr_linenumber" name="L330" href="#L330">330</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.attributeDef;
 <a class="jxr_linenumber" name="L331" href="#L331">331</a>   }
 <a class="jxr_linenumber" name="L332" href="#L332">332</a> 
@@ -358,7 +358,7 @@
 <a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_javadoccomment">   * Get subject which was granted privilege on this object.</em>
 <a class="jxr_linenumber" name="L351" href="#L351">351</a> <em class="jxr_javadoccomment">   * @return  {@link Subject} that was granted privilege.</em>
 <a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>   <strong class="jxr_keyword">public</strong> Subject getOwner() {
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>   <strong class="jxr_keyword">public</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> getOwner() {
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.owner;
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>   } <em class="jxr_comment">// public Subject getOwner()</em>
 <a class="jxr_linenumber" name="L356" href="#L356">356</a> 
@@ -366,7 +366,7 @@
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">   * Get subject which has this privilege.</em>
 <a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">   * @return  {@link Subject} that has this privilege.</em>
 <a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">public</strong> Subject getSubject() {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">public</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> getSubject() {
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.subj;
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>   } <em class="jxr_comment">// public Subject getSubject()</em>
 <a class="jxr_linenumber" name="L364" href="#L364">364</a> 
@@ -397,7 +397,7 @@
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L390" href="#L390">390</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.privs.GrouperPrivilege#getGrouperApi()</em>
 <a class="jxr_linenumber" name="L391" href="#L391">391</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> getGrouperApi() {
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> getGrouperApi() {
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.getAttributeDef();
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>   }
 <a class="jxr_linenumber" name="L395" href="#L395">395</a> 
@@ -413,10 +413,10 @@
 <a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L406" href="#L406">406</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compareTo(Object o) {
 <a class="jxr_linenumber" name="L407" href="#L407">407</a>     <em class="jxr_comment">//note must compare to object or causes problems in sets with other privs</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>     <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong> || (!(o instanceof AttributeDefPrivilege))) {
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>     <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong> || (!(o instanceof <a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a>))) {
 <a class="jxr_linenumber" name="L409" href="#L409">409</a>       <strong class="jxr_keyword">return</strong> -1;
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>     }
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>     <a href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html">AttributeDefPrivilege</a> that = (AttributeDefPrivilege)o;
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     <a name="AttributeDefPrivilege<a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a>./edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a> that = (<a name="AttributeDefPrivilege" href="../../../../../edu/internet2/middleware/grouper/privs/AttributeDefPrivilege.html#AttributeDefPrivilege">AttributeDefPrivilege</a>)o;
 <a class="jxr_linenumber" name="L412" href="#L412">412</a>     
 <a class="jxr_linenumber" name="L413" href="#L413">413</a>     <em class="jxr_comment">//dont use source since might be down</em>
 <a class="jxr_linenumber" name="L414" href="#L414">414</a>     String thisSubjectId = <strong class="jxr_keyword">this</strong>.subj == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : <strong class="jxr_keyword">this</strong>.subj.getId();
@@ -440,7 +440,7 @@
 <a class="jxr_linenumber" name="L432" href="#L432">432</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">   * @see GrouperPrivilege#internalSetSubject(Subject)</em>
 <a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> internalSetSubject(Subject subject) {
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> internalSetSubject(<a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject) {
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>     <strong class="jxr_keyword">this</strong>.subj = subject;
 <a class="jxr_linenumber" name="L437" href="#L437">437</a>   }
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>   
@@ -452,6 +452,6 @@
 <a class="jxr_linenumber" name="L444" href="#L444">444</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

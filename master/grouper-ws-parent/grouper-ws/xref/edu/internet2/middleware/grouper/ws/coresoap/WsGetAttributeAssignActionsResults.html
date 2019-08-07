@@ -24,7 +24,7 @@
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * returned from the attribute assign actions query </em>
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * @author vsachdeva</em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignActionsResults.html">WsGetAttributeAssignActionsResults</a> <strong class="jxr_keyword">implements</strong> WsResponseBean, <a href="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html">ResultMetadataHolder</a> {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WsGetAttributeAssignActionsResults" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignActionsResults.html#WsGetAttributeAssignActionsResults">WsGetAttributeAssignActionsResults</a> <strong class="jxr_keyword">implements</strong> WsResponseBean, <a name="ResultMetadataHolder" href="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html#ResultMetadataHolder">ResultMetadataHolder</a> {
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">   * logger</em>
@@ -34,17 +34,17 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">   * has 0 to many tuples that match the query</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignActionTuple.html">WsAttributeAssignActionTuple</a>[] wsAttributeAssignActionTuples;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>    <strong class="jxr_keyword">private</strong> <a name="WsAttributeAssignActionTuple" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignActionTuple.html#WsAttributeAssignActionTuple">WsAttributeAssignActionTuple</a>[] wsAttributeAssignActionTuples;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  	 
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">   * has 0 to many attribute defs related to the names/ids/idIndices that match the query</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html">WsAttributeDef</a>[] wsAttributeDefs;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">private</strong> <a name="WsAttributeDef" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html#WsAttributeDef">WsAttributeDef</a>[] wsAttributeDefs;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">   * @return assign action tuples</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignActionTuple.html">WsAttributeAssignActionTuple</a>[] getWsAttributeAssignActionTuples() {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>    <strong class="jxr_keyword">public</strong> <a name="WsAttributeAssignActionTuple" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignActionTuple.html#WsAttributeAssignActionTuple">WsAttributeAssignActionTuple</a>[] getWsAttributeAssignActionTuples() {
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  	<strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsAttributeAssignActionTuples;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    }
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
@@ -52,14 +52,14 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">   * has 0 to many tuples that match the query</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">   * @param wsAttributeAssignActionTuples1</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsAttributeAssignActionTuples(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignActionTuple.html">WsAttributeAssignActionTuple</a>[] wsAttributeAssignActionTuples1) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsAttributeAssignActionTuples(<a name="WsAttributeAssignActionTuple" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignActionTuple.html#WsAttributeAssignActionTuple">WsAttributeAssignActionTuple</a>[] wsAttributeAssignActionTuples1) {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  	<strong class="jxr_keyword">this</strong>.wsAttributeAssignActionTuples = wsAttributeAssignActionTuples1;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>    }
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  	
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">   * @return 0 to many attribute definitions</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html">WsAttributeDef</a>[] getWsAttributeDefs() {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">public</strong> <a name="WsAttributeDef" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html#WsAttributeDef">WsAttributeDef</a>[] getWsAttributeDefs() {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  	<strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsAttributeDefs;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>    }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  
@@ -67,7 +67,7 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">   * has 0 to many attribute defs related to the names/ids/idIndices that match the query</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">   * @param wsAttributeDefs1</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsAttributeDefs(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html">WsAttributeDef</a>[] wsAttributeDefs1) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsAttributeDefs(<a name="WsAttributeDef" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html#WsAttributeDef">WsAttributeDef</a>[] wsAttributeDefs1) {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  	<strong class="jxr_keyword">this</strong>.wsAttributeDefs = wsAttributeDefs1;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>    }
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
@@ -78,7 +78,7 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   * WsGetMembersResultCode (with http status codes) are: SUCCESS(200),</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   * EXCEPTION(500), INVALID_QUERY(400)</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">  */</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignActionsResults.html">WsGetAttributeAssignActionsResultsCode</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/WsResultCode.html">WsResultCode</a> {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum WsGetAttributeAssignActionsResultsCode <strong class="jxr_keyword">implements</strong> <a name="WsResultCode" href="../../../../../../edu/internet2/middleware/grouper/ws/WsResultCode.html#WsResultCode">WsResultCode</a> {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  	<em class="jxr_javadoccomment">/** found the attributeAssignActions (lite status code 200) (success: T) */</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      SUCCESS(200),
@@ -114,7 +114,7 @@
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">	 * @param theHttpStatusCode</em>
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">	 *            the code</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">	 */</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a> 	<strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignActionsResults.html">WsGetAttributeAssignActionsResultsCode</a>(<strong class="jxr_keyword">int</strong> theHttpStatusCode) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> 	<strong class="jxr_keyword">private</strong> WsGetAttributeAssignActionsResultsCode(<strong class="jxr_keyword">int</strong> theHttpStatusCode) {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> 		<strong class="jxr_keyword">this</strong>.httpStatusCode = theHttpStatusCode;
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> 	}
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> 
@@ -147,7 +147,7 @@
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">   * @param getAttributeAssignmentsResultCode</em>
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> assignResultCode(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignActionsResults.html">WsGetAttributeAssignActionsResultsCode</a> getAttributeAssignmentsResultCode) {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> assignResultCode(WsGetAttributeAssignActionsResultsCode getAttributeAssignmentsResultCode) {
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> 	<strong class="jxr_keyword">this</strong>.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>   }
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> 
@@ -161,7 +161,7 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> assignResultCodeException( WsGetAttributeAssignActionsResultsCode wsGetAttributeAssignActionsResultsCodeOverride,
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> 	String theError, Exception e) {
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> 
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> 	<strong class="jxr_keyword">if</strong> (e instanceof WsInvalidQueryException) {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> 	<strong class="jxr_keyword">if</strong> (e instanceof <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a>) {
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> 		wsGetAttributeAssignActionsResultsCodeOverride = GrouperUtil
 <a class="jxr_linenumber" name="L158" href="#L158">158</a> 				.defaultIfNull(wsGetAttributeAssignActionsResultsCodeOverride,
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> 						WsGetAttributeAssignActionsResultsCode.INVALID_QUERY);
@@ -187,27 +187,27 @@
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">   * metadata about the result</em>
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html">WsResultMeta</a> resultMetadata = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html">WsResultMeta</a>();
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>   <strong class="jxr_keyword">private</strong> <a name="WsResultMeta" href="../../../../../../edu/internet2/middleware<a name="WsResultMeta" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html#WsResultMeta">WsResultMeta</a>coresoap/WsResultMeta.html#WsResultMeta">WsResultMeta</a> resultMetadata = <strong class="jxr_keyword">new</strong> <a name="WsResultMeta" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html#WsResultMeta">WsResultMeta</a>();
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> 
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">   * @return the resultMetadata</em>
 <a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>   @Override
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html">WsResultMeta</a> getResultMetadata() {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>   <strong class="jxr_keyword">public</strong> <a name="WsResultMeta" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html#WsResultMeta">WsResultMeta</a> getResultMetadata() {
 <a class="jxr_linenumber" name="L189" href="#L189">189</a> 	<strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.resultMetadata;
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>   }
 <a class="jxr_linenumber" name="L191" href="#L191">191</a> 
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">   * metadata about the result</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">  */</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html">WsResponseMeta</a> responseMetadata = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html">WsResponseMeta</a>();
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>   <strong class="jxr_keyword">private</strong> <a name="WsResponseMeta" href="../../../../../../edu/internet2/middleware/g<a name="WsResponseMeta" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html#WsResponseMeta">WsResponseMeta</a>soap/WsResponseMeta.html#WsResponseMeta">WsResponseMeta</a> responseMetadata = <strong class="jxr_keyword">new</strong> <a name="WsResponseMeta" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html#WsResponseMeta">WsResponseMeta</a>();
 <a class="jxr_linenumber" name="L196" href="#L196">196</a> 
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">  * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()</em>
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">  * @return the response metadata</em>
 <a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">  */</em>
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>   @Override
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html">WsResponseMeta</a> getResponseMetadata() {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>   <strong class="jxr_keyword">public</strong> <a name="WsResponseMeta" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html#WsResponseMeta">WsResponseMeta</a> getResponseMetadata() {
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> 	<strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.responseMetadata;
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>   }
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> 
@@ -215,7 +215,7 @@
 <a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">   * @param resultMetadata1</em>
 <a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">   *            the resultMetadata to set</em>
 <a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">  */</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setResultMetadata(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html">WsResultMeta</a> resultMetadata1) {
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setResultMetadata(<a name="WsResultMeta" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html#WsResultMeta">WsResultMeta</a> resultMetadata1) {
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> 	<strong class="jxr_keyword">this</strong>.resultMetadata = resultMetadata1;
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>   }
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> 
@@ -223,13 +223,13 @@
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">   * @param responseMetadata1</em>
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">   *            the responseMetadata to set</em>
 <a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">  */</em>
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setResponseMetadata(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html">WsResponseMeta</a> responseMetadata1) {
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setResponseMetadata(<a name="WsResponseMeta" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html#WsResponseMeta">WsResponseMeta</a> responseMetadata1) {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> 	<strong class="jxr_keyword">this</strong>.responseMetadata = responseMetadata1;
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>   }
 <a class="jxr_linenumber" name="L221" href="#L221">221</a> 
 <a class="jxr_linenumber" name="L222" href="#L222">222</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

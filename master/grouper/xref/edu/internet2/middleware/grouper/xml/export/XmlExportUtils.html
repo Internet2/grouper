@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -76,7 +76,7 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment"> * utils about xml export</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportUtils.html">XmlExportUtils</a> {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XmlExportUtils" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportUtils.html#XmlExportUtils">XmlExportUtils</a> {
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">   * </em>
@@ -166,17 +166,17 @@
 <a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">   * @param xmlImportable</em>
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">   * @param xmlImportMain</em>
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> syncImportable(<a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html">XmlImportable</a> xmlImportable, <a href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html">XmlImportMain</a> xmlImportMain) {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> syncImportable(<a name="XmlImportable" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html#XmlImportable">XmlImportable</a> xmlImportable, <a name="XmlImportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html#XmlImportMain">XmlImportMain</a> xmlImportMain) {
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>     GrouperUtil.substituteStrings(xmlImportMain.getUuidTranslation(), xmlImportable);
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>     
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html">XmlImportable</a> dbObject = xmlImportable.xmlRetrieveByIdOrKey();
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <a name="XmlImportable" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html#XmlImportable">XmlImportable</a> dbObject = xmlImportable.xmlRetrieveByIdOrKey();
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">boolean</strong> insert = false;
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">boolean</strong> update = false;
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>     <em class="jxr_comment">//if not in db</em>
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     <strong class="jxr_keyword">if</strong> (dbObject == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>       dbObject = (XmlImportable)xmlImportable.xmlSaveBusinessProperties(dbObject);
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>       dbObject = (<a name="XmlImportable" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html#XmlImportable">XmlImportable</a>)xmlImportable.xmlSaveBusinessProperties(dbObject);
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>       insert = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>       <em class="jxr_comment">//db is there, see if different</em>
@@ -188,7 +188,7 @@
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>       <strong class="jxr_keyword">if</strong> (xmlImportable.xmlDifferentBusinessProperties(dbObject)) {
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>         update = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         xmlImportable.xmlCopyBusinessPropertiesToExisting(dbObject);
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         dbObject = (XmlImportable)xmlImportable.xmlSaveBusinessProperties(dbObject);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         dbObject = (<a name="XmlImportable" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html#XmlImportable">XmlImportable</a>)xmlImportable.xmlSaveBusinessProperties(dbObject);
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>       }
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>     <em class="jxr_comment">//see if update properties need work</em>
@@ -265,7 +265,7 @@
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringType(Writer writer, String typeId, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>       writer.write(<span class="jxr_string">"type: "</span>);
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>       <a href="../../../../../../edu/internet2/middleware/grouper/GroupType.html">GroupType</a> groupType = GroupTypeFinder.findByUuid(typeId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>       <a name="GroupType" href="../../../../../../edu/internet2/middleware/grouper/GroupType.html#GroupType">GroupType</a> groupType = GroupTypeFinder.findByUuid(typeId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>       writer.write(groupType.getName());
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>       <strong class="jxr_keyword">if</strong> (includeComma) {
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>         writer.write(<span class="jxr_string">", "</span>);
@@ -284,7 +284,7 @@
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringField(Writer writer, String fieldId, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>       writer.write(<span class="jxr_string">"field: "</span>);
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>       <a href="../../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field = FieldFinder.findById(fieldId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>       <a name="Field" href="../../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field = FieldFinder.findById(fieldId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>       writer.write(field.getName());
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>       <strong class="jxr_keyword">if</strong> (includeComma) {
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>         writer.write(<span class="jxr_string">", "</span>);
@@ -301,7 +301,7 @@
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringMember(String prefix, Writer writer, String memberId, <strong class="jxr_keyword">boolean</strong> includeComma) {
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <a href="../../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <a name="Member" href="../../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>     toStringMember(prefix, writer, member, includeComma);
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>   }
 <a class="jxr_linenumber" name="L299" href="#L299">299</a> 
@@ -311,7 +311,7 @@
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">   * @param member</em>
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringMember(String prefix, Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringMember(String prefix, Writer writer, <a name="Member" href="../../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(prefix)) {
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>         writer.write(prefix);
@@ -322,7 +322,7 @@
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>       writer.write(member.getSubjectSourceId());
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>       writer.write(<span class="jxr_string">" - "</span>);
 <a class="jxr_linenumber" name="L316" href="#L316">316</a>       <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"g:gsa"</span>.equals(member.getSubjectSourceId())) {
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <a href="../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), member.getSubjectIdDb(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <a name="Group" href="../../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), member.getSubjectIdDb(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>         String groupName = group == <strong class="jxr_keyword">null</strong> ? member.getSubjectIdDb() : group.getName();
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>         writer.write(groupName);
 <a class="jxr_linenumber" name="L320" href="#L320">320</a>       } <strong class="jxr_keyword">else</strong> {
@@ -343,7 +343,7 @@
 <a class="jxr_linenumber" name="L335" href="#L335">335</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L337" href="#L337">337</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeDef(String prefix, Writer writer, String attributeDefId, <strong class="jxr_keyword">boolean</strong> includeComma) {
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>     <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef = AttributeDefFinder.findById(attributeDefId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>     <a name="AttributeDef" href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef = AttributeDefFinder.findById(attributeDefId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>     toStringAttributeDef(prefix, writer, attributeDef, includeComma);
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>   }
 <a class="jxr_linenumber" name="L341" href="#L341">341</a> 
@@ -353,7 +353,7 @@
 <a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">   * @param composite</em>
 <a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">   * @param includeComma</em>
 <a class="jxr_linenumber" name="L347" href="#L347">347</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringComposite(Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/Composite.html">Composite</a> composite, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringComposite(Writer writer, <a name="Composite" href="../../../../../../edu/internet2/middleware/grouper/Composite.html#Composite">Composite</a> composite, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>     XmlExportUtils.toStringGroup(<span class="jxr_string">"owner"</span>, writer, composite.getFactorOwnerUuid(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>     XmlExportUtils.toStringGroup(<span class="jxr_string">"left"</span>, writer, composite.getLeftFactorUuid(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>     XmlExportUtils.toStringGroup(<span class="jxr_string">"right"</span>, writer, composite.getRightFactorUuid(), includeComma);
@@ -366,7 +366,7 @@
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">   * @param groupTypeTuple</em>
 <a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">   * @param includeComma</em>
 <a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringGroupTypeTuple(Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/GroupTypeTuple.html">GroupTypeTuple</a> groupTypeTuple, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringGroupTypeTuple(Writer writer, <a name="GroupTypeTuple" href="../../../../../../edu/internet2/middleware/grouper/GroupTypeTuple.html#GroupTypeTuple">GroupTypeTuple</a> groupTypeTuple, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>     XmlExportUtils.toStringGroup(<strong class="jxr_keyword">null</strong>, writer, groupTypeTuple.getGroupUuid(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>     XmlExportUtils.toStringType(writer, groupTypeTuple.getTypeUuid(), includeComma);
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>   }
@@ -377,7 +377,7 @@
 <a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_javadoccomment">   * @param attributeDef</em>
 <a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeDef(String prefix, Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeDef(String prefix, Writer writer, <a name="AttributeDef" href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(prefix)) {
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>         writer.write(prefix);
@@ -401,7 +401,7 @@
 <a class="jxr_linenumber" name="L393" href="#L393">393</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L394" href="#L394">394</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeDefName(String prefix, Writer writer, String attributeDefNameId, <strong class="jxr_keyword">boolean</strong> includeComma) {
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <a name="AttributeDefName" href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L397" href="#L397">397</a>     toStringAttributeDefName(prefix, writer, attributeDefName, includeComma);
 <a class="jxr_linenumber" name="L398" href="#L398">398</a>   }
 <a class="jxr_linenumber" name="L399" href="#L399">399</a>   
@@ -412,7 +412,7 @@
 <a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">   * @param roleSet</em>
 <a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">   * @param includeComma</em>
 <a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringRoleSet(Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> roleSet, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringRoleSet(Writer writer, <a name="RoleSet" href="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_comment">//    try {</em>
 <a class="jxr_linenumber" name="L409" href="#L409">409</a> 
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>     XmlExportUtils.toStringRole(<span class="jxr_string">"ifHas"</span>, writer, roleSet.getIfHasRoleId(), <strong class="jxr_keyword">true</strong>);
@@ -429,7 +429,7 @@
 <a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">   * @param attributeDefNameSet</em>
 <a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">   * @param includeComma</em>
 <a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeDefNameSet(Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefNameSet.html">AttributeDefNameSet</a> attributeDefNameSet, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeDefNameSet(Writer writer, <a name="AttributeDefNameSet" href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefNameSet.html#AttributeDefNameSet">AttributeDefNameSet</a> attributeDefNameSet, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_comment">//    try {</em>
 <a class="jxr_linenumber" name="L426" href="#L426">426</a> 
 <a class="jxr_linenumber" name="L427" href="#L427">427</a>     XmlExportUtils.toStringAttributeDefName(<span class="jxr_string">"ifHas"</span>, writer, attributeDefNameSet.getIfHasAttributeDefNameId(), <strong class="jxr_keyword">true</strong>);
@@ -446,7 +446,7 @@
 <a class="jxr_linenumber" name="L438" href="#L438">438</a> <em class="jxr_javadoccomment">   * @param attributeDefName</em>
 <a class="jxr_linenumber" name="L439" href="#L439">439</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L440" href="#L440">440</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeDefName(String prefix, Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefName, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeDefName(String prefix, Writer writer, <a name="AttributeDefName" href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefName, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L443" href="#L443">443</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(prefix)) {
 <a class="jxr_linenumber" name="L444" href="#L444">444</a>         writer.write(prefix);
@@ -477,7 +477,7 @@
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>       } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>         writer.write(<span class="jxr_string">"auditType: "</span>);
 <a class="jxr_linenumber" name="L471" href="#L471">471</a>       }
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>       <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a> auditType = AuditTypeFinder.find(auditTypeId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>       <a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a> auditType = AuditTypeFinder.find(auditTypeId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>       writer.write(auditType.getAuditCategory());
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>       writer.write(<span class="jxr_string">" - "</span>);
 <a class="jxr_linenumber" name="L475" href="#L475">475</a>       writer.write(auditType.getActionName());
@@ -503,7 +503,7 @@
 <a class="jxr_linenumber" name="L495" href="#L495">495</a>       } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L496" href="#L496">496</a>         writer.write(<span class="jxr_string">"stem: "</span>);
 <a class="jxr_linenumber" name="L497" href="#L497">497</a>       }
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>       <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>       <a name="Stem" href="../../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L499" href="#L499">499</a>       writer.write(stem.getName());
 <a class="jxr_linenumber" name="L500" href="#L500">500</a>       <strong class="jxr_keyword">if</strong> (includeComma) {
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>         writer.write(<span class="jxr_string">", "</span>);
@@ -527,7 +527,7 @@
 <a class="jxr_linenumber" name="L519" href="#L519">519</a>       } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L520" href="#L520">520</a>         writer.write(<span class="jxr_string">"group: "</span>);
 <a class="jxr_linenumber" name="L521" href="#L521">521</a>       }
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>       <a href="../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>       <a name="Group" href="../../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L523" href="#L523">523</a>       writer.write(group.getName());
 <a class="jxr_linenumber" name="L524" href="#L524">524</a>       <strong class="jxr_keyword">if</strong> (includeComma) {
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>         writer.write(<span class="jxr_string">", "</span>);
@@ -544,7 +544,7 @@
 <a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L537" href="#L537">537</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeAssign(String prefix, Writer writer, String attributeAssignId, <strong class="jxr_keyword">boolean</strong> includeComma) {
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>     toStringAttributeAssign(prefix, writer, attributeAssign, includeComma);
 <a class="jxr_linenumber" name="L541" href="#L541">541</a>   }
 <a class="jxr_linenumber" name="L542" href="#L542">542</a> 
@@ -554,7 +554,7 @@
 <a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">   * @param attributeAssign</em>
 <a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L548" href="#L548">548</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeAssign(String prefix, Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> attributeAssign, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeAssign(String prefix, Writer writer, <a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> attributeAssign, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L550" href="#L550">550</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L551" href="#L551">551</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(prefix)) {
 <a class="jxr_linenumber" name="L552" href="#L552">552</a>         writer.write(prefix);
@@ -599,7 +599,7 @@
 <a class="jxr_linenumber" name="L591" href="#L591">591</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L592" href="#L592">592</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L593" href="#L593">593</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringMembership(String prefix, Writer writer, String membershipId, <strong class="jxr_keyword">boolean</strong> includeComma) {
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>     <a href="../../../../../../edu/internet2/middleware/grouper/Membership.html">Membership</a> membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, <strong class="jxr_keyword">true</strong>, false);
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>     <a name="Membership" href="../../../../../../edu/internet2/middleware/grouper/Membership.html#Membership">Membership</a> membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, <strong class="jxr_keyword">true</strong>, false);
 <a class="jxr_linenumber" name="L595" href="#L595">595</a>     toStringMembership(prefix, writer, membership, includeComma);
 <a class="jxr_linenumber" name="L596" href="#L596">596</a>   }
 <a class="jxr_linenumber" name="L597" href="#L597">597</a> 
@@ -609,7 +609,7 @@
 <a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_javadoccomment">   * @param attributeAssignValue</em>
 <a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_javadoccomment">   * @param includeComma</em>
 <a class="jxr_linenumber" name="L603" href="#L603">603</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeAssignValue(Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html">AttributeAssignValue</a> attributeAssignValue, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeAssignValue(Writer writer, <a name="AttributeAssignValue" href="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html#AttributeAssignValue">AttributeAssignValue</a> attributeAssignValue, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L605" href="#L605">605</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L606" href="#L606">606</a>       writer.write(<span class="jxr_string">"value: "</span>);
 <a class="jxr_linenumber" name="L607" href="#L607">607</a>       
@@ -641,15 +641,15 @@
 <a class="jxr_linenumber" name="L633" href="#L633">633</a> <em class="jxr_javadoccomment">   * @param attributeAssignActionSet</em>
 <a class="jxr_linenumber" name="L634" href="#L634">634</a> <em class="jxr_javadoccomment">   * @param includeComma</em>
 <a class="jxr_linenumber" name="L635" href="#L635">635</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L636" href="#L636">636</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeAssignActionSet(Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html">AttributeAssignActionSet</a> attributeAssignActionSet, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L636" href="#L636">636</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeAssignActionSet(Writer writer, <a name="AttributeAssignActionSet" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html#AttributeAssignActionSet">AttributeAssignActionSet</a> attributeAssignActionSet, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L637" href="#L637">637</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L638" href="#L638">638</a>       <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> attributeAssignAction = <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportUtils.html">XmlExportUtils</a>
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>       <a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction = <a name="XmlExportUtils" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportUtils.html#XmlExportUtils">XmlExportUtils</a>
 <a class="jxr_linenumber" name="L639" href="#L639">639</a>         .toStringAttributeAssignAction(<span class="jxr_string">"ifHas"</span>, writer, 
 <a class="jxr_linenumber" name="L640" href="#L640">640</a>             attributeAssignActionSet.getIfHasAttrAssignActionId(), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L641" href="#L641">641</a>       <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportUtils.html">XmlExportUtils</a>
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>       <a name="XmlExportUtils" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportUtils.html#XmlExportUtils">XmlExportUtils</a>
 <a class="jxr_linenumber" name="L642" href="#L642">642</a>         .toStringAttributeAssignAction(<span class="jxr_string">"thenHas"</span>, writer, 
 <a class="jxr_linenumber" name="L643" href="#L643">643</a>           attributeAssignActionSet.getThenHasAttrAssignActionId(), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>       <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportUtils.html">XmlExportUtils</a>
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>       <a name="XmlExportUtils" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportUtils.html#XmlExportUtils">XmlExportUtils</a>
 <a class="jxr_linenumber" name="L645" href="#L645">645</a>         .toStringAttributeDef(<strong class="jxr_keyword">null</strong>, writer, 
 <a class="jxr_linenumber" name="L646" href="#L646">646</a>           attributeAssignAction.getAttributeDefId(), false);
 <a class="jxr_linenumber" name="L647" href="#L647">647</a> 
@@ -667,7 +667,7 @@
 <a class="jxr_linenumber" name="L659" href="#L659">659</a> <em class="jxr_javadoccomment">   * @param membership</em>
 <a class="jxr_linenumber" name="L660" href="#L660">660</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L662" href="#L662">662</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringMembership(String prefix, Writer writer, <a href="../../../../../../edu/internet2/middleware/grouper/Membership.html">Membership</a> membership, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L662" href="#L662">662</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringMembership(String prefix, Writer writer, <a name="Membership" href="../../../../../../edu/internet2/middleware/grouper/Membership.html#Membership">Membership</a> membership, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L663" href="#L663">663</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L664" href="#L664">664</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(prefix)) {
 <a class="jxr_linenumber" name="L665" href="#L665">665</a>         writer.write(prefix);
@@ -706,9 +706,9 @@
 <a class="jxr_linenumber" name="L698" href="#L698">698</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L699" href="#L699">699</a> <em class="jxr_javadoccomment">   * @return the action</em>
 <a class="jxr_linenumber" name="L700" href="#L700">700</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L701" href="#L701">701</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> toStringAttributeAssignAction(String prefix, Writer writer, 
+<a class="jxr_linenumber" name="L701" href="#L701">701</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> toStringAttributeAssignAction(String prefix, Writer writer, 
 <a class="jxr_linenumber" name="L702" href="#L702">702</a>       String attributeAssignActionId, <strong class="jxr_keyword">boolean</strong> includeComma) {
-<a class="jxr_linenumber" name="L703" href="#L703">703</a>     <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> attributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction()
+<a class="jxr_linenumber" name="L703" href="#L703">703</a>     <a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction()
 <a class="jxr_linenumber" name="L704" href="#L704">704</a>       .findById(attributeAssignActionId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L705" href="#L705">705</a>     toStringAttributeAssignAction(prefix, writer, attributeAssignAction, includeComma);
 <a class="jxr_linenumber" name="L706" href="#L706">706</a>     <strong class="jxr_keyword">return</strong> attributeAssignAction;
@@ -721,7 +721,7 @@
 <a class="jxr_linenumber" name="L713" href="#L713">713</a> <em class="jxr_javadoccomment">   * @param includeComma </em>
 <a class="jxr_linenumber" name="L714" href="#L714">714</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L715" href="#L715">715</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> toStringAttributeAssignAction(String prefix, Writer writer, 
-<a class="jxr_linenumber" name="L716" href="#L716">716</a>       <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> attributeAssignAction, <strong class="jxr_keyword">boolean</strong> includeComma) {
+<a class="jxr_linenumber" name="L716" href="#L716">716</a>       <a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction, <strong class="jxr_keyword">boolean</strong> includeComma) {
 <a class="jxr_linenumber" name="L717" href="#L717">717</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L718" href="#L718">718</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(prefix)) {
 <a class="jxr_linenumber" name="L719" href="#L719">719</a>         writer.write(prefix);
@@ -752,7 +752,7 @@
 <a class="jxr_linenumber" name="L744" href="#L744">744</a>       } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L745" href="#L745">745</a>         writer.write(<span class="jxr_string">"role: "</span>);
 <a class="jxr_linenumber" name="L746" href="#L746">746</a>       }
-<a class="jxr_linenumber" name="L747" href="#L747">747</a>       <a href="../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), roleId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L747" href="#L747">747</a>       <a name="Group" href="../../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), roleId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L748" href="#L748">748</a>       writer.write(group.getName());
 <a class="jxr_linenumber" name="L749" href="#L749">749</a>       <strong class="jxr_keyword">if</strong> (includeComma) {
 <a class="jxr_linenumber" name="L750" href="#L750">750</a>         writer.write(<span class="jxr_string">", "</span>);
@@ -776,17 +776,17 @@
 <a class="jxr_linenumber" name="L768" href="#L768">768</a> <em class="jxr_javadoccomment">   * @param xmlImportableMultiple</em>
 <a class="jxr_linenumber" name="L769" href="#L769">769</a> <em class="jxr_javadoccomment">   * @param xmlImportMain</em>
 <a class="jxr_linenumber" name="L770" href="#L770">770</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L771" href="#L771">771</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> syncImportableMultiple(<a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html">XmlImportableMultiple</a> xmlImportableMultiple, <a href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html">XmlImportMain</a> xmlImportMain) {
+<a class="jxr_linenumber" name="L771" href="#L771">771</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> syncImportableMultiple(<a name="XmlImportableMultiple" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html#XmlImportableMultiple">XmlImportableMultiple</a> xmlImportableMultiple, <a name="XmlImportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html#XmlImportMain">XmlImportMain</a> xmlImportMain) {
 <a class="jxr_linenumber" name="L772" href="#L772">772</a>     
 <a class="jxr_linenumber" name="L773" href="#L773">773</a>     GrouperUtil.substituteStrings(xmlImportMain.getUuidTranslation(), xmlImportableMultiple);
 <a class="jxr_linenumber" name="L774" href="#L774">774</a> 
-<a class="jxr_linenumber" name="L775" href="#L775">775</a>     <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html">XmlImportableMultiple</a> dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlRetrieveByIdOrKey(xmlImportMain.getIdsToIgnore());
+<a class="jxr_linenumber" name="L775" href="#L775">775</a>     <a name="XmlImportableMultiple" hr<a name="XmlImportableMultiple" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html#XmlImportableMultiple">XmlImportableMultiple</a>/edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html#XmlImportableMultiple">XmlImportableMultiple</a> dbObject = (<a name="XmlImportableMultiple" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html#XmlImportableMultiple">XmlImportableMultiple</a>)xmlImportableMultiple.xmlRetrieveByIdOrKey(xmlImportMain.getIdsToIgnore());
 <a class="jxr_linenumber" name="L776" href="#L776">776</a>     <strong class="jxr_keyword">boolean</strong> insert = false;
 <a class="jxr_linenumber" name="L777" href="#L777">777</a>     <strong class="jxr_keyword">boolean</strong> update = false;
 <a class="jxr_linenumber" name="L778" href="#L778">778</a> 
 <a class="jxr_linenumber" name="L779" href="#L779">779</a>     <em class="jxr_comment">//if not in db</em>
 <a class="jxr_linenumber" name="L780" href="#L780">780</a>     <strong class="jxr_keyword">if</strong> (dbObject == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L781" href="#L781">781</a>       dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
+<a class="jxr_linenumber" name="L781" href="#L781">781</a>       dbObject = (<a name="XmlImportableMultiple" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html#XmlImportableMultiple">XmlImportableMultiple</a>)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
 <a class="jxr_linenumber" name="L782" href="#L782">782</a>       insert = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L783" href="#L783">783</a>     } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L784" href="#L784">784</a>       <em class="jxr_comment">//db is there, see if different</em>
@@ -798,7 +798,7 @@
 <a class="jxr_linenumber" name="L790" href="#L790">790</a>       <strong class="jxr_keyword">if</strong> (xmlImportableMultiple.xmlDifferentBusinessProperties(dbObject)) {
 <a class="jxr_linenumber" name="L791" href="#L791">791</a>         update = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L792" href="#L792">792</a>         xmlImportableMultiple.xmlCopyBusinessPropertiesToExisting(dbObject);
-<a class="jxr_linenumber" name="L793" href="#L793">793</a>         dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
+<a class="jxr_linenumber" name="L793" href="#L793">793</a>         dbObject = (<a name="XmlImportableMultiple" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html#XmlImportableMultiple">XmlImportableMultiple</a>)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
 <a class="jxr_linenumber" name="L794" href="#L794">794</a>       }
 <a class="jxr_linenumber" name="L795" href="#L795">795</a>     }
 <a class="jxr_linenumber" name="L796" href="#L796">796</a>     <em class="jxr_comment">//see if update properties need work</em>
@@ -825,6 +825,6 @@
 <a class="jxr_linenumber" name="L817" href="#L817">817</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

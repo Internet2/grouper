@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment"> you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment"> You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment"> <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment"> <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment"> Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment"> distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment"> * @version $Id: XmlImporter.java,v 1.24.2.2 2009-12-18 21:03:44 tzeller Exp $</em>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment"> * @since   1.0</em>
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html">XmlImporter</a> {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XmlImporter" href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html#XmlImporter">XmlImporter</a> {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> 
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>   <em class="jxr_comment">// PRIVATE CLASS CONSTANTS //  </em>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String CF            = <span class="jxr_string">"import.properties"</span>;
@@ -158,7 +158,7 @@
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>   <strong class="jxr_keyword">private</strong> List            membershipLists = <strong class="jxr_keyword">new</strong> ArrayList();
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>   <strong class="jxr_keyword">private</strong> List            namingPrivLists = <strong class="jxr_keyword">new</strong> ArrayList();
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>   <strong class="jxr_keyword">private</strong> Properties      options         = <strong class="jxr_keyword">new</strong> Properties();
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a>  s;
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>   <strong class="jxr_keyword">private</strong> <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a>  s;
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong>         updateOnly      = false;
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong>         ignoreInternal  = false;
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>   
@@ -232,13 +232,13 @@
 <a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">   * @param   userOptions User-specified configuration parameters.</em>
 <a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">   * @since   1.1.0</em>
 <a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html">XmlImporter</a>(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> s, Properties userOptions) 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>   <strong class="jxr_keyword">public</strong> <a name="XmlImporter" href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html#XmlImporter">XmlImporter</a>(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> s, Properties userOptions) 
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>   {
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>       <strong class="jxr_keyword">this</strong>.options  = XmlUtils.internal_getSystemProperties(LOG, CF);
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>     }
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">catch</strong> (IOException eIO) {
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eIO.getMessage(), eIO);
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eIO.getMessage(), eIO);
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>     }
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">this</strong>.options.putAll(userOptions); 
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">this</strong>.s = s;
@@ -281,19 +281,19 @@
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>     }
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>     GrouperStartup.runFromMain = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>     GrouperStartup.startup();
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html">XmlImporter</a>[] importer = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html">XmlImporter</a>[1];
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">final</strong> <a name="XmlImporter" href="../../../../../edu/internet2/middlewar<a name="XmlImporter" href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html#XmlImporter">XmlImporter</a>ml/XmlImporter.html#XmlImporter">XmlImporter</a>[] importer = <strong class="jxr_keyword">new</strong> <a name="XmlImporter" href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html#XmlImporter">XmlImporter</a>[1];
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>     
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>     GrouperSession.startRootSession();
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>     
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>     HibernateSession.callbackHibernateSession(
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>         GrouperTransactionType.NONE, AuditControl.WILL_AUDIT,
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">new</strong> <a name="HibernateHandler" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html#HibernateHandler">HibernateHandler</a>() {
 <a class="jxr_linenumber" name="L283" href="#L283">283</a> 
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>           <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>               <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>           <strong class="jxr_keyword">public</strong> Object callback(<a name="HibernateHandlerBean" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html#HibernateHandlerBean">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>               <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>             <strong class="jxr_keyword">try</strong> { 
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>               
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>               importer[0]  = <strong class="jxr_keyword">new</strong> XmlImporter(
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>               importer[0]  = <strong class="jxr_keyword">new</strong> <a name="XmlImporter" href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html#XmlImporter">XmlImporter</a>(
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>                 GrouperSession.start(
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>                   SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), <strong class="jxr_keyword">true</strong> ), false
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>                 ),
@@ -301,11 +301,11 @@
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>               );
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>               _handleArgs(importer[0], rc);
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>               
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>               <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> staticSession = GrouperSession.staticGrouperSession(false);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>               <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> staticSession = GrouperSession.staticGrouperSession(false);
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>               <strong class="jxr_keyword">if</strong>(staticSession==<strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>             	  staticSession = GrouperSession.start(SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), <strong class="jxr_keyword">true</strong>));  
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>               }
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>               <a href="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html">AuditEntry</a> auditEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html">AuditEntry</a>(AuditTypeBuiltin.XML_IMPORT, <span class="jxr_string">"fileName"</span>, 
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>               <a name="AuditEntry" href="../../../../../edu/internet2/middlewar<a name="AuditEntry" href="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html#AuditEntry">AuditEntry</a>audit/AuditEntry.html#AuditEntry">AuditEntry</a> auditEntry = <strong class="jxr_keyword">new</strong> <a name="AuditEntry" href="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html#AuditEntry">AuditEntry</a>(AuditTypeBuiltin.XML_IMPORT, <span class="jxr_string">"fileName"</span>, 
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>                   rc.getProperty(XmlArgs.RC_IFILE), <span class="jxr_string">"subjectId"</span>, rc.getProperty(XmlArgs.RC_SUBJ));
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>               auditEntry.setDescription(<span class="jxr_string">"Imported xml: "</span> + GrouperUtil.toStringForLog(args));
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>               auditEntry.saveOrUpdate(<strong class="jxr_keyword">true</strong>);
@@ -321,7 +321,7 @@
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>                 <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>                   importer[0].s.stop();
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>                 }
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 <strong class="jxr_keyword">catch</strong> (SessionException eS) {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 <strong class="jxr_keyword">catch</strong> (<a name="SessionException" href="../../../../../edu/internet2/middleware/grouper/exception/SessionException.html#SessionException">SessionException</a> eS) {
 <a class="jxr_linenumber" name="L317" href="#L317">317</a>                   LOG.error(eS.getMessage());
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>                 }
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>               }
@@ -379,7 +379,7 @@
 <a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">   * @throws  IllegalArgumentException if &lt;tt&gt;doc&lt;/tt&gt; is null</em>
 <a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">   * @since   1.1.0</em>
 <a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> load(<a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ns, Document doc)
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> load(<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ns, Document doc)
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>     <strong class="jxr_keyword">throws</strong>  GrouperException,
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>             IllegalArgumentException
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>   {
@@ -429,11 +429,11 @@
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>   <em class="jxr_comment">// PRIVATE CLASS METHODS //</em>
 <a class="jxr_linenumber" name="L422" href="#L422">422</a> 
 <a class="jxr_linenumber" name="L423" href="#L423">423</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">private</strong> Subject _findSubject(String id, String idfr, String type) 
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">private</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> _findSubject(String id, String idfr, String type) 
 <a class="jxr_linenumber" name="L425" href="#L425">425</a>     <strong class="jxr_keyword">throws</strong>  SubjectNotFoundException,
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L427" href="#L427">427</a>   {
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(id);
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(id);
 <a class="jxr_linenumber" name="L429" href="#L429">429</a>     <strong class="jxr_keyword">if</strong> (v.isInvalid()) {
 <a class="jxr_linenumber" name="L430" href="#L430">430</a>       <strong class="jxr_keyword">if</strong> (type.equals(<span class="jxr_string">"group"</span>)) {
 <a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._isRelativeImport(idfr)) {
@@ -458,12 +458,12 @@
 <a class="jxr_linenumber" name="L450" href="#L450">450</a>   <em class="jxr_comment">// If tag does not exist 'nullable' determines if an Exception is thrown.</em>
 <a class="jxr_linenumber" name="L451" href="#L451">451</a>   <em class="jxr_comment">// @since   1.1.0</em>
 <a class="jxr_linenumber" name="L452" href="#L452">452</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String _getText(Element element) 
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">throws</strong>  GrouperException
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">throws</strong>  <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>
 <a class="jxr_linenumber" name="L454" href="#L454">454</a>   {
 <a class="jxr_linenumber" name="L455" href="#L455">455</a>     element.normalize();
 <a class="jxr_linenumber" name="L456" href="#L456">456</a>     NodeList nl = element.getChildNodes();
 <a class="jxr_linenumber" name="L457" href="#L457">457</a>     <strong class="jxr_keyword">if</strong> (nl.getLength() != 1) {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>       <strong class="jxr_keyword">throw</strong> (<strong class="jxr_keyword">new</strong> GrouperException(<span class="jxr_string">"Cannot process "</span> + element.getTagName() + <span class="jxr_string">" tag"</span>));
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>       <strong class="jxr_keyword">throw</strong> (<strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(<span class="jxr_string">"Cannot process "</span> + element.getTagName() + <span class="jxr_string">" tag"</span>));
 <a class="jxr_linenumber" name="L459" href="#L459">459</a>     }
 <a class="jxr_linenumber" name="L460" href="#L460">460</a>     Node n = nl.item(0);
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">if</strong> (
@@ -471,7 +471,7 @@
 <a class="jxr_linenumber" name="L463" href="#L463">463</a>       &amp;&amp; n.getNodeType() != Node.CDATA_SECTION_NODE
 <a class="jxr_linenumber" name="L464" href="#L464">464</a>     ) 
 <a class="jxr_linenumber" name="L465" href="#L465">465</a>     {
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>       <strong class="jxr_keyword">throw</strong> (<strong class="jxr_keyword">new</strong> GrouperException(<span class="jxr_string">"Cannot process "</span> + element.getTagName() + <span class="jxr_string">" tag"</span>));
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>       <strong class="jxr_keyword">throw</strong> (<strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(<span class="jxr_string">"Cannot process "</span> + element.getTagName() + <span class="jxr_string">" tag"</span>));
 <a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>     <strong class="jxr_keyword">return</strong> ((CharacterData) n).getData().trim();
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>   } <em class="jxr_comment">// private static String _getText(element)</em>
@@ -518,14 +518,14 @@
 <a class="jxr_linenumber" name="L510" href="#L510">510</a> <em class="jxr_javadoccomment">   * @param rc</em>
 <a class="jxr_linenumber" name="L511" href="#L511">511</a> <em class="jxr_javadoccomment">   * @throws GrouperException</em>
 <a class="jxr_linenumber" name="L512" href="#L512">512</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> _handleArgs(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html">XmlImporter</a> importer, <strong class="jxr_keyword">final</strong> Properties rc) 
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>     <strong class="jxr_keyword">throws</strong>  GrouperException {
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> _handleArgs(<strong class="jxr_keyword">final</strong> <a name="XmlImporter" href="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html#XmlImporter">XmlImporter</a> importer, <strong class="jxr_keyword">final</strong> Properties rc) 
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>     <strong class="jxr_keyword">throws</strong>  <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a> {
 <a class="jxr_linenumber" name="L515" href="#L515">515</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L516" href="#L516">516</a>       
 <a class="jxr_linenumber" name="L517" href="#L517">517</a>       String userAuditFilename = rc.getProperty(<span class="jxr_string">"userAuditFilename"</span>);
 <a class="jxr_linenumber" name="L518" href="#L518">518</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(userAuditFilename)) {
 <a class="jxr_linenumber" name="L519" href="#L519">519</a>         
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlUserAuditImport.html">XmlUserAuditImport</a>().readUserAudits(<strong class="jxr_keyword">new</strong> File(userAuditFilename));
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">new</strong> <a name="XmlUserAuditImport" href="../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlUserAuditImport.html#XmlUserAuditImport">XmlUserAuditImport</a>().readUserAudits(<strong class="jxr_keyword">new</strong> File(userAuditFilename));
 <a class="jxr_linenumber" name="L521" href="#L521">521</a>         
 <a class="jxr_linenumber" name="L522" href="#L522">522</a>       }
 <a class="jxr_linenumber" name="L523" href="#L523">523</a> 
@@ -536,10 +536,10 @@
 <a class="jxr_linenumber" name="L528" href="#L528">528</a>       }
 <a class="jxr_linenumber" name="L529" href="#L529">529</a> 
 <a class="jxr_linenumber" name="L530" href="#L530">530</a>       importer.ignoreInternal = Boolean.parseBoolean( rc.getProperty(XmlArgs.RC_IGNORE) );
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>       GrouperSession.callbackGrouperSession(importer.s, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html">GrouperSessionHandler</a>() {
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>       GrouperSession.callbackGrouperSession(importer.s, <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L532" href="#L532">532</a>   
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession)
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession)
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>             <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L535" href="#L535">535</a>           <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L536" href="#L536">536</a>             Document doc = XmlReader.getDocumentFromFile( rc.getProperty(XmlArgs.RC_IFILE) );
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>             <strong class="jxr_keyword">if</strong> (Boolean.parseBoolean( rc.getProperty(XmlArgs.RC_UPDATELIST) )) {
@@ -550,20 +550,20 @@
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>                 importer.load(doc);
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>               } 
 <a class="jxr_linenumber" name="L544" href="#L544">544</a>               <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>                 <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a>    ns    = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>                 <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a>    ns    = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L546" href="#L546">546</a>                 String  uuid  = rc.getProperty(XmlArgs.RC_UUID);
 <a class="jxr_linenumber" name="L547" href="#L547">547</a>                 String  name  = rc.getProperty(XmlArgs.RC_NAME);
 <a class="jxr_linenumber" name="L548" href="#L548">548</a>                 <strong class="jxr_keyword">if</strong>      (uuid != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L549" href="#L549">549</a>                   <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L550" href="#L550">550</a>                     ns = StemFinder.findByUuid(importer.s, uuid, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>                   } <strong class="jxr_keyword">catch</strong> (StemNotFoundException e) {
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>                   } <strong class="jxr_keyword">catch</strong> (<a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a> e) {
 <a class="jxr_linenumber" name="L552" href="#L552">552</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(E.NO_STEM_UUID + Quote.single(uuid));
 <a class="jxr_linenumber" name="L553" href="#L553">553</a>                   }
 <a class="jxr_linenumber" name="L554" href="#L554">554</a>                 } 
 <a class="jxr_linenumber" name="L555" href="#L555">555</a>                 <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (name != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L556" href="#L556">556</a>                   <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L557" href="#L557">557</a>                     ns = StemFinder.findByName(importer.s, name, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>                   } <strong class="jxr_keyword">catch</strong> (StemNotFoundException e) {
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>                   } <strong class="jxr_keyword">catch</strong> (<a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a> e) {
 <a class="jxr_linenumber" name="L559" href="#L559">559</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(E.NO_STEM_NAME + Quote.single(name));
 <a class="jxr_linenumber" name="L560" href="#L560">560</a>                   }
 <a class="jxr_linenumber" name="L561" href="#L561">561</a>                 }
@@ -573,16 +573,16 @@
 <a class="jxr_linenumber" name="L565" href="#L565">565</a>                 importer.load(ns, doc);
 <a class="jxr_linenumber" name="L566" href="#L566">566</a>               }
 <a class="jxr_linenumber" name="L567" href="#L567">567</a>             } 
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>           } <strong class="jxr_keyword">catch</strong> (GrouperException grouperException) {
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a>(grouperException);
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>           } <strong class="jxr_keyword">catch</strong> (<a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a> grouperException) {
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a>(grouperException);
 <a class="jxr_linenumber" name="L570" href="#L570">570</a>           }
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L572" href="#L572">572</a>         }
 <a class="jxr_linenumber" name="L573" href="#L573">573</a>         
 <a class="jxr_linenumber" name="L574" href="#L574">574</a>       });
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>     } <strong class="jxr_keyword">catch</strong> (GrouperSessionException grouperSessionException) {
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>       <strong class="jxr_keyword">if</strong> (grouperSessionException.getCause() instanceof GrouperException) {
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>         <strong class="jxr_keyword">throw</strong> (GrouperException)grouperSessionException.getCause();
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>     } <strong class="jxr_keyword">catch</strong> (<a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> grouperSessionException) {
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>       <strong class="jxr_keyword">if</strong> (grouperSessionException.getCause() instanceof <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>) {
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>         <strong class="jxr_keyword">throw</strong> (<a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>)grouperSessionException.getCause();
 <a class="jxr_linenumber" name="L578" href="#L578">578</a>       }
 <a class="jxr_linenumber" name="L579" href="#L579">579</a>       <strong class="jxr_keyword">throw</strong> grouperSessionException;
 <a class="jxr_linenumber" name="L580" href="#L580">580</a>     }
@@ -609,7 +609,7 @@
 <a class="jxr_linenumber" name="L601" href="#L601">601</a> 
 <a class="jxr_linenumber" name="L602" href="#L602">602</a>   <em class="jxr_comment">// @since   1.1.0</em>
 <a class="jxr_linenumber" name="L603" href="#L603">603</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _accumulatePrivs(Element e, String stem, String type)
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>     <strong class="jxr_keyword">throws</strong>  GrouperException
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>     <strong class="jxr_keyword">throws</strong>  <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>
 <a class="jxr_linenumber" name="L605" href="#L605">605</a>   {
 <a class="jxr_linenumber" name="L606" href="#L606">606</a>     Collection  privileges  = <strong class="jxr_keyword">this</strong>._getImmediateElements(e, <span class="jxr_string">"privileges"</span>);
 <a class="jxr_linenumber" name="L607" href="#L607">607</a>     Iterator    it          = privileges.iterator();
@@ -649,7 +649,7 @@
 <a class="jxr_linenumber" name="L641" href="#L641">641</a>         name = U.constructName(stem, name);
 <a class="jxr_linenumber" name="L642" href="#L642">642</a>       }
 <a class="jxr_linenumber" name="L643" href="#L643">643</a>     }
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>     <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(importRoot);
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>     <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(importRoot);
 <a class="jxr_linenumber" name="L645" href="#L645">645</a>     <strong class="jxr_keyword">if</strong> (
 <a class="jxr_linenumber" name="L646" href="#L646">646</a>       v.isValid() &amp;&amp; <strong class="jxr_keyword">this</strong>.importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
 <a class="jxr_linenumber" name="L647" href="#L647">647</a>     ) 
@@ -704,7 +704,7 @@
 <a class="jxr_linenumber" name="L696" href="#L696">696</a> 
 <a class="jxr_linenumber" name="L697" href="#L697">697</a>   <em class="jxr_comment">// @since   1.1.0</em>
 <a class="jxr_linenumber" name="L698" href="#L698">698</a>   <strong class="jxr_keyword">private</strong> Properties _getImportOptionsFromXml() 
-<a class="jxr_linenumber" name="L699" href="#L699">699</a>     <strong class="jxr_keyword">throws</strong>  GrouperException
+<a class="jxr_linenumber" name="L699" href="#L699">699</a>     <strong class="jxr_keyword">throws</strong>  <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>
 <a class="jxr_linenumber" name="L700" href="#L700">700</a>   {
 <a class="jxr_linenumber" name="L701" href="#L701">701</a>     LOG.debug(<span class="jxr_string">"Attempting to find importOptions in XML"</span>);
 <a class="jxr_linenumber" name="L702" href="#L702">702</a>     Element rootE = doc.getDocumentElement();
@@ -740,11 +740,11 @@
 <a class="jxr_linenumber" name="L732" href="#L732">732</a>   } <em class="jxr_comment">// private Collection _getInternalAttributes(e)</em>
 <a class="jxr_linenumber" name="L733" href="#L733">733</a> 
 <a class="jxr_linenumber" name="L734" href="#L734">734</a>   <em class="jxr_comment">// @since   1.0</em>
-<a class="jxr_linenumber" name="L735" href="#L735">735</a>   <strong class="jxr_keyword">private</strong> Subject _getSubjectById(String id, String type) 
+<a class="jxr_linenumber" name="L735" href="#L735">735</a>   <strong class="jxr_keyword">private</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> _getSubjectById(String id, String type) 
 <a class="jxr_linenumber" name="L736" href="#L736">736</a>     <strong class="jxr_keyword">throws</strong>  SubjectNotFoundException,
-<a class="jxr_linenumber" name="L737" href="#L737">737</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L737" href="#L737">737</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L738" href="#L738">738</a>   {
-<a class="jxr_linenumber" name="L739" href="#L739">739</a>     <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(type);
+<a class="jxr_linenumber" name="L739" href="#L739">739</a>     <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(type);
 <a class="jxr_linenumber" name="L740" href="#L740">740</a>     <strong class="jxr_keyword">if</strong> (v.isInvalid()) {
 <a class="jxr_linenumber" name="L741" href="#L741">741</a>       <strong class="jxr_keyword">return</strong> SubjectFinder.findById(id, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L742" href="#L742">742</a>     }
@@ -752,11 +752,11 @@
 <a class="jxr_linenumber" name="L744" href="#L744">744</a>   } <em class="jxr_comment">// private Subject _getSubjectById(id, type)</em>
 <a class="jxr_linenumber" name="L745" href="#L745">745</a> 
 <a class="jxr_linenumber" name="L746" href="#L746">746</a>   <em class="jxr_comment">// @since   1.0</em>
-<a class="jxr_linenumber" name="L747" href="#L747">747</a>   <strong class="jxr_keyword">private</strong> Subject _getSubjectByIdentifier(String identifier, String type)
+<a class="jxr_linenumber" name="L747" href="#L747">747</a>   <strong class="jxr_keyword">private</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> _getSubjectByIdentifier(String identifier, String type)
 <a class="jxr_linenumber" name="L748" href="#L748">748</a>     <strong class="jxr_keyword">throws</strong>  SubjectNotFoundException,
-<a class="jxr_linenumber" name="L749" href="#L749">749</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L749" href="#L749">749</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L750" href="#L750">750</a>   {
-<a class="jxr_linenumber" name="L751" href="#L751">751</a>     <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(type);
+<a class="jxr_linenumber" name="L751" href="#L751">751</a>     <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(type);
 <a class="jxr_linenumber" name="L752" href="#L752">752</a>     <strong class="jxr_keyword">if</strong> (v.isInvalid()) {
 <a class="jxr_linenumber" name="L753" href="#L753">753</a>       <strong class="jxr_keyword">return</strong> SubjectFinder.findByIdentifier(identifier, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L754" href="#L754">754</a>     }
@@ -809,16 +809,16 @@
 <a class="jxr_linenumber" name="L801" href="#L801">801</a>   } <em class="jxr_comment">// private boolean _isFailOnUnresolvableSubjectEnabled()</em>
 <a class="jxr_linenumber" name="L802" href="#L802">802</a> 
 <a class="jxr_linenumber" name="L803" href="#L803">803</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L804" href="#L804">804</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _load(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ns, <strong class="jxr_keyword">final</strong> Document doc) 
+<a class="jxr_linenumber" name="L804" href="#L804">804</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _load(<strong class="jxr_keyword">final</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ns, <strong class="jxr_keyword">final</strong> Document doc) 
 <a class="jxr_linenumber" name="L805" href="#L805">805</a>     <strong class="jxr_keyword">throws</strong>  GrouperException,
 <a class="jxr_linenumber" name="L806" href="#L806">806</a>             IllegalArgumentException
 <a class="jxr_linenumber" name="L807" href="#L807">807</a>   {
 <a class="jxr_linenumber" name="L808" href="#L808">808</a>     
 <a class="jxr_linenumber" name="L809" href="#L809">809</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L810" href="#L810">810</a>       GrouperSession.callbackGrouperSession(<strong class="jxr_keyword">this</strong>.s, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html">GrouperSessionHandler</a>() {
+<a class="jxr_linenumber" name="L810" href="#L810">810</a>       GrouperSession.callbackGrouperSession(<strong class="jxr_keyword">this</strong>.s, <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L811" href="#L811">811</a>   
-<a class="jxr_linenumber" name="L812" href="#L812">812</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession)
-<a class="jxr_linenumber" name="L813" href="#L813">813</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
+<a class="jxr_linenumber" name="L812" href="#L812">812</a>         <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession)
+<a class="jxr_linenumber" name="L813" href="#L813">813</a>             <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L814" href="#L814">814</a>           <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L815" href="#L815">815</a>             XmlImporter.<strong class="jxr_keyword">this</strong>._setDocument(doc);
 <a class="jxr_linenumber" name="L816" href="#L816">816</a>             <strong class="jxr_keyword">try</strong> {
@@ -835,64 +835,64 @@
 <a class="jxr_linenumber" name="L827" href="#L827">827</a>               XmlImporter.<strong class="jxr_keyword">this</strong>._processNamingPrivLists();
 <a class="jxr_linenumber" name="L828" href="#L828">828</a>               XmlImporter.<strong class="jxr_keyword">this</strong>._processAccessPrivLists();
 <a class="jxr_linenumber" name="L829" href="#L829">829</a>             }
-<a class="jxr_linenumber" name="L830" href="#L830">830</a>             <strong class="jxr_keyword">catch</strong> (AttributeNotFoundException eANF)     {
-<a class="jxr_linenumber" name="L831" href="#L831">831</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eANF.getMessage(), eANF);
+<a class="jxr_linenumber" name="L830" href="#L830">830</a>             <strong class="jxr_keyword">catch</strong> (<a name="AttributeNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/AttributeNotFoundException.html#AttributeNotFoundException">AttributeNotFoundException</a> eANF)     {
+<a class="jxr_linenumber" name="L831" href="#L831">831</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eANF.getMessage(), eANF);
 <a class="jxr_linenumber" name="L832" href="#L832">832</a>             }
-<a class="jxr_linenumber" name="L833" href="#L833">833</a>             <strong class="jxr_keyword">catch</strong> (GrantPrivilegeException eGP)         {
-<a class="jxr_linenumber" name="L834" href="#L834">834</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eGP.getMessage(), eGP);
+<a class="jxr_linenumber" name="L833" href="#L833">833</a>             <strong class="jxr_keyword">catch</strong> (<a name="GrantPrivilegeException" href="../../../../../edu/internet2/middleware/grouper/exception/GrantPrivilegeException.html#GrantPrivilegeException">GrantPrivilegeException</a> eGP)         {
+<a class="jxr_linenumber" name="L834" href="#L834">834</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eGP.getMessage(), eGP);
 <a class="jxr_linenumber" name="L835" href="#L835">835</a>             }
-<a class="jxr_linenumber" name="L836" href="#L836">836</a>             <strong class="jxr_keyword">catch</strong> (GroupAddException eGA)               {
-<a class="jxr_linenumber" name="L837" href="#L837">837</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eGA.getMessage(), eGA);
+<a class="jxr_linenumber" name="L836" href="#L836">836</a>             <strong class="jxr_keyword">catch</strong> (<a name="GroupAddException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupAddException.html#GroupAddException">GroupAddException</a> eGA)               {
+<a class="jxr_linenumber" name="L837" href="#L837">837</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eGA.getMessage(), eGA);
 <a class="jxr_linenumber" name="L838" href="#L838">838</a>             }
-<a class="jxr_linenumber" name="L839" href="#L839">839</a>             <strong class="jxr_keyword">catch</strong> (GrouperDAOException eDAO)             {
-<a class="jxr_linenumber" name="L840" href="#L840">840</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>( eDAO.getMessage(), eDAO );
+<a class="jxr_linenumber" name="L839" href="#L839">839</a>             <strong class="jxr_keyword">catch</strong> (<a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> eDAO)             {
+<a class="jxr_linenumber" name="L840" href="#L840">840</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>( eDAO.getMessage(), eDAO );
 <a class="jxr_linenumber" name="L841" href="#L841">841</a>             }
-<a class="jxr_linenumber" name="L842" href="#L842">842</a>             <strong class="jxr_keyword">catch</strong> (GroupModifyException eGM)            {
-<a class="jxr_linenumber" name="L843" href="#L843">843</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eGM.getMessage(), eGM);
+<a class="jxr_linenumber" name="L842" href="#L842">842</a>             <strong class="jxr_keyword">catch</strong> (<a name="GroupModifyException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupModifyException.html#GroupModifyException">GroupModifyException</a> eGM)            {
+<a class="jxr_linenumber" name="L843" href="#L843">843</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eGM.getMessage(), eGM);
 <a class="jxr_linenumber" name="L844" href="#L844">844</a>             }
-<a class="jxr_linenumber" name="L845" href="#L845">845</a>             <strong class="jxr_keyword">catch</strong> (GroupNotFoundException eGNF)         {
-<a class="jxr_linenumber" name="L846" href="#L846">846</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eGNF.getMessage(), eGNF);
+<a class="jxr_linenumber" name="L845" href="#L845">845</a>             <strong class="jxr_keyword">catch</strong> (<a name="GroupNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html#GroupNotFoundException">GroupNotFoundException</a> eGNF)         {
+<a class="jxr_linenumber" name="L846" href="#L846">846</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eGNF.getMessage(), eGNF);
 <a class="jxr_linenumber" name="L847" href="#L847">847</a>             }
-<a class="jxr_linenumber" name="L848" href="#L848">848</a>             <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException eIP)  {
-<a class="jxr_linenumber" name="L849" href="#L849">849</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eIP.getMessage(), eIP);
+<a class="jxr_linenumber" name="L848" href="#L848">848</a>             <strong class="jxr_keyword">catch</strong> (<a name="InsufficientPrivilegeException" href="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html#InsufficientPrivilegeException">InsufficientPrivilegeException</a> eIP)  {
+<a class="jxr_linenumber" name="L849" href="#L849">849</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eIP.getMessage(), eIP);
 <a class="jxr_linenumber" name="L850" href="#L850">850</a>             }
-<a class="jxr_linenumber" name="L851" href="#L851">851</a>             <strong class="jxr_keyword">catch</strong> (MemberAddException eMA)              {
-<a class="jxr_linenumber" name="L852" href="#L852">852</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eMA.getMessage(), eMA);
+<a class="jxr_linenumber" name="L851" href="#L851">851</a>             <strong class="jxr_keyword">catch</strong> (<a name="MemberAddException" href="../../../../../edu/internet2/middleware/grouper/exception/MemberAddException.html#MemberAddException">MemberAddException</a> eMA)              {
+<a class="jxr_linenumber" name="L852" href="#L852">852</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eMA.getMessage(), eMA);
 <a class="jxr_linenumber" name="L853" href="#L853">853</a>             }
-<a class="jxr_linenumber" name="L854" href="#L854">854</a>             <strong class="jxr_keyword">catch</strong> (MemberDeleteException eMD)           {
-<a class="jxr_linenumber" name="L855" href="#L855">855</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eMD.getMessage(), eMD);
+<a class="jxr_linenumber" name="L854" href="#L854">854</a>             <strong class="jxr_keyword">catch</strong> (<a name="MemberDeleteException" href="../../../../../edu/internet2/middleware/grouper/exception/MemberDeleteException.html#MemberDeleteException">MemberDeleteException</a> eMD)           {
+<a class="jxr_linenumber" name="L855" href="#L855">855</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eMD.getMessage(), eMD);
 <a class="jxr_linenumber" name="L856" href="#L856">856</a>             }
-<a class="jxr_linenumber" name="L857" href="#L857">857</a>             <strong class="jxr_keyword">catch</strong> (RevokePrivilegeException eRP)        {
-<a class="jxr_linenumber" name="L858" href="#L858">858</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eRP.getMessage(), eRP);
+<a class="jxr_linenumber" name="L857" href="#L857">857</a>             <strong class="jxr_keyword">catch</strong> (<a name="RevokePrivilegeException" href="../../../../../edu/internet2/middleware/grouper/exception/RevokePrivilegeException.html#RevokePrivilegeException">RevokePrivilegeException</a> eRP)        {
+<a class="jxr_linenumber" name="L858" href="#L858">858</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eRP.getMessage(), eRP);
 <a class="jxr_linenumber" name="L859" href="#L859">859</a>             }
-<a class="jxr_linenumber" name="L860" href="#L860">860</a>             <strong class="jxr_keyword">catch</strong> (SchemaException eS)                  {
-<a class="jxr_linenumber" name="L861" href="#L861">861</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eS.getMessage(), eS);
+<a class="jxr_linenumber" name="L860" href="#L860">860</a>             <strong class="jxr_keyword">catch</strong> (<a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a> eS)                  {
+<a class="jxr_linenumber" name="L861" href="#L861">861</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eS.getMessage(), eS);
 <a class="jxr_linenumber" name="L862" href="#L862">862</a>             }
-<a class="jxr_linenumber" name="L863" href="#L863">863</a>             <strong class="jxr_keyword">catch</strong> (StemAddException eNSA)               {
-<a class="jxr_linenumber" name="L864" href="#L864">864</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eNSA.getMessage(), eNSA);
+<a class="jxr_linenumber" name="L863" href="#L863">863</a>             <strong class="jxr_keyword">catch</strong> (<a name="StemAddException" href="../../../../../edu/internet2/middleware/grouper/exception/StemAddException.html#StemAddException">StemAddException</a> eNSA)               {
+<a class="jxr_linenumber" name="L864" href="#L864">864</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eNSA.getMessage(), eNSA);
 <a class="jxr_linenumber" name="L865" href="#L865">865</a>             }
-<a class="jxr_linenumber" name="L866" href="#L866">866</a>             <strong class="jxr_keyword">catch</strong> (StemModifyException eNSM)            {
-<a class="jxr_linenumber" name="L867" href="#L867">867</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eNSM.getMessage(), eNSM);
+<a class="jxr_linenumber" name="L866" href="#L866">866</a>             <strong class="jxr_keyword">catch</strong> (<a name="StemModifyException" href="../../../../../edu/internet2/middleware/grouper/exception/StemModifyException.html#StemModifyException">StemModifyException</a> eNSM)            {
+<a class="jxr_linenumber" name="L867" href="#L867">867</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eNSM.getMessage(), eNSM);
 <a class="jxr_linenumber" name="L868" href="#L868">868</a>             }
-<a class="jxr_linenumber" name="L869" href="#L869">869</a>             <strong class="jxr_keyword">catch</strong> (StemNotFoundException eNSNF)         {
-<a class="jxr_linenumber" name="L870" href="#L870">870</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eNSNF.getMessage(), eNSNF);
+<a class="jxr_linenumber" name="L869" href="#L869">869</a>             <strong class="jxr_keyword">catch</strong> (<a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a> eNSNF)         {
+<a class="jxr_linenumber" name="L870" href="#L870">870</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eNSNF.getMessage(), eNSNF);
 <a class="jxr_linenumber" name="L871" href="#L871">871</a>             }
-<a class="jxr_linenumber" name="L872" href="#L872">872</a>             <strong class="jxr_keyword">catch</strong> (SubjectNotFoundException eSNF)       {
-<a class="jxr_linenumber" name="L873" href="#L873">873</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>(eSNF.getMessage(), eSNF);
+<a class="jxr_linenumber" name="L872" href="#L872">872</a>             <strong class="jxr_keyword">catch</strong> (<a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a> eSNF)       {
+<a class="jxr_linenumber" name="L873" href="#L873">873</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>(eSNF.getMessage(), eSNF);
 <a class="jxr_linenumber" name="L874" href="#L874">874</a>             }
-<a class="jxr_linenumber" name="L875" href="#L875">875</a>             <strong class="jxr_keyword">catch</strong> (SubjectNotUniqueException eSNU)      {
-<a class="jxr_linenumber" name="L876" href="#L876">876</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html">GrouperException</a>( eSNU.getMessage(), eSNU );
+<a class="jxr_linenumber" name="L875" href="#L875">875</a>             <strong class="jxr_keyword">catch</strong> (<a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a> eSNU)      {
+<a class="jxr_linenumber" name="L876" href="#L876">876</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>( eSNU.getMessage(), eSNU );
 <a class="jxr_linenumber" name="L877" href="#L877">877</a>             }
-<a class="jxr_linenumber" name="L878" href="#L878">878</a>           } <strong class="jxr_keyword">catch</strong> (GrouperException grouperException) {
-<a class="jxr_linenumber" name="L879" href="#L879">879</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a>(grouperException);
+<a class="jxr_linenumber" name="L878" href="#L878">878</a>           } <strong class="jxr_keyword">catch</strong> (<a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a> grouperException) {
+<a class="jxr_linenumber" name="L879" href="#L879">879</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a>(grouperException);
 <a class="jxr_linenumber" name="L880" href="#L880">880</a>           }
 <a class="jxr_linenumber" name="L881" href="#L881">881</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L882" href="#L882">882</a>         }
 <a class="jxr_linenumber" name="L883" href="#L883">883</a>         
 <a class="jxr_linenumber" name="L884" href="#L884">884</a>       });
-<a class="jxr_linenumber" name="L885" href="#L885">885</a>     } <strong class="jxr_keyword">catch</strong> (GrouperSessionException grouperSessionException) {
-<a class="jxr_linenumber" name="L886" href="#L886">886</a>       <strong class="jxr_keyword">if</strong> (grouperSessionException.getCause() instanceof GrouperException) {
-<a class="jxr_linenumber" name="L887" href="#L887">887</a>         <strong class="jxr_keyword">throw</strong> (GrouperException)grouperSessionException.getCause();
+<a class="jxr_linenumber" name="L885" href="#L885">885</a>     } <strong class="jxr_keyword">catch</strong> (<a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> grouperSessionException) {
+<a class="jxr_linenumber" name="L886" href="#L886">886</a>       <strong class="jxr_keyword">if</strong> (grouperSessionException.getCause() instanceof <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>) {
+<a class="jxr_linenumber" name="L887" href="#L887">887</a>         <strong class="jxr_keyword">throw</strong> (<a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>)grouperSessionException.getCause();
 <a class="jxr_linenumber" name="L888" href="#L888">888</a>       }
 <a class="jxr_linenumber" name="L889" href="#L889">889</a>       <strong class="jxr_keyword">throw</strong> grouperSessionException;
 <a class="jxr_linenumber" name="L890" href="#L890">890</a>     }
@@ -902,7 +902,7 @@
 <a class="jxr_linenumber" name="L894" href="#L894">894</a> 
 <a class="jxr_linenumber" name="L895" href="#L895">895</a>   <em class="jxr_comment">// @since   1.0</em>
 <a class="jxr_linenumber" name="L896" href="#L896">896</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> _optionTrue(String key) {
-<a class="jxr_linenumber" name="L897" href="#L897">897</a>     <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(key);
+<a class="jxr_linenumber" name="L897" href="#L897">897</a>     <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v = NotNullOrEmptyValidator.validate(key);
 <a class="jxr_linenumber" name="L898" href="#L898">898</a>     <strong class="jxr_keyword">if</strong> (v.isInvalid()) {
 <a class="jxr_linenumber" name="L899" href="#L899">899</a>       options.setProperty(key, <span class="jxr_string">"false"</span>);
 <a class="jxr_linenumber" name="L900" href="#L900">900</a>       <strong class="jxr_keyword">return</strong> false;
@@ -940,7 +940,7 @@
 <a class="jxr_linenumber" name="L932" href="#L932">932</a>             SchemaException,
 <a class="jxr_linenumber" name="L933" href="#L933">933</a>             StemAddException,
 <a class="jxr_linenumber" name="L934" href="#L934">934</a>             StemModifyException,
-<a class="jxr_linenumber" name="L935" href="#L935">935</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>
+<a class="jxr_linenumber" name="L935" href="#L935">935</a>             <a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a>
 <a class="jxr_linenumber" name="L936" href="#L936">936</a>   {
 <a class="jxr_linenumber" name="L937" href="#L937">937</a>     <strong class="jxr_keyword">if</strong> (e != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L938" href="#L938">938</a>       <strong class="jxr_keyword">this</strong>._processPaths(e, stem);
@@ -956,7 +956,7 @@
 <a class="jxr_linenumber" name="L948" href="#L948">948</a>             RevokePrivilegeException,
 <a class="jxr_linenumber" name="L949" href="#L949">949</a>             SchemaException,
 <a class="jxr_linenumber" name="L950" href="#L950">950</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L951" href="#L951">951</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L951" href="#L951">951</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L952" href="#L952">952</a>   {
 <a class="jxr_linenumber" name="L953" href="#L953">953</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.accessPrivLists != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L954" href="#L954">954</a>       Iterator it = <strong class="jxr_keyword">this</strong>.accessPrivLists.iterator();
@@ -975,7 +975,7 @@
 <a class="jxr_linenumber" name="L967" href="#L967">967</a>             RevokePrivilegeException,
 <a class="jxr_linenumber" name="L968" href="#L968">968</a>             SchemaException,
 <a class="jxr_linenumber" name="L969" href="#L969">969</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L970" href="#L970">970</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L970" href="#L970">970</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L971" href="#L971">971</a>   {
 <a class="jxr_linenumber" name="L972" href="#L972">972</a>     String  groupName = (String) map.get(<span class="jxr_string">"group"</span>);
 <a class="jxr_linenumber" name="L973" href="#L973">973</a>     Element privs     = (Element) map.get(<span class="jxr_string">"privileges"</span>);
@@ -983,8 +983,8 @@
 <a class="jxr_linenumber" name="L975" href="#L975">975</a>       <strong class="jxr_keyword">return</strong>; <em class="jxr_comment">// Ignore privileges</em>
 <a class="jxr_linenumber" name="L976" href="#L976">976</a>     }
 <a class="jxr_linenumber" name="L977" href="#L977">977</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L978" href="#L978">978</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a>     g = GroupFinder.findByName(s, groupName, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L979" href="#L979">979</a>       <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> p = Privilege.getInstance( privs.getAttribute(<span class="jxr_string">"type"</span>) );
+<a class="jxr_linenumber" name="L978" href="#L978">978</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a>     g = GroupFinder.findByName(s, groupName, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L979" href="#L979">979</a>       <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> p = Privilege.getInstance( privs.getAttribute(<span class="jxr_string">"type"</span>) );
 <a class="jxr_linenumber" name="L980" href="#L980">980</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
 <a class="jxr_linenumber" name="L981" href="#L981">981</a>         g.revokePriv(p);
 <a class="jxr_linenumber" name="L982" href="#L982">982</a>       }
@@ -993,7 +993,7 @@
 <a class="jxr_linenumber" name="L985" href="#L985">985</a>         <strong class="jxr_keyword">this</strong>._processAccessPrivListGrantPriv( g, p, (Element) it.next() );
 <a class="jxr_linenumber" name="L986" href="#L986">986</a>       }
 <a class="jxr_linenumber" name="L987" href="#L987">987</a>     }
-<a class="jxr_linenumber" name="L988" href="#L988">988</a>     <strong class="jxr_keyword">catch</strong> (GroupNotFoundException eGNF) {
+<a class="jxr_linenumber" name="L988" href="#L988">988</a>     <strong class="jxr_keyword">catch</strong> (<a name="GroupNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html#GroupNotFoundException">GroupNotFoundException</a> eGNF) {
 <a class="jxr_linenumber" name="L989" href="#L989">989</a>       <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>._getUpdateOnly()) {
 <a class="jxr_linenumber" name="L990" href="#L990">990</a>         <strong class="jxr_keyword">throw</strong> eGNF; <em class="jxr_comment">// if updating we can ignore, if loading we cannot</em>
 <a class="jxr_linenumber" name="L991" href="#L991">991</a>       }
@@ -1001,15 +1001,15 @@
 <a class="jxr_linenumber" name="L993" href="#L993">993</a>   } <em class="jxr_comment">// private void _processAccessPrivList(map)</em>
 <a class="jxr_linenumber" name="L994" href="#L994">994</a> 
 <a class="jxr_linenumber" name="L995" href="#L995">995</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L996" href="#L996">996</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processAccessPrivListGrantPriv(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> p, Element el)
+<a class="jxr_linenumber" name="L996" href="#L996">996</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processAccessPrivListGrantPriv(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> p, Element el)
 <a class="jxr_linenumber" name="L997" href="#L997">997</a>     <strong class="jxr_keyword">throws</strong>  GrantPrivilegeException,
 <a class="jxr_linenumber" name="L998" href="#L998">998</a>             InsufficientPrivilegeException,
 <a class="jxr_linenumber" name="L999" href="#L999">999</a>             SchemaException,
 <a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>   {
 <a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>     <strong class="jxr_keyword">if</strong> ( <strong class="jxr_keyword">this</strong>._isSubjectElementImmediate(el) ) {
-<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a>       Subject subj = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a>       <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subj = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>       String attributeId = el.getAttribute(<span class="jxr_string">"id"</span>);
 <a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>       String attributeIdentifier = el.getAttribute(<span class="jxr_string">"identifier"</span>);
 <a class="jxr_linenumber" name="L1007" href="#L1007">1007</a>       String attributeType = el.getAttribute(<span class="jxr_string">"type"</span>);
@@ -1019,11 +1019,11 @@
 <a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>         String errorMessage = <span class="jxr_string">"Could not grant "</span> + p.getName() + <span class="jxr_string">" to "</span> + g.getName() + <span class="jxr_string">" for subject id="</span> + attributeId;
 <a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>     	  <strong class="jxr_keyword">if</strong>(_isFailOnUnresolvableSubjectEnabled()) {
 <a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>     	    
-<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>     	    <strong class="jxr_keyword">if</strong> (e instanceof SubjectNotFoundException) {
-<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>     	      <strong class="jxr_keyword">throw</strong> (SubjectNotFoundException)e;
+<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>     	    <strong class="jxr_keyword">if</strong> (e instanceof <a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a>) {
+<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>     	      <strong class="jxr_keyword">throw</strong> (<a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a>)e;
 <a class="jxr_linenumber" name="L1016" href="#L1016">1016</a>     	    }
-<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a>           <strong class="jxr_keyword">if</strong> (e instanceof SubjectNotUniqueException) {
-<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a>             <strong class="jxr_keyword">throw</strong> (SubjectNotUniqueException)e;
+<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a>           <strong class="jxr_keyword">if</strong> (e instanceof <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>) {
+<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a>             <strong class="jxr_keyword">throw</strong> (<a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>)e;
 <a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>           }
 <a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>           <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {
 <a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>             <strong class="jxr_keyword">throw</strong> (RuntimeException)e;
@@ -1045,13 +1045,13 @@
 <a class="jxr_linenumber" name="L1037" href="#L1037">1037</a>             GroupModifyException,
 <a class="jxr_linenumber" name="L1038" href="#L1038">1038</a>             GroupNotFoundException,
 <a class="jxr_linenumber" name="L1039" href="#L1039">1039</a>             InsufficientPrivilegeException,
-<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html">SchemaException</a>
+<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>             <a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a>
 <a class="jxr_linenumber" name="L1041" href="#L1041">1041</a>   {
 <a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>     Element   elTypes = <strong class="jxr_keyword">this</strong>._getImmediateElement(e, <span class="jxr_string">"groupTypes"</span>);
 <a class="jxr_linenumber" name="L1043" href="#L1043">1043</a>     <strong class="jxr_keyword">if</strong> (elTypes == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1044" href="#L1044">1044</a>       <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>     }
-<a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a>     g       = GroupFinder.findByName(s, group, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a>     g       = GroupFinder.findByName(s, group, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1047" href="#L1047">1047</a>     Iterator  it      = <strong class="jxr_keyword">this</strong>._getImmediateElements(elTypes, <span class="jxr_string">"groupType"</span>).iterator();
 <a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>     <strong class="jxr_keyword">while</strong> (it.hasNext()) {
 <a class="jxr_linenumber" name="L1049" href="#L1049">1049</a>       <strong class="jxr_keyword">this</strong>._processAttributesHandleType( g, (Element) it.next() );
@@ -1059,15 +1059,15 @@
 <a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>   } <em class="jxr_comment">// private void _processAttributes(e, stem) </em>
 <a class="jxr_linenumber" name="L1052" href="#L1052">1052</a> 
 <a class="jxr_linenumber" name="L1053" href="#L1053">1053</a>   <em class="jxr_comment">// @since   1.1.10</em>
-<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processAttributesHandleType(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, Element e)
+<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processAttributesHandleType(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, Element e)
 <a class="jxr_linenumber" name="L1055" href="#L1055">1055</a>     <strong class="jxr_keyword">throws</strong>  AttributeNotFoundException,
 <a class="jxr_linenumber" name="L1056" href="#L1056">1056</a>             GroupModifyException,
-<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html">InsufficientPrivilegeException</a>
+<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a>             <a name="InsufficientPrivilegeException" href="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html#InsufficientPrivilegeException">InsufficientPrivilegeException</a>
 <a class="jxr_linenumber" name="L1058" href="#L1058">1058</a>   {
 <a class="jxr_linenumber" name="L1059" href="#L1059">1059</a>     String name = e.getAttribute(<span class="jxr_string">"name"</span>);
 <a class="jxr_linenumber" name="L1060" href="#L1060">1060</a>     <strong class="jxr_keyword">if</strong> (!name.equals(<span class="jxr_string">"base"</span>)) {
 <a class="jxr_linenumber" name="L1061" href="#L1061">1061</a>       <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a>         <a href="../../../../../edu/internet2/middleware/grouper/GroupType.html">GroupType</a> gt = GroupTypeFinder.find(name, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a>         <a name="GroupType" href="../../../../../edu/internet2/middleware/grouper/GroupType.html#GroupType">GroupType</a> gt = GroupTypeFinder.find(name, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>         <strong class="jxr_keyword">if</strong> (!g.hasType(gt)) {
 <a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>           <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._optionTrue(<span class="jxr_string">"import.data.apply-new-group-types"</span>)) {
 <a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>             g.addType(gt);
@@ -1075,18 +1075,18 @@
 <a class="jxr_linenumber" name="L1067" href="#L1067">1067</a>         }
 <a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>         <strong class="jxr_keyword">this</strong>._processAttributesHandleAttributes(g, gt, e);
 <a class="jxr_linenumber" name="L1069" href="#L1069">1069</a>       }
-<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>       <strong class="jxr_keyword">catch</strong> (SchemaException eS) {
+<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>       <strong class="jxr_keyword">catch</strong> (<a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a> eS) {
 <a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>         LOG.error(eS.getMessage());
 <a class="jxr_linenumber" name="L1072" href="#L1072">1072</a>       }
 <a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>     }
 <a class="jxr_linenumber" name="L1074" href="#L1074">1074</a>   } <em class="jxr_comment">// privae void _processAttributesHandleType(g, e)</em>
 <a class="jxr_linenumber" name="L1075" href="#L1075">1075</a> 
 <a class="jxr_linenumber" name="L1076" href="#L1076">1076</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processAttributesHandleAttributes(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, <a href="../../../../../edu/internet2/middleware/grouper/GroupType.html">GroupType</a> gt, Element e) 
+<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processAttributesHandleAttributes(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, <a name="GroupType" href="../../../../../edu/internet2/middleware/grouper/GroupType.html#GroupType">GroupType</a> gt, Element e) 
 <a class="jxr_linenumber" name="L1078" href="#L1078">1078</a>     <strong class="jxr_keyword">throws</strong>  AttributeNotFoundException,
 <a class="jxr_linenumber" name="L1079" href="#L1079">1079</a>             GroupModifyException,
 <a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>             InsufficientPrivilegeException,
-<a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html">SchemaException</a>
+<a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>             <a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a>
 <a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>   {
 <a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>     Element   elAttr;
 <a class="jxr_linenumber" name="L1084" href="#L1084">1084</a>     String    name, orig, val;
@@ -1094,19 +1094,19 @@
 <a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>     <strong class="jxr_keyword">while</strong> (it.hasNext()) {
 <a class="jxr_linenumber" name="L1087" href="#L1087">1087</a>       elAttr  = (Element) it.next();
 <a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>       name    = elAttr.getAttribute(<span class="jxr_string">"name"</span>);
-<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>       <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> f = GrouperDAOFactory.getFactory().getAttributeDefName().findLegacyAttributeByName(name, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>       <a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> f = GrouperDAOFactory.getFactory().getAttributeDefName().findLegacyAttributeByName(name, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1090" href="#L1090">1090</a>       
-<a class="jxr_linenumber" name="L1091" href="#L1091">1091</a>       <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> groupTypeAssignment = g.internal_getGroupTypeAssignments().get(gt.getName());
+<a class="jxr_linenumber" name="L1091" href="#L1091">1091</a>       <a name="AttributeAssign" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> groupTypeAssignment = g.internal_getGroupTypeAssignments().get(gt.getName());
 <a class="jxr_linenumber" name="L1092" href="#L1092">1092</a>       <strong class="jxr_keyword">if</strong> (groupTypeAssignment == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1093" href="#L1093">1093</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/AttributeNotFoundException.html">AttributeNotFoundException</a>(<span class="jxr_string">"Group "</span> + g.getName() + <span class="jxr_string">" is not assigned the group type: "</span> + gt.getName());
+<a class="jxr_linenumber" name="L1093" href="#L1093">1093</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="AttributeNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/AttributeNotFoundException.html#AttributeNotFoundException">AttributeNotFoundException</a>(<span class="jxr_string">"Group "</span> + g.getName() + <span class="jxr_string">" is not assigned the group type: "</span> + gt.getName());
 <a class="jxr_linenumber" name="L1094" href="#L1094">1094</a>       }
 <a class="jxr_linenumber" name="L1095" href="#L1095">1095</a>       
 <a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>       <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1097" href="#L1097">1097</a>         groupTypeAssignment.getAttributeDelegate().assertCanUpdateAttributeDefName(f);
-<a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>       } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException ex) {
+<a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>       } <strong class="jxr_keyword">catch</strong> (<a name="InsufficientPrivilegeException" href="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html#InsufficientPrivilegeException">InsufficientPrivilegeException</a> ex) {
 <a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>         LOG.debug(<span class="jxr_string">"cannot write ("</span> + name + <span class="jxr_string">") on ("</span> + g.getName() + <span class="jxr_string">")"</span>);
 <a class="jxr_linenumber" name="L1100" href="#L1100">1100</a>         <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L1101" href="#L1101">1101</a>       } <strong class="jxr_keyword">catch</strong> (AttributeNotFoundException ex) {
+<a class="jxr_linenumber" name="L1101" href="#L1101">1101</a>       } <strong class="jxr_keyword">catch</strong> (<a name="AttributeNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/AttributeNotFoundException.html#AttributeNotFoundException">AttributeNotFoundException</a> ex) {
 <a class="jxr_linenumber" name="L1102" href="#L1102">1102</a>         LOG.debug(<span class="jxr_string">"cannot write ("</span> + name + <span class="jxr_string">") on ("</span> + g.getName() + <span class="jxr_string">")"</span>);
 <a class="jxr_linenumber" name="L1103" href="#L1103">1103</a>         <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L1104" href="#L1104">1104</a>       }
@@ -1117,8 +1117,8 @@
 <a class="jxr_linenumber" name="L1109" href="#L1109">1109</a>       }<strong class="jxr_keyword">catch</strong>(NullPointerException npe) {
 <a class="jxr_linenumber" name="L1110" href="#L1110">1110</a>     	  val=<strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1111" href="#L1111">1111</a>       }
-<a class="jxr_linenumber" name="L1112" href="#L1112">1112</a>       <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> vOrig = NotNullOrEmptyValidator.validate(orig);
-<a class="jxr_linenumber" name="L1113" href="#L1113">1113</a>       <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> vVal  = NotNullOrEmptyValidator.validate(val);
+<a class="jxr_linenumber" name="L1112" href="#L1112">1112</a>       <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> vOrig = NotNullOrEmptyValidator.validate(orig);
+<a class="jxr_linenumber" name="L1113" href="#L1113">1113</a>       <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> vVal  = NotNullOrEmptyValidator.validate(val);
 <a class="jxr_linenumber" name="L1114" href="#L1114">1114</a>       <strong class="jxr_keyword">if</strong> ( vVal.isValid() &amp;&amp; !val.equals(orig) &amp;&amp; ( vOrig.isInvalid() || <strong class="jxr_keyword">this</strong>._isUpdatingAttributes() ) ) {
 <a class="jxr_linenumber" name="L1115" href="#L1115">1115</a>         g.setAttribute(name, val);
 <a class="jxr_linenumber" name="L1116" href="#L1116">1116</a>       } 
@@ -1126,10 +1126,10 @@
 <a class="jxr_linenumber" name="L1118" href="#L1118">1118</a>   } <em class="jxr_comment">// private void _processAttributesHandleAttributes()</em>
 <a class="jxr_linenumber" name="L1119" href="#L1119">1119</a> 
 <a class="jxr_linenumber" name="L1120" href="#L1120">1120</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1121" href="#L1121">1121</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processComposite(Element el, <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g)
+<a class="jxr_linenumber" name="L1121" href="#L1121">1121</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processComposite(Element el, <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g)
 <a class="jxr_linenumber" name="L1122" href="#L1122">1122</a>     <strong class="jxr_keyword">throws</strong>  GrouperException,
 <a class="jxr_linenumber" name="L1123" href="#L1123">1123</a>             InsufficientPrivilegeException,
-<a class="jxr_linenumber" name="L1124" href="#L1124">1124</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/MemberAddException.html">MemberAddException</a>
+<a class="jxr_linenumber" name="L1124" href="#L1124">1124</a>             <a name="MemberAddException" href="../../../../../edu/internet2/middleware/grouper/exception/MemberAddException.html#MemberAddException">MemberAddException</a>
 <a class="jxr_linenumber" name="L1125" href="#L1125">1125</a>   {
 <a class="jxr_linenumber" name="L1126" href="#L1126">1126</a>     <strong class="jxr_keyword">if</strong> (g.hasComposite()) { 
 <a class="jxr_linenumber" name="L1127" href="#L1127">1127</a>       LOG.warn(g.getName() + <span class="jxr_string">" already has composite - skipping"</span>);
@@ -1159,22 +1159,22 @@
 <a class="jxr_linenumber" name="L1151" href="#L1151">1151</a>         <strong class="jxr_keyword">this</strong>._processGroupRef( elements[2], g.getParentStem().getName() )
 <a class="jxr_linenumber" name="L1152" href="#L1152">1152</a>       );
 <a class="jxr_linenumber" name="L1153" href="#L1153">1153</a>     } 
-<a class="jxr_linenumber" name="L1154" href="#L1154">1154</a>     <strong class="jxr_keyword">catch</strong> (GroupNotFoundException eGNF) {
+<a class="jxr_linenumber" name="L1154" href="#L1154">1154</a>     <strong class="jxr_keyword">catch</strong> (<a name="GroupNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html#GroupNotFoundException">GroupNotFoundException</a> eGNF) {
 <a class="jxr_linenumber" name="L1155" href="#L1155">1155</a>       LOG.error(<span class="jxr_string">"error processing composite for "</span> + Quote.single(g.getName()) + <span class="jxr_string">": "</span> + eGNF.getMessage());
 <a class="jxr_linenumber" name="L1156" href="#L1156">1156</a>       <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L1157" href="#L1157">1157</a>     }
 <a class="jxr_linenumber" name="L1158" href="#L1158">1158</a>   } <em class="jxr_comment">// private void _processComposite(composite, group)</em>
 <a class="jxr_linenumber" name="L1159" href="#L1159">1159</a> 
 <a class="jxr_linenumber" name="L1160" href="#L1160">1160</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1161" href="#L1161">1161</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html">CompositeType</a> _processCompositeType(Element typeE) 
-<a class="jxr_linenumber" name="L1162" href="#L1162">1162</a>     <strong class="jxr_keyword">throws</strong>  GrouperException
+<a class="jxr_linenumber" name="L1161" href="#L1161">1161</a>   <strong class="jxr_keyword">private</strong> <a name="CompositeType" href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html#CompositeType">CompositeType</a> _processCompositeType(Element typeE) 
+<a class="jxr_linenumber" name="L1162" href="#L1162">1162</a>     <strong class="jxr_keyword">throws</strong>  <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>
 <a class="jxr_linenumber" name="L1163" href="#L1163">1163</a>   {
 <a class="jxr_linenumber" name="L1164" href="#L1164">1164</a>     String tag = typeE.getTagName();
 <a class="jxr_linenumber" name="L1165" href="#L1165">1165</a>     <strong class="jxr_keyword">if</strong> (!tag.equals(<span class="jxr_string">"compositeType"</span>)) {
 <a class="jxr_linenumber" name="L1166" href="#L1166">1166</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Expected tag: &lt;compositeType&gt; but found &lt;"</span> + tag + <span class="jxr_string">"&gt;"</span>);
 <a class="jxr_linenumber" name="L1167" href="#L1167">1167</a>     }
 <a class="jxr_linenumber" name="L1168" href="#L1168">1168</a>     String name = XmlImporter._getText(typeE);
-<a class="jxr_linenumber" name="L1169" href="#L1169">1169</a>     <a href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html">CompositeType</a> ctype = CompositeType.valueOfIgnoreCase(name);
+<a class="jxr_linenumber" name="L1169" href="#L1169">1169</a>     <a name="CompositeType" href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html#CompositeType">CompositeType</a> ctype = CompositeType.valueOfIgnoreCase(name);
 <a class="jxr_linenumber" name="L1170" href="#L1170">1170</a>     <strong class="jxr_keyword">if</strong> (ctype == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1171" href="#L1171">1171</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"could not resolve composite type: "</span> + Quote.single(name));
 <a class="jxr_linenumber" name="L1172" href="#L1172">1172</a>     }
@@ -1191,13 +1191,13 @@
 <a class="jxr_linenumber" name="L1183" href="#L1183">1183</a>             GroupNotFoundException,
 <a class="jxr_linenumber" name="L1184" href="#L1184">1184</a>             InsufficientPrivilegeException,
 <a class="jxr_linenumber" name="L1185" href="#L1185">1185</a>             SchemaException,
-<a class="jxr_linenumber" name="L1186" href="#L1186">1186</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>
+<a class="jxr_linenumber" name="L1186" href="#L1186">1186</a>             <a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a>
 <a class="jxr_linenumber" name="L1187" href="#L1187">1187</a>   {
 <a class="jxr_linenumber" name="L1188" href="#L1188">1188</a>     String newGroup = U.constructName( stem, e.getAttribute(GrouperConfig.ATTRIBUTE_EXTENSION) );
 <a class="jxr_linenumber" name="L1189" href="#L1189">1189</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1190" href="#L1190">1190</a>       <strong class="jxr_keyword">this</strong>._processGroupUpdate(e, newGroup);  <em class="jxr_comment">// Try and update</em>
 <a class="jxr_linenumber" name="L1191" href="#L1191">1191</a>     } 
-<a class="jxr_linenumber" name="L1192" href="#L1192">1192</a>     <strong class="jxr_keyword">catch</strong> (GroupNotFoundException eGNF) {
+<a class="jxr_linenumber" name="L1192" href="#L1192">1192</a>     <strong class="jxr_keyword">catch</strong> (<a name="GroupNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html#GroupNotFoundException">GroupNotFoundException</a> eGNF) {
 <a class="jxr_linenumber" name="L1193" href="#L1193">1193</a>       <strong class="jxr_keyword">this</strong>._processGroupCreate(e, stem);      <em class="jxr_comment">// Otherwise create</em>
 <a class="jxr_linenumber" name="L1194" href="#L1194">1194</a>     }
 <a class="jxr_linenumber" name="L1195" href="#L1195">1195</a>     <strong class="jxr_keyword">this</strong>._processAttributes(e, newGroup);
@@ -1211,23 +1211,23 @@
 <a class="jxr_linenumber" name="L1203" href="#L1203">1203</a>             GrouperDAOException,
 <a class="jxr_linenumber" name="L1204" href="#L1204">1204</a>             GroupModifyException,
 <a class="jxr_linenumber" name="L1205" href="#L1205">1205</a>             InsufficientPrivilegeException,
-<a class="jxr_linenumber" name="L1206" href="#L1206">1206</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>
+<a class="jxr_linenumber" name="L1206" href="#L1206">1206</a>             <a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a>
 <a class="jxr_linenumber" name="L1207" href="#L1207">1207</a>   {
 <a class="jxr_linenumber" name="L1208" href="#L1208">1208</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._getUpdateOnly()) {
 <a class="jxr_linenumber" name="L1209" href="#L1209">1209</a>       <strong class="jxr_keyword">return</strong>; <em class="jxr_comment">// do not create groups when we are only updating</em>
 <a class="jxr_linenumber" name="L1210" href="#L1210">1210</a>     }
-<a class="jxr_linenumber" name="L1211" href="#L1211">1211</a>     <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a>  parent  = StemFinder.findByName(<strong class="jxr_keyword">this</strong>.s, stem, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1211" href="#L1211">1211</a>     <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a>  parent  = StemFinder.findByName(<strong class="jxr_keyword">this</strong>.s, stem, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1212" href="#L1212">1212</a>     String id=<strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1213" href="#L1213">1213</a>     <strong class="jxr_keyword">if</strong>(!_isIgnoreInternalAttributes()) {
 <a class="jxr_linenumber" name="L1214" href="#L1214">1214</a>     	id=e.getAttribute(<span class="jxr_string">"id"</span>);
 <a class="jxr_linenumber" name="L1215" href="#L1215">1215</a>     }
-<a class="jxr_linenumber" name="L1216" href="#L1216">1216</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> child   = parent.internal_addChildGroup(
+<a class="jxr_linenumber" name="L1216" href="#L1216">1216</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> child   = parent.internal_addChildGroup(
 <a class="jxr_linenumber" name="L1217" href="#L1217">1217</a>       e.getAttribute(GrouperConfig.ATTRIBUTE_EXTENSION),
 <a class="jxr_linenumber" name="L1218" href="#L1218">1218</a>       e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION),
 <a class="jxr_linenumber" name="L1219" href="#L1219">1219</a>       id
 <a class="jxr_linenumber" name="L1220" href="#L1220">1220</a>     );
 <a class="jxr_linenumber" name="L1221" href="#L1221">1221</a>     String desc = <strong class="jxr_keyword">this</strong>._getDescription(e);
-<a class="jxr_linenumber" name="L1222" href="#L1222">1222</a>     <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(desc);
+<a class="jxr_linenumber" name="L1222" href="#L1222">1222</a>     <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(desc);
 <a class="jxr_linenumber" name="L1223" href="#L1223">1223</a>     <strong class="jxr_keyword">if</strong> (v.isValid()) {
 <a class="jxr_linenumber" name="L1224" href="#L1224">1224</a>       child.setDescription(desc);
 <a class="jxr_linenumber" name="L1225" href="#L1225">1225</a>       child.store();
@@ -1239,15 +1239,15 @@
 <a class="jxr_linenumber" name="L1231" href="#L1231">1231</a>   } <em class="jxr_comment">// private void _processGroupCreate(e, stem)</em>
 <a class="jxr_linenumber" name="L1232" href="#L1232">1232</a> 
 <a class="jxr_linenumber" name="L1233" href="#L1233">1233</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1234" href="#L1234">1234</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> _processGroupRef(Element groupE, String stem) 
-<a class="jxr_linenumber" name="L1235" href="#L1235">1235</a>     <strong class="jxr_keyword">throws</strong>  GroupNotFoundException
+<a class="jxr_linenumber" name="L1234" href="#L1234">1234</a>   <strong class="jxr_keyword">private</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> _processGroupRef(Element groupE, String stem) 
+<a class="jxr_linenumber" name="L1235" href="#L1235">1235</a>     <strong class="jxr_keyword">throws</strong>  <a name="GroupNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html#GroupNotFoundException">GroupNotFoundException</a>
 <a class="jxr_linenumber" name="L1236" href="#L1236">1236</a>   {
 <a class="jxr_linenumber" name="L1237" href="#L1237">1237</a>     String tagName = groupE.getTagName();
 <a class="jxr_linenumber" name="L1238" href="#L1238">1238</a>     <strong class="jxr_keyword">if</strong> (!<span class="jxr_string">"groupRef"</span>.equals(tagName)) {
 <a class="jxr_linenumber" name="L1239" href="#L1239">1239</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Expected tag: &lt;groupRef&gt; but found &lt;"</span> + tagName + <span class="jxr_string">"&gt;"</span>);
 <a class="jxr_linenumber" name="L1240" href="#L1240">1240</a>     }
 <a class="jxr_linenumber" name="L1241" href="#L1241">1241</a>     String                  name  = groupE.getAttribute(GrouperConfig.ATTRIBUTE_NAME);
-<a class="jxr_linenumber" name="L1242" href="#L1242">1242</a>     <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(name);
+<a class="jxr_linenumber" name="L1242" href="#L1242">1242</a>     <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(name);
 <a class="jxr_linenumber" name="L1243" href="#L1243">1243</a>     <strong class="jxr_keyword">if</strong> (v.isInvalid()) {
 <a class="jxr_linenumber" name="L1244" href="#L1244">1244</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Expected 'name' atribute for &lt;groupRef&gt;"</span>);
 <a class="jxr_linenumber" name="L1245" href="#L1245">1245</a>     }
@@ -1266,7 +1266,7 @@
 <a class="jxr_linenumber" name="L1258" href="#L1258">1258</a>             SchemaException,
 <a class="jxr_linenumber" name="L1259" href="#L1259">1259</a>             StemAddException,
 <a class="jxr_linenumber" name="L1260" href="#L1260">1260</a>             StemModifyException,
-<a class="jxr_linenumber" name="L1261" href="#L1261">1261</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>
+<a class="jxr_linenumber" name="L1261" href="#L1261">1261</a>             <a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a>
 <a class="jxr_linenumber" name="L1262" href="#L1262">1262</a>   {
 <a class="jxr_linenumber" name="L1263" href="#L1263">1263</a>     Collection  groups  = <strong class="jxr_keyword">this</strong>._getImmediateElements(e, <span class="jxr_string">"group"</span>);
 <a class="jxr_linenumber" name="L1264" href="#L1264">1264</a>     Iterator    it      = groups.iterator();
@@ -1279,15 +1279,15 @@
 <a class="jxr_linenumber" name="L1271" href="#L1271">1271</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processGroupUpdate(Element e, String newGroup) 
 <a class="jxr_linenumber" name="L1272" href="#L1272">1272</a>     <strong class="jxr_keyword">throws</strong>  GroupModifyException,
 <a class="jxr_linenumber" name="L1273" href="#L1273">1273</a>             GroupNotFoundException,
-<a class="jxr_linenumber" name="L1274" href="#L1274">1274</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html">InsufficientPrivilegeException</a>
+<a class="jxr_linenumber" name="L1274" href="#L1274">1274</a>             <a name="InsufficientPrivilegeException" href="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html#InsufficientPrivilegeException">InsufficientPrivilegeException</a>
 <a class="jxr_linenumber" name="L1275" href="#L1275">1275</a>   {
 <a class="jxr_linenumber" name="L1276" href="#L1276">1276</a>     <em class="jxr_comment">// We need to keep this outside the conditional so that a</em>
 <a class="jxr_linenumber" name="L1277" href="#L1277">1277</a>     <em class="jxr_comment">// GroupNotFoundException can be thrown if the stem does not exist.  That</em>
 <a class="jxr_linenumber" name="L1278" href="#L1278">1278</a>     <em class="jxr_comment">// will trigger the creation of the group.</em>
-<a class="jxr_linenumber" name="L1279" href="#L1279">1279</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g = GroupFinder.findByName(<strong class="jxr_keyword">this</strong>.s, newGroup, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1279" href="#L1279">1279</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g = GroupFinder.findByName(<strong class="jxr_keyword">this</strong>.s, newGroup, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1280" href="#L1280">1280</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._isUpdatingAttributes()) {
 <a class="jxr_linenumber" name="L1281" href="#L1281">1281</a>       String                  dExtn = e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
-<a class="jxr_linenumber" name="L1282" href="#L1282">1282</a>       <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(dExtn);
+<a class="jxr_linenumber" name="L1282" href="#L1282">1282</a>       <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(dExtn);
 <a class="jxr_linenumber" name="L1283" href="#L1283">1283</a>       <strong class="jxr_keyword">if</strong> ( v.isValid() &amp;&amp; !dExtn.equals( g.getDisplayExtension() ) ) {
 <a class="jxr_linenumber" name="L1284" href="#L1284">1284</a>         g.setDisplayExtension(dExtn);
 <a class="jxr_linenumber" name="L1285" href="#L1285">1285</a>         g.store();
@@ -1312,7 +1312,7 @@
 <a class="jxr_linenumber" name="L1304" href="#L1304">1304</a>             MemberDeleteException,
 <a class="jxr_linenumber" name="L1305" href="#L1305">1305</a>             SchemaException,
 <a class="jxr_linenumber" name="L1306" href="#L1306">1306</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L1307" href="#L1307">1307</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L1307" href="#L1307">1307</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L1308" href="#L1308">1308</a>   {
 <a class="jxr_linenumber" name="L1309" href="#L1309">1309</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.membershipLists != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1310" href="#L1310">1310</a>       Iterator it = <strong class="jxr_keyword">this</strong>.membershipLists.iterator();
@@ -1333,7 +1333,7 @@
 <a class="jxr_linenumber" name="L1325" href="#L1325">1325</a>             MemberDeleteException,
 <a class="jxr_linenumber" name="L1326" href="#L1326">1326</a>             SchemaException,
 <a class="jxr_linenumber" name="L1327" href="#L1327">1327</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L1328" href="#L1328">1328</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L1328" href="#L1328">1328</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L1329" href="#L1329">1329</a>   {
 <a class="jxr_linenumber" name="L1330" href="#L1330">1330</a>     Element list      = (Element) map.get(<span class="jxr_string">"list"</span>);
 <a class="jxr_linenumber" name="L1331" href="#L1331">1331</a>     String  groupName = (String) map.get(<span class="jxr_string">"group"</span>);
@@ -1341,10 +1341,10 @@
 <a class="jxr_linenumber" name="L1333" href="#L1333">1333</a>       <strong class="jxr_keyword">return</strong>; <em class="jxr_comment">// Ignore lists</em>
 <a class="jxr_linenumber" name="L1334" href="#L1334">1334</a>     }
 <a class="jxr_linenumber" name="L1335" href="#L1335">1335</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L1336" href="#L1336">1336</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a>   g = GroupFinder.findByName(s, groupName, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L1337" href="#L1337">1337</a>       <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a>   f = FieldFinder.find( list.getAttribute(<span class="jxr_string">"field"</span>), <strong class="jxr_keyword">true</strong> );
+<a class="jxr_linenumber" name="L1336" href="#L1336">1336</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a>   g = GroupFinder.findByName(s, groupName, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1337" href="#L1337">1337</a>       <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a>   f = FieldFinder.find( list.getAttribute(<span class="jxr_string">"field"</span>), <strong class="jxr_keyword">true</strong> );
 <a class="jxr_linenumber" name="L1338" href="#L1338">1338</a>       <strong class="jxr_keyword">if</strong> (!f.getType().equals(FieldType.LIST)) {
-<a class="jxr_linenumber" name="L1339" href="#L1339">1339</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html">SchemaException</a>(<span class="jxr_string">"field is not a list: "</span> + f.getName());
+<a class="jxr_linenumber" name="L1339" href="#L1339">1339</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a>(<span class="jxr_string">"field is not a list: "</span> + f.getName());
 <a class="jxr_linenumber" name="L1340" href="#L1340">1340</a>       }
 <a class="jxr_linenumber" name="L1341" href="#L1341">1341</a>       
 <a class="jxr_linenumber" name="L1342" href="#L1342">1342</a>       <strong class="jxr_keyword">if</strong> (!f.getUuid().equals(Group.getDefaultList().getUuid())) {
@@ -1361,7 +1361,7 @@
 <a class="jxr_linenumber" name="L1353" href="#L1353">1353</a>         <strong class="jxr_keyword">this</strong>._processMembershipListAddMember( g, f, (Element) it.next() );
 <a class="jxr_linenumber" name="L1354" href="#L1354">1354</a>       }
 <a class="jxr_linenumber" name="L1355" href="#L1355">1355</a>     }
-<a class="jxr_linenumber" name="L1356" href="#L1356">1356</a>     <strong class="jxr_keyword">catch</strong> (GroupNotFoundException eGNF) {
+<a class="jxr_linenumber" name="L1356" href="#L1356">1356</a>     <strong class="jxr_keyword">catch</strong> (<a name="GroupNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html#GroupNotFoundException">GroupNotFoundException</a> eGNF) {
 <a class="jxr_linenumber" name="L1357" href="#L1357">1357</a>       <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>._getUpdateOnly()) {
 <a class="jxr_linenumber" name="L1358" href="#L1358">1358</a>         <strong class="jxr_keyword">throw</strong> eGNF; <em class="jxr_comment">// if updating we can ignore, if loading we cannot</em>
 <a class="jxr_linenumber" name="L1359" href="#L1359">1359</a>       }
@@ -1369,10 +1369,10 @@
 <a class="jxr_linenumber" name="L1361" href="#L1361">1361</a>   } <em class="jxr_comment">// private void _processMembershipList()</em>
 <a class="jxr_linenumber" name="L1362" href="#L1362">1362</a> 
 <a class="jxr_linenumber" name="L1363" href="#L1363">1363</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1364" href="#L1364">1364</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processMembershipListAddGroupType(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, <a href="../../../../../edu/internet2/middleware/grouper/GroupType.html">GroupType</a> gt) 
+<a class="jxr_linenumber" name="L1364" href="#L1364">1364</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processMembershipListAddGroupType(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, <a name="GroupType" href="../../../../../edu/internet2/middleware/grouper/GroupType.html#GroupType">GroupType</a> gt) 
 <a class="jxr_linenumber" name="L1365" href="#L1365">1365</a>     <strong class="jxr_keyword">throws</strong>  GroupModifyException,
 <a class="jxr_linenumber" name="L1366" href="#L1366">1366</a>             InsufficientPrivilegeException,
-<a class="jxr_linenumber" name="L1367" href="#L1367">1367</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html">SchemaException</a>
+<a class="jxr_linenumber" name="L1367" href="#L1367">1367</a>             <a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a>
 <a class="jxr_linenumber" name="L1368" href="#L1368">1368</a>   {
 <a class="jxr_linenumber" name="L1369" href="#L1369">1369</a>     <strong class="jxr_keyword">if</strong> ( !g.hasType(gt) &amp;&amp; <strong class="jxr_keyword">this</strong>._isApplyNewGroupTypesEnabled() ) {
 <a class="jxr_linenumber" name="L1370" href="#L1370">1370</a>       g.addType(gt); 
@@ -1380,15 +1380,15 @@
 <a class="jxr_linenumber" name="L1372" href="#L1372">1372</a>   } <em class="jxr_comment">// private void _processMembershipListAddGroupType(g, gt)</em>
 <a class="jxr_linenumber" name="L1373" href="#L1373">1373</a> 
 <a class="jxr_linenumber" name="L1374" href="#L1374">1374</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1375" href="#L1375">1375</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processMembershipListAddMember(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> f, Element el) 
+<a class="jxr_linenumber" name="L1375" href="#L1375">1375</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processMembershipListAddMember(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> f, Element el) 
 <a class="jxr_linenumber" name="L1376" href="#L1376">1376</a>     <strong class="jxr_keyword">throws</strong>  InsufficientPrivilegeException,
 <a class="jxr_linenumber" name="L1377" href="#L1377">1377</a>             MemberAddException,
 <a class="jxr_linenumber" name="L1378" href="#L1378">1378</a>             SchemaException,
 <a class="jxr_linenumber" name="L1379" href="#L1379">1379</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L1380" href="#L1380">1380</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L1380" href="#L1380">1380</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L1381" href="#L1381">1381</a>   {
 <a class="jxr_linenumber" name="L1382" href="#L1382">1382</a>     <strong class="jxr_keyword">if</strong> ( <strong class="jxr_keyword">this</strong>._isSubjectElementImmediate(el) ) {
-<a class="jxr_linenumber" name="L1383" href="#L1383">1383</a>       Subject subj = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1383" href="#L1383">1383</a>       <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subj = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1384" href="#L1384">1384</a>       <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1385" href="#L1385">1385</a> 	      subj=<strong class="jxr_keyword">this</strong>._findSubject( 
 <a class="jxr_linenumber" name="L1386" href="#L1386">1386</a>         el.getAttribute(<span class="jxr_string">"id"</span>), el.getAttribute(<span class="jxr_string">"identifier"</span>), el.getAttribute(<span class="jxr_string">"type"</span>) 
@@ -1397,11 +1397,11 @@
 <a class="jxr_linenumber" name="L1389" href="#L1389">1389</a>         String errorMessage = <span class="jxr_string">"Could not add member to field "</span> + f.getName() + <span class="jxr_string">" of "</span> + g.getName() + <span class="jxr_string">" for subject id="</span> + el.getAttribute(<span class="jxr_string">"id"</span>);
 <a class="jxr_linenumber" name="L1390" href="#L1390">1390</a>     	  <strong class="jxr_keyword">if</strong>(_isFailOnUnresolvableSubjectEnabled()) {
 <a class="jxr_linenumber" name="L1391" href="#L1391">1391</a>           
-<a class="jxr_linenumber" name="L1392" href="#L1392">1392</a>           <strong class="jxr_keyword">if</strong> (e instanceof SubjectNotFoundException) {
-<a class="jxr_linenumber" name="L1393" href="#L1393">1393</a>             <strong class="jxr_keyword">throw</strong> (SubjectNotFoundException)e;
+<a class="jxr_linenumber" name="L1392" href="#L1392">1392</a>           <strong class="jxr_keyword">if</strong> (e instanceof <a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a>) {
+<a class="jxr_linenumber" name="L1393" href="#L1393">1393</a>             <strong class="jxr_keyword">throw</strong> (<a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a>)e;
 <a class="jxr_linenumber" name="L1394" href="#L1394">1394</a>           }
-<a class="jxr_linenumber" name="L1395" href="#L1395">1395</a>           <strong class="jxr_keyword">if</strong> (e instanceof SubjectNotUniqueException) {
-<a class="jxr_linenumber" name="L1396" href="#L1396">1396</a>             <strong class="jxr_keyword">throw</strong> (SubjectNotUniqueException)e;
+<a class="jxr_linenumber" name="L1395" href="#L1395">1395</a>           <strong class="jxr_keyword">if</strong> (e instanceof <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>) {
+<a class="jxr_linenumber" name="L1396" href="#L1396">1396</a>             <strong class="jxr_keyword">throw</strong> (<a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>)e;
 <a class="jxr_linenumber" name="L1397" href="#L1397">1397</a>           }
 <a class="jxr_linenumber" name="L1398" href="#L1398">1398</a>           <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {
 <a class="jxr_linenumber" name="L1399" href="#L1399">1399</a>             <strong class="jxr_keyword">throw</strong> (RuntimeException)e;
@@ -1419,13 +1419,13 @@
 <a class="jxr_linenumber" name="L1411" href="#L1411">1411</a>   } <em class="jxr_comment">// private void _processMembershipListAddMember(g, f, el)</em>
 <a class="jxr_linenumber" name="L1412" href="#L1412">1412</a> 
 <a class="jxr_linenumber" name="L1413" href="#L1413">1413</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1414" href="#L1414">1414</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> _processMembershipListHandleImportMode(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> f, Element list) 
+<a class="jxr_linenumber" name="L1414" href="#L1414">1414</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> _processMembershipListHandleImportMode(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> f, Element list) 
 <a class="jxr_linenumber" name="L1415" href="#L1415">1415</a>     <strong class="jxr_keyword">throws</strong>  GrouperException,
 <a class="jxr_linenumber" name="L1416" href="#L1416">1416</a>             InsufficientPrivilegeException,
 <a class="jxr_linenumber" name="L1417" href="#L1417">1417</a>             MemberAddException,
 <a class="jxr_linenumber" name="L1418" href="#L1418">1418</a>             MemberDeleteException,
 <a class="jxr_linenumber" name="L1419" href="#L1419">1419</a>             SchemaException,
-<a class="jxr_linenumber" name="L1420" href="#L1420">1420</a>             SubjectNotFoundException
+<a class="jxr_linenumber" name="L1420" href="#L1420">1420</a>             <a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a>
 <a class="jxr_linenumber" name="L1421" href="#L1421">1421</a>   {
 <a class="jxr_linenumber" name="L1422" href="#L1422">1422</a>     <em class="jxr_comment">// TODO 20070321 this needs more refactoring</em>
 <a class="jxr_linenumber" name="L1423" href="#L1423">1423</a>     <em class="jxr_comment">//      So this handles elminating current members if in replace mode and</em>
@@ -1446,8 +1446,8 @@
 <a class="jxr_linenumber" name="L1438" href="#L1438">1438</a>       <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L1439" href="#L1439">1439</a>         Iterator it = g.getImmediateMembers(f).iterator();
 <a class="jxr_linenumber" name="L1440" href="#L1440">1440</a>         <strong class="jxr_keyword">while</strong> (it.hasNext()) {
-<a class="jxr_linenumber" name="L1441" href="#L1441">1441</a>           <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> m = (Member) it.next();
-<a class="jxr_linenumber" name="L1442" href="#L1442">1442</a>           Subject subj = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/subj/LazySubject.html">LazySubject</a>(m);
+<a class="jxr_linenumber" name="L1441" href="#L1441">1441</a>           <a name="Mem<a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a>ref="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> m = (<a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a>) it.next();
+<a class="jxr_linenumber" name="L1442" href="#L1442">1442</a>           <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subj = <strong class="jxr_keyword">new</strong> <a name="LazySubject" href="../../../../../edu/internet2/middleware/grouper/subj/LazySubject.html#LazySubject">LazySubject</a>(m);
 <a class="jxr_linenumber" name="L1443" href="#L1443">1443</a>           g.deleteMember(subj, f);
 <a class="jxr_linenumber" name="L1444" href="#L1444">1444</a>           <em class="jxr_comment">//g.deleteMember( ( (Member) it.next() ).getSubject() );</em>
 <a class="jxr_linenumber" name="L1445" href="#L1445">1445</a>         }
@@ -1467,7 +1467,7 @@
 <a class="jxr_linenumber" name="L1459" href="#L1459">1459</a>   <em class="jxr_comment">// @since   1.1.0</em>
 <a class="jxr_linenumber" name="L1460" href="#L1460">1460</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processMetadata(Element el) 
 <a class="jxr_linenumber" name="L1461" href="#L1461">1461</a>     <strong class="jxr_keyword">throws</strong>  InsufficientPrivilegeException,
-<a class="jxr_linenumber" name="L1462" href="#L1462">1462</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html">SchemaException</a>
+<a class="jxr_linenumber" name="L1462" href="#L1462">1462</a>             <a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a>
 <a class="jxr_linenumber" name="L1463" href="#L1463">1463</a>   {
 <a class="jxr_linenumber" name="L1464" href="#L1464">1464</a>     <strong class="jxr_keyword">if</strong> ( el == <strong class="jxr_keyword">null</strong> || !<strong class="jxr_keyword">this</strong>._isMetadataGroupTypeImportEnabled() ) {
 <a class="jxr_linenumber" name="L1465" href="#L1465">1465</a>       <strong class="jxr_keyword">return</strong>;
@@ -1481,9 +1481,9 @@
 <a class="jxr_linenumber" name="L1473" href="#L1473">1473</a>   } <em class="jxr_comment">// private void _processMetadata(e)</em>
 <a class="jxr_linenumber" name="L1474" href="#L1474">1474</a> 
 <a class="jxr_linenumber" name="L1475" href="#L1475">1475</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1476" href="#L1476">1476</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processMetadataField(<a href="../../../../../edu/internet2/middleware/grouper/GroupType.html">GroupType</a> gt, <strong class="jxr_keyword">boolean</strong> isNew, Element el) 
+<a class="jxr_linenumber" name="L1476" href="#L1476">1476</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processMetadataField(<a name="GroupType" href="../../../../../edu/internet2/middleware/grouper/GroupType.html#GroupType">GroupType</a> gt, <strong class="jxr_keyword">boolean</strong> isNew, Element el) 
 <a class="jxr_linenumber" name="L1477" href="#L1477">1477</a>     <strong class="jxr_keyword">throws</strong>  InsufficientPrivilegeException,
-<a class="jxr_linenumber" name="L1478" href="#L1478">1478</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html">SchemaException</a>
+<a class="jxr_linenumber" name="L1478" href="#L1478">1478</a>             <a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a>
 <a class="jxr_linenumber" name="L1479" href="#L1479">1479</a>   {
 <a class="jxr_linenumber" name="L1480" href="#L1480">1480</a>     <strong class="jxr_keyword">if</strong> (isNew || <strong class="jxr_keyword">this</strong>._isMetadataGroupTypeAttributeImportEnabled()) {
 <a class="jxr_linenumber" name="L1481" href="#L1481">1481</a>       <em class="jxr_comment">// if a new group type or we have enabled group type attr importing // continue</em>
@@ -1504,12 +1504,12 @@
 <a class="jxr_linenumber" name="L1496" href="#L1496">1496</a>       String    fType = el.getAttribute(<span class="jxr_string">"type"</span>);
 <a class="jxr_linenumber" name="L1497" href="#L1497">1497</a>       
 <a class="jxr_linenumber" name="L1498" href="#L1498">1498</a>       <strong class="jxr_keyword">if</strong> (fType.equals(FieldType.LIST.toString())) {
-<a class="jxr_linenumber" name="L1499" href="#L1499">1499</a>         <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> read  = Privilege.getInstance( el.getAttribute(<span class="jxr_string">"readPriv"</span>)  );
-<a class="jxr_linenumber" name="L1500" href="#L1500">1500</a>         <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> write = Privilege.getInstance( el.getAttribute(<span class="jxr_string">"writePriv"</span>) );
+<a class="jxr_linenumber" name="L1499" href="#L1499">1499</a>         <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> read  = Privilege.getInstance( el.getAttribute(<span class="jxr_string">"readPriv"</span>)  );
+<a class="jxr_linenumber" name="L1500" href="#L1500">1500</a>         <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> write = Privilege.getInstance( el.getAttribute(<span class="jxr_string">"writePriv"</span>) );
 <a class="jxr_linenumber" name="L1501" href="#L1501">1501</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1502" href="#L1502">1502</a>           FieldFinder.find(fName, <strong class="jxr_keyword">true</strong>); <em class="jxr_comment">// already exists</em>
 <a class="jxr_linenumber" name="L1503" href="#L1503">1503</a>         } 
-<a class="jxr_linenumber" name="L1504" href="#L1504">1504</a>         <strong class="jxr_keyword">catch</strong> (SchemaException eS) {
+<a class="jxr_linenumber" name="L1504" href="#L1504">1504</a>         <strong class="jxr_keyword">catch</strong> (<a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a> eS) {
 <a class="jxr_linenumber" name="L1505" href="#L1505">1505</a>           gt.addList(s, fName, read, write);
 <a class="jxr_linenumber" name="L1506" href="#L1506">1506</a>         }
 <a class="jxr_linenumber" name="L1507" href="#L1507">1507</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (fType.equals(<span class="jxr_string">"attribute"</span>)) {
@@ -1523,15 +1523,15 @@
 <a class="jxr_linenumber" name="L1515" href="#L1515">1515</a>   <em class="jxr_comment">// @since   1.1.0</em>
 <a class="jxr_linenumber" name="L1516" href="#L1516">1516</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processMetadataGroupType(Element el) 
 <a class="jxr_linenumber" name="L1517" href="#L1517">1517</a>     <strong class="jxr_keyword">throws</strong>  InsufficientPrivilegeException,
-<a class="jxr_linenumber" name="L1518" href="#L1518">1518</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html">SchemaException</a>
+<a class="jxr_linenumber" name="L1518" href="#L1518">1518</a>             <a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a>
 <a class="jxr_linenumber" name="L1519" href="#L1519">1519</a>   {
 <a class="jxr_linenumber" name="L1520" href="#L1520">1520</a>     <strong class="jxr_keyword">boolean</strong>   isNew   = false;
 <a class="jxr_linenumber" name="L1521" href="#L1521">1521</a>     String    gtName  = el.getAttribute(<span class="jxr_string">"name"</span>);
-<a class="jxr_linenumber" name="L1522" href="#L1522">1522</a>     <a href="../../../../../edu/internet2/middleware/grouper/GroupType.html">GroupType</a> gt      = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1522" href="#L1522">1522</a>     <a name="GroupType" href="../../../../../edu/internet2/middleware/grouper/GroupType.html#GroupType">GroupType</a> gt      = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1523" href="#L1523">1523</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1524" href="#L1524">1524</a>       gt = GroupTypeFinder.find(gtName, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1525" href="#L1525">1525</a>     } 
-<a class="jxr_linenumber" name="L1526" href="#L1526">1526</a>     <strong class="jxr_keyword">catch</strong> (SchemaException ex) {
+<a class="jxr_linenumber" name="L1526" href="#L1526">1526</a>     <strong class="jxr_keyword">catch</strong> (<a name="SchemaException" href="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html#SchemaException">SchemaException</a> ex) {
 <a class="jxr_linenumber" name="L1527" href="#L1527">1527</a>       gt    = GroupType.createType(s, gtName);
 <a class="jxr_linenumber" name="L1528" href="#L1528">1528</a>       isNew = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L1529" href="#L1529">1529</a>     }
@@ -1550,7 +1550,7 @@
 <a class="jxr_linenumber" name="L1542" href="#L1542">1542</a>             SchemaException,
 <a class="jxr_linenumber" name="L1543" href="#L1543">1543</a>             StemNotFoundException,
 <a class="jxr_linenumber" name="L1544" href="#L1544">1544</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L1545" href="#L1545">1545</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L1545" href="#L1545">1545</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L1546" href="#L1546">1546</a>   {
 <a class="jxr_linenumber" name="L1547" href="#L1547">1547</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.namingPrivLists != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1548" href="#L1548">1548</a>       Iterator it = <strong class="jxr_keyword">this</strong>.namingPrivLists.iterator();
@@ -1569,7 +1569,7 @@
 <a class="jxr_linenumber" name="L1561" href="#L1561">1561</a>             SchemaException,
 <a class="jxr_linenumber" name="L1562" href="#L1562">1562</a>             StemNotFoundException,
 <a class="jxr_linenumber" name="L1563" href="#L1563">1563</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L1564" href="#L1564">1564</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L1564" href="#L1564">1564</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L1565" href="#L1565">1565</a>   {
 <a class="jxr_linenumber" name="L1566" href="#L1566">1566</a>     String    stemName  = (String) map.get(<span class="jxr_string">"stem"</span>);
 <a class="jxr_linenumber" name="L1567" href="#L1567">1567</a>     Element   privs     = (Element) map.get(<span class="jxr_string">"privileges"</span>);
@@ -1577,8 +1577,8 @@
 <a class="jxr_linenumber" name="L1569" href="#L1569">1569</a>       <strong class="jxr_keyword">return</strong>; <em class="jxr_comment">// Ignore privileges</em>
 <a class="jxr_linenumber" name="L1570" href="#L1570">1570</a>     }
 <a class="jxr_linenumber" name="L1571" href="#L1571">1571</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L1572" href="#L1572">1572</a>       <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a>      ns        = StemFinder.findByName(s, stemName, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L1573" href="#L1573">1573</a>       <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> p         = Privilege.getInstance( privs.getAttribute(<span class="jxr_string">"type"</span>) );
+<a class="jxr_linenumber" name="L1572" href="#L1572">1572</a>       <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a>      ns        = StemFinder.findByName(s, stemName, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1573" href="#L1573">1573</a>       <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> p         = Privilege.getInstance( privs.getAttribute(<span class="jxr_string">"type"</span>) );
 <a class="jxr_linenumber" name="L1574" href="#L1574">1574</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
 <a class="jxr_linenumber" name="L1575" href="#L1575">1575</a>         ns.revokePriv(p);
 <a class="jxr_linenumber" name="L1576" href="#L1576">1576</a>       }
@@ -1587,7 +1587,7 @@
 <a class="jxr_linenumber" name="L1579" href="#L1579">1579</a>         <strong class="jxr_keyword">this</strong>._processNamingPrivListGrantPriv( ns, p, (Element) it.next() );
 <a class="jxr_linenumber" name="L1580" href="#L1580">1580</a>       }
 <a class="jxr_linenumber" name="L1581" href="#L1581">1581</a>     }
-<a class="jxr_linenumber" name="L1582" href="#L1582">1582</a>     <strong class="jxr_keyword">catch</strong> (StemNotFoundException eNSNF) {
+<a class="jxr_linenumber" name="L1582" href="#L1582">1582</a>     <strong class="jxr_keyword">catch</strong> (<a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a> eNSNF) {
 <a class="jxr_linenumber" name="L1583" href="#L1583">1583</a>       <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>._getUpdateOnly()) {
 <a class="jxr_linenumber" name="L1584" href="#L1584">1584</a>         <strong class="jxr_keyword">throw</strong> eNSNF; <em class="jxr_comment">// if updating we can ignore, if loading we cannot</em>
 <a class="jxr_linenumber" name="L1585" href="#L1585">1585</a>       }
@@ -1595,15 +1595,15 @@
 <a class="jxr_linenumber" name="L1587" href="#L1587">1587</a>   } <em class="jxr_comment">// private void _processNamingPrivList(map)</em>
 <a class="jxr_linenumber" name="L1588" href="#L1588">1588</a> 
 <a class="jxr_linenumber" name="L1589" href="#L1589">1589</a>   <em class="jxr_comment">// @since   1.1.0</em>
-<a class="jxr_linenumber" name="L1590" href="#L1590">1590</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processNamingPrivListGrantPriv(<a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ns, <a href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> p, Element el)
+<a class="jxr_linenumber" name="L1590" href="#L1590">1590</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processNamingPrivListGrantPriv(<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ns, <a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> p, Element el)
 <a class="jxr_linenumber" name="L1591" href="#L1591">1591</a>     <strong class="jxr_keyword">throws</strong>  GrantPrivilegeException,
 <a class="jxr_linenumber" name="L1592" href="#L1592">1592</a>             InsufficientPrivilegeException,
 <a class="jxr_linenumber" name="L1593" href="#L1593">1593</a>             SchemaException,
 <a class="jxr_linenumber" name="L1594" href="#L1594">1594</a>             SubjectNotFoundException,
-<a class="jxr_linenumber" name="L1595" href="#L1595">1595</a>             SubjectNotUniqueException
+<a class="jxr_linenumber" name="L1595" href="#L1595">1595</a>             <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>
 <a class="jxr_linenumber" name="L1596" href="#L1596">1596</a>   {
 <a class="jxr_linenumber" name="L1597" href="#L1597">1597</a>     <strong class="jxr_keyword">if</strong> ( <strong class="jxr_keyword">this</strong>._isSubjectElementImmediate(el) ) {
-<a class="jxr_linenumber" name="L1598" href="#L1598">1598</a>       Subject subj = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1598" href="#L1598">1598</a>       <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subj = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1599" href="#L1599">1599</a>       <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1600" href="#L1600">1600</a> 	      subj=<strong class="jxr_keyword">this</strong>._findSubject( 
 <a class="jxr_linenumber" name="L1601" href="#L1601">1601</a>         el.getAttribute(<span class="jxr_string">"id"</span>), el.getAttribute(<span class="jxr_string">"identifier"</span>), el.getAttribute(<span class="jxr_string">"type"</span>) 
@@ -1612,11 +1612,11 @@
 <a class="jxr_linenumber" name="L1604" href="#L1604">1604</a>         String errorMessage = <span class="jxr_string">"Could not grant "</span> + p.getName() + <span class="jxr_string">" to "</span> + ns.getName() + <span class="jxr_string">" for subject id="</span> + el.getAttribute(<span class="jxr_string">"id"</span>);
 <a class="jxr_linenumber" name="L1605" href="#L1605">1605</a>     	  <strong class="jxr_keyword">if</strong>(_isFailOnUnresolvableSubjectEnabled()) {
 <a class="jxr_linenumber" name="L1606" href="#L1606">1606</a>           
-<a class="jxr_linenumber" name="L1607" href="#L1607">1607</a>           <strong class="jxr_keyword">if</strong> (e instanceof SubjectNotFoundException) {
-<a class="jxr_linenumber" name="L1608" href="#L1608">1608</a>             <strong class="jxr_keyword">throw</strong> (SubjectNotFoundException)e;
+<a class="jxr_linenumber" name="L1607" href="#L1607">1607</a>           <strong class="jxr_keyword">if</strong> (e instanceof <a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a>) {
+<a class="jxr_linenumber" name="L1608" href="#L1608">1608</a>             <strong class="jxr_keyword">throw</strong> (<a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a>)e;
 <a class="jxr_linenumber" name="L1609" href="#L1609">1609</a>           }
-<a class="jxr_linenumber" name="L1610" href="#L1610">1610</a>           <strong class="jxr_keyword">if</strong> (e instanceof SubjectNotUniqueException) {
-<a class="jxr_linenumber" name="L1611" href="#L1611">1611</a>             <strong class="jxr_keyword">throw</strong> (SubjectNotUniqueException)e;
+<a class="jxr_linenumber" name="L1610" href="#L1610">1610</a>           <strong class="jxr_keyword">if</strong> (e instanceof <a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>) {
+<a class="jxr_linenumber" name="L1611" href="#L1611">1611</a>             <strong class="jxr_keyword">throw</strong> (<a name="SubjectNotUniqueException" href="../../../../../edu/internet2/middleware/subject/SubjectNotUniqueException.html#SubjectNotUniqueException">SubjectNotUniqueException</a>)e;
 <a class="jxr_linenumber" name="L1612" href="#L1612">1612</a>           }
 <a class="jxr_linenumber" name="L1613" href="#L1613">1613</a>           <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {
 <a class="jxr_linenumber" name="L1614" href="#L1614">1614</a>             <strong class="jxr_keyword">throw</strong> (RuntimeException)e;
@@ -1646,13 +1646,13 @@
 <a class="jxr_linenumber" name="L1638" href="#L1638">1638</a>             SchemaException,
 <a class="jxr_linenumber" name="L1639" href="#L1639">1639</a>             StemAddException,
 <a class="jxr_linenumber" name="L1640" href="#L1640">1640</a>             StemModifyException,
-<a class="jxr_linenumber" name="L1641" href="#L1641">1641</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>
+<a class="jxr_linenumber" name="L1641" href="#L1641">1641</a>             <a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a>
 <a class="jxr_linenumber" name="L1642" href="#L1642">1642</a>   {
 <a class="jxr_linenumber" name="L1643" href="#L1643">1643</a>     String newStem = U.constructName( stem, e.getAttribute(GrouperConfig.ATTRIBUTE_EXTENSION) );
 <a class="jxr_linenumber" name="L1644" href="#L1644">1644</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1645" href="#L1645">1645</a>       <strong class="jxr_keyword">this</strong>._processPathUpdate(e, newStem);  <em class="jxr_comment">// Try and update</em>
 <a class="jxr_linenumber" name="L1646" href="#L1646">1646</a>     } 
-<a class="jxr_linenumber" name="L1647" href="#L1647">1647</a>     <strong class="jxr_keyword">catch</strong> (StemNotFoundException eNSNF) {
+<a class="jxr_linenumber" name="L1647" href="#L1647">1647</a>     <strong class="jxr_keyword">catch</strong> (<a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a> eNSNF) {
 <a class="jxr_linenumber" name="L1648" href="#L1648">1648</a>       <strong class="jxr_keyword">this</strong>._processPathCreate(e, stem);     <em class="jxr_comment">// Otherwise create</em>
 <a class="jxr_linenumber" name="L1649" href="#L1649">1649</a>     }
 <a class="jxr_linenumber" name="L1650" href="#L1650">1650</a>     <strong class="jxr_keyword">this</strong>._accumulatePrivs(e, newStem, <span class="jxr_string">"naming"</span>);
@@ -1665,12 +1665,12 @@
 <a class="jxr_linenumber" name="L1657" href="#L1657">1657</a>             InsufficientPrivilegeException,
 <a class="jxr_linenumber" name="L1658" href="#L1658">1658</a>             StemAddException,
 <a class="jxr_linenumber" name="L1659" href="#L1659">1659</a>             StemModifyException,
-<a class="jxr_linenumber" name="L1660" href="#L1660">1660</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>
+<a class="jxr_linenumber" name="L1660" href="#L1660">1660</a>             <a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a>
 <a class="jxr_linenumber" name="L1661" href="#L1661">1661</a>   {
 <a class="jxr_linenumber" name="L1662" href="#L1662">1662</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._getUpdateOnly()) {
 <a class="jxr_linenumber" name="L1663" href="#L1663">1663</a>       <strong class="jxr_keyword">return</strong>; <em class="jxr_comment">// do not create stems when we are only updating</em>
 <a class="jxr_linenumber" name="L1664" href="#L1664">1664</a>     }
-<a class="jxr_linenumber" name="L1665" href="#L1665">1665</a>     <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> parent = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1665" href="#L1665">1665</a>     <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> parent = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1666" href="#L1666">1666</a>     <strong class="jxr_keyword">if</strong> (stem.equals(GrouperConfig.EMPTY_STRING)) {
 <a class="jxr_linenumber" name="L1667" href="#L1667">1667</a>       parent = StemFinder.findRootStem(<strong class="jxr_keyword">this</strong>.s);
 <a class="jxr_linenumber" name="L1668" href="#L1668">1668</a>     }
@@ -1681,13 +1681,13 @@
 <a class="jxr_linenumber" name="L1673" href="#L1673">1673</a>     <strong class="jxr_keyword">if</strong>(!_isIgnoreInternalAttributes()) {
 <a class="jxr_linenumber" name="L1674" href="#L1674">1674</a>     	id=e.getAttribute(<span class="jxr_string">"id"</span>);
 <a class="jxr_linenumber" name="L1675" href="#L1675">1675</a>     }
-<a class="jxr_linenumber" name="L1676" href="#L1676">1676</a>     <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> child = parent.internal_addChildStem(
+<a class="jxr_linenumber" name="L1676" href="#L1676">1676</a>     <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> child = parent.internal_addChildStem(
 <a class="jxr_linenumber" name="L1677" href="#L1677">1677</a>       e.getAttribute(GrouperConfig.ATTRIBUTE_EXTENSION),
 <a class="jxr_linenumber" name="L1678" href="#L1678">1678</a>       e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION),
 <a class="jxr_linenumber" name="L1679" href="#L1679">1679</a>       id
 <a class="jxr_linenumber" name="L1680" href="#L1680">1680</a>     );
 <a class="jxr_linenumber" name="L1681" href="#L1681">1681</a>     String                  desc  = <strong class="jxr_keyword">this</strong>._getDescription(e);
-<a class="jxr_linenumber" name="L1682" href="#L1682">1682</a>     <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(desc);
+<a class="jxr_linenumber" name="L1682" href="#L1682">1682</a>     <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(desc);
 <a class="jxr_linenumber" name="L1683" href="#L1683">1683</a>     <strong class="jxr_keyword">if</strong> (v.isValid()) {
 <a class="jxr_linenumber" name="L1684" href="#L1684">1684</a>       child.setDescription(desc);
 <a class="jxr_linenumber" name="L1685" href="#L1685">1685</a>       child.store();
@@ -1701,15 +1701,15 @@
 <a class="jxr_linenumber" name="L1693" href="#L1693">1693</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processPathUpdate(Element e, String newStem) 
 <a class="jxr_linenumber" name="L1694" href="#L1694">1694</a>     <strong class="jxr_keyword">throws</strong>  InsufficientPrivilegeException,
 <a class="jxr_linenumber" name="L1695" href="#L1695">1695</a>             StemModifyException,
-<a class="jxr_linenumber" name="L1696" href="#L1696">1696</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>
+<a class="jxr_linenumber" name="L1696" href="#L1696">1696</a>             <a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a>
 <a class="jxr_linenumber" name="L1697" href="#L1697">1697</a>   {
 <a class="jxr_linenumber" name="L1698" href="#L1698">1698</a>     <em class="jxr_comment">// We need to keep this outside the conditional so that a</em>
 <a class="jxr_linenumber" name="L1699" href="#L1699">1699</a>     <em class="jxr_comment">// StemNotFoundException can be thrown if the stem does not exist.  That</em>
 <a class="jxr_linenumber" name="L1700" href="#L1700">1700</a>     <em class="jxr_comment">// will trigger the creation of the stem.</em>
-<a class="jxr_linenumber" name="L1701" href="#L1701">1701</a>     <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ns = StemFinder.findByName(<strong class="jxr_keyword">this</strong>.s, newStem, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1701" href="#L1701">1701</a>     <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ns = StemFinder.findByName(<strong class="jxr_keyword">this</strong>.s, newStem, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1702" href="#L1702">1702</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._isUpdatingAttributes()) {
 <a class="jxr_linenumber" name="L1703" href="#L1703">1703</a>       String                  dExtn = e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
-<a class="jxr_linenumber" name="L1704" href="#L1704">1704</a>       <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(dExtn);
+<a class="jxr_linenumber" name="L1704" href="#L1704">1704</a>       <a name="NotNullOrEmptyValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullOrEmptyValidator.html#NotNullOrEmptyValidator">NotNullOrEmptyValidator</a> v     = NotNullOrEmptyValidator.validate(dExtn);
 <a class="jxr_linenumber" name="L1705" href="#L1705">1705</a>       <strong class="jxr_keyword">if</strong> ( v.isValid() &amp;&amp; !dExtn.equals( ns.getDisplayExtension() ) ) {
 <a class="jxr_linenumber" name="L1706" href="#L1706">1706</a>         ns.setDisplayExtension(dExtn);
 <a class="jxr_linenumber" name="L1707" href="#L1707">1707</a>         ns.store();
@@ -1735,7 +1735,7 @@
 <a class="jxr_linenumber" name="L1727" href="#L1727">1727</a>             SchemaException,
 <a class="jxr_linenumber" name="L1728" href="#L1728">1728</a>             StemAddException,
 <a class="jxr_linenumber" name="L1729" href="#L1729">1729</a>             StemModifyException,
-<a class="jxr_linenumber" name="L1730" href="#L1730">1730</a>             <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>
+<a class="jxr_linenumber" name="L1730" href="#L1730">1730</a>             <a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a>
 <a class="jxr_linenumber" name="L1731" href="#L1731">1731</a>   {
 <a class="jxr_linenumber" name="L1732" href="#L1732">1732</a>     Iterator it = <strong class="jxr_keyword">this</strong>._getImmediateElements(e, <span class="jxr_string">"stem"</span>).iterator();
 <a class="jxr_linenumber" name="L1733" href="#L1733">1733</a>     <strong class="jxr_keyword">while</strong> (it.hasNext()) {
@@ -1745,7 +1745,7 @@
 <a class="jxr_linenumber" name="L1737" href="#L1737">1737</a> 
 <a class="jxr_linenumber" name="L1738" href="#L1738">1738</a>   <em class="jxr_comment">// @since   1.1.0</em>
 <a class="jxr_linenumber" name="L1739" href="#L1739">1739</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _processProperties() 
-<a class="jxr_linenumber" name="L1740" href="#L1740">1740</a>     <strong class="jxr_keyword">throws</strong>  GrouperException
+<a class="jxr_linenumber" name="L1740" href="#L1740">1740</a>     <strong class="jxr_keyword">throws</strong>  <a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a>
 <a class="jxr_linenumber" name="L1741" href="#L1741">1741</a>   {
 <a class="jxr_linenumber" name="L1742" href="#L1742">1742</a>     Properties xmlOptions = <strong class="jxr_keyword">this</strong>._getImportOptionsFromXml();
 <a class="jxr_linenumber" name="L1743" href="#L1743">1743</a>     <strong class="jxr_keyword">if</strong> (xmlOptions == <strong class="jxr_keyword">null</strong> &amp;&amp; <strong class="jxr_keyword">this</strong>.options.isEmpty()) {
@@ -1759,7 +1759,7 @@
 <a class="jxr_linenumber" name="L1751" href="#L1751">1751</a>   } <em class="jxr_comment">// private void _processProperties()</em>
 <a class="jxr_linenumber" name="L1752" href="#L1752">1752</a> 
 <a class="jxr_linenumber" name="L1753" href="#L1753">1753</a>   <em class="jxr_comment">// @since   1.2.0</em>
-<a class="jxr_linenumber" name="L1754" href="#L1754">1754</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _setCreateSubject(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, Element e) {
+<a class="jxr_linenumber" name="L1754" href="#L1754">1754</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _setCreateSubject(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, Element e) {
 <a class="jxr_linenumber" name="L1755" href="#L1755">1755</a>     Element elSubj = <strong class="jxr_keyword">this</strong>._getImmediateElement(e, <span class="jxr_string">"subject"</span>);
 <a class="jxr_linenumber" name="L1756" href="#L1756">1756</a>     g.setCreatorUuid(
 <a class="jxr_linenumber" name="L1757" href="#L1757">1757</a>       MemberFinder.internal_findOrCreateBySubject(
@@ -1769,7 +1769,7 @@
 <a class="jxr_linenumber" name="L1761" href="#L1761">1761</a>   } <em class="jxr_comment">// private void setCreateSubject(g, e)</em>
 <a class="jxr_linenumber" name="L1762" href="#L1762">1762</a>   
 <a class="jxr_linenumber" name="L1763" href="#L1763">1763</a>   <em class="jxr_comment">// @since   1.2.0</em>
-<a class="jxr_linenumber" name="L1764" href="#L1764">1764</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _setCreateSubject(<a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ns, Element e) {
+<a class="jxr_linenumber" name="L1764" href="#L1764">1764</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _setCreateSubject(<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ns, Element e) {
 <a class="jxr_linenumber" name="L1765" href="#L1765">1765</a>     Element elSubj = <strong class="jxr_keyword">this</strong>._getImmediateElement(e, <span class="jxr_string">"subject"</span>);
 <a class="jxr_linenumber" name="L1766" href="#L1766">1766</a>     ns.setCreatorUuid(
 <a class="jxr_linenumber" name="L1767" href="#L1767">1767</a>       MemberFinder.internal_findOrCreateBySubject(
@@ -1779,12 +1779,12 @@
 <a class="jxr_linenumber" name="L1771" href="#L1771">1771</a>   } <em class="jxr_comment">// private void setCreateSubject(ns, e)</em>
 <a class="jxr_linenumber" name="L1772" href="#L1772">1772</a> 
 <a class="jxr_linenumber" name="L1773" href="#L1773">1773</a>   <em class="jxr_comment">// @since   1.2.0</em>
-<a class="jxr_linenumber" name="L1774" href="#L1774">1774</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> _setCreateTime(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, Element e) {
+<a class="jxr_linenumber" name="L1774" href="#L1774">1774</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> _setCreateTime(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, Element e) {
 <a class="jxr_linenumber" name="L1775" href="#L1775">1775</a>     String msg = <span class="jxr_string">"error setting createTime: "</span>;
 <a class="jxr_linenumber" name="L1776" href="#L1776">1776</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1777" href="#L1777">1777</a>       g.setCreateTimeLong( <strong class="jxr_keyword">this</strong>._parseTime( XmlImporter._getText(e) ).getTime() );
 <a class="jxr_linenumber" name="L1778" href="#L1778">1778</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L1779" href="#L1779">1779</a>     } <strong class="jxr_keyword">catch</strong> (GrouperException eG) {
+<a class="jxr_linenumber" name="L1779" href="#L1779">1779</a>     } <strong class="jxr_keyword">catch</strong> (<a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a> eG) {
 <a class="jxr_linenumber" name="L1780" href="#L1780">1780</a>        msg += eG.getMessage();
 <a class="jxr_linenumber" name="L1781" href="#L1781">1781</a>     } <strong class="jxr_keyword">catch</strong> (ParseException eP) {
 <a class="jxr_linenumber" name="L1782" href="#L1782">1782</a>       msg += eP.getMessage();
@@ -1794,12 +1794,12 @@
 <a class="jxr_linenumber" name="L1786" href="#L1786">1786</a>   } <em class="jxr_comment">// private boolean _setCreateTime(g, e)</em>
 <a class="jxr_linenumber" name="L1787" href="#L1787">1787</a> 
 <a class="jxr_linenumber" name="L1788" href="#L1788">1788</a>   <em class="jxr_comment">// @since   1.2.0</em>
-<a class="jxr_linenumber" name="L1789" href="#L1789">1789</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> _setCreateTime(<a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ns, Element e) {
+<a class="jxr_linenumber" name="L1789" href="#L1789">1789</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> _setCreateTime(<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ns, Element e) {
 <a class="jxr_linenumber" name="L1790" href="#L1790">1790</a>     String msg = <span class="jxr_string">"error setting createTime: "</span>;
 <a class="jxr_linenumber" name="L1791" href="#L1791">1791</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1792" href="#L1792">1792</a>       ns.setCreateTimeLong( <strong class="jxr_keyword">this</strong>._parseTime( XmlImporter._getText(e) ).getTime() );
 <a class="jxr_linenumber" name="L1793" href="#L1793">1793</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L1794" href="#L1794">1794</a>     } <strong class="jxr_keyword">catch</strong> (GrouperException eG) {
+<a class="jxr_linenumber" name="L1794" href="#L1794">1794</a>     } <strong class="jxr_keyword">catch</strong> (<a name="GrouperException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a> eG) {
 <a class="jxr_linenumber" name="L1795" href="#L1795">1795</a>        msg += eG.getMessage();
 <a class="jxr_linenumber" name="L1796" href="#L1796">1796</a>     } <strong class="jxr_keyword">catch</strong> (ParseException eP) {
 <a class="jxr_linenumber" name="L1797" href="#L1797">1797</a>       msg += eP.getMessage();
@@ -1809,8 +1809,8 @@
 <a class="jxr_linenumber" name="L1801" href="#L1801">1801</a>   } <em class="jxr_comment">// private boolean _setCreateTime(ns, e)</em>
 <a class="jxr_linenumber" name="L1802" href="#L1802">1802</a> 
 <a class="jxr_linenumber" name="L1803" href="#L1803">1803</a>   <em class="jxr_comment">// @since   1.2.0</em>
-<a class="jxr_linenumber" name="L1804" href="#L1804">1804</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _setInternalAttributes(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g, Element e) 
-<a class="jxr_linenumber" name="L1805" href="#L1805">1805</a>     <strong class="jxr_keyword">throws</strong>  GrouperDAOException
+<a class="jxr_linenumber" name="L1804" href="#L1804">1804</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _setInternalAttributes(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g, Element e) 
+<a class="jxr_linenumber" name="L1805" href="#L1805">1805</a>     <strong class="jxr_keyword">throws</strong>  <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a>
 <a class="jxr_linenumber" name="L1806" href="#L1806">1806</a>   {
 <a class="jxr_linenumber" name="L1807" href="#L1807">1807</a>     String    attr;
 <a class="jxr_linenumber" name="L1808" href="#L1808">1808</a>     <strong class="jxr_keyword">boolean</strong>   modified    = false;
@@ -1835,8 +1835,8 @@
 <a class="jxr_linenumber" name="L1827" href="#L1827">1827</a>   } <em class="jxr_comment">// private void _setInternalAttributesAttributes(g, e)</em>
 <a class="jxr_linenumber" name="L1828" href="#L1828">1828</a>   
 <a class="jxr_linenumber" name="L1829" href="#L1829">1829</a>   <em class="jxr_comment">// @since   1.2.0</em>
-<a class="jxr_linenumber" name="L1830" href="#L1830">1830</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _setInternalAttributes(<a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ns, Element e) 
-<a class="jxr_linenumber" name="L1831" href="#L1831">1831</a>     <strong class="jxr_keyword">throws</strong>  GrouperDAOException
+<a class="jxr_linenumber" name="L1830" href="#L1830">1830</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> _setInternalAttributes(<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ns, Element e) 
+<a class="jxr_linenumber" name="L1831" href="#L1831">1831</a>     <strong class="jxr_keyword">throws</strong>  <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a>
 <a class="jxr_linenumber" name="L1832" href="#L1832">1832</a>   {
 <a class="jxr_linenumber" name="L1833" href="#L1833">1833</a>     String    attr;
 <a class="jxr_linenumber" name="L1834" href="#L1834">1834</a>     <strong class="jxr_keyword">boolean</strong>   modified    = false;
@@ -1924,6 +1924,6 @@
 <a class="jxr_linenumber" name="L1916" href="#L1916">1916</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

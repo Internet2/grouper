@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">  you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -62,14 +62,14 @@
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment"> * @author  mchyzer</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> * @version $Id: GroupsInStemFilter.java,v 1.3 2009-11-17 02:52:29 mchyzer Exp $</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/filter/GroupsInStemFilter.html">GroupsInStemFilter</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html">BaseQueryFilter</a> {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GroupsInStemFilter" href="../../../../../edu/internet2/middleware/grouper/filter/GroupsInStemFilter.html#GroupsInStemFilter">GroupsInStemFilter</a> <strong class="jxr_keyword">extends</strong> <a name="BaseQueryFilter" href="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html#BaseQueryFilter">BaseQueryFilter</a> {
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>    
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>    
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>    <em class="jxr_javadoccomment">/** stem name to use */</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>    <strong class="jxr_keyword">private</strong> String  stemName;
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>    
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>    <em class="jxr_javadoccomment">/** if getting all children or just immediate, defaults to immediate */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> scope;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">private</strong> Scope scope;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>    <em class="jxr_javadoccomment">/** if we should throw QueryException if stem not found */</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> failOnStemNotFound;
@@ -99,7 +99,7 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">   * @param theScope is the type of children to return (all or immediate)</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">   * @param theFailOnStemNotFound true if GrouperException should be thrown on StemNotFoundException</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/filter/GroupsInStemFilter.html">GroupsInStemFilter</a>(String theStemName, <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> theScope,
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <strong class="jxr_keyword">public</strong> <a name="GroupsInStemFilter" href="../../../../../edu/internet2/middleware/grouper/filter/GroupsInStemFilter.html#GroupsInStemFilter">GroupsInStemFilter</a>(String theStemName, Scope theScope,
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>        <strong class="jxr_keyword">boolean</strong> theFailOnStemNotFound) {
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">this</strong>.stemName = theStemName;
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">this</strong>.scope = GrouperUtil.defaultIfNull(theScope, 
@@ -122,7 +122,7 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * @param thePageSize </em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   * @param typeOfGroups1</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/filter/GroupsInStemFilter.html">GroupsInStemFilter</a>(String theStemName, <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> theScope,
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>   <strong class="jxr_keyword">public</strong> <a name="GroupsInStemFilter" href="../../../../../edu/internet2/middleware/grouper/filter/GroupsInStemFilter.html#GroupsInStemFilter">GroupsInStemFilter</a>(String theStemName, Scope theScope,
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>       <strong class="jxr_keyword">boolean</strong> theFailOnStemNotFound, String theSortString, 
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>       Boolean theAscending, Integer thePageNumber, Integer thePageSize, Set&lt;TypeOfGroup&gt; typeOfGroups1) {
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">this</strong>.stemName = theStemName;
@@ -140,28 +140,28 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.filter.BaseQueryFilter#getResults(edu.internet2.middleware.grouper.GrouperSession)</em>
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; getResults(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> s) <strong class="jxr_keyword">throws</strong> QueryException {
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; getResults(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> s) <strong class="jxr_keyword">throws</strong> <a name="QueryException" href="../../../../../edu/internet2/middleware/grouper/exception/QueryException.html#QueryException">QueryException</a> {
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     GrouperSession.validate(s);
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     Set&lt;Group&gt; groups = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>     <em class="jxr_comment">//first find the stem.</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem;
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">final</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem;
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>       stem = StemFinder.findByName(s, <strong class="jxr_keyword">this</strong>.stemName, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a>().secondLevelCache(false));
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     } <strong class="jxr_keyword">catch</strong> (StemNotFoundException stfe) {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>       stem = StemFinder.findByName(s, <strong class="jxr_keyword">this</strong>.stemName, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">new</strong> <a name="QueryOptions" href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html#QueryOptions">QueryOptions</a>().secondLevelCache(false));
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     } <strong class="jxr_keyword">catch</strong> (<a name="StemNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html#StemNotFoundException">StemNotFoundException</a> stfe) {
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.failOnStemNotFound) {
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/QueryException.html">QueryException</a>(<span class="jxr_string">"Stem not found: '"</span> + <strong class="jxr_keyword">this</strong>.stemName + <span class="jxr_string">"'"</span>);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="QueryException" href="../../../../../edu/internet2/middleware/grouper/exception/QueryException.html#QueryException">QueryException</a>(<span class="jxr_string">"Stem not found: '"</span> + <strong class="jxr_keyword">this</strong>.stemName + <span class="jxr_string">"'"</span>);
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>       }
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>       <em class="jxr_comment">//if not found, and not supposed to fail, then just return</em>
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> HashSet&lt;Group&gt;();
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>     }
 <a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions = QueryOptions.create(<strong class="jxr_keyword">this</strong>.sortString, <strong class="jxr_keyword">this</strong>.ascending, <strong class="jxr_keyword">this</strong>.pageNumber, <strong class="jxr_keyword">this</strong>.pageSize);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">final</strong> <a name="QueryOptions" href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html#QueryOptions">QueryOptions</a> queryOptions = QueryOptions.create(<strong class="jxr_keyword">this</strong>.sortString, <strong class="jxr_keyword">this</strong>.ascending, <strong class="jxr_keyword">this</strong>.pageNumber, <strong class="jxr_keyword">this</strong>.pageSize);
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> 
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     groups = (Set&lt;Group&gt;)GrouperSession.callbackGrouperSession(s, <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     groups = (Set&lt;Group&gt;)GrouperSession.callbackGrouperSession(s, <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> 
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession)
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>           <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>       <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession)
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>           <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         <em class="jxr_comment">//based on which children, find them</em>
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         Set&lt;Group&gt; groups = stem.getChildGroups(GroupsInStemFilter.<strong class="jxr_keyword">this</strong>.scope, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GroupsInStemFilter.<strong class="jxr_keyword">this</strong>.typeOfGroups);
@@ -259,6 +259,6 @@
 <a class="jxr_linenumber" name="L251" href="#L251">251</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -46,7 +46,7 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://code.google.com/p/snappy/source/browse/trunk/format_description.txt" target="alexandria_uri">http://code.google.com/p/snappy/source/browse/trunk/format_description.txt</a>"&gt;Snappy compressed format description&lt;/a&gt;</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * @since 1.7</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/snappy/SnappyCompressorInputStream.html">SnappyCompressorInputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/CompressorInputStream.html">CompressorInputStream</a> {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SnappyCompressorInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/snappy/SnappyCompressorInputStream.html#SnappyCompressorInputStream">SnappyCompressorInputStream</a> <strong class="jxr_keyword">extends</strong> <a name="CompressorInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/CompressorInputStream.html#CompressorInputStream">CompressorInputStream</a> {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_javadoccomment">/** Mask used to determine the type of "tag" is being processed */</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> TAG_MASK = 0x03;
@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * </em>
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * @throws IOException</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/snappy/SnappyCompressorInputStream.html">SnappyCompressorInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream is) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> <a name="SnappyCompressorInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/snappy/SnappyCompressorInputStream.html#SnappyCompressorInputStream">SnappyCompressorInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream is) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">this</strong>(is, DEFAULT_BLOCK_SIZE);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  
@@ -102,7 +102,7 @@
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     * </em>
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     * @throws IOException</em>
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/snappy/SnappyCompressorInputStream.html">SnappyCompressorInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream is, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> blockSize)
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> <a name="SnappyCompressorInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/snappy/SnappyCompressorInputStream.html#SnappyCompressorInputStream">SnappyCompressorInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream is, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> blockSize)
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>              <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">this</strong>.in = is;
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">this</strong>.blockSize = blockSize;
@@ -432,6 +432,6 @@
 <a class="jxr_linenumber" name="L424" href="#L424">424</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

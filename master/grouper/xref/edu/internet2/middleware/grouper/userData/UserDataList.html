@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -40,14 +40,14 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataList.html">UserDataList</a> {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="UserDataList" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataList.html#UserDataList">UserDataList</a> {
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">   * @param jsonString</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">   * @return</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataList.html">UserDataList</a> jsonMarshalFrom(String jsonString) {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="UserDataList" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataList.html#UserDataList">UserDataList</a> jsonMarshalFrom(String jsonString) {
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(jsonString)) {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      }
@@ -67,7 +67,7 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">   * @param userDataObject</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">   * @return true if made changes, false if not</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> addUserDataObject(<a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html">UserDataObject</a> userDataObject, <strong class="jxr_keyword">int</strong> maxSize) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> addUserDataObject(<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a> userDataObject, <strong class="jxr_keyword">int</strong> maxSize) {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">if</strong> (userDataObject == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Why is userDataObject null?"</span>);
@@ -78,7 +78,7 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_comment">//lets see if already there</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">for</strong> (UserDataObject current : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">for</strong> (<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a> current : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>        <em class="jxr_comment">//its there, nothing else to do</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>        <strong class="jxr_keyword">if</strong> (StringUtils.equals(current.getUuid(), userDataObject.getUuid())
@@ -95,7 +95,7 @@
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      userDataObjectList.add(userDataObject);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      <em class="jxr_comment">//only add if uuid is different</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">for</strong> (UserDataObject current : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">for</strong> (<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a> current : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>        <strong class="jxr_keyword">if</strong> (!StringUtils.equals(current.getUuid(), userDataObject.getUuid())) {
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          userDataObjectList.add(current);
@@ -124,12 +124,12 @@
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> replaceUserDataObjectsWithSubset(Set&lt;String&gt; uuids, <strong class="jxr_keyword">int</strong> maxSize) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     <em class="jxr_comment">//dont go over the max size</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html">UserDataObject</a>[] newList = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html">UserDataObject</a>[Math.min(GrouperUtil.length(uuids), maxSize)];
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <a name="UserDataObject" href="../../../../../edu/internet2/middlewa<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a>rData/UserDataObject.html#UserDataObject">UserDataObject</a>[] newList = <strong class="jxr_keyword">new</strong> <a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a>[Math.min(GrouperUtil.length(uuids), maxSize)];
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>     
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>     <em class="jxr_comment">//lets see if there are no changes needed, this assumes there are no duplicates</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">if</strong> (GrouperUtil.length(uuids) == GrouperUtil.length(<strong class="jxr_keyword">this</strong>.getList())) {
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">if</strong> (GrouperUtil.length(uuids) == GrouperUtil.length(<strong class="jxr_keyword">this</strong>.getList()) &amp;&amp; GrouperUtil.length(uuids) &lt;= maxSize) {
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>       <strong class="jxr_keyword">boolean</strong> hasMismatch = false;
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>       <strong class="jxr_keyword">for</strong> (UserDataObject userDataObject : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>       <strong class="jxr_keyword">for</strong> (<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a> userDataObject : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">if</strong> (!uuids.contains(userDataObject.getUuid())) {
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>           hasMismatch = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>         }
@@ -144,7 +144,7 @@
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">int</strong> index=0;
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     <em class="jxr_comment">//lets see if already there</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">for</strong> (UserDataObject current : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">for</strong> (<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a> current : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
 <a class="jxr_linenumber" name="L140" href="#L140">140</a> 
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>       <em class="jxr_comment">//lets see if it is valid and not already seen</em>
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>       <strong class="jxr_keyword">if</strong> (index &lt; maxSize &amp;&amp; !alreadySeen.contains(current.getUuid()) &amp;&amp; uuids.contains(current.getUuid())) {
@@ -179,7 +179,7 @@
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">boolean</strong> foundMatch = false;
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>     
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     <em class="jxr_comment">//lets see if already there</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">for</strong> (UserDataObject current : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">for</strong> (<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a> current : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getList(), UserDataObject.<strong class="jxr_keyword">class</strong>)) {
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> 
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>       <em class="jxr_comment">//its there, nothing else to do</em>
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>       <strong class="jxr_keyword">if</strong> (StringUtils.equals(current.getUuid(), uuid)) {
@@ -198,7 +198,7 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataList.html">UserDataList</a>() {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>   <strong class="jxr_keyword">public</strong> <a name="UserDataList" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataList.html#UserDataList">UserDataList</a>() {
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">super</strong>();
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>   }
 <a class="jxr_linenumber" name="L196" href="#L196">196</a> 
@@ -206,7 +206,7 @@
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">   * construct with field</em>
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">   * @param list</em>
 <a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataList.html">UserDataList</a>(<a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html">UserDataObject</a>[] list) {
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>   <strong class="jxr_keyword">public</strong> <a name="UserDataList" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataList.html#UserDataList">UserDataList</a>(<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a>[] list) {
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">super</strong>();
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>     <strong class="jxr_keyword">this</strong>.list = list;
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>   }
@@ -214,14 +214,14 @@
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">   * list of objects</em>
 <a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html">UserDataObject</a>[] list;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>   <strong class="jxr_keyword">private</strong> <a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a>[] list;
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> 
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>   
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">   * list of objects</em>
 <a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">   * @return the list</em>
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html">UserDataObject</a>[] getList() {
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>   <strong class="jxr_keyword">public</strong> <a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a>[] getList() {
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">return</strong> list;
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>   }
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> 
@@ -229,7 +229,7 @@
 <a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">   * list of objects</em>
 <a class="jxr_linenumber" name="L222" href="#L222">222</a> <em class="jxr_javadoccomment">   * @param list1</em>
 <a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setList(<a href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html">UserDataObject</a>[] list1) {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setList(<a name="UserDataObject" href="../../../../../edu/internet2/middleware/grouper/userData/UserDataObject.html#UserDataObject">UserDataObject</a>[] list1) {
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">this</strong>.list = list1;
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>   }
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>   
@@ -238,6 +238,6 @@
 <a class="jxr_linenumber" name="L230" href="#L230">230</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

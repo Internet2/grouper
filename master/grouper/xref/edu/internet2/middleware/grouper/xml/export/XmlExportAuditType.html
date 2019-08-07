@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -61,12 +61,12 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment"> * type of audit</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html">XmlExportAuditType</a> {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a> {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html">XmlExportAuditType</a>() {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>    <strong class="jxr_keyword">public</strong> <a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a>() {
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">super</strong>();
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>    }
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
@@ -463,12 +463,12 @@
 <a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">   * @param writer</em>
 <a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">   * @param xmlExportMain </em>
 <a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> exportAuditTypes(<strong class="jxr_keyword">final</strong> Writer writer, <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html">XmlExportMain</a> xmlExportMain) {
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> exportAuditTypes(<strong class="jxr_keyword">final</strong> Writer writer, <strong class="jxr_keyword">final</strong> <a name="XmlExportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html#XmlExportMain">XmlExportMain</a> xmlExportMain) {
 <a class="jxr_linenumber" name="L459" href="#L459">459</a>     <em class="jxr_comment">//get the audittypes</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a name="HibernateHandler" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html#HibernateHandler">HibernateHandler</a>() {
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>       
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>           <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>       <strong class="jxr_keyword">public</strong> Object callback(<a name="HibernateHandlerBean" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html#HibernateHandlerBean">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>           <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L464" href="#L464">464</a>   
 <a class="jxr_linenumber" name="L465" href="#L465">465</a>         Session session = hibernateHandlerBean.getHibernateSession().getSession();
 <a class="jxr_linenumber" name="L466" href="#L466">466</a>   
@@ -476,7 +476,7 @@
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>         Query query = session.createQuery(
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>             <span class="jxr_string">"select theAuditType from AuditType as theAuditType order by theAuditType.auditCategory, theAuditType.actionName"</span>);
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>   
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> grouperVersion = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a>(GrouperVersion.GROUPER_VERSION);
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <a name="GrouperVersion" href="../../../../../../edu/internet2/middleware<a name="GrouperVersion" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html#GrouperVersion">GrouperVersion</a>GrouperVersion.html#GrouperVersion">GrouperVersion</a> grouperVersion = <strong class="jxr_keyword">new</strong> <a name="GrouperVersion" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html#GrouperVersion">GrouperVersion</a>(GrouperVersion.GROUPER_VERSION);
 <a class="jxr_linenumber" name="L472" href="#L472">472</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>           writer.write(<span class="jxr_string">"  &lt;auditTypes&gt;\n"</span>);
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>   
@@ -486,8 +486,8 @@
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>             results = query.scroll();
 <a class="jxr_linenumber" name="L479" href="#L479">479</a>             <strong class="jxr_keyword">while</strong>(results.next()) {
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>               Object object = results.get(0);
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>               <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a> auditType = (AuditType)object;
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>               <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html">XmlExportAuditType</a> xmlExportAuditType = auditType.xmlToExportAuditType(grouperVersion);
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>               <a name="AuditType" hre<a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a>../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a> auditType = (<a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a>)object;
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>               <a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a> xmlExportAuditType = auditType.xmlToExportAuditType(grouperVersion);
 <a class="jxr_linenumber" name="L483" href="#L483">483</a>               writer.write(<span class="jxr_string">"    "</span>);
 <a class="jxr_linenumber" name="L484" href="#L484">484</a>               xmlExportAuditType.toXml(grouperVersion, writer);
 <a class="jxr_linenumber" name="L485" href="#L485">485</a>               writer.write(<span class="jxr_string">"\n"</span>);
@@ -513,11 +513,11 @@
 <a class="jxr_linenumber" name="L505" href="#L505">505</a> <em class="jxr_javadoccomment">   * @param hierarchicalStreamReader</em>
 <a class="jxr_linenumber" name="L506" href="#L506">506</a> <em class="jxr_javadoccomment">   * @return the bean</em>
 <a class="jxr_linenumber" name="L507" href="#L507">507</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html">XmlExportAuditType</a> fromXml(@SuppressWarnings(<span class="jxr_string">"unused"</span>) <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> exportVersion, 
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a> fromXml(@SuppressWarnings(<span class="jxr_string">"unused"</span>) <a name="GrouperVersion" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html#GrouperVersion">GrouperVersion</a> exportVersion, 
 <a class="jxr_linenumber" name="L509" href="#L509">509</a>       HierarchicalStreamReader hierarchicalStreamReader) {
 <a class="jxr_linenumber" name="L510" href="#L510">510</a>     XStream xStream = XmlExportUtils.xstream();
 <a class="jxr_linenumber" name="L511" href="#L511">511</a>     
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html">XmlExportAuditType</a> xmlExportAuditType = (XmlExportAuditType)xStream.unmarshal(hierarchicalStreamReader);
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <a name="XmlExportAuditType" href="../../<a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a>ternet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a> xmlExportAuditType = (<a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a>)xStream.unmarshal(hierarchicalStreamReader);
 <a class="jxr_linenumber" name="L513" href="#L513">513</a>   
 <a class="jxr_linenumber" name="L514" href="#L514">514</a>     <strong class="jxr_keyword">return</strong> xmlExportAuditType;
 <a class="jxr_linenumber" name="L515" href="#L515">515</a>   }
@@ -528,11 +528,11 @@
 <a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">   * @param xml</em>
 <a class="jxr_linenumber" name="L521" href="#L521">521</a> <em class="jxr_javadoccomment">   * @return the object from xml</em>
 <a class="jxr_linenumber" name="L522" href="#L522">522</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html">XmlExportAuditType</a> fromXml(
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>       @SuppressWarnings(<span class="jxr_string">"unused"</span>) <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> exportVersion, String xml) {
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a> fromXml(
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>       @SuppressWarnings(<span class="jxr_string">"unused"</span>) <a name="GrouperVersion" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html#GrouperVersion">GrouperVersion</a> exportVersion, String xml) {
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>     XStream xStream = XmlExportUtils.xstream();
 <a class="jxr_linenumber" name="L526" href="#L526">526</a>     
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>     <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html">XmlExportAuditType</a> xmlExportAuditType = (XmlExportAuditType)xStream.fromXML(xml);
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>     <a name="XmlExportAuditType" href="../../<a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a>ternet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a> xmlExportAuditType = (<a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a>)xStream.fromXML(xml);
 <a class="jxr_linenumber" name="L528" href="#L528">528</a>   
 <a class="jxr_linenumber" name="L529" href="#L529">529</a>     <strong class="jxr_keyword">return</strong> xmlExportAuditType;
 <a class="jxr_linenumber" name="L530" href="#L530">530</a>   }
@@ -541,7 +541,7 @@
 <a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">   * parse the xml file for groups</em>
 <a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">   * @param xmlImportMain</em>
 <a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> processXmlFirstPass(<strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html">XmlImportMain</a> xmlImportMain) {
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> processXmlFirstPass(<strong class="jxr_keyword">final</strong> <a name="XmlImportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html#XmlImportMain">XmlImportMain</a> xmlImportMain) {
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>     xmlImportMain.getReader().addHandler( AUDIT_TYPES_XPATH, 
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>         <strong class="jxr_keyword">new</strong> ElementHandler() {
 <a class="jxr_linenumber" name="L539" href="#L539">539</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
@@ -579,7 +579,7 @@
 <a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">   * parse the xml file for groups</em>
 <a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">   * @param xmlImportMain</em>
 <a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> processXmlSecondPass(<strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html">XmlImportMain</a> xmlImportMain) {
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> processXmlSecondPass(<strong class="jxr_keyword">final</strong> <a name="XmlImportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html#XmlImportMain">XmlImportMain</a> xmlImportMain) {
 <a class="jxr_linenumber" name="L575" href="#L575">575</a>     xmlImportMain.getReader().addHandler( AUDIT_TYPES_XPATH, 
 <a class="jxr_linenumber" name="L576" href="#L576">576</a>         <strong class="jxr_keyword">new</strong> ElementHandler() {
 <a class="jxr_linenumber" name="L577" href="#L577">577</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
@@ -609,9 +609,9 @@
 <a class="jxr_linenumber" name="L601" href="#L601">601</a>                 <em class="jxr_comment">// prune the tree</em>
 <a class="jxr_linenumber" name="L602" href="#L602">602</a>                 row.detach();
 <a class="jxr_linenumber" name="L603" href="#L603">603</a>   
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>                 <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html">XmlExportAuditType</a> xmlExportAuditTypeFromFile = (XmlExportAuditType)xmlImportMain.getXstream().unmarshal(<strong class="jxr_keyword">new</strong> Dom4JReader(row));
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>                 <a name="XmlExportAuditType" href="../../../../..<a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a>middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a> xmlExportAuditTypeFromFile = (<a name="XmlExportAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditType.html#XmlExportAuditType">XmlExportAuditType</a>)xmlImportMain.getXstream().unmarshal(<strong class="jxr_keyword">new</strong> Dom4JReader(row));
 <a class="jxr_linenumber" name="L605" href="#L605">605</a>                 
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>                 <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a> auditType = xmlExportAuditTypeFromFile.toAuditType();
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>                 <a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a> auditType = xmlExportAuditTypeFromFile.toAuditType();
 <a class="jxr_linenumber" name="L607" href="#L607">607</a>                 
 <a class="jxr_linenumber" name="L608" href="#L608">608</a>                 XmlExportUtils.syncImportable(auditType, xmlImportMain);
 <a class="jxr_linenumber" name="L609" href="#L609">609</a>                 
@@ -630,8 +630,8 @@
 <a class="jxr_linenumber" name="L622" href="#L622">622</a> <em class="jxr_javadoccomment">   * convert to audit type</em>
 <a class="jxr_linenumber" name="L623" href="#L623">623</a> <em class="jxr_javadoccomment">   * @return the audit type</em>
 <a class="jxr_linenumber" name="L624" href="#L624">624</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a> toAuditType() {
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>     <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a> auditType = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a>();
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>   <strong class="jxr_keyword">public</strong> <a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a> toAuditType() {
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>     <a name="AuditType" href="../../../../../../edu/internet2/middl<a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a>uper/audit/AuditType.html#AuditType">AuditType</a> auditType = <strong class="jxr_keyword">new</strong> <a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a>();
 <a class="jxr_linenumber" name="L627" href="#L627">627</a>     
 <a class="jxr_linenumber" name="L628" href="#L628">628</a>     auditType.setActionName(<strong class="jxr_keyword">this</strong>.getActionName());
 <a class="jxr_linenumber" name="L629" href="#L629">629</a>     auditType.setAuditCategory(<strong class="jxr_keyword">this</strong>.getAuditCategory());
@@ -660,7 +660,7 @@
 <a class="jxr_linenumber" name="L652" href="#L652">652</a> <em class="jxr_javadoccomment">   * @param exportVersion</em>
 <a class="jxr_linenumber" name="L653" href="#L653">653</a> <em class="jxr_javadoccomment">   * @return the xml string</em>
 <a class="jxr_linenumber" name="L654" href="#L654">654</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>   <strong class="jxr_keyword">public</strong> String toXml(<a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> exportVersion) {
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>   <strong class="jxr_keyword">public</strong> String toXml(<a name="GrouperVersion" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html#GrouperVersion">GrouperVersion</a> exportVersion) {
 <a class="jxr_linenumber" name="L656" href="#L656">656</a>     StringWriter stringWriter = <strong class="jxr_keyword">new</strong> StringWriter();
 <a class="jxr_linenumber" name="L657" href="#L657">657</a>     <strong class="jxr_keyword">this</strong>.toXml(exportVersion, stringWriter);
 <a class="jxr_linenumber" name="L658" href="#L658">658</a>     <strong class="jxr_keyword">return</strong> stringWriter.toString();
@@ -671,7 +671,7 @@
 <a class="jxr_linenumber" name="L663" href="#L663">663</a> <em class="jxr_javadoccomment">   * @param writer</em>
 <a class="jxr_linenumber" name="L664" href="#L664">664</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L665" href="#L665">665</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> toXml(
-<a class="jxr_linenumber" name="L666" href="#L666">666</a>       @SuppressWarnings(<span class="jxr_string">"unused"</span>) <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> exportVersion, Writer writer) {
+<a class="jxr_linenumber" name="L666" href="#L666">666</a>       @SuppressWarnings(<span class="jxr_string">"unused"</span>) <a name="GrouperVersion" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html#GrouperVersion">GrouperVersion</a> exportVersion, Writer writer) {
 <a class="jxr_linenumber" name="L667" href="#L667">667</a>     XStream xStream = XmlExportUtils.xstream();
 <a class="jxr_linenumber" name="L668" href="#L668">668</a>   
 <a class="jxr_linenumber" name="L669" href="#L669">669</a>     CompactWriter compactWriter = <strong class="jxr_keyword">new</strong> CompactWriter(writer);
@@ -699,6 +699,6 @@
 <a class="jxr_linenumber" name="L691" href="#L691">691</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

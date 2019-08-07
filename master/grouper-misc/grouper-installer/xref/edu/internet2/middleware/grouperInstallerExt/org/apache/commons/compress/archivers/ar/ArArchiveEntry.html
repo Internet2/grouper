@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -59,7 +59,7 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment"> * @Immutable</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a> <strong class="jxr_keyword">implements</strong> <a name="ArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html#ArchiveEntry">ArchiveEntry</a> {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      <em class="jxr_javadoccomment">/** The header for each entry */</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String HEADER = <span class="jxr_string">"!&lt;arch&gt;\n"</span>;
@@ -89,7 +89,7 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * @param name name of the entry</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * @param length length of the entry in bytes</em>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a>(String name, <strong class="jxr_keyword">long</strong> length) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>(String name, <strong class="jxr_keyword">long</strong> length) {
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">this</strong>(name, length, 0, 0, DEFAULT_MODE,
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>               System.currentTimeMillis() / 1000);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
@@ -104,7 +104,7 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     * @param mode file mode</em>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * @param lastModified last modified time in seconds since the epoch</em>
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a>(String name, <strong class="jxr_keyword">long</strong> length, <strong class="jxr_keyword">int</strong> userId, <strong class="jxr_keyword">int</strong> groupId,
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">public</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>(String name, <strong class="jxr_keyword">long</strong> length, <strong class="jxr_keyword">int</strong> userId, <strong class="jxr_keyword">int</strong> groupId,
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>                           <strong class="jxr_keyword">int</strong> mode, <strong class="jxr_keyword">long</strong> lastModified) {
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">this</strong>.name = name;
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">this</strong>.length = length;
@@ -117,7 +117,7 @@
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">     * Create a new instance using the attributes of the given file</em>
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a>(File inputFile, String entryName) {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">public</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>(File inputFile, String entryName) {
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <em class="jxr_comment">// TODO sort out mode</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">this</strong>(entryName, inputFile.isFile() ? inputFile.length() : 0,
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>              0, 0, DEFAULT_MODE, inputFile.lastModified() / 1000);
@@ -178,7 +178,7 @@
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">if</strong> (obj == <strong class="jxr_keyword">null</strong> || getClass() != obj.getClass()) {
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         }
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a> other = (ArArchiveEntry) obj;
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <a name="ArArchiveEntry"<a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>./../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a> other = (<a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>) obj;
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">if</strong> (name == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>             <strong class="jxr_keyword">if</strong> (other.name != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>                 <strong class="jxr_keyword">return</strong> false;
@@ -191,6 +191,6 @@
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

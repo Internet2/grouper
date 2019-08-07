@@ -18,7 +18,7 @@
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Represents the methods that a messaging system</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * needs to support</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessagingSystem.html">GrouperMessagingSystem</a> {
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="GrouperMessagingSystem" href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessagingSystem.html#GrouperMessagingSystem">GrouperMessagingSystem</a> {
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment">   * send a message to a queue name.  Note, the recipient could be a </em>
@@ -30,7 +30,7 @@
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">   * @param grouperMessageSendParam has the queue or topic, and the message(s) and perhaps args</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">   * @return result</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageSendResult.html">GrouperMessageSendResult</a> send(<a href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageSendParam.html">GrouperMessageSendParam</a> grouperMessageSendParam);
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>    <strong class="jxr_keyword">public</strong> <a name="GrouperMessageSendResult" href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageSendResult.html#GrouperMessageSendResult">GrouperMessageSendResult</a> send(<a name="GrouperMessageSendParam" href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageSendParam.html#GrouperMessageSendParam">GrouperMessageSendParam</a> grouperMessageSendParam);
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">   * tell the messaging system that these messages are processed</em>
@@ -43,7 +43,7 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">   * @param grouperMessageAcknowledgeParam</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">   * @return result</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageAcknowledgeResult.html">GrouperMessageAcknowledgeResult</a> acknowledge(<a href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageAcknowledgeParam.html">GrouperMessageAcknowledgeParam</a> grouperMessageAcknowledgeParam);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">public</strong> <a name="GrouperMessageAcknowledgeResult" href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageAcknowledgeResult.html#GrouperMessageAcknowledgeResult">GrouperMessageAcknowledgeResult</a> acknowledge(<a name="GrouperMessageAcknowledgeParam" href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageAcknowledgeParam.html#GrouperMessageAcknowledgeParam">GrouperMessageAcknowledgeParam</a> grouperMessageAcknowledgeParam);
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">   * this will generally block until there are messages to process.  These messages</em>
@@ -52,11 +52,11 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">   * @return a message or multiple messages.  It will block until there are messages</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">   * available for this recipient to process</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageReceiveResult.html">GrouperMessageReceiveResult</a> receive(<a href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageReceiveParam.html">GrouperMessageReceiveParam</a> grouperMessageReceiveParam);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">public</strong> <a name="GrouperMessageReceiveResult" href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageReceiveResult.html#GrouperMessageReceiveResult">GrouperMessageReceiveResult</a> receive(<a name="GrouperMessageReceiveParam" href="../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageReceiveParam.html#GrouperMessageReceiveParam">GrouperMessageReceiveParam</a> grouperMessageReceiveParam);
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

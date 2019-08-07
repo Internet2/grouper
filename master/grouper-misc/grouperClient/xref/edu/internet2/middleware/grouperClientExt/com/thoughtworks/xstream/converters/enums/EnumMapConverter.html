@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -55,13 +55,13 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> * @author Joe Walnes</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/enums/EnumMapConverter.html">EnumMapConverter</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/collections/MapConverter.html">MapConverter</a> {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="EnumMapConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/enums/EnumMapConverter.html#EnumMapConverter">EnumMapConverter</a> <strong class="jxr_keyword">extends</strong> <a name="MapConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/collections/MapConverter.html#MapConverter">MapConverter</a> {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a> typeField;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">static</strong> Field typeField;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">static</strong> {
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          <em class="jxr_comment">// field name is "keyType" in Sun JDK, but different in IKVM </em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a> assumedTypeField = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a>[] fields = EnumMap.<strong class="jxr_keyword">class</strong>.getDeclaredFields();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          Field assumedTypeField = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          Field[] fields = EnumMap.<strong class="jxr_keyword">class</strong>.getDeclaredFields();
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fields.length; i++) {
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">if</strong> (fields[i].getType() == Class.<strong class="jxr_keyword">class</strong>) {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>                  <em class="jxr_comment">// take the fist member of type "Class"</em>
@@ -76,7 +76,7 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          typeField = assumedTypeField;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/enums/EnumMapConverter.html">EnumMapConverter</a>(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> mapper) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a name="EnumMapConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/enums/EnumMapConverter.html#EnumMapConverter">EnumMapConverter</a>(<a name="Mapper" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> mapper) {
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">super</strong>(mapper);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
@@ -84,13 +84,13 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> type == EnumMap.<strong class="jxr_keyword">class</strong>;
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> marshal(Object source, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html">HierarchicalStreamWriter</a> writer, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html">MarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> marshal(Object source, <a name="HierarchicalStreamWriter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html#HierarchicalStreamWriter">HierarchicalStreamWriter</a> writer, <a name="MarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html#MarshallingContext">MarshallingContext</a> context) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          Class type = (Class) Fields.read(typeField, source);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          writer.addAttribute(mapper().aliasForAttribute(<span class="jxr_string">"enum-type"</span>), mapper().serializedClass(type));
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">super</strong>.marshal(source, writer, context);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      }
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">public</strong> Object unmarshal(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html">UnmarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">public</strong> Object unmarshal(<a name="HierarchicalStreamReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader, <a name="UnmarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html#UnmarshallingContext">UnmarshallingContext</a> context) {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          Class type = mapper().realClass(reader.getAttribute(mapper().aliasForAttribute(<span class="jxr_string">"enum-type"</span>)));
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          EnumMap map = <strong class="jxr_keyword">new</strong> EnumMap(type);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          populateMap(reader, context, map);
@@ -99,6 +99,6 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

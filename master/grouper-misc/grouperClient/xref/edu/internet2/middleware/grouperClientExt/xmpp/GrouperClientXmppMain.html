@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -71,12 +71,12 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">* run an xmpp job to manage memberships in groups</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">*/</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppMain.html">GrouperClientXmppMain</a> {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GrouperClientXmppMain" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppMain.html#GrouperClientXmppMain">GrouperClientXmppMain</a> {
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">  * logger</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">  */</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/logging/Log.html">Log</a> log = GrouperClientUtils.retrieveLog(GrouperClientXmppMain.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="Log" href="../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/logging/Log.html#Log">Log</a> log = GrouperClientUtils.retrieveLog(GrouperClientXmppMain.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>    <em class="jxr_javadoccomment">/** supported event types */</em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Set&lt;String&gt; SUPPORTED_EVENT_TYPES = Collections.unmodifiableSet(GrouperClientUtils.toSet(
@@ -95,11 +95,11 @@
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">  * @param esbEvent</em>
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">  * @return true if matches, false if doesnt</em>
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">  */</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> matchesFilter(<a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvent.html">EsbEvent</a> esbEvent, String filterString) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> matchesFilter(<a name="EsbEvent" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvent.html#EsbEvent">EsbEvent</a> esbEvent, String filterString) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>        Map&lt;String, Object&gt; variableMap = <strong class="jxr_keyword">new</strong> HashMap&lt;String, Object&gt;();
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>        variableMap.put(<span class="jxr_string">"event"</span>, esbEvent);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>        variableMap.put(<span class="jxr_string">"grouperClientUtils"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientUtils.html">GrouperClientUtils</a>());
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>        variableMap.put(<span class="jxr_string">"grouperClientUtils"</span>, <strong class="jxr_keyword">new</strong> <a name="GrouperClientUtils" href="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientUtils.html#GrouperClientUtils">GrouperClientUtils</a>());
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>        
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>        String elResultString = GrouperClientUtils.substituteExpressionLanguage(filterString, variableMap, <strong class="jxr_keyword">true</strong>, false, false, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>        <strong class="jxr_keyword">return</strong> GrouperClientUtils.booleanValue(elResultString);
@@ -178,7 +178,7 @@
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>       <strong class="jxr_keyword">if</strong> (!GrouperClientUtils.equals(pass, passFromFile)) {
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>   
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         String encryptKey = GrouperClientUtils.encryptKey();
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         pass = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html">Crypto</a>(encryptKey).decrypt(passFromFile);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         pass = <strong class="jxr_keyword">new</strong> <a name="Crypto" href="../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html#Crypto">Crypto</a>(encryptKey).decrypt(passFromFile);
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>         
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>       }
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> 
@@ -188,7 +188,7 @@
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> 
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>       String encryptKey = GrouperClientConfig.retrieveConfig().propertyValueStringRequired(<span class="jxr_string">"encrypt.key"</span>);
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>       encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>       passFromFile = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html">Crypto</a>(encryptKey).decrypt(passFromFile);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>       passFromFile = <strong class="jxr_keyword">new</strong> <a name="Crypto" href="../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html#Crypto">Crypto</a>(encryptKey).decrypt(passFromFile);
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> 
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
 <a class="jxr_linenumber" name="L186" href="#L186">186</a> 
@@ -231,7 +231,7 @@
 <a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">  * connect to xmpp</em>
 <a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">   * @param grouperClientXmppMessageHandler the handler for the message</em>
 <a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> xmppConnect(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppMessageHandler.html">GrouperClientXmppMessageHandler</a> grouperClientXmppMessageHandler) {
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> xmppConnect(<strong class="jxr_keyword">final</strong> <a name="GrouperClientXmppMessageHandler" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppMessageHandler.html#GrouperClientXmppMessageHandler">GrouperClientXmppMessageHandler</a> grouperClientXmppMessageHandler) {
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>      
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>      XMPPConnection theXmppConnection = xmppConnection();
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>      theXmppConnection.addPacketListener(<strong class="jxr_keyword">new</strong> PacketListener() {
@@ -278,16 +278,16 @@
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">  * connect to xmpp</em>
 <a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">  */</em>
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> xmppLoopForGroups() {
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>     xmppLoop(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppMessageHandler.html">GrouperClientXmppMessageHandler</a>() {
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     xmppLoop(<strong class="jxr_keyword">new</strong> <a name="GrouperClientXmppMessageHandler" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppMessageHandler.html#GrouperClientXmppMessageHandler">GrouperClientXmppMessageHandler</a>() {
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>       
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>       @Override
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> handleMessage(Message message) {
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>         
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>         String body = message.getBody();
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html">EsbEvents</a> esbEvents = (EsbEvents)JsonUtils.jsonConvertFrom(body, EsbEvents.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">for</strong> (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.<strong class="jxr_keyword">class</strong>)) {
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <a name="EsbEvents" hre<a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a>../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a> esbEvents = (<a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a>)JsonUtils.jsonConvertFrom(body, EsbEvents.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">for</strong> (<a name="EsbEvent" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvent.html#EsbEvent">EsbEvent</a> esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.<strong class="jxr_keyword">class</strong>)) {
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>           <em class="jxr_comment">//loop through jobs and see what matches</em>
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>           <strong class="jxr_keyword">for</strong> (GrouperClientXmppJob grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>           <strong class="jxr_keyword">for</strong> (<a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>             String elfilter = grouperClientXmppJob.getElfilter();
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>             Boolean matches = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L285" href="#L285">285</a> 
@@ -352,7 +352,7 @@
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>                     + <span class="jxr_string">" for job: "</span> + grouperClientXmppJob.getJobName() + <span class="jxr_string">", subject: "</span> + esbEvent.getSubjectId());
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>               }
 <a class="jxr_linenumber" name="L346" href="#L346">346</a> 
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>               <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html">GrouperClientXmppSubject</a> grouperClientXmppSubject = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html">GrouperClientXmppSubject</a>(esbEvent);
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>               <a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware/grouperClien<a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a>mppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a> grouperClientXmppSubject = <strong class="jxr_keyword">new</strong> <a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a>(esbEvent);
 <a class="jxr_linenumber" name="L348" href="#L348">348</a> 
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>               incrementalRefreshGroup(grouperClientXmppJob, groupName,
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>                   grouperClientXmppSubject, esbEvent.getEventType());
@@ -438,8 +438,8 @@
 <a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">  * @param groupName</em>
 <a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_javadoccomment">  */</em>
 <a class="jxr_linenumber" name="L432" href="#L432">432</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fullRefreshGroup(<a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">GrouperClientXmppJob</a> grouperClientXmppJob, String groupName) {
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>     <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcGetMembers.html">GcGetMembers</a> gcGetMembers = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcGetMembers.html">GcGetMembers</a>();
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fullRefreshGroup(<a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> grouperClientXmppJob, String groupName) {
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     <a name="GcGetMembers" href="../../../../../edu/internet2/middleware/<a name="GcGetMembers" href="../../../../../edu/internet2/middleware/grouperClient/api/GcGetMembers.html#GcGetMembers">GcGetMembers</a>t/api/GcGetMembers.html#GcGetMembers">GcGetMembers</a> gcGetMembers = <strong class="jxr_keyword">new</strong> <a name="GcGetMembers" href="../../../../../edu/internet2/middleware/grouperClient/api/GcGetMembers.html#GcGetMembers">GcGetMembers</a>();
 <a class="jxr_linenumber" name="L435" href="#L435">435</a> 
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>     List&lt;String&gt; subjectAttributeNames = grouperClientXmppJob.getSubjectAttributeNames();
 <a class="jxr_linenumber" name="L437" href="#L437">437</a> 
@@ -449,13 +449,13 @@
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>       }
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>     }
 <a class="jxr_linenumber" name="L443" href="#L443">443</a> 
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResults.html">WsGetMembersResults</a> wsGetMembersResults = gcGetMembers.addGroupName(groupName).execute();
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html">WsGetMembersResult</a> wsGetMembersResult = wsGetMembersResults.getResults()[0];
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <a name="WsGetMembersResults" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResults.html#WsGetMembersResults">WsGetMembersResults</a> wsGetMembersResults = gcGetMembers.addGroupName(groupName).execute();
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <a name="WsGetMembersResult" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html#WsGetMembersResult">WsGetMembersResult</a> wsGetMembersResult = wsGetMembersResults.getResults()[0];
 <a class="jxr_linenumber" name="L446" href="#L446">446</a> 
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>     List&lt;GrouperClientXmppSubject&gt; xmppSubjects = <strong class="jxr_keyword">new</strong> ArrayList&lt;GrouperClientXmppSubject&gt;();
 <a class="jxr_linenumber" name="L448" href="#L448">448</a> 
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>     <strong class="jxr_keyword">for</strong> (WsSubject wsSubject : GrouperClientUtils.nonNull(wsGetMembersResult.getWsSubjects(), WsSubject.<strong class="jxr_keyword">class</strong>)) {
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>       <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html">GrouperClientXmppSubject</a> xmppSubject = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html">GrouperClientXmppSubject</a>(wsSubject, wsGetMembersResults.getSubjectAttributeNames());
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     <strong class="jxr_keyword">for</strong> (<a name="WsSubject" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubject.html#WsSubject">WsSubject</a> wsSubject : GrouperClientUtils.nonNull(wsGetMembersResult.getWsSubjects(), WsSubject.<strong class="jxr_keyword">class</strong>)) {
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>       <a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware<a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a>rouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a> xmppSubject = <strong class="jxr_keyword">new</strong> <a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a>(wsSubject, wsGetMembersResults.getSubjectAttributeNames());
 <a class="jxr_linenumber" name="L451" href="#L451">451</a> 
 <a class="jxr_linenumber" name="L452" href="#L452">452</a>       xmppSubjects.add(xmppSubject);
 <a class="jxr_linenumber" name="L453" href="#L453">453</a>     }
@@ -465,7 +465,7 @@
 <a class="jxr_linenumber" name="L457" href="#L457">457</a>     }
 <a class="jxr_linenumber" name="L458" href="#L458">458</a> 
 <a class="jxr_linenumber" name="L459" href="#L459">459</a>     Class&lt;GrouperClientXmppHandler&gt; handlerClass = GrouperClientUtils.forName(grouperClientXmppJob.getHandlerClass());
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppHandler.html">GrouperClientXmppHandler</a> grouperClientXmppHandler = GrouperClientUtils.newInstance(handlerClass);
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <a name="GrouperClientXmppHandler" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppHandler.html#GrouperClientXmppHandler">GrouperClientXmppHandler</a> grouperClientXmppHandler = GrouperClientUtils.newInstance(handlerClass);
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>     groupMemberships.put(groupName, xmppSubjects);
 <a class="jxr_linenumber" name="L462" href="#L462">462</a>     grouperClientXmppHandler.handleAll(grouperClientXmppJob, groupName, GrouperClientUtils.extensionFromName(groupName), xmppSubjects);
 <a class="jxr_linenumber" name="L463" href="#L463">463</a> 
@@ -476,7 +476,7 @@
 <a class="jxr_linenumber" name="L468" href="#L468">468</a> <em class="jxr_javadoccomment">  */</em>
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fullRefreshAll() {
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>     <em class="jxr_comment">//loop through jobs</em>
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>     <strong class="jxr_keyword">for</strong> (GrouperClientXmppJob grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>     <strong class="jxr_keyword">for</strong> (<a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
 <a class="jxr_linenumber" name="L472" href="#L472">472</a> 
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>       <em class="jxr_comment">//get the groups</em>
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>       <strong class="jxr_keyword">for</strong> (String groupName : GrouperClientUtils.nonNull(grouperClientXmppJob.getGroupNames())) {
@@ -493,7 +493,7 @@
 <a class="jxr_linenumber" name="L485" href="#L485">485</a>     String outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired(<span class="jxr_string">"grouperClient.xmpp.job.myJobName.fileHandler.iteratorEl"</span>);
 <a class="jxr_linenumber" name="L486" href="#L486">486</a>     outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
 <a class="jxr_linenumber" name="L487" href="#L487">487</a>     Map&lt;String, Object&gt; substituteMap = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, Object&gt;();
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>     <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html">GrouperClientXmppSubject</a> xmppSubject = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html">GrouperClientXmppSubject</a>();
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>     <a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware<a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a>rouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a> xmppSubject = <strong class="jxr_keyword">new</strong> <a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a>();
 <a class="jxr_linenumber" name="L489" href="#L489">489</a>     xmppSubject.getAttribute().put(<span class="jxr_string">"loginid"</span>, <span class="jxr_string">"mchyzer"</span>);
 <a class="jxr_linenumber" name="L490" href="#L490">490</a>     substituteMap.put(<span class="jxr_string">"subject"</span>, xmppSubject);
 <a class="jxr_linenumber" name="L491" href="#L491">491</a>     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
@@ -505,7 +505,7 @@
 <a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_javadoccomment">   * note, this doesnt return, and you should only call this once...</em>
 <a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_javadoccomment">   * @param grouperClientXmppMessageHandler handle the message</em>
 <a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> xmppLoop(<a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppMessageHandler.html">GrouperClientXmppMessageHandler</a> grouperClientXmppMessageHandler) {
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> xmppLoop(<a name="GrouperClientXmppMessageHandler" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppMessageHandler.html#GrouperClientXmppMessageHandler">GrouperClientXmppMessageHandler</a> grouperClientXmppMessageHandler) {
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>      <em class="jxr_comment">//are we already in this loop?</em>
 <a class="jxr_linenumber" name="L502" href="#L502">502</a>      <strong class="jxr_keyword">if</strong> (xmppConnection != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L503" href="#L503">503</a>        <strong class="jxr_keyword">return</strong>;
@@ -597,7 +597,7 @@
 <a class="jxr_linenumber" name="L589" href="#L589">589</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> scheduleFullRefreshJobs() {
 <a class="jxr_linenumber" name="L590" href="#L590">590</a> 
 <a class="jxr_linenumber" name="L591" href="#L591">591</a>     <em class="jxr_comment">//loop through jobs</em>
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>     <strong class="jxr_keyword">for</strong> (GrouperClientXmppJob grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>     <strong class="jxr_keyword">for</strong> (<a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
 <a class="jxr_linenumber" name="L593" href="#L593">593</a> 
 <a class="jxr_linenumber" name="L594" href="#L594">594</a>       String jobName = <span class="jxr_string">"fullRefresh_"</span> + grouperClientXmppJob.getJobName();
 <a class="jxr_linenumber" name="L595" href="#L595">595</a> 
@@ -649,8 +649,8 @@
 <a class="jxr_linenumber" name="L641" href="#L641">641</a> <em class="jxr_javadoccomment">  * @param eventType</em>
 <a class="jxr_linenumber" name="L642" href="#L642">642</a> <em class="jxr_javadoccomment">  */</em>
 <a class="jxr_linenumber" name="L643" href="#L643">643</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> incrementalRefreshGroup(<a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">GrouperClientXmppJob</a> grouperClientXmppJob,
-<a class="jxr_linenumber" name="L645" href="#L645">645</a>       String groupName, <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html">GrouperClientXmppSubject</a> grouperClientXmppSubject, String eventType) {
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> incrementalRefreshGroup(<a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> grouperClientXmppJob,
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>       String groupName, <a name="GrouperClientXmppSubject" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppSubject.html#GrouperClientXmppSubject">GrouperClientXmppSubject</a> grouperClientXmppSubject, String eventType) {
 <a class="jxr_linenumber" name="L646" href="#L646">646</a> 
 <a class="jxr_linenumber" name="L647" href="#L647">647</a>     <strong class="jxr_keyword">if</strong> (!SUPPORTED_EVENT_TYPES.contains(eventType)) {
 <a class="jxr_linenumber" name="L648" href="#L648">648</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Not expecting action: '"</span> + eventType + <span class="jxr_string">"'"</span>);
@@ -697,9 +697,9 @@
 <a class="jxr_linenumber" name="L689" href="#L689">689</a>     }
 <a class="jxr_linenumber" name="L690" href="#L690">690</a> 
 <a class="jxr_linenumber" name="L691" href="#L691">691</a>     <em class="jxr_comment">// Instantiate the handler for this job and call the handleIncremental method</em>
-<a class="jxr_linenumber" name="L692" href="#L692">692</a>     Class&lt;GrouperClientXmppHandler&gt; handlerClass = <a href="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientUtils.html">GrouperClientUtils</a>
+<a class="jxr_linenumber" name="L692" href="#L692">692</a>     Class&lt;GrouperClientXmppHandler&gt; handlerClass = <a name="GrouperClientUtils" href="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientUtils.html#GrouperClientUtils">GrouperClientUtils</a>
 <a class="jxr_linenumber" name="L693" href="#L693">693</a>         .forName(grouperClientXmppJob.getHandlerClass());
-<a class="jxr_linenumber" name="L694" href="#L694">694</a>     <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppHandler.html">GrouperClientXmppHandler</a> grouperClientXmppHandler = <a href="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientUtils.html">GrouperClientUtils</a>
+<a class="jxr_linenumber" name="L694" href="#L694">694</a>     <a name="GrouperClientXmppHandler" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppHandler.html#GrouperClientXmppHandler">GrouperClientXmppHandler</a> grouperClientXmppHandler = <a name="GrouperClientUtils" href="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientUtils.html#GrouperClientUtils">GrouperClientUtils</a>
 <a class="jxr_linenumber" name="L695" href="#L695">695</a>         .newInstance(handlerClass);
 <a class="jxr_linenumber" name="L696" href="#L696">696</a>     grouperClientXmppHandler.handleIncremental(grouperClientXmppJob,
 <a class="jxr_linenumber" name="L697" href="#L697">697</a>         groupName, GrouperClientUtils.extensionFromName(groupName),
@@ -709,6 +709,6 @@
 <a class="jxr_linenumber" name="L701" href="#L701">701</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

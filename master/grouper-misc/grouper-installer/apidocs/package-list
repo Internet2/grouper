@@ -1,4 +1,5 @@
 edu.internet2.middleware.grouperInstaller
+edu.internet2.middleware.grouperInstaller.driverShim
 edu.internet2.middleware.grouperInstaller.util
 edu.internet2.middleware.grouperInstallerExt.org.apache.commons.codec
 edu.internet2.middleware.grouperInstallerExt.org.apache.commons.codec.binary

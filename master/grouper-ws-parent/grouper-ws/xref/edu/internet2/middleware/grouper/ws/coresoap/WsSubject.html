@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -46,7 +46,7 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a> <strong class="jxr_keyword">implements</strong> Comparable&lt;WsSubject&gt; {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a> <strong class="jxr_keyword">implements</strong> Comparable&lt;WsSubject&gt; {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>    <em class="jxr_javadoccomment">/** if lookedup by identifier, this is that identifier */</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>    <strong class="jxr_keyword">private</strong> String identifierLookup;
@@ -78,7 +78,7 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   * result code of a request</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubjectResultCode</a> {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum WsSubjectResultCode {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <em class="jxr_javadoccomment">/** found the stem (or not) */</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      SUCCESS,
@@ -112,16 +112,16 @@
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">   * @param includeSubjectDetail </em>
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">   * @return the subject results</em>
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a>[] convertMembers(Set&lt;Member&gt; memberSet, String[] attributeNames, <strong class="jxr_keyword">boolean</strong> includeSubjectDetail) {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a>[] convertMembers(Set&lt;Member&gt; memberSet, String[] attributeNames, <strong class="jxr_keyword">boolean</strong> includeSubjectDetail) {
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">int</strong> memberSetLength = GrouperUtil.length(memberSet);
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">if</strong> (memberSetLength == 0) {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a>[] wsSubjectResults = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a>[memberSetLength];
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <a name="WsSubject" href="../../../../../../edu/internet2/middleware/gro<a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a>oresoap/WsSubject.html#WsSubject">WsSubject</a>[] wsSubjectResults = <strong class="jxr_keyword">new</strong> <a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a>[memberSetLength];
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">int</strong> index = 0;
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">for</strong> (Member member : memberSet) {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>       wsSubjectResults[index++] = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a>(member, attributeNames, <strong class="jxr_keyword">null</strong>, includeSubjectDetail);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>       wsSubjectResults[index++] = <strong class="jxr_keyword">new</strong> <a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a>(member, attributeNames, <strong class="jxr_keyword">null</strong>, includeSubjectDetail);
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">return</strong> wsSubjectResults;
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>   }
@@ -153,7 +153,7 @@
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">   * constructor</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a>() {
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>   <strong class="jxr_keyword">public</strong> <a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a>() {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>     <em class="jxr_comment">// blank</em>
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>   }
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> 
@@ -164,7 +164,7 @@
 <a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">   * @param wsSubjectLookup to be based on (assuming subject not found,</em>
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">   * just copy the fields</em>
 <a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a>(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> wsSubjectLookup) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>   <strong class="jxr_keyword">public</strong> <a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a>(<a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> wsSubjectLookup) {
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">this</strong>.id = StringUtils.defaultIfEmpty(wsSubjectLookup.getSubjectId(),
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>         wsSubjectLookup.getSubjectIdentifier());
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">this</strong>.sourceId = wsSubjectLookup.getSubjectSourceId();
@@ -177,7 +177,7 @@
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">   * @param subjectAttributeNames (should be calculated based on if detail or not)</em>
 <a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">   * @param wsSubjectLookup can be null, else the lookup which got the subject</em>
 <a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a>(Subject subject, String[] subjectAttributeNames, <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> wsSubjectLookup) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>   <strong class="jxr_keyword">public</strong> <a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a>(Subject subject, String[] subjectAttributeNames, <a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> wsSubjectLookup) {
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">this</strong>.assignSubjectData(subject, subjectAttributeNames);
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">if</strong> (wsSubjectLookup != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>       <em class="jxr_comment">//if the lookup has info, and it isnt in the wssubject, put it there</em>
@@ -205,7 +205,7 @@
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">  * @param retrieveExtendedSubjectDataBoolean</em>
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">  *            true to retrieve subject info (more than just the id)</em>
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">  */</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a>(Member member, String[] subjectAttributeNames, <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> subjectLookup, <strong class="jxr_keyword">boolean</strong> includeSubjectDetails) {
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>   <strong class="jxr_keyword">public</strong> <a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a>(Member member, String[] subjectAttributeNames, <a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> subjectLookup, <strong class="jxr_keyword">boolean</strong> includeSubjectDetails) {
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>     <strong class="jxr_keyword">this</strong>.setId(member.getSubjectId());
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">this</strong>.setSourceId(member.getSubjectSource().getId());
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> 
@@ -419,7 +419,7 @@
 <a class="jxr_linenumber" name="L411" href="#L411">411</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_javadoccomment">   * @param wsSubjectResultCode</em>
 <a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> assignResultCode(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubjectResultCode</a> wsSubjectResultCode) {
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> assignResultCode(WsSubjectResultCode wsSubjectResultCode) {
 <a class="jxr_linenumber" name="L415" href="#L415">415</a>     <strong class="jxr_keyword">this</strong>.setResultCode(wsSubjectResultCode == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : wsSubjectResultCode.name());
 <a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">this</strong>.setSuccess(GrouperServiceUtils.booleanToStringOneChar(wsSubjectResultCode
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>         .isSuccess()));
@@ -444,7 +444,7 @@
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L437" href="#L437">437</a> <em class="jxr_javadoccomment">   * @see java.lang.Comparable#compareTo(java.lang.Object)</em>
 <a class="jxr_linenumber" name="L438" href="#L438">438</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compareTo(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html">WsSubject</a> o2) {
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compareTo(<a name="WsSubject" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html#WsSubject">WsSubject</a> o2) {
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == o2) {
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>       <strong class="jxr_keyword">return</strong> 0;
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>     }
@@ -466,6 +466,6 @@
 <a class="jxr_linenumber" name="L458" href="#L458">458</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

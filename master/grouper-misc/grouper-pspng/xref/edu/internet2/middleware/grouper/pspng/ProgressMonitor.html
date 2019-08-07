@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ProgressMonitor xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/edu/internet2/middleware/grouper/pspng/ProgressMonitor.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouper.pspng;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> org.joda.time.Duration;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> org.joda.time.Instant;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * This classs helps report how much of a long task has been completed</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * and how long the rest is expected to take</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ProgressMonitor" href="../../../../../edu/internet2/middleware/grouper/pspng/ProgressMonitor.html#ProgressMonitor">ProgressMonitor</a> {
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>    <strong class="jxr_keyword">final</strong> Logger LOG;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>    <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> minimalLogging;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>    <strong class="jxr_keyword">final</strong> String taskLabel;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>    <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> totalAmountOfWorkExpected;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>    <strong class="jxr_keyword">int</strong> amountOfWorkCompleted;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>    <strong class="jxr_keyword">final</strong> Instant timeStarted = Instant.now();
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>    Instant timeFinished;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>    Instant lastTimeUpdatePrinted;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>    <strong class="jxr_keyword">final</strong> Duration logUpdateInterval;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>    <strong class="jxr_keyword">int</strong> lastLog_amountOfWorkCompleted=0;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>    <em class="jxr_comment">// Work that has been started but not completed</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>    <strong class="jxr_keyword">int</strong> amountOfWorkBeingWorkedOn=0;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>    <strong class="jxr_keyword">public</strong> <a name="ProgressMonitor" href="../../../../../edu/internet2/middleware/grouper/pspng/ProgressMonitor.html#ProgressMonitor">ProgressMonitor</a>(<strong class="jxr_keyword">int</strong> totalAmountOfWorkExpected, Logger LOG, <strong class="jxr_keyword">boolean</strong> minimalLogging, <strong class="jxr_keyword">int</strong> loggingInterval_secs, String taskLabelFormat, Object... taskLabelArgs) {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">this</strong>.LOG = LOG;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">this</strong>.minimalLogging=minimalLogging;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">this</strong>.logUpdateInterval = Duration.standardSeconds(loggingInterval_secs);
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">this</strong>.taskLabel = String.format(taskLabelFormat, taskLabelArgs);
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">this</strong>.totalAmountOfWorkExpected = totalAmountOfWorkExpected;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">if</strong> ( !minimalLogging ) {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>        <strong class="jxr_keyword">if</strong> (totalAmountOfWorkExpected &gt;= 0) {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          LOG.info(<span class="jxr_string">"{} Started: TotalWorkExpected={}"</span>, taskLabel, totalAmountOfWorkExpected);
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>        } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          LOG.info(<span class="jxr_string">"{} Started"</span>, taskLabel);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>        }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      lastTimeUpdatePrinted = Instant.now();
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>    }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">public</strong> <a name="ProgressMonitor" href="../../../../../edu/internet2/middleware/grouper/pspng/ProgressMonitor.html#ProgressMonitor">ProgressMonitor</a>(Logger LOG, <strong class="jxr_keyword">boolean</strong> minimalLogging, <strong class="jxr_keyword">int</strong> loggingInterval_secs, String taskLabelFormat, Object... taskLabelArgs) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">this</strong>(0, LOG, minimalLogging, loggingInterval_secs, taskLabelFormat, taskLabelArgs);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>    }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> startWork(<strong class="jxr_keyword">int</strong> amountOfWork) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_comment">// Have we been told about other work that had started</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">if</strong> ( amountOfWorkBeingWorkedOn &gt; 0 ) {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>        <em class="jxr_comment">// workCompleted() will also mark amountOfWorkBeingWordOn as complete,</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>        <em class="jxr_comment">// so we have to zero it before calling it</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>        <strong class="jxr_keyword">int</strong> temp = amountOfWorkBeingWorkedOn;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>        amountOfWorkBeingWorkedOn=0;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>        workCompleted(temp);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      amountOfWorkBeingWorkedOn = amountOfWork;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>    }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> workCompleted(<strong class="jxr_keyword">int</strong> amountOfWork) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      amountOfWorkCompleted += amountOfWorkBeingWorkedOn;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      amountOfWorkBeingWorkedOn=0;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      amountOfWorkCompleted += amountOfWork;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      logProgressIfNecessary();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>    }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> completelyDone(String completionLabel) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_comment">// Only handle completion once</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">if</strong> ( timeFinished!=<strong class="jxr_keyword">null</strong> ) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>        <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      timeFinished = Instant.now();
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      Duration overallTaskDuration = <strong class="jxr_keyword">new</strong> Duration(timeStarted, timeFinished);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_comment">// Log when either not logging minimally or when we've run long enough</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">if</strong> ( !minimalLogging || overallTaskDuration.isLongerThan(logUpdateInterval) ) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>        LOG.info(String.format(<span class="jxr_string">"%s Completed (%s): %d items in %s (%.1f items/minute)"</span>,
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                taskLabel, completionLabel, amountOfWorkCompleted,
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                PspUtils.formatElapsedTime(overallTaskDuration),
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                1.0 * amountOfWorkCompleted / overallTaskDuration.getMillis() * 1000 * 60));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>    }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> logProgressIfNecessary() {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      Duration howLongSinceProgressWasPrinted = <strong class="jxr_keyword">new</strong> Duration(lastTimeUpdatePrinted, Instant.now());
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">if</strong> ( howLongSinceProgressWasPrinted.isLongerThan(logUpdateInterval) ) {
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>        Duration howLongSinceStarted = <strong class="jxr_keyword">new</strong> Duration(timeStarted, Instant.now());
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>        <strong class="jxr_keyword">long</strong> workDone_sinceLastLog = amountOfWorkCompleted - lastLog_amountOfWorkCompleted;
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>        lastLog_amountOfWorkCompleted=amountOfWorkCompleted;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>        <strong class="jxr_keyword">double</strong> workDonePerMinute_sinceLastLog = 60.0*1000.0*workDone_sinceLastLog/howLongSinceProgressWasPrinted.getMillis();
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>        <strong class="jxr_keyword">double</strong> workDonePerMinute_overall = 60.0*1000.0*amountOfWorkCompleted/howLongSinceStarted.getMillis();
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>       <strong class="jxr_keyword">if</strong> ( totalAmountOfWorkExpected&gt;=0 ) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">long</strong> workLeftToDo = totalAmountOfWorkExpected - amountOfWorkCompleted;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">long</strong> estimatedTimeLeft_seconds = (<strong class="jxr_keyword">long</strong>) (60.0*workLeftToDo/workDonePerMinute_sinceLastLog);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         Duration estimatedTimeLeft = Duration.standardSeconds(estimatedTimeLeft_seconds);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         LOG.info(String.format(<span class="jxr_string">"%s Progress: %d of %d (%s%%) in %s (%s items/min overall, %s items/min recently). %d work to go, ETA: %s"</span>,
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 taskLabel, amountOfWorkCompleted, totalAmountOfWorkExpected,
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 PspUtils.formatWithSignificantDigits(100.0 * amountOfWorkCompleted / totalAmountOfWorkExpected, 2),
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 PspUtils.formatElapsedTime(howLongSinceStarted),
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 PspUtils.formatWithSignificantDigits(workDonePerMinute_overall, 2),
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 PspUtils.formatWithSignificantDigits(workDonePerMinute_sinceLastLog, 2),
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 workLeftToDo,
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 PspUtils.formatElapsedTime(estimatedTimeLeft)));
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>       }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>       <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <em class="jxr_comment">// Log what we know when we don't know how much work to expect</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         LOG.info(String.format(<span class="jxr_string">"%s Progress: %d in %s (%s items/min overall, %s items/min recently)."</span>,
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                 taskLabel, amountOfWorkCompleted,
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 PspUtils.formatElapsedTime(howLongSinceStarted),
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 PspUtils.formatWithSignificantDigits(workDonePerMinute_overall, 2),
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 PspUtils.formatWithSignificantDigits(workDonePerMinute_sinceLastLog, 2)));
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>       }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>       lastTimeUpdatePrinted = Instant.now();
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>   }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+</body>
+</html>

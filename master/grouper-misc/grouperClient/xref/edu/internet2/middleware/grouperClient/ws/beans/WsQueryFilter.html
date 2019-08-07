@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * this represents a query which can be and'ed or or'ed</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html">WsQueryFilter</a> {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WsQueryFilter" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html#WsQueryFilter">WsQueryFilter</a> {
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>    <em class="jxr_javadoccomment">/** comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity */</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>    <strong class="jxr_keyword">private</strong> String typeOfGroups;
@@ -104,12 +104,12 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">   * if 'and' or 'or' this is the first group, and if complement, </em>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">   * this is the group to complement</em>
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html">WsQueryFilter</a> queryFilter0;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>    <strong class="jxr_keyword">private</strong> <a name="WsQueryFilter" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html#WsQueryFilter">WsQueryFilter</a> queryFilter0;
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> 
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">   * if 'and' or 'or', this is the second group</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html">WsQueryFilter</a> queryFilter1;
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>   <strong class="jxr_keyword">private</strong> <a name="WsQueryFilter" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html#WsQueryFilter">WsQueryFilter</a> queryFilter1;
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> 
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>   <em class="jxr_javadoccomment">/** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */</em>
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>   <strong class="jxr_keyword">private</strong> String ascending;
@@ -270,7 +270,7 @@
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">   * this is the group to complement </em>
 <a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">   * @return the queryFilter0</em>
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html">WsQueryFilter</a> getQueryFilter0() {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>   <strong class="jxr_keyword">public</strong> <a name="WsQueryFilter" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html#WsQueryFilter">WsQueryFilter</a> getQueryFilter0() {
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.queryFilter0;
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>   }
 <a class="jxr_linenumber" name="L268" href="#L268">268</a> 
@@ -279,7 +279,7 @@
 <a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">   * this is the group to complement </em>
 <a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">   * @param theQueryFilter0 the queryFilter0 to set</em>
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setQueryFilter0(<a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html">WsQueryFilter</a> theQueryFilter0) {
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setQueryFilter0(<a name="WsQueryFilter" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html#WsQueryFilter">WsQueryFilter</a> theQueryFilter0) {
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">this</strong>.queryFilter0 = theQueryFilter0;
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>   }
 <a class="jxr_linenumber" name="L277" href="#L277">277</a> 
@@ -287,7 +287,7 @@
 <a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   * if 'and' or 'or', this is the second group</em>
 <a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">   * @return the queryFilter1</em>
 <a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html">WsQueryFilter</a> getQueryFilter1() {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>   <strong class="jxr_keyword">public</strong> <a name="WsQueryFilter" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html#WsQueryFilter">WsQueryFilter</a> getQueryFilter1() {
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.queryFilter1;
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>   }
 <a class="jxr_linenumber" name="L285" href="#L285">285</a> 
@@ -295,7 +295,7 @@
 <a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">   * if 'and' or 'or', this is the second group</em>
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">   * @param theQueryFilter1 the queryFilter1 to set</em>
 <a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setQueryFilter1(<a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html">WsQueryFilter</a> theQueryFilter1) {
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setQueryFilter1(<a name="WsQueryFilter" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html#WsQueryFilter">WsQueryFilter</a> theQueryFilter1) {
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>     <strong class="jxr_keyword">this</strong>.queryFilter1 = theQueryFilter1;
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>   }
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> 
@@ -382,6 +382,6 @@
 <a class="jxr_linenumber" name="L374" href="#L374">374</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

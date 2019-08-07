@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -42,17 +42,17 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * @NotThreadSafe</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * @since 1.3</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html">Pack200CompressorOutputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/CompressorOutputStream.html">CompressorOutputStream</a> {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Pack200CompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html#Pack200CompressorOutputStream">Pack200CompressorOutputStream</a> <strong class="jxr_keyword">extends</strong> <a name="CompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/CompressorOutputStream.html#CompressorOutputStream">CompressorOutputStream</a> {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> finished = false;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> OutputStream originalOutput;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/StreamBridge.html">StreamBridge</a> streamBridge;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="StreamBridge" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/StreamBridge.html#StreamBridge">StreamBridge</a> streamBridge;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, String&gt; properties;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     * Compresses the given stream, caching the compressed data in</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     * memory.</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html">Pack200CompressorOutputStream</a>(<strong class="jxr_keyword">final</strong> OutputStream out)
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <a name="Pack200CompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html#Pack200CompressorOutputStream">Pack200CompressorOutputStream</a>(<strong class="jxr_keyword">final</strong> OutputStream out)
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">this</strong>(out, Pack200Strategy.IN_MEMORY);
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
@@ -61,8 +61,8 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * Compresses the given stream using the given strategy to cache</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * the results.</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html">Pack200CompressorOutputStream</a>(<strong class="jxr_keyword">final</strong> OutputStream out,
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                                           <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200Strategy.html">Pack200Strategy</a> mode)
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <a name="Pack200CompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html#Pack200CompressorOutputStream">Pack200CompressorOutputStream</a>(<strong class="jxr_keyword">final</strong> OutputStream out,
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                                           <strong class="jxr_keyword">final</strong> <a name="Pack200Strategy" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200Strategy.html#Pack200Strategy">Pack200Strategy</a> mode)
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">this</strong>(out, mode, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
@@ -71,7 +71,7 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * Compresses the given stream, caching the compressed data in</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * memory and using the given properties.</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html">Pack200CompressorOutputStream</a>(<strong class="jxr_keyword">final</strong> OutputStream out,
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> <a name="Pack200CompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html#Pack200CompressorOutputStream">Pack200CompressorOutputStream</a>(<strong class="jxr_keyword">final</strong> OutputStream out,
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                                           <strong class="jxr_keyword">final</strong> Map&lt;String, String&gt; props)
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">this</strong>(out, Pack200Strategy.IN_MEMORY, props);
@@ -81,8 +81,8 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     * Compresses the given stream using the given strategy to cache</em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * the results and the given properties.</em>
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html">Pack200CompressorOutputStream</a>(<strong class="jxr_keyword">final</strong> OutputStream out,
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                                           <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200Strategy.html">Pack200Strategy</a> mode,
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <a name="Pack200CompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200CompressorOutputStream.html#Pack200CompressorOutputStream">Pack200CompressorOutputStream</a>(<strong class="jxr_keyword">final</strong> OutputStream out,
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                                           <strong class="jxr_keyword">final</strong> <a name="Pack200Strategy" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/pack200/Pack200Strategy.html#Pack200Strategy">Pack200Strategy</a> mode,
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                                           <strong class="jxr_keyword">final</strong> Map&lt;String, String&gt; props)
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          originalOutput = out;
@@ -138,6 +138,6 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

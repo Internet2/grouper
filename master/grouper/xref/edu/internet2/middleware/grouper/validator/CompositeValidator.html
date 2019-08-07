@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">  you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -50,7 +50,7 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * @version $Id: CompositeValidator.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * @since   1.0</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/validator/CompositeValidator.html">CompositeValidator</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../edu/internet2/middleware/grouper/validator/GrouperValidator.html">GrouperValidator</a> {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="CompositeValidator" href="../../../../../edu/internet2/middleware/grouper/validator/CompositeValidator.html#CompositeValidator">CompositeValidator</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperValidator" href="../../../../../edu/internet2/middleware/grouper/validator/GrouperValidator.html#GrouperValidator">GrouperValidator</a> {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>    <em class="jxr_comment">// PROTECTED CLASS CONSTANTS //</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String INVALID_CREATETIME      = <span class="jxr_string">"composite has invalid createTime"</span>;
@@ -70,9 +70,9 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>    <em class="jxr_comment">// PROTECTED CLASS METHODS //</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>    <em class="jxr_comment">//  @since 1.2.0</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/validator/CompositeValidator.html">CompositeValidator</a> validate(<a href="../../../../../edu/internet2/middleware/grouper/Composite.html">Composite</a> _c) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <a href="../../../../../edu/internet2/middleware/grouper/validator/CompositeValidator.html">CompositeValidator</a>  v     = <strong class="jxr_keyword">new</strong> CompositeValidator();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <a href="../../../../../edu/internet2/middleware/grouper/validator/NotNullValidator.html">NotNullValidator</a>    vNull = NotNullValidator.validate(_c);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="CompositeValidator" href="../../../../../edu/internet2/middleware/grouper/validator/CompositeValidator.html#CompositeValidator">CompositeValidator</a> validate(<a name="Composite" href="../../../../../edu/internet2/middleware/grouper/Composite.html#Composite">Composite</a> _c) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <a name="CompositeValidator" href="../../../../../edu/internet2/middl<a name="CompositeValidator" href="../../../../../edu/internet2/middleware/grouper/validator/CompositeValidator.html#CompositeValidator">CompositeValidator</a>dator/CompositeValidator.html#CompositeValidator">CompositeValidator</a>  v     = <strong class="jxr_keyword">new</strong> <a name="CompositeValidator" href="../../../../../edu/internet2/middleware/grouper/validator/CompositeValidator.html#CompositeValidator">CompositeValidator</a>();
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <a name="NotNullValidator" href="../../../../../edu/internet2/middleware/grouper/validator/NotNullValidator.html#NotNullValidator">NotNullValidator</a>    vNull = NotNullValidator.validate(_c);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">if</strong> (vNull.isInvalid()) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>        v.setErrorMessage( vNull.getErrorMessage() );
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
@@ -110,7 +110,7 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">else</strong> {  
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>       <em class="jxr_comment">// validate that owner and factors are existing groups</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>       <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GroupDAO.html">GroupDAO</a> dao = GrouperDAOFactory.getFactory().getGroup();
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>       <a name="GroupDAO" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GroupDAO.html#GroupDAO">GroupDAO</a> dao = GrouperDAOFactory.getFactory().getGroup();
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>       <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">if</strong>      ( !dao.exists( _c.getFactorOwnerUuid() ) ) {
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>           v.setErrorMessage(INVALID_FACTOROWNER);
@@ -125,7 +125,7 @@
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>           v.setIsValid(<strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>       }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>       <strong class="jxr_keyword">catch</strong> (GrouperDAOException eDAO) {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>       <strong class="jxr_keyword">catch</strong> (<a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> eDAO) {
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         v.setErrorMessage( eDAO.getMessage() );
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>       }
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>     }
@@ -136,6 +136,6 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -45,7 +45,7 @@
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * logic for the built in EL limit</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitElLogic.html">PermissionLimitElLogic</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBase.html">PermissionLimitBase</a> {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PermissionLimitElLogic" href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitElLogic.html#PermissionLimitElLogic">PermissionLimitElLogic</a> <strong class="jxr_keyword">extends</strong> <a name="PermissionLimitBase" href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBase.html#PermissionLimitBase">PermissionLimitBase</a> {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>    <em class="jxr_javadoccomment">/** if you are testing this, set it, otherwise, it will default */</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Integer testingCacheMinutesInt = <strong class="jxr_keyword">null</strong>;
@@ -67,8 +67,8 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">   * @see PermissionLimitInterface#allowPermission(PermissionEntry, AttributeAssign, Set, Map, Set)</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> allowPermission(<a href="../../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionEntry</a> permissionEntry,
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>        <a href="../../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> limitAssignment, Set&lt;AttributeAssignValue&gt; limitAssignmentValues,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> allowPermission(<a name="PermissionEntry" href="../../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry,
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>        <a name="AttributeAssign" href="../../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssignment, Set&lt;AttributeAssignValue&gt; limitAssignmentValues,
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>        Map&lt;String, Object&gt; limitEnvVars, Set&lt;PermissionLimitBean&gt; permissionLimitBeans) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      testingTimesCalledLogic++;
@@ -97,7 +97,7 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          expression = <span class="jxr_string">"${"</span> + expression + <span class="jxr_string">"}"</span>;
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>        }
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>        
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>        limitEnvVars.put(<span class="jxr_string">"limitElUtils"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/LimitElUtils.html">LimitElUtils</a>());
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>        limitEnvVars.put(<span class="jxr_string">"limitElUtils"</span>, <strong class="jxr_keyword">new</strong> <a name="LimitElUtils" href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/LimitElUtils.html#LimitElUtils">LimitElUtils</a>());
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>        
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>        limitEnvVars.put(<span class="jxr_string">"limitAssignmentId"</span>, limitAssignment.getId());
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>        limitEnvVars.put(<span class="jxr_string">"permissionAction"</span>, permissionEntry.getAction());
@@ -163,8 +163,8 @@
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">   * @see PermissionLimitInterface#documentation()</em>
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html">PermissionLimitDocumentation</a> documentation() {
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html">PermissionLimitDocumentation</a> permissionLimitDocumentation = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html">PermissionLimitDocumentation</a>();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>   <strong class="jxr_keyword">public</strong> <a name="PermissionLimitDocumentation" href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html#PermissionLimitDocumentation">PermissionLimitDocumentation</a> documentation() {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <a name="PermissionLimitDocumentation" href="../../../../../../../edu/internet2/middleware/grouper/pe<a name="PermissionLimitDocumentation" href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html#PermissionLimitDocumentation">PermissionLimitDocumentation</a>imitDocumentation.html#PermissionLimitDocumentation">PermissionLimitDocumentation</a> permissionLimitDocumentation = <strong class="jxr_keyword">new</strong> <a name="PermissionLimitDocumentation" href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html#PermissionLimitDocumentation">PermissionLimitDocumentation</a>();
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>     permissionLimitDocumentation.setDocumentationKey(<span class="jxr_string">"grouperPermissionExpressionLanguage.doc"</span>);
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     <em class="jxr_comment">//comma separated realms</em>
@@ -177,7 +177,7 @@
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">   * @see PermissionLimitInterface#validateLimitAssignValue(AttributeAssign, Set)</em>
 <a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html">PermissionLimitDocumentation</a> validateLimitAssignValue(<a href="../../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> limitAssign, Set&lt;AttributeAssignValue&gt; limitAssignmentValues) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>   <strong class="jxr_keyword">public</strong> <a name="PermissionLimitDocumentation" href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html#PermissionLimitDocumentation">PermissionLimitDocumentation</a> validateLimitAssignValue(<a name="AttributeAssign" href="../../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssign, Set&lt;AttributeAssignValue&gt; limitAssignmentValues) {
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     String value = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>     
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>     <strong class="jxr_keyword">if</strong> (GrouperUtil.length(limitAssignmentValues) == 1) {
@@ -185,7 +185,7 @@
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>     }
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>     
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(value)) {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html">PermissionLimitDocumentation</a>(<span class="jxr_string">"grouperPermissionExpressionLanguage.required"</span>);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="PermissionLimitDocumentation" href="../../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html#PermissionLimitDocumentation">PermissionLimitDocumentation</a>(<span class="jxr_string">"grouperPermissionExpressionLanguage.required"</span>);
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>     }
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -194,6 +194,6 @@
 <a class="jxr_linenumber" name="L186" href="#L186">186</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -49,7 +49,7 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * bean for simple group update.  holds all state for this module</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html">GroupUpdateRequestContainer</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GroupUpdateRequestContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html#GroupUpdateRequestContainer">GroupUpdateRequestContainer</a> <strong class="jxr_keyword">implements</strong> Serializable {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>    <em class="jxr_javadoccomment">/** group we are editing */</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">private</strong> Group groupToEdit = <strong class="jxr_keyword">null</strong>;
@@ -329,7 +329,7 @@
 <a class="jxr_linenumber" name="L321" href="#L321">321</a>         
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>         Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>         
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">this</strong>.privilegeAdditionalGuiMembers.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html">GuiMember</a>(member));
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">this</strong>.privilegeAdditionalGuiMembers.add(<strong class="jxr_keyword">new</strong> <a name="GuiMember" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html#GuiMember">GuiMember</a>(member));
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>         
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>       }
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>     }
@@ -381,12 +381,12 @@
 <a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">   * retrieveFromSession, cannot be null</em>
 <a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">   * @return the app state in request scope</em>
 <a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html">GroupUpdateRequestContainer</a> retrieveFromRequestOrCreate() {
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="GroupUpdateRequestContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html#GroupUpdateRequestContainer">GroupUpdateRequestContainer</a> retrieveFromRequestOrCreate() {
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html">GroupUpdateRequestContainer</a> groupUpdateRequestContainer = 
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>       (<a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html">GroupUpdateRequestContainer</a>)httpServletRequest.getAttribute(<span class="jxr_string">"groupUpdateRequestContainer"</span>);
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <a name="GroupUpdateRequestContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html#GroupUpdateRequestContainer">GroupUpdateRequestContainer</a> groupUpdateRequestContainer = 
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>       (<a name="GroupUpdateRequestContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html#GroupUpdateRequestContainer">GroupUpdateRequestContainer</a>)httpServletRequest.getAttribute(<span class="jxr_string">"groupUpdateRequestContainer"</span>);
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>     <strong class="jxr_keyword">if</strong> (groupUpdateRequestContainer == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>       groupUpdateRequestContainer = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html">GroupUpdateRequestContainer</a>();
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>       groupUpdateRequestContainer = <strong class="jxr_keyword">new</strong> <a name="GroupUpdateRequestContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/groupUpdate/GroupUpdateRequestContainer.html#GroupUpdateRequestContainer">GroupUpdateRequestContainer</a>();
 <a class="jxr_linenumber" name="L382" href="#L382">382</a>       groupUpdateRequestContainer.storeToRequest();
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>     }
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>     <strong class="jxr_keyword">return</strong> groupUpdateRequestContainer;
@@ -531,6 +531,6 @@
 <a class="jxr_linenumber" name="L523" href="#L523">523</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/util/GcElUtilsSafe.html">GcElUtilsSafe</a> {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GcElUtilsSafe" href="../../../../../edu/internet2/middleware/grouperClient/util/GcElUtilsSafe.html#GcElUtilsSafe">GcElUtilsSafe</a> {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * get env var for a key</em>
@@ -611,10 +611,10 @@
 <a class="jxr_linenumber" name="L603" href="#L603">603</a>     string = trim(string);
 <a class="jxr_linenumber" name="L604" href="#L604">604</a>     <strong class="jxr_keyword">if</strong> (string.startsWith(<span class="jxr_string">"&lt;"</span>)) {
 <a class="jxr_linenumber" name="L605" href="#L605">605</a>       <em class="jxr_comment">//this is xml</em>
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/util/XmlIndenter.html">XmlIndenter</a>(string).result();
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="XmlIndenter" href="../../../../../edu/internet2/middleware/grouperClient/util/XmlIndenter.html#XmlIndenter">XmlIndenter</a>(string).result();
 <a class="jxr_linenumber" name="L607" href="#L607">607</a>     }
 <a class="jxr_linenumber" name="L608" href="#L608">608</a>     <strong class="jxr_keyword">if</strong> (string.startsWith(<span class="jxr_string">"{"</span>)) {
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/util/GcJsonIndenter.html">GcJsonIndenter</a>(string).result();
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="GcJsonIndenter" href="../../../../../edu/internet2/middleware/grouperClient/util/GcJsonIndenter.html#GcJsonIndenter">GcJsonIndenter</a>(string).result();
 <a class="jxr_linenumber" name="L610" href="#L610">610</a>     }
 <a class="jxr_linenumber" name="L611" href="#L611">611</a>     <strong class="jxr_keyword">if</strong> (!failIfTypeNotFound) {
 <a class="jxr_linenumber" name="L612" href="#L612">612</a>       <em class="jxr_comment">//just return if cant indent</em>
@@ -1497,8 +1497,8 @@
 <a class="jxr_linenumber" name="L1489" href="#L1489">1489</a>     <strong class="jxr_keyword">if</strong> (objectOrArrayOrCollection instanceof Collection) {
 <a class="jxr_linenumber" name="L1490" href="#L1490">1490</a>       Collection collection = (Collection) objectOrArrayOrCollection;
 <a class="jxr_linenumber" name="L1491" href="#L1491">1491</a>       Object first = collection.iterator().next();
-<a class="jxr_linenumber" name="L1492" href="#L1492">1492</a>       <strong class="jxr_keyword">return</strong> toArray(collection, first == <strong class="jxr_keyword">null</strong> ? Object.<strong class="jxr_keyword">class</strong> : first
-<a class="jxr_linenumber" name="L1493" href="#L1493">1493</a>           .getClass());
+<a class="jxr_linenumber" name="L1492" href="#L1492">1492</a>       <strong class="jxr_keyword">return</strong> toArray(collection, (Class&lt;?&gt;)(first == <strong class="jxr_keyword">null</strong> ? Object.<strong class="jxr_keyword">class</strong> : first
+<a class="jxr_linenumber" name="L1493" href="#L1493">1493</a>           .getClass()));
 <a class="jxr_linenumber" name="L1494" href="#L1494">1494</a>     }
 <a class="jxr_linenumber" name="L1495" href="#L1495">1495</a>     <em class="jxr_comment">// make an array of the type of object passed in, size one</em>
 <a class="jxr_linenumber" name="L1496" href="#L1496">1496</a>     Object array = Array.newInstance(objectOrArrayOrCollection.getClass(),
@@ -6088,6 +6088,6 @@
 <a class="jxr_linenumber" name="L6080" href="#L6080">6080</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

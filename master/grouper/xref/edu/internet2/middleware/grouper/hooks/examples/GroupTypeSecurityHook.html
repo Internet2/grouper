@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -67,7 +67,7 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment"> * log4j.logger.edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook = DEBUG</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/examples/GroupTypeSecurityHook.html">GroupTypeSecurityHook</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/GroupTypeTupleHooks.html">GroupTypeTupleHooks</a> {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GroupTypeSecurityHook" href="../../../../../../edu/internet2/middleware/grouper/hooks/examples/GroupTypeSecurityHook.html#GroupTypeSecurityHook">GroupTypeSecurityHook</a> <strong class="jxr_keyword">extends</strong> <a name="GroupTypeTupleHooks" href="../../../../../../edu/internet2/middleware/grouper/hooks/GroupTypeTupleHooks.html#GroupTypeTupleHooks">GroupTypeTupleHooks</a> {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>    
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">   * logger </em>
@@ -172,18 +172,18 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">   * @param descriptionForLog</em>
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">   * @throws HookVeto if there is a problem</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> vetoIfNecessary(String groupUuid, String typeUuid, String descriptionForLog) <strong class="jxr_keyword">throws</strong> HookVeto {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     Subject subject = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> vetoIfNecessary(String groupUuid, String typeUuid, String descriptionForLog) <strong class="jxr_keyword">throws</strong> <a name="HookVeto" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a> {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <a name="Subject" href="../../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     String groupTypeName = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>     String groupNameUuidEdited = groupUuid;
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> currentSession = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> currentSession = GrouperSession.staticGrouperSession();
 <a class="jxr_linenumber" name="L173" href="#L173">173</a> 
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>       subject = grouperSession.getSubject();
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> 
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>       <em class="jxr_comment">//lets get the type and see if it is protected.  this better exist</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>       <a href="../../../../../../edu/internet2/middleware/grouper/GroupType.html">GroupType</a> groupType = GroupTypeFinder.findByUuid(typeUuid, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>       <a name="GroupType" href="../../../../../../edu/internet2/middleware/grouper/GroupType.html#GroupType">GroupType</a> groupType = GroupTypeFinder.findByUuid(typeUuid, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>       String groupName = groupTypeToGroupMap.get(groupType.getName());
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>       groupTypeName = groupType.getName();
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>       
@@ -193,7 +193,7 @@
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>       <em class="jxr_comment">//only need this if debugging</em>
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>       <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>           <a href="../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> groupEdited = GroupFinder.findByUuid(currentSession.internal_getRootSession(), groupUuid, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>           <a name="Group" href="../../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> groupEdited = GroupFinder.findByUuid(currentSession.internal_getRootSession(), groupUuid, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>           groupNameUuidEdited = StringUtils.defaultIfEmpty(groupEdited.getName(), groupNameUuidEdited);
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>           
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>         } <strong class="jxr_keyword">catch</strong> (Exception e) {
@@ -214,7 +214,7 @@
 <a class="jxr_linenumber" name="L206" href="#L206">206</a> 
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>       <strong class="jxr_keyword">if</strong> (hasGroupConstraint) {
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>         
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <a href="../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> groupAllowed = GroupFinder.findByName(currentSession.internal_getRootSession(), groupName, false);
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <a name="Group" href="../../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> groupAllowed = GroupFinder.findByName(currentSession.internal_getRootSession(), groupName, false);
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">if</strong> (groupAllowed == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>           <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>             LOG.debug(<span class="jxr_string">"Cant find group: "</span> + groupName + <span class="jxr_string">" which holds security for type: "</span> + groupTypeName);
@@ -244,17 +244,17 @@
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>       
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>       String vetoDescription = <span class="jxr_string">"Not allowed to edit type: "</span> + groupTypeName + <span class="jxr_string">", "</span> + descriptionForLog + <span class="jxr_string">" since the user "</span>
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>         + GrouperUtil.subjectToString(subject)  + <span class="jxr_string">" is not in group: "</span> + groupName;
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html">HookVeto</a>(<span class="jxr_string">"cantEditTypeNotInGroup"</span>, vetoDescription);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="HookVeto" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a>(<span class="jxr_string">"cantEditTypeNotInGroup"</span>, vetoDescription);
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>       
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>       <strong class="jxr_keyword">if</strong> (e instanceof HookVeto) {
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html">HookVeto</a> hookVeto = (HookVeto)e;
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>       <strong class="jxr_keyword">if</strong> (e instanceof <a name="HookVeto" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a>) {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <a name="HookVeto" hr<a name="HookVeto" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a>./../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a> hookVeto = (<a name="HookVeto" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a>)e;
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> 
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>           LOG.debug(<span class="jxr_string">"Veto for "</span> + descriptionForLog + <span class="jxr_string">" on group: "</span> + groupNameUuidEdited  
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>               + <span class="jxr_string">" based on session subject: "</span> + GrouperUtil.subjectToString(subject)  + <span class="jxr_string">": "</span> + hookVeto.getReason());
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>         }
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">throw</strong> (HookVeto)e;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">throw</strong> (<a name="HookVeto" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a>)e;
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>       }
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>       <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>         LOG.debug(<span class="jxr_string">"Error finding if veto for "</span> + descriptionForLog  + <span class="jxr_string">" on group: "</span> + groupNameUuidEdited 
@@ -296,8 +296,8 @@
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks#groupTypeTuplePostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean)</em>
 <a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>   @Override
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> groupTypeTuplePostDelete(<a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html">HooksContext</a> hooksContext,
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>       <a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksGroupTypeTupleBean.html">HooksGroupTypeTupleBean</a> postDeleteBean) {
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> groupTypeTuplePostDelete(<a name="HooksContext" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html#HooksContext">HooksContext</a> hooksContext,
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>       <a name="HooksGroupTypeTupleBean" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksGroupTypeTupleBean.html#HooksGroupTypeTupleBean">HooksGroupTypeTupleBean</a> postDeleteBean) {
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>     groupTypeTupleHelper(postDeleteBean, <span class="jxr_string">"removing type"</span>);
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>   }
 <a class="jxr_linenumber" name="L295" href="#L295">295</a> 
@@ -306,8 +306,8 @@
 <a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks#groupTypeTuplePostInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean)</em>
 <a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>   @Override
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> groupTypeTuplePostInsert(<a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html">HooksContext</a> hooksContext,
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>       <a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksGroupTypeTupleBean.html">HooksGroupTypeTupleBean</a> postInsertBean) {
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> groupTypeTuplePostInsert(<a name="HooksContext" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html#HooksContext">HooksContext</a> hooksContext,
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>       <a name="HooksGroupTypeTupleBean" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksGroupTypeTupleBean.html#HooksGroupTypeTupleBean">HooksGroupTypeTupleBean</a> postInsertBean) {
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>     
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>     groupTypeTupleHelper(postInsertBean, <span class="jxr_string">"adding type"</span>);
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>   
@@ -317,9 +317,9 @@
 <a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">   * @param postInsertBean</em>
 <a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">   * @param reason is to describe what is going on</em>
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> groupTypeTupleHelper(<a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksGroupTypeTupleBean.html">HooksGroupTypeTupleBean</a> postInsertBean, String reason) {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> groupTypeTupleHelper(<a name="HooksGroupTypeTupleBean" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksGroupTypeTupleBean.html#HooksGroupTypeTupleBean">HooksGroupTypeTupleBean</a> postInsertBean, String reason) {
 <a class="jxr_linenumber" name="L313" href="#L313">313</a> 
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <a href="../../../../../../edu/internet2/middleware/grouper/GroupTypeTuple.html">GroupTypeTuple</a> groupTypeTuple = postInsertBean.getGroupTypeTuple();
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <a name="GroupTypeTuple" href="../../../../../../edu/internet2/middleware/grouper/GroupTypeTuple.html#GroupTypeTuple">GroupTypeTuple</a> groupTypeTuple = postInsertBean.getGroupTypeTuple();
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>     vetoIfNecessary(groupTypeTuple.getGroupUuid(), groupTypeTuple.getTypeUuid(), reason);
 <a class="jxr_linenumber" name="L316" href="#L316">316</a>   }
 <a class="jxr_linenumber" name="L317" href="#L317">317</a> 
@@ -335,6 +335,6 @@
 <a class="jxr_linenumber" name="L327" href="#L327">327</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

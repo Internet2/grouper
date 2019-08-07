@@ -17,7 +17,7 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.delta;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/delta/DeltaCoder.html">DeltaCoder</a> {
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="DeltaCoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/delta/DeltaCoder.html#DeltaCoder">DeltaCoder</a> {
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DISTANCE_MIN = 1;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DISTANCE_MAX = 256;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DISTANCE_MASK = DISTANCE_MAX - 1;
@@ -26,7 +26,7 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">final</strong> byte[] history = <strong class="jxr_keyword">new</strong> byte[DISTANCE_MAX];
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">int</strong> pos = 0;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/delta/DeltaCoder.html">DeltaCoder</a>(<strong class="jxr_keyword">int</strong> distance) {
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <a name="DeltaCoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/delta/DeltaCoder.html#DeltaCoder">DeltaCoder</a>(<strong class="jxr_keyword">int</strong> distance) {
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>          <strong class="jxr_keyword">if</strong> (distance &lt; DISTANCE_MIN || distance &gt; DISTANCE_MAX)
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException();
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  
@@ -35,6 +35,6 @@
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

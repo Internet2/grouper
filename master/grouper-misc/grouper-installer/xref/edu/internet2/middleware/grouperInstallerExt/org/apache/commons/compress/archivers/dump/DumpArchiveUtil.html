@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -32,11 +32,11 @@
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * Various utilities for dump archives.</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveUtil.html">DumpArchiveUtil</a> {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">class</strong> <a name="DumpArchiveUtil" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveUtil.html#DumpArchiveUtil">DumpArchiveUtil</a> {
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     * Private constructor to prevent instantiation.</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveUtil.html">DumpArchiveUtil</a>() {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <a name="DumpArchiveUtil" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveUtil.html#DumpArchiveUtil">DumpArchiveUtil</a>() {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      <em class="jxr_javadoccomment">/**</em>
@@ -144,7 +144,7 @@
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     * Decodes a byte array to a string.</em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">static</strong> String decode(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> encoding, byte[] b, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> len)
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">static</strong> String decode(<a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> encoding, byte[] b, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> len)
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>         byte[] copy = <strong class="jxr_keyword">new</strong> byte[len];
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>         System.arraycopy(b, offset, copy, 0, len);
@@ -153,6 +153,6 @@
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

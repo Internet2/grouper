@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -34,7 +34,7 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverConfig</a> {
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="FailoverConfig" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html#FailoverConfig">FailoverConfig</a> {
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">   * if your app has a slow startup time, and the initial connections are timing out</em>
@@ -87,13 +87,13 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> extraTimeoutSeconds = 15;
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>    <em class="jxr_javadoccomment">/** actice/active or active/standby */</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverStrategy</a> failoverStrategy;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>    <strong class="jxr_keyword">private</strong> FailoverStrategy failoverStrategy;
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>    
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">   * copy a failover client from another</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">   * @param failoverConfig</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> copyFromArgument(<a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverConfig</a> failoverConfig) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> copyFromArgument(<a name="FailoverConfig" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html#FailoverConfig">FailoverConfig</a> failoverConfig) {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">this</strong>.affinitySeconds = failoverConfig.affinitySeconds;
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">this</strong>.connectionNames = failoverConfig.connectionNames == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;(failoverConfig.connectionNames);
@@ -111,7 +111,7 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverConfig</a>() {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>   <strong class="jxr_keyword">public</strong> <a name="FailoverConfig" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html#FailoverConfig">FailoverConfig</a>() {
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     {
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>       <strong class="jxr_keyword">int</strong> minutesToKeepErrors = GrouperClientConfig.retrieveConfig().propertyValueInt(<span class="jxr_string">"grouperClient.minutesToKeepErrors"</span>, 5);
@@ -218,7 +218,7 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">   * actice/active or active/standby</em>
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">   * @return actice/active or active/standby</em>
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverStrategy</a> getFailoverStrategy() {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>   <strong class="jxr_keyword">public</strong> FailoverStrategy getFailoverStrategy() {
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">return</strong> failoverStrategy;
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>   }
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> 
@@ -226,7 +226,7 @@
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">   * actice/active or active/standby</em>
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">   * @param failoverStrategy1</em>
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setFailoverStrategy(<a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverStrategy</a> failoverStrategy1) {
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setFailoverStrategy(FailoverStrategy failoverStrategy1) {
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     <strong class="jxr_keyword">this</strong>.failoverStrategy = failoverStrategy1;
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>   }
 <a class="jxr_linenumber" name="L224" href="#L224">224</a> 
@@ -294,7 +294,7 @@
 <a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">   * failover strategy to employ with each pool type</em>
 <a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverStrategy</a> {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum FailoverStrategy {
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>     
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * if should try allow by equal chance (when there is a reason to pick and not affinity</em>
@@ -313,7 +313,7 @@
 <a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     * @param exceptionOnNull will not allow null or blank entries</em>
 <a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">     * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverStrategy</a> valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> FailoverStrategy valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>       <strong class="jxr_keyword">if</strong> (GrouperClientUtils.equalsIgnoreCase(<span class="jxr_string">"active/active"</span>, string)) {
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">return</strong> FailoverStrategy.activeActive;
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>       }
@@ -329,6 +329,6 @@
 <a class="jxr_linenumber" name="L321" href="#L321">321</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

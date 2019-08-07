@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -44,7 +44,7 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/poc/ScriptingPoc.html">ScriptingPoc</a> {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ScriptingPoc" href="../../../../../edu/internet2/middleware/grouperClient/poc/ScriptingPoc.html#ScriptingPoc">ScriptingPoc</a> {
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">   * @param args</em>
@@ -68,7 +68,7 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      l.add(<strong class="jxr_keyword">new</strong> Integer(2));
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      substituteMap.put(<span class="jxr_string">"array"</span>, l);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      substituteMap.put(<span class="jxr_string">"foo"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/poc/ScriptingPoc.html">Foo</a>());
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      substituteMap.put(<span class="jxr_string">"foo"</span>, <strong class="jxr_keyword">new</strong> Foo());
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      substituteMap.put(<span class="jxr_string">"number"</span>, <strong class="jxr_keyword">new</strong> Integer(10));
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      String stringToParse = <span class="jxr_string">"Whatever: ${array[0].length()} ${foo.foo} ${number}"</span>;
@@ -96,7 +96,7 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      l.add(<strong class="jxr_keyword">new</strong> Integer(2));
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      jc.set(<span class="jxr_string">"array"</span>, l);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      jc.set(<span class="jxr_string">"foo"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/poc/ScriptingPoc.html">Foo</a>());
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      jc.set(<span class="jxr_string">"foo"</span>, <strong class="jxr_keyword">new</strong> Foo());
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>      jc.set(<span class="jxr_string">"number"</span>, <strong class="jxr_keyword">new</strong> Integer(10));
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>      String stringToParse = <span class="jxr_string">"Whatever: ${array[0].length()} ${foo.foo} ${number}"</span>;
@@ -180,7 +180,7 @@
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>     jc = <strong class="jxr_keyword">new</strong> MapContext();
 <a class="jxr_linenumber" name="L173" href="#L173">173</a> 
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> 
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>     jc.set(<span class="jxr_string">"foo"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/poc/ScriptingPoc.html">Foo</a>());
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     jc.set(<span class="jxr_string">"foo"</span>, <strong class="jxr_keyword">new</strong> Foo());
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>     jc.set(<span class="jxr_string">"number"</span>, <strong class="jxr_keyword">new</strong> Integer(10));
 <a class="jxr_linenumber" name="L177" href="#L177">177</a> 
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>     <em class="jxr_comment">/*</em>
@@ -222,7 +222,7 @@
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">   * Helper example class.</em>
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/poc/ScriptingPoc.html">Foo</a> {
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> Foo {
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>       <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">       * Gets foo.</em>
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">       * @return a string.</em>
@@ -254,6 +254,6 @@
 <a class="jxr_linenumber" name="L246" href="#L246">246</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -14,7 +14,7 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> *  (the "License"); you may not use this file except in compliance with</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> *  the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -37,7 +37,7 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * @since 1.5</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipMethod.html">ZipMethod</a> {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> enum <a name="ZipMethod" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipMethod.html#ZipMethod">ZipMethod</a> {
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * Compression method 0 for uncompressed entries.</em>
@@ -180,7 +180,7 @@
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> 
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">static</strong> {
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>         Map&lt;Integer, ZipMethod&gt; cte = <strong class="jxr_keyword">new</strong> HashMap&lt;Integer, ZipMethod&gt;();
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">for</strong> (ZipMethod method : values()) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">for</strong> (<a name="ZipMethod" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipMethod.html#ZipMethod">ZipMethod</a> method : values()) {
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>             cte.put(Integer.valueOf(method.getCode()), method);
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>         }
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>         codeToEnum = Collections.unmodifiableMap(cte);
@@ -189,7 +189,7 @@
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">     * private constructor for enum style class.</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipMethod.html">ZipMethod</a>(<strong class="jxr_keyword">int</strong> code) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <a name="ZipMethod" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipMethod.html#ZipMethod">ZipMethod</a>(<strong class="jxr_keyword">int</strong> code) {
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">this</strong>.code = code;
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
 <a class="jxr_linenumber" name="L187" href="#L187">187</a> 
@@ -209,12 +209,12 @@
 <a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     * returns the {@link ZipMethod} for the given code or null if the</em>
 <a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * method is not known.</em>
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipMethod.html">ZipMethod</a> getMethodByCode(<strong class="jxr_keyword">int</strong> code) {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="ZipMethod" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipMethod.html#ZipMethod">ZipMethod</a> getMethodByCode(<strong class="jxr_keyword">int</strong> code) {
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">return</strong> codeToEnum.get(Integer.valueOf(code));
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>     }
 <a class="jxr_linenumber" name="L207" href="#L207">207</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

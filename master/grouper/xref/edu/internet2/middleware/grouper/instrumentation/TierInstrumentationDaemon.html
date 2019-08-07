@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -23,294 +23,496 @@
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouper.instrumentation;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.io.File;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.sql.Timestamp;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Iterator;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashMap;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedList;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.Properties;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.TreeSet;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Matcher;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Pattern;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.httpclient.HttpClient;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.httpclient.HttpException;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.httpclient.methods.GetMethod;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.httpclient.methods.PostMethod;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.httpclient.methods.StringRequestEntity;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.io.IOUtils;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.lang.SystemUtils;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.lang.exception.ExceptionUtils;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.logging.Log;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> org.quartz.DisallowConcurrentExecution;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> org.quartz.Job;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> org.quartz.JobExecutionContext;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> org.quartz.JobExecutionException;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GrouperSession;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.audit.AuditTypeFinder;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.cfg.GrouperConfig;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.hibernate.GrouperContext;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.hibernate.HibernateSession;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.misc.GrouperVersion;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.util.GrouperUtil;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> * @author shilen</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  @DisallowConcurrentExecution
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/instrumentation/TierInstrumentationDaemon.html">TierInstrumentationDaemon</a> <strong class="jxr_keyword">implements</strong> Job {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>    
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Log LOG = GrouperUtil.getLog(TierInstrumentationDaemon.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>    
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>    @Override
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> execute(JobExecutionContext context) <strong class="jxr_keyword">throws</strong> JobExecutionException {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">long</strong> startTime = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">long</strong> startTimeMinus24Hours = startTime - 86400000L;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <a href="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html">Hib3GrouperLoaderLog</a> hib3GrouploaderLog = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html">Hib3GrouperLoaderLog</a>();
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>        grouperSession = GrouperSession.startRootSession();
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>        String jobName = context.getJobDetail().getKey().getName();
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>        hib3GrouploaderLog.setJobName(jobName);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>        hib3GrouploaderLog.setStartedTime(<strong class="jxr_keyword">new</strong> Timestamp(startTime));
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>        hib3GrouploaderLog.setJobType(<span class="jxr_string">"OTHER_JOB"</span>);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>        hib3GrouploaderLog.store();
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>        
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>        LOG.info(<span class="jxr_string">"Running TIER instrumentation daemon."</span>);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>        
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>        Map&lt;String, Object&gt; data = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, Object&gt;();
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>        data.put(<span class="jxr_string">"reportFormat"</span>, 1);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>        data.put(<span class="jxr_string">"component"</span>, <span class="jxr_string">"grouper"</span>);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>        data.put(<span class="jxr_string">"institution"</span>, getInstitution());
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>        data.put(<span class="jxr_string">"environment"</span>, GrouperConfig.retrieveConfig().getProperty(<span class="jxr_string">"grouper.env.name"</span>, <span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>        data.put(<span class="jxr_string">"version"</span>, GrouperVersion.GROUPER_VERSION);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>        data.put(<span class="jxr_string">"platformWindows"</span>, SystemUtils.IS_OS_WINDOWS);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>       data.put(<span class="jxr_string">"platformLinux"</span>, SystemUtils.IS_OS_LINUX);
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>       data.put(<span class="jxr_string">"platformMac"</span>, SystemUtils.IS_OS_MAC);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>       data.put(<span class="jxr_string">"platformSolaris"</span>, SystemUtils.IS_OS_SOLARIS);
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>       
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>       <strong class="jxr_keyword">if</strong> (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"otherJob.tierInstrumentationDaemon.exclude.transactionCounts"</span>, false)) {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         Long membershipChanges = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select count(*) from AuditEntry where createdOnDb &gt; :createdOn and auditTypeId in (:auditTypeAdd, :auditTypeUpdate, :auditTypeDelete)"</span>)
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>           .setLong(<span class="jxr_string">"createdOn"</span>, startTimeMinus24Hours)
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>           .setString(<span class="jxr_string">"auditTypeAdd"</span>, AuditTypeFinder.find(<span class="jxr_string">"membership"</span>, <span class="jxr_string">"addGroupMembership"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>           .setString(<span class="jxr_string">"auditTypeUpdate"</span>, AuditTypeFinder.find(<span class="jxr_string">"membership"</span>, <span class="jxr_string">"updateGroupMembership"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>           .setString(<span class="jxr_string">"auditTypeDelete"</span>, AuditTypeFinder.find(<span class="jxr_string">"membership"</span>, <span class="jxr_string">"deleteGroupMembership"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>           .uniqueResult(Long.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         data.put(<span class="jxr_string">"transactionCountMemberships"</span>, membershipChanges);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>   
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         Long privilegeChanges = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select count(*) from AuditEntry where createdOnDb &gt; :createdOn and auditTypeId in (:auditTypeGroupAdd, :auditTypeGroupUpdate, :auditTypeGroupDelete, :auditTypeStemAdd, :auditTypeStemUpdate, :auditTypeStemDelete)"</span>)
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>           .setLong(<span class="jxr_string">"createdOn"</span>, startTimeMinus24Hours)
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>           .setString(<span class="jxr_string">"auditTypeGroupAdd"</span>, AuditTypeFinder.find(<span class="jxr_string">"privilege"</span>, <span class="jxr_string">"addGroupPrivilege"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>           .setString(<span class="jxr_string">"auditTypeGroupUpdate"</span>, AuditTypeFinder.find(<span class="jxr_string">"privilege"</span>, <span class="jxr_string">"updateGroupPrivilege"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>           .setString(<span class="jxr_string">"auditTypeGroupDelete"</span>, AuditTypeFinder.find(<span class="jxr_string">"privilege"</span>, <span class="jxr_string">"deleteGroupPrivilege"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>           .setString(<span class="jxr_string">"auditTypeStemAdd"</span>, AuditTypeFinder.find(<span class="jxr_string">"privilege"</span>, <span class="jxr_string">"addStemPrivilege"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>           .setString(<span class="jxr_string">"auditTypeStemUpdate"</span>, AuditTypeFinder.find(<span class="jxr_string">"privilege"</span>, <span class="jxr_string">"updateStemPrivilege"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>           .setString(<span class="jxr_string">"auditTypeStemDelete"</span>, AuditTypeFinder.find(<span class="jxr_string">"privilege"</span>, <span class="jxr_string">"deleteStemPrivilege"</span>, <strong class="jxr_keyword">true</strong>).getId())
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>           .uniqueResult(Long.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         data.put(<span class="jxr_string">"transactionCountPrivileges"</span>, privilegeChanges);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>       }
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>       
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>       <strong class="jxr_keyword">if</strong> (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"otherJob.tierInstrumentationDaemon.exclude.registryCounts"</span>, false)) {
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         Long totalMemberships = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select count(*) from ImmediateMembershipEntry m, Field f where m.fieldId=f.uuid and f.typeString = 'list'"</span>).uniqueResult(Long.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         data.put(<span class="jxr_string">"registryCountDirectMemberships"</span>, totalMemberships);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         Long totalPrivileges = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select count(*) from ImmediateMembershipEntry m, Field f where m.fieldId=f.uuid and f.typeString in ('access', 'naming', 'attributeDef')"</span>).uniqueResult(Long.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         data.put(<span class="jxr_string">"registryCountDirectPrivileges"</span>, totalPrivileges);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         Long totalDirectPermissions = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select count(*) from AttributeAssign aa, AttributeDef ad, AttributeDefName adn where aa.attributeDefNameId=adn.id and adn.attributeDefId=ad.id and ad.attributeDefTypeDb='perm'"</span>).uniqueResult(Long.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         data.put(<span class="jxr_string">"registryCountDirectPermissions"</span>, totalDirectPermissions);
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>       }
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>       
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>       Map&lt;String, String&gt; changeLogJobs = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>           GrouperCheckConfig.grouperLoaderConsumerPattern);
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>       data.put(<span class="jxr_string">"provisionToLdapUsingPsp"</span>, changeLogJobs.containsValue(<span class="jxr_string">"edu.internet2.middleware.psp.grouper.PspChangeLogConsumer"</span>));
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>       data.put(<span class="jxr_string">"provisionToLdapUsingPspng"</span>, changeLogJobs.containsValue(<span class="jxr_string">"edu.internet2.middleware.grouper.pspng.PspChangelogConsumerShim"</span>));
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>       
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>       <strong class="jxr_keyword">if</strong> (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"otherJob.tierInstrumentationDaemon.exclude.patchesInstalled"</span>, false)) {
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         data.put(<span class="jxr_string">"patchesInstalled"</span>, getPatchesInstalled());
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>       }
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>       
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>       sendToTier(data);
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>             
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>       LOG.info(<span class="jxr_string">"Finished running TIER instrumentation daemon."</span>);
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>       hib3GrouploaderLog.appendJobMessage(<span class="jxr_string">"Finished running TIER instrumentation daemon."</span>);
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>       
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>       storeLogInDb(hib3GrouploaderLog, <strong class="jxr_keyword">true</strong>, startTime);
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>       LOG.error(<span class="jxr_string">"Error running job"</span>, e);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>       hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>       
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>       <strong class="jxr_keyword">if</strong> (!(e instanceof JobExecutionException)) {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         e = <strong class="jxr_keyword">new</strong> JobExecutionException(e);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>       }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>       JobExecutionException jobExecutionException = (JobExecutionException)e;
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>       storeLogInDb(hib3GrouploaderLog, false, startTime);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>       <strong class="jxr_keyword">throw</strong> jobExecutionException;
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>       GrouperSession.stopQuietly(grouperSession);
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     }
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>   }
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>   
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">   * @param hib3GrouploaderLog</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">   * @param throwException </em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">   * @param startTime</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> storeLogInDb(<a href="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html">Hib3GrouperLoaderLog</a> hib3GrouploaderLog,
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>       <strong class="jxr_keyword">boolean</strong> throwException, <strong class="jxr_keyword">long</strong> startTime) {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <em class="jxr_comment">//store this safely</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>       
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>       <strong class="jxr_keyword">long</strong> endTime = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>       hib3GrouploaderLog.setEndedTime(<strong class="jxr_keyword">new</strong> Timestamp(endTime));
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>       hib3GrouploaderLog.setMillis((<strong class="jxr_keyword">int</strong>)(endTime-startTime));
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>       
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>       hib3GrouploaderLog.store();
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>       
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>       LOG.error(<span class="jxr_string">"Problem storing final log"</span>, e);
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>       <em class="jxr_comment">//dont preempt an existing exception</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>       <strong class="jxr_keyword">if</strong> (throwException) {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">throw</strong> e;
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>       }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     }
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>   }
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>   
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getInstitution() {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     String institution = GrouperConfig.retrieveConfig().getProperty(<span class="jxr_string">"grouper.institution.name"</span>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(institution)) {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>       <strong class="jxr_keyword">return</strong> institution;
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     }
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>     
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     String hostname = GrouperUtil.hostname();
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(hostname)) {
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>     }
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">int</strong> index = StringUtils.indexOf(hostname, <span class="jxr_string">"."</span>);
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>     
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">if</strong> (index == -1) {
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>     }
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <strong class="jxr_keyword">return</strong> hostname.substring(index + 1);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>   }
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>   
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>   <em class="jxr_comment">// this should probably go somewhere else since the ui/ws are also going to want to call this.</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; getPatchesInstalled() {
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     Set&lt;String&gt; patchesInstalled = <strong class="jxr_keyword">new</strong> TreeSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashMap;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.ThreadLocalRandom;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.httpclient.HttpClient;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.httpclient.methods.PostMethod;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.httpclient.methods.StringRequestEntity;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.io.IOUtils;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.lang.exception.ExceptionUtils;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.lang3.StringUtils;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.logging.Log;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.quartz.DisallowConcurrentExecution;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> edu.emory.mathcs.backport.java.util.Collections;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GrouperSession;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.misc.GrouperVersion;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.util.GrouperUtil;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * @author shilen</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  @DisallowConcurrentExecution
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="TierInstrumentationDaemon" href="../../../../../edu/internet2/middleware/grouper/instrumentation/TierInstrumentationDaemon.html#TierInstrumentationDaemon">TierInstrumentationDaemon</a> <strong class="jxr_keyword">extends</strong> <a name="OtherJobBase" href="../../../../../edu/internet2/middleware/grouper/app/loader/OtherJobBase.html#OtherJobBase">OtherJobBase</a> {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>    
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Log LOG = GrouperUtil.getLog(TierInstrumentationDaemon.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>    
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   * run the daemon</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * @param args</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      runDaemonStandalone();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_comment">    String release = "NON_PACKAGE_" + GrouperVersion.GROUPER_VERSION;</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_comment">    Map&lt;String, Set&lt;Integer&gt;&gt; patchesInstalled = new java.util.TreeMap&lt;String, Set&lt;Integer&gt;&gt;();</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_comment">    patchesInstalled.put("api", new java.util.HashSet&lt;Integer&gt;());</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_comment">    patchesInstalled.get("api").add(0);</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_comment">    patchesInstalled.get("api").add(1);</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_comment">    patchesInstalled.get("api").add(2);</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_comment">    patchesInstalled.get("api").add(5);</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_comment">    patchesInstalled.put("pspng", new java.util.HashSet&lt;Integer&gt;());</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_comment">    patchesInstalled.get("pspng").add(0);</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_comment">    patchesInstalled.get("pspng").add(1);</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_comment">    List&lt;String&gt; patchStrings = new ArrayList&lt;String&gt;();</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_comment">    for (String engine : patchesInstalled.keySet()) {</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_comment">      String engineLabel = engine.substring(0, 1);</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_comment">      List&lt;Integer&gt; patchNumbers = new ArrayList&lt;Integer&gt;(patchesInstalled.get(engine));</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_comment">      Collections.sort(patchNumbers);</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_comment">      if (patchNumbers.size() &gt; 0) {</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_comment">        Integer maxConsecutive = null;</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_comment">        boolean othersAfter = false;</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_comment">        for (int i = 0; i &lt; patchNumbers.size(); i++) {</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_comment">          if (i == patchNumbers.get(i)) {</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_comment">            maxConsecutive = i;</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_comment">          } else {</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_comment">            othersAfter = true;</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_comment">            break;</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_comment">          }</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_comment">        }</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_comment">        </em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_comment">        if (maxConsecutive == null) {</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_comment">          patchStrings.add(engineLabel + "UnknownPatches");</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_comment">        } else {</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_comment">          if (othersAfter) {</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_comment">            patchStrings.add(engineLabel + maxConsecutive + "AndUnknownPatches");</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_comment">          } else {</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_comment">            patchStrings.add(engineLabel + maxConsecutive);</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_comment">          }</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_comment">        }</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_comment">      }</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_comment">        </em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_comment">    if (patchStrings.size() &gt; 0) {</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_comment">      release = release + "-" + String.join("-", patchStrings);</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_comment">    System.out.println(release);</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_comment">    */</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>   }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * run standalone</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> runDaemonStandalone() {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession = GrouperSession.startRootSession();
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <a name="Hib3GrouperLoaderLog" href="../../../../../edu/internet2/middleware/grouper/<a name="Hib3GrouperLoaderLog" href="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html#Hib3GrouperLoaderLog">Hib3GrouperLoaderLog</a>ouperLoaderLog.html#Hib3GrouperLoaderLog">Hib3GrouperLoaderLog</a> hib3GrouperLoaderLog = <strong class="jxr_keyword">new</strong> <a name="Hib3GrouperLoaderLog" href="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html#Hib3GrouperLoaderLog">Hib3GrouperLoaderLog</a>();
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     String jobName = <span class="jxr_string">"OTHER_JOB_tierInstrumentationDaemon"</span>;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     hib3GrouperLoaderLog.setJobName(jobName);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     hib3GrouperLoaderLog.store();
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     OtherJobInput otherJobInput = <strong class="jxr_keyword">new</strong> OtherJobInput();
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     otherJobInput.setJobName(jobName);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     otherJobInput.setGrouperSession(grouperSession);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">new</strong> <a name="TierInstrumentationDaemon" href="../../../../../edu/internet2/middleware/grouper/instrumentation/TierInstrumentationDaemon.html#TierInstrumentationDaemon">TierInstrumentationDaemon</a>().run(otherJobInput);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>   }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>   
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.app.loader.OtherJobBase#run(edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput)</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>   @Override
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>   <strong class="jxr_keyword">public</strong> OtherJobOutput run(OtherJobInput otherJobInput) {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     Map&lt;String, String&gt; dataForTier = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, String&gt;();
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_comment">    try {</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_comment">      dataForTier.put("host", InetAddress.getLocalHost().getHostAddress());</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_comment">    } catch (UnknownHostException e1) {</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_comment">      LOG.warn("Unable to get ip address, proceeding without it", e1);</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_comment">    }*/</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     dataForTier.put(<span class="jxr_string">"msgType"</span>, <span class="jxr_string">"TIERBEACON"</span>);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     dataForTier.put(<span class="jxr_string">"msgName"</span>, <span class="jxr_string">"TIER"</span>);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     dataForTier.put(<span class="jxr_string">"msgVersion"</span>, <span class="jxr_string">"1.0"</span>);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     dataForTier.put(<span class="jxr_string">"tbProduct"</span>, <span class="jxr_string">"Grouper"</span>);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     dataForTier.put(<span class="jxr_string">"tbProductVersion"</span>, GrouperVersion.GROUPER_VERSION);
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">if</strong> (!StringUtils.isEmpty(System.getenv(<span class="jxr_string">"GROUPER_CONTAINER_VERSION"</span>))) {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>       dataForTier.put(<span class="jxr_string">"tbTIERRelease"</span>, <span class="jxr_string">"PACKAGE_"</span> + System.getenv(<span class="jxr_string">"GROUPER_CONTAINER_VERSION"</span>));
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>       String release = <span class="jxr_string">"NON_PACKAGE_"</span> + GrouperVersion.GROUPER_VERSION;
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>       
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>       Map&lt;String, Set&lt;Integer&gt;&gt; patchesInstalled = GrouperVersion.patchesInstalled();
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>       List&lt;String&gt; patchStrings = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>       <strong class="jxr_keyword">for</strong> (String engine : patchesInstalled.keySet()) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         String engineLabel = engine.substring(0, 1);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         List&lt;Integer&gt; patchNumbers = <strong class="jxr_keyword">new</strong> ArrayList&lt;Integer&gt;(patchesInstalled.get(engine));
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         Collections.sort(patchNumbers);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">if</strong> (patchNumbers.size() &gt; 0) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>           Integer maxConsecutive = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>           <strong class="jxr_keyword">boolean</strong> othersAfter = false;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>           <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; patchNumbers.size(); i++) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             <strong class="jxr_keyword">if</strong> (i == patchNumbers.get(i)) {
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>               maxConsecutive = i;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>               othersAfter = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>               <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>             }
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>           }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>           
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>           <strong class="jxr_keyword">if</strong> (maxConsecutive == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             patchStrings.add(engineLabel + <span class="jxr_string">"UnknownPatches"</span>);
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>           } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>             <strong class="jxr_keyword">if</strong> (othersAfter) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>               patchStrings.add(engineLabel + maxConsecutive + <span class="jxr_string">"AndUnknownPatches"</span>);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>               patchStrings.add(engineLabel + maxConsecutive);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>           }
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>       }
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>           
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>       <strong class="jxr_keyword">if</strong> (patchStrings.size() &gt; 0) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         release = release + <span class="jxr_string">"-"</span> + String.join(<span class="jxr_string">"-"</span>, patchStrings);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>       }
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>       
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>       dataForTier.put(<span class="jxr_string">"tbTIERRelease"</span>, release); 
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <em class="jxr_comment">// sleep for random time between 0 and 10 minutes so collector doesn't get hit all at once..</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">int</strong> sleepTime = ThreadLocalRandom.current().nextInt(0, 600000);
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>     LOG.info(<span class="jxr_string">"Sleeping for "</span> + sleepTime + <span class="jxr_string">" milliseconds"</span>);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>       Thread.sleep(sleepTime);
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>     } <strong class="jxr_keyword">catch</strong> (InterruptedException e) {
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>       <em class="jxr_comment">// ignore</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     }
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>       sendToTier(dataForTier);
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>       otherJobInput.getHib3GrouperLoaderLog().setJobMessage(<span class="jxr_string">"Finished successfully running TIER instrumentation daemon."</span>);
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>       LOG.warn(<span class="jxr_string">"Error while sending instrumentation data to TIER"</span>, e);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>       otherJobInput.getHib3GrouperLoaderLog().setJobMessage(<span class="jxr_string">"Finished running TIER instrumentation daemon but received an error while sending data to TIER: "</span> + ExceptionUtils.getFullStackTrace(e));
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>     } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>       otherJobInput.getHib3GrouperLoaderLog().store();
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     }
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> 
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>     File log4jFile = GrouperUtil.fileFromResourceName(<span class="jxr_string">"log4j.properties"</span>);
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     File confDir = log4jFile.getParentFile();
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>     File grouperDir = confDir.getParentFile();
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     File patchIndexFile = <strong class="jxr_keyword">new</strong> File(GrouperUtil.fileCanonicalPath(grouperDir) + File.separator + <span class="jxr_string">"grouperPatchStatus.properties"</span>);
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">if</strong> (!patchIndexFile.exists()) {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>       <strong class="jxr_keyword">return</strong> patchesInstalled;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     Properties props = GrouperUtil.propertiesFromFile(patchIndexFile, false);
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     Pattern patchStatePattern = Pattern.compile(<span class="jxr_string">"^grouper_v"</span> + GrouperVersion.GROUPER_VERSION.replace(<span class="jxr_string">"."</span>, <span class="jxr_string">"_"</span>) + <span class="jxr_string">"_api_patch_(.*)&#92;&#92;.state$"</span>);
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">for</strong> (String key : (Set&lt;String&gt;)(Object)props.keySet()) {
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>       Matcher matcher = patchStatePattern.matcher(key);
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>       <strong class="jxr_keyword">if</strong> (matcher.matches() &amp;&amp; <span class="jxr_string">"applied"</span>.equals(props.getProperty(key))) {
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         String patchNumber = matcher.group(1);
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         patchesInstalled.add(<span class="jxr_string">"api"</span> + patchNumber);
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>       }
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     }
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">return</strong> patchesInstalled;
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>   }
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>   
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> sendToTier(Map&lt;String, Object&gt; data) <strong class="jxr_keyword">throws</strong> HttpException, IOException {
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     String dataJson = GrouperUtil.jsonConvertTo(data, false);
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>     
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     HttpClient httpClient = <strong class="jxr_keyword">new</strong> HttpClient();
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>     String discoveryUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"otherJob.tierInstrumentationDaemon.discoveryUrl"</span>, <span class="jxr_string">"https://id.internet2.edu/ti/jrd/collector"</span>);
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>     GetMethod discoveryMethod = <strong class="jxr_keyword">new</strong> GetMethod(discoveryUrl);
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">int</strong> discoveryReturnCode = httpClient.executeMethod(discoveryMethod);
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>     String discoveryBody = IOUtils.toString(discoveryMethod.getResponseBodyAsStream());
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <strong class="jxr_keyword">if</strong> (discoveryReturnCode != 200) {
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Bad response code from discovery url "</span> + discoveryUrl + <span class="jxr_string">".  Code="</span> + discoveryReturnCode + <span class="jxr_string">", body="</span> + discoveryBody);
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>     }
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>     
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <a href="../../../../../edu/internet2/middleware/grouper/instrumentation/TierDiscovery.html">TierDiscovery</a> tierDiscovery = GrouperUtil.jsonConvertFrom(discoveryBody, TierDiscovery.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">if</strong> (!tierDiscovery.isServiceEnabled()) {
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>       LOG.warn(<span class="jxr_string">"TIER discovery service indicates that the TIER collector is disabled currently."</span>);
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>       <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>     }
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>     List&lt;String&gt; uris = <strong class="jxr_keyword">new</strong> LinkedList&lt;String&gt;();
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>     <strong class="jxr_keyword">for</strong> (Map&lt;String, String&gt; endpoint : tierDiscovery.getEndpoints()) {
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>       String uri = endpoint.get(<span class="jxr_string">"uri"</span>);
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(uri)) {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         uris.add(uri);
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>       }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">if</strong> (uris.size() == 0) {
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>       LOG.warn(<span class="jxr_string">"TIER discovery service doesn't have any URIs for the TIER collector."</span>);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>       <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>     }
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>     Iterator&lt;String&gt; uriIterator = uris.iterator();
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">while</strong> (uriIterator.hasNext()) {
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>       String uri = uriIterator.next();
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>       
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>       <em class="jxr_comment">// try to send results here</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>       httpClient = <strong class="jxr_keyword">new</strong> HttpClient();
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>       PostMethod collectorMethod = <strong class="jxr_keyword">new</strong> PostMethod(uri);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>       <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         collectorMethod.setRequestEntity(<strong class="jxr_keyword">new</strong> StringRequestEntity(dataJson, <span class="jxr_string">"application/json"</span>, <span class="jxr_string">"UTF-8"</span>));
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">int</strong> collectorReturnCode = httpClient.executeMethod(collectorMethod);
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         String collectorBody = IOUtils.toString(collectorMethod.getResponseBodyAsStream());
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <strong class="jxr_keyword">if</strong> (collectorReturnCode == 200 || collectorReturnCode == 201) {
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>           <em class="jxr_comment">// we're good</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>           LOG.info(<span class="jxr_string">"Successfully sent data to endpoint "</span> + uri);
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>           <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>         }
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Failed to send data to endpoint "</span> + uri + <span class="jxr_string">".  Code="</span> + collectorReturnCode + <span class="jxr_string">", body="</span> + collectorBody);
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>       } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">if</strong> (uriIterator.hasNext()) {
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>           LOG.warn(<span class="jxr_string">"Failed to send data to endpoint "</span> + uri + <span class="jxr_string">".  Will try another endpoint"</span>, e);
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(e);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         }
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>       }
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>     }
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>   }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> }
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>   }
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>   
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> sendToTier(Map&lt;String, String&gt; data) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     String dataJson = GrouperUtil.jsonConvertTo(data, false);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     <em class="jxr_comment">//System.out.println(dataJson);</em>
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     HttpClient httpClient = <strong class="jxr_keyword">new</strong> HttpClient();
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     httpClient.getParams().setSoTimeout(60000);
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     httpClient.getParams().setParameter(<span class="jxr_string">"http.connection.timeout"</span>, 60000);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     String collectorUrl = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(<span class="jxr_string">"otherJob.tierInstrumentationDaemon.collectorUrl"</span>);
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     PostMethod method = <strong class="jxr_keyword">new</strong> PostMethod(collectorUrl);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     method.setRequestEntity(<strong class="jxr_keyword">new</strong> StringRequestEntity(dataJson, <span class="jxr_string">"application/json"</span>, <span class="jxr_string">"UTF-8"</span>));
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">int</strong> collectorReturnCode = httpClient.executeMethod(method);
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     String collectorBody = IOUtils.toString(method.getResponseBodyAsStream());
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">if</strong> (collectorReturnCode == 200 || collectorReturnCode == 201) {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>       <em class="jxr_comment">// we're good</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>       LOG.info(<span class="jxr_string">"Successfully sent data to endpoint "</span> + collectorUrl);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     } <strong class="jxr_keyword">else</strong> {    
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Failed to send data to endpoint "</span> + collectorUrl + <span class="jxr_string">".  Code="</span> + collectorReturnCode + <span class="jxr_string">", body="</span> + collectorBody);    
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     }
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>   }
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>   
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_comment">  private static void legacyInstrumentationCode(String jobName) {</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_comment">    long startTime = System.currentTimeMillis();</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_comment">    long startTimeMinus24Hours = startTime - 86400000L;</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_comment">    AttributeAssign parentAssignment = InstrumentationDataUtils.grouperInstrumentationCollectorParentAttributeAssignment(jobName);</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_comment">    String lastCollectorUpdateString = parentAssignment.getAttributeValueDelegate().retrieveValueString(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR);</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_comment">    long lastCollectorUpdate = 0;</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_comment">    if (!StringUtils.isEmpty(lastCollectorUpdateString)) {</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_comment">      lastCollectorUpdate = Long.parseLong(lastCollectorUpdateString);</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_comment">    String collectorUuid = parentAssignment.getAttributeValueDelegate().retrieveValueString(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR);</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_comment">          </em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_comment">    Map&lt;String, Object&gt; data = new LinkedHashMap&lt;String, Object&gt;();</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_comment">    data.put("reportFormat", 1);</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_comment">    data.put("uuid", collectorUuid);</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_comment">    data.put("component", "grouper");</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_comment">    data.put("institution", getInstitution());</em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_comment">    data.put("environment", GrouperConfig.retrieveConfig().getProperty("grouper.env.name", ""));</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_comment">    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.version", false)) {</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_comment">      data.put("version", GrouperVersion.GROUPER_VERSION);</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_comment">    data.put("platformWindows", SystemUtils.IS_OS_WINDOWS);</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_comment">    data.put("platformLinux", SystemUtils.IS_OS_LINUX);</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_comment">    data.put("platformMac", SystemUtils.IS_OS_MAC);</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_comment">    data.put("platformSolaris", SystemUtils.IS_OS_SOLARIS);</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_comment">    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.transactionCounts", false)) {</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_comment">      Long membershipChanges = HibernateSession.byHqlStatic().createQuery("select count(*) from AuditEntry where createdOnDb &gt; :createdOn and auditTypeId in (:auditTypeAdd, :auditTypeUpdate, :auditTypeDelete)")</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_comment">        .setLong("createdOn", startTimeMinus24Hours)</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_comment">        .setString("auditTypeAdd", AuditTypeFinder.find("membership", "addGroupMembership", true).getId())</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_comment">        .setString("auditTypeUpdate", AuditTypeFinder.find("membership", "updateGroupMembership", true).getId())</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_comment">        .setString("auditTypeDelete", AuditTypeFinder.find("membership", "deleteGroupMembership", true).getId())</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_comment">        .uniqueResult(Long.class);</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_comment">      data.put("transactionCountMemberships", membershipChanges);</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_comment">      Long privilegeChanges = HibernateSession.byHqlStatic().createQuery("select count(*) from AuditEntry where createdOnDb &gt; :createdOn and auditTypeId in (:auditTypeGroupAdd, :auditTypeGroupUpdate, :auditTypeGroupDelete, :auditTypeStemAdd, :auditTypeStemUpdate, :auditTypeStemDelete)")</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_comment">        .setLong("createdOn", startTimeMinus24Hours)</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_comment">        .setString("auditTypeGroupAdd", AuditTypeFinder.find("privilege", "addGroupPrivilege", true).getId())</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_comment">        .setString("auditTypeGroupUpdate", AuditTypeFinder.find("privilege", "updateGroupPrivilege", true).getId())</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_comment">        .setString("auditTypeGroupDelete", AuditTypeFinder.find("privilege", "deleteGroupPrivilege", true).getId())</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_comment">        .setString("auditTypeStemAdd", AuditTypeFinder.find("privilege", "addStemPrivilege", true).getId())</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_comment">        .setString("auditTypeStemUpdate", AuditTypeFinder.find("privilege", "updateStemPrivilege", true).getId())</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_comment">        .setString("auditTypeStemDelete", AuditTypeFinder.find("privilege", "deleteStemPrivilege", true).getId())</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_comment">        .uniqueResult(Long.class);</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_comment">      data.put("transactionCountPrivileges", privilegeChanges);</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_comment">    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.registryCounts", false)) {</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_comment">      Long totalMemberships = HibernateSession.byHqlStatic().createQuery("select count(*) from ImmediateMembershipEntry m, Field f where m.fieldId=f.uuid and f.typeString = 'list'").uniqueResult(Long.class);</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_comment">      data.put("registryCountDirectMemberships", totalMemberships);</em>
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_comment">      Long totalPrivileges = HibernateSession.byHqlStatic().createQuery("select count(*) from ImmediateMembershipEntry m, Field f where m.fieldId=f.uuid and f.typeString in ('access', 'naming', 'attributeDef')").uniqueResult(Long.class);</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_comment">      data.put("registryCountDirectPrivileges", totalPrivileges);</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_comment">      Long totalDirectPermissions = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeAssign aa, AttributeDef ad, AttributeDefName adn where aa.attributeDefNameId=adn.id and adn.attributeDefId=ad.id and ad.attributeDefTypeDb='perm'").uniqueResult(Long.class);</em>
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_comment">      data.put("registryCountDirectPermissions", totalDirectPermissions);</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_comment">    Map&lt;String, String&gt; changeLogJobs = GrouperLoaderConfig.retrieveConfig().propertiesMap( </em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_comment">        GrouperCheckConfig.grouperLoaderConsumerPattern);</em>
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_comment">    data.put("provisionToLdapUsingPsp", changeLogJobs.containsValue("edu.internet2.middleware.psp.grouper.PspChangeLogConsumer"));</em>
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_comment">    data.put("provisionToLdapUsingPspng", changeLogJobs.containsValue("edu.internet2.middleware.grouper.pspng.PspChangelogConsumerShim"));</em>
+<a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_comment">    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.patchesInstalled", false)) {</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_comment">      data.put("patchesInstalled", getPatchesInstalled());</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L319" href="#L319">319</a> <em class="jxr_comment">    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.instanceData", false)) {</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_comment">      data.put("instances", getInstances(lastCollectorUpdate, startTime));</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_comment">    //System.out.println(GrouperUtil.jsonConvertTo(data, false));</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a> <em class="jxr_comment">    try {</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a> <em class="jxr_comment">      sendToTier(data);</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a> <em class="jxr_comment">    } catch (IOException e) {</em>
+<a class="jxr_linenumber" name="L327" href="#L327">327</a> <em class="jxr_comment">      throw new RuntimeException(e);</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="#L330">330</a> <em class="jxr_comment">    // set new last updated</em>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a> <em class="jxr_comment">    parentAssignment.getAttributeValueDelegate().assignValue(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR, "" + startTime);</em>
+<a class="jxr_linenumber" name="L332" href="#L332">332</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L333" href="#L333">333</a> <em class="jxr_comment">  }</em>
+<a class="jxr_linenumber" name="L334" href="#L334">334</a> <em class="jxr_comment">  </em>
+<a class="jxr_linenumber" name="L335" href="#L335">335</a> <em class="jxr_comment">  </em>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_comment">  private static void storeLogInDb(Hib3GrouperLoaderLog hib3GrouploaderLog,</em>
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> <em class="jxr_comment">      boolean throwException, long startTime) {</em>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_comment">    //store this safely</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_comment">    try {</em>
+<a class="jxr_linenumber" name="L340" href="#L340">340</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_comment">      long endTime = System.currentTimeMillis();</em>
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> <em class="jxr_comment">      hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));</em>
+<a class="jxr_linenumber" name="L343" href="#L343">343</a> <em class="jxr_comment">      hib3GrouploaderLog.setMillis((int)(endTime-startTime));</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_comment">      hib3GrouploaderLog.store();</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L347" href="#L347">347</a> <em class="jxr_comment">    } catch (RuntimeException e) {</em>
+<a class="jxr_linenumber" name="L348" href="#L348">348</a> <em class="jxr_comment">      LOG.error("Problem storing final log", e);</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a> <em class="jxr_comment">      //dont preempt an existing exception</em>
+<a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_comment">      if (throwException) {</em>
+<a class="jxr_linenumber" name="L351" href="#L351">351</a> <em class="jxr_comment">        throw e;</em>
+<a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_comment">      }</em>
+<a class="jxr_linenumber" name="L353" href="#L353">353</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L354" href="#L354">354</a> <em class="jxr_comment">  }</em>
+<a class="jxr_linenumber" name="L355" href="#L355">355</a> <em class="jxr_comment">  </em>
+<a class="jxr_linenumber" name="L356" href="#L356">356</a> <em class="jxr_comment">  </em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_comment">  private static List&lt;JSONObject&gt; getInstances(long lastCollectorUpdate, long currentCollectorStart) {</em>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_comment">    List&lt;JSONObject&gt; list = new LinkedList&lt;JSONObject&gt;();</em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_comment">    List&lt;InstrumentationDataInstance&gt; instances = InstrumentationDataInstanceFinder.findAll(true);</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_comment">    for (InstrumentationDataInstance instance : instances) {</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_comment">      JSONObject jsonObject = new JSONObject();</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_comment">      jsonObject.put("uuid", instance.getUuid());</em>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_comment">      jsonObject.put("engineName", instance.getEngineName());</em>
+<a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_comment">      jsonObject.put("serverLabel", instance.getServerLabel());</em>
+<a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_comment">      if (instance.getLastUpdate() != null) {</em>
+<a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_comment">        jsonObject.put("lastUpdate", instance.getLastUpdate().getTime());</em>
+<a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_comment">      }</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_comment">      Set&lt;String&gt; newCounts = new LinkedHashSet&lt;String&gt;();</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a> 
+<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_comment">      List&lt;InstrumentationDataInstanceCounts&gt; instanceCountsList = instance.getCounts();</em>
+<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_comment">      for (InstrumentationDataInstanceCounts instanceCounts : instanceCountsList) {</em>
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_comment">        if (instanceCounts.getCreatedOn().getTime() &gt;= lastCollectorUpdate &amp;&amp; instanceCounts.getCreatedOn().getTime() &lt; currentCollectorStart) {</em>
+<a class="jxr_linenumber" name="L377" href="#L377">377</a> <em class="jxr_comment">          Map&lt;String, Long&gt; currentNewCounts = new LinkedHashMap&lt;String, Long&gt;();</em>
+<a class="jxr_linenumber" name="L378" href="#L378">378</a> <em class="jxr_comment">          currentNewCounts.put("startTime", instanceCounts.getStartTime().getTime());</em>
+<a class="jxr_linenumber" name="L379" href="#L379">379</a> <em class="jxr_comment">          currentNewCounts.put("duration", instanceCounts.getDuration());</em>
+<a class="jxr_linenumber" name="L380" href="#L380">380</a> <em class="jxr_comment">          for (String key : instanceCounts.getCounts().keySet()) {</em>
+<a class="jxr_linenumber" name="L381" href="#L381">381</a> <em class="jxr_comment">            currentNewCounts.put(key, instanceCounts.getCounts().get(key));</em>
+<a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_comment">          }</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_comment">          </em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_comment">          newCounts.add(GrouperUtil.jsonConvertTo(currentNewCounts, false));</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_comment">        }</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_comment">      }</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L388" href="#L388">388</a> <em class="jxr_comment">      jsonObject.put("newCounts", newCounts);</em>
+<a class="jxr_linenumber" name="L389" href="#L389">389</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a> <em class="jxr_comment">      list.add(jsonObject);</em>
+<a class="jxr_linenumber" name="L391" href="#L391">391</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L393" href="#L393">393</a> <em class="jxr_comment">    return list;</em>
+<a class="jxr_linenumber" name="L394" href="#L394">394</a> <em class="jxr_comment">  }</em>
+<a class="jxr_linenumber" name="L395" href="#L395">395</a> <em class="jxr_comment">  </em>
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> <em class="jxr_comment">  private static String getInstitution() {</em>
+<a class="jxr_linenumber" name="L397" href="#L397">397</a> <em class="jxr_comment">    String institution = GrouperConfig.retrieveConfig().getProperty("grouper.institution.name", null);</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a> <em class="jxr_comment">    if (!StringUtils.isBlank(institution)) {</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a> <em class="jxr_comment">      return institution;</em>
+<a class="jxr_linenumber" name="L400" href="#L400">400</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L401" href="#L401">401</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_comment">    String hostname = GrouperUtil.hostname();</em>
+<a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_comment">    if (StringUtils.isBlank(hostname)) {</em>
+<a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_comment">      return "";</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a> <em class="jxr_comment">    int index = StringUtils.indexOf(hostname, ".");</em>
+<a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> <em class="jxr_comment">    if (index == -1) {</em>
+<a class="jxr_linenumber" name="L410" href="#L410">410</a> <em class="jxr_comment">      return "";</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_comment">    return hostname.substring(index + 1);</em>
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_comment">  }</em>
+<a class="jxr_linenumber" name="L415" href="#L415">415</a> <em class="jxr_comment">  </em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_comment">  // this should probably go somewhere else since the ui/ws are also going to want to call this.</em>
+<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_comment">  private static Set&lt;String&gt; getPatchesInstalled() {</em>
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_comment">    Set&lt;String&gt; patchesInstalled = new TreeSet&lt;String&gt;();</em>
+<a class="jxr_linenumber" name="L419" href="#L419">419</a> 
+<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_comment">    File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_comment">    File confDir = log4jFile.getParentFile();</em>
+<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_comment">    File grouperDir = confDir.getParentFile();</em>
+<a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_comment">    File patchIndexFile = new File(GrouperUtil.fileCanonicalPath(grouperDir) + File.separator + "grouperPatchStatus.properties");</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_comment">    if (!patchIndexFile.exists()) {</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_comment">      return patchesInstalled;</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_comment">    Properties props = GrouperUtil.propertiesFromFile(patchIndexFile, false);</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_comment">    Pattern patchStatePattern = Pattern.compile("^grouper_v" + GrouperVersion.GROUPER_VERSION.replace(".", "_") + "_api_patch_(.*)&#92;&#92;.state$");</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_comment">    for (String key : (Set&lt;String&gt;)(Object)props.keySet()) {</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a> <em class="jxr_comment">      Matcher matcher = patchStatePattern.matcher(key);</em>
+<a class="jxr_linenumber" name="L433" href="#L433">433</a> 
+<a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_comment">      if (matcher.matches() &amp;&amp; "applied".equals(props.getProperty(key))) {</em>
+<a class="jxr_linenumber" name="L435" href="#L435">435</a> <em class="jxr_comment">        String patchNumber = matcher.group(1);</em>
+<a class="jxr_linenumber" name="L436" href="#L436">436</a> <em class="jxr_comment">        patchesInstalled.add("api" + patchNumber);</em>
+<a class="jxr_linenumber" name="L437" href="#L437">437</a> <em class="jxr_comment">      }</em>
+<a class="jxr_linenumber" name="L438" href="#L438">438</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L439" href="#L439">439</a> <em class="jxr_comment">        </em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a> <em class="jxr_comment">    return patchesInstalled;</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_comment">  }</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_comment">  </em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_comment">  private static void sendToTier(Map&lt;String, Object&gt; data) throws HttpException, IOException {</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_comment">    String dataJson = GrouperUtil.jsonConvertTo(data, false);</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_comment">    HttpClient httpClient = new HttpClient();</em>
+<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_comment">    String discoveryUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob.tierInstrumentationDaemon.discoveryUrl", "<a href="https://id.internet2.edu/ti/jrd/collector" target="alexandria_uri">https://id.internet2.edu/ti/jrd/collector</a>");</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_comment">    GetMethod discoveryMethod = new GetMethod(discoveryUrl);</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_comment">    int discoveryReturnCode = httpClient.executeMethod(discoveryMethod);</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_comment">    String discoveryBody = IOUtils.toString(discoveryMethod.getResponseBodyAsStream());</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_comment">    if (discoveryReturnCode != 200) {</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_comment">      throw new RuntimeException("Bad response code from discovery url " + discoveryUrl + ".  Code=" + discoveryReturnCode + ", body=" + discoveryBody);</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_comment">    TierDiscovery tierDiscovery = GrouperUtil.jsonConvertFrom(discoveryBody, TierDiscovery.class);</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_comment">    if (!tierDiscovery.isServiceEnabled()) {</em>
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_comment">      LOG.warn("TIER discovery service indicates that the TIER collector is disabled currently.");</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_comment">      return;</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> <em class="jxr_comment">    List&lt;String&gt; uris = new LinkedList&lt;String&gt;();</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L464" href="#L464">464</a> <em class="jxr_comment">    for (Map&lt;String, String&gt; endpoint : tierDiscovery.getEndpoints()) {</em>
+<a class="jxr_linenumber" name="L465" href="#L465">465</a> <em class="jxr_comment">      String uri = endpoint.get("uri");</em>
+<a class="jxr_linenumber" name="L466" href="#L466">466</a> <em class="jxr_comment">      if (!StringUtils.isBlank(uri)) {</em>
+<a class="jxr_linenumber" name="L467" href="#L467">467</a> <em class="jxr_comment">        uris.add(uri);</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a> <em class="jxr_comment">      }</em>
+<a class="jxr_linenumber" name="L469" href="#L469">469</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L470" href="#L470">470</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L471" href="#L471">471</a> <em class="jxr_comment">    if (uris.size() == 0) {</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a> <em class="jxr_comment">      LOG.warn("TIER discovery service doesn't have any URIs for the TIER collector.");</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_comment">      return;</em>
+<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_comment">    </em>
+<a class="jxr_linenumber" name="L476" href="#L476">476</a> <em class="jxr_comment">    Iterator&lt;String&gt; uriIterator = uris.iterator();</em>
+<a class="jxr_linenumber" name="L477" href="#L477">477</a> <em class="jxr_comment">    while (uriIterator.hasNext()) {</em>
+<a class="jxr_linenumber" name="L478" href="#L478">478</a> <em class="jxr_comment">      String uri = uriIterator.next();</em>
+<a class="jxr_linenumber" name="L479" href="#L479">479</a> <em class="jxr_comment">      </em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a> <em class="jxr_comment">      // try to send results here</em>
+<a class="jxr_linenumber" name="L481" href="#L481">481</a> <em class="jxr_comment">      httpClient = new HttpClient();</em>
+<a class="jxr_linenumber" name="L482" href="#L482">482</a> <em class="jxr_comment">      PostMethod collectorMethod = new PostMethod(uri);</em>
+<a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_comment">      try {</em>
+<a class="jxr_linenumber" name="L484" href="#L484">484</a> <em class="jxr_comment">        collectorMethod.setRequestEntity(new StringRequestEntity(dataJson, "application/json", "UTF-8"));</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a> <em class="jxr_comment">        int collectorReturnCode = httpClient.executeMethod(collectorMethod);</em>
+<a class="jxr_linenumber" name="L486" href="#L486">486</a> <em class="jxr_comment">        String collectorBody = IOUtils.toString(collectorMethod.getResponseBodyAsStream());</em>
+<a class="jxr_linenumber" name="L487" href="#L487">487</a> 
+<a class="jxr_linenumber" name="L488" href="#L488">488</a> <em class="jxr_comment">        if (collectorReturnCode == 200 || collectorReturnCode == 201) {</em>
+<a class="jxr_linenumber" name="L489" href="#L489">489</a> <em class="jxr_comment">          // we're good</em>
+<a class="jxr_linenumber" name="L490" href="#L490">490</a> <em class="jxr_comment">          LOG.info("Successfully sent data to endpoint " + uri);</em>
+<a class="jxr_linenumber" name="L491" href="#L491">491</a> <em class="jxr_comment">          break;</em>
+<a class="jxr_linenumber" name="L492" href="#L492">492</a> <em class="jxr_comment">        }</em>
+<a class="jxr_linenumber" name="L493" href="#L493">493</a> <em class="jxr_comment">        </em>
+<a class="jxr_linenumber" name="L494" href="#L494">494</a> <em class="jxr_comment">        throw new RuntimeException("Failed to send data to endpoint " + uri + ".  Code=" + collectorReturnCode + ", body=" + collectorBody);</em>
+<a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_comment">      } catch (Exception e) {</em>
+<a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_comment">        if (uriIterator.hasNext()) {</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_comment">          LOG.warn("Failed to send data to endpoint " + uri + ".  Will try another endpoint", e);</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_comment">        } else {</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_comment">          throw new RuntimeException(e);</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_comment">        }</em>
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_comment">      }</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_comment">    }</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a> <em class="jxr_comment">  }</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a> <em class="jxr_comment">  */</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

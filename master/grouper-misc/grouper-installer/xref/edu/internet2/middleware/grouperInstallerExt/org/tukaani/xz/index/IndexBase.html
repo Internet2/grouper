@@ -20,14 +20,14 @@
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.common.Util;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.XZIOException;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexBase.html">IndexBase</a> {
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a> invalidIndexException;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="IndexBase" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexBase.html#IndexBase">IndexBase</a> {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="XZIOException" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a> invalidIndexException;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">long</strong> blocksSum = 0;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">long</strong> uncompressedSum = 0;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">long</strong> indexListSize = 0;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">long</strong> recordCount = 0;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexBase.html">IndexBase</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a> invalidIndexException) {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <a name="IndexBase" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexBase.html#IndexBase">IndexBase</a>(<a name="XZIOException" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a> invalidIndexException) {
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>          <strong class="jxr_keyword">this</strong>.invalidIndexException = invalidIndexException;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>      }
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
@@ -49,7 +49,7 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>)((4 - getUnpaddedIndexSize()) &amp; 3);
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">void</strong> add(<strong class="jxr_keyword">long</strong> unpaddedSize, <strong class="jxr_keyword">long</strong> uncompressedSize) <strong class="jxr_keyword">throws</strong> XZIOException {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">void</strong> add(<strong class="jxr_keyword">long</strong> unpaddedSize, <strong class="jxr_keyword">long</strong> uncompressedSize) <strong class="jxr_keyword">throws</strong> <a name="XZIOException" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a> {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          blocksSum += (unpaddedSize + 3) &amp; ~3;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>          uncompressedSum += uncompressedSize;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          indexListSize += Util.getVLISize(unpaddedSize)
@@ -64,6 +64,6 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

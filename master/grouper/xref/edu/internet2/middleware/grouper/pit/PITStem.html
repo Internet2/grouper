@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -36,7 +36,7 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * $Id$</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/GrouperPIT.html">GrouperPIT</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html">Hib3GrouperVersioned</a> {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperPIT" href="../../../../../edu/internet2/middleware/grouper/pit/GrouperPIT.html#GrouperPIT">GrouperPIT</a> <strong class="jxr_keyword">implements</strong> <a name="Hib3GrouperVersioned" href="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html#Hib3GrouperVersioned">Hib3GrouperVersioned</a> {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>    <em class="jxr_javadoccomment">/** db id for this row */</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String COLUMN_ID = <span class="jxr_string">"id"</span>;
@@ -120,7 +120,7 @@
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()</em>
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>   @Override
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> clone() {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> clone() {
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">return</strong> GrouperUtil.clone(<strong class="jxr_keyword">this</strong>, CLONE_FIELDS);
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>   }
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> 
@@ -218,7 +218,7 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>   @Override
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPostDelete(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPostDelete(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">super</strong>.onPostDelete(hibernateSession);
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>     
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>     <strong class="jxr_keyword">boolean</strong> printOutput = printOutputOnDelete != <strong class="jxr_keyword">null</strong> &amp;&amp; printOutputOnDelete.get() != <strong class="jxr_keyword">null</strong> &amp;&amp; printOutputOnDelete.get() == <strong class="jxr_keyword">true</strong> ? <strong class="jxr_keyword">true</strong> : false;
@@ -232,7 +232,7 @@
 <a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>   @Override
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreDelete(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreDelete(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">super</strong>.onPreDelete(hibernateSession);
 <a class="jxr_linenumber" name="L229" href="#L229">229</a> 
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">boolean</strong> printOutput = printOutputOnDelete != <strong class="jxr_keyword">null</strong> &amp;&amp; printOutputOnDelete.get() != <strong class="jxr_keyword">null</strong> &amp;&amp; printOutputOnDelete.get() == <strong class="jxr_keyword">true</strong> ? <strong class="jxr_keyword">true</strong> : false;
@@ -247,13 +247,13 @@
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>     
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>     <em class="jxr_comment">// delete memberships</em>
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>     Set&lt;PITMembership&gt; memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByPITOwner(<strong class="jxr_keyword">this</strong>.getId());
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">for</strong> (PITMembership membership : memberships) {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">for</strong> (<a name="PITMembership" href="../../../../../edu/internet2/middleware/grouper/pit/PITMembership.html#PITMembership">PITMembership</a> membership : memberships) {
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>       GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>     }
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>     
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>     <em class="jxr_comment">// delete attribute assignments</em>
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>     Set&lt;PITAttributeAssign&gt; assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerPITStemId(<strong class="jxr_keyword">this</strong>.getId());
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">for</strong> (PITAttributeAssign assignment : assignments) {
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">for</strong> (<a name="PITAttributeAssign" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssign.html#PITAttributeAssign">PITAttributeAssign</a> assignment : assignments) {
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>     }
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>     
@@ -262,7 +262,7 @@
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>     
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>     <em class="jxr_comment">// delete groups</em>
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>     Set&lt;PITGroup&gt; groups = GrouperDAOFactory.getFactory().getPITGroup().findByPITStemId(<strong class="jxr_keyword">this</strong>.getId());
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>     <strong class="jxr_keyword">for</strong> (PITGroup group : groups) {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>     <strong class="jxr_keyword">for</strong> (<a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> group : groups) {
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>       GrouperDAOFactory.getFactory().getPITGroup().delete(group);
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>       <strong class="jxr_keyword">if</strong> (printOutput) {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>         System.out.println(<span class="jxr_string">"Done deleting group from point in time: "</span> + group.getName() + <span class="jxr_string">", ID="</span> + group.getId());
@@ -271,7 +271,7 @@
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>     
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>     <em class="jxr_comment">// delete attribute def names</em>
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>     Set&lt;PITAttributeDefName&gt; attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByPITStemId(<strong class="jxr_keyword">this</strong>.getId());
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">for</strong> (PITAttributeDefName attr : attrs) {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">for</strong> (<a name="PITAttributeDefName" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDefName.html#PITAttributeDefName">PITAttributeDefName</a> attr : attrs) {
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>       GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>       <strong class="jxr_keyword">if</strong> (printOutput) {
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>         System.out.println(<span class="jxr_string">"Done deleting attributeDefName from point in time: "</span> + attr.getName() + <span class="jxr_string">", ID="</span> + attr.getId());
@@ -280,7 +280,7 @@
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>     
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>     <em class="jxr_comment">// delete attribute defs</em>
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>     Set&lt;PITAttributeDef&gt; defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByPITStemId(<strong class="jxr_keyword">this</strong>.getId());
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">for</strong> (PITAttributeDef def : defs) {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">for</strong> (<a name="PITAttributeDef" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html#PITAttributeDef">PITAttributeDef</a> def : defs) {
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>       GrouperDAOFactory.getFactory().getPITAttributeDef().delete(def);
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>       <strong class="jxr_keyword">if</strong> (printOutput) {
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>         System.out.println(<span class="jxr_string">"Done deleting attributeDef from point in time: "</span> + def.getName() + <span class="jxr_string">", ID="</span> + def.getId());
@@ -289,17 +289,17 @@
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>     
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>     <em class="jxr_comment">// delete child stems</em>
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>     Set&lt;PITStem&gt; stems = GrouperDAOFactory.getFactory().getPITStem().findByParentPITStemId(<strong class="jxr_keyword">this</strong>.getId());
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">for</strong> (PITStem stem : stems) {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">for</strong> (<a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> stem : stems) {
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>       GrouperDAOFactory.getFactory().getPITStem().delete(stem);
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>     }
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>   }
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>   
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> pitParentStem;
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>   <strong class="jxr_keyword">private</strong> <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> pitParentStem;
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>   
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">   * @return pitParentStem</em>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> getParentPITStem() {
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>   <strong class="jxr_keyword">public</strong> <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> getParentPITStem() {
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>     <strong class="jxr_keyword">if</strong> (pitParentStem == <strong class="jxr_keyword">null</strong> &amp;&amp; parentStemId != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>       pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findById(parentStemId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>     }
@@ -309,6 +309,6 @@
 <a class="jxr_linenumber" name="L301" href="#L301">301</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -20,11 +20,11 @@
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.simple.SimpleFilter;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SimpleOutputStream.html">SimpleOutputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FinishableOutputStream.html">FinishableOutputStream</a> {
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">class</strong> <a name="SimpleOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SimpleOutputStream.html#SimpleOutputStream">SimpleOutputStream</a> <strong class="jxr_keyword">extends</strong> <a name="FinishableOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FinishableOutputStream.html#FinishableOutputStream">FinishableOutputStream</a> {
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> FILTER_BUF_SIZE = 4096;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FinishableOutputStream.html">FinishableOutputStream</a> out;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/simple/SimpleFilter.html">SimpleFilter</a> simpleFilter;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">private</strong> <a name="FinishableOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FinishableOutputStream.html#FinishableOutputStream">FinishableOutputStream</a> out;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="SimpleFilter" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/simple/SimpleFilter.html#SimpleFilter">SimpleFilter</a> simpleFilter;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] filterBuf = <strong class="jxr_keyword">new</strong> byte[FILTER_BUF_SIZE];
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> pos = 0;
@@ -39,8 +39,8 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>          <strong class="jxr_keyword">return</strong> 1 + FILTER_BUF_SIZE / 1024;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SimpleOutputStream.html">SimpleOutputStream</a>(<a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FinishableOutputStream.html">FinishableOutputStream</a> out,
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>                         <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/simple/SimpleFilter.html">SimpleFilter</a> simpleFilter) {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <a name="SimpleOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SimpleOutputStream.html#SimpleOutputStream">SimpleOutputStream</a>(<a name="FinishableOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FinishableOutputStream.html#FinishableOutputStream">FinishableOutputStream</a> out,
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>                         <a name="SimpleFilter" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/simple/SimpleFilter.html#SimpleFilter">SimpleFilter</a> simpleFilter) {
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">if</strong> (out == <strong class="jxr_keyword">null</strong>)
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NullPointerException();
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
@@ -61,7 +61,7 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">throw</strong> exception;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">if</strong> (finished)
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a>(<span class="jxr_string">"Stream finished or closed"</span>);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a>(<span class="jxr_string">"Stream finished or closed"</span>);
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">while</strong> (len &gt; 0) {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>              <em class="jxr_comment">// Copy more unfiltered data into filterBuf.</em>
@@ -113,7 +113,7 @@
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> 
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> flush() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html">UnsupportedOptionsException</a>(<span class="jxr_string">"Flushing is not supported"</span>);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="UnsupportedOptionsException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html#UnsupportedOptionsException">UnsupportedOptionsException</a>(<span class="jxr_string">"Flushing is not supported"</span>);
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     }
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> 
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> finish() <strong class="jxr_keyword">throws</strong> IOException {
@@ -159,6 +159,6 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

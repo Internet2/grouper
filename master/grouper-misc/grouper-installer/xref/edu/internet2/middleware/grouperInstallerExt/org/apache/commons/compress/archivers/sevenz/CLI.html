@@ -14,7 +14,7 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> *  (the "License"); you may not use this file except in compliance with</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> *  the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,14 +29,14 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.FileOutputStream;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/CLI.html">CLI</a> {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="CLI" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/CLI.html#CLI">CLI</a> {
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] BUF = <strong class="jxr_keyword">new</strong> byte[8192];
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/CLI.html">Mode</a> {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> enum Mode {
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>          LIST(<span class="jxr_string">"Analysing"</span>) {
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>              @Override
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> takeAction(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html">SevenZFile</a> archive, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry) {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> takeAction(<a name="SevenZFile" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html#SevenZFile">SevenZFile</a> archive, <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry) {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>                  System.out.print(entry.getName());
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>                  <strong class="jxr_keyword">if</strong> (entry.isDirectory()) {
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>                      System.out.print(<span class="jxr_string">" dir"</span>);
@@ -56,10 +56,10 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>                  }
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>              }
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>              <strong class="jxr_keyword">private</strong> String getContentMethods(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              <strong class="jxr_keyword">private</strong> String getContentMethods(<a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry) {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                  StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>                  <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  <strong class="jxr_keyword">for</strong> (SevenZMethodConfiguration m : entry.getContentMethods()) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  <strong class="jxr_keyword">for</strong> (<a name="SevenZMethodConfiguration" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html#SevenZMethodConfiguration">SevenZMethodConfiguration</a> m : entry.getContentMethods()) {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>                      <strong class="jxr_keyword">if</strong> (!first) {
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>                          sb.append(<span class="jxr_string">", "</span>);
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>                      }
@@ -74,7 +74,7 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          },
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          EXTRACT(<span class="jxr_string">"Extracting"</span>) {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              @Override
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> takeAction(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html">SevenZFile</a> archive, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry) 
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> takeAction(<a name="SevenZFile" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html#SevenZFile">SevenZFile</a> archive, <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry) 
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                  File outFile = <strong class="jxr_keyword">new</strong> File(entry.getName());
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <strong class="jxr_keyword">if</strong> (entry.isDirectory()) {
@@ -114,13 +114,13 @@
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>         };
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> 
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String message;
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/CLI.html">Mode</a>(String message) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">private</strong> Mode(String message) {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">this</strong>.message = message;
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         }
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">public</strong> String getMessage() {
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>             <strong class="jxr_keyword">return</strong> message;
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         }
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> takeAction(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html">SevenZFile</a> archive, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry)
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> takeAction(<a name="SevenZFile" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html#SevenZFile">SevenZFile</a> archive, <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry)
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">throws</strong> IOException;
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     }        
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> 
@@ -129,15 +129,15 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>             usage();
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>             <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>         }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/CLI.html">Mode</a> mode = grabMode(args);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         Mode mode = grabMode(args);
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>         System.out.println(mode.getMessage() + <span class="jxr_string">" "</span> + args[0]);
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         File f = <strong class="jxr_keyword">new</strong> File(args[0]);
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>         <strong class="jxr_keyword">if</strong> (!f.isFile()) {
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>             System.err.println(f + <span class="jxr_string">" doesn't exist or is a directory"</span>);
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>         }
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html">SevenZFile</a> archive = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html">SevenZFile</a>(f);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <a name="SevenZFile" href="../../../../../../../../../../edu/i<a name="SevenZFile" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html#SevenZFile">SevenZFile</a>iddleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html#SevenZFile">SevenZFile</a> archive = <strong class="jxr_keyword">new</strong> <a name="SevenZFile" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZFile.html#SevenZFile">SevenZFile</a>(f);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> ae;
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> ae;
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">while</strong>((ae=archive.getNextEntry()) != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>                 mode.takeAction(archive, ae);
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>             }
@@ -150,7 +150,7 @@
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>         System.out.println(<span class="jxr_string">"Parameters: archive-name [list|extract]"</span>);
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     }
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/CLI.html">Mode</a> grabMode(String[] args) {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Mode grabMode(String[] args) {
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">if</strong> (args.length &lt; 2) {
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">return</strong> Mode.LIST;
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>         }
@@ -160,6 +160,6 @@
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

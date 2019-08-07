@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -54,20 +54,20 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.Mapper;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html">AbstractReflectionConverter</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html">Converter</a> {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="AbstractReflectionConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html#AbstractReflectionConverter">AbstractReflectionConverter</a> <strong class="jxr_keyword">implements</strong> <a name="Converter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html#Converter">Converter</a> {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ReflectionProvider.html">ReflectionProvider</a> reflectionProvider;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> mapper;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">transient</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/SerializationMethodInvoker.html">SerializationMethodInvoker</a> serializationMethodInvoker;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ReflectionProvider.html">ReflectionProvider</a> pureJavaReflectionProvider;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a name="ReflectionProvider" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ReflectionProvider.html#ReflectionProvider">ReflectionProvider</a> reflectionProvider;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a name="Mapper" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> mapper;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">transient</strong> <a name="SerializationMethodInvoker" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/SerializationMethodInvoker.html#SerializationMethodInvoker">SerializationMethodInvoker</a> serializationMethodInvoker;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <a name="ReflectionProvider" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ReflectionProvider.html#ReflectionProvider">ReflectionProvider</a> pureJavaReflectionProvider;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html">AbstractReflectionConverter</a>(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> mapper, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ReflectionProvider.html">ReflectionProvider</a> reflectionProvider) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <a name="AbstractReflectionConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html#AbstractReflectionConverter">AbstractReflectionConverter</a>(<a name="Mapper" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> mapper, <a name="ReflectionProvider" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ReflectionProvider.html#ReflectionProvider">ReflectionProvider</a> reflectionProvider) {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">this</strong>.mapper = mapper;
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">this</strong>.reflectionProvider = reflectionProvider;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          serializationMethodInvoker = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/SerializationMethodInvoker.html">SerializationMethodInvoker</a>();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          serializationMethodInvoker = <strong class="jxr_keyword">new</strong> <a name="SerializationMethodInvoker" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/SerializationMethodInvoker.html#SerializationMethodInvoker">SerializationMethodInvoker</a>();
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> marshal(Object original, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html">HierarchicalStreamWriter</a> writer, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html">MarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> marshal(Object original, <strong class="jxr_keyword">final</strong> <a name="HierarchicalStreamWriter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html#HierarchicalStreamWriter">HierarchicalStreamWriter</a> writer, <strong class="jxr_keyword">final</strong> <a name="MarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html#MarshallingContext">MarshallingContext</a> context) {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">final</strong> Object source = serializationMethodInvoker.callWriteReplace(original);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">if</strong> (source.getClass() != original.getClass()) {
@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          doMarshal(source, writer, context);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> doMarshal(<strong class="jxr_keyword">final</strong> Object source, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html">HierarchicalStreamWriter</a> writer, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html">MarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> doMarshal(<strong class="jxr_keyword">final</strong> Object source, <strong class="jxr_keyword">final</strong> <a name="HierarchicalStreamWriter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html#HierarchicalStreamWriter">HierarchicalStreamWriter</a> writer, <strong class="jxr_keyword">final</strong> <a name="MarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html#MarshallingContext">MarshallingContext</a> context) {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">final</strong> Set seenFields = <strong class="jxr_keyword">new</strong> HashSet();
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">final</strong> Map defaultFieldDefinition = <strong class="jxr_keyword">new</strong> HashMap();
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
@@ -96,11 +96,11 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>                      defaultFieldDefinition.put(fieldName, reflectionProvider.getField(lookupType, fieldName));
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                  }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> converter = mapper.getConverterFromItemType(fieldName, type, definedIn);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <a name="SingleValueConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> converter = mapper.getConverterFromItemType(fieldName, type, definedIn);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <strong class="jxr_keyword">if</strong> (converter != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                      <strong class="jxr_keyword">if</strong> (value != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                          <strong class="jxr_keyword">if</strong> (seenFields.contains(fieldName)) {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(<span class="jxr_string">"Cannot write field with name '"</span> + fieldName 
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(<span class="jxr_string">"Cannot write field with name '"</span> + fieldName 
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                                  + <span class="jxr_string">"' twice as attribute for object of type "</span> + source.getClass().getName());
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                          }
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                          <strong class="jxr_keyword">final</strong> String str = converter.toString(value);
@@ -151,12 +151,12 @@
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>                     }
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>                 }
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> 
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a> defaultField = (Field)defaultFieldDefinition.get(fieldName);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 <strong class="jxr_keyword">final</strong> Field defaultField = (Field)defaultFieldDefinition.get(fieldName);
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>                 <strong class="jxr_keyword">if</strong> (defaultField.getDeclaringClass() != definedIn) {
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>                     writer.addAttribute(mapper.aliasForAttribute(<span class="jxr_string">"defined-in"</span>), mapper.serializedClass(definedIn));
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>                 }
 <a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                 <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a> field = reflectionProvider.getField(definedIn,fieldName);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>                 Field field = reflectionProvider.getField(definedIn,fieldName);
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>                 marshallField(context, newObj, field);
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>                 writer.endNode();
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>             }
@@ -164,18 +164,18 @@
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         });
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>     }
 <a class="jxr_linenumber" name="L158" href="#L158">158</a> 
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> marshallField(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html">MarshallingContext</a> context, Object newObj, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a> field) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> marshallField(<strong class="jxr_keyword">final</strong> <a name="MarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html#MarshallingContext">MarshallingContext</a> context, Object newObj, Field field) {
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         context.convertAnother(newObj, mapper.getLocalConverter(field.getDeclaringClass(), field.getName()));
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     }
 <a class="jxr_linenumber" name="L162" href="#L162">162</a> 
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">public</strong> Object unmarshal(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html">UnmarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">public</strong> Object unmarshal(<strong class="jxr_keyword">final</strong> <a name="HierarchicalStreamReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader, <strong class="jxr_keyword">final</strong> <a name="UnmarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html#UnmarshallingContext">UnmarshallingContext</a> context) {
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         Object result = instantiateNewInstance(reader, context);
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         result = doUnmarshal(result, reader, context);
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">return</strong> serializationMethodInvoker.callReadResolve(result);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>     }
 <a class="jxr_linenumber" name="L168" href="#L168">168</a> 
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <strong class="jxr_keyword">public</strong> Object doUnmarshal(<strong class="jxr_keyword">final</strong> Object result, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html">UnmarshallingContext</a> context) {
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html">SeenFields</a> seenFields = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html">SeenFields</a>();
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <strong class="jxr_keyword">public</strong> Object doUnmarshal(<strong class="jxr_keyword">final</strong> Object result, <strong class="jxr_keyword">final</strong> <a name="HierarchicalStreamReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader, <strong class="jxr_keyword">final</strong> <a name="UnmarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html#UnmarshallingContext">UnmarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">final</strong> SeenFields seenFields = <strong class="jxr_keyword">new</strong> SeenFields();
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>         Iterator it = reader.getAttributeNames();
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> 
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>         <em class="jxr_comment">// Process attributes before recursing into child elements.</em>
@@ -185,11 +185,11 @@
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>             Class classDefiningField = determineWhichClassDefinesField(reader);
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>             <strong class="jxr_keyword">boolean</strong> fieldExistsInClass = reflectionProvider.fieldDefinedInClass(attrName, result.getClass());
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>             <strong class="jxr_keyword">if</strong> (fieldExistsInClass) {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>                 <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a> field = reflectionProvider.getField(result.getClass(), attrName);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>                 Field field = reflectionProvider.getField(result.getClass(), attrName);
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>                 <strong class="jxr_keyword">if</strong> (Modifier.isTransient(field.getModifiers()) &amp;&amp; ! shouldUnmarshalTransientFields()) {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>                     <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>                 }
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> converter = mapper.getConverterFromAttribute(field.getDeclaringClass(), attrName);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 <a name="SingleValueConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> converter = mapper.getConverterFromAttribute(field.getDeclaringClass(), attrName);
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>                 Class type = field.getType();
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>                 <strong class="jxr_keyword">if</strong> (converter != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>                     Object value = converter.fromString(reader.getAttribute(attrAlias));
@@ -197,7 +197,7 @@
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>                         type = Primitives.box(type);
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>                     }
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>                     <strong class="jxr_keyword">if</strong> (value != <strong class="jxr_keyword">null</strong> &amp;&amp; !type.isAssignableFrom(value.getClass())) {
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(<span class="jxr_string">"Cannot convert type "</span> + value.getClass().getName() + <span class="jxr_string">" to type "</span> + type.getName());
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(<span class="jxr_string">"Cannot convert type "</span> + value.getClass().getName() + <span class="jxr_string">" to type "</span> + type.getName());
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>                     }
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>                     reflectionProvider.writeField(result, attrName, value, classDefiningField);
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>                     seenFields.add(classDefiningField, attrName);
@@ -221,7 +221,7 @@
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>                 : implicitCollectionMapping.getItemType();
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">final</strong> Object value;
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">if</strong> (fieldExistsInClass) {
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>                 <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a> field = reflectionProvider.getField(classDefiningField != <strong class="jxr_keyword">null</strong> ? classDefiningField : result.getClass(), fieldName);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>                 Field field = reflectionProvider.getField(classDefiningField != <strong class="jxr_keyword">null</strong> ? classDefiningField : result.getClass(), fieldName);
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>                 <strong class="jxr_keyword">if</strong> (Modifier.isTransient(field.getModifiers()) &amp;&amp; !shouldUnmarshalTransientFields()) {
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>                     reader.moveUp();
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>                     <strong class="jxr_keyword">continue</strong>;
@@ -237,7 +237,7 @@
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>             }
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>             
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>             <strong class="jxr_keyword">if</strong> (value != <strong class="jxr_keyword">null</strong> &amp;&amp; !type.isAssignableFrom(value.getClass())) {
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(<span class="jxr_string">"Cannot convert type "</span> + value.getClass().getName() + <span class="jxr_string">" to type "</span> + type.getName());
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(<span class="jxr_string">"Cannot convert type "</span> + value.getClass().getName() + <span class="jxr_string">" to type "</span> + type.getName());
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>             }
 <a class="jxr_linenumber" name="L234" href="#L234">234</a> 
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>             <strong class="jxr_keyword">if</strong> (fieldExistsInClass) {
@@ -253,7 +253,7 @@
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">return</strong> result;
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>     }
 <a class="jxr_linenumber" name="L247" href="#L247">247</a> 
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">protected</strong> Object unmarshallField(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html">UnmarshallingContext</a> context, <strong class="jxr_keyword">final</strong> Object result, Class type, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/LocalConversionMapper.html">Field</a> field) {
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">protected</strong> Object unmarshallField(<strong class="jxr_keyword">final</strong> <a name="UnmarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html#UnmarshallingContext">UnmarshallingContext</a> context, <strong class="jxr_keyword">final</strong> Object result, Class type, Field field) {
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">return</strong> context.convertAnother(result, type, mapper.getLocalConverter(field.getDeclaringClass(), field.getName()));
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>     }
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>     
@@ -261,7 +261,7 @@
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> 
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">private</strong> Map writeValueToImplicitCollection(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html">UnmarshallingContext</a> context, Object value, Map implicitCollections, Object result, String itemFieldName) {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">private</strong> Map writeValueToImplicitCollection(<a name="UnmarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html#UnmarshallingContext">UnmarshallingContext</a> context, Object value, Map implicitCollections, Object result, String itemFieldName) {
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>         String fieldName = mapper.getFieldNameForItemTypeAndName(context.getRequiredType(), value.getClass(), itemFieldName);
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>         <strong class="jxr_keyword">if</strong> (fieldName != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>             <strong class="jxr_keyword">if</strong> (implicitCollections == <strong class="jxr_keyword">null</strong>) {
@@ -271,11 +271,11 @@
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>             <strong class="jxr_keyword">if</strong> (collection == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>                 Class fieldType = mapper.defaultImplementationOf(reflectionProvider.getFieldType(result, fieldName, <strong class="jxr_keyword">null</strong>));
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>                 <strong class="jxr_keyword">if</strong> (!Collection.<strong class="jxr_keyword">class</strong>.isAssignableFrom(fieldType)) {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html">ObjectAccessException</a>(<span class="jxr_string">"Field "</span> + fieldName + <span class="jxr_string">" of "</span> + result.getClass().getName() +
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ObjectAccessException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html#ObjectAccessException">ObjectAccessException</a>(<span class="jxr_string">"Field "</span> + fieldName + <span class="jxr_string">" of "</span> + result.getClass().getName() +
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>                             <span class="jxr_string">" is configured for an implicit Collection, but field is of type "</span> + fieldType.getName());
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>                 }
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>                 <strong class="jxr_keyword">if</strong> (pureJavaReflectionProvider == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>                     pureJavaReflectionProvider = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/PureJavaReflectionProvider.html">PureJavaReflectionProvider</a>();
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>                     pureJavaReflectionProvider = <strong class="jxr_keyword">new</strong> <a name="PureJavaReflectionProvider" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/PureJavaReflectionProvider.html#PureJavaReflectionProvider">PureJavaReflectionProvider</a>();
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>                 }
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>                 collection = (Collection)pureJavaReflectionProvider.newInstance(fieldType);
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>                 reflectionProvider.writeField(result, fieldName, collection, <strong class="jxr_keyword">null</strong>);
@@ -286,12 +286,12 @@
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>         <strong class="jxr_keyword">return</strong> implicitCollections;
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>     }
 <a class="jxr_linenumber" name="L280" href="#L280">280</a> 
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">private</strong> Class determineWhichClassDefinesField(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader) {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">private</strong> Class determineWhichClassDefinesField(<a name="HierarchicalStreamReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader) {
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>         String definedIn = reader.getAttribute(mapper.aliasForAttribute(<span class="jxr_string">"defined-in"</span>));
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>         <strong class="jxr_keyword">return</strong> definedIn == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : mapper.realClass(definedIn);
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     }
 <a class="jxr_linenumber" name="L285" href="#L285">285</a> 
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <strong class="jxr_keyword">protected</strong> Object instantiateNewInstance(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html">UnmarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <strong class="jxr_keyword">protected</strong> Object instantiateNewInstance(<a name="HierarchicalStreamReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader, <a name="UnmarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html#UnmarshallingContext">UnmarshallingContext</a> context) {
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>         String readResolveValue = reader.getAttribute(mapper.aliasForAttribute(<span class="jxr_string">"resolves-to"</span>));
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>         Object currentObject = context.currentObject();
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">if</strong> (currentObject != <strong class="jxr_keyword">null</strong>) {
@@ -303,7 +303,7 @@
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>         }
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>     }
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> 
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html">SeenFields</a> {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> SeenFields {
 <a class="jxr_linenumber" name="L299" href="#L299">299</a> 
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">private</strong> Set seen = <strong class="jxr_keyword">new</strong> HashSet();
 <a class="jxr_linenumber" name="L301" href="#L301">301</a> 
@@ -313,7 +313,7 @@
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>                 uniqueKey += <span class="jxr_string">" ["</span> + definedInCls.getName() + <span class="jxr_string">"]"</span>;
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>             }
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>             <strong class="jxr_keyword">if</strong> (seen.contains(uniqueKey)) {
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html">DuplicateFieldException</a>(uniqueKey);
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> DuplicateFieldException(uniqueKey);
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>             } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>                 seen.add(uniqueKey);
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>             }
@@ -321,7 +321,7 @@
 <a class="jxr_linenumber" name="L313" href="#L313">313</a> 
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>     }
 <a class="jxr_linenumber" name="L315" href="#L315">315</a> 
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>     <strong class="jxr_keyword">private</strong> Class determineType(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader, <strong class="jxr_keyword">boolean</strong> validField, Object result, String fieldName, Class definedInCls) {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>     <strong class="jxr_keyword">private</strong> Class determineType(<a name="HierarchicalStreamReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader, <strong class="jxr_keyword">boolean</strong> validField, Object result, String fieldName, Class definedInCls) {
 <a class="jxr_linenumber" name="L317" href="#L317">317</a>         String classAttribute = reader.getAttribute(mapper.aliasForAttribute(<span class="jxr_string">"class"</span>));
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">if</strong> (classAttribute != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>             <strong class="jxr_keyword">return</strong> mapper.realClass(classAttribute);
@@ -346,12 +346,12 @@
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>     }
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>     
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>     <strong class="jxr_keyword">private</strong> Object readResolve() {
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>         serializationMethodInvoker = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/SerializationMethodInvoker.html">SerializationMethodInvoker</a>();
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         serializationMethodInvoker = <strong class="jxr_keyword">new</strong> <a name="SerializationMethodInvoker" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/SerializationMethodInvoker.html#SerializationMethodInvoker">SerializationMethodInvoker</a>();
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L343" href="#L343">343</a>     }
 <a class="jxr_linenumber" name="L344" href="#L344">344</a> 
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html">DuplicateFieldException</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a> {
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/AbstractReflectionConverter.html">DuplicateFieldException</a>(String msg) {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> DuplicateFieldException <strong class="jxr_keyword">extends</strong> <a name="ConversionException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a> {
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">public</strong> DuplicateFieldException(String msg) {
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>             <strong class="jxr_keyword">super</strong>(msg);
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>             add(<span class="jxr_string">"duplicate-field"</span>, msg);
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>         }
@@ -359,6 +359,6 @@
 <a class="jxr_linenumber" name="L351" href="#L351">351</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

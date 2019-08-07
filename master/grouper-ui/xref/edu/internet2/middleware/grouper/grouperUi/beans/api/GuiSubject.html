@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -63,7 +63,7 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> * subject for gui has all attributes etc, and getter to be accessed from screen</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiObjectBase.html">GuiObjectBase</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a> <strong class="jxr_keyword">extends</strong> <a name="GuiObjectBase" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiObjectBase.html#GuiObjectBase">GuiObjectBase</a> <strong class="jxr_keyword">implements</strong> Serializable {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   * return source id two pipes and subject id</em>
@@ -84,10 +84,10 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == other) {
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">if</strong> (!(other instanceof GuiSubject)) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">if</strong> (!(other instanceof <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>)) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>        <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">return</strong> SubjectHelper.eq(<strong class="jxr_keyword">this</strong>.subject, ((GuiSubject)other).subject);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">return</strong> SubjectHelper.eq(<strong class="jxr_keyword">this</strong>.subject, ((<a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>)other).subject);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>    }
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>    <em class="jxr_javadoccomment">/**</em>
@@ -171,7 +171,7 @@
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>     
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">int</strong> count = 0;
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">for</strong> (Subject subject : GrouperUtil.nonNull(subjects)) {
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>       tempSubjects.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a>(subject));
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>       tempSubjects.add(<strong class="jxr_keyword">new</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>(subject));
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>       <strong class="jxr_keyword">if</strong> (max != <strong class="jxr_keyword">null</strong> &amp;&amp; ++count &gt;= max) {
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>       }
@@ -337,453 +337,484 @@
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>       } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">this</strong>.screenLabelShort2 = StringUtils.abbreviate(screenLabel, maxWidth);
 <a class="jxr_linenumber" name="L331" href="#L331">331</a>       }
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>       <strong class="jxr_keyword">boolean</strong> hasTooltip = <strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong> 
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         &amp;&amp; !StringUtils.isBlank(<strong class="jxr_keyword">this</strong>.subject.getDescription()) &amp;&amp; !StringUtils.equals(<strong class="jxr_keyword">this</strong>.subject.getName(), <strong class="jxr_keyword">this</strong>.subject.getDescription());
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>       
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(hasTooltip);
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L332" href="#L332">332</a> 
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>       <strong class="jxr_keyword">this</strong>.screenSubjectIcon2Html = GrouperUiUtils.convertSubjectToIconHtmlConfigured2(<strong class="jxr_keyword">this</strong>.subject);
+<a class="jxr_linenumber" name="L334" href="#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>       <strong class="jxr_keyword">boolean</strong> hasTooltip = <strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         &amp;&amp; !StringUtils.isBlank(<strong class="jxr_keyword">this</strong>.subject.getDescription()) &amp;&amp; !StringUtils.equals(<strong class="jxr_keyword">this</strong>.subject.getName(), <strong class="jxr_keyword">this</strong>.subject.getDescription());
 <a class="jxr_linenumber" name="L337" href="#L337">337</a>       
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>       <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>         
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <em class="jxr_comment">//"&lt;a href=\&quot;view-subject.html\&quot; rel=\&quot;tooltip\&quot; data-html=\&quot;true\&quot; data-delay-show=\&quot;200\&quot; data-placement=\&quot;right\&quot; title=\&quot;" + GrouperUtil.xmlEscape(subject.getDescription(), true)  + "\&quot;&gt;" + this.screenLabelShort2 + "&lt;/a&gt;";</em>
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>         <em class="jxr_comment">//"&lt;a href=\&quot;view-subject.html\&quot; data-html=\&quot;true\&quot; data-delay-show=\&quot;200\&quot; data-placement=\&quot;right\&quot;&gt;" + this.screenLabelShort2 + "&lt;/a&gt;";</em>
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>         Group group = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>         
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.isGroup()) {
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>           <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject instanceof GrouperSubject) {
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>             group = ((GrouperSubject)<strong class="jxr_keyword">this</strong>.subject).internal_getGroup();
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>           }
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>           <strong class="jxr_keyword">if</strong> (group == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>             group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), <strong class="jxr_keyword">this</strong>.subject.getId(), false);
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(hasTooltip);
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>       
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>       <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <em class="jxr_comment">//"&lt;a href=\&quot;view-subject.html\&quot; rel=\&quot;tooltip\&quot; data-html=\&quot;true\&quot; data-delay-show=\&quot;200\&quot; data-placement=\&quot;right\&quot; title=\&quot;" + GrouperUtil.xmlEscape(subject.getDescription(), true)  + "\&quot;&gt;" + this.screenLabelShort2 + "&lt;/a&gt;";</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <em class="jxr_comment">//"&lt;a href=\&quot;view-subject.html\&quot; data-html=\&quot;true\&quot; data-delay-show=\&quot;200\&quot; data-placement=\&quot;right\&quot;&gt;" + this.screenLabelShort2 + "&lt;/a&gt;";</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         Group group = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.isGroup()) {
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>           <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject instanceof GrouperSubject) {
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>             group = ((GrouperSubject)<strong class="jxr_keyword">this</strong>.subject).internal_getGroup();
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>           }
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>           <strong class="jxr_keyword">if</strong> (group == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>             group = <strong class="jxr_keyword">new</strong> Group();
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>             group.setId(<strong class="jxr_keyword">this</strong>.subject.getId());
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>             String cantFindGroupName = <strong class="jxr_keyword">this</strong>.subject.getAttributeValue(<span class="jxr_string">"displayName"</span>);
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>             String cantFindGroupExtension = <strong class="jxr_keyword">this</strong>.subject.getAttributeValue(<span class="jxr_string">"displayExtension"</span>);
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>             group.setNameDb(cantFindGroupName);
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>             group.setDisplayNameDb(cantFindGroupName);
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>             group.setExtensionDb(cantFindGroupExtension);
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>             group.setDisplayExtensionDb(cantFindGroupExtension);
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>             group.setDescriptionDb(cantFindGroupName);
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>           }
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>         }
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>         
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>           GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiGroup(<strong class="jxr_keyword">new</strong> GuiGroup(group));
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupShortLink"</span>);
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>           
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectShortLink"</span>);
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>         }
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>         
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L373" href="#L373">373</a> 
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>           <strong class="jxr_keyword">this</strong>.screenLabelLongWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupLongLinkWithIcon"</span>);
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>           <strong class="jxr_keyword">this</strong>.screenLabelLongWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectLongLinkWithIcon"</span>);
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         }
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         
-<a class="jxr_linenumber" name="L380" href="#L380">380</a> 
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupShortLink"</span>);
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectShortLink"</span>);
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         }
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2noLinkWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupShort"</span>);
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2noLinkWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectShort"</span>);
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         }
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> 
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2noLink = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupShort"</span>);
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2noLink = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectShort"</span>);
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>         }
-<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>       } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> 
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(<strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(false);
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
-<a class="jxr_linenumber" name="L406" href="#L406">406</a> 
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>       }
-<a class="jxr_linenumber" name="L408" href="#L408">408</a> 
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>     }
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>   }
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), <strong class="jxr_keyword">this</strong>.subject.getId(), false);
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>           }
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>           <strong class="jxr_keyword">if</strong> (group == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>             group = <strong class="jxr_keyword">new</strong> Group();
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>             group.setId(<strong class="jxr_keyword">this</strong>.subject.getId());
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>             String cantFindGroupName = <strong class="jxr_keyword">this</strong>.subject.getAttributeValue(<span class="jxr_string">"displayName"</span>);
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>             String cantFindGroupExtension = <strong class="jxr_keyword">this</strong>.subject.getAttributeValue(<span class="jxr_string">"displayExtension"</span>);
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>             group.setNameDb(cantFindGroupName);
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>             group.setDisplayNameDb(cantFindGroupName);
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>             group.setExtensionDb(cantFindGroupExtension);
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>             group.setDisplayExtensionDb(cantFindGroupExtension);
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>             group.setDescriptionDb(cantFindGroupName);
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>           }
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         }
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>           GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiGroup(<strong class="jxr_keyword">new</strong> <a name="GuiGroup" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiGroup.html#GuiGroup">GuiGroup</a>(group));
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupShortLink"</span>);
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>           
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectShortLink"</span>);
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         }
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>           <strong class="jxr_keyword">this</strong>.screenLabelLongWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupLongLinkWithIcon"</span>);
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>           <strong class="jxr_keyword">this</strong>.screenLabelLongWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectLongLinkWithIcon"</span>);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         }
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> 
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupShortLink"</span>);
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectShortLink"</span>);
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         }
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2noLinkWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupShort"</span>);
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2noLinkWithIcon = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectShort"</span>);
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
+<a class="jxr_linenumber" name="L397" href="#L397">397</a> 
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">if</strong> (group != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2noLink = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiGroupShort"</span>);
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>           <strong class="jxr_keyword">this</strong>.screenLabelShort2noLink = TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"guiSubjectShort"</span>);
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         }
+<a class="jxr_linenumber" name="L403" href="#L403">403</a> 
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>       } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L405" href="#L405">405</a> 
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(false);
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>       }
 <a class="jxr_linenumber" name="L411" href="#L411">411</a> 
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">   * short screen label for ui v2</em>
-<a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">   * @return label</em>
-<a class="jxr_linenumber" name="L415" href="#L415">415</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelShort2() {
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelShort2;
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>   }
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> 
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">   * construct with subject</em>
-<a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">   * @param subject1</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a>(Subject subject1) {
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>     <strong class="jxr_keyword">this</strong>.subject = subject1;
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>   }
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>   
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">   * get screen label</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_javadoccomment">   * @return screen label</em>
-<a class="jxr_linenumber" name="L432" href="#L432">432</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>   <strong class="jxr_keyword">public</strong> String getScreenLabel() {
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelShort;
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>   }
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>   
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L439" href="#L439">439</a> <em class="jxr_javadoccomment">   * get screen label</em>
-<a class="jxr_linenumber" name="L440" href="#L440">440</a> <em class="jxr_javadoccomment">   * @return screen label</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelLong() {
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelLong;
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>   }
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>   
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>   <em class="jxr_javadoccomment">/** attributes in string - string format */</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; attributes = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">   * long screen label</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>   <strong class="jxr_keyword">private</strong> String screenLabelLong = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">   * long screen label with icon</em>
-<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>   <strong class="jxr_keyword">private</strong> String screenLabelLongWithIcon = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L457" href="#L457">457</a> 
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">   * long screen label with icon</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">   * @return screen label</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelLongWithIcon() {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelLongWithIcon;
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>   }
-<a class="jxr_linenumber" name="L466" href="#L466">466</a> 
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L468" href="#L468">468</a> <em class="jxr_javadoccomment">   * short screen label</em>
-<a class="jxr_linenumber" name="L469" href="#L469">469</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L471" href="#L471">471</a> 
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">   * new short label in v2</em>
-<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2 = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>   
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L478" href="#L478">478</a> <em class="jxr_javadoccomment">   * new short label in v2 with html tooltip and link</em>
-<a class="jxr_linenumber" name="L479" href="#L479">479</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2html = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>   
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_javadoccomment">   * new short label in v2 with html tooltip and link and icon</em>
-<a class="jxr_linenumber" name="L484" href="#L484">484</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2htmlWithIcon = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>   
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L488" href="#L488">488</a> <em class="jxr_javadoccomment">   * new short label in v2 with no link, but with icon</em>
-<a class="jxr_linenumber" name="L489" href="#L489">489</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2noLinkWithIcon = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L491" href="#L491">491</a> 
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L493" href="#L493">493</a> <em class="jxr_javadoccomment">   * new short label in v2 with no link or icon</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2noLink = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L496" href="#L496">496</a> 
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>   
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">   * subject</em>
-<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">   * @return the subject</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>     }
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>   }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">   * short screen label for ui v2</em>
+<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">   * @return label</em>
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelShort2() {
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelShort2;
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>   }
+<a class="jxr_linenumber" name="L423" href="#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">   * span for subject-specific icon for ui v2; e.g. '&amp;lt;i class="fa fa-group"&amp;gt;&amp;lt;/i&amp;gt; '</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">   * @return label</em>
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>   <strong class="jxr_keyword">public</strong> String getScreenSubjectIcon2Html() {
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenSubjectIcon2Html;
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>   }
+<a class="jxr_linenumber" name="L432" href="#L432">432</a> 
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_javadoccomment">   * construct with subject</em>
+<a class="jxr_linenumber" name="L435" href="#L435">435</a> <em class="jxr_javadoccomment">   * @param subject1</em>
+<a class="jxr_linenumber" name="L436" href="#L436">436</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>   <strong class="jxr_keyword">public</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>(Subject subject1) {
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">this</strong>.subject = subject1;
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>   }
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>   
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">   * get screen label</em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">   * @return screen label</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>   <strong class="jxr_keyword">public</strong> String getScreenLabel() {
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelShort;
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>   }
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>   
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">   * get screen label</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_javadoccomment">   * @return screen label</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelLong() {
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelLong;
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>   }
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>   
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>   <em class="jxr_javadoccomment">/** attributes in string - string format */</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; attributes = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> <em class="jxr_javadoccomment">   * long screen label</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>   <strong class="jxr_keyword">private</strong> String screenLabelLong = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L466" href="#L466">466</a> <em class="jxr_javadoccomment">   * long screen label with icon</em>
+<a class="jxr_linenumber" name="L467" href="#L467">467</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>   <strong class="jxr_keyword">private</strong> String screenLabelLongWithIcon = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L469" href="#L469">469</a> 
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L471" href="#L471">471</a> <em class="jxr_javadoccomment">   * long screen label with icon</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a> <em class="jxr_javadoccomment">   * @return screen label</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelLongWithIcon() {
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelLongWithIcon;
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>   }
+<a class="jxr_linenumber" name="L478" href="#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a> <em class="jxr_javadoccomment">   * short screen label</em>
+<a class="jxr_linenumber" name="L481" href="#L481">481</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L483" href="#L483">483</a> 
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a> <em class="jxr_javadoccomment">   * new short label in v2</em>
+<a class="jxr_linenumber" name="L486" href="#L486">486</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2 = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>   
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L490" href="#L490">490</a> <em class="jxr_javadoccomment">   * new short label in v2 with html tooltip and link</em>
+<a class="jxr_linenumber" name="L491" href="#L491">491</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2html = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L493" href="#L493">493</a> 
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">   * new subject icon in v2</em>
+<a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>   <strong class="jxr_keyword">private</strong> String screenSubjectIcon2Html = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> 
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">   * new short label in v2 with html tooltip and link and icon</em>
 <a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>   <strong class="jxr_keyword">public</strong> Subject getSubject() {
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.subject;
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>   }
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>   
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L507" href="#L507">507</a> <em class="jxr_javadoccomment">   * attribute names for this subject</em>
-<a class="jxr_linenumber" name="L508" href="#L508">508</a> <em class="jxr_javadoccomment">   * @return the attribute names for this subject</em>
-<a class="jxr_linenumber" name="L509" href="#L509">509</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeNamesNonInternal() {
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>     Set&lt;String&gt; attributeNames = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>       String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(<strong class="jxr_keyword">this</strong>.subject.getSourceId());
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2htmlWithIcon = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>   
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a> <em class="jxr_javadoccomment">   * new short label in v2 with no link, but with icon</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2noLinkWithIcon = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L508" href="#L508">508</a> 
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L510" href="#L510">510</a> <em class="jxr_javadoccomment">   * new short label in v2 with no link or icon</em>
+<a class="jxr_linenumber" name="L511" href="#L511">511</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>   <strong class="jxr_keyword">private</strong> String screenLabelShort2noLink = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> 
 <a class="jxr_linenumber" name="L514" href="#L514">514</a>   
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>       <strong class="jxr_keyword">for</strong> (String attributeName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributes().keySet())) {
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>         <strong class="jxr_keyword">if</strong> (!StringUtils.equalsIgnoreCase(<span class="jxr_string">"name"</span>, attributeName)
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>             &amp;&amp; !StringUtils.equalsIgnoreCase(<span class="jxr_string">"description"</span>, attributeName)
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>             &amp;&amp; !StringUtils.equalsIgnoreCase(<span class="jxr_string">"subjectId"</span>, attributeName)
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>             &amp;&amp; !StringUtils.equalsIgnoreCase(emailAttributeName, attributeName)) {
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>           attributeNames.add(attributeName);
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>         }
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>       }
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>     }
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>     <strong class="jxr_keyword">return</strong> attributeNames;
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>   }
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>   
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">   * attribute names for this subject to show in the expanded view</em>
-<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">   * @return the attribute names for this subject</em>
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeNamesExpandedView() {
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>     Set&lt;String&gt; attributeNames = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>       String orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.expanded."</span> + <strong class="jxr_keyword">this</strong>.subject.getSourceId());
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.isBlank(orderCommaSeparated)) {
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>         orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.expanded.default"</span>);
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>       }
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>       
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>       <em class="jxr_comment">// still empty, return them all to preserve previous behavior</em>
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.isBlank(orderCommaSeparated)) {
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>         <strong class="jxr_keyword">return</strong> getAttributeNamesNonInternal();
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>       }
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>       
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>       attributeNames.addAll(GrouperUtil.splitTrimToSet(orderCommaSeparated, <span class="jxr_string">","</span>));
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>     }
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>     <strong class="jxr_keyword">return</strong> attributeNames;
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>   }
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>   
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>   
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L551" href="#L551">551</a> <em class="jxr_javadoccomment">   * attribute names for this subject to show in the non-expanded view</em>
-<a class="jxr_linenumber" name="L552" href="#L552">552</a> <em class="jxr_javadoccomment">   * @return the attribute names for this subject</em>
-<a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeNamesNonExpandedView() {
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>     Set&lt;String&gt; attributeNames = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>       String orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.nonexpanded."</span> + <strong class="jxr_keyword">this</strong>.subject.getSourceId());
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.isBlank(orderCommaSeparated)) {
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.nonexpanded.default"</span>, <span class="jxr_string">"subjectId,email,name,description"</span>);
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>       }
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>       
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>       <strong class="jxr_keyword">if</strong> (!GrouperUtil.isBlank(orderCommaSeparated)) {
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>         attributeNames.addAll(GrouperUtil.splitTrimToSet(orderCommaSeparated, <span class="jxr_string">","</span>));
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>       }
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>     }
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>     <strong class="jxr_keyword">return</strong> attributeNames;
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>   }
-<a class="jxr_linenumber" name="L568" href="#L568">568</a> 
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">   * dynamic map of attribute name to attribute label</em>
-<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; attributeLabelMap = <strong class="jxr_keyword">new</strong> HashMap&lt;String, String&gt;() {
-<a class="jxr_linenumber" name="L573" href="#L573">573</a> 
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L575" href="#L575">575</a> <em class="jxr_javadoccomment">     * @see java.util.HashMap#get(java.lang.Object)</em>
-<a class="jxr_linenumber" name="L576" href="#L576">576</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>     @Override
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>     <strong class="jxr_keyword">public</strong> String get(Object attributeName) {
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>       
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>       String sourceId = GuiSubject.<strong class="jxr_keyword">this</strong>.getSubject().getSourceId();
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>       String sourceTextId = GrouperUiUtils.convertSourceIdToTextId(sourceId);
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>       
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>       String emailAttribute = GrouperEmailUtils.emailAttributeNameForSource(GuiSubject.<strong class="jxr_keyword">this</strong>.subject.getSourceId());
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>       
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>       <em class="jxr_comment">// subjectViewLabel__sourceTextId__attributeName</em>
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>       String key = <span class="jxr_string">"subjectViewLabel__"</span> + sourceTextId + <span class="jxr_string">"__"</span> + attributeName;
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>       
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>       <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"sourceId"</span>.equals(attributeName)) {
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>         key = <span class="jxr_string">"subjectViewLabelSourceId"</span>;
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"sourceName"</span>.equals(attributeName)) {
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>         key = <span class="jxr_string">"subjectViewLabelSourceName"</span>;
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"memberId"</span>.equals(attributeName)) {
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>         key = <span class="jxr_string">"subjectViewLabelMemberId"</span>;
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"subjectId"</span>.equals(attributeName)) {
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>         key = <span class="jxr_string">"subjectViewLabelId"</span>;
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"name"</span>.equals(attributeName)) {
-<a class="jxr_linenumber" name="L597" href="#L597">597</a>         key = <span class="jxr_string">"subjectViewLabelName"</span>;
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"description"</span>.equals(attributeName)) {
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>         key = <span class="jxr_string">"subjectViewLabelDescription"</span>;
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!GrouperUtil.isBlank(emailAttribute) &amp;&amp; emailAttribute.equals(attributeName)) {
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>         key = <span class="jxr_string">"subjectViewLabelEmail"</span>;
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>       }
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>       
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>       String value = TextContainer.textOrNull(key);
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>       
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>       <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(value)) {
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>         <strong class="jxr_keyword">return</strong> ((String)attributeName) + <span class="jxr_string">":"</span>;
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>       }
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>       <strong class="jxr_keyword">return</strong> value;
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">   * subject</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">   * @return the subject</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>   <strong class="jxr_keyword">public</strong> Subject getSubject() {
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.subject;
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>   }
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>   
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L524" href="#L524">524</a> <em class="jxr_javadoccomment">   * attribute names for this subject</em>
+<a class="jxr_linenumber" name="L525" href="#L525">525</a> <em class="jxr_javadoccomment">   * @return the attribute names for this subject</em>
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeNamesNonInternal() {
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>     Set&lt;String&gt; attributeNames = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>       String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(<strong class="jxr_keyword">this</strong>.subject.getSourceId());
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>   
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>       <strong class="jxr_keyword">for</strong> (String attributeName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributes().keySet())) {
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <strong class="jxr_keyword">if</strong> (!StringUtils.equalsIgnoreCase(<span class="jxr_string">"name"</span>, attributeName)
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>             &amp;&amp; !StringUtils.equalsIgnoreCase(<span class="jxr_string">"description"</span>, attributeName)
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>             &amp;&amp; !StringUtils.equalsIgnoreCase(<span class="jxr_string">"subjectId"</span>, attributeName)
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>             &amp;&amp; !StringUtils.equalsIgnoreCase(emailAttributeName, attributeName)) {
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>           attributeNames.add(attributeName);
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>         }
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>       }
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>     }
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>     <strong class="jxr_keyword">return</strong> attributeNames;
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>   }
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>   
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L545" href="#L545">545</a> <em class="jxr_javadoccomment">   * attribute names for this subject to show in the expanded view</em>
+<a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">   * @return the attribute names for this subject</em>
+<a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeNamesExpandedView() {
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>     Set&lt;String&gt; attributeNames = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>       String orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.expanded."</span> + <strong class="jxr_keyword">this</strong>.subject.getSourceId());
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.isBlank(orderCommaSeparated)) {
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.expanded.default"</span>);
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>       }
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>       
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>       <em class="jxr_comment">// still empty, return them all to preserve previous behavior</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.isBlank(orderCommaSeparated)) {
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>         <strong class="jxr_keyword">return</strong> getAttributeNamesNonInternal();
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>       }
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>       
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>       attributeNames.addAll(GrouperUtil.splitTrimToSet(orderCommaSeparated, <span class="jxr_string">","</span>));
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>     }
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>     <strong class="jxr_keyword">return</strong> attributeNames;
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>   }
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>   
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>   
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">   * attribute names for this subject to show in the non-expanded view</em>
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">   * @return the attribute names for this subject</em>
+<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeNamesNonExpandedView() {
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>     Set&lt;String&gt; attributeNames = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>       String orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.nonexpanded."</span> + <strong class="jxr_keyword">this</strong>.subject.getSourceId());
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.isBlank(orderCommaSeparated)) {
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>         orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.nonexpanded.default"</span>, <span class="jxr_string">"subjectId,email,name,description"</span>);
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>       }
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>       
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>       <strong class="jxr_keyword">if</strong> (!GrouperUtil.isBlank(orderCommaSeparated)) {
+<a class="jxr_linenumber" name="L580" href="#L580">580</a> 
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>         <em class="jxr_comment">// GRP-1558: default subject display shows "email" attribute, which source might not have</em>
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>         <strong class="jxr_keyword">if</strong> (orderCommaSeparated.contains(<span class="jxr_string">",email,"</span>)) {
+<a class="jxr_linenumber" name="L583" href="#L583">583</a> 
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>           <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.getAttributes().containsKey(<span class="jxr_string">"email"</span>)) {
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>             String emailAttribute = GrouperEmailUtils.emailAttributeNameForSource(<strong class="jxr_keyword">this</strong>.subject.getSourceId());
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>             <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(emailAttribute)) {
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>               orderCommaSeparated = GrouperUtil.replace(orderCommaSeparated, <span class="jxr_string">",email,"</span>, <span class="jxr_string">","</span> + emailAttribute + <span class="jxr_string">","</span>);
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>               orderCommaSeparated = GrouperUtil.replace(orderCommaSeparated, <span class="jxr_string">",email,"</span>, <span class="jxr_string">","</span>);
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>             }
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>           }
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>         }
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>         
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>         attributeNames.addAll(GrouperUtil.splitTrimToSet(orderCommaSeparated, <span class="jxr_string">","</span>));
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>       }
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>     }
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>     <strong class="jxr_keyword">return</strong> attributeNames;
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>   }
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> 
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_javadoccomment">   * dynamic map of attribute name to attribute label</em>
+<a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; attributeLabelMap = <strong class="jxr_keyword">new</strong> HashMap&lt;String, String&gt;() {
+<a class="jxr_linenumber" name="L604" href="#L604">604</a> 
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L606" href="#L606">606</a> <em class="jxr_javadoccomment">     * @see java.util.HashMap#get(java.lang.Object)</em>
+<a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>     @Override
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>     <strong class="jxr_keyword">public</strong> String get(Object attributeName) {
 <a class="jxr_linenumber" name="L610" href="#L610">610</a>       
-<a class="jxr_linenumber" name="L611" href="#L611">611</a>     }
-<a class="jxr_linenumber" name="L612" href="#L612">612</a> 
-<a class="jxr_linenumber" name="L613" href="#L613">613</a>   };
-<a class="jxr_linenumber" name="L614" href="#L614">614</a> 
-<a class="jxr_linenumber" name="L615" href="#L615">615</a>   
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L617" href="#L617">617</a> <em class="jxr_javadoccomment">   * attribute label for this attribute if configured</em>
-<a class="jxr_linenumber" name="L618" href="#L618">618</a> <em class="jxr_javadoccomment">   * first get the text id for the source, then look in the externalized text</em>
-<a class="jxr_linenumber" name="L619" href="#L619">619</a> <em class="jxr_javadoccomment">   * for a label for the attribute, if not there, just use the attribute name</em>
-<a class="jxr_linenumber" name="L620" href="#L620">620</a> <em class="jxr_javadoccomment">   * @return the attribute label for this attribute</em>
-<a class="jxr_linenumber" name="L621" href="#L621">621</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>   <strong class="jxr_keyword">public</strong> Map&lt;String, String&gt; getAttributeLabel() {
-<a class="jxr_linenumber" name="L623" href="#L623">623</a>     
-<a class="jxr_linenumber" name="L624" href="#L624">624</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.attributeLabelMap;
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>     
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>   }
-<a class="jxr_linenumber" name="L627" href="#L627">627</a>   
-<a class="jxr_linenumber" name="L628" href="#L628">628</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L629" href="#L629">629</a> <em class="jxr_javadoccomment">   * Gets a map attribute names and value. The map's key</em>
-<a class="jxr_linenumber" name="L630" href="#L630">630</a> <em class="jxr_javadoccomment">   * contains the attribute name and the map's value</em>
-<a class="jxr_linenumber" name="L631" href="#L631">631</a> <em class="jxr_javadoccomment">   * contains a Set of attribute value(s).  Note, this only does single valued attributes</em>
-<a class="jxr_linenumber" name="L632" href="#L632">632</a> <em class="jxr_javadoccomment">   * @return the map of attributes</em>
-<a class="jxr_linenumber" name="L633" href="#L633">633</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L634" href="#L634">634</a>   @SuppressWarnings({ <span class="jxr_string">"cast"</span>, <span class="jxr_string">"unchecked"</span> })
-<a class="jxr_linenumber" name="L635" href="#L635">635</a>   <strong class="jxr_keyword">public</strong> Map&lt;String, String&gt; getAttributes() {
-<a class="jxr_linenumber" name="L636" href="#L636">636</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.attributes == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L637" href="#L637">637</a>       Map&lt;String, String&gt; result = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, String&gt;();
-<a class="jxr_linenumber" name="L638" href="#L638">638</a>       
-<a class="jxr_linenumber" name="L639" href="#L639">639</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L640" href="#L640">640</a>         <strong class="jxr_keyword">for</strong> (String key : (Set&lt;String&gt;)(Object)GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.subject.getAttributes()).keySet()) {
-<a class="jxr_linenumber" name="L641" href="#L641">641</a>           Object value = <strong class="jxr_keyword">this</strong>.subject.getAttributes().get(key);
-<a class="jxr_linenumber" name="L642" href="#L642">642</a>           <strong class="jxr_keyword">if</strong> (value instanceof String) {
-<a class="jxr_linenumber" name="L643" href="#L643">643</a>             <em class="jxr_comment">//if a string</em>
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>             result.put(key, (String)value);
-<a class="jxr_linenumber" name="L645" href="#L645">645</a>           } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (value instanceof Set) {
-<a class="jxr_linenumber" name="L646" href="#L646">646</a>             <em class="jxr_comment">//if set of one string, then add it</em>
-<a class="jxr_linenumber" name="L647" href="#L647">647</a>             <strong class="jxr_keyword">if</strong> (((Set&lt;?&gt;)value).size() == 1) {
-<a class="jxr_linenumber" name="L648" href="#L648">648</a>               result.put(key, (String)((Set&lt;?&gt;)value).iterator().next());
-<a class="jxr_linenumber" name="L649" href="#L649">649</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (((Set&lt;?&gt;)value).size() &gt; 1) {
-<a class="jxr_linenumber" name="L650" href="#L650">650</a>               <em class="jxr_comment">//put commas in between?  not sure what else to do here</em>
-<a class="jxr_linenumber" name="L651" href="#L651">651</a>               result.put(key, GrouperUtil.setToString((Set&lt;?&gt;)value));
-<a class="jxr_linenumber" name="L652" href="#L652">652</a>             }
-<a class="jxr_linenumber" name="L653" href="#L653">653</a>           }
-<a class="jxr_linenumber" name="L654" href="#L654">654</a>         }
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>       }
-<a class="jxr_linenumber" name="L656" href="#L656">656</a>       
-<a class="jxr_linenumber" name="L657" href="#L657">657</a>       result.put(<span class="jxr_string">"memberId"</span>, getMemberId());
-<a class="jxr_linenumber" name="L658" href="#L658">658</a>       result.put(<span class="jxr_string">"sourceId"</span>, <strong class="jxr_keyword">this</strong>.subject.getSourceId());
-<a class="jxr_linenumber" name="L659" href="#L659">659</a>       result.put(<span class="jxr_string">"sourceName"</span>, <strong class="jxr_keyword">this</strong>.subject.getSource().getName());
-<a class="jxr_linenumber" name="L660" href="#L660">660</a>       result.put(<span class="jxr_string">"subjectId"</span>, <strong class="jxr_keyword">this</strong>.subject.getId());
-<a class="jxr_linenumber" name="L661" href="#L661">661</a>       result.put(<span class="jxr_string">"name"</span>, <strong class="jxr_keyword">this</strong>.subject.getName());
-<a class="jxr_linenumber" name="L662" href="#L662">662</a>       result.put(<span class="jxr_string">"description"</span>, <strong class="jxr_keyword">this</strong>.subject.getDescription());
-<a class="jxr_linenumber" name="L663" href="#L663">663</a>       
-<a class="jxr_linenumber" name="L664" href="#L664">664</a>       <strong class="jxr_keyword">this</strong>.attributes = result;
-<a class="jxr_linenumber" name="L665" href="#L665">665</a>     }
-<a class="jxr_linenumber" name="L666" href="#L666">666</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.attributes;
-<a class="jxr_linenumber" name="L667" href="#L667">667</a>   }
-<a class="jxr_linenumber" name="L668" href="#L668">668</a> 
-<a class="jxr_linenumber" name="L669" href="#L669">669</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L670" href="#L670">670</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L671" href="#L671">671</a> <em class="jxr_javadoccomment">   * @return long label if different than the short one</em>
-<a class="jxr_linenumber" name="L672" href="#L672">672</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L673" href="#L673">673</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelLongIfDifferent() {
-<a class="jxr_linenumber" name="L674" href="#L674">674</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
-<a class="jxr_linenumber" name="L675" href="#L675">675</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.isNeedsTooltip()) {
-<a class="jxr_linenumber" name="L676" href="#L676">676</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelLong;
-<a class="jxr_linenumber" name="L677" href="#L677">677</a>     }
-<a class="jxr_linenumber" name="L678" href="#L678">678</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L679" href="#L679">679</a>   }
-<a class="jxr_linenumber" name="L680" href="#L680">680</a> 
-<a class="jxr_linenumber" name="L681" href="#L681">681</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L682" href="#L682">682</a> <em class="jxr_javadoccomment">   * get short screen label </em>
-<a class="jxr_linenumber" name="L683" href="#L683">683</a> <em class="jxr_javadoccomment">   * @return short screen label</em>
-<a class="jxr_linenumber" name="L684" href="#L684">684</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L685" href="#L685">685</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isNeedsTooltip() {
-<a class="jxr_linenumber" name="L686" href="#L686">686</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
-<a class="jxr_linenumber" name="L687" href="#L687">687</a>     <strong class="jxr_keyword">return</strong> !StringUtils.equals(<strong class="jxr_keyword">this</strong>.screenLabelLong, <strong class="jxr_keyword">this</strong>.screenLabelShort);
-<a class="jxr_linenumber" name="L688" href="#L688">688</a>   }
-<a class="jxr_linenumber" name="L689" href="#L689">689</a> 
-<a class="jxr_linenumber" name="L690" href="#L690">690</a> 
-<a class="jxr_linenumber" name="L691" href="#L691">691</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L692" href="#L692">692</a> <em class="jxr_javadoccomment">   * e.g. &amp;lt;a href="#"&amp;gt;John Smith&amp;lt;/a&amp;gt;</em>
-<a class="jxr_linenumber" name="L693" href="#L693">693</a> <em class="jxr_javadoccomment">   * @return short link</em>
-<a class="jxr_linenumber" name="L694" href="#L694">694</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L695" href="#L695">695</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelShort2noLinkWithIcon() {
-<a class="jxr_linenumber" name="L696" href="#L696">696</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
-<a class="jxr_linenumber" name="L697" href="#L697">697</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelShort2noLinkWithIcon;
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>       String sourceId = GuiSubject.<strong class="jxr_keyword">this</strong>.getSubject().getSourceId();
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>       String sourceTextId = GrouperUiUtils.convertSourceIdToTextId(sourceId);
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>       
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>       String emailAttribute = GrouperEmailUtils.emailAttributeNameForSource(GuiSubject.<strong class="jxr_keyword">this</strong>.subject.getSourceId());
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>       
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>       <em class="jxr_comment">// subjectViewLabel__sourceTextId__attributeName</em>
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>       String key = <span class="jxr_string">"subjectViewLabel__"</span> + sourceTextId + <span class="jxr_string">"__"</span> + attributeName;
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>       
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>       <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"sourceId"</span>.equals(attributeName)) {
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>         key = <span class="jxr_string">"subjectViewLabelSourceId"</span>;
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"sourceName"</span>.equals(attributeName)) {
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>         key = <span class="jxr_string">"subjectViewLabelSourceName"</span>;
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"memberId"</span>.equals(attributeName)) {
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>         key = <span class="jxr_string">"subjectViewLabelMemberId"</span>;
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"subjectId"</span>.equals(attributeName)) {
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>         key = <span class="jxr_string">"subjectViewLabelId"</span>;
+<a class="jxr_linenumber" name="L627" href="#L627">627</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"name"</span>.equals(attributeName)) {
+<a class="jxr_linenumber" name="L628" href="#L628">628</a>         key = <span class="jxr_string">"subjectViewLabelName"</span>;
+<a class="jxr_linenumber" name="L629" href="#L629">629</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"description"</span>.equals(attributeName)) {
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>         key = <span class="jxr_string">"subjectViewLabelDescription"</span>;
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!GrouperUtil.isBlank(emailAttribute) &amp;&amp; emailAttribute.equals(attributeName)) {
+<a class="jxr_linenumber" name="L632" href="#L632">632</a>         key = <span class="jxr_string">"subjectViewLabelEmail"</span>;
+<a class="jxr_linenumber" name="L633" href="#L633">633</a>       }
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>       
+<a class="jxr_linenumber" name="L635" href="#L635">635</a>       String value = TextContainer.textOrNull(key);
+<a class="jxr_linenumber" name="L636" href="#L636">636</a>       
+<a class="jxr_linenumber" name="L637" href="#L637">637</a>       <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(value)) {
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>         <strong class="jxr_keyword">return</strong> ((String)attributeName) + <span class="jxr_string">":"</span>;
+<a class="jxr_linenumber" name="L639" href="#L639">639</a>       }
+<a class="jxr_linenumber" name="L640" href="#L640">640</a>       <strong class="jxr_keyword">return</strong> value;
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>       
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>     }
+<a class="jxr_linenumber" name="L643" href="#L643">643</a> 
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>   };
+<a class="jxr_linenumber" name="L645" href="#L645">645</a> 
+<a class="jxr_linenumber" name="L646" href="#L646">646</a>   
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L648" href="#L648">648</a> <em class="jxr_javadoccomment">   * attribute label for this attribute if configured</em>
+<a class="jxr_linenumber" name="L649" href="#L649">649</a> <em class="jxr_javadoccomment">   * first get the text id for the source, then look in the externalized text</em>
+<a class="jxr_linenumber" name="L650" href="#L650">650</a> <em class="jxr_javadoccomment">   * for a label for the attribute, if not there, just use the attribute name</em>
+<a class="jxr_linenumber" name="L651" href="#L651">651</a> <em class="jxr_javadoccomment">   * @return the attribute label for this attribute</em>
+<a class="jxr_linenumber" name="L652" href="#L652">652</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>   <strong class="jxr_keyword">public</strong> Map&lt;String, String&gt; getAttributeLabel() {
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>     
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.attributeLabelMap;
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>     
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>   }
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>   
+<a class="jxr_linenumber" name="L659" href="#L659">659</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L660" href="#L660">660</a> <em class="jxr_javadoccomment">   * Gets a map attribute names and value. The map's key</em>
+<a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">   * contains the attribute name and the map's value</em>
+<a class="jxr_linenumber" name="L662" href="#L662">662</a> <em class="jxr_javadoccomment">   * contains a Set of attribute value(s).  Note, this only does single valued attributes</em>
+<a class="jxr_linenumber" name="L663" href="#L663">663</a> <em class="jxr_javadoccomment">   * @return the map of attributes</em>
+<a class="jxr_linenumber" name="L664" href="#L664">664</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L665" href="#L665">665</a>   @SuppressWarnings({ <span class="jxr_string">"cast"</span>, <span class="jxr_string">"unchecked"</span> })
+<a class="jxr_linenumber" name="L666" href="#L666">666</a>   <strong class="jxr_keyword">public</strong> Map&lt;String, String&gt; getAttributes() {
+<a class="jxr_linenumber" name="L667" href="#L667">667</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.attributes == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L668" href="#L668">668</a>       Map&lt;String, String&gt; result = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, String&gt;();
+<a class="jxr_linenumber" name="L669" href="#L669">669</a>       
+<a class="jxr_linenumber" name="L670" href="#L670">670</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>         <strong class="jxr_keyword">for</strong> (String key : (Set&lt;String&gt;)(Object)GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.subject.getAttributes()).keySet()) {
+<a class="jxr_linenumber" name="L672" href="#L672">672</a>           Object value = <strong class="jxr_keyword">this</strong>.subject.getAttributes().get(key);
+<a class="jxr_linenumber" name="L673" href="#L673">673</a>           <strong class="jxr_keyword">if</strong> (value instanceof String) {
+<a class="jxr_linenumber" name="L674" href="#L674">674</a>             <em class="jxr_comment">//if a string</em>
+<a class="jxr_linenumber" name="L675" href="#L675">675</a>             result.put(key, (String)value);
+<a class="jxr_linenumber" name="L676" href="#L676">676</a>           } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (value instanceof Set) {
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>             <em class="jxr_comment">//if set of one string, then add it</em>
+<a class="jxr_linenumber" name="L678" href="#L678">678</a>             <strong class="jxr_keyword">if</strong> (((Set&lt;?&gt;)value).size() == 1) {
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>               result.put(key, (String)((Set&lt;?&gt;)value).iterator().next());
+<a class="jxr_linenumber" name="L680" href="#L680">680</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (((Set&lt;?&gt;)value).size() &gt; 1) {
+<a class="jxr_linenumber" name="L681" href="#L681">681</a>               <em class="jxr_comment">//put commas in between?  not sure what else to do here</em>
+<a class="jxr_linenumber" name="L682" href="#L682">682</a>               result.put(key, GrouperUtil.setToString((Set&lt;?&gt;)value));
+<a class="jxr_linenumber" name="L683" href="#L683">683</a>             }
+<a class="jxr_linenumber" name="L684" href="#L684">684</a>           }
+<a class="jxr_linenumber" name="L685" href="#L685">685</a>         }
+<a class="jxr_linenumber" name="L686" href="#L686">686</a>       }
+<a class="jxr_linenumber" name="L687" href="#L687">687</a>       
+<a class="jxr_linenumber" name="L688" href="#L688">688</a>       result.put(<span class="jxr_string">"memberId"</span>, getMemberId());
+<a class="jxr_linenumber" name="L689" href="#L689">689</a>       result.put(<span class="jxr_string">"sourceId"</span>, <strong class="jxr_keyword">this</strong>.subject.getSourceId());
+<a class="jxr_linenumber" name="L690" href="#L690">690</a>       result.put(<span class="jxr_string">"sourceName"</span>, <strong class="jxr_keyword">this</strong>.subject.getSource().getName());
+<a class="jxr_linenumber" name="L691" href="#L691">691</a>       result.put(<span class="jxr_string">"subjectId"</span>, <strong class="jxr_keyword">this</strong>.subject.getId());
+<a class="jxr_linenumber" name="L692" href="#L692">692</a>       result.put(<span class="jxr_string">"name"</span>, <strong class="jxr_keyword">this</strong>.subject.getName());
+<a class="jxr_linenumber" name="L693" href="#L693">693</a>       result.put(<span class="jxr_string">"description"</span>, <strong class="jxr_keyword">this</strong>.subject.getDescription());
+<a class="jxr_linenumber" name="L694" href="#L694">694</a>       
+<a class="jxr_linenumber" name="L695" href="#L695">695</a>       <strong class="jxr_keyword">this</strong>.attributes = result;
+<a class="jxr_linenumber" name="L696" href="#L696">696</a>     }
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.attributes;
 <a class="jxr_linenumber" name="L698" href="#L698">698</a>   }
 <a class="jxr_linenumber" name="L699" href="#L699">699</a> 
-<a class="jxr_linenumber" name="L700" href="#L700">700</a> 
-<a class="jxr_linenumber" name="L701" href="#L701">701</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L702" href="#L702">702</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L703" href="#L703">703</a> <em class="jxr_javadoccomment">   * @param subject</em>
-<a class="jxr_linenumber" name="L704" href="#L704">704</a> <em class="jxr_javadoccomment">   * @param attrName</em>
-<a class="jxr_linenumber" name="L705" href="#L705">705</a> <em class="jxr_javadoccomment">   * @return the value</em>
-<a class="jxr_linenumber" name="L706" href="#L706">706</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L707" href="#L707">707</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String attributeValue(Subject subject, String attrName) {
-<a class="jxr_linenumber" name="L708" href="#L708">708</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"screenLabel"</span>, attrName)) {
-<a class="jxr_linenumber" name="L709" href="#L709">709</a>       <strong class="jxr_keyword">return</strong> GrouperUiUtils.convertSubjectToLabel(subject);
-<a class="jxr_linenumber" name="L710" href="#L710">710</a>     }
-<a class="jxr_linenumber" name="L711" href="#L711">711</a>     <strong class="jxr_keyword">if</strong> (subject == <strong class="jxr_keyword">null</strong>) { 
-<a class="jxr_linenumber" name="L712" href="#L712">712</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L713" href="#L713">713</a>     }
-<a class="jxr_linenumber" name="L714" href="#L714">714</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"subjectId"</span>, attrName)) {
-<a class="jxr_linenumber" name="L715" href="#L715">715</a>       <strong class="jxr_keyword">return</strong> subject.getId();
-<a class="jxr_linenumber" name="L716" href="#L716">716</a>     }
-<a class="jxr_linenumber" name="L717" href="#L717">717</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"name"</span>, attrName)) {
-<a class="jxr_linenumber" name="L718" href="#L718">718</a>       <strong class="jxr_keyword">return</strong> subject.getName();
-<a class="jxr_linenumber" name="L719" href="#L719">719</a>     }
-<a class="jxr_linenumber" name="L720" href="#L720">720</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"description"</span>, attrName)) {
-<a class="jxr_linenumber" name="L721" href="#L721">721</a>       <strong class="jxr_keyword">return</strong> subject.getDescription();
-<a class="jxr_linenumber" name="L722" href="#L722">722</a>     }
-<a class="jxr_linenumber" name="L723" href="#L723">723</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"typeName"</span>, attrName)) {
-<a class="jxr_linenumber" name="L724" href="#L724">724</a>       <strong class="jxr_keyword">return</strong> subject.getType().getName();
-<a class="jxr_linenumber" name="L725" href="#L725">725</a>     }
-<a class="jxr_linenumber" name="L726" href="#L726">726</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"sourceId"</span>, attrName)) {
-<a class="jxr_linenumber" name="L727" href="#L727">727</a>       <strong class="jxr_keyword">return</strong> subject.getSource().getId();
-<a class="jxr_linenumber" name="L728" href="#L728">728</a>     }
-<a class="jxr_linenumber" name="L729" href="#L729">729</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"sourceName"</span>, attrName)) {
-<a class="jxr_linenumber" name="L730" href="#L730">730</a>       <strong class="jxr_keyword">return</strong> subject.getSource().getName();
-<a class="jxr_linenumber" name="L731" href="#L731">731</a>     }
-<a class="jxr_linenumber" name="L732" href="#L732">732</a>     <em class="jxr_comment">//TODO switch this to attribute values comma separated</em>
-<a class="jxr_linenumber" name="L733" href="#L733">733</a>     <strong class="jxr_keyword">return</strong> subject.getAttributeValue(attrName);
-<a class="jxr_linenumber" name="L734" href="#L734">734</a>   }
-<a class="jxr_linenumber" name="L735" href="#L735">735</a> 
-<a class="jxr_linenumber" name="L736" href="#L736">736</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L737" href="#L737">737</a> <em class="jxr_javadoccomment">   * cant get grouper object</em>
-<a class="jxr_linenumber" name="L738" href="#L738">738</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L739" href="#L739">739</a>   @Override
-<a class="jxr_linenumber" name="L740" href="#L740">740</a>   <strong class="jxr_keyword">public</strong> GrouperObject getGrouperObject() {
-<a class="jxr_linenumber" name="L741" href="#L741">741</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L742" href="#L742">742</a>   }
-<a class="jxr_linenumber" name="L743" href="#L743">743</a> 
-<a class="jxr_linenumber" name="L744" href="#L744">744</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L745" href="#L745">745</a> <em class="jxr_javadoccomment">   * if this is a subject</em>
-<a class="jxr_linenumber" name="L746" href="#L746">746</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L747" href="#L747">747</a>   @Override
-<a class="jxr_linenumber" name="L748" href="#L748">748</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSubjectType() {
-<a class="jxr_linenumber" name="L749" href="#L749">749</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L750" href="#L750">750</a>   }
-<a class="jxr_linenumber" name="L751" href="#L751">751</a> 
-<a class="jxr_linenumber" name="L752" href="#L752">752</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L753" href="#L753">753</a> <em class="jxr_javadoccomment">   * path colon separated not applicable</em>
-<a class="jxr_linenumber" name="L754" href="#L754">754</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L755" href="#L755">755</a>   @Override
-<a class="jxr_linenumber" name="L756" href="#L756">756</a>   <strong class="jxr_keyword">public</strong> String getPathColonSpaceSeparated() {
-<a class="jxr_linenumber" name="L757" href="#L757">757</a>     <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L758" href="#L758">758</a>   }
-<a class="jxr_linenumber" name="L759" href="#L759">759</a> 
-<a class="jxr_linenumber" name="L760" href="#L760">760</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L761" href="#L761">761</a> <em class="jxr_javadoccomment">   * not applicable</em>
-<a class="jxr_linenumber" name="L762" href="#L762">762</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L763" href="#L763">763</a>   @Override
-<a class="jxr_linenumber" name="L764" href="#L764">764</a>   <strong class="jxr_keyword">public</strong> String getNameColonSpaceSeparated() {
-<a class="jxr_linenumber" name="L765" href="#L765">765</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.getScreenLabelShort2noLink();
-<a class="jxr_linenumber" name="L766" href="#L766">766</a>   }
-<a class="jxr_linenumber" name="L767" href="#L767">767</a> 
-<a class="jxr_linenumber" name="L768" href="#L768">768</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L769" href="#L769">769</a> <em class="jxr_javadoccomment">   * not applicable</em>
-<a class="jxr_linenumber" name="L770" href="#L770">770</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L771" href="#L771">771</a>   @Override
-<a class="jxr_linenumber" name="L772" href="#L772">772</a>   <strong class="jxr_keyword">public</strong> String getTitle() {
-<a class="jxr_linenumber" name="L773" href="#L773">773</a>     <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L774" href="#L774">774</a>   }
-<a class="jxr_linenumber" name="L775" href="#L775">775</a>   
-<a class="jxr_linenumber" name="L776" href="#L776">776</a> }
+<a class="jxr_linenumber" name="L700" href="#L700">700</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L701" href="#L701">701</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L702" href="#L702">702</a> <em class="jxr_javadoccomment">   * @return long label if different than the short one</em>
+<a class="jxr_linenumber" name="L703" href="#L703">703</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L704" href="#L704">704</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelLongIfDifferent() {
+<a class="jxr_linenumber" name="L705" href="#L705">705</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
+<a class="jxr_linenumber" name="L706" href="#L706">706</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.isNeedsTooltip()) {
+<a class="jxr_linenumber" name="L707" href="#L707">707</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelLong;
+<a class="jxr_linenumber" name="L708" href="#L708">708</a>     }
+<a class="jxr_linenumber" name="L709" href="#L709">709</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L710" href="#L710">710</a>   }
+<a class="jxr_linenumber" name="L711" href="#L711">711</a> 
+<a class="jxr_linenumber" name="L712" href="#L712">712</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L713" href="#L713">713</a> <em class="jxr_javadoccomment">   * get short screen label </em>
+<a class="jxr_linenumber" name="L714" href="#L714">714</a> <em class="jxr_javadoccomment">   * @return short screen label</em>
+<a class="jxr_linenumber" name="L715" href="#L715">715</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L716" href="#L716">716</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isNeedsTooltip() {
+<a class="jxr_linenumber" name="L717" href="#L717">717</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
+<a class="jxr_linenumber" name="L718" href="#L718">718</a>     <strong class="jxr_keyword">return</strong> !StringUtils.equals(<strong class="jxr_keyword">this</strong>.screenLabelLong, <strong class="jxr_keyword">this</strong>.screenLabelShort);
+<a class="jxr_linenumber" name="L719" href="#L719">719</a>   }
+<a class="jxr_linenumber" name="L720" href="#L720">720</a> 
+<a class="jxr_linenumber" name="L721" href="#L721">721</a> 
+<a class="jxr_linenumber" name="L722" href="#L722">722</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L723" href="#L723">723</a> <em class="jxr_javadoccomment">   * e.g. &amp;lt;a href="#"&amp;gt;John Smith&amp;lt;/a&amp;gt;</em>
+<a class="jxr_linenumber" name="L724" href="#L724">724</a> <em class="jxr_javadoccomment">   * @return short link</em>
+<a class="jxr_linenumber" name="L725" href="#L725">725</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L726" href="#L726">726</a>   <strong class="jxr_keyword">public</strong> String getScreenLabelShort2noLinkWithIcon() {
+<a class="jxr_linenumber" name="L727" href="#L727">727</a>     <strong class="jxr_keyword">this</strong>.initScreenLabels();
+<a class="jxr_linenumber" name="L728" href="#L728">728</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.screenLabelShort2noLinkWithIcon;
+<a class="jxr_linenumber" name="L729" href="#L729">729</a>   }
+<a class="jxr_linenumber" name="L730" href="#L730">730</a> 
+<a class="jxr_linenumber" name="L731" href="#L731">731</a> 
+<a class="jxr_linenumber" name="L732" href="#L732">732</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L733" href="#L733">733</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L734" href="#L734">734</a> <em class="jxr_javadoccomment">   * @param subject</em>
+<a class="jxr_linenumber" name="L735" href="#L735">735</a> <em class="jxr_javadoccomment">   * @param attrName</em>
+<a class="jxr_linenumber" name="L736" href="#L736">736</a> <em class="jxr_javadoccomment">   * @return the value</em>
+<a class="jxr_linenumber" name="L737" href="#L737">737</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L738" href="#L738">738</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String attributeValue(Subject subject, String attrName) {
+<a class="jxr_linenumber" name="L739" href="#L739">739</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"screenLabel"</span>, attrName)) {
+<a class="jxr_linenumber" name="L740" href="#L740">740</a>       <strong class="jxr_keyword">return</strong> GrouperUiUtils.convertSubjectToLabel(subject);
+<a class="jxr_linenumber" name="L741" href="#L741">741</a>     }
+<a class="jxr_linenumber" name="L742" href="#L742">742</a>     <strong class="jxr_keyword">if</strong> (subject == <strong class="jxr_keyword">null</strong>) { 
+<a class="jxr_linenumber" name="L743" href="#L743">743</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L744" href="#L744">744</a>     }
+<a class="jxr_linenumber" name="L745" href="#L745">745</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"subjectId"</span>, attrName)) {
+<a class="jxr_linenumber" name="L746" href="#L746">746</a>       <strong class="jxr_keyword">return</strong> subject.getId();
+<a class="jxr_linenumber" name="L747" href="#L747">747</a>     }
+<a class="jxr_linenumber" name="L748" href="#L748">748</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"name"</span>, attrName)) {
+<a class="jxr_linenumber" name="L749" href="#L749">749</a>       <strong class="jxr_keyword">return</strong> subject.getName();
+<a class="jxr_linenumber" name="L750" href="#L750">750</a>     }
+<a class="jxr_linenumber" name="L751" href="#L751">751</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"description"</span>, attrName)) {
+<a class="jxr_linenumber" name="L752" href="#L752">752</a>       <strong class="jxr_keyword">return</strong> subject.getDescription();
+<a class="jxr_linenumber" name="L753" href="#L753">753</a>     }
+<a class="jxr_linenumber" name="L754" href="#L754">754</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"typeName"</span>, attrName)) {
+<a class="jxr_linenumber" name="L755" href="#L755">755</a>       <strong class="jxr_keyword">return</strong> subject.getType().getName();
+<a class="jxr_linenumber" name="L756" href="#L756">756</a>     }
+<a class="jxr_linenumber" name="L757" href="#L757">757</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"sourceId"</span>, attrName)) {
+<a class="jxr_linenumber" name="L758" href="#L758">758</a>       <strong class="jxr_keyword">return</strong> subject.getSource().getId();
+<a class="jxr_linenumber" name="L759" href="#L759">759</a>     }
+<a class="jxr_linenumber" name="L760" href="#L760">760</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"sourceName"</span>, attrName)) {
+<a class="jxr_linenumber" name="L761" href="#L761">761</a>       <strong class="jxr_keyword">return</strong> subject.getSource().getName();
+<a class="jxr_linenumber" name="L762" href="#L762">762</a>     }
+<a class="jxr_linenumber" name="L763" href="#L763">763</a>     <em class="jxr_comment">//TODO switch this to attribute values comma separated</em>
+<a class="jxr_linenumber" name="L764" href="#L764">764</a>     <strong class="jxr_keyword">return</strong> subject.getAttributeValue(attrName);
+<a class="jxr_linenumber" name="L765" href="#L765">765</a>   }
+<a class="jxr_linenumber" name="L766" href="#L766">766</a> 
+<a class="jxr_linenumber" name="L767" href="#L767">767</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L768" href="#L768">768</a> <em class="jxr_javadoccomment">   * cant get grouper object</em>
+<a class="jxr_linenumber" name="L769" href="#L769">769</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L770" href="#L770">770</a>   @Override
+<a class="jxr_linenumber" name="L771" href="#L771">771</a>   <strong class="jxr_keyword">public</strong> GrouperObject getGrouperObject() {
+<a class="jxr_linenumber" name="L772" href="#L772">772</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L773" href="#L773">773</a>   }
+<a class="jxr_linenumber" name="L774" href="#L774">774</a> 
+<a class="jxr_linenumber" name="L775" href="#L775">775</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L776" href="#L776">776</a> <em class="jxr_javadoccomment">   * if this is a subject</em>
+<a class="jxr_linenumber" name="L777" href="#L777">777</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L778" href="#L778">778</a>   @Override
+<a class="jxr_linenumber" name="L779" href="#L779">779</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSubjectType() {
+<a class="jxr_linenumber" name="L780" href="#L780">780</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L781" href="#L781">781</a>   }
+<a class="jxr_linenumber" name="L782" href="#L782">782</a> 
+<a class="jxr_linenumber" name="L783" href="#L783">783</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L784" href="#L784">784</a> <em class="jxr_javadoccomment">   * path colon separated not applicable</em>
+<a class="jxr_linenumber" name="L785" href="#L785">785</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L786" href="#L786">786</a>   @Override
+<a class="jxr_linenumber" name="L787" href="#L787">787</a>   <strong class="jxr_keyword">public</strong> String getPathColonSpaceSeparated() {
+<a class="jxr_linenumber" name="L788" href="#L788">788</a>     <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L789" href="#L789">789</a>   }
+<a class="jxr_linenumber" name="L790" href="#L790">790</a> 
+<a class="jxr_linenumber" name="L791" href="#L791">791</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L792" href="#L792">792</a> <em class="jxr_javadoccomment">   * not applicable</em>
+<a class="jxr_linenumber" name="L793" href="#L793">793</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L794" href="#L794">794</a>   @Override
+<a class="jxr_linenumber" name="L795" href="#L795">795</a>   <strong class="jxr_keyword">public</strong> String getNameColonSpaceSeparated() {
+<a class="jxr_linenumber" name="L796" href="#L796">796</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.getScreenLabelShort2noLink();
+<a class="jxr_linenumber" name="L797" href="#L797">797</a>   }
+<a class="jxr_linenumber" name="L798" href="#L798">798</a> 
+<a class="jxr_linenumber" name="L799" href="#L799">799</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L800" href="#L800">800</a> <em class="jxr_javadoccomment">   * not applicable</em>
+<a class="jxr_linenumber" name="L801" href="#L801">801</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L802" href="#L802">802</a>   @Override
+<a class="jxr_linenumber" name="L803" href="#L803">803</a>   <strong class="jxr_keyword">public</strong> String getTitle() {
+<a class="jxr_linenumber" name="L804" href="#L804">804</a>     <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L805" href="#L805">805</a>   }
+<a class="jxr_linenumber" name="L806" href="#L806">806</a>   
+<a class="jxr_linenumber" name="L807" href="#L807">807</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

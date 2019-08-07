@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -55,17 +55,17 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * @author J&amp;ouml;rg Schaible</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> * @author Guilherme Silveira</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldDictionary.html">FieldDictionary</a> {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="FieldDictionary" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldDictionary.html#FieldDictionary">FieldDictionary</a> {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> Map keyedByFieldNameCache;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> Map keyedByFieldKeyCache;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKeySorter.html">FieldKeySorter</a> sorter;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="FieldKeySorter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKeySorter.html#FieldKeySorter">FieldKeySorter</a> sorter;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldDictionary.html">FieldDictionary</a>() {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ImmutableFieldKeySorter.html">ImmutableFieldKeySorter</a>());
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <a name="FieldDictionary" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldDictionary.html#FieldDictionary">FieldDictionary</a>() {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">new</strong> <a name="ImmutableFieldKeySorter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ImmutableFieldKeySorter.html#ImmutableFieldKeySorter">ImmutableFieldKeySorter</a>());
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldDictionary.html">FieldDictionary</a>(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKeySorter.html">FieldKeySorter</a> sorter) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <a name="FieldDictionary" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldDictionary.html#FieldDictionary">FieldDictionary</a>(<a name="FieldKeySorter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKeySorter.html#FieldKeySorter">FieldKeySorter</a> sorter) {
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">this</strong>.sorter = sorter;
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          init();
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
@@ -111,10 +111,10 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> Field field(Class cls, String name, Class definedIn) {
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         Map fields = buildMap(cls, definedIn != <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         Field field = (Field)fields.get(definedIn != <strong class="jxr_keyword">null</strong> ? (Object)<strong class="jxr_keyword">new</strong> FieldKey(
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         Field field = (Field)fields.get(definedIn != <strong class="jxr_keyword">null</strong> ? (Object)<strong class="jxr_keyword">new</strong> <a name="FieldKey" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKey.html#FieldKey">FieldKey</a>(
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>             name, definedIn, 0) : (Object)name);
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">if</strong> (field == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html">ObjectAccessException</a>(<span class="jxr_string">"No such field "</span> + cls.getName() + <span class="jxr_string">"."</span> + name);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ObjectAccessException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html#ObjectAccessException">ObjectAccessException</a>(<span class="jxr_string">"No such field "</span> + cls.getName() + <span class="jxr_string">"."</span> + name);
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>             <strong class="jxr_keyword">return</strong> field;
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         }
@@ -135,7 +135,7 @@
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                     cls = (Class)iter.next();
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>                     <strong class="jxr_keyword">if</strong> (!keyedByFieldNameCache.containsKey(cls)) {
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>                         <strong class="jxr_keyword">final</strong> Map keyedByFieldName = <strong class="jxr_keyword">new</strong> HashMap(lastKeyedByFieldName);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                         <strong class="jxr_keyword">final</strong> Map keyedByFieldKey = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/OrderRetainingMap.html">OrderRetainingMap</a>(lastKeyedByFieldKey);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                         <strong class="jxr_keyword">final</strong> Map keyedByFieldKey = <strong class="jxr_keyword">new</strong> <a name="OrderRetainingMap" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/OrderRetainingMap.html#OrderRetainingMap">OrderRetainingMap</a>(lastKeyedByFieldKey);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                         Field[] fields = cls.getDeclaredFields();
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                         <strong class="jxr_keyword">if</strong> (JVM.reverseFieldDefinition()) {
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>                             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = fields.length &gt;&gt; 1; i-- &gt; 0;) {
@@ -147,7 +147,7 @@
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>                         }
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fields.length; i++) {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>                             Field field = fields[i];
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>                             <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKey.html">FieldKey</a> fieldKey = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKey.html">FieldKey</a>(field.getName(), field
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                             <a name="FieldKey" href="../../../../../../../../../edu/inter<a name="FieldKey" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKey.html#FieldKey">FieldKey</a>dleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKey.html#FieldKey">FieldKey</a> fieldKey = <strong class="jxr_keyword">new</strong> <a name="FieldKey" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/FieldKey.html#FieldKey">FieldKey</a>(field.getName(), field
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>                                 .getDeclaringClass(), i);
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>                             field.setAccessible(<strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>                             Field existent = (Field)keyedByFieldName.get(field.getName());
@@ -180,6 +180,6 @@
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

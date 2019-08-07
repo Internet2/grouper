@@ -37,7 +37,7 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> {
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>    <em class="jxr_javadoccomment">/** if a key ends with this, then it is an EL property */</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String EL_CONFIG_SUFFIX = <span class="jxr_string">".elConfig"</span>;
@@ -66,7 +66,7 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">new</strong> HashMap&lt;Class&lt;? <strong class="jxr_keyword">extends</strong> ConfigPropertiesCascadeBase&gt;, ConfigPropertiesCascadeBase&gt;();
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      }
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase = configSingletonFromClass.get(configClass);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase = configSingletonFromClass.get(configClass);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">if</strong> (configPropertiesCascadeBase == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>        configPropertiesCascadeBase = GrouperActivemqUtils.newInstance(configClass, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>        configSingletonFromClass.put(configClass, configPropertiesCascadeBase);
@@ -251,7 +251,7 @@
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">   * result of a property value</em>
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a> {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> PropertyValueResult {
 <a class="jxr_linenumber" name="L247" href="#L247">247</a> 
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>     
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>     <em class="jxr_javadoccomment">/**</em>
@@ -259,7 +259,7 @@
 <a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">     * @param theValue1</em>
 <a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">     * @param hasKey1</em>
 <a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a>(String theValue1, <strong class="jxr_keyword">boolean</strong> hasKey1) {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <strong class="jxr_keyword">public</strong> PropertyValueResult(String theValue1, <strong class="jxr_keyword">boolean</strong> hasKey1) {
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>       <strong class="jxr_keyword">super</strong>();
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>       <strong class="jxr_keyword">this</strong>.theValue = theValue1;
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>       <strong class="jxr_keyword">this</strong>.hasKey = hasKey1;
@@ -317,7 +317,7 @@
 <a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">   * @param required true if required, if doesnt exist, throw exception</em>
 <a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">   * @return the property value</em>
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a> propertyValueString(String key, String defaultValue, <strong class="jxr_keyword">boolean</strong> required) {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>   <strong class="jxr_keyword">protected</strong> PropertyValueResult propertyValueString(String key, String defaultValue, <strong class="jxr_keyword">boolean</strong> required) {
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">if</strong> (key.endsWith(EL_CONFIG_SUFFIX)) {
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Why does key end in suffix??? "</span> + EL_CONFIG_SUFFIX + <span class="jxr_string">", "</span> + key);
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>     }
@@ -331,18 +331,18 @@
 <a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">   * @param required true if required, if doesnt exist, throw exception</em>
 <a class="jxr_linenumber" name="L324" href="#L324">324</a> <em class="jxr_javadoccomment">   * @return the property value</em>
 <a class="jxr_linenumber" name="L325" href="#L325">325</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a> propertyValueStringHelper(String key, String defaultValue, <strong class="jxr_keyword">boolean</strong> required) {
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>   <strong class="jxr_keyword">protected</strong> PropertyValueResult propertyValueStringHelper(String key, String defaultValue, <strong class="jxr_keyword">boolean</strong> required) {
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>     
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>     <em class="jxr_comment">//lets look for EL</em>
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>     <strong class="jxr_keyword">if</strong> (!key.endsWith(EL_CONFIG_SUFFIX)) {
 <a class="jxr_linenumber" name="L330" href="#L330">330</a>       
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>       <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a> elPropertyValueResult = propertyValueStringHelper(key + EL_CONFIG_SUFFIX, <strong class="jxr_keyword">null</strong>, false);
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>       PropertyValueResult elPropertyValueResult = propertyValueStringHelper(key + EL_CONFIG_SUFFIX, <strong class="jxr_keyword">null</strong>, false);
 <a class="jxr_linenumber" name="L332" href="#L332">332</a>       
 <a class="jxr_linenumber" name="L333" href="#L333">333</a>       <strong class="jxr_keyword">if</strong> (elPropertyValueResult.isHasKey()) {
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>         
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>         <em class="jxr_comment">//process the EL</em>
 <a class="jxr_linenumber" name="L336" href="#L336">336</a>         String result = GrouperActivemqUtils.substituteExpressionLanguage(elPropertyValueResult.getTheValue(), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>, false);
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a> propertyValueResult = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a>(result, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         PropertyValueResult propertyValueResult = <strong class="jxr_keyword">new</strong> PropertyValueResult(result, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">return</strong> propertyValueResult;
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>       }
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>       
@@ -366,7 +366,7 @@
 <a class="jxr_linenumber" name="L358" href="#L358">358</a>       value = hasKey ? <strong class="jxr_keyword">this</strong>.properties.getProperty(key) : <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>     }
 <a class="jxr_linenumber" name="L360" href="#L360">360</a>     <strong class="jxr_keyword">if</strong> (!required &amp;&amp; !hasKey) {
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a>(defaultValue, false);
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> PropertyValueResult(defaultValue, false);
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>     }
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>     <strong class="jxr_keyword">if</strong> (required &amp;&amp; !hasKey) {
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>       String error = <span class="jxr_string">"Cant find property: "</span> + key + <span class="jxr_string">" in properties file: "</span> + <strong class="jxr_keyword">this</strong>.getMainConfigClasspath() + <span class="jxr_string">", it is required"</span>;
@@ -377,7 +377,7 @@
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>     value = substituteCommonVars(value);
 <a class="jxr_linenumber" name="L370" href="#L370">370</a> 
 <a class="jxr_linenumber" name="L371" href="#L371">371</a>     <strong class="jxr_keyword">if</strong> (!required &amp;&amp; GrouperClientUtils.isBlank(value)) {
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a>(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> PropertyValueResult(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>     }
 <a class="jxr_linenumber" name="L374" href="#L374">374</a> 
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>     <em class="jxr_comment">//do the validation if this is required</em>
@@ -387,7 +387,7 @@
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(error);
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>     }
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>     
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">PropertyValueResult</a>(value, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> PropertyValueResult(value, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>   }
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> 
 <a class="jxr_linenumber" name="L385" href="#L385">385</a>   <em class="jxr_javadoccomment">/**</em>
@@ -458,7 +458,7 @@
 <a class="jxr_linenumber" name="L450" href="#L450">450</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">   * config file type</em>
 <a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigFileType</a> {
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> enum ConfigFileType {
 <a class="jxr_linenumber" name="L454" href="#L454">454</a>     
 <a class="jxr_linenumber" name="L455" href="#L455">455</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">     * get a config file from the filesystem</em>
@@ -467,7 +467,7 @@
 <a class="jxr_linenumber" name="L459" href="#L459">459</a> 
 <a class="jxr_linenumber" name="L460" href="#L460">460</a>       @Override
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>       <strong class="jxr_keyword">public</strong> InputStream inputStream(String configFileTypeConfig,
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>           <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase) {
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>           <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase) {
 <a class="jxr_linenumber" name="L463" href="#L463">463</a>         File file = <strong class="jxr_keyword">new</strong> File(configFileTypeConfig);
 <a class="jxr_linenumber" name="L464" href="#L464">464</a>         <strong class="jxr_keyword">if</strong> (!file.exists() || !file.isFile()) {
 <a class="jxr_linenumber" name="L465" href="#L465">465</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant find config file from filesystem path: "</span> + configFileTypeConfig);
@@ -490,7 +490,7 @@
 <a class="jxr_linenumber" name="L482" href="#L482">482</a> <em class="jxr_javadoccomment">       */</em>
 <a class="jxr_linenumber" name="L483" href="#L483">483</a>       @Override
 <a class="jxr_linenumber" name="L484" href="#L484">484</a>       <strong class="jxr_keyword">public</strong> InputStream inputStream(String configFileTypeConfig,
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>           <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase) {
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>           <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase) {
 <a class="jxr_linenumber" name="L486" href="#L486">486</a>         URL url = GrouperClientUtils.computeUrl(configFileTypeConfig, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L487" href="#L487">487</a>         Exception exception = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L488" href="#L488">488</a>         <strong class="jxr_keyword">if</strong> (url != <strong class="jxr_keyword">null</strong>) {
@@ -531,7 +531,7 @@
 <a class="jxr_linenumber" name="L523" href="#L523">523</a> <em class="jxr_javadoccomment">     * @param configPropertiesCascadeBase add the config object in case</em>
 <a class="jxr_linenumber" name="L524" href="#L524">524</a> <em class="jxr_javadoccomment">     * @return the input stream to get this config</em>
 <a class="jxr_linenumber" name="L525" href="#L525">525</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> InputStream inputStream(String configFileTypeConfig, <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase);
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> InputStream inputStream(String configFileTypeConfig, <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase);
 <a class="jxr_linenumber" name="L527" href="#L527">527</a> 
 <a class="jxr_linenumber" name="L528" href="#L528">528</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">     * do a case-insensitive matching</em>
@@ -539,7 +539,7 @@
 <a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">     * @param string</em>
 <a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">     * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigFileType</a> valueOfIgnoreCase(String string) {
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> ConfigFileType valueOfIgnoreCase(String string) {
 <a class="jxr_linenumber" name="L535" href="#L535">535</a>       <strong class="jxr_keyword">return</strong> GrouperClientUtils.enumValueOfIgnoreCase(ConfigFileType.<strong class="jxr_keyword">class</strong>,string, false );
 <a class="jxr_linenumber" name="L536" href="#L536">536</a>     }
 <a class="jxr_linenumber" name="L537" href="#L537">537</a> 
@@ -548,7 +548,7 @@
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L541" href="#L541">541</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L542" href="#L542">542</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigFile</a> {
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ConfigFile {
 <a class="jxr_linenumber" name="L544" href="#L544">544</a>     
 <a class="jxr_linenumber" name="L545" href="#L545">545</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">     * keep the original config string for logging purposes, e.g. file:/a/b/c.properties</em>
@@ -589,7 +589,7 @@
 <a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">     * @param configPropertiesCascadeBase </em>
 <a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">     * @return the contents</em>
 <a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>     <strong class="jxr_keyword">public</strong> String retrieveContents(<a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase) {
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>     <strong class="jxr_keyword">public</strong> String retrieveContents(<a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> configPropertiesCascadeBase) {
 <a class="jxr_linenumber" name="L585" href="#L585">585</a>       <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L586" href="#L586">586</a>         <strong class="jxr_keyword">return</strong> GrouperClientUtils.toString(<strong class="jxr_keyword">this</strong>.configFileType.inputStream(<strong class="jxr_keyword">this</strong>.configFileTypeConfig, configPropertiesCascadeBase), <span class="jxr_string">"UTF-8"</span>);
 <a class="jxr_linenumber" name="L587" href="#L587">587</a>       } <strong class="jxr_keyword">catch</strong> (Exception e) {
@@ -601,7 +601,7 @@
 <a class="jxr_linenumber" name="L593" href="#L593">593</a> <em class="jxr_javadoccomment">     * </em>
 <a class="jxr_linenumber" name="L594" href="#L594">594</a> <em class="jxr_javadoccomment">     * @param configFileFullConfig</em>
 <a class="jxr_linenumber" name="L595" href="#L595">595</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigFile</a>(String configFileFullConfig) {
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>     <strong class="jxr_keyword">public</strong> ConfigFile(String configFileFullConfig) {
 <a class="jxr_linenumber" name="L597" href="#L597">597</a>       
 <a class="jxr_linenumber" name="L598" href="#L598">598</a>       <strong class="jxr_keyword">this</strong>.originalConfig = configFileFullConfig;
 <a class="jxr_linenumber" name="L599" href="#L599">599</a>       
@@ -631,7 +631,7 @@
 <a class="jxr_linenumber" name="L623" href="#L623">623</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L624" href="#L624">624</a> <em class="jxr_javadoccomment">     * the type of config file (file path, classpath, etc)</em>
 <a class="jxr_linenumber" name="L625" href="#L625">625</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigFileType</a> configFileType;
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>     <strong class="jxr_keyword">private</strong> ConfigFileType configFileType;
 <a class="jxr_linenumber" name="L627" href="#L627">627</a>     
 <a class="jxr_linenumber" name="L628" href="#L628">628</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L629" href="#L629">629</a> <em class="jxr_javadoccomment">     * the config part which says which file or classpath etc</em>
@@ -643,7 +643,7 @@
 <a class="jxr_linenumber" name="L635" href="#L635">635</a> <em class="jxr_javadoccomment">     * the type of config file (file path, classpath, etc)</em>
 <a class="jxr_linenumber" name="L636" href="#L636">636</a> <em class="jxr_javadoccomment">     * @return the configFileType</em>
 <a class="jxr_linenumber" name="L637" href="#L637">637</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L638" href="#L638">638</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigFileType</a> getConfigFileType() {
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>     <strong class="jxr_keyword">public</strong> ConfigFileType getConfigFileType() {
 <a class="jxr_linenumber" name="L639" href="#L639">639</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.configFileType;
 <a class="jxr_linenumber" name="L640" href="#L640">640</a>     }
 <a class="jxr_linenumber" name="L641" href="#L641">641</a> 
@@ -669,7 +669,7 @@
 <a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">   * get the config object from config files</em>
 <a class="jxr_linenumber" name="L662" href="#L662">662</a> <em class="jxr_javadoccomment">   * @return the config object</em>
 <a class="jxr_linenumber" name="L663" href="#L663">663</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L664" href="#L664">664</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> retrieveFromConfigFiles() {
+<a class="jxr_linenumber" name="L664" href="#L664">664</a>   <strong class="jxr_keyword">protected</strong> <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> retrieveFromConfigFiles() {
 <a class="jxr_linenumber" name="L665" href="#L665">665</a>     
 <a class="jxr_linenumber" name="L666" href="#L666">666</a>     <em class="jxr_comment">//lets get the config hierarchy...</em>
 <a class="jxr_linenumber" name="L667" href="#L667">667</a>     <em class="jxr_comment">//properties from override first</em>
@@ -717,7 +717,7 @@
 <a class="jxr_linenumber" name="L709" href="#L709">709</a>     }
 <a class="jxr_linenumber" name="L710" href="#L710">710</a> 
 <a class="jxr_linenumber" name="L711" href="#L711">711</a>     <em class="jxr_comment">//make a new return object based on this class</em>
-<a class="jxr_linenumber" name="L712" href="#L712">712</a>     <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> result = GrouperActivemqUtils.newInstance(<strong class="jxr_keyword">this</strong>.getClass(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L712" href="#L712">712</a>     <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> result = GrouperActivemqUtils.newInstance(<strong class="jxr_keyword">this</strong>.getClass(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L713" href="#L713">713</a> 
 <a class="jxr_linenumber" name="L714" href="#L714">714</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L715" href="#L715">715</a>       result.timeToCheckConfigSeconds = GrouperClientUtils.intValue(secondsToCheckConfigString);
@@ -737,7 +737,7 @@
 <a class="jxr_linenumber" name="L729" href="#L729">729</a> 
 <a class="jxr_linenumber" name="L730" href="#L730">730</a>     <strong class="jxr_keyword">for</strong> (String overrideConfigString : overrideConfigStringList) {
 <a class="jxr_linenumber" name="L731" href="#L731">731</a>       
-<a class="jxr_linenumber" name="L732" href="#L732">732</a>       <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigFile</a> configFile = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigFile</a>(overrideConfigString);
+<a class="jxr_linenumber" name="L732" href="#L732">732</a>       ConfigFile configFile = <strong class="jxr_keyword">new</strong> ConfigFile(overrideConfigString);
 <a class="jxr_linenumber" name="L733" href="#L733">733</a>       result.configFiles.add(configFile);
 <a class="jxr_linenumber" name="L734" href="#L734">734</a>       
 <a class="jxr_linenumber" name="L735" href="#L735">735</a>       <em class="jxr_comment">//lets append the properties</em>
@@ -793,14 +793,14 @@
 <a class="jxr_linenumber" name="L785" href="#L785">785</a> <em class="jxr_javadoccomment">   * see if there is one in cache, if so, use it, if not, get from config files</em>
 <a class="jxr_linenumber" name="L786" href="#L786">786</a> <em class="jxr_javadoccomment">   * @return the config from file or cache</em>
 <a class="jxr_linenumber" name="L787" href="#L787">787</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L788" href="#L788">788</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> retrieveFromConfigFileOrCache() {
+<a class="jxr_linenumber" name="L788" href="#L788">788</a>   <strong class="jxr_keyword">protected</strong> <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> retrieveFromConfigFileOrCache() {
 <a class="jxr_linenumber" name="L789" href="#L789">789</a>     
 <a class="jxr_linenumber" name="L790" href="#L790">790</a>     <strong class="jxr_keyword">if</strong> (configFileCache == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L791" href="#L791">791</a>       configFileCache = 
 <a class="jxr_linenumber" name="L792" href="#L792">792</a>         <strong class="jxr_keyword">new</strong> HashMap&lt;Class&lt;? <strong class="jxr_keyword">extends</strong> ConfigPropertiesCascadeBase&gt;, ConfigPropertiesCascadeBase&gt;();
 <a class="jxr_linenumber" name="L793" href="#L793">793</a>     }
 <a class="jxr_linenumber" name="L794" href="#L794">794</a>     
-<a class="jxr_linenumber" name="L795" href="#L795">795</a>     <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html">ConfigPropertiesCascadeBase</a> configObject = configFileCache.get(<strong class="jxr_keyword">this</strong>.getClass());
+<a class="jxr_linenumber" name="L795" href="#L795">795</a>     <a name="ConfigPropertiesCascadeBase" href="../../../../../edu/internet2/middleware/grouperActivemq/config/ConfigPropertiesCascadeBase.html#ConfigPropertiesCascadeBase">ConfigPropertiesCascadeBase</a> configObject = configFileCache.get(<strong class="jxr_keyword">this</strong>.getClass());
 <a class="jxr_linenumber" name="L796" href="#L796">796</a>     
 <a class="jxr_linenumber" name="L797" href="#L797">797</a>     <strong class="jxr_keyword">if</strong> (configObject == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L798" href="#L798">798</a>       
@@ -1200,6 +1200,6 @@
 <a class="jxr_linenumber" name="L1192" href="#L1192">1192</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

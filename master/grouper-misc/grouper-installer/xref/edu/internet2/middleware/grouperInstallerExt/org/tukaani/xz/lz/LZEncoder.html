@@ -10,7 +10,7 @@
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * LZEncoder</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Authors: Lasse Collin &lt;lasse.collin@tukaani.org&gt;</em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *          Igor Pavlov &lt;<a href="http://7-zip.org/&gt" target="alexandria_uri">http://7-zip.org/&gt</a>;</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *          Igor Pavlov &lt;<a href="http://7-zip.org/&gt;" target="alexandria_uri">http://7-zip.org/&gt;</a></em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * This file has been put into the public domain.</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * You can do whatever you want with this file.</em>
@@ -21,7 +21,7 @@
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.io.OutputStream;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZEncoder.html">LZEncoder</a> {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="LZEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZEncoder.html#LZEncoder">LZEncoder</a> {
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> MF_HC4 = 0x04;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> MF_BT4 = 0x14;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
@@ -122,16 +122,16 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     * @param       depthLimit  match finder search depth limit</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZEncoder.html">LZEncoder</a> getInstance(
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="LZEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZEncoder.html#LZEncoder">LZEncoder</a> getInstance(
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>             <strong class="jxr_keyword">int</strong> dictSize, <strong class="jxr_keyword">int</strong> extraSizeBefore, <strong class="jxr_keyword">int</strong> extraSizeAfter,
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">int</strong> niceLen, <strong class="jxr_keyword">int</strong> matchLenMax, <strong class="jxr_keyword">int</strong> mf, <strong class="jxr_keyword">int</strong> depthLimit) {
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">switch</strong> (mf) {
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>             <strong class="jxr_keyword">case</strong> MF_HC4:
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/HC4.html">HC4</a>(dictSize, extraSizeBefore, extraSizeAfter,
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="HC4" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/HC4.html#HC4">HC4</a>(dictSize, extraSizeBefore, extraSizeAfter,
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>                                niceLen, matchLenMax, depthLimit);
 <a class="jxr_linenumber" name="L124" href="#L124">124</a> 
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">case</strong> MF_BT4:
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/BT4.html">BT4</a>(dictSize, extraSizeBefore, extraSizeAfter,
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="BT4" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/BT4.html#BT4">BT4</a>(dictSize, extraSizeBefore, extraSizeAfter,
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                                niceLen, matchLenMax, depthLimit);
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         }
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> 
@@ -141,7 +141,7 @@
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * Creates a new LZEncoder. See &lt;code&gt;getInstance&lt;/code&gt;.</em>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZEncoder.html">LZEncoder</a>(<strong class="jxr_keyword">int</strong> dictSize, <strong class="jxr_keyword">int</strong> extraSizeBefore, <strong class="jxr_keyword">int</strong> extraSizeAfter,
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <a name="LZEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZEncoder.html#LZEncoder">LZEncoder</a>(<strong class="jxr_keyword">int</strong> dictSize, <strong class="jxr_keyword">int</strong> extraSizeBefore, <strong class="jxr_keyword">int</strong> extraSizeAfter,
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>               <strong class="jxr_keyword">int</strong> niceLen, <strong class="jxr_keyword">int</strong> matchLenMax) {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         buf = <strong class="jxr_keyword">new</strong> byte[getBufSize(dictSize, extraSizeBefore, extraSizeAfter,
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>                                   matchLenMax)];
@@ -372,7 +372,7 @@
 <a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">     * @return      true if matches are valid, false if match finder is broken</em>
 <a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> verifyMatches(<a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/Matches.html">Matches</a> matches) {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> verifyMatches(<a name="Matches" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/Matches.html#Matches">Matches</a> matches) {
 <a class="jxr_linenumber" name="L368" href="#L368">368</a>         <strong class="jxr_keyword">int</strong> lenLimit = Math.min(getAvail(), matchLenMax);
 <a class="jxr_linenumber" name="L369" href="#L369">369</a> 
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; matches.count; ++i)
@@ -418,7 +418,7 @@
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L411" href="#L411">411</a> <em class="jxr_javadoccomment">     * Runs match finder for the next byte and returns the matches found.</em>
 <a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/Matches.html">Matches</a> getMatches();
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <a name="Matches" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/Matches.html#Matches">Matches</a> getMatches();
 <a class="jxr_linenumber" name="L414" href="#L414">414</a> 
 <a class="jxr_linenumber" name="L415" href="#L415">415</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">     * Skips the given number of bytes in the match finder.</em>
@@ -427,6 +427,6 @@
 <a class="jxr_linenumber" name="L419" href="#L419">419</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -55,12 +55,12 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * bean for simple membership update.  holds all state for this module</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html">ExternalRegisterContainer</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ExternalRegisterContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html#ExternalRegisterContainer">ExternalRegisterContainer</a> <strong class="jxr_keyword">implements</strong> Serializable {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html">ExternalRegisterContainer</a>() {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">public</strong> <a name="ExternalRegisterContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html#ExternalRegisterContainer">ExternalRegisterContainer</a>() {
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">this</strong>.initFields();
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      
@@ -124,12 +124,12 @@
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">public</strong> Object callback(GrouperSession theGrouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>           
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>           ExternalRegisterContainer.<strong class="jxr_keyword">this</strong>.registerFields = <strong class="jxr_keyword">new</strong> ArrayList&lt;RegisterField&gt;();
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>           <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html">RegisterField</a> registerField = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>           <a name="RegisterField" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html#RegisterField">RegisterField</a> registerField = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>   
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>           ExternalSubject externalSubject = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>           
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>           {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>             registerField = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html">RegisterField</a>();
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             registerField = <strong class="jxr_keyword">new</strong> <a name="RegisterField" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html#RegisterField">RegisterField</a>();
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             registerField.setSystemName(<span class="jxr_string">"identifier"</span>);
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>             registerField.setParamName(<span class="jxr_string">"param_identifier"</span>);
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>             String identifierLabel = GrouperUiUtils.message(<span class="jxr_string">"externalSubjectSelfRegister.register.field.identifier.label"</span>);
@@ -157,7 +157,7 @@
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>           
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>           
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>           {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             registerField = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html">RegisterField</a>();
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             registerField = <strong class="jxr_keyword">new</strong> <a name="RegisterField" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html#RegisterField">RegisterField</a>();
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>             registerField.setSystemName(<span class="jxr_string">"name"</span>);
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>             
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">if</strong> (externalSubjectConfigBean.isNameRequired()) {
@@ -183,7 +183,7 @@
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>           {
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>   
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">if</strong> (externalSubjectConfigBean.isInstitutionEnabled()) {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>               registerField = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html">RegisterField</a>();
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>               registerField = <strong class="jxr_keyword">new</strong> <a name="RegisterField" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html#RegisterField">RegisterField</a>();
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>               registerField.setSystemName(<span class="jxr_string">"institution"</span>);
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>               <strong class="jxr_keyword">if</strong> (externalSubjectConfigBean.isInstitutionRequired()) {
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>                 registerField.setRequired(<strong class="jxr_keyword">true</strong>);
@@ -209,7 +209,7 @@
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>   
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>           {
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>             <strong class="jxr_keyword">if</strong> (externalSubjectConfigBean.isEmailEnabled()) {
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>               registerField = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html">RegisterField</a>();
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>               registerField = <strong class="jxr_keyword">new</strong> <a name="RegisterField" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html#RegisterField">RegisterField</a>();
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>               registerField.setSystemName(<span class="jxr_string">"email"</span>);
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>   
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>               <strong class="jxr_keyword">if</strong> (externalSubjectConfigBean.isEmailRequired()) {
@@ -236,7 +236,7 @@
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>           <strong class="jxr_keyword">for</strong> (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean 
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>               : externalSubjectConfigBean.getExternalSubjectAttributeConfigBeans()) {
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>   
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>             registerField = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html">RegisterField</a>();
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             registerField = <strong class="jxr_keyword">new</strong> <a name="RegisterField" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/RegisterField.html#RegisterField">RegisterField</a>();
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>             registerField.setSystemName(externalSubjectAttributeConfigBean.getSystemName());
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>             registerField.setRequired(externalSubjectAttributeConfigBean.isRequired());
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>             registerField.setFieldNotAttribute(false);
@@ -300,19 +300,19 @@
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">   * retrieveFromSession, cannot be null</em>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">   * @return the app state in request scope</em>
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html">ExternalRegisterContainer</a> retrieveFromRequest() {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="ExternalRegisterContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html#ExternalRegisterContainer">ExternalRegisterContainer</a> retrieveFromRequest() {
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> 
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html">ExternalRegisterContainer</a> externalRegisterContainer = (ExternalRegisterContainer)httpServletRequest
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     <a name="ExternalRegisterContainer" href="../../../../.<a name="ExternalRegisterContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html#ExternalRegisterContainer">ExternalRegisterContainer</a>dleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html#ExternalRegisterContainer">ExternalRegisterContainer</a> externalRegisterContainer = (<a name="ExternalRegisterContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/externalSubjectSelfRegister/ExternalRegisterContainer.html#ExternalRegisterContainer">ExternalRegisterContainer</a>)httpServletRequest
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>       .getAttribute(<span class="jxr_string">"externalRegisterContainer"</span>);
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>     <strong class="jxr_keyword">if</strong> (externalRegisterContainer == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ui/exceptions/NoSessionException.html">NoSessionException</a>(GrouperUiUtils.message(<span class="jxr_string">"externalSubjectSelfRegister.noContainer"</span>));
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="NoSessionException" href="../../../../../../../edu/internet2/middleware/grouper/ui/exceptions/NoSessionException.html#NoSessionException">NoSessionException</a>(GrouperUiUtils.message(<span class="jxr_string">"externalSubjectSelfRegister.noContainer"</span>));
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">return</strong> externalRegisterContainer;
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>   }
 <a class="jxr_linenumber" name="L305" href="#L305">305</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

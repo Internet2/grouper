@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -48,7 +48,7 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/examples/StemUniqueNameCaseInsensitiveHook.html">StemUniqueNameCaseInsensitiveHook</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/StemHooks.html">StemHooks</a> {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="StemUniqueNameCaseInsensitiveHook" href="../../../../../../edu/internet2/middleware/grouper/hooks/examples/StemUniqueNameCaseInsensitiveHook.html#StemUniqueNameCaseInsensitiveHook">StemUniqueNameCaseInsensitiveHook</a> <strong class="jxr_keyword">extends</strong> <a name="StemHooks" href="../../../../../../edu/internet2/middleware/grouper/hooks/StemHooks.html#StemHooks">StemHooks</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>    
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">   * </em>
@@ -60,8 +60,8 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.hooks.StemHooks#stemPreInsert(HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksStemBean)</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>    @Override
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> stemPreInsert(<a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html">HooksContext</a> hooksContext, <a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksStemBean.html">HooksStemBean</a> preInsertBean) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem = preInsertBean.getStem();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> stemPreInsert(<a name="HooksContext" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html#HooksContext">HooksContext</a> hooksContext, <a name="HooksStemBean" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksStemBean.html#HooksStemBean">HooksStemBean</a> preInsertBean) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <a name="Stem" href="../../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem = preInsertBean.getStem();
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      verifyCaseInsensitiveName(stem);
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>    }
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">   * @param stem</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> verifyCaseInsensitiveName(<a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> verifyCaseInsensitiveName(<a name="Stem" href="../../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <em class="jxr_comment">//see if there is another stem with the same name case insensitive</em>
@@ -99,7 +99,7 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_comment">//    } else {</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">if</strong> (count &gt; 0) {
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html">HookVeto</a>(VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE, <span class="jxr_string">"The folder ID is already in use, please use a different ID"</span>);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="HookVeto" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a>(VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE, <span class="jxr_string">"The folder ID is already in use, please use a different ID"</span>);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>      
@@ -109,8 +109,8 @@
 <a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.hooks.StemHooks#stemPreUpdate(HooksContext, HooksStemBean)</em>
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>   @Override
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> stemPreUpdate(<a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html">HooksContext</a> hooksContext, <a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksStemBean.html">HooksStemBean</a> preUpdateBean) {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem = preUpdateBean.getStem();
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> stemPreUpdate(<a name="HooksContext" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html#HooksContext">HooksContext</a> hooksContext, <a name="HooksStemBean" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksStemBean.html#HooksStemBean">HooksStemBean</a> preUpdateBean) {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <a name="Stem" href="../../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem = preUpdateBean.getStem();
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">if</strong> (stem.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || stem.dbVersionDifferentFields().contains(Group.FIELD_NAME)) {
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>       verifyCaseInsensitiveName(stem);
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
@@ -119,6 +119,6 @@
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

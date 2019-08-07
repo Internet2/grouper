@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">  you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment"> * @version $Id: GrouperSubject.java,v 1.12 2009-10-22 14:03:18 mchyzer Exp $</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html">GrouperSubject</a> <strong class="jxr_keyword">extends</strong> SubjectImpl {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GrouperSubject" href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html#GrouperSubject">GrouperSubject</a> <strong class="jxr_keyword">extends</strong> <a name="SubjectImpl" href="../../../../../edu/internet2/middleware/subject/provider/SubjectImpl.html#SubjectImpl">SubjectImpl</a> {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>    
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   * lazy load map that doesnt do any queries until it really needs to</em>
@@ -81,7 +81,7 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">   * @param &lt;V&gt; </em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>    @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> GrouperSubjectAttributeMap&lt;K,V&gt; <strong class="jxr_keyword">implements</strong> Map&lt;K,V&gt;, Serializable, SubjectCaseInsensitiveMap {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> GrouperSubjectAttributeMap&lt;K,V&gt; <strong class="jxr_keyword">implements</strong> Map&lt;K,V&gt;, Serializable, <a name="SubjectCaseInsensitiveMap" href="../../../../../edu/internet2/middleware/subject/SubjectCaseInsensitiveMap.html#SubjectCaseInsensitiveMap">SubjectCaseInsensitiveMap</a> {
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      <em class="jxr_javadoccomment">/** underlying datastore */</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> SubjectCaseInsensitiveMapImpl&lt;K,V&gt; attrs   = <strong class="jxr_keyword">new</strong> SubjectCaseInsensitiveMapImpl&lt;K,V&gt;();
@@ -241,14 +241,14 @@
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>   }
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>   
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>   <em class="jxr_javadoccomment">/** keep a reference to the group */</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group;
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>   <strong class="jxr_keyword">private</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group;
 <a class="jxr_linenumber" name="L237" href="#L237">237</a> 
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">   * @param g</em>
 <a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">   * @throws SourceUnavailableException</em>
 <a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html">GrouperSubject</a>(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> g) 
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <strong class="jxr_keyword">throws</strong>  SourceUnavailableException {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperSubject" href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html#GrouperSubject">GrouperSubject</a>(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> g) 
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <strong class="jxr_keyword">throws</strong>  <a name="SourceUnavailableException" href="../../../../../edu/internet2/middleware/subject/SourceUnavailableException.html#SourceUnavailableException">SourceUnavailableException</a> {
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>     
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">super</strong>(g.getUuid(), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>,
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>         g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectTypeEnum.APPLICATION.getName() : SubjectTypeEnum.GROUP.getName(), 
@@ -314,23 +314,23 @@
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>       <em class="jxr_comment">// Don't bother with any of the create* attrs unless we can find</em>
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>       <em class="jxr_comment">// the creating subject</em>
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>       Subject creator = group.getCreateSubject();
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>       ((<a href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html">GrouperSubjectAttributeMap</a>)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( <span class="jxr_string">"createSubjectId"</span>,   GrouperUtil.toSet(creator.getId()), false);
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>       ((<a href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html">GrouperSubjectAttributeMap</a>)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( <span class="jxr_string">"createSubjectType"</span>, GrouperUtil.toSet(creator.getType().getName()), false);
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>       <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> creator = group.getCreateSubject();
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>       ((GrouperSubjectAttributeMap)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( <span class="jxr_string">"createSubjectId"</span>,   GrouperUtil.toSet(creator.getId()), false);
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>       ((GrouperSubjectAttributeMap)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( <span class="jxr_string">"createSubjectType"</span>, GrouperUtil.toSet(creator.getType().getName()), false);
 <a class="jxr_linenumber" name="L312" href="#L312">312</a>     }
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">catch</strong> (SubjectNotFoundException eSNF0) {
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">catch</strong> (<a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a> eSNF0) {
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>       LOG.warn(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>     }
 <a class="jxr_linenumber" name="L316" href="#L316">316</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L317" href="#L317">317</a>       <em class="jxr_comment">// Don't bother with any of the modify* attrs unless we can find</em>
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>       <em class="jxr_comment">// the modifying subject</em>
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>       Subject modifier = group.getModifySubject();
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>       ((<a href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html">GrouperSubjectAttributeMap</a>)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( <span class="jxr_string">"modifySubjectId"</span>,   
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>       <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> modifier = group.getModifySubject();
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>       ((GrouperSubjectAttributeMap)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( <span class="jxr_string">"modifySubjectId"</span>,   
 <a class="jxr_linenumber" name="L321" href="#L321">321</a>           GrouperUtil.toSet(modifier.getId()), false);
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>       ((<a href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html">GrouperSubjectAttributeMap</a>)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( <span class="jxr_string">"modifySubjectType"</span>, 
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>       ((GrouperSubjectAttributeMap)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( <span class="jxr_string">"modifySubjectType"</span>, 
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>           GrouperUtil.toSet(modifier.getType().getName()), false);
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>     }
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>     <strong class="jxr_keyword">catch</strong> (SubjectNotFoundException eSNF1) {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     <strong class="jxr_keyword">catch</strong> (<a name="SubjectNotFoundException" href="../../../../../edu/internet2/middleware/subject/SubjectNotFoundException.html#SubjectNotFoundException">SubjectNotFoundException</a> eSNF1) {
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>       <em class="jxr_comment">// No modifier</em>
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>     }
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>     }
@@ -342,7 +342,7 @@
 <a class="jxr_linenumber" name="L334" href="#L334">334</a> <em class="jxr_javadoccomment">   * get the group inside</em>
 <a class="jxr_linenumber" name="L335" href="#L335">335</a> <em class="jxr_javadoccomment">   * @return the group</em>
 <a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> internal_getGroup() {
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>   <strong class="jxr_keyword">public</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> internal_getGroup() {
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.group;
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>   }
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>   
@@ -360,12 +360,12 @@
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>     <strong class="jxr_keyword">int</strong> count=0;
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">while</strong> (it.hasNext()) {
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>       kv = it.next();
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>       ((<a href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html">GrouperSubjectAttributeMap</a>)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( kv.getKey(), GrouperUtil.toSet(kv.getValue().getValue()), false );
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>       ((GrouperSubjectAttributeMap)<strong class="jxr_keyword">this</strong>.getAttributes(false)).put( kv.getKey(), GrouperUtil.toSet(kv.getValue().getValue()), false );
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>       count++;
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>     }
 <a class="jxr_linenumber" name="L358" href="#L358">358</a>     <strong class="jxr_keyword">this</strong>.loadedGroupAttributes = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>     <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>       <a href="../../../../../edu/internet2/middleware/grouper/subj/GrouperSubject.html">GrouperSubjectAttributeMap</a> grouperSubjectAttributeMap = (GrouperSubjectAttributeMap)GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributes(false));
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>       GrouperSubjectAttributeMap grouperSubjectAttributeMap = (GrouperSubjectAttributeMap)GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributes(false));
 <a class="jxr_linenumber" name="L361" href="#L361">361</a>       
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>       <strong class="jxr_keyword">int</strong> attrSize = grouperSubjectAttributeMap == <strong class="jxr_keyword">null</strong> ? 0 : grouperSubjectAttributeMap.attrs.size();
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>       
@@ -382,6 +382,6 @@
 <a class="jxr_linenumber" name="L374" href="#L374">374</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

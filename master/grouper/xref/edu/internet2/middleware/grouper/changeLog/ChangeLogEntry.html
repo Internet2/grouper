@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -61,7 +61,7 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>    
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>    <em class="jxr_javadoccomment">/** column */</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String COLUMN_ID = <span class="jxr_string">"id"</span>;
@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   * @param objectPropertyNames</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">   * @param changeLogPropertyNames</em>
 <a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> saveTempUpdates(<a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogTypeIdentifier.html">ChangeLogTypeIdentifier</a> changeLogTypeIdentifier, 
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> saveTempUpdates(<a name="ChangeLogTypeIdentifier" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogTypeIdentifier.html#ChangeLogTypeIdentifier">ChangeLogTypeIdentifier</a> changeLogTypeIdentifier, 
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>       Object theObject, Object dbVersion,
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>       List&lt;String&gt; labelNamesAndValues,
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>       List&lt;String&gt; objectPropertyNames,
@@ -165,7 +165,7 @@
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         labelsAndValuesArray[labelsAndValuesArray.length-1] = GrouperUtil.stringValue(propertyValue);
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         <em class="jxr_comment">//if so, add a change log entry to temp table</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a>(<strong class="jxr_keyword">true</strong>, changeLogTypeIdentifier, labelsAndValuesArray).save();
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">new</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>(<strong class="jxr_keyword">true</strong>, changeLogTypeIdentifier, labelsAndValuesArray).save();
 <a class="jxr_linenumber" name="L161" href="#L161">161</a> 
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>       }
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>       
@@ -181,11 +181,11 @@
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>   @Override
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object obj) {
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>     
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">if</strong> (!(obj instanceof ChangeLogEntry)) {
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">if</strong> (!(obj instanceof <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>)) {
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>     }
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>     
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a> objChangeLogEntry = (ChangeLogEntry)obj;
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <a name="ChangeLogEntry" href="../..<a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a> objChangeLogEntry = (<a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>)obj;
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>     
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     <em class="jxr_comment">//if there is a sequence, then it is a ChangeLogEntryEntity</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.sequenceNumber != <strong class="jxr_keyword">null</strong> || objChangeLogEntry.sequenceNumber != <strong class="jxr_keyword">null</strong>) {
@@ -311,7 +311,7 @@
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">   * get the changeLog type, it better be there</em>
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">   * @return the changeLog type</em>
 <a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html">ChangeLogType</a> getChangeLogType() {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>   <strong class="jxr_keyword">public</strong> <a name="ChangeLogType" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html#ChangeLogType">ChangeLogType</a> getChangeLogType() {
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>     <strong class="jxr_keyword">return</strong> ChangeLogTypeFinder.find(<strong class="jxr_keyword">this</strong>.changeLogTypeId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>   }
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>   
@@ -322,7 +322,7 @@
 <a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>   <strong class="jxr_keyword">public</strong> String toStringReport(<strong class="jxr_keyword">boolean</strong> extended) {
 <a class="jxr_linenumber" name="L316" href="#L316">316</a>     StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html">ChangeLogType</a> changeLogType = <strong class="jxr_keyword">this</strong>.getChangeLogType();
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <a name="ChangeLogType" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html#ChangeLogType">ChangeLogType</a> changeLogType = <strong class="jxr_keyword">this</strong>.getChangeLogType();
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>     Timestamp createdOn = <strong class="jxr_keyword">this</strong>.getCreatedOn();
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>     
 <a class="jxr_linenumber" name="L320" href="#L320">320</a>     SimpleDateFormat simpleDateFormat = <strong class="jxr_keyword">new</strong> SimpleDateFormat(<span class="jxr_string">"yyyy-MM-dd HH:mm:ss.SSS"</span>);
@@ -356,7 +356,7 @@
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L349" href="#L349">349</a> <em class="jxr_javadoccomment">   * construct</em>
 <a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a>() {
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>   <strong class="jxr_keyword">public</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>() {
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>     
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>   }
 <a class="jxr_linenumber" name="L354" href="#L354">354</a> 
@@ -395,12 +395,12 @@
 <a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">   * @param changeLogTypeIdentifier points to changeLog type</em>
 <a class="jxr_linenumber" name="L388" href="#L388">388</a> <em class="jxr_javadoccomment">   * @param labelNamesAndValues alternate label name and value</em>
 <a class="jxr_linenumber" name="L389" href="#L389">389</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a>(<strong class="jxr_keyword">boolean</strong> tempObject1, <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogTypeIdentifier.html">ChangeLogTypeIdentifier</a> changeLogTypeIdentifier, 
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>   <strong class="jxr_keyword">public</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>(<strong class="jxr_keyword">boolean</strong> tempObject1, <a name="ChangeLogTypeIdentifier" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogTypeIdentifier.html#ChangeLogTypeIdentifier">ChangeLogTypeIdentifier</a> changeLogTypeIdentifier, 
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>       String... labelNamesAndValues) {
 <a class="jxr_linenumber" name="L392" href="#L392">392</a>     
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>     <strong class="jxr_keyword">this</strong>.tempObject = tempObject1;
 <a class="jxr_linenumber" name="L394" href="#L394">394</a> 
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>     <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html">ChangeLogType</a> changeLogType = ChangeLogTypeFinder.find(changeLogTypeIdentifier.getChangeLogCategory(),
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     <a name="ChangeLogType" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html#ChangeLogType">ChangeLogType</a> changeLogType = ChangeLogTypeFinder.find(changeLogTypeIdentifier.getChangeLogCategory(),
 <a class="jxr_linenumber" name="L396" href="#L396">396</a>         changeLogTypeIdentifier.getActionName(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L397" href="#L397">397</a>     
 <a class="jxr_linenumber" name="L398" href="#L398">398</a>     <strong class="jxr_keyword">this</strong>.changeLogTypeId = changeLogType.getId();
@@ -428,7 +428,7 @@
 <a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">   * @param changeLogLabel is probably from ChangeLogLabels constants</em>
 <a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">   * @return the value</em>
 <a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>   <strong class="jxr_keyword">public</strong> String retrieveValueForLabel(<a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogLabel.html">ChangeLogLabel</a> changeLogLabel) {
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>   <strong class="jxr_keyword">public</strong> String retrieveValueForLabel(<a name="ChangeLogLabel" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogLabel.html#ChangeLogLabel">ChangeLogLabel</a> changeLogLabel) {
 <a class="jxr_linenumber" name="L424" href="#L424">424</a>     <strong class="jxr_keyword">return</strong> retrieveValueForLabel(changeLogLabel.name());
 <a class="jxr_linenumber" name="L425" href="#L425">425</a>   }
 <a class="jxr_linenumber" name="L426" href="#L426">426</a> 
@@ -441,7 +441,7 @@
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">   * @return the value</em>
 <a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L435" href="#L435">435</a>   <strong class="jxr_keyword">public</strong> String retrieveValueForLabel(String label) {
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html">ChangeLogType</a> changeLogType = <strong class="jxr_keyword">this</strong>.getChangeLogType();
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <a name="ChangeLogType" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html#ChangeLogType">ChangeLogType</a> changeLogType = <strong class="jxr_keyword">this</strong>.getChangeLogType();
 <a class="jxr_linenumber" name="L437" href="#L437">437</a>     String fieldName = changeLogType.retrieveChangeLogEntryFieldForLabel(label);
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">return</strong> (String)<strong class="jxr_keyword">this</strong>.fieldValue(fieldName);
 <a class="jxr_linenumber" name="L439" href="#L439">439</a>   }
@@ -451,7 +451,7 @@
 <a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">   * @param label</em>
 <a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">   * @param value</em>
 <a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> assignStringValue(<a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html">ChangeLogType</a> changeLogType, String label, String value) {
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> assignStringValue(<a name="ChangeLogType" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html#ChangeLogType">ChangeLogType</a> changeLogType, String label, String value) {
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>     <strong class="jxr_keyword">if</strong> (StringUtils.equals(label, changeLogType.getLabelString01())) {
 <a class="jxr_linenumber" name="L448" href="#L448">448</a>       <strong class="jxr_keyword">this</strong>.string01 = value;
 <a class="jxr_linenumber" name="L449" href="#L449">449</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (StringUtils.equals(label, changeLogType.getLabelString02())) {
@@ -827,7 +827,7 @@
 <a class="jxr_linenumber" name="L819" href="#L819">819</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()</em>
 <a class="jxr_linenumber" name="L820" href="#L820">820</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L821" href="#L821">821</a>   @Override
-<a class="jxr_linenumber" name="L822" href="#L822">822</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> clone() {
+<a class="jxr_linenumber" name="L822" href="#L822">822</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> clone() {
 <a class="jxr_linenumber" name="L823" href="#L823">823</a>     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"not implemented"</span>);
 <a class="jxr_linenumber" name="L824" href="#L824">824</a>   }
 <a class="jxr_linenumber" name="L825" href="#L825">825</a> 
@@ -836,7 +836,7 @@
 <a class="jxr_linenumber" name="L828" href="#L828">828</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L829" href="#L829">829</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L830" href="#L830">830</a>   @Override
-<a class="jxr_linenumber" name="L831" href="#L831">831</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreSave(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L831" href="#L831">831</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreSave(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L832" href="#L832">832</a>     <strong class="jxr_keyword">super</strong>.onPreSave(hibernateSession);
 <a class="jxr_linenumber" name="L833" href="#L833">833</a>     <strong class="jxr_keyword">this</strong>.truncate();
 <a class="jxr_linenumber" name="L834" href="#L834">834</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.tempObject) {
@@ -919,7 +919,7 @@
 <a class="jxr_linenumber" name="L911" href="#L911">911</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L912" href="#L912">912</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L913" href="#L913">913</a>   @Override
-<a class="jxr_linenumber" name="L914" href="#L914">914</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreUpdate(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L914" href="#L914">914</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreUpdate(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L915" href="#L915">915</a>     <strong class="jxr_keyword">super</strong>.onPreUpdate(hibernateSession);
 <a class="jxr_linenumber" name="L916" href="#L916">916</a>     <strong class="jxr_keyword">this</strong>.truncate();
 <a class="jxr_linenumber" name="L917" href="#L917">917</a>   }
@@ -1025,7 +1025,7 @@
 <a class="jxr_linenumber" name="L1017" href="#L1017">1017</a> <em class="jxr_javadoccomment">   * @param changeLogTypeIdentifier</em>
 <a class="jxr_linenumber" name="L1018" href="#L1018">1018</a> <em class="jxr_javadoccomment">   * @return true if matches</em>
 <a class="jxr_linenumber" name="L1019" href="#L1019">1019</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equalsCategoryAndAction(<a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogTypeIdentifier.html">ChangeLogTypeIdentifier</a> changeLogTypeIdentifier) {
+<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equalsCategoryAndAction(<a name="ChangeLogTypeIdentifier" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogTypeIdentifier.html#ChangeLogTypeIdentifier">ChangeLogTypeIdentifier</a> changeLogTypeIdentifier) {
 <a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.getChangeLogType() != <strong class="jxr_keyword">null</strong> 
 <a class="jxr_linenumber" name="L1022" href="#L1022">1022</a>       &amp;&amp; <strong class="jxr_keyword">this</strong>.getChangeLogType().equalsCategoryAndAction(changeLogTypeIdentifier);
 <a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>   }
@@ -1050,7 +1050,7 @@
 <a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>     Set&lt;ChangeLogEntry&gt; result = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;ChangeLogEntry&gt;();
 <a class="jxr_linenumber" name="L1043" href="#L1043">1043</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i=0;i&lt;jsonArray.size();i++) {
 <a class="jxr_linenumber" name="L1044" href="#L1044">1044</a>       JSONObject currentEvent = jsonArray.getJSONObject(i);
-<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>       <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a> currentEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a>();
+<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>       <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/<a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>Log/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a> currentEntry = <strong class="jxr_keyword">new</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>();
 <a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>       currentEntry.fromJsonHelper(currentEvent);
 <a class="jxr_linenumber" name="L1047" href="#L1047">1047</a>       result.add(currentEntry);
 <a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>     }
@@ -1088,7 +1088,7 @@
 <a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>             + <strong class="jxr_keyword">this</strong>.getChangeLogType().getActionName() + <span class="jxr_string">", but was: "</span> + jsonObject.getString(<span class="jxr_string">"changeLogTypeAction"</span>));
 <a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>       }
 <a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>     }
-<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>     <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html">ChangeLogType</a> changeLogType = <strong class="jxr_keyword">this</strong>.getChangeLogType();
+<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>     <a name="ChangeLogType" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html#ChangeLogType">ChangeLogType</a> changeLogType = <strong class="jxr_keyword">this</strong>.getChangeLogType();
 <a class="jxr_linenumber" name="L1084" href="#L1084">1084</a>     
 <a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>     <strong class="jxr_keyword">for</strong> (String key : (Set&lt;String&gt;)(Object)jsonObject.keySet()) {
 <a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>       <strong class="jxr_keyword">if</strong> (key.startsWith(<span class="jxr_string">"field_"</span>)) {
@@ -1154,6 +1154,6 @@
 <a class="jxr_linenumber" name="L1146" href="#L1146">1146</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -30,22 +30,22 @@
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * bean that will be the data from rest request</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestAddMemberRequest.html">WsRestAddMemberRequest</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRequestBean.html">WsRequestBean</a> {
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WsRestAddMemberRequest" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestAddMemberRequest.html#WsRestAddMemberRequest">WsRestAddMemberRequest</a> <strong class="jxr_keyword">implements</strong> <a name="WsRequestBean" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRequestBean.html#WsRequestBean">WsRequestBean</a> {
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>    
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>    <em class="jxr_javadoccomment">/** field */</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>    <strong class="jxr_keyword">private</strong> String clientVersion;
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>    
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>    <em class="jxr_javadoccomment">/** field */</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupLookup.html">WsGroupLookup</a> wsGroupLookup;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>    <strong class="jxr_keyword">private</strong> <a name="WsGroupLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupLookup.html#WsGroupLookup">WsGroupLookup</a> wsGroupLookup;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>    
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>    <em class="jxr_javadoccomment">/** subjects to assign to */</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html">WsSubjectLookup</a>[] subjectLookups;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">private</strong> <a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a>[] subjectLookups;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>    
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>    <em class="jxr_javadoccomment">/** field */</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">private</strong> String replaceAllExisting;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>    
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>    <em class="jxr_javadoccomment">/** who to act as if not the connecting user */</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> <a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> actAsSubjectLookup;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>    <em class="jxr_javadoccomment">/** field */</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>    <strong class="jxr_keyword">private</strong> String fieldName;
@@ -63,7 +63,7 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">private</strong> String[] subjectAttributeNames;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>    <em class="jxr_javadoccomment">/** field */</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html">WsParam</a>[] params;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>    <strong class="jxr_keyword">private</strong> <a name="WsParam" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html#WsParam">WsParam</a>[] params;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>    
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>    
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>    <em class="jxr_javadoccomment">/**  date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS */</em>
@@ -133,7 +133,7 @@
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">   * @return the wsGroupLookup</em>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupLookup.html">WsGroupLookup</a> getWsGroupLookup() {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>   <strong class="jxr_keyword">public</strong> <a name="WsGroupLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupLookup.html#WsGroupLookup">WsGroupLookup</a> getWsGroupLookup() {
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsGroupLookup;
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>   }
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> 
@@ -141,7 +141,7 @@
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">   * @param wsGroupLookup1 the wsGroupLookup to set</em>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsGroupLookup(<a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupLookup.html">WsGroupLookup</a> wsGroupLookup1) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsGroupLookup(<a name="WsGroupLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupLookup.html#WsGroupLookup">WsGroupLookup</a> wsGroupLookup1) {
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">this</strong>.wsGroupLookup = wsGroupLookup1;
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>   }
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> 
@@ -149,7 +149,7 @@
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">   * @return the subjectLookups</em>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html">WsSubjectLookup</a>[] getSubjectLookups() {
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>   <strong class="jxr_keyword">public</strong> <a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a>[] getSubjectLookups() {
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.subjectLookups;
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>   }
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> 
@@ -157,7 +157,7 @@
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">   * @param subjectLookups1 the subjectLookups to set</em>
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSubjectLookups(<a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html">WsSubjectLookup</a>[] subjectLookups1) {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSubjectLookups(<a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a>[] subjectLookups1) {
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">this</strong>.subjectLookups = subjectLookups1;
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>   }
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> 
@@ -181,7 +181,7 @@
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">   * @return the actAsSubjectLookup</em>
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html">WsSubjectLookup</a> getActAsSubjectLookup() {
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>   <strong class="jxr_keyword">public</strong> <a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> getActAsSubjectLookup() {
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.actAsSubjectLookup;
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>   }
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> 
@@ -189,7 +189,7 @@
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup1 the actAsSubjectLookup to set</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setActAsSubjectLookup(<a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup1) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setActAsSubjectLookup(<a name="WsSubjectLookup" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> actAsSubjectLookup1) {
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">this</strong>.actAsSubjectLookup = actAsSubjectLookup1;
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>   }
 <a class="jxr_linenumber" name="L187" href="#L187">187</a> 
@@ -279,7 +279,7 @@
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">   * @return the params</em>
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html">WsParam</a>[] getParams() {
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>   <strong class="jxr_keyword">public</strong> <a name="WsParam" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html#WsParam">WsParam</a>[] getParams() {
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.params;
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>   }
 <a class="jxr_linenumber" name="L277" href="#L277">277</a> 
@@ -288,7 +288,7 @@
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">   * @param params1 the params to set</em>
 <a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setParams(<a href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html">WsParam</a>[] params1) {
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setParams(<a name="WsParam" href="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html#WsParam">WsParam</a>[] params1) {
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">this</strong>.params = params1;
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>   }
 <a class="jxr_linenumber" name="L286" href="#L286">286</a> 
@@ -315,6 +315,6 @@
 <a class="jxr_linenumber" name="L307" href="#L307">307</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

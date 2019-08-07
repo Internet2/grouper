@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -67,16 +67,16 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment"> * @author Joe Walnes</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/PathTracker.html">PathTracker</a> {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PathTracker" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/PathTracker.html#PathTracker">PathTracker</a> {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> pointer;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> capacity;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> String[] pathStack;
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> Map[] indexMapStack;
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> currentPath;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> currentPath;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/PathTracker.html">PathTracker</a>() {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a name="PathTracker" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/PathTracker.html#PathTracker">PathTracker</a>() {
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">this</strong>(16);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
@@ -85,7 +85,7 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     *                        only for optimizations - the stack will resize itself if it exceeds its capacity. If in doubt,</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     *                        use the other constructor.</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/PathTracker.html">PathTracker</a>(<strong class="jxr_keyword">int</strong> initialCapacity) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">public</strong> <a name="PathTracker" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/PathTracker.html#PathTracker">PathTracker</a>(<strong class="jxr_keyword">int</strong> initialCapacity) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">this</strong>.capacity = Math.max(1, initialCapacity);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          pathStack = <strong class="jxr_keyword">new</strong> String[capacity];
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          indexMapStack = <strong class="jxr_keyword">new</strong> Map[capacity];
@@ -145,7 +145,7 @@
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * Current Path in stream.</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> getPath() {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">public</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> getPath() {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">if</strong> (currentPath == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>             String[] chunks = <strong class="jxr_keyword">new</strong> String[pointer + 1];
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>             chunks[0] = <span class="jxr_string">""</span>;
@@ -160,13 +160,13 @@
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>                     chunks[i + 1] = pathStack[i];
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>                 }
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>             }
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             currentPath = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a>(chunks);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>             currentPath = <strong class="jxr_keyword">new</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>(chunks);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         }
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">return</strong> currentPath;
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>     }
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

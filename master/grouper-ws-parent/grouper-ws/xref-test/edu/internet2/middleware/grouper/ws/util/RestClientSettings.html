@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -61,7 +61,7 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment"> * rest client settings</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/util/RestClientSettings.html">RestClientSettings</a> {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="RestClientSettings" href="../../../../../../edu/internet2/middleware/grouper/ws/util/RestClientSettings.html#RestClientSettings">RestClientSettings</a> {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <em class="jxr_javadoccomment">/** client version.  keep this updated as the version changes */</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VERSION = GrouperWsConfig.getPropertyString(<span class="jxr_string">"ws.testing.version"</span>);
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
@@ -216,91 +216,89 @@
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>         
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>         RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>         
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         GrouperCheckConfig.checkAttributes();
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         GrouperCheckConfig.checkObjects();
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> 
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         GrouperCheckConfig.checkGroups();
-<a class="jxr_linenumber" name="L214" href="#L214">214</a> 
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         Subject userSubject = SubjectFinder.findByIdOrIdentifier(loginUserString, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L218" href="#L218">218</a> 
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(userGroupName)) {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Set a "</span> + GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME + <span class="jxr_string">" in grouper-ws.properties"</span>);
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         Group wsUserGroup = Group.saveGroup(grouperSession, userGroupName, <strong class="jxr_keyword">null</strong>, userGroupName, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         wsUserGroup.addMember(userSubject, false);
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         String actAsGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(actAsGroupName)) {
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Set a "</span> + GrouperWsConfig.WS_ACT_AS_GROUP + <span class="jxr_string">" in grouper-ws.properties"</span>);
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>         }
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         <strong class="jxr_keyword">if</strong> (StringUtils.contains(actAsGroupName, <span class="jxr_string">","</span>) || StringUtils.contains(actAsGroupName, <span class="jxr_string">"::"</span>)) {
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(GrouperWsConfig.WS_ACT_AS_GROUP + <span class="jxr_string">" in grouper-ws.properties cannot contain comma or two colons for tests"</span>);
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         }
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         Group actAsGroup = Group.saveGroup(grouperSession, actAsGroupName, <strong class="jxr_keyword">null</strong>, actAsGroupName, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         actAsGroup.addMember(userSubject, false);
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         String wheelGroupName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(wheelGroupName)) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Set a "</span> + GrouperWsConfig.WS_ACT_AS_GROUP + <span class="jxr_string">" in grouper-ws.properties"</span>);
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         Group wheelGroup = Group.saveGroup(grouperSession, wheelGroupName, <strong class="jxr_keyword">null</strong>, wheelGroupName, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">if</strong> (loginIsWheel) {
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>           wheelGroup.addMember(userSubject, false);
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         }
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <em class="jxr_comment">//add the member</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>         Subject subject0 = SubjectFinder.findById(<span class="jxr_string">"test.subject.0"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         MemberFinder.findBySubject(grouperSession, subject0, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(<span class="jxr_string">"test.subject.2"</span>, <strong class="jxr_keyword">true</strong>), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(<span class="jxr_string">"test.subject.3"</span>, <strong class="jxr_keyword">true</strong>), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         Stem aStem = Stem.saveStem(grouperSession, <span class="jxr_string">"aStem"</span>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"aStem"</span>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         aStem.grantPriv(subject0, NamingPrivilege.CREATE, false);
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         aStem.grantPriv(userSubject, NamingPrivilege.CREATE, false);
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         aStem.grantPriv(subject0, NamingPrivilege.STEM, false);
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>         aStem.grantPriv(userSubject, NamingPrivilege.STEM, false);
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         Subject userSubject = SubjectFinder.findByIdOrIdentifier(loginUserString, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a> 
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(userGroupName)) {
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Set a "</span> + GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME + <span class="jxr_string">" in grouper-ws.properties"</span>);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         }
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         Group wsUserGroup = Group.saveGroup(grouperSession, userGroupName, <strong class="jxr_keyword">null</strong>, userGroupName, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         wsUserGroup.addMember(userSubject, false);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         String actAsGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(actAsGroupName)) {
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Set a "</span> + GrouperWsConfig.WS_ACT_AS_GROUP + <span class="jxr_string">" in grouper-ws.properties"</span>);
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         <strong class="jxr_keyword">if</strong> (StringUtils.contains(actAsGroupName, <span class="jxr_string">","</span>) || StringUtils.contains(actAsGroupName, <span class="jxr_string">"::"</span>)) {
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(GrouperWsConfig.WS_ACT_AS_GROUP + <span class="jxr_string">" in grouper-ws.properties cannot contain comma or two colons for tests"</span>);
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         }
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         Group actAsGroup = Group.saveGroup(grouperSession, actAsGroupName, <strong class="jxr_keyword">null</strong>, actAsGroupName, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         actAsGroup.addMember(userSubject, false);
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         String wheelGroupName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(wheelGroupName)) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Set a "</span> + GrouperWsConfig.WS_ACT_AS_GROUP + <span class="jxr_string">" in grouper-ws.properties"</span>);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         }
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         Group wheelGroup = Group.saveGroup(grouperSession, wheelGroupName, <strong class="jxr_keyword">null</strong>, wheelGroupName, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">if</strong> (loginIsWheel) {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>           wheelGroup.addMember(userSubject, false);
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         }
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <em class="jxr_comment">//add the member</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         Subject subject0 = SubjectFinder.findById(<span class="jxr_string">"test.subject.0"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         MemberFinder.findBySubject(grouperSession, subject0, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(<span class="jxr_string">"test.subject.2"</span>, <strong class="jxr_keyword">true</strong>), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(<span class="jxr_string">"test.subject.3"</span>, <strong class="jxr_keyword">true</strong>), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         Stem aStem = Stem.saveStem(grouperSession, <span class="jxr_string">"aStem"</span>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"aStem"</span>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         aStem.grantPriv(subject0, NamingPrivilege.CREATE, false);
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         aStem.grantPriv(userSubject, NamingPrivilege.CREATE, false);
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         aStem.grantPriv(subject0, NamingPrivilege.STEM, false);
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         aStem.grantPriv(userSubject, NamingPrivilege.STEM, false);
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         Stem aStem0 = Stem.saveStem(grouperSession, <span class="jxr_string">"aStem:aStem0"</span>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"aStem:aStem0"</span>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L259" href="#L259">259</a> 
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         Stem aStem0 = Stem.saveStem(grouperSession, <span class="jxr_string">"aStem:aStem0"</span>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"aStem:aStem0"</span>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> 
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         aStem0.grantPriv(subject0, NamingPrivilege.CREATE, false);
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         aStem0.grantPriv(userSubject, NamingPrivilege.CREATE, false);
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>         aStem0.grantPriv(subject0, NamingPrivilege.STEM, false);
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         aStem0.grantPriv(userSubject, NamingPrivilege.STEM, false);
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         aStem0.grantPriv(subject0, NamingPrivilege.CREATE, false);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         aStem0.grantPriv(userSubject, NamingPrivilege.CREATE, false);
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         aStem0.grantPriv(subject0, NamingPrivilege.STEM, false);
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         aStem0.grantPriv(userSubject, NamingPrivilege.STEM, false);
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         Group aGroup = Group.saveGroup(grouperSession, <span class="jxr_string">"aStem:aGroup"</span>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"aStem:aGroup"</span>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>         
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         Group aGroup = Group.saveGroup(grouperSession, <span class="jxr_string">"aStem:aGroup"</span>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"aStem:aGroup"</span>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <em class="jxr_comment">//grant a priv</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         aGroup.grantPriv(subject0, AccessPrivilege.ADMIN, false);
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         aGroup.grantPriv(userSubject, AccessPrivilege.ADMIN, false);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         aGroup.grantPriv(subject0, AccessPrivilege.READ, false);
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         aGroup.grantPriv(userSubject, AccessPrivilege.READ, false);
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         aGroup.grantPriv(subject0, AccessPrivilege.VIEW, false);
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         aGroup.grantPriv(userSubject, AccessPrivilege.VIEW, false);
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <em class="jxr_comment">//add some types and attributes</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         GroupType groupType = GroupType.createType(grouperSession, <span class="jxr_string">"aType"</span>, false, groupTypeId);
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         GroupType groupType2 = GroupType.createType(grouperSession, <span class="jxr_string">"aType2"</span>, false, groupType2Id);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         GroupType groupType3 = GroupType.createType(grouperSession, <span class="jxr_string">"aType3"</span>, false, groupType3Id);
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         groupType.addAttribute(grouperSession, <span class="jxr_string">"attr_1"</span>, false, groupTypeAttribute1Id);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         groupType.addAttribute(grouperSession, <span class="jxr_string">"attr_2"</span>, false, groupTypeAttribute2Id);
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         groupType2.addAttribute(grouperSession, <span class="jxr_string">"attr2_1"</span>, false, groupType2Attribute1Id);
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         groupType2.addAttribute(grouperSession, <span class="jxr_string">"attr2_2"</span>, false, groupType2Attribute2Id);
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         groupType3.addAttribute(grouperSession, <span class="jxr_string">"attr3_1"</span>, false, groupType3Attribute1Id);
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         groupType3.addAttribute(grouperSession, <span class="jxr_string">"attr3_2"</span>, false, groupType3Attribute2Id);
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>         
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>       } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(e);
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>       }
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     }
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>     
-<a class="jxr_linenumber" name="L293" href="#L293">293</a> }
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <em class="jxr_comment">//grant a priv</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         aGroup.grantPriv(subject0, AccessPrivilege.ADMIN, false);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         aGroup.grantPriv(userSubject, AccessPrivilege.ADMIN, false);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         aGroup.grantPriv(subject0, AccessPrivilege.READ, false);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         aGroup.grantPriv(userSubject, AccessPrivilege.READ, false);
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         aGroup.grantPriv(subject0, AccessPrivilege.VIEW, false);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         aGroup.grantPriv(userSubject, AccessPrivilege.VIEW, false);
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <em class="jxr_comment">//add some types and attributes</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         GroupType groupType = GroupType.createType(grouperSession, <span class="jxr_string">"aType"</span>, false, groupTypeId);
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         GroupType groupType2 = GroupType.createType(grouperSession, <span class="jxr_string">"aType2"</span>, false, groupType2Id);
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         GroupType groupType3 = GroupType.createType(grouperSession, <span class="jxr_string">"aType3"</span>, false, groupType3Id);
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         groupType.addAttribute(grouperSession, <span class="jxr_string">"attr_1"</span>, false, groupTypeAttribute1Id);
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         groupType.addAttribute(grouperSession, <span class="jxr_string">"attr_2"</span>, false, groupTypeAttribute2Id);
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         groupType2.addAttribute(grouperSession, <span class="jxr_string">"attr2_1"</span>, false, groupType2Attribute1Id);
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         groupType2.addAttribute(grouperSession, <span class="jxr_string">"attr2_2"</span>, false, groupType2Attribute2Id);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         groupType3.addAttribute(grouperSession, <span class="jxr_string">"attr3_1"</span>, false, groupType3Attribute1Id);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         groupType3.addAttribute(grouperSession, <span class="jxr_string">"attr3_2"</span>, false, groupType3Attribute2Id);
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>       } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(e);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>       }
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     }
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

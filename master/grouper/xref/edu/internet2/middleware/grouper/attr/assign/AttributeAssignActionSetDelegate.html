@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -41,16 +41,16 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * delegate the attribute assign action set</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSetDelegate.html">AttributeAssignActionSetDelegate</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AttributeAssignActionSetDelegate" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSetDelegate.html#AttributeAssignActionSetDelegate">AttributeAssignActionSetDelegate</a> <strong class="jxr_keyword">implements</strong> Serializable {
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>    <em class="jxr_javadoccomment">/** keep a reference to the attribute assign action */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> attributeAssignAction;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>    <strong class="jxr_keyword">private</strong> <a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">   * @param attributeAssignAction1</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSetDelegate.html">AttributeAssignActionSetDelegate</a>(<a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> attributeAssignAction1) {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">public</strong> <a name="AttributeAssignActionSetDelegate" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSetDelegate.html#AttributeAssignActionSetDelegate">AttributeAssignActionSetDelegate</a>(<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction1) {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">this</strong>.attributeAssignAction = attributeAssignAction1;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>    }
@@ -71,7 +71,7 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>    <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeAssignActionNamesImpliedByThis() {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      Set&lt;String&gt; actions = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">for</strong> (AttributeAssignAction attributeAssignAction : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeAssignActionsImpliedByThis())) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">for</strong> (<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeAssignActionsImpliedByThis())) {
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>        actions.add(attributeAssignAction.getName());
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">return</strong> actions;
@@ -85,7 +85,7 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>    <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeAssignActionNamesImpliedByThisImmediate() {
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      Set&lt;String&gt; actions = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">for</strong> (AttributeAssignAction attributeAssignAction : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeAssignActionsImpliedByThisImmediate())) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">for</strong> (<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeAssignActionsImpliedByThisImmediate())) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>        actions.add(attributeAssignAction.getName());
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">return</strong> actions;
@@ -99,7 +99,7 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>    <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeAssignActionNamesThatImplyThisImmediate() {
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>      
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      Set&lt;String&gt; actions = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">for</strong> (AttributeAssignAction attributeAssignAction : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeAssignActionsThatImplyThisImmediate())) {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">for</strong> (<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeAssignActionsThatImplyThisImmediate())) {
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>        actions.add(attributeAssignAction.getName());
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">return</strong> actions;
@@ -113,7 +113,7 @@
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeAssignActionNamesThatImplyThis() {
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     Set&lt;String&gt; actions = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">for</strong> (AttributeAssignAction attributeAssignAction : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeAssignActionsThatImplyThis())) {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">for</strong> (<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignAction : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeAssignActionsThatImplyThis())) {
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>       actions.add(attributeAssignAction.getName());
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">return</strong> actions;
@@ -155,7 +155,7 @@
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getNewAttributeAssignActionNamesThatCanImplyThis() {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>     <em class="jxr_comment">//find list which can imply</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef = <strong class="jxr_keyword">this</strong>.attributeAssignAction.getAttributeDef();
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <a name="AttributeDef" href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef = <strong class="jxr_keyword">this</strong>.attributeAssignAction.getAttributeDef();
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> 
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>     Set&lt;String&gt; actionsWhichCanImply = attributeDef.getAttributeDefActionDelegate().allowedActionStrings();
 <a class="jxr_linenumber" name="L153" href="#L153">153</a> 
@@ -165,7 +165,7 @@
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>     <em class="jxr_comment">//remove existing direct relations</em>
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>     Set&lt;AttributeAssignAction&gt; actionsWhichImplyThisImmediate = <strong class="jxr_keyword">this</strong>.getAttributeAssignActionsThatImplyThisImmediate();
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">for</strong> (AttributeAssignAction actionWhichImplyThisImmediate : actionsWhichImplyThisImmediate) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">for</strong> (<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> actionWhichImplyThisImmediate : actionsWhichImplyThisImmediate) {
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>       actionsWhichCanImply.remove(actionWhichImplyThisImmediate.getName());
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     }
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">return</strong> actionsWhichCanImply;
@@ -177,7 +177,7 @@
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getNewAttributeAssignActionNamesThatCanBeImpliedByThis() {
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>     <em class="jxr_comment">//find list which can imply</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef = <strong class="jxr_keyword">this</strong>.attributeAssignAction.getAttributeDef();
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <a name="AttributeDef" href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef = <strong class="jxr_keyword">this</strong>.attributeAssignAction.getAttributeDef();
 <a class="jxr_linenumber" name="L173" href="#L173">173</a> 
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>     Set&lt;String&gt; actionsWhichCanBeImplied = attributeDef.getAttributeDefActionDelegate().allowedActionStrings();
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> 
@@ -187,7 +187,7 @@
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>     <em class="jxr_comment">//remove existing direct relations</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>     Set&lt;AttributeAssignAction&gt; actionsWhichImpliedByThisImmediate = <strong class="jxr_keyword">this</strong>.getAttributeAssignActionsImpliedByThisImmediate();
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>     
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">for</strong> (AttributeAssignAction actionWhichImpliedByThisImmediate : actionsWhichImpliedByThisImmediate) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">for</strong> (<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> actionWhichImpliedByThisImmediate : actionsWhichImpliedByThisImmediate) {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>       actionsWhichCanBeImplied.remove(actionWhichImpliedByThisImmediate.getName());
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>     }
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">return</strong> actionsWhichCanBeImplied;
@@ -199,7 +199,7 @@
 <a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">   * @param newAttributeAssignAction</em>
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">   * @return true if added, false if already there</em>
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> addToAttributeAssignActionSet(<a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> newAttributeAssignAction) {
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> addToAttributeAssignActionSet(<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> newAttributeAssignAction) {
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">return</strong> internal_addToAttributeAssignActionSet(newAttributeAssignAction, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>   }
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>   
@@ -209,7 +209,7 @@
 <a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">   * @param uuid</em>
 <a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">   * @return true if added, false if already there</em>
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> internal_addToAttributeAssignActionSet(<a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> newAttributeAssignAction, String uuid) {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> internal_addToAttributeAssignActionSet(<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> newAttributeAssignAction, String uuid) {
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>     <strong class="jxr_keyword">return</strong> GrouperSetEnum.ATTRIBUTE_ASSIGN_ACTION_SET.addToGrouperSet(<strong class="jxr_keyword">this</strong>.attributeAssignAction, newAttributeAssignAction, uuid);
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>   }
 <a class="jxr_linenumber" name="L207" href="#L207">207</a> 
@@ -218,13 +218,13 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">   * @param attributeAssignActionToRemove</em>
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">   * @return true if removed, false if already removed</em>
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> removeFromAttributeAssignActionSet(<a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html">AttributeAssignAction</a> attributeAssignActionToRemove) {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> removeFromAttributeAssignActionSet(<a name="AttributeAssignAction" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html#AttributeAssignAction">AttributeAssignAction</a> attributeAssignActionToRemove) {
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">return</strong> GrouperSetEnum.ATTRIBUTE_ASSIGN_ACTION_SET.removeFromGrouperSet(<strong class="jxr_keyword">this</strong>.attributeAssignAction, attributeAssignActionToRemove);
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>   }
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> 
 <a class="jxr_linenumber" name="L217" href="#L217">217</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

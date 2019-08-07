@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -36,7 +36,7 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * which type of client are we capturing</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleClientType.html">WsSampleClientType</a> {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> enum <a name="WsSampleClientType" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleClientType.html#WsSampleClientType">WsSampleClientType</a> {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>     <em class="jxr_javadoccomment">/** generated capture type */</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>     GENERATED_SOAP {
@@ -56,8 +56,8 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">      */</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>       @Override
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> executeSample(Class&lt;? <strong class="jxr_keyword">extends</strong> WsSample&gt; clientClass, Object format) {
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>         <a href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleGenerated.html">WsSampleGenerated</a> wsSampleGenerated = (WsSampleGenerated)GrouperUtil.newInstance(clientClass);
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>         <a href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleGeneratedType.html">WsSampleGeneratedType</a> wsSampleGeneratedType = (WsSampleGeneratedType)format;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>         <a name="WsSampleGenerated" href="../..<a name="WsSampleGenerated" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleGenerated.html#WsSampleGenerated">WsSampleGenerated</a>du/internet2/middleware/grouper/ws/samples/types/WsSampleGenerated.html#WsSampleGenerated">WsSampleGenerated</a> wsSampleGenerated = (<a name="WsSampleGenerated" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleGenerated.html#WsSampleGenerated">WsSampleGenerated</a>)GrouperUtil.newInstance(clientClass);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>         <a name="WsSampleGeneratedType" href="../../../<a name="WsSampleGeneratedType" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleGeneratedType.html#WsSampleGeneratedType">WsSampleGeneratedType</a>net2/middleware/grouper/ws/samples/types/WsSampleGeneratedType.html#WsSampleGeneratedType">WsSampleGeneratedType</a> wsSampleGeneratedType = (<a name="WsSampleGeneratedType" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleGeneratedType.html#WsSampleGeneratedType">WsSampleGeneratedType</a>)format;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>         wsSampleGenerated.executeSample(wsSampleGeneratedType);
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>       }
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
@@ -116,8 +116,8 @@
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">      */</em>
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>      @Override
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> executeSample(Class&lt;? <strong class="jxr_keyword">extends</strong> WsSample&gt; clientClass, Object format) {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>        <a href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRest.html">WsSampleRest</a> wsSampleRest = (WsSampleRest)GrouperUtil.newInstance(clientClass);
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>        <a href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRestType.html">WsSampleRestType</a> wsSampleRestType = (WsSampleRestType)format;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>        <a name="WsSampleRest" href="<a name="WsSampleRest" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRest.html#WsSampleRest">WsSampleRest</a>../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRest.html#WsSampleRest">WsSampleRest</a> wsSampleRest = (<a name="WsSampleRest" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRest.html#WsSampleRest">WsSampleRest</a>)GrouperUtil.newInstance(clientClass);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>        <a name="WsSampleRestType" href="../.<a name="WsSampleRestType" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRestType.html#WsSampleRestType">WsSampleRestType</a>/edu/internet2/middleware/grouper/ws/samples/types/WsSampleRestType.html#WsSampleRestType">WsSampleRestType</a> wsSampleRestType = (<a name="WsSampleRestType" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRestType.html#WsSampleRestType">WsSampleRestType</a>)format;
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>        wsSampleRest.executeSample(wsSampleRestType);
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>      }
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> 
@@ -155,8 +155,8 @@
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>      @Override
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> validFormat(Class&lt;?&gt; clientClass, Object format) {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>        <em class="jxr_comment">//see if format supported</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>        <a href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRest.html">WsSampleRest</a> wsSampleRest = (WsSampleRest)GrouperUtil.newInstance(clientClass);
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>        <a href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRestType.html">WsSampleRestType</a> wsSampleRestType = (WsSampleRestType)format;
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>        <a name="WsSampleRest" href="<a name="WsSampleRest" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRest.html#WsSampleRest">WsSampleRest</a>../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRest.html#WsSampleRest">WsSampleRest</a> wsSampleRest = (<a name="WsSampleRest" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRest.html#WsSampleRest">WsSampleRest</a>)GrouperUtil.newInstance(clientClass);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>        <a name="WsSampleRestType" href="../.<a name="WsSampleRestType" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRestType.html#WsSampleRestType">WsSampleRestType</a>/edu/internet2/middleware/grouper/ws/samples/types/WsSampleRestType.html#WsSampleRestType">WsSampleRestType</a> wsSampleRestType = (<a name="WsSampleRestType" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleRestType.html#WsSampleRestType">WsSampleRestType</a>)format;
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>        <strong class="jxr_keyword">return</strong> wsSampleRest.validType(wsSampleRestType);
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>      }
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>    },
@@ -180,7 +180,7 @@
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>      @Override
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> executeSample(Class&lt;? <strong class="jxr_keyword">extends</strong> WsSample&gt; clientClass, Object format) {
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>        GrouperUtil.assertion(format == <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"no formats for http / xml"</span>);
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>        <a href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleManualHttp.html">WsSampleManualHttp</a> wsSampleManualXmlHttp = (WsSampleManualHttp)GrouperUtil.newInstance(clientClass);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>        <a name="WsSampleManualHttp" href="../../../<a name="WsSampleManualHttp" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleManualHttp.html#WsSampleManualHttp">WsSampleManualHttp</a>ternet2/middleware/grouper/ws/samples/types/WsSampleManualHttp.html#WsSampleManualHttp">WsSampleManualHttp</a> wsSampleManualXmlHttp = (<a name="WsSampleManualHttp" href="../../../../../../../edu/internet2/middleware/grouper/ws/samples/types/WsSampleManualHttp.html#WsSampleManualHttp">WsSampleManualHttp</a>)GrouperUtil.newInstance(clientClass);
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>        wsSampleManualXmlHttp.executeSample();
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>      }
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> 
@@ -256,6 +256,6 @@
 <a class="jxr_linenumber" name="L248" href="#L248">248</a> } 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

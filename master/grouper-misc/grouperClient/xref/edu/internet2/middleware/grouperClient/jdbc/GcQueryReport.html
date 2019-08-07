@@ -18,7 +18,7 @@
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Structure to encapsulate data about a query being executed.</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * @author harveycg</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcQueryReport.html">GcQueryReport</a> {
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GcQueryReport" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcQueryReport.html#GcQueryReport">GcQueryReport</a> {
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>    <em class="jxr_javadoccomment">/**</em>
@@ -59,7 +59,7 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> reportToFile(String fileLocation, Map&lt;String, GcQueryReport&gt; queryReports){
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      StringBuilder contents = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"QUERY,CUMULATIVE_TIME_MILLIS,MM:SS:MI,NUM_EXECUTIONS,AVG_EXECUTION_MILLIS,SHORT_MILLIS,LONG_MILLIS,CONNECTION\n"</span>);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">for</strong> (GcQueryReport queryReport : queryReports.values()){
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">for</strong> (<a name="GcQueryReport" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcQueryReport.html#GcQueryReport">GcQueryReport</a> queryReport : queryReports.values()){
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>        contents.append(<span class="jxr_string">"\&quot;"</span> + queryReport.getQuery() + <span class="jxr_string">"\&quot;,"</span> + queryReport.getCumulativeTimeMillis() + <span class="jxr_string">","</span> 
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>            + queryReport.cumulativeTimeMillisHumanReadable() + <span class="jxr_string">","</span> 
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>            + queryReport.getNumberOfExecutions() + <span class="jxr_string">","</span> + (queryReport.getCumulativeTimeMillis() / queryReport.getNumberOfExecutions()) + <span class="jxr_string">","</span> 
@@ -204,6 +204,6 @@
 <a class="jxr_linenumber" name="L196" href="#L196">196</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

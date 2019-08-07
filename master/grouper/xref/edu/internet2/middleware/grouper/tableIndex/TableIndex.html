@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -56,7 +56,7 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html">Hib3GrouperVersioned</a> {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="TableIndex" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> <strong class="jxr_keyword">implements</strong> <a name="Hib3GrouperVersioned" href="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html#Hib3GrouperVersioned">Hib3GrouperVersioned</a> {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   * make sure the current user can assign id index</em>
@@ -65,12 +65,12 @@
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      String allowedGroupName = GrouperConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"grouper.tableIndex.groupWhoCanAssignIdIndex"</span>);
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">if</strong> (StringUtils.isNotBlank(allowedGroupName)) {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>        
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>        Subject subject = GrouperSession.staticGrouperSession().getSubject();
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>        <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject = GrouperSession.staticGrouperSession().getSubject();
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>        
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>        
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>        <strong class="jxr_keyword">if</strong> (!PrivilegeHelper.isWheelOrRoot(subject)) {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              .internal_getRootSession(), allowedGroupName, false);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">if</strong> (allowedGroup == <strong class="jxr_keyword">null</strong> || !allowedGroup.hasMember(subject)) {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>            <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cannot assign ID index! "</span> + GrouperUtil.subjectToString(subject) + <span class="jxr_string">" since not in group: "</span> + allowedGroupName);
@@ -146,7 +146,7 @@
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>   <strong class="jxr_keyword">private</strong> String id;
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>   
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>   <em class="jxr_javadoccomment">/** type of index, group, stem, attributeDef, attributeDefName, etc */</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> type = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>   <strong class="jxr_keyword">private</strong> <a name="TableIndexType" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> type = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> 
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">   * time in millis when this stem set was created</em>
@@ -169,10 +169,10 @@
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">if</strong> (other == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">if</strong> (!(other instanceof TableIndex)) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">if</strong> (!(other instanceof <a name="TableIndex" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a>)) {
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> otherTableIndex = (TableIndex)other;
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <a name="TableIndex" href="../<a name="TableIndex" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a>./edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> otherTableIndex = (<a name="TableIndex" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a>)other;
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     <strong class="jxr_keyword">return</strong> StringUtils.equals(<strong class="jxr_keyword">this</strong>.getId(), otherTableIndex.getId());
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>   }
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>   <em class="jxr_javadoccomment">/**</em>
@@ -206,7 +206,7 @@
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">   * type of index, group, stem, attributeDef, attributeDefName, etc</em>
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">   * @return type</em>
 <a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> getType() {
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>   <strong class="jxr_keyword">public</strong> <a name="TableIndexType" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> getType() {
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.type;
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>   }
 <a class="jxr_linenumber" name="L204" href="#L204">204</a> 
@@ -222,7 +222,7 @@
 <a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">   * set stem set assignment type</em>
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">   * @param type1</em>
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setType(<a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> type1) {
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setType(<a name="TableIndexType" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> type1) {
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">this</strong>.type = type1;
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>   }
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> 
@@ -316,7 +316,7 @@
 <a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_javadoccomment">   * @see GrouperAPI#onPreSave(HibernateSession)</em>
 <a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>   @Override
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreSave(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreSave(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L312" href="#L312">312</a>     <strong class="jxr_keyword">super</strong>.onPreSave(hibernateSession);
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.createdOnDb == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>       <strong class="jxr_keyword">this</strong>.createdOnDb = System.currentTimeMillis();
@@ -329,7 +329,7 @@
 <a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">   * @see GrouperAPI#onPreUpdate(HibernateSession)</em>
 <a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>   @Override
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreUpdate(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreUpdate(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>     <strong class="jxr_keyword">super</strong>.onPreUpdate(hibernateSession);
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>     <strong class="jxr_keyword">this</strong>.lastUpdatedDb = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>     
@@ -365,8 +365,8 @@
 <a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_javadoccomment">   * @reGrouperTableIndexe dbVersion</em>
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>   @Override
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> dbVersion() {
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>     <strong class="jxr_keyword">return</strong> (TableIndex)<strong class="jxr_keyword">this</strong>.dbVersion;
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>   <strong class="jxr_keyword">public</strong> <a name="TableIndex" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> dbVersion() {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>     <strong class="jxr_keyword">return</strong> (<a name="TableIndex" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a>)<strong class="jxr_keyword">this</strong>.dbVersion;
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>   }
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>   
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>   <em class="jxr_javadoccomment">/**</em>
@@ -397,7 +397,7 @@
 <a class="jxr_linenumber" name="L389" href="#L389">389</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L390" href="#L390">390</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>   @Override
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> clone() {
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> clone() {
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>     <strong class="jxr_keyword">return</strong> GrouperUtil.clone(<strong class="jxr_keyword">this</strong>, CLONE_FIELDS);
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>   }
 <a class="jxr_linenumber" name="L395" href="#L395">395</a> 
@@ -410,7 +410,7 @@
 <a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_javadoccomment">   * clear reserved id in case an existing one was used</em>
 <a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_javadoccomment">   * @param tableIndexType</em>
 <a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> clearReservedId(<a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> tableIndexType, <strong class="jxr_keyword">long</strong> id) {
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> clearReservedId(<a name="TableIndexType" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> tableIndexType, <strong class="jxr_keyword">long</strong> id) {
 <a class="jxr_linenumber" name="L406" href="#L406">406</a>     <strong class="jxr_keyword">synchronized</strong>(tableIndexType) {
 <a class="jxr_linenumber" name="L407" href="#L407">407</a>       List&lt;Long&gt; longList = reservedIds.get(tableIndexType);
 <a class="jxr_linenumber" name="L408" href="#L408">408</a>       <strong class="jxr_keyword">if</strong> (longList != <strong class="jxr_keyword">null</strong>) {
@@ -429,7 +429,7 @@
 <a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">   * clear all ids</em>
 <a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">   * @param tableIndexType</em>
 <a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> clearReservedIds(<a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> tableIndexType) {
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> clearReservedIds(<a name="TableIndexType" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> tableIndexType) {
 <a class="jxr_linenumber" name="L425" href="#L425">425</a>     <strong class="jxr_keyword">synchronized</strong>(tableIndexType) {
 <a class="jxr_linenumber" name="L426" href="#L426">426</a>       List&lt;Long&gt; longList = reservedIds.get(tableIndexType);
 <a class="jxr_linenumber" name="L427" href="#L427">427</a>       <strong class="jxr_keyword">if</strong> (longList != <strong class="jxr_keyword">null</strong>) {
@@ -445,7 +445,7 @@
 <a class="jxr_linenumber" name="L437" href="#L437">437</a> <em class="jxr_javadoccomment">   * @param tableIndexType</em>
 <a class="jxr_linenumber" name="L438" href="#L438">438</a> <em class="jxr_javadoccomment">   * @return the id that can be used for the type of object</em>
 <a class="jxr_linenumber" name="L439" href="#L439">439</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> reserveId(<a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> tableIndexType) {
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> reserveId(<a name="TableIndexType" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> tableIndexType) {
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>     
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>     <strong class="jxr_keyword">long</strong> id = reserveIdHelper(tableIndexType);
 <a class="jxr_linenumber" name="L443" href="#L443">443</a>     
@@ -461,7 +461,7 @@
 <a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">   * @param tableIndexType</em>
 <a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">   * @return the id that can be used for the type of object</em>
 <a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> reserveIdHelper(<a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> tableIndexType) {
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> reserveIdHelper(<a name="TableIndexType" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> tableIndexType) {
 <a class="jxr_linenumber" name="L457" href="#L457">457</a>     
 <a class="jxr_linenumber" name="L458" href="#L458">458</a>     <strong class="jxr_keyword">synchronized</strong> (tableIndexType) {
 <a class="jxr_linenumber" name="L459" href="#L459">459</a>       
@@ -482,9 +482,9 @@
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>       
 <a class="jxr_linenumber" name="L475" href="#L475">475</a>       <em class="jxr_comment">//ok, we need to reserve some more...</em>
 <a class="jxr_linenumber" name="L476" href="#L476">476</a>       <strong class="jxr_keyword">int</strong> idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt(<span class="jxr_string">"grouper.tableIndex.reserveIdsDefault"</span>, 10);
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>       <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html">GrouperContext</a> grouperContext = GrouperContext.retrieveDefaultContext();
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>       <a name="GrouperContext" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html#GrouperContext">GrouperContext</a> grouperContext = GrouperContext.retrieveDefaultContext();
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>       
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>       <a href="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineBuiltin.html">GrouperEngineBuiltin</a> grouperEngineBuiltin = grouperContext == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : grouperContext.getGrouperEngine();
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>       <a name="GrouperEngineBuiltin" href="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineBuiltin.html#GrouperEngineBuiltin">GrouperEngineBuiltin</a> grouperEngineBuiltin = grouperContext == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : grouperContext.getGrouperEngine();
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>       
 <a class="jxr_linenumber" name="L481" href="#L481">481</a>       <strong class="jxr_keyword">if</strong> (grouperEngineBuiltin != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L482" href="#L482">482</a>         <strong class="jxr_keyword">switch</strong>(grouperEngineBuiltin) {
@@ -505,7 +505,7 @@
 <a class="jxr_linenumber" name="L497" href="#L497">497</a>         }
 <a class="jxr_linenumber" name="L498" href="#L498">498</a>       }
 <a class="jxr_linenumber" name="L499" href="#L499">499</a>           
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>       <a href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> tableIndex = GrouperDAOFactory.getFactory().getTableIndex().reserveIds(tableIndexType,idsToReserve);
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>       <a name="TableIndex" href="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> tableIndex = GrouperDAOFactory.getFactory().getTableIndex().reserveIds(tableIndexType,idsToReserve);
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>       
 <a class="jxr_linenumber" name="L502" href="#L502">502</a>       <em class="jxr_comment">//last index reserved</em>
 <a class="jxr_linenumber" name="L503" href="#L503">503</a>       <strong class="jxr_keyword">long</strong> lastIndexReserved = tableIndex.getLastIndexReserved();
@@ -538,6 +538,6 @@
 <a class="jxr_linenumber" name="L530" href="#L530">530</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

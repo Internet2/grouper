@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -38,7 +38,7 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * @author Emmanuel Bourg</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * @since 1.7</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html">BinaryTree</a> {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">class</strong> <a name="BinaryTree" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html#BinaryTree">BinaryTree</a> {
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <em class="jxr_javadoccomment">/** Value in the array indicating an undefined node */</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> UNDEFINED = -1;
@@ -52,7 +52,7 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] tree;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html">BinaryTree</a>(<strong class="jxr_keyword">int</strong> depth) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <a name="BinaryTree" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html#BinaryTree">BinaryTree</a>(<strong class="jxr_keyword">int</strong> depth) {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          tree = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[(1 &lt;&lt; (depth + 1)) - 1];
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          Arrays.fill(tree, UNDEFINED);
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
@@ -89,7 +89,7 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * @param stream</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * @return the value decoded, or -1 if the end of the stream is reached</em>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> read(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BitStream.html">BitStream</a> stream) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> read(<a name="BitStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BitStream.html#BitStream">BitStream</a> stream) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">int</strong> currentIndex = 0;
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
@@ -115,7 +115,7 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">     * Decodes the packed binary tree from the specified stream.</em>
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">static</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html">BinaryTree</a> decode(InputStream in, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> totalNumberOfValues) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">static</strong> <a name="BinaryTree" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html#BinaryTree">BinaryTree</a> decode(InputStream in, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> totalNumberOfValues) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         <em class="jxr_comment">// the first byte contains the size of the structure minus one</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">int</strong> size = in.read() + 1;
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">if</strong> (size == 0) {
@@ -183,7 +183,7 @@
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>         }
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>         
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>         <em class="jxr_comment">// build the tree</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html">BinaryTree</a> tree = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html">BinaryTree</a>(maxLength);
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <a name="BinaryTree" href="../../../../../../../../../../ed<a name="BinaryTree" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html#BinaryTree">BinaryTree</a>2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html#BinaryTree">BinaryTree</a> tree = <strong class="jxr_keyword">new</strong> <a name="BinaryTree" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/BinaryTree.html#BinaryTree">BinaryTree</a>(maxLength);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>         
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; codes.length; k++) {
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">int</strong> bitLength = originalBitLengths[k];
@@ -197,6 +197,6 @@
 <a class="jxr_linenumber" name="L189" href="#L189">189</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

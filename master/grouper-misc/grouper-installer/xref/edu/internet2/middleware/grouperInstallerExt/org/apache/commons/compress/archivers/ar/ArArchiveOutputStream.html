@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -39,7 +39,7 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * @NotThreadSafe</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveOutputStream.html">ArArchiveOutputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveOutputStream.html">ArchiveOutputStream</a> {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ArArchiveOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveOutputStream.html#ArArchiveOutputStream">ArArchiveOutputStream</a> <strong class="jxr_keyword">extends</strong> <a name="ArchiveOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveOutputStream.html#ArchiveOutputStream">ArchiveOutputStream</a> {
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <em class="jxr_javadoccomment">/** Fail if a long file name is required in the archive. */</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> LONGFILE_ERROR = 0;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
@@ -48,14 +48,14 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> OutputStream out;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> entryOffset = 0;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a> prevEntry;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a> prevEntry;
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> haveUnclosedEntry = false;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> longFileMode = LONGFILE_ERROR;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_javadoccomment">/** indicates if this archive is finished */</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> finished = false;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveOutputStream.html">ArArchiveOutputStream</a>( <strong class="jxr_keyword">final</strong> OutputStream pOut ) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <a name="ArArchiveOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveOutputStream.html#ArArchiveOutputStream">ArArchiveOutputStream</a>( <strong class="jxr_keyword">final</strong> OutputStream pOut ) {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">this</strong>.out = pOut;
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
@@ -92,12 +92,12 @@
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      @Override
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> putArchiveEntry( <strong class="jxr_keyword">final</strong> ArchiveEntry pEntry ) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> putArchiveEntry( <strong class="jxr_keyword">final</strong> <a name="ArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html#ArchiveEntry">ArchiveEntry</a> pEntry ) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">if</strong>(finished) {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Stream has already been finished"</span>);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a> pArEntry = (ArArchiveEntry)pEntry;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <a name="ArArchiveEntry" hr<a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>./../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a> pArEntry = (<a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>)pEntry;
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">if</strong> (prevEntry == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>              writeArchiveHeader();
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>          } <strong class="jxr_keyword">else</strong> {
@@ -136,7 +136,7 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">return</strong> bytes.length;
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> 
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> writeEntryHeader( <strong class="jxr_keyword">final</strong> ArArchiveEntry pEntry ) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> writeEntryHeader( <strong class="jxr_keyword">final</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a> pEntry ) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> 
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">long</strong> offset = 0;
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">boolean</strong> mustAppendName = false;
@@ -222,12 +222,12 @@
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> 
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>     @Override
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> createArchiveEntry(File inputFile, String entryName)
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">public</strong> <a name="ArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html#ArchiveEntry">ArchiveEntry</a> createArchiveEntry(File inputFile, String entryName)
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">if</strong>(finished) {
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Stream has already been finished"</span>);
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a>(inputFile, entryName);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>(inputFile, entryName);
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>     }
 <a class="jxr_linenumber" name="L224" href="#L224">224</a> 
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>     @Override
@@ -242,6 +242,6 @@
 <a class="jxr_linenumber" name="L234" href="#L234">234</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

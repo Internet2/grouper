@@ -10,7 +10,7 @@
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * LZMAEncoderNormal</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Authors: Lasse Collin &lt;lasse.collin@tukaani.org&gt;</em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *          Igor Pavlov &lt;<a href="http://7-zip.org/&gt" target="alexandria_uri">http://7-zip.org/&gt</a>;</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *          Igor Pavlov &lt;<a href="http://7-zip.org/&gt;" target="alexandria_uri">http://7-zip.org/&gt;</a></em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * This file has been put into the public domain.</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * You can do whatever you want with this file.</em>
@@ -22,22 +22,22 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.lz.Matches;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.rangecoder.RangeEncoder;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoderNormal.html">LZMAEncoderNormal</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoder.html">LZMAEncoder</a> {
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LZMAEncoderNormal" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoderNormal.html#LZMAEncoderNormal">LZMAEncoderNormal</a> <strong class="jxr_keyword">extends</strong> <a name="LZMAEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoder.html#LZMAEncoder">LZMAEncoder</a> {
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> OPTS = 4096;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> EXTRA_SIZE_BEFORE = OPTS;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> EXTRA_SIZE_AFTER = OPTS;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html">Optimum</a>[] opts = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html">Optimum</a>[OPTS];
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="Optimum" href="../../../../../../../../edu/intern<a name="Optimum" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html#Optimum">Optimum</a>dleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html#Optimum">Optimum</a>[] opts = <strong class="jxr_keyword">new</strong> <a name="Optimum" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html#Optimum">Optimum</a>[OPTS];
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> optCur = 0;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> optEnd = 0;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/Matches.html">Matches</a> matches;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <a name="Matches" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/Matches.html#Matches">Matches</a> matches;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>      <em class="jxr_comment">// These are fields solely to avoid allocating the objects again and</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_comment">// again on each function call.</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] repLens = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[REPS];
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/State.html">State</a> nextState = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/State.html">State</a>();
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="State" href="../../../../../../../../edu/internet2<a name="State" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/State.html#State">State</a>leware/grouperInstallerExt/org/tukaani/xz/lzma/State.html#State">State</a> nextState = <strong class="jxr_keyword">new</strong> <a name="State" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/State.html#State">State</a>();
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getMemoryUsage(<strong class="jxr_keyword">int</strong> dictSize, <strong class="jxr_keyword">int</strong> extraSizeBefore, <strong class="jxr_keyword">int</strong> mf) {
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>          <strong class="jxr_keyword">return</strong> LZEncoder.getMemoryUsage(dictSize,
@@ -46,7 +46,7 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>                 + OPTS * 64 / 1024;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoderNormal.html">LZMAEncoderNormal</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/rangecoder/RangeEncoder.html">RangeEncoder</a> rc, <strong class="jxr_keyword">int</strong> lc, <strong class="jxr_keyword">int</strong> lp, <strong class="jxr_keyword">int</strong> pb,
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <a name="LZMAEncoderNormal" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoderNormal.html#LZMAEncoderNormal">LZMAEncoderNormal</a>(<a name="RangeEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/rangecoder/RangeEncoder.html#RangeEncoder">RangeEncoder</a> rc, <strong class="jxr_keyword">int</strong> lc, <strong class="jxr_keyword">int</strong> lp, <strong class="jxr_keyword">int</strong> pb,
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>                               <strong class="jxr_keyword">int</strong> dictSize, <strong class="jxr_keyword">int</strong> extraSizeBefore,
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>                               <strong class="jxr_keyword">int</strong> niceLen, <strong class="jxr_keyword">int</strong> mf, <strong class="jxr_keyword">int</strong> depthLimit) {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">super</strong>(rc, LZEncoder.getInstance(dictSize,
@@ -58,7 +58,7 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                lc, lp, pb, dictSize, niceLen);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; OPTS; ++i)
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>              opts[i] = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html">Optimum</a>();
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              opts[i] = <strong class="jxr_keyword">new</strong> <a name="Optimum" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html#Optimum">Optimum</a>();
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> reset() {
@@ -78,7 +78,7 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">int</strong> optPrev = opts[optCur].optPrev;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">do</strong> {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html">Optimum</a> opt = opts[optCur];
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <a name="Optimum" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/Optimum.html#Optimum">Optimum</a> opt = opts[optCur];
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">if</strong> (opt.prev1IsLiteral) {
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>                  opts[optPrev].optPrev = optCur;
@@ -574,6 +574,6 @@
 <a class="jxr_linenumber" name="L566" href="#L566">566</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

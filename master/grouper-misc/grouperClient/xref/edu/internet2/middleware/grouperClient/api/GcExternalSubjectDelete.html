@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -42,7 +42,7 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * class to run a external subject delete web service call</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html">GcExternalSubjectDelete</a> {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GcExternalSubjectDelete" href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html#GcExternalSubjectDelete">GcExternalSubjectDelete</a> {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>    <em class="jxr_javadoccomment">/** delete external subject lookups */</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> List&lt;WsExternalSubjectLookup&gt; externalSubjectLookups = <strong class="jxr_keyword">new</strong> ArrayList&lt;WsExternalSubjectLookup&gt;();
@@ -52,7 +52,7 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">   * @param wsExternalSubjectLookup</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html">GcExternalSubjectDelete</a> addExternalSubjectLookup(<a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectLookup.html">WsExternalSubjectLookup</a> wsExternalSubjectLookup) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">public</strong> <a name="GcExternalSubjectDelete" href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html#GcExternalSubjectDelete">GcExternalSubjectDelete</a> addExternalSubjectLookup(<a name="WsExternalSubjectLookup" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectLookup.html#WsExternalSubjectLookup">WsExternalSubjectLookup</a> wsExternalSubjectLookup) {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">this</strong>.externalSubjectLookups.add(wsExternalSubjectLookup);
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>    }
@@ -62,8 +62,8 @@
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   * @param theIdentifier</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html">GcExternalSubjectDelete</a> addIdentifier(String theIdentifier) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">this</strong>.externalSubjectLookups.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectLookup.html">WsExternalSubjectLookup</a>(theIdentifier));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">public</strong> <a name="GcExternalSubjectDelete" href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html#GcExternalSubjectDelete">GcExternalSubjectDelete</a> addIdentifier(String theIdentifier) {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">this</strong>.externalSubjectLookups.add(<strong class="jxr_keyword">new</strong> <a name="WsExternalSubjectLookup" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectLookup.html#WsExternalSubjectLookup">WsExternalSubjectLookup</a>(theIdentifier));
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>    }
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>    
@@ -76,8 +76,8 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * @param paramValue</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html">GcExternalSubjectDelete</a> addParam(String paramName, String paramValue) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">this</strong>.params.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html">WsParam</a>(paramName, paramValue));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>    <strong class="jxr_keyword">public</strong> <a name="GcExternalSubjectDelete" href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html#GcExternalSubjectDelete">GcExternalSubjectDelete</a> addParam(String paramName, String paramValue) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">this</strong>.params.add(<strong class="jxr_keyword">new</strong> <a name="WsParam" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html#WsParam">WsParam</a>(paramName, paramValue));
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>    }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>    
@@ -86,20 +86,20 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   * @param wsParam</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html">GcExternalSubjectDelete</a> addParam(<a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html">WsParam</a> wsParam) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    <strong class="jxr_keyword">public</strong> <a name="GcExternalSubjectDelete" href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html#GcExternalSubjectDelete">GcExternalSubjectDelete</a> addParam(<a name="WsParam" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html#WsParam">WsParam</a> wsParam) {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">this</strong>.params.add(wsParam);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>    }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>    
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>    <em class="jxr_javadoccomment">/** act as subject if any */</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubject;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>    <strong class="jxr_keyword">private</strong> <a name="WsSubjectLookup" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> actAsSubject;
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">   * assign the act as subject if any</em>
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">   * @param theActAsSubject</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html">GcExternalSubjectDelete</a> assignActAsSubject(<a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html">WsSubjectLookup</a> theActAsSubject) {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <strong class="jxr_keyword">public</strong> <a name="GcExternalSubjectDelete" href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html#GcExternalSubjectDelete">GcExternalSubjectDelete</a> assignActAsSubject(<a name="WsSubjectLookup" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> theActAsSubject) {
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">this</strong>.actAsSubject = theActAsSubject;
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>    }
@@ -114,14 +114,14 @@
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>   }
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>   
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>   <em class="jxr_javadoccomment">/** tx type for request */</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/ws/GcTransactionType.html">GcTransactionType</a> txType;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">private</strong> <a name="GcTransactionType" href="../../../../../edu/internet2/middleware/grouperClient/ws/GcTransactionType.html#GcTransactionType">GcTransactionType</a> txType;
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> 
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">   * assign the tx type</em>
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">   * @param gcTransactionType</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * @return self for chaining</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html">GcExternalSubjectDelete</a> assignTxType(<a href="../../../../../edu/internet2/middleware/grouperClient/ws/GcTransactionType.html">GcTransactionType</a> gcTransactionType) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <a name="GcExternalSubjectDelete" href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html#GcExternalSubjectDelete">GcExternalSubjectDelete</a> assignTxType(<a name="GcTransactionType" href="../../../../../edu/internet2/middleware/grouperClient/ws/GcTransactionType.html#GcTransactionType">GcTransactionType</a> gcTransactionType) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">this</strong>.txType = gcTransactionType;
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>   }
@@ -134,7 +134,7 @@
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">   * @param theClientVersion</em>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html">GcExternalSubjectDelete</a> assignClientVersion(String theClientVersion) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>   <strong class="jxr_keyword">public</strong> <a name="GcExternalSubjectDelete" href="../../../../../edu/internet2/middleware/grouperClient/api/GcExternalSubjectDelete.html#GcExternalSubjectDelete">GcExternalSubjectDelete</a> assignClientVersion(String theClientVersion) {
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">this</strong>.clientVersion = theClientVersion;
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>   }
@@ -145,13 +145,13 @@
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">   * @return the results</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectDeleteResults.html">WsExternalSubjectDeleteResults</a> execute() {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>   <strong class="jxr_keyword">public</strong> <a name="WsExternalSubjectDeleteResults" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectDeleteResults.html#WsExternalSubjectDeleteResults">WsExternalSubjectDeleteResults</a> execute() {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">this</strong>.validate();
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectDeleteResults.html">WsExternalSubjectDeleteResults</a> wsExternalSubjectDeleteResults = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <a name="WsExternalSubjectDeleteResults" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectDeleteResults.html#WsExternalSubjectDeleteResults">WsExternalSubjectDeleteResults</a> wsExternalSubjectDeleteResults = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>       <em class="jxr_comment">//Make the body of the request, in this case with beans and marshaling, but you can make</em>
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>       <em class="jxr_comment">//your request document in whatever language or way you want</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>       <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestExternalSubjectDeleteRequest.html">WsRestExternalSubjectDeleteRequest</a> externalSubjectDelete = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestExternalSubjectDeleteRequest.html">WsRestExternalSubjectDeleteRequest</a>();
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>       <a name="WsRestExternalSubjectDeleteRequest" href="../../../../../edu/internet2/middleware/grouperCl<a name="WsRestExternalSubjectDeleteRequest" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestExternalSubjectDeleteRequest.html#WsRestExternalSubjectDeleteRequest">WsRestExternalSubjectDeleteRequest</a>tDeleteRequest.html#WsRestExternalSubjectDeleteRequest">WsRestExternalSubjectDeleteRequest</a> externalSubjectDelete = <strong class="jxr_keyword">new</strong> <a name="WsRestExternalSubjectDeleteRequest" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestExternalSubjectDeleteRequest.html#WsRestExternalSubjectDeleteRequest">WsRestExternalSubjectDeleteRequest</a>();
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> 
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>       externalSubjectDelete.setActAsSubjectLookup(<strong class="jxr_keyword">this</strong>.actAsSubject);
 <a class="jxr_linenumber" name="L149" href="#L149">149</a> 
@@ -165,10 +165,10 @@
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         externalSubjectDelete.setParams(GrouperClientUtils.toArray(<strong class="jxr_keyword">this</strong>.params, WsParam.<strong class="jxr_keyword">class</strong>));
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>       }
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>       
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>       <a href="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html">GrouperClientWs</a> grouperClientWs = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html">GrouperClientWs</a>();
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>       <a name="GrouperClientWs" href="../../../../../edu/internet2/middleware/gro<a name="GrouperClientWs" href="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html#GrouperClientWs">GrouperClientWs</a>rouperClientWs.html#GrouperClientWs">GrouperClientWs</a> grouperClientWs = <strong class="jxr_keyword">new</strong> <a name="GrouperClientWs" href="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html#GrouperClientWs">GrouperClientWs</a>();
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>       
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>       <em class="jxr_comment">//kick off the web service</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>       wsExternalSubjectDeleteResults = (WsExternalSubjectDeleteResults)
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>       wsExternalSubjectDeleteResults = (<a name="WsExternalSubjectDeleteResults" href="../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsExternalSubjectDeleteResults.html#WsExternalSubjectDeleteResults">WsExternalSubjectDeleteResults</a>)
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         grouperClientWs.executeService(<span class="jxr_string">"externalSubjects"</span>, externalSubjectDelete, 
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>             <span class="jxr_string">"externalSubjectDelete"</span>, <strong class="jxr_keyword">this</strong>.clientVersion, false);
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>       
@@ -185,6 +185,6 @@
 <a class="jxr_linenumber" name="L177" href="#L177">177</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

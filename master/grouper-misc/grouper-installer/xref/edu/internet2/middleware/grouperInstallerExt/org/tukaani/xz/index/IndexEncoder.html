@@ -25,17 +25,17 @@
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.common.EncoderUtil;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.XZIOException;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html">IndexEncoder</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexBase.html">IndexBase</a> {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="IndexEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html#IndexEncoder">IndexEncoder</a> <strong class="jxr_keyword">extends</strong> <a name="IndexBase" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexBase.html#IndexBase">IndexBase</a> {
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ArrayList records = <strong class="jxr_keyword">new</strong> ArrayList();
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html">IndexEncoder</a>() {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <strong class="jxr_keyword">super</strong>(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a>(<span class="jxr_string">"XZ Stream or its Index has grown too big"</span>));
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">public</strong> <a name="IndexEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html#IndexEncoder">IndexEncoder</a>() {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <strong class="jxr_keyword">super</strong>(<strong class="jxr_keyword">new</strong> <a name="XZIOException" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a>(<span class="jxr_string">"XZ Stream or its Index has grown too big"</span>));
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>      }
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> add(<strong class="jxr_keyword">long</strong> unpaddedSize, <strong class="jxr_keyword">long</strong> uncompressedSize)
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>              <strong class="jxr_keyword">throws</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a> {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>              <strong class="jxr_keyword">throws</strong> <a name="XZIOException" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a> {
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">super</strong>.add(unpaddedSize, uncompressedSize);
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          records.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexRecord.html">IndexRecord</a>(unpaddedSize, uncompressedSize));
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          records.add(<strong class="jxr_keyword">new</strong> <a name="IndexRecord" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexRecord.html#IndexRecord">IndexRecord</a>(unpaddedSize, uncompressedSize));
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>      }
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> encode(OutputStream out) <strong class="jxr_keyword">throws</strong> IOException {
@@ -50,7 +50,7 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          <em class="jxr_comment">// List of Records</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">for</strong> (Iterator i = records.iterator(); i.hasNext(); ) {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexRecord.html">IndexRecord</a> record = (IndexRecord)i.next();
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <a name="IndexRecord" <a name="IndexRecord" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexRecord.html#IndexRecord">IndexRecord</a>/../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexRecord.html#IndexRecord">IndexRecord</a> record = (<a name="IndexRecord" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexRecord.html#IndexRecord">IndexRecord</a>)i.next();
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              EncoderUtil.encodeVLI(outChecked, record.unpadded);
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>              EncoderUtil.encodeVLI(outChecked, record.uncompressed);
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          }
@@ -67,6 +67,6 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

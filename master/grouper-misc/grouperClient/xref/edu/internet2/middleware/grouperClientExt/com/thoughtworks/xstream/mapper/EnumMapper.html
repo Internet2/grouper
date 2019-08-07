@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -53,11 +53,11 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * @author Joe Walnes</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * @author J&amp;ouml;rg Schaible</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/EnumMapper.html">EnumMapper</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/AttributeMapper.html">AttributeMapper</a> {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="EnumMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/EnumMapper.html#EnumMapper">EnumMapper</a> <strong class="jxr_keyword">extends</strong> <a name="AttributeMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/AttributeMapper.html#AttributeMapper">AttributeMapper</a> {
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> Map enumConverterMap = <strong class="jxr_keyword">new</strong> WeakHashMap();
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/EnumMapper.html">EnumMapper</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> wrapped, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConverterLookup.html">ConverterLookup</a> converterLookup) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">public</strong> <a name="EnumMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/EnumMapper.html#EnumMapper">EnumMapper</a>(<a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> wrapped, <a name="ConverterLookup" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConverterLookup.html#ConverterLookup">ConverterLookup</a> converterLookup) {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">super</strong>(wrapped, converterLookup);
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
@@ -65,7 +65,7 @@
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @deprecated since 1.3, use {@link #EnumMapper(Mapper, ConverterLookup)}</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Deprecated
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/EnumMapper.html">EnumMapper</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> wrapped) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <a name="EnumMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/EnumMapper.html#EnumMapper">EnumMapper</a>(<a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> wrapped) {
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">super</strong>(wrapped, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
@@ -73,8 +73,8 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * @deprecated since 1.2, use {@link #EnumMapper(Mapper, ConverterLookup))}</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      @Deprecated
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/EnumMapper.html">EnumMapper</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/ClassMapper.html">ClassMapper</a> wrapped) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">this</strong>((Mapper)wrapped, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">public</strong> <a name="EnumMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/EnumMapper.html#EnumMapper">EnumMapper</a>(<a name="ClassMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/ClassMapper.html#ClassMapper">ClassMapper</a> wrapped) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">this</strong>((<a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a>)wrapped, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">public</strong> String serializedClass(Class type) {
@@ -94,12 +94,12 @@
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">return</strong> (Enum.<strong class="jxr_keyword">class</strong>.isAssignableFrom(type)) || <strong class="jxr_keyword">super</strong>.isImmutableValueType(type);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> getLocalConverterFromItemType(Class type) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">protected</strong> <a name="SingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> getLocalConverterFromItemType(Class type) {
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">if</strong> (Enum.<strong class="jxr_keyword">class</strong>.isAssignableFrom(type)) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">synchronized</strong> (enumConverterMap) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> singleValueConverter = (SingleValueConverter)enumConverterMap.get(type);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <a name="SingleValueConverter" href="../../..<a name="SingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a>internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> singleValueConverter = (<a name="SingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a>)enumConverterMap.get(type);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                  <strong class="jxr_keyword">if</strong> (singleValueConverter == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                      singleValueConverter = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/enums/EnumSingleValueConverter.html">EnumSingleValueConverter</a>(type);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                      singleValueConverter = <strong class="jxr_keyword">new</strong> <a name="EnumSingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/enums/EnumSingleValueConverter.html#EnumSingleValueConverter">EnumSingleValueConverter</a>(type);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                      enumConverterMap.put(type, singleValueConverter);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                  }
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <strong class="jxr_keyword">return</strong> singleValueConverter;
@@ -115,6 +115,6 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

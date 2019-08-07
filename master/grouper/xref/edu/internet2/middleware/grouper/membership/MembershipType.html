@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -32,7 +32,7 @@
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * type of membership</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> enum <a name="MembershipType" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html#MembershipType">MembershipType</a> {
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">   * An immediate member is directly assigned to a group.</em>
@@ -117,7 +117,7 @@
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">   * construct with type</em>
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">   * @param theType</em>
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a>(String theType) {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>   <strong class="jxr_keyword">private</strong> <a name="MembershipType" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html#MembershipType">MembershipType</a>(String theType) {
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">this</strong>.typeString = theType; 
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>   }
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>   
@@ -139,7 +139,7 @@
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">   * @param exceptionOnNull will not allow null or blank entries</em>
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">   * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipType" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html#MembershipType">MembershipType</a> valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>     
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">return</strong> GrouperUtil.enumValueOfIgnoreCase(MembershipType.<strong class="jxr_keyword">class</strong>, 
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         string, exceptionOnNull);
@@ -149,6 +149,6 @@
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

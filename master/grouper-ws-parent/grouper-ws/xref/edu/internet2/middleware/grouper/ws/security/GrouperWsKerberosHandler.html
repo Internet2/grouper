@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -42,7 +42,7 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * @see javax.security.auth.callback</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">GrouperWsKerberosHandler</a> <strong class="jxr_keyword">implements</strong> CallbackHandler {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GrouperWsKerberosHandler" href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html#GrouperWsKerberosHandler">GrouperWsKerberosHandler</a> <strong class="jxr_keyword">implements</strong> CallbackHandler {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>    <em class="jxr_javadoccomment">/** principal */</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> String principal;
@@ -59,7 +59,7 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">   * @param thePassword password</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">GrouperWsKerberosHandler</a>(String thePrincipal, String thePassword) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">public</strong> <a name="GrouperWsKerberosHandler" href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html#GrouperWsKerberosHandler">GrouperWsKerberosHandler</a>(String thePrincipal, String thePassword) {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">this</strong>.principal = thePrincipal;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">this</strong>.password = thePassword;
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>    }
@@ -154,7 +154,7 @@
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>             <span class="jxr_string">"Unrecognized message type: "</span> + messageType);
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     }
 <a class="jxr_linenumber" name="L148" href="#L148">148</a> 
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a> {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">class</strong> OptionInfo {
 <a class="jxr_linenumber" name="L150" href="#L150">150</a> 
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>       <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">       * name</em>
@@ -168,7 +168,7 @@
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">       * @param name1</em>
 <a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">       * @param value1</em>
 <a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">       */</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>       <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>(String name1, <strong class="jxr_keyword">int</strong> value1) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>       OptionInfo(String name1, <strong class="jxr_keyword">int</strong> value1) {
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">this</strong>.name = name1;
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         <em class="jxr_comment">//noop since this.name not read and got warning</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">this</strong>.value = Integer.parseInt(<strong class="jxr_keyword">this</strong>.name);
@@ -176,25 +176,25 @@
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>       }
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>     }
 <a class="jxr_linenumber" name="L170" href="#L170">170</a> 
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>[] options;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     OptionInfo[] options;
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">int</strong> optionType = confirmation.getOptionType();
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">switch</strong> (optionType) {
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>       <strong class="jxr_keyword">case</strong> ConfirmationCallback.YES_NO_OPTION:
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         options = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>[] { <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"Yes"</span>, ConfirmationCallback.YES),
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>(<span class="jxr_string">"No"</span>, ConfirmationCallback.NO) };
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         options = <strong class="jxr_keyword">new</strong> OptionInfo[] { <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"Yes"</span>, ConfirmationCallback.YES),
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"No"</span>, ConfirmationCallback.NO) };
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>       <strong class="jxr_keyword">case</strong> ConfirmationCallback.YES_NO_CANCEL_OPTION:
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         options = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>[] { <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"Yes"</span>, ConfirmationCallback.YES),
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>(<span class="jxr_string">"No"</span>, ConfirmationCallback.NO),
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>(<span class="jxr_string">"Cancel"</span>, ConfirmationCallback.CANCEL) };
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         options = <strong class="jxr_keyword">new</strong> OptionInfo[] { <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"Yes"</span>, ConfirmationCallback.YES),
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"No"</span>, ConfirmationCallback.NO),
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"Cancel"</span>, ConfirmationCallback.CANCEL) };
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>       <strong class="jxr_keyword">case</strong> ConfirmationCallback.OK_CANCEL_OPTION:
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         options = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>[] { <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"OK"</span>, ConfirmationCallback.OK),
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>(<span class="jxr_string">"Cancel"</span>, ConfirmationCallback.CANCEL) };
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         options = <strong class="jxr_keyword">new</strong> OptionInfo[] { <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"OK"</span>, ConfirmationCallback.OK),
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">new</strong> OptionInfo(<span class="jxr_string">"Cancel"</span>, ConfirmationCallback.CANCEL) };
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>       <strong class="jxr_keyword">case</strong> ConfirmationCallback.UNSPECIFIED_OPTION:
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         String[] optionStrings = confirmation.getOptions();
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         options = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/security/GrouperWsKerberosHandler.html">OptionInfo</a>[optionStrings.length];
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         options = <strong class="jxr_keyword">new</strong> OptionInfo[optionStrings.length];
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; options.length; i++) {
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>           options[i].value = i;
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>         }
@@ -231,6 +231,6 @@
 <a class="jxr_linenumber" name="L223" href="#L223">223</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

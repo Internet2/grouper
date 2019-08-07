@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -53,26 +53,26 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * @author Aslak Helles&amp;oslash;y</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * @author J&amp;ouml;rg Schaible</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/extended/JavaMethodConverter.html">JavaMethodConverter</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html">Converter</a> {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="JavaMethodConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/extended/JavaMethodConverter.html#JavaMethodConverter">JavaMethodConverter</a> <strong class="jxr_keyword">implements</strong> <a name="Converter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html#Converter">Converter</a> {
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> javaClassConverter;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="SingleValueConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> javaClassConverter;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * @deprecated As of 1.2 - use other constructor and explicitly supply a ClassLoader.</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/extended/JavaMethodConverter.html">JavaMethodConverter</a>() {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> <a name="JavaMethodConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/extended/JavaMethodConverter.html#JavaMethodConverter">JavaMethodConverter</a>() {
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">this</strong>(JavaMethodConverter.<strong class="jxr_keyword">class</strong>.getClassLoader());
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/extended/JavaMethodConverter.html">JavaMethodConverter</a>(ClassLoader classLoader) {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">this</strong>.javaClassConverter = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/extended/JavaClassConverter.html">JavaClassConverter</a>(classLoader);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">public</strong> <a name="JavaMethodConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/extended/JavaMethodConverter.html#JavaMethodConverter">JavaMethodConverter</a>(ClassLoader classLoader) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">this</strong>.javaClassConverter = <strong class="jxr_keyword">new</strong> <a name="JavaClassConverter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/extended/JavaClassConverter.html#JavaClassConverter">JavaClassConverter</a>(classLoader);
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      }
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> canConvert(Class type) {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">return</strong> type.equals(Method.<strong class="jxr_keyword">class</strong>) || type.equals(Constructor.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> marshal(Object source, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html">HierarchicalStreamWriter</a> writer, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html">MarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> marshal(Object source, <a name="HierarchicalStreamWriter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html#HierarchicalStreamWriter">HierarchicalStreamWriter</a> writer, <a name="MarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/MarshallingContext.html#MarshallingContext">MarshallingContext</a> context) {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">if</strong> (source instanceof Method) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              Method method = (Method) source;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>              String declaringClassName = javaClassConverter.toString(method.getDeclaringClass());
@@ -84,7 +84,7 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> marshalMethod(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html">HierarchicalStreamWriter</a> writer, String declaringClassName, String methodName, Class[] parameterTypes) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> marshalMethod(<a name="HierarchicalStreamWriter" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamWriter.html#HierarchicalStreamWriter">HierarchicalStreamWriter</a> writer, String declaringClassName, String methodName, Class[] parameterTypes) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          writer.startNode(<span class="jxr_string">"class"</span>);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          writer.setValue(declaringClassName);
@@ -106,7 +106,7 @@
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          writer.endNode();
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">public</strong> Object unmarshal(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html">UnmarshallingContext</a> context) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">public</strong> Object unmarshal(<a name="HierarchicalStreamReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader, <a name="UnmarshallingContext" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html#UnmarshallingContext">UnmarshallingContext</a> context) {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">boolean</strong> isMethodNotConstructor = context.getRequiredType().equals(Method.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> 
@@ -139,12 +139,12 @@
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                 <strong class="jxr_keyword">return</strong> declaringClass.getDeclaredConstructor(parameterTypes);
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>             }
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         } <strong class="jxr_keyword">catch</strong> (NoSuchMethodException e) {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(e);
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(e);
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         }
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

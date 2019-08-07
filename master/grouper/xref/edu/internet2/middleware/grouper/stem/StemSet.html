@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -45,7 +45,7 @@
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * $Id$</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html">StemSet</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> <strong class="jxr_keyword">implements</strong> Hib3GrouperVersioned, <a href="../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html">GrouperSet</a> {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> <strong class="jxr_keyword">implements</strong> Hib3GrouperVersioned, <a name="GrouperSet" href="../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html#GrouperSet">GrouperSet</a> {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">   * </em>
@@ -141,7 +141,7 @@
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>   <strong class="jxr_keyword">private</strong> String contextId;
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>   
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>   <em class="jxr_javadoccomment">/** membership type -- self, immediate, or effective */</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/stem/StemHierarchyType.html">StemHierarchyType</a> type = StemHierarchyType.immediate;
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>   <strong class="jxr_keyword">private</strong> <a name="StemHierarchyType" href="../../../../../edu/internet2/middleware/grouper/stem/StemHierarchyType.html#StemHierarchyType">StemHierarchyType</a> type = StemHierarchyType.immediate;
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> 
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">   * for self, or immediate, just use this id.</em>
@@ -180,12 +180,12 @@
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">   * @param exceptionIfNull </em>
 <a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">   * @return the stem set</em>
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html">StemSet</a> findInCollection(
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a> findInCollection(
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>       Collection&lt;StemSet&gt; stemSets, String ifHasId, 
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>       String thenHasId, <strong class="jxr_keyword">int</strong> depth, <strong class="jxr_keyword">boolean</strong> exceptionIfNull) {
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> 
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>     <em class="jxr_comment">//are we sure we are getting the right one here???</em>
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">for</strong> (StemSet stemSet : GrouperUtil.nonNull(stemSets)) {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">for</strong> (<a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a> stemSet : GrouperUtil.nonNull(stemSets)) {
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>       <strong class="jxr_keyword">if</strong> (StringUtils.equals(ifHasId, stemSet.getIfHasStemId())
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>           &amp;&amp; StringUtils.equals(thenHasId, stemSet.getThenHasStemId())
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>           &amp;&amp; depth == stemSet.getDepth()) {
@@ -207,11 +207,11 @@
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>     
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">if</strong> (!(other instanceof StemSet)) {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">if</strong> (!(other instanceof <a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a>)) {
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>     }
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>     
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <a href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html">StemSet</a> that = (StemSet) other;
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <a name="StemSet<a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a>"../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a> that = (<a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a>) other;
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> EqualsBuilder()
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>       .append(<strong class="jxr_keyword">this</strong>.parentStemSetId, that.parentStemSetId)
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>       .append(<strong class="jxr_keyword">this</strong>.thenHasStemId, that.thenHasStemId)
@@ -236,33 +236,33 @@
 <a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>   @Override
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> clone() {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> clone() {
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">return</strong> GrouperUtil.clone(<strong class="jxr_keyword">this</strong>, CLONE_FIELDS);
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>   }
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>   
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">   * @return the parent stem set</em>
 <a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html">StemSet</a> getParentStemSet() {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>   <strong class="jxr_keyword">public</strong> <a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a> getParentStemSet() {
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.depth == 0) {
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>     }
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>     
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <a href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html">StemSet</a> parent = GrouperDAOFactory.getFactory().getStemSet().findById(<strong class="jxr_keyword">this</strong>.getParentStemSetId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a> parent = GrouperDAOFactory.getFactory().getStemSet().findById(<strong class="jxr_keyword">this</strong>.getParentStemSetId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">return</strong> parent;
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>   }
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>   
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">   * @return the if has stem.  An object in this stem is also in the thenHas stem.</em>
 <a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> getIfHasStem() {
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>   <strong class="jxr_keyword">public</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> getIfHasStem() {
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>     <strong class="jxr_keyword">return</strong> GrouperDAOFactory.getFactory().getStem().findByUuid(<strong class="jxr_keyword">this</strong>.getIfHasStemId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>   }
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>   
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">   * @return the then has stem.  An object in the ifHas stem is also in this stem.</em>
 <a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> getThenHasStem() {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>   <strong class="jxr_keyword">public</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> getThenHasStem() {
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">return</strong> GrouperDAOFactory.getFactory().getStem().findByUuid(<strong class="jxr_keyword">this</strong>.getThenHasStemId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>   }
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>   
@@ -342,7 +342,7 @@
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L335" href="#L335">335</a> <em class="jxr_javadoccomment">   * @return membership type (immediate, effective, or self)</em>
 <a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/stem/StemHierarchyType.html">StemHierarchyType</a> getType() {
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>   <strong class="jxr_keyword">public</strong> <a name="StemHierarchyType" href="../../../../../edu/internet2/middleware/grouper/stem/StemHierarchyType.html#StemHierarchyType">StemHierarchyType</a> getType() {
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.type;
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>   }
 <a class="jxr_linenumber" name="L340" href="#L340">340</a> 
@@ -358,7 +358,7 @@
 <a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_javadoccomment">   * set stem set assignment type</em>
 <a class="jxr_linenumber" name="L351" href="#L351">351</a> <em class="jxr_javadoccomment">   * @param type1</em>
 <a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setType(<a href="../../../../../edu/internet2/middleware/grouper/stem/StemHierarchyType.html">StemHierarchyType</a> type1) {
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setType(<a name="StemHierarchyType" href="../../../../../edu/internet2/middleware/grouper/stem/StemHierarchyType.html#StemHierarchyType">StemHierarchyType</a> type1) {
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>     <strong class="jxr_keyword">this</strong>.type = type1;
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>   }
 <a class="jxr_linenumber" name="L356" href="#L356">356</a> 
@@ -502,14 +502,14 @@
 <a class="jxr_linenumber" name="L494" href="#L494">494</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getIfHasElement()</em>
 <a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSetElement.html">GrouperSetElement</a> __getIfHasElement() {
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperSetElement" href="../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSetElement.html#GrouperSetElement">GrouperSetElement</a> __getIfHasElement() {
 <a class="jxr_linenumber" name="L498" href="#L498">498</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.getIfHasStem();
 <a class="jxr_linenumber" name="L499" href="#L499">499</a>   }
 <a class="jxr_linenumber" name="L500" href="#L500">500</a> 
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getThenHasElement()</em>
 <a class="jxr_linenumber" name="L503" href="#L503">503</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSetElement.html">GrouperSetElement</a> __getThenHasElement() {
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperSetElement" href="../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSetElement.html#GrouperSetElement">GrouperSetElement</a> __getThenHasElement() {
 <a class="jxr_linenumber" name="L505" href="#L505">505</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.getThenHasStem();
 <a class="jxr_linenumber" name="L506" href="#L506">506</a>   }
 <a class="jxr_linenumber" name="L507" href="#L507">507</a> 
@@ -523,7 +523,7 @@
 <a class="jxr_linenumber" name="L515" href="#L515">515</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getParentGrouperSet()</em>
 <a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html">GrouperSet</a> __getParentGrouperSet() {
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperSet" href="../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html#GrouperSet">GrouperSet</a> __getParentGrouperSet() {
 <a class="jxr_linenumber" name="L519" href="#L519">519</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.getParentStemSet();
 <a class="jxr_linenumber" name="L520" href="#L520">520</a>   }
 <a class="jxr_linenumber" name="L521" href="#L521">521</a> 
@@ -538,7 +538,7 @@
 <a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">   * @see GrouperAPI#onPreSave(HibernateSession)</em>
 <a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L532" href="#L532">532</a>   @Override
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreSave(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreSave(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L534" href="#L534">534</a>     <strong class="jxr_keyword">super</strong>.onPreSave(hibernateSession);
 <a class="jxr_linenumber" name="L535" href="#L535">535</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.createdOnDb == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L536" href="#L536">536</a>       <strong class="jxr_keyword">this</strong>.createdOnDb = System.currentTimeMillis();
@@ -551,7 +551,7 @@
 <a class="jxr_linenumber" name="L543" href="#L543">543</a> <em class="jxr_javadoccomment">   * @see GrouperAPI#onPreUpdate(HibernateSession)</em>
 <a class="jxr_linenumber" name="L544" href="#L544">544</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L545" href="#L545">545</a>   @Override
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreUpdate(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreUpdate(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L547" href="#L547">547</a>     <strong class="jxr_keyword">super</strong>.onPreUpdate(hibernateSession);
 <a class="jxr_linenumber" name="L548" href="#L548">548</a>     <strong class="jxr_keyword">this</strong>.lastUpdatedDb = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L549" href="#L549">549</a>     
@@ -577,8 +577,8 @@
 <a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">   * @return the dbVersion</em>
 <a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>   @Override
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html">StemSet</a> dbVersion() {
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>     <strong class="jxr_keyword">return</strong> (StemSet)<strong class="jxr_keyword">this</strong>.dbVersion;
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>   <strong class="jxr_keyword">public</strong> <a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a> dbVersion() {
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>     <strong class="jxr_keyword">return</strong> (<a name="StemSet" href="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html#StemSet">StemSet</a>)<strong class="jxr_keyword">this</strong>.dbVersion;
 <a class="jxr_linenumber" name="L574" href="#L574">574</a>   }
 <a class="jxr_linenumber" name="L575" href="#L575">575</a>   
 <a class="jxr_linenumber" name="L576" href="#L576">576</a>   <em class="jxr_javadoccomment">/**</em>
@@ -607,6 +607,6 @@
 <a class="jxr_linenumber" name="L599" href="#L599">599</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

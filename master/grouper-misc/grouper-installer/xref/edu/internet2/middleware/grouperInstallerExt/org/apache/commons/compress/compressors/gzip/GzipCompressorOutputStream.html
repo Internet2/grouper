@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -46,7 +46,7 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://tools.ietf.org/html/rfc1952" target="alexandria_uri">http://tools.ietf.org/html/rfc1952</a>"&gt;GZIP File Format Specification&lt;/a&gt;</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipCompressorOutputStream.html">GzipCompressorOutputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/CompressorOutputStream.html">CompressorOutputStream</a> {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GzipCompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipCompressorOutputStream.html#GzipCompressorOutputStream">GzipCompressorOutputStream</a> <strong class="jxr_keyword">extends</strong> <a name="CompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/CompressorOutputStream.html#CompressorOutputStream">CompressorOutputStream</a> {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_javadoccomment">/** Header flag indicating a file name follows the header */</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> FNAME = 1 &lt;&lt; 3;
@@ -72,8 +72,8 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * Creates a gzip compressed output stream with the default parameters.</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipCompressorOutputStream.html">GzipCompressorOutputStream</a>(OutputStream out) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">this</strong>(out, <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipParameters.html">GzipParameters</a>());
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <a name="GzipCompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipCompressorOutputStream.html#GzipCompressorOutputStream">GzipCompressorOutputStream</a>(OutputStream out) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">this</strong>(out, <strong class="jxr_keyword">new</strong> <a name="GzipParameters" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipParameters.html#GzipParameters">GzipParameters</a>());
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_javadoccomment">/**</em>
@@ -81,14 +81,14 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     * </em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * @since 1.7</em>
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipCompressorOutputStream.html">GzipCompressorOutputStream</a>(OutputStream out, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipParameters.html">GzipParameters</a> parameters) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <a name="GzipCompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipCompressorOutputStream.html#GzipCompressorOutputStream">GzipCompressorOutputStream</a>(OutputStream out, <a name="GzipParameters" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipParameters.html#GzipParameters">GzipParameters</a> parameters) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">this</strong>.out = out;
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">this</strong>.deflater = <strong class="jxr_keyword">new</strong> Deflater(parameters.getCompressionLevel(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          writeHeader(parameters);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeHeader(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipParameters.html">GzipParameters</a> parameters) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeHeader(<a name="GzipParameters" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/gzip/GzipParameters.html#GzipParameters">GzipParameters</a> parameters) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          String filename = parameters.getFilename();
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          String comment = parameters.getComment();
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          
@@ -216,6 +216,6 @@
 <a class="jxr_linenumber" name="L208" href="#L208">208</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

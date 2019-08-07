@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -75,7 +75,7 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/discovery/DiscoveryClient.html">DiscoveryClient</a> {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="DiscoveryClient" href="../../../../../edu/internet2/middleware/grouperClient/discovery/DiscoveryClient.html#DiscoveryClient">DiscoveryClient</a> {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">   * usage on command line</em>
@@ -416,7 +416,7 @@
 <a class="jxr_linenumber" name="L408" href="#L408">408</a>         <strong class="jxr_keyword">if</strong> (discoveryUrls.size() &gt; 0) {
 <a class="jxr_linenumber" name="L409" href="#L409">409</a> 
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>           <em class="jxr_comment">//configure it</em>
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>           <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverConfig</a> failoverConfig = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverConfig</a>();
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>           <a name="FailoverConfig" href="../../../../../edu/internet2/middleware/gr<a name="FailoverConfig" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html#FailoverConfig">FailoverConfig</a>ilover/FailoverConfig.html#FailoverConfig">FailoverConfig</a> failoverConfig = <strong class="jxr_keyword">new</strong> <a name="FailoverConfig" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html#FailoverConfig">FailoverConfig</a>();
 <a class="jxr_linenumber" name="L412" href="#L412">412</a>           failoverConfig.setConnectionNames(discoveryUrls);
 <a class="jxr_linenumber" name="L413" href="#L413">413</a>           failoverConfig.setConnectionType(DISCOVERY_CLIENT_CONNECTION_TYPE);
 <a class="jxr_linenumber" name="L414" href="#L414">414</a>           failoverConfig.setFailoverStrategy(FailoverStrategy.activeActive);
@@ -614,7 +614,7 @@
 <a class="jxr_linenumber" name="L606" href="#L606">606</a> <em class="jxr_javadoccomment">       * logic to get the discovery file</em>
 <a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_javadoccomment">       */</em>
 <a class="jxr_linenumber" name="L608" href="#L608">608</a>       <em class="jxr_comment">// @Override</em>
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>       <strong class="jxr_keyword">public</strong> File logic(<a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverLogicBean.html">FailoverLogicBean</a> failoverLogicBean) {
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>       <strong class="jxr_keyword">public</strong> File logic(<a name="FailoverLogicBean" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverLogicBean.html#FailoverLogicBean">FailoverLogicBean</a> failoverLogicBean) {
 <a class="jxr_linenumber" name="L610" href="#L610">610</a>         
 <a class="jxr_linenumber" name="L611" href="#L611">611</a>         Map&lt;String, Object&gt; logMap = log.isDebugEnabled() ? <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, Object&gt;() : <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L612" href="#L612">612</a> 
@@ -888,6 +888,6 @@
 <a class="jxr_linenumber" name="L880" href="#L880">880</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

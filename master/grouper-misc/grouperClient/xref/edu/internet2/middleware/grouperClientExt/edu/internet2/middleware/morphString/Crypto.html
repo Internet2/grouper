@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -57,15 +57,15 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> * configurator (Crypto is the default encryption mechanism for that).</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;p&gt; </em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html">Crypto</a> {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Crypto" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html#Crypto">Crypto</a> {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>    <em class="jxr_javadoccomment">/** threadlocal provided for conveniency */</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> ThreadLocal&lt;Crypto&gt; threadLocalCrypto = <strong class="jxr_keyword">new</strong> ThreadLocal&lt;Crypto&gt;();
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>    
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>    <em class="jxr_javadoccomment">/** @return a non-null thread-safe crypto object from a ThreadLocal */</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html">Crypto</a> getThreadLocalCrypto() {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html">Crypto</a> crypto = threadLocalCrypto.get();
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="Crypto" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html#Crypto">Crypto</a> getThreadLocalCrypto() {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <a name="Crypto" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html#Crypto">Crypto</a> crypto = threadLocalCrypto.get();
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">if</strong> (crypto == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>        crypto = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html">Crypto</a>();
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>        crypto = <strong class="jxr_keyword">new</strong> <a name="Crypto" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html#Crypto">Crypto</a>();
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>        threadLocalCrypto.set(crypto);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">return</strong> crypto;
@@ -114,14 +114,14 @@
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>   }
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>   
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>   <em class="jxr_javadoccomment">/** Default crypto object */</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html">Crypto</a>() {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">public</strong> <a name="Crypto" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html#Crypto">Crypto</a>() {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">this</strong>(Morph.key());
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>   }
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>   
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>   <em class="jxr_javadoccomment">/** Default crypto object </em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * @param theKey used to encrypt/decrypt </em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html">Crypto</a>(String theKey) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <a name="Crypto" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/edu/internet2/middleware/morphString/Crypto.html#Crypto">Crypto</a>(String theKey) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">super</strong>();
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     init(theKey);
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>   }
@@ -252,6 +252,6 @@
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

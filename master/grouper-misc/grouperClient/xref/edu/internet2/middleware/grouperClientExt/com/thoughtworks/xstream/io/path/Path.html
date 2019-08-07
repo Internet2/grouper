@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -69,13 +69,13 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> * @author Joe Walnes</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String[] chunks;
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> String pathAsString;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> DOT = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a>(<strong class="jxr_keyword">new</strong> String[] {<span class="jxr_string">"."</span>});
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="Path" href="../../../../../../../../../edu/<a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>rnet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> DOT = <strong class="jxr_keyword">new</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>(<strong class="jxr_keyword">new</strong> String[] {<span class="jxr_string">"."</span>});
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a>(String pathAsString) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>(String pathAsString) {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          <em class="jxr_comment">// String.split() too slow. StringTokenizer too crappy.</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          List result = <strong class="jxr_keyword">new</strong> ArrayList();
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">int</strong> currentIndex = 0;
@@ -91,7 +91,7 @@
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">this</strong>.pathAsString = pathAsString;
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a>(String[] chunks) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">public</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>(String[] chunks) {
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">this</strong>.chunks = chunks;
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      }
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  
@@ -109,9 +109,9 @@
 <a class="jxr_linenumber" name="L101" href="#L101">101</a> 
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object o) {
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == o) <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">if</strong> (!(o instanceof Path)) <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">if</strong> (!(o instanceof <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>)) <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> 
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> other = (Path) o;
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">final</strong> <a name="Path"<a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>f="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> other = (<a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>) o;
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">if</strong> (chunks.length != other.chunks.length) <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; chunks.length; i++) {
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">if</strong> (!chunks[i].equals(other.chunks[i])) <strong class="jxr_keyword">return</strong> false;
@@ -128,7 +128,7 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">return</strong> result;
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
 <a class="jxr_linenumber" name="L122" href="#L122">122</a> 
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> relativeTo(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> that) {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">public</strong> <a name="Path" h<a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>"../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> relativeTo(<a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> that) {
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">int</strong> depthOfPathDivergence = depthOfPathDivergence(chunks, that.chunks);
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>         String[] result = <strong class="jxr_keyword">new</strong> String[chunks.length + that.chunks.length - 2 * depthOfPathDivergence];
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">int</strong> count = 0;
@@ -143,7 +143,7 @@
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">if</strong> (count == 0) {
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">return</strong> DOT;
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a>(result);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>(result);
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         }
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>     }
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> 
@@ -157,8 +157,8 @@
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">return</strong> minLength;
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>     }
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> 
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> apply(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> relativePath) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a> absoluteStack = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a>(16);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">public</strong> <a name="Pa<a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> apply(<a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> relativePath) {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <a name="FastStack" href="../../../../../../../../../edu/internet2/<a name="FastStack" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>e/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a> absoluteStack = <strong class="jxr_keyword">new</strong> <a name="FastStack" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>(16);
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> 
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; chunks.length; i++) {
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>             absoluteStack.push(chunks[i]);
@@ -178,10 +178,10 @@
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>             result[i] = (String) absoluteStack.get(i);
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> 
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a>(result);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a>(result);
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>     
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isAncestor(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html">Path</a> child) {
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isAncestor(<a name="Path" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/path/Path.html#Path">Path</a> child) {
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">if</strong> (child == <strong class="jxr_keyword">null</strong> || child.chunks.length &lt; chunks.length) {
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>             <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>         }
@@ -195,6 +195,6 @@
 <a class="jxr_linenumber" name="L187" href="#L187">187</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

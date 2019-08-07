@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -54,7 +54,7 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html">GuiAttributeDef</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiObjectBase.html">GuiObjectBase</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GuiAttributeDef" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html#GuiAttributeDef">GuiAttributeDef</a> <strong class="jxr_keyword">extends</strong> <a name="GuiObjectBase" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiObjectBase.html#GuiObjectBase">GuiObjectBase</a> <strong class="jxr_keyword">implements</strong> Serializable {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">   * if the logged in user has admin</em>
@@ -216,11 +216,11 @@
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == other) {
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>     }
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">if</strong> (!(other instanceof GuiAttributeDef)) {
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">if</strong> (!(other instanceof <a name="GuiAttributeDef" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html#GuiAttributeDef">GuiAttributeDef</a>)) {
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>     }
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> EqualsBuilder()
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>       .append( <strong class="jxr_keyword">this</strong>.attributeDef, ( (GuiAttributeDef) other ).attributeDef )
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>       .append( <strong class="jxr_keyword">this</strong>.attributeDef, ( (<a name="GuiAttributeDef" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html#GuiAttributeDef">GuiAttributeDef</a>) other ).attributeDef )
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>       .isEquals();
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>   }
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> 
@@ -263,7 +263,7 @@
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>     
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">int</strong> count = 0;
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>     <strong class="jxr_keyword">for</strong> (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>       tempAttributeDefs.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html">GuiAttributeDef</a>(attributeDef));
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>       tempAttributeDefs.add(<strong class="jxr_keyword">new</strong> <a name="GuiAttributeDef" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html#GuiAttributeDef">GuiAttributeDef</a>(attributeDef));
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>       <strong class="jxr_keyword">if</strong> (max != <strong class="jxr_keyword">null</strong> &amp;&amp; ++count &gt;= max) {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>       }
@@ -382,7 +382,7 @@
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html">GuiAttributeDef</a>() {
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>   <strong class="jxr_keyword">public</strong> <a name="GuiAttributeDef" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html#GuiAttributeDef">GuiAttributeDef</a>() {
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>     
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>   }
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>   
@@ -390,7 +390,7 @@
 <a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">   * @param theAttributeDef</em>
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html">GuiAttributeDef</a>(AttributeDef theAttributeDef) {
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>   <strong class="jxr_keyword">public</strong> <a name="GuiAttributeDef" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiAttributeDef.html#GuiAttributeDef">GuiAttributeDef</a>(AttributeDef theAttributeDef) {
 <a class="jxr_linenumber" name="L386" href="#L386">386</a>     <strong class="jxr_keyword">this</strong>.attributeDef = theAttributeDef;
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>   }
 <a class="jxr_linenumber" name="L388" href="#L388">388</a> 
@@ -450,6 +450,6 @@
 <a class="jxr_linenumber" name="L442" href="#L442">442</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

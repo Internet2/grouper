@@ -48,7 +48,7 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexContainer</a> {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="IndexContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html#IndexContainer">IndexContainer</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">   * show miscellaneous list</em>
@@ -145,7 +145,7 @@
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">   * note, the name here must match exactly the substring of the name of the JSP</em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">   * e.g. grouperUi2/index/indexGroupsImanage.jsp</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum IndexPanel {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>     <em class="jxr_javadoccomment">/** groups I manage panel */</em>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     GroupsImanage {
@@ -213,7 +213,7 @@
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     * @param exceptionIfInvalid</em>
 <a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     * @return enum or exception</em>
 <a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> valueOfIgnoreCase(String indexPanelString, <strong class="jxr_keyword">boolean</strong> exceptionOnNotFound, <strong class="jxr_keyword">boolean</strong> exceptionIfInvalid) {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> IndexPanel valueOfIgnoreCase(String indexPanelString, <strong class="jxr_keyword">boolean</strong> exceptionOnNotFound, <strong class="jxr_keyword">boolean</strong> exceptionIfInvalid) {
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>       
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>       <strong class="jxr_keyword">return</strong> GrouperUtil.enumValueOfIgnoreCase(IndexPanel.<strong class="jxr_keyword">class</strong>, indexPanelString, exceptionOnNotFound, exceptionIfInvalid);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>       
@@ -232,9 +232,9 @@
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>     
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.panelCol0 == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>       
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> defaultIndexPanel = IndexPanel.MyFavorites;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>       IndexPanel defaultIndexPanel = IndexPanel.MyFavorites;
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>       
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> indexPanel = panelColPersonalPreference(0);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>       IndexPanel indexPanel = panelColPersonalPreference(0);
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>       
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>       <strong class="jxr_keyword">if</strong> (indexPanel == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>         String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"uiV2.widget0"</span>, defaultIndexPanel.name());
@@ -252,7 +252,7 @@
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">   * @param colIndex</em>
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">   * @return the enum or null</em>
 <a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> panelColPersonalPreference(<strong class="jxr_keyword">int</strong> colIndex) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> IndexPanel panelColPersonalPreference(<strong class="jxr_keyword">int</strong> colIndex) {
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>     
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>     <em class="jxr_comment">//initialize the bean</em>
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>     GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -266,7 +266,7 @@
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>     }
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>       <em class="jxr_comment">//get the panel string</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/preferences/UiV2Preference.html">UiV2Preference</a> uiV2Preference = GrouperUserDataApi.preferences(GrouperUiUserData.grouperUiGroupNameForUserData(), loggedInSubject, UiV2Preference.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>       <a name="UiV2Preference" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/preferences/UiV2Preference.html#UiV2Preference">UiV2Preference</a> uiV2Preference = GrouperUserDataApi.preferences(GrouperUiUserData.grouperUiGroupNameForUserData(), loggedInSubject, UiV2Preference.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>       
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>       <strong class="jxr_keyword">if</strong> (uiV2Preference != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>         
@@ -288,7 +288,7 @@
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>         }
 <a class="jxr_linenumber" name="L281" href="#L281">281</a> 
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(indexPanelString)) {
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>           <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> indexPanel = IndexPanel.valueOfIgnoreCase(indexPanelString, false, false);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>           IndexPanel indexPanel = IndexPanel.valueOfIgnoreCase(indexPanelString, false, false);
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>           <strong class="jxr_keyword">return</strong> indexPanel;
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>         }
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>         
@@ -317,9 +317,9 @@
 <a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>   <strong class="jxr_keyword">public</strong> String getPanelCol1() {
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.panelCol1 == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> defaultIndexPanel = IndexPanel.GroupsImanage;
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>       IndexPanel defaultIndexPanel = IndexPanel.GroupsImanage;
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>       
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> indexPanel = panelColPersonalPreference(1);
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>       IndexPanel indexPanel = panelColPersonalPreference(1);
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>       
 <a class="jxr_linenumber" name="L316" href="#L316">316</a>       <strong class="jxr_keyword">if</strong> (indexPanel == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L317" href="#L317">317</a>         String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString(
@@ -346,9 +346,9 @@
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>   <strong class="jxr_keyword">public</strong> String getPanelCol2() {
 <a class="jxr_linenumber" name="L339" href="#L339">339</a> 
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.panelCol2 == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> defaultIndexPanel = IndexPanel.MyServices;
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>       IndexPanel defaultIndexPanel = IndexPanel.MyServices;
 <a class="jxr_linenumber" name="L342" href="#L342">342</a> 
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/IndexContainer.html">IndexPanel</a> indexPanel = panelColPersonalPreference(2);
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>       IndexPanel indexPanel = panelColPersonalPreference(2);
 <a class="jxr_linenumber" name="L344" href="#L344">344</a> 
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>       <strong class="jxr_keyword">if</strong> (indexPanel == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>         String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"uiV2.widget2"</span>, defaultIndexPanel.name());
@@ -687,22 +687,22 @@
 <a class="jxr_linenumber" name="L679" href="#L679">679</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L680" href="#L680">680</a> <em class="jxr_javadoccomment">   * keep track of the paging on the search screen</em>
 <a class="jxr_linenumber" name="L681" href="#L681">681</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L682" href="#L682">682</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> searchGuiPaging = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L682" href="#L682">682</a>   <strong class="jxr_keyword">private</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> searchGuiPaging = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L683" href="#L683">683</a> 
 <a class="jxr_linenumber" name="L684" href="#L684">684</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L685" href="#L685">685</a> <em class="jxr_javadoccomment">   * paging for my services</em>
 <a class="jxr_linenumber" name="L686" href="#L686">686</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L687" href="#L687">687</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> myServicesGuiPaging = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L687" href="#L687">687</a>   <strong class="jxr_keyword">private</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> myServicesGuiPaging = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L688" href="#L688">688</a>   
 <a class="jxr_linenumber" name="L689" href="#L689">689</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L690" href="#L690">690</a> <em class="jxr_javadoccomment">   * paging for my favorites</em>
 <a class="jxr_linenumber" name="L691" href="#L691">691</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L692" href="#L692">692</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> myFavoritesGuiPaging = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L692" href="#L692">692</a>   <strong class="jxr_keyword">private</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> myFavoritesGuiPaging = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L693" href="#L693">693</a>   
 <a class="jxr_linenumber" name="L694" href="#L694">694</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L695" href="#L695">695</a> <em class="jxr_javadoccomment">   * paging for my activity</em>
 <a class="jxr_linenumber" name="L696" href="#L696">696</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L697" href="#L697">697</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> myActivityGuiPaging = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>   <strong class="jxr_keyword">private</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> myActivityGuiPaging = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L698" href="#L698">698</a>   
 <a class="jxr_linenumber" name="L699" href="#L699">699</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L700" href="#L700">700</a> <em class="jxr_javadoccomment">   * gui object favorite results from my favorites</em>
@@ -729,9 +729,9 @@
 <a class="jxr_linenumber" name="L721" href="#L721">721</a> <em class="jxr_javadoccomment">   * paging for my favorites</em>
 <a class="jxr_linenumber" name="L722" href="#L722">722</a> <em class="jxr_javadoccomment">   * @return favorites paging</em>
 <a class="jxr_linenumber" name="L723" href="#L723">723</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L724" href="#L724">724</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> getMyFavoritesGuiPaging() {
+<a class="jxr_linenumber" name="L724" href="#L724">724</a>   <strong class="jxr_keyword">public</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> getMyFavoritesGuiPaging() {
 <a class="jxr_linenumber" name="L725" href="#L725">725</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.myFavoritesGuiPaging == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L726" href="#L726">726</a>       <strong class="jxr_keyword">this</strong>.myFavoritesGuiPaging = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a>();
+<a class="jxr_linenumber" name="L726" href="#L726">726</a>       <strong class="jxr_keyword">this</strong>.myFavoritesGuiPaging = <strong class="jxr_keyword">new</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a>();
 <a class="jxr_linenumber" name="L727" href="#L727">727</a>     }
 <a class="jxr_linenumber" name="L728" href="#L728">728</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.myFavoritesGuiPaging;
 <a class="jxr_linenumber" name="L729" href="#L729">729</a>   }
@@ -740,7 +740,7 @@
 <a class="jxr_linenumber" name="L732" href="#L732">732</a> <em class="jxr_javadoccomment">   * paging for my favorites</em>
 <a class="jxr_linenumber" name="L733" href="#L733">733</a> <em class="jxr_javadoccomment">   * @param myFavoritesGuiPaging1</em>
 <a class="jxr_linenumber" name="L734" href="#L734">734</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L735" href="#L735">735</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMyFavoritesGuiPaging(<a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> myFavoritesGuiPaging1) {
+<a class="jxr_linenumber" name="L735" href="#L735">735</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMyFavoritesGuiPaging(<a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> myFavoritesGuiPaging1) {
 <a class="jxr_linenumber" name="L736" href="#L736">736</a>     <strong class="jxr_keyword">this</strong>.myFavoritesGuiPaging = myFavoritesGuiPaging1;
 <a class="jxr_linenumber" name="L737" href="#L737">737</a>   }
 <a class="jxr_linenumber" name="L738" href="#L738">738</a>   
@@ -748,9 +748,9 @@
 <a class="jxr_linenumber" name="L740" href="#L740">740</a> <em class="jxr_javadoccomment">   * paging for my activity</em>
 <a class="jxr_linenumber" name="L741" href="#L741">741</a> <em class="jxr_javadoccomment">   * @return activity paging</em>
 <a class="jxr_linenumber" name="L742" href="#L742">742</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L743" href="#L743">743</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> getMyActivityGuiPaging() {
+<a class="jxr_linenumber" name="L743" href="#L743">743</a>   <strong class="jxr_keyword">public</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> getMyActivityGuiPaging() {
 <a class="jxr_linenumber" name="L744" href="#L744">744</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.myActivityGuiPaging == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L745" href="#L745">745</a>       <strong class="jxr_keyword">this</strong>.myActivityGuiPaging = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a>();
+<a class="jxr_linenumber" name="L745" href="#L745">745</a>       <strong class="jxr_keyword">this</strong>.myActivityGuiPaging = <strong class="jxr_keyword">new</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a>();
 <a class="jxr_linenumber" name="L746" href="#L746">746</a>     }
 <a class="jxr_linenumber" name="L747" href="#L747">747</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.myActivityGuiPaging;
 <a class="jxr_linenumber" name="L748" href="#L748">748</a>   }
@@ -759,7 +759,7 @@
 <a class="jxr_linenumber" name="L751" href="#L751">751</a> <em class="jxr_javadoccomment">   * paging for my activity</em>
 <a class="jxr_linenumber" name="L752" href="#L752">752</a> <em class="jxr_javadoccomment">   * @param myActivityGuiPaging1</em>
 <a class="jxr_linenumber" name="L753" href="#L753">753</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L754" href="#L754">754</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMyActivityGuiPaging(<a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> myActivityGuiPaging1) {
+<a class="jxr_linenumber" name="L754" href="#L754">754</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMyActivityGuiPaging(<a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> myActivityGuiPaging1) {
 <a class="jxr_linenumber" name="L755" href="#L755">755</a>     <strong class="jxr_keyword">this</strong>.myActivityGuiPaging = myActivityGuiPaging1;
 <a class="jxr_linenumber" name="L756" href="#L756">756</a>   }
 <a class="jxr_linenumber" name="L757" href="#L757">757</a>   
@@ -788,9 +788,9 @@
 <a class="jxr_linenumber" name="L780" href="#L780">780</a> <em class="jxr_javadoccomment">   * keep track of the paging on the search screen</em>
 <a class="jxr_linenumber" name="L781" href="#L781">781</a> <em class="jxr_javadoccomment">   * @return the paging object</em>
 <a class="jxr_linenumber" name="L782" href="#L782">782</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L783" href="#L783">783</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> getSearchGuiPaging() {
+<a class="jxr_linenumber" name="L783" href="#L783">783</a>   <strong class="jxr_keyword">public</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> getSearchGuiPaging() {
 <a class="jxr_linenumber" name="L784" href="#L784">784</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.searchGuiPaging == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L785" href="#L785">785</a>       <strong class="jxr_keyword">this</strong>.searchGuiPaging = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a>();
+<a class="jxr_linenumber" name="L785" href="#L785">785</a>       <strong class="jxr_keyword">this</strong>.searchGuiPaging = <strong class="jxr_keyword">new</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a>();
 <a class="jxr_linenumber" name="L786" href="#L786">786</a>     }
 <a class="jxr_linenumber" name="L787" href="#L787">787</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.searchGuiPaging;
 <a class="jxr_linenumber" name="L788" href="#L788">788</a>   }
@@ -799,7 +799,7 @@
 <a class="jxr_linenumber" name="L791" href="#L791">791</a> <em class="jxr_javadoccomment">   * keep track of the paging on the search screen</em>
 <a class="jxr_linenumber" name="L792" href="#L792">792</a> <em class="jxr_javadoccomment">   * @param searchGuiPaging1</em>
 <a class="jxr_linenumber" name="L793" href="#L793">793</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L794" href="#L794">794</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSearchGuiPaging(<a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> searchGuiPaging1) {
+<a class="jxr_linenumber" name="L794" href="#L794">794</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSearchGuiPaging(<a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> searchGuiPaging1) {
 <a class="jxr_linenumber" name="L795" href="#L795">795</a>     <strong class="jxr_keyword">this</strong>.searchGuiPaging = searchGuiPaging1;
 <a class="jxr_linenumber" name="L796" href="#L796">796</a>   }
 <a class="jxr_linenumber" name="L797" href="#L797">797</a> 
@@ -1024,9 +1024,9 @@
 <a class="jxr_linenumber" name="L1016" href="#L1016">1016</a> <em class="jxr_javadoccomment">   * paging for my services</em>
 <a class="jxr_linenumber" name="L1017" href="#L1017">1017</a> <em class="jxr_javadoccomment">   * @return paging</em>
 <a class="jxr_linenumber" name="L1018" href="#L1018">1018</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> getMyServicesGuiPaging() {
+<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>   <strong class="jxr_keyword">public</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> getMyServicesGuiPaging() {
 <a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.myServicesGuiPaging == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>       <strong class="jxr_keyword">this</strong>.myServicesGuiPaging = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a>();
+<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>       <strong class="jxr_keyword">this</strong>.myServicesGuiPaging = <strong class="jxr_keyword">new</strong> <a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a>();
 <a class="jxr_linenumber" name="L1022" href="#L1022">1022</a>     }
 <a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.myServicesGuiPaging;
 <a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>   }
@@ -1035,54 +1035,23 @@
 <a class="jxr_linenumber" name="L1027" href="#L1027">1027</a> <em class="jxr_javadoccomment">   * paging for my services</em>
 <a class="jxr_linenumber" name="L1028" href="#L1028">1028</a> <em class="jxr_javadoccomment">   * @param myServicesGuiPaging1</em>
 <a class="jxr_linenumber" name="L1029" href="#L1029">1029</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMyServicesGuiPaging(<a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> myServicesGuiPaging1) {
+<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMyServicesGuiPaging(<a name="GuiPaging" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> myServicesGuiPaging1) {
 <a class="jxr_linenumber" name="L1031" href="#L1031">1031</a>     <strong class="jxr_keyword">this</strong>.myServicesGuiPaging = myServicesGuiPaging1;
 <a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>   }
 <a class="jxr_linenumber" name="L1033" href="#L1033">1033</a> 
 <a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1035" href="#L1035">1035</a> <em class="jxr_javadoccomment">   * Decide if the browser folder/group pane should auto-select</em>
-<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a> <em class="jxr_javadoccomment">   * the currently selected object in the view.</em>
-<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isMenuRefreshOnView() {
-<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a>     <strong class="jxr_keyword">return</strong> GrouperUiConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"uiV2.refresh.menu.on.view"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>   }
-<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a> 
-<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a> <em class="jxr_javadoccomment">   * Should the admin ui link the displayed under quick links?</em>
-<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a> <em class="jxr_javadoccomment">   * @return true if allowed to see admin link</em>
-<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isAdminUIQuickLinkDisplayed() {
-<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a>     <strong class="jxr_keyword">boolean</strong> result = GrouperUiConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"uiV2.quicklink.menu.adminui"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>     <strong class="jxr_keyword">if</strong> (result) {
-<a class="jxr_linenumber" name="L1049" href="#L1049">1049</a>       Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a>       String error = GrouperUiFilter.requireUiGroup(<span class="jxr_string">"uiV2.quicklink.menu.adminui.forGroup"</span>, loggedInSubject);
-<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>       <em class="jxr_comment">//null error means allow</em>
-<a class="jxr_linenumber" name="L1052" href="#L1052">1052</a>       <strong class="jxr_keyword">if</strong> (error == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a>       }
-<a class="jxr_linenumber" name="L1055" href="#L1055">1055</a>     }
-<a class="jxr_linenumber" name="L1056" href="#L1056">1056</a>     <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a>   }
-<a class="jxr_linenumber" name="L1058" href="#L1058">1058</a> 
-<a class="jxr_linenumber" name="L1059" href="#L1059">1059</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1060" href="#L1060">1060</a> <em class="jxr_javadoccomment">   * Should the lite ui link the displayed under quick links?</em>
-<a class="jxr_linenumber" name="L1061" href="#L1061">1061</a> <em class="jxr_javadoccomment">   * @return true if the lite ui link should be shown</em>
-<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isLiteUIQuickLinkDisplayed() {
-<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>     <strong class="jxr_keyword">boolean</strong> result = GrouperUiConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"uiV2.quicklink.menu.liteui"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>     <strong class="jxr_keyword">if</strong> (result) {
-<a class="jxr_linenumber" name="L1066" href="#L1066">1066</a>       Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-<a class="jxr_linenumber" name="L1067" href="#L1067">1067</a>       String error = GrouperUiFilter.requireUiGroup(<span class="jxr_string">"uiV2.quicklink.menu.liteui.forGroup"</span>, loggedInSubject);
-<a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>       <em class="jxr_comment">//null error means allow</em>
-<a class="jxr_linenumber" name="L1069" href="#L1069">1069</a>       <strong class="jxr_keyword">if</strong> (error == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>       }
-<a class="jxr_linenumber" name="L1072" href="#L1072">1072</a>     }
-<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>     <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L1074" href="#L1074">1074</a>   }
-<a class="jxr_linenumber" name="L1075" href="#L1075">1075</a> }
+<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a> <em class="jxr_javadoccomment">   * the currently selected object in the view. Deprecated and replaced</em>
+<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a> <em class="jxr_javadoccomment">   * by @link edu.internet2.middleware.grouper.ui.util.GrouperUiUtils#isMenuRefreshOnView()</em>
+<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a>   @Deprecated
+<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isMenuRefreshOnView() {
+<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a>     <strong class="jxr_keyword">return</strong> GrouperUiConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"uiV2.refresh.menu.on.view"</span>, false);
+<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>   }
+<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a> 
+<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

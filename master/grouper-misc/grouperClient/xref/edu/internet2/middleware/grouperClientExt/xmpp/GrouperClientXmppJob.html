@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -43,7 +43,7 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * bean that holds config data for grouper client xmpp job</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">GrouperClientXmppJob</a> {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> {
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>    
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    <em class="jxr_javadoccomment">/** if we should allow incremental not in group names list */</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> allowIncrementalNotInGroupNamesList = false;
@@ -86,13 +86,13 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>    }
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>    <em class="jxr_javadoccomment">/** event action on each event */</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">XmppJobEventAction</a> eventAction = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    <strong class="jxr_keyword">private</strong> XmppJobEventAction eventAction = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>    
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">   * event action on each event</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">   * @return the eventAction</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">XmppJobEventAction</a> getEventAction() {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>    <strong class="jxr_keyword">public</strong> XmppJobEventAction getEventAction() {
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.eventAction;
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>    }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>    
@@ -100,7 +100,7 @@
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">   * event action on each event</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">   * @param eventAction1 the eventAction to set</em>
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setEventAction(<a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">XmppJobEventAction</a> eventAction1) {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setEventAction(XmppJobEventAction eventAction1) {
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">this</strong>.eventAction = eventAction1;
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>    }
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  
@@ -110,8 +110,8 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">   * @param exceptionIfNotFound </em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">   * @return the job</em>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">GrouperClientXmppJob</a> retrieveJob(String name, <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">for</strong> (GrouperClientXmppJob grouperClientXmppJob : retrieveXmppJobs()) {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> retrieveJob(String name, <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">for</strong> (<a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> grouperClientXmppJob : retrieveXmppJobs()) {
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>       <strong class="jxr_keyword">if</strong> (GrouperClientUtils.equals(name, grouperClientXmppJob.getJobName())) {
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">return</strong> grouperClientXmppJob;
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>       }
@@ -140,7 +140,7 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         Matcher matcher = pattern.matcher(key);
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">if</strong> (matcher.matches()) {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>           String jobName = matcher.group(1);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>           <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">GrouperClientXmppJob</a> xmppJob = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">GrouperClientXmppJob</a>();
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>           <a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middle<a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a>t/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a> xmppJob = <strong class="jxr_keyword">new</strong> <a name="GrouperClientXmppJob" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html#GrouperClientXmppJob">GrouperClientXmppJob</a>();
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>           xmppJob.setJobName(jobName);
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>           {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>             String handlerClass = (String)properties.get(key);
@@ -269,7 +269,7 @@
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>   <strong class="jxr_keyword">private</strong> String handlerClass = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>   
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>   <em class="jxr_javadoccomment">/** enum for action when event happens */</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GrouperClientXmppJob.html">XmppJobEventAction</a> {
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum XmppJobEventAction {
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> 
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>     <em class="jxr_javadoccomment">/** incremental will use the message and memory list */</em>
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>     incremental,
@@ -443,6 +443,6 @@
 <a class="jxr_linenumber" name="L435" href="#L435">435</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

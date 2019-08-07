@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -49,19 +49,19 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.Mapper;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/TreeUnmarshaller.html">TreeUnmarshaller</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html">UnmarshallingContext</a> {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="TreeUnmarshaller" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/TreeUnmarshaller.html#TreeUnmarshaller">TreeUnmarshaller</a> <strong class="jxr_keyword">implements</strong> <a name="UnmarshallingContext" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/UnmarshallingContext.html#UnmarshallingContext">UnmarshallingContext</a> {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> Object root;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConverterLookup.html">ConverterLookup</a> converterLookup;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> mapper;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a> types = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a>(16);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/DataHolder.html">DataHolder</a> dataHolder;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/PrioritizedList.html">PrioritizedList</a> validationList = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/PrioritizedList.html">PrioritizedList</a>();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">protected</strong> <a name="HierarchicalStreamReader" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <a name="ConverterLookup" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConverterLookup.html#ConverterLookup">ConverterLookup</a> converterLookup;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> mapper;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <a name="FastStack" href="../../../../../../../../edu/inter<a name="FastStack" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>leware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a> types = <strong class="jxr_keyword">new</strong> <a name="FastStack" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>(16);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <a name="DataHolder" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/DataHolder.html#DataHolder">DataHolder</a> dataHolder;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="PrioritizedList" href="../../../../../../../../edu/internet2/midd<a name="PrioritizedList" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/PrioritizedList.html#PrioritizedList">PrioritizedList</a>lientExt/com/thoughtworks/xstream/core/util/PrioritizedList.html#PrioritizedList">PrioritizedList</a> validationList = <strong class="jxr_keyword">new</strong> <a name="PrioritizedList" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/PrioritizedList.html#PrioritizedList">PrioritizedList</a>();
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/TreeUnmarshaller.html">TreeUnmarshaller</a>(
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          Object root, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConverterLookup.html">ConverterLookup</a> converterLookup,
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> mapper) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">public</strong> <a name="TreeUnmarshaller" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/TreeUnmarshaller.html#TreeUnmarshaller">TreeUnmarshaller</a>(
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          Object root, <a name="HierarchicalStreamReader" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader, <a name="ConverterLookup" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConverterLookup.html#ConverterLookup">ConverterLookup</a> converterLookup,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> mapper) {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">this</strong>.root = root;
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">this</strong>.reader = reader;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">this</strong>.converterLookup = converterLookup;
@@ -72,23 +72,23 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * @deprecated As of 1.2, use</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     *             {@link #TreeUnmarshaller(Object, HierarchicalStreamReader, ConverterLookup, Mapper)}</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/TreeUnmarshaller.html">TreeUnmarshaller</a>(
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          Object root, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConverterLookup.html">ConverterLookup</a> converterLookup,
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/ClassMapper.html">ClassMapper</a> classMapper) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">this</strong>(root, reader, converterLookup, (Mapper)classMapper);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <a name="TreeUnmarshaller" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/TreeUnmarshaller.html#TreeUnmarshaller">TreeUnmarshaller</a>(
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          Object root, <a name="HierarchicalStreamReader" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader, <a name="ConverterLookup" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConverterLookup.html#ConverterLookup">ConverterLookup</a> converterLookup,
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <a name="ClassMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/ClassMapper.html#ClassMapper">ClassMapper</a> classMapper) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">this</strong>(root, reader, converterLookup, (<a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a>)classMapper);
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> Object convertAnother(Object parent, Class type) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> convertAnother(parent, type, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">public</strong> Object convertAnother(Object parent, Class type, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html">Converter</a> converter) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">public</strong> Object convertAnother(Object parent, Class type, <a name="Converter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html#Converter">Converter</a> converter) {
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          type = mapper.defaultImplementationOf(type);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">if</strong> (converter == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>              converter = converterLookup.lookupConverterForType(type);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">if</strong> (!converter.canConvert(type)) {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a> e = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <a name="ConversionException" href="../../../../../../../../edu/i<a name="ConversionException" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a> e = <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                      <span class="jxr_string">"Explicit selected converter cannot handle type"</span>);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                  e.add(<span class="jxr_string">"item-type"</span>, type.getName());
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  e.add(<span class="jxr_string">"converter-type"</span>, converter.getClass().getName());
@@ -98,23 +98,23 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">return</strong> convert(parent, type, converter);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">protected</strong> Object convert(Object parent, Class type, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html">Converter</a> converter) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">protected</strong> Object convert(Object parent, Class type, <a name="Converter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html#Converter">Converter</a> converter) {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              types.push(type);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>              Object result = converter.unmarshal(reader, <strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              types.popSilently();
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>              <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          } <strong class="jxr_keyword">catch</strong> (ConversionException conversionException) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          } <strong class="jxr_keyword">catch</strong> (<a name="ConversionException" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a> conversionException) {
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>             addInformationTo(conversionException, type);
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>             <strong class="jxr_keyword">throw</strong> conversionException;
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a> conversionException = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(e);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <a name="ConversionException" href="../../../../../../../../edu/internet2/middlewar<a name="ConversionException" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a> conversionException = <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(e);
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>             addInformationTo(conversionException, type);
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>             <strong class="jxr_keyword">throw</strong> conversionException;
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>         }
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> 
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addInformationTo(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ErrorWriter.html">ErrorWriter</a> errorWriter, Class type) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addInformationTo(<a name="ErrorWriter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ErrorWriter.html#ErrorWriter">ErrorWriter</a> errorWriter, Class type) {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         errorWriter.add(<span class="jxr_string">"class"</span>, type.getName());
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         errorWriter.add(<span class="jxr_string">"required-type"</span>, getRequiredType().getName());
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         reader.appendErrors(errorWriter);
@@ -149,11 +149,11 @@
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> 
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> lazilyCreateDataHolder() {
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">if</strong> (dataHolder == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>             dataHolder = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/MapBackedDataHolder.html">MapBackedDataHolder</a>();
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             dataHolder = <strong class="jxr_keyword">new</strong> <a name="MapBackedDataHolder" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/MapBackedDataHolder.html#MapBackedDataHolder">MapBackedDataHolder</a>();
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>         }
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">public</strong> Object start(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/DataHolder.html">DataHolder</a> dataHolder) {
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">public</strong> Object start(<a name="DataHolder" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/DataHolder.html#DataHolder">DataHolder</a> dataHolder) {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">this</strong>.dataHolder = dataHolder;
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>         String classAttribute = reader.getAttribute(mapper.aliasForAttribute(<span class="jxr_string">"class"</span>));
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>         Class type;
@@ -171,13 +171,13 @@
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">return</strong> result;
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> 
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> getMapper() {
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">protected</strong> <a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> getMapper() {
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.mapper;
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
 <a class="jxr_linenumber" name="L170" href="#L170">170</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

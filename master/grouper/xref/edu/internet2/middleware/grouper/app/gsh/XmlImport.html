@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -52,10 +52,10 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * chaining object to import to the registry</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html">XmlImport</a> {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XmlImport" href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html#XmlImport">XmlImport</a> {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>    <em class="jxr_javadoccomment">/** stem to import */</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">private</strong> <a name="Stem" href="../../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>    <em class="jxr_javadoccomment">/** groups and stems file to import */</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> updateList = false;
@@ -64,7 +64,7 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>    <strong class="jxr_keyword">private</strong> File userProperties = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>    
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>    <em class="jxr_javadoccomment">/** grouper session to use */</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>    <strong class="jxr_keyword">private</strong> <a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>    
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>    <em class="jxr_javadoccomment">/** if we should ignore internal attributes including uuids */</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> ignoreInternal = false;
@@ -74,7 +74,7 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">   * @param theGrouperSession</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html">XmlImport</a> grouperSession(<a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> theGrouperSession) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>    <strong class="jxr_keyword">public</strong> <a name="XmlImport" href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html#XmlImport">XmlImport</a> grouperSession(<a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> theGrouperSession) {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">this</strong>.grouperSession = theGrouperSession;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>    }
@@ -84,7 +84,7 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">   * @param theStem</em>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">   * @return this object for chaining</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html">XmlImport</a> stem(<a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> theStem) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">public</strong> <a name="XmlImport" href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html#XmlImport">XmlImport</a> stem(<a name="Stem" href="../../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> theStem) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">this</strong>.stem = theStem;
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>    }
@@ -94,7 +94,7 @@
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">   * @param isUpdateList</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">   * @return the collection</em>
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html">XmlImport</a> updateList(<strong class="jxr_keyword">boolean</strong> isUpdateList) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>    <strong class="jxr_keyword">public</strong> <a name="XmlImport" href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html#XmlImport">XmlImport</a> updateList(<strong class="jxr_keyword">boolean</strong> isUpdateList) {
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">this</strong>.updateList = isUpdateList;
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>    }
@@ -104,7 +104,7 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">   * @param theUserProperties</em>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">   * @return the properties file</em>
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html">XmlImport</a> userProperties(File theUserProperties) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>    <strong class="jxr_keyword">public</strong> <a name="XmlImport" href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html#XmlImport">XmlImport</a> userProperties(File theUserProperties) {
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">this</strong>.userProperties = theUserProperties;
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>   }
@@ -114,7 +114,7 @@
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">   * @param theUserProperties</em>
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">   * @return the properties file</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html">XmlImport</a> ignoreInternal(<strong class="jxr_keyword">boolean</strong> isIgnoreInternal) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">public</strong> <a name="XmlImport" href="../../../../../../edu/internet2/middleware/grouper/app/gsh/XmlImport.html#XmlImport">XmlImport</a> ignoreInternal(<strong class="jxr_keyword">boolean</strong> isIgnoreInternal) {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">this</strong>.ignoreInternal = isIgnoreInternal;
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>   }
@@ -172,21 +172,21 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> importHelper(<strong class="jxr_keyword">final</strong> Document doc) {
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">boolean</strong> startedRootSession = false;
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>     <em class="jxr_comment">//dont assign if creating a new one</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> theGrouperSession = <strong class="jxr_keyword">this</strong>.grouperSession;
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> theGrouperSession = <strong class="jxr_keyword">this</strong>.grouperSession;
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>       <strong class="jxr_keyword">if</strong> (theGrouperSession == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>         startedRootSession = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         Subject subject = SubjectFinder.findRootSubject();
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <a name="Subject" href="../../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject = SubjectFinder.findRootSubject();
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>           theGrouperSession = GrouperSession.start(subject);
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         } <strong class="jxr_keyword">catch</strong> (SessionException gse) {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         } <strong class="jxr_keyword">catch</strong> (<a name="SessionException" href="../../../../../../edu/internet2/middleware/grouper/exception/SessionException.html#SessionException">SessionException</a> gse) {
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Problem starting session: "</span> + gse.getMessage(), gse);
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>         }
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>       }
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>       GrouperSession.callbackGrouperSession(theGrouperSession, <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html">GrouperSessionHandler</a>() {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>       GrouperSession.callbackGrouperSession(theGrouperSession, <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>   
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> innerGrouperSession)
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> innerGrouperSession)
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>           <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>             Properties properties = <strong class="jxr_keyword">new</strong> Properties();
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             <strong class="jxr_keyword">if</strong> (XmlImport.<strong class="jxr_keyword">this</strong>.userProperties != <strong class="jxr_keyword">null</strong>) {
@@ -198,7 +198,7 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>               }
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>             }
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> 
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>             <a href="../../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html">XmlImporter</a> importer  = <strong class="jxr_keyword">new</strong> XmlImporter(innerGrouperSession, properties);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             <a name="XmlImporter" href="../../../../../../edu/internet2/middl<a name="XmlImporter" href="../../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html#XmlImporter">XmlImporter</a>er/xml/XmlImporter.html#XmlImporter">XmlImporter</a> importer  = <strong class="jxr_keyword">new</strong> <a name="XmlImporter" href="../../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html#XmlImporter">XmlImporter</a>(innerGrouperSession, properties);
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>             importer.setIgnoreInternal(ignoreInternal);
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>             <strong class="jxr_keyword">if</strong> (XmlImport.<strong class="jxr_keyword">this</strong>.updateList) {
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>               <strong class="jxr_keyword">if</strong> (XmlImport.<strong class="jxr_keyword">this</strong>.stem != <strong class="jxr_keyword">null</strong>) {
@@ -214,7 +214,7 @@
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>                 importer.load(XmlImport.<strong class="jxr_keyword">this</strong>.stem, doc);
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>               }
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>             } 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>           } <strong class="jxr_keyword">catch</strong> (GrouperException grouperException) {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>           } <strong class="jxr_keyword">catch</strong> (<a name="GrouperException" href="../../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html#GrouperException">GrouperException</a> grouperException) {
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(grouperException.getMessage(), grouperException);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>           }
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -238,6 +238,6 @@
 <a class="jxr_linenumber" name="L230" href="#L230">230</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

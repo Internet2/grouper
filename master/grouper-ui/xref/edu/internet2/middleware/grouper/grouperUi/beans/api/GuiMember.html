@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * member bean wraps grouper class with useful methods for UIs</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html">GuiMember</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GuiMember" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html#GuiMember">GuiMember</a> <strong class="jxr_keyword">implements</strong> Serializable {
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">   * </em>
@@ -61,11 +61,11 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == other) {
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">if</strong> (!(other instanceof GuiMember)) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">if</strong> (!(other instanceof <a name="GuiMember" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html#GuiMember">GuiMember</a>)) {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>        <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> EqualsBuilder()
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>        .append( <strong class="jxr_keyword">this</strong>.member, ( (GuiMember) other ).member )
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>        .append( <strong class="jxr_keyword">this</strong>.member, ( (<a name="GuiMember" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html#GuiMember">GuiMember</a>) other ).member )
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>        .isEquals();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>    }
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
@@ -108,7 +108,7 @@
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>     
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">int</strong> count = 0;
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">for</strong> (Member member : GrouperUtil.nonNull(members)) {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>       tempMembers.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html">GuiMember</a>(member));
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>       tempMembers.add(<strong class="jxr_keyword">new</strong> <a name="GuiMember" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html#GuiMember">GuiMember</a>(member));
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>       <strong class="jxr_keyword">if</strong> (max != <strong class="jxr_keyword">null</strong> &amp;&amp; ++count &gt;= max) {
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>       }
@@ -121,7 +121,7 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * default constructor</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html">GuiMember</a>() {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <a name="GuiMember" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html#GuiMember">GuiMember</a>() {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>   }
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>   
@@ -144,11 +144,11 @@
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">   * construct from member</em>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">   * @param member1</em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html">GuiMember</a>(Member member1) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>   <strong class="jxr_keyword">public</strong> <a name="GuiMember" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiMember.html#GuiMember">GuiMember</a>(Member member1) {
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>       <strong class="jxr_keyword">this</strong>.guiSubject = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a>(member1.getSubject());
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>       <strong class="jxr_keyword">this</strong>.guiSubject = <strong class="jxr_keyword">new</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>(member1.getSubject());
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>     } <strong class="jxr_keyword">catch</strong> (SubjectNotFoundException snfe) {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>       <strong class="jxr_keyword">this</strong>.guiSubject = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a>(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/SubjectWrapper.html">SubjectWrapper</a>(member1));
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>       <strong class="jxr_keyword">this</strong>.guiSubject = <strong class="jxr_keyword">new</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>(<strong class="jxr_keyword">new</strong> <a name="SubjectWrapper" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/SubjectWrapper.html#SubjectWrapper">SubjectWrapper</a>(member1));
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">this</strong>.setGuiSubject(<strong class="jxr_keyword">this</strong>.guiSubject);
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">this</strong>.member = member1;
@@ -203,7 +203,7 @@
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>   <strong class="jxr_keyword">private</strong> String shortLinkHelper(<strong class="jxr_keyword">boolean</strong> showIcon) {
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>     Member theMember = <strong class="jxr_keyword">this</strong>.getMember();
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> 
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a> guiSubject = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a> guiSubject = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> 
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">if</strong> (theMember != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>       guiSubject = <strong class="jxr_keyword">this</strong>.getGuiSubject();
@@ -228,7 +228,7 @@
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>     <strong class="jxr_keyword">if</strong> (format == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     }
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/simpleMembershipUpdate/SimpleMembershipUpdateContainer.html">SimpleMembershipUpdateContainer</a> simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <a name="SimpleMembershipUpdateContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/simpleMembershipUpdate/SimpleMembershipUpdateContainer.html#SimpleMembershipUpdateContainer">SimpleMembershipUpdateContainer</a> simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>     <strong class="jxr_keyword">return</strong> <span class="jxr_string">"("</span>+ simpleMembershipUpdateContainer.getText().getDisabledPrefix() 
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>       + <span class="jxr_string">": "</span> + format + <span class="jxr_string">")"</span>;
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>   }
@@ -272,7 +272,7 @@
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>   }
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>   
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>   <em class="jxr_javadoccomment">/** the subject for this member */</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a> guiSubject;
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>   <strong class="jxr_keyword">private</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a> guiSubject;
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>   
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>   <em class="jxr_javadoccomment">/** if this subject is deletable (has an immediate membership) */</em>
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> deletable;
@@ -281,7 +281,7 @@
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">   * @return the subject</em>
 <a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a> getGuiSubject() {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>   <strong class="jxr_keyword">public</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a> getGuiSubject() {
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.guiSubject;
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>   }
 <a class="jxr_linenumber" name="L279" href="#L279">279</a> 
@@ -289,7 +289,7 @@
 <a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">   * subject</em>
 <a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">   * @param subject1</em>
 <a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setGuiSubject(<a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a> subject1) {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setGuiSubject(<a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a> subject1) {
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">this</strong>.guiSubject = subject1;
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>   }
 <a class="jxr_linenumber" name="L287" href="#L287">287</a> 
@@ -312,6 +312,6 @@
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -74,7 +74,7 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a> {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">   * if this is a heuristic which has depth, then this is it, or -1</em>
@@ -84,13 +84,13 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">   * type of heuristic</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristicType</a> permissionHeuristicType;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">private</strong> PermissionHeuristicType permissionHeuristicType;
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>    
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">   * type of heuristic</em>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">   * @return type</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristicType</a> getPermissionHeuristicType() {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>    <strong class="jxr_keyword">public</strong> PermissionHeuristicType getPermissionHeuristicType() {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.permissionHeuristicType;
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>    }
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  
@@ -98,7 +98,7 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">   * type of heuristic</em>
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">   * @param permissionHeuristicType1</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setPermissionHeuristicType(<a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristicType</a> permissionHeuristicType1) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setPermissionHeuristicType(PermissionHeuristicType permissionHeuristicType1) {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">this</strong>.permissionHeuristicType = permissionHeuristicType1;
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>    }
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  
@@ -109,10 +109,10 @@
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>   @Override
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object obj) {
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">if</strong> (!(obj instanceof PermissionHeuristic)) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">if</strong> (!(obj instanceof <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>)) {
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a> otherPermissionHeuristic = (PermissionHeuristic)obj;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <a name="PermissionHeuristic" href="../../../../<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>ddleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> otherPermissionHeuristic = (<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>)obj;
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> EqualsBuilder().append(<strong class="jxr_keyword">this</strong>.depth, otherPermissionHeuristic.depth)
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>       .append(<strong class="jxr_keyword">this</strong>.permissionHeuristicType, otherPermissionHeuristic.permissionHeuristicType).isEquals();
@@ -151,7 +151,7 @@
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">   * @author mchyzer</em>
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristicType</a> {
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum PermissionHeuristicType {
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> 
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * (864000) person/role assignment</em>
@@ -335,7 +335,7 @@
 <a class="jxr_linenumber" name="L327" href="#L327">327</a> <em class="jxr_javadoccomment">   * @param score</em>
 <a class="jxr_linenumber" name="L328" href="#L328">328</a> <em class="jxr_javadoccomment">   * @return the list of heuristics, e.g. for comparison</em>
 <a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a> computeHeuristics(<strong class="jxr_keyword">long</strong> score) {
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a> computeHeuristics(<strong class="jxr_keyword">long</strong> score) {
 <a class="jxr_linenumber" name="L331" href="#L331">331</a>     
 <a class="jxr_linenumber" name="L332" href="#L332">332</a>     <strong class="jxr_keyword">long</strong> originalScore = score;
 <a class="jxr_linenumber" name="L333" href="#L333">333</a>     
@@ -348,7 +348,7 @@
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>     <em class="jxr_comment">//    PermissionHeuristicType.action, PermissionHeuristicType.allow)</em>
 <a class="jxr_linenumber" name="L341" href="#L341">341</a>     
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>     <strong class="jxr_keyword">if</strong> (score &gt;= PermissionHeuristicType.personRole.minScore()) {
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>       <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a>();
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>       <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>sionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>();
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>       <em class="jxr_comment">//there isnt really a depth here</em>
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>       permissionHeuristic.setPermissionHeuristicType(PermissionHeuristicType.personRole);
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>       permissionHeuristicsList.add(permissionHeuristic);
@@ -356,7 +356,7 @@
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>     }
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>     
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>     <strong class="jxr_keyword">if</strong> (score &gt;= PermissionHeuristicType.role.minScore()) {
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>       <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a>();
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>       <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>sionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>();
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>       permissionHeuristic.setPermissionHeuristicType(PermissionHeuristicType.role);
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>       permissionHeuristicsList.add(permissionHeuristic);
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>       
@@ -372,7 +372,7 @@
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>     }
 <a class="jxr_linenumber" name="L365" href="#L365">365</a>     
 <a class="jxr_linenumber" name="L366" href="#L366">366</a>     <strong class="jxr_keyword">if</strong> (score &gt;= PermissionHeuristicType.assignedToUserNotGroup.minScore()) {
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>       <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a>();
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>       <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>sionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>();
 <a class="jxr_linenumber" name="L368" href="#L368">368</a> 
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>       <em class="jxr_comment">//there isnt really a depth here</em>
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>       permissionHeuristic.setPermissionHeuristicType(PermissionHeuristicType.assignedToUserNotGroup);
@@ -381,7 +381,7 @@
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>     }
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>     
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>     <strong class="jxr_keyword">if</strong> (score &gt;= PermissionHeuristicType.resource.minScore()) {
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>       <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a>();
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>       <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>sionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>();
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>       permissionHeuristic.setPermissionHeuristicType(PermissionHeuristicType.resource);
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>       permissionHeuristicsList.add(permissionHeuristic);
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>       
@@ -395,7 +395,7 @@
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>     }
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>     
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>     <strong class="jxr_keyword">if</strong> (score &gt;= PermissionHeuristicType.action.minScore()) {
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>       <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a>();
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>       <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>sionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>();
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>       permissionHeuristic.setPermissionHeuristicType(PermissionHeuristicType.action);
 <a class="jxr_linenumber" name="L392" href="#L392">392</a>       permissionHeuristicsList.add(permissionHeuristic);
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>       
@@ -409,7 +409,7 @@
 <a class="jxr_linenumber" name="L401" href="#L401">401</a>     }
 <a class="jxr_linenumber" name="L402" href="#L402">402</a>     
 <a class="jxr_linenumber" name="L403" href="#L403">403</a>     <strong class="jxr_keyword">if</strong> (score &gt;= PermissionHeuristicType.allow.minScore()) {
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>       <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html">PermissionHeuristic</a>();
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>       <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>sionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> permissionHeuristic = <strong class="jxr_keyword">new</strong> <a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a>();
 <a class="jxr_linenumber" name="L405" href="#L405">405</a> 
 <a class="jxr_linenumber" name="L406" href="#L406">406</a>       <em class="jxr_comment">//there isnt really a depth here</em>
 <a class="jxr_linenumber" name="L407" href="#L407">407</a>       permissionHeuristic.setPermissionHeuristicType(PermissionHeuristicType.allow);
@@ -420,7 +420,7 @@
 <a class="jxr_linenumber" name="L412" href="#L412">412</a>     <strong class="jxr_keyword">if</strong> (score != 0) {
 <a class="jxr_linenumber" name="L413" href="#L413">413</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Why is resulting score not 0? "</span> + originalScore + <span class="jxr_string">", "</span> + score + <span class="jxr_string">", "</span> + collectionToString(permissionHeuristicsList));
 <a class="jxr_linenumber" name="L414" href="#L414">414</a>     }
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>     <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a> permissionHeuristics = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a>();
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/<a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a>onHeuristics.html#PermissionHeuristics">PermissionHeuristics</a> permissionHeuristics = <strong class="jxr_keyword">new</strong> <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a>();
 <a class="jxr_linenumber" name="L416" href="#L416">416</a>     permissionHeuristics.setPermissionHeuristicList(permissionHeuristicsList);
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>     permissionHeuristics.setInternalScore(originalScore);
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>     <strong class="jxr_keyword">return</strong> permissionHeuristics;
@@ -451,7 +451,7 @@
 <a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">   * @param permissionEntry</em>
 <a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">   * @return the number</em>
 <a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> computePermissionHeuristic(<a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionEntry</a> permissionEntry) {
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> computePermissionHeuristic(<a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry) {
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>     
 <a class="jxr_linenumber" name="L448" href="#L448">448</a>     <em class="jxr_comment">//* (864000) person/role assignment</em>
 <a class="jxr_linenumber" name="L449" href="#L449">449</a>     <em class="jxr_comment">//* </em>
@@ -480,7 +480,7 @@
 <a class="jxr_linenumber" name="L472" href="#L472">472</a>     <strong class="jxr_keyword">long</strong> result = 0;
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>     
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>     <em class="jxr_comment">//if not enabled, then -1...</em>
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>     <strong class="jxr_keyword">if</strong> (permissionEntry instanceof PermissionEntryImpl &amp;&amp; !permissionEntry.isEnabled()) {
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>     <strong class="jxr_keyword">if</strong> (permissionEntry instanceof <a name="PermissionEntryImpl" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryImpl.html#PermissionEntryImpl">PermissionEntryImpl</a> &amp;&amp; !permissionEntry.isEnabled()) {
 <a class="jxr_linenumber" name="L476" href="#L476">476</a>       <strong class="jxr_keyword">return</strong> -1;
 <a class="jxr_linenumber" name="L477" href="#L477">477</a>     }
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>     
@@ -564,7 +564,7 @@
 <a class="jxr_linenumber" name="L556" href="#L556">556</a>     <strong class="jxr_keyword">if</strong> (permissionHeuristics == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L557" href="#L557">557</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"null"</span>;
 <a class="jxr_linenumber" name="L558" href="#L558">558</a>     }
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>     <strong class="jxr_keyword">for</strong> (PermissionHeuristic permissionHeuristic : permissionHeuristics) {
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>     <strong class="jxr_keyword">for</strong> (<a name="PermissionHeuristic" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html#PermissionHeuristic">PermissionHeuristic</a> permissionHeuristic : permissionHeuristics) {
 <a class="jxr_linenumber" name="L560" href="#L560">560</a>       result.append(permissionHeuristic.toString());
 <a class="jxr_linenumber" name="L561" href="#L561">561</a>     }
 <a class="jxr_linenumber" name="L562" href="#L562">562</a>     <strong class="jxr_keyword">return</strong> result.toString();
@@ -573,6 +573,6 @@
 <a class="jxr_linenumber" name="L565" href="#L565">565</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

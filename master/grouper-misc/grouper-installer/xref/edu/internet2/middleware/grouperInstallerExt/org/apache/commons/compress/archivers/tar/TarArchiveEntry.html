@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -121,7 +121,7 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment"> * @NotThreadSafe</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> 
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a> <strong class="jxr_keyword">implements</strong> TarConstants, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a> <strong class="jxr_keyword">implements</strong> TarConstants, <a name="ArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html#ArchiveEntry">ArchiveEntry</a> {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     <em class="jxr_javadoccomment">/** The entry's name. */</em>
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">private</strong> String name = <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> 
@@ -190,7 +190,7 @@
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     * Construct an empty entry and prepares the header values.</em>
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>() {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">private</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>() {
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>         String user = System.getProperty(<span class="jxr_string">"user.name"</span>, <span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L187" href="#L187">187</a> 
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">if</strong> (user.length() &gt; MAX_NAMELEN) {
@@ -207,7 +207,7 @@
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * @param name the entry name</em>
 <a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(String name) {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(String name) {
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>         <strong class="jxr_keyword">this</strong>(name, false);
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>     }
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> 
@@ -221,7 +221,7 @@
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     * </em>
 <a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     * @since 1.1</em>
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(String name, <strong class="jxr_keyword">boolean</strong> preserveLeadingSlashes) {
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(String name, <strong class="jxr_keyword">boolean</strong> preserveLeadingSlashes) {
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">this</strong>();
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> 
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>         name = normalizeFileName(name, preserveLeadingSlashes);
@@ -240,7 +240,7 @@
 <a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * @param name the entry name</em>
 <a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * @param linkFlag the entry link flag.</em>
 <a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(String name, byte linkFlag) {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(String name, byte linkFlag) {
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">this</strong>(name, linkFlag, false);
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>     }
 <a class="jxr_linenumber" name="L238" href="#L238">238</a> 
@@ -254,7 +254,7 @@
 <a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">     * </em>
 <a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">     * @since 1.5</em>
 <a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(String name, byte linkFlag, <strong class="jxr_keyword">boolean</strong> preserveLeadingSlashes) {
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(String name, byte linkFlag, <strong class="jxr_keyword">boolean</strong> preserveLeadingSlashes) {
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>         <strong class="jxr_keyword">this</strong>(name, preserveLeadingSlashes);
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">this</strong>.linkFlag = linkFlag;
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>         <strong class="jxr_keyword">if</strong> (linkFlag == LF_GNUTYPE_LONGNAME) {
@@ -270,7 +270,7 @@
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * @param file The file that the entry represents.</em>
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(File file) {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(File file) {
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">this</strong>(file, normalizeFileName(file.getPath(), false));
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
 <a class="jxr_linenumber" name="L268" href="#L268">268</a> 
@@ -281,7 +281,7 @@
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     * @param file The file that the entry represents.</em>
 <a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     * @param fileName the name to be used for the entry.</em>
 <a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(File file, String fileName) {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(File file, String fileName) {
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">this</strong>.file = file;
 <a class="jxr_linenumber" name="L278" href="#L278">278</a> 
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>         <strong class="jxr_keyword">if</strong> (file.isDirectory()) {
@@ -312,7 +312,7 @@
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     * @param headerBuf The header bytes from a tar archive entry.</em>
 <a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     * @throws IllegalArgumentException if any of the numeric fields have an invalid format</em>
 <a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(byte[] headerBuf) {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(byte[] headerBuf) {
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">this</strong>();
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>         parseTarHeader(headerBuf);
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>     }
@@ -326,7 +326,7 @@
 <a class="jxr_linenumber" name="L318" href="#L318">318</a> <em class="jxr_javadoccomment">     * @since 1.4</em>
 <a class="jxr_linenumber" name="L319" href="#L319">319</a> <em class="jxr_javadoccomment">     * @throws IllegalArgumentException if any of the numeric fields have an invalid format</em>
 <a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(byte[] headerBuf, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> encoding)
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(byte[] headerBuf, <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> encoding)
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">this</strong>();
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>         parseTarHeader(headerBuf, encoding);
@@ -339,7 +339,7 @@
 <a class="jxr_linenumber" name="L331" href="#L331">331</a> <em class="jxr_javadoccomment">     * @param it Entry to be checked for equality.</em>
 <a class="jxr_linenumber" name="L332" href="#L332">332</a> <em class="jxr_javadoccomment">     * @return True if the entries are equal.</em>
 <a class="jxr_linenumber" name="L333" href="#L333">333</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a> it) {
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(<a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a> it) {
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>         <strong class="jxr_keyword">return</strong> getName().equals(it.getName());
 <a class="jxr_linenumber" name="L336" href="#L336">336</a>     }
 <a class="jxr_linenumber" name="L337" href="#L337">337</a> 
@@ -355,7 +355,7 @@
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">if</strong> (it == <strong class="jxr_keyword">null</strong> || getClass() != it.getClass()) {
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>             <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>         }
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">return</strong> equals((TarArchiveEntry) it);
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">return</strong> equals((<a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>) it);
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>     }
 <a class="jxr_linenumber" name="L352" href="#L352">352</a> 
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>     <em class="jxr_javadoccomment">/**</em>
@@ -376,7 +376,7 @@
 <a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_javadoccomment">     * @param desc Entry to be checked as a descendent of this.</em>
 <a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_javadoccomment">     * @return True if entry is a descendant of this.</em>
 <a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isDescendent(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a> desc) {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isDescendent(<a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a> desc) {
 <a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">return</strong> desc.getName().startsWith(getName());
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>     }
 <a class="jxr_linenumber" name="L374" href="#L374">374</a> 
@@ -813,16 +813,16 @@
 <a class="jxr_linenumber" name="L805" href="#L805">805</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L806" href="#L806">806</a> <em class="jxr_javadoccomment">     * @return An array of TarEntry's for this entry's children.</em>
 <a class="jxr_linenumber" name="L807" href="#L807">807</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L808" href="#L808">808</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>[] getDirectoryEntries() {
+<a class="jxr_linenumber" name="L808" href="#L808">808</a>     <strong class="jxr_keyword">public</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>[] getDirectoryEntries() {
 <a class="jxr_linenumber" name="L809" href="#L809">809</a>         <strong class="jxr_keyword">if</strong> (file == <strong class="jxr_keyword">null</strong> || !file.isDirectory()) {
-<a class="jxr_linenumber" name="L810" href="#L810">810</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>[0];
+<a class="jxr_linenumber" name="L810" href="#L810">810</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>[0];
 <a class="jxr_linenumber" name="L811" href="#L811">811</a>         }
 <a class="jxr_linenumber" name="L812" href="#L812">812</a> 
 <a class="jxr_linenumber" name="L813" href="#L813">813</a>         String[]   list = file.list();
-<a class="jxr_linenumber" name="L814" href="#L814">814</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>[] result = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>[list.length];
+<a class="jxr_linenumber" name="L814" href="#L814">814</a>         <a name="TarArchiveEntry" href="../../../../../../../../../../edu/in<a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>are/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>[] result = <strong class="jxr_keyword">new</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>[list.length];
 <a class="jxr_linenumber" name="L815" href="#L815">815</a> 
 <a class="jxr_linenumber" name="L816" href="#L816">816</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; list.length; ++i) {
-<a class="jxr_linenumber" name="L817" href="#L817">817</a>             result[i] = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html">TarArchiveEntry</a>(<strong class="jxr_keyword">new</strong> File(file, list[i]));
+<a class="jxr_linenumber" name="L817" href="#L817">817</a>             result[i] = <strong class="jxr_keyword">new</strong> <a name="TarArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarArchiveEntry.html#TarArchiveEntry">TarArchiveEntry</a>(<strong class="jxr_keyword">new</strong> File(file, list[i]));
 <a class="jxr_linenumber" name="L818" href="#L818">818</a>         }
 <a class="jxr_linenumber" name="L819" href="#L819">819</a> 
 <a class="jxr_linenumber" name="L820" href="#L820">820</a>         <strong class="jxr_keyword">return</strong> result;
@@ -858,7 +858,7 @@
 <a class="jxr_linenumber" name="L850" href="#L850">850</a> <em class="jxr_javadoccomment">     * maximum size of standard tar archives</em>
 <a class="jxr_linenumber" name="L851" href="#L851">851</a> <em class="jxr_javadoccomment">     * @since 1.4</em>
 <a class="jxr_linenumber" name="L852" href="#L852">852</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L853" href="#L853">853</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> writeEntryHeader(byte[] outbuf, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> encoding,
+<a class="jxr_linenumber" name="L853" href="#L853">853</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> writeEntryHeader(byte[] outbuf, <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> encoding,
 <a class="jxr_linenumber" name="L854" href="#L854">854</a>                                  <strong class="jxr_keyword">boolean</strong> starMode) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L855" href="#L855">855</a>         <strong class="jxr_keyword">int</strong> offset = 0;
 <a class="jxr_linenumber" name="L856" href="#L856">856</a> 
@@ -943,12 +943,12 @@
 <a class="jxr_linenumber" name="L935" href="#L935">935</a> <em class="jxr_javadoccomment">     * @throws IllegalArgumentException if any of the numeric fields</em>
 <a class="jxr_linenumber" name="L936" href="#L936">936</a> <em class="jxr_javadoccomment">     * have an invalid format</em>
 <a class="jxr_linenumber" name="L937" href="#L937">937</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L938" href="#L938">938</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> parseTarHeader(byte[] header, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> encoding)
+<a class="jxr_linenumber" name="L938" href="#L938">938</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> parseTarHeader(byte[] header, <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> encoding)
 <a class="jxr_linenumber" name="L939" href="#L939">939</a>         <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L940" href="#L940">940</a>         parseTarHeader(header, encoding, false);
 <a class="jxr_linenumber" name="L941" href="#L941">941</a>     }
 <a class="jxr_linenumber" name="L942" href="#L942">942</a> 
-<a class="jxr_linenumber" name="L943" href="#L943">943</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> parseTarHeader(byte[] header, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> encoding,
+<a class="jxr_linenumber" name="L943" href="#L943">943</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> parseTarHeader(byte[] header, <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> encoding,
 <a class="jxr_linenumber" name="L944" href="#L944">944</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> oldStyle)
 <a class="jxr_linenumber" name="L945" href="#L945">945</a>         <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L946" href="#L946">946</a>         <strong class="jxr_keyword">int</strong> offset = 0;
@@ -1081,6 +1081,6 @@
 <a class="jxr_linenumber" name="L1073" href="#L1073">1073</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -37,16 +37,16 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * XZ compressor.</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * @since 1.4</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/xz/XZCompressorOutputStream.html">XZCompressorOutputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/CompressorOutputStream.html">CompressorOutputStream</a> {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html">XZOutputStream</a> out;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XZCompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/xz/XZCompressorOutputStream.html#XZCompressorOutputStream">XZCompressorOutputStream</a> <strong class="jxr_keyword">extends</strong> <a name="CompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/CompressorOutputStream.html#CompressorOutputStream">CompressorOutputStream</a> {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="XZOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html#XZOutputStream">XZOutputStream</a> out;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * Creates a new XZ compressor using the default LZMA2 options.</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * This is equivalent to &lt;code&gt;XZCompressorOutputStream(6)&lt;/code&gt;.</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/xz/XZCompressorOutputStream.html">XZCompressorOutputStream</a>(OutputStream outputStream)
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">public</strong> <a name="XZCompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/xz/XZCompressorOutputStream.html#XZCompressorOutputStream">XZCompressorOutputStream</a>(OutputStream outputStream)
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>              <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          out = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html">XZOutputStream</a>(outputStream, <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMA2Options.html">LZMA2Options</a>());
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          out = <strong class="jxr_keyword">new</strong> <a name="XZOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html#XZOutputStream">XZOutputStream</a>(outputStream, <strong class="jxr_keyword">new</strong> <a name="LZMA2Options" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMA2Options.html#LZMA2Options">LZMA2Options</a>());
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <em class="jxr_javadoccomment">/**</em>
@@ -62,9 +62,9 @@
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * 16&amp;nbsp;MiB, or 32&amp;nbsp;MiB, it is waste of memory to use the</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * presets 7, 8, or 9, respectively.</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/xz/XZCompressorOutputStream.html">XZCompressorOutputStream</a>(OutputStream outputStream, <strong class="jxr_keyword">int</strong> preset)
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <a name="XZCompressorOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/xz/XZCompressorOutputStream.html#XZCompressorOutputStream">XZCompressorOutputStream</a>(OutputStream outputStream, <strong class="jxr_keyword">int</strong> preset)
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          out = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html">XZOutputStream</a>(outputStream, <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMA2Options.html">LZMA2Options</a>(preset));
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          out = <strong class="jxr_keyword">new</strong> <a name="XZOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html#XZOutputStream">XZOutputStream</a>(outputStream, <strong class="jxr_keyword">new</strong> <a name="LZMA2Options" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMA2Options.html#LZMA2Options">LZMA2Options</a>(preset));
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      @Override
@@ -103,6 +103,6 @@
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

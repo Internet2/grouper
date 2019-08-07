@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -41,7 +41,7 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * @NotThreadSafe</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveInputStream.html">ArArchiveInputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveInputStream.html">ArchiveInputStream</a> {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ArArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveInputStream.html#ArArchiveInputStream">ArArchiveInputStream</a> <strong class="jxr_keyword">extends</strong> <a name="ArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveInputStream.html#ArchiveInputStream">ArchiveInputStream</a> {
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> InputStream input;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> offset = 0;
@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_comment">     * If getNextEnxtry has been called, the entry metadata is stored in</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_comment">     * currentEntry.</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a> currentEntry = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a> currentEntry = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <em class="jxr_comment">// Storage area for extra long names (GNU ar)</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> byte[] namebuffer = <strong class="jxr_keyword">null</strong>;
@@ -75,7 +75,7 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     * @param pInput</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     *            the ar input stream</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveInputStream.html">ArArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream pInput) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <a name="ArArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveInputStream.html#ArArchiveInputStream">ArArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream pInput) {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          input = pInput;
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          closed = false;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
@@ -87,7 +87,7 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     * @throws IOException</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     *             if the entry could not be read</em>
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a> getNextArEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a> getNextArEntry() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">if</strong> (currentEntry != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> entryEnd = entryOffset + currentEntry.getLength();
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>              IOUtils.skip(<strong class="jxr_keyword">this</strong>, entryEnd - offset);
@@ -166,7 +166,7 @@
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>             entryOffset += nameLen;
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         }
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> 
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         currentEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a>(temp, len, userId,
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         currentEntry = <strong class="jxr_keyword">new</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>(temp, len, userId,
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>                                           asInt(ID_BUF, <strong class="jxr_keyword">true</strong>),
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>                                           asInt(FILE_MODE_BUF, 8),
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>                                           asLong(LAST_MODIFIED_BUF));
@@ -225,7 +225,7 @@
 <a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_comment">     * edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveInputStream#getNextEntry()</em>
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_comment">     */</em>
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>     @Override
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> getNextEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     <strong class="jxr_keyword">public</strong> <a name="ArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html#ArchiveEntry">ArchiveEntry</a> getNextEntry() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">return</strong> getNextArEntry();
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     }
 <a class="jxr_linenumber" name="L223" href="#L223">223</a> 
@@ -389,7 +389,7 @@
 <a class="jxr_linenumber" name="L381" href="#L381">381</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_javadoccomment">     * @see #isGNUStringTable</em>
 <a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a> readGNUStringTable(byte[] length) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>     <strong class="jxr_keyword">private</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a> readGNUStringTable(byte[] length) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L385" href="#L385">385</a>         <strong class="jxr_keyword">int</strong> bufflen = asInt(length); <em class="jxr_comment">// Assume length will fit in an int</em>
 <a class="jxr_linenumber" name="L386" href="#L386">386</a>         namebuffer = <strong class="jxr_keyword">new</strong> byte[bufflen];
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">int</strong> read = IOUtils.readFully(<strong class="jxr_keyword">this</strong>, namebuffer, 0, bufflen);
@@ -397,7 +397,7 @@
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Failed to read complete // record: expected="</span>
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>                                   + bufflen + <span class="jxr_string">" read="</span> + read);
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>         }
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html">ArArchiveEntry</a>(GNU_STRING_TABLE_NAME, bufflen);
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="ArArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ar/ArArchiveEntry.html#ArArchiveEntry">ArArchiveEntry</a>(GNU_STRING_TABLE_NAME, bufflen);
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>     }
 <a class="jxr_linenumber" name="L394" href="#L394">394</a> 
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String GNU_LONGNAME_PATTERN = <span class="jxr_string">"^/&#92;&#92;d+"</span>;
@@ -414,6 +414,6 @@
 <a class="jxr_linenumber" name="L406" href="#L406">406</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

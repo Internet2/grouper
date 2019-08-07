@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -86,7 +86,7 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html">XmlImportMain</a> {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XmlImportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/importXml/XmlImportMain.html#XmlImportMain">XmlImportMain</a> {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">   * if readonly put a report here</em>
@@ -114,7 +114,7 @@
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">   * version of grouper which exported the export file</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> importFileVersion = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">private</strong> <a name="GrouperVersion" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html#GrouperVersion">GrouperVersion</a> importFileVersion = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> 
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>   <em class="jxr_javadoccomment">/** map from file uuid to registry uuid if there was a change for any and all uuids */</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; uuidTranslation = <strong class="jxr_keyword">new</strong> HashMap&lt;String, String&gt;();
@@ -325,13 +325,13 @@
 <a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> processXmlFirstPass(<strong class="jxr_keyword">final</strong> Reader reader, <strong class="jxr_keyword">final</strong> String filePath) {
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>   
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>     <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> grouperTransactionType = GrouperTransactionType.NONE;
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>     <a name="GrouperTransactionType" href="../../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> grouperTransactionType = GrouperTransactionType.NONE;
 <a class="jxr_linenumber" name="L321" href="#L321">321</a>     
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>     HibernateSession.callbackHibernateSession(grouperTransactionType, 
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         AuditControl.WILL_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         AuditControl.WILL_AUDIT, <strong class="jxr_keyword">new</strong> <a name="HibernateHandler" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html#HibernateHandler">HibernateHandler</a>() {
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>   
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>           <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>               <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>           <strong class="jxr_keyword">public</strong> Object callback(<a name="HibernateHandlerBean" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html#HibernateHandlerBean">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>               <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>   
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>             SAXReader theReader = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>             <strong class="jxr_keyword">try</strong> {
@@ -346,7 +346,7 @@
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>                   <strong class="jxr_keyword">new</strong> ElementHandler() {
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>                         Element grouperExport = path.getCurrent();
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>                         XmlImportMain.<strong class="jxr_keyword">this</strong>.importFileVersion = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a>(grouperExport.attributeValue(<span class="jxr_string">"version"</span>));
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>                         XmlImportMain.<strong class="jxr_keyword">this</strong>.importFileVersion = <strong class="jxr_keyword">new</strong> <a name="GrouperVersion" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html#GrouperVersion">GrouperVersion</a>(grouperExport.attributeValue(<span class="jxr_string">"version"</span>));
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>                         XmlImportMain.logInfoAndPrintToScreen(
 <a class="jxr_linenumber" name="L343" href="#L343">343</a>                             <span class="jxr_string">"grouper import: reading document: "</span> + filePath
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>                              + <span class="jxr_string">", version: "</span> + XmlImportMain.<strong class="jxr_keyword">this</strong>.importFileVersion);
@@ -379,7 +379,7 @@
 <a class="jxr_linenumber" name="L371" href="#L371">371</a>               
 <a class="jxr_linenumber" name="L372" href="#L372">372</a>               logInfoAndPrintToScreen(<span class="jxr_string">"XML file contains "</span> + GrouperUtil.formatNumberWithCommas(XmlImportMain.<strong class="jxr_keyword">this</strong>.totalImportFileCount) + <span class="jxr_string">" records"</span>);
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>               
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>               XmlImportMain.<strong class="jxr_keyword">this</strong>.originalDbCount = XmlImportMain.dbCount(<strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html">XmlExportMain</a>());
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>               XmlImportMain.<strong class="jxr_keyword">this</strong>.originalDbCount = XmlImportMain.dbCount(<strong class="jxr_keyword">new</strong> <a name="XmlExportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html#XmlExportMain">XmlExportMain</a>());
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>               
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>             } <strong class="jxr_keyword">catch</strong> (DocumentException de) {
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Problem reading file: "</span> + filePath, de);
@@ -412,7 +412,7 @@
 <a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">   * @param xmlExportMain </em>
 <a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">   * @return db count</em>
 <a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> dbCount(<a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html">XmlExportMain</a> xmlExportMain) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> dbCount(<a name="XmlExportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html#XmlExportMain">XmlExportMain</a> xmlExportMain) {
 <a class="jxr_linenumber" name="L408" href="#L408">408</a>     <strong class="jxr_keyword">int</strong> total = 0;
 <a class="jxr_linenumber" name="L409" href="#L409">409</a>     total += XmlExportMember.dbCount(xmlExportMain);
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>     total += XmlExportStem.dbCount(xmlExportMain);
@@ -439,7 +439,7 @@
 <a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_javadoccomment">   * @param xmlExportMain </em>
 <a class="jxr_linenumber" name="L432" href="#L432">432</a> <em class="jxr_javadoccomment">   * @return db count</em>
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> dbCountGsh(<a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html">XmlExportMain</a> xmlExportMain) {
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> dbCountGsh(<a name="XmlExportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html#XmlExportMain">XmlExportMain</a> xmlExportMain) {
 <a class="jxr_linenumber" name="L435" href="#L435">435</a>     <strong class="jxr_keyword">int</strong> total = 0;
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>     total += XmlExportStem.dbCount(xmlExportMain);
 <a class="jxr_linenumber" name="L437" href="#L437">437</a>     total += XmlExportGroup.dbCount(xmlExportMain);
@@ -521,13 +521,13 @@
 <a class="jxr_linenumber" name="L513" href="#L513">513</a>         + GrouperUtil.formatNumberWithCommas(XmlImportMain.<strong class="jxr_keyword">this</strong>.originalDbCount) + <span class="jxr_string">" records"</span>);
 <a class="jxr_linenumber" name="L514" href="#L514">514</a>     
 <a class="jxr_linenumber" name="L515" href="#L515">515</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>       <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> grouperTransactionType = GrouperTransactionType.NONE;
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>       <a name="GrouperTransactionType" href="../../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> grouperTransactionType = GrouperTransactionType.NONE;
 <a class="jxr_linenumber" name="L517" href="#L517">517</a>       
 <a class="jxr_linenumber" name="L518" href="#L518">518</a>       HibernateSession.callbackHibernateSession(grouperTransactionType, 
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>           AuditControl.WILL_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>           AuditControl.WILL_AUDIT, <strong class="jxr_keyword">new</strong> <a name="HibernateHandler" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html#HibernateHandler">HibernateHandler</a>() {
 <a class="jxr_linenumber" name="L520" href="#L520">520</a>     
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>             <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>                 <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>             <strong class="jxr_keyword">public</strong> Object callback(<a name="HibernateHandlerBean" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html#HibernateHandlerBean">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>                 <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L523" href="#L523">523</a>     
 <a class="jxr_linenumber" name="L524" href="#L524">524</a>               SAXReader theReader = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>               <strong class="jxr_keyword">try</strong> {
@@ -569,13 +569,13 @@
 <a class="jxr_linenumber" name="L561" href="#L561">561</a>                 
 <a class="jxr_linenumber" name="L562" href="#L562">562</a>                 logInfoAndPrintToScreen(<span class="jxr_string">"Ending import: processed "</span> + XmlImportMain.<strong class="jxr_keyword">this</strong>.currentRecordIndex + <span class="jxr_string">" records"</span>);
 <a class="jxr_linenumber" name="L563" href="#L563">563</a>   
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>                 <strong class="jxr_keyword">long</strong> finalDbCount = XmlImportMain.dbCount(<strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html">XmlExportMain</a>());
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>                 <strong class="jxr_keyword">long</strong> finalDbCount = XmlImportMain.dbCount(<strong class="jxr_keyword">new</strong> <a name="XmlExportMain" href="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html#XmlExportMain">XmlExportMain</a>());
 <a class="jxr_linenumber" name="L565" href="#L565">565</a>                 
 <a class="jxr_linenumber" name="L566" href="#L566">566</a>                 logInfoAndPrintToScreen(<span class="jxr_string">"Ending import: database contains "</span> + finalDbCount + <span class="jxr_string">" records"</span>);
 <a class="jxr_linenumber" name="L567" href="#L567">567</a>                 logInfoAndPrintToScreen(<span class="jxr_string">"Ending import: "</span> + XmlImportMain.<strong class="jxr_keyword">this</strong>.insertCount + <span class="jxr_string">" inserts, "</span> 
 <a class="jxr_linenumber" name="L568" href="#L568">568</a>                     + XmlImportMain.<strong class="jxr_keyword">this</strong>.updateCount + <span class="jxr_string">" updates, and "</span> + XmlImportMain.<strong class="jxr_keyword">this</strong>.skipCount + <span class="jxr_string">" skipped records"</span>);
 <a class="jxr_linenumber" name="L569" href="#L569">569</a>                 
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>                 <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html">AuditEntry</a> auditEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html">AuditEntry</a>(AuditTypeBuiltin.XML_IMPORT, <span class="jxr_string">"fileName"</span>, 
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>                 <a name="AuditEntry" href="../../../../../../edu/internet2/middle<a name="AuditEntry" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html#AuditEntry">AuditEntry</a>er/audit/AuditEntry.html#AuditEntry">AuditEntry</a> auditEntry = <strong class="jxr_keyword">new</strong> <a name="AuditEntry" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html#AuditEntry">AuditEntry</a>(AuditTypeBuiltin.XML_IMPORT, <span class="jxr_string">"fileName"</span>, 
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>                     filePath);
 <a class="jxr_linenumber" name="L572" href="#L572">572</a>                 auditEntry.setDescription(<span class="jxr_string">"Imported xml: "</span> + XmlImportMain.<strong class="jxr_keyword">this</strong>.insertCount + <span class="jxr_string">" inserts, "</span> 
 <a class="jxr_linenumber" name="L573" href="#L573">573</a>                     + XmlImportMain.<strong class="jxr_keyword">this</strong>.updateCount + <span class="jxr_string">" updates, and "</span> + XmlImportMain.<strong class="jxr_keyword">this</strong>.skipCount + <span class="jxr_string">" skipped records ("</span> 
@@ -655,6 +655,6 @@
 <a class="jxr_linenumber" name="L647" href="#L647">647</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

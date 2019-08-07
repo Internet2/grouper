@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -43,11 +43,11 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * If the interval or schedule is up, and a job is still running, then another</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * will not run concurrently.</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderScheduleType.html">GrouperLoaderScheduleType</a> {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> enum <a name="GrouperLoaderScheduleType" href="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderScheduleType.html#GrouperLoaderScheduleType">GrouperLoaderScheduleType</a> {
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">   * quartz cron string to configure the schedule</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">   * <a href="http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.htm" target="alexandria_uri">http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.htm</a>l</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">   * <a href="http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.html" target="alexandria_uri">http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.html</a></em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>    CRON {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      
@@ -131,7 +131,7 @@
 <a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">   * @param exceptionOnNull will not allow null or blank entries</em>
 <a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">   * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderScheduleType.html">GrouperLoaderScheduleType</a> valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="GrouperLoaderScheduleType" href="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderScheduleType.html#GrouperLoaderScheduleType">GrouperLoaderScheduleType</a> valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">return</strong> GrouperUtil.enumValueOfIgnoreCase(GrouperLoaderScheduleType.<strong class="jxr_keyword">class</strong>, 
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         string, exceptionOnNull);
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> 
@@ -140,6 +140,6 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

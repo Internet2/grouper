@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *  </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *  </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.subject.Subject;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/serviceLogic/UiV2MyGroups.html">UiV2MyGroups</a> {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="UiV2MyGroups" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/serviceLogic/UiV2MyGroups.html#UiV2MyGroups">UiV2MyGroups</a> {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * join group</em>
@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      GrouperSession grouperSession = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>    
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>    
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>        grouperSession = GrouperSession.start(loggedInSubject);
@@ -125,7 +125,7 @@
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>   
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>       grouperSession = GrouperSession.start(loggedInSubject);
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>   
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>   
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp(<span class="jxr_string">"#grouperMainContentDivId"</span>, 
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>           <span class="jxr_string">"/WEB-INF/grouperUi2/myGroups/myGroups.jsp"</span>));
@@ -145,11 +145,11 @@
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> myGroupsHelper(HttpServletRequest request, HttpServletResponse response) {
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>   
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>   
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>       String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter(<span class="jxr_string">"myGroupsFilter"</span>));
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>       
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/MyGroupsContainer.html">MyGroupsContainer</a> myGroupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>       <a name="MyGroupsContainer" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/MyGroupsContainer.html#MyGroupsContainer">MyGroupsContainer</a> myGroupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>       
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>       <em class="jxr_comment">//dont give an error if 0</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>       <strong class="jxr_keyword">if</strong> (myGroupsFilter.length() == 1) {
@@ -163,7 +163,7 @@
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>       }
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>       
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> guiPaging = myGroupContainer.getMyGroupsGuiPaging();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>       <a name="GuiPaging" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> guiPaging = myGroupContainer.getMyGroupsGuiPaging();
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>       QueryOptions queryOptions = QueryOptions.create(<span class="jxr_string">"displayName"</span>, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>       
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
@@ -213,7 +213,7 @@
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>   
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>       grouperSession = GrouperSession.start(loggedInSubject);
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>   
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>   
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>       <em class="jxr_comment">//clear out form</em>
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue(<span class="jxr_string">"myGroupsFilter"</span>, <span class="jxr_string">""</span>));
@@ -263,7 +263,7 @@
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>   
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>       grouperSession = GrouperSession.start(loggedInSubject);
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>   
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>   
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp(<span class="jxr_string">"#grouperMainContentDivId"</span>, 
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>           <span class="jxr_string">"/WEB-INF/grouperUi2/myGroups/myGroupsJoin.jsp"</span>));
@@ -285,11 +285,11 @@
 <a class="jxr_linenumber" name="L277" href="#L277">277</a> 
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>       <strong class="jxr_keyword">final</strong> Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 <a class="jxr_linenumber" name="L279" href="#L279">279</a> 
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>   
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>       String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter(<span class="jxr_string">"myGroupsFilter"</span>));
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>       
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/MyGroupsContainer.html">MyGroupsContainer</a> myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>       <a name="MyGroupsContainer" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/MyGroupsContainer.html#MyGroupsContainer">MyGroupsContainer</a> myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>       
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>       <em class="jxr_comment">//dont give an error if 0</em>
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>       <strong class="jxr_keyword">if</strong> (myGroupsFilter.length() == 1) {
@@ -303,7 +303,7 @@
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>       }
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>       
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>       <a name="GuiPaging" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>       QueryOptions queryOptions = QueryOptions.create(<span class="jxr_string">"displayName"</span>, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>       
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
@@ -355,7 +355,7 @@
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>   
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>       grouperSession = GrouperSession.start(loggedInSubject);
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>   
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>   
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>       <em class="jxr_comment">//clear out form</em>
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue(<span class="jxr_string">"myGroupsFilter"</span>, <span class="jxr_string">""</span>));
@@ -401,7 +401,7 @@
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>   
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>     GrouperSession grouperSession = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>   
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L397" href="#L397">397</a>   
 <a class="jxr_linenumber" name="L398" href="#L398">398</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L399" href="#L399">399</a>       grouperSession = GrouperSession.start(loggedInSubject);
@@ -455,7 +455,7 @@
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>   
 <a class="jxr_linenumber" name="L448" href="#L448">448</a>       grouperSession = GrouperSession.start(loggedInSubject);
 <a class="jxr_linenumber" name="L449" href="#L449">449</a>   
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L451" href="#L451">451</a>   
 <a class="jxr_linenumber" name="L452" href="#L452">452</a>       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp(<span class="jxr_string">"#grouperMainContentDivId"</span>, 
 <a class="jxr_linenumber" name="L453" href="#L453">453</a>           <span class="jxr_string">"/WEB-INF/grouperUi2/myGroups/myGroupsMemberships.jsp"</span>));
@@ -477,11 +477,11 @@
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>   
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>       <strong class="jxr_keyword">final</strong> Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 <a class="jxr_linenumber" name="L471" href="#L471">471</a>     
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>   
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>       <strong class="jxr_keyword">final</strong> String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter(<span class="jxr_string">"myGroupsFilter"</span>));
 <a class="jxr_linenumber" name="L475" href="#L475">475</a>       
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/MyGroupsContainer.html">MyGroupsContainer</a> myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>       <a name="MyGroupsContainer" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/ui/MyGroupsContainer.html#MyGroupsContainer">MyGroupsContainer</a> myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
 <a class="jxr_linenumber" name="L477" href="#L477">477</a>       
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>       <em class="jxr_comment">//dont give an error if 0</em>
 <a class="jxr_linenumber" name="L479" href="#L479">479</a>       <strong class="jxr_keyword">if</strong> (myGroupsFilter.length() == 1) {
@@ -495,7 +495,7 @@
 <a class="jxr_linenumber" name="L487" href="#L487">487</a>         <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L488" href="#L488">488</a>       }
 <a class="jxr_linenumber" name="L489" href="#L489">489</a>       
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>       <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html">GuiPaging</a> guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>       <strong class="jxr_keyword">final</strong> <a name="GuiPaging" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiPaging.html#GuiPaging">GuiPaging</a> guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
 <a class="jxr_linenumber" name="L491" href="#L491">491</a>       <strong class="jxr_keyword">final</strong> QueryOptions queryOptions = <strong class="jxr_keyword">new</strong> QueryOptions();
 <a class="jxr_linenumber" name="L492" href="#L492">492</a>       
 <a class="jxr_linenumber" name="L493" href="#L493">493</a>       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
@@ -546,7 +546,7 @@
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>   
 <a class="jxr_linenumber" name="L539" href="#L539">539</a>       grouperSession = GrouperSession.start(loggedInSubject);
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>   
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>       <a name="GuiResponseJs" href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html#GuiResponseJs">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>   
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>       <em class="jxr_comment">//clear out form</em>
 <a class="jxr_linenumber" name="L544" href="#L544">544</a>       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue(<span class="jxr_string">"myGroupsFilter"</span>, <span class="jxr_string">""</span>));
@@ -584,6 +584,6 @@
 <a class="jxr_linenumber" name="L576" href="#L576">576</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

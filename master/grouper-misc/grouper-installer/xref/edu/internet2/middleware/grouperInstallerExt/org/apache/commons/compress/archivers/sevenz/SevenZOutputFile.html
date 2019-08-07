@@ -14,7 +14,7 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> *  (the "License"); you may not use this file except in compliance with</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> *  the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -50,7 +50,7 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * Writes a 7z file.</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * @since 1.6</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZOutputFile.html">SevenZOutputFile</a> <strong class="jxr_keyword">implements</strong> Closeable {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SevenZOutputFile" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZOutputFile.html#SevenZOutputFile">SevenZOutputFile</a> <strong class="jxr_keyword">implements</strong> Closeable {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> RandomAccessFile file;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;SevenZArchiveEntry&gt; files = <strong class="jxr_keyword">new</strong> ArrayList&lt;SevenZArchiveEntry&gt;();
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> numNonEmptyStreams = 0;
@@ -58,10 +58,10 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> CRC32 compressedCrc32 = <strong class="jxr_keyword">new</strong> CRC32();
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> fileBytesWritten = 0;
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> finished = false;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html">CountingOutputStream</a> currentOutputStream;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html">CountingOutputStream</a>[] additionalCountingStreams;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <a name="CountingOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html#CountingOutputStream">CountingOutputStream</a> currentOutputStream;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <a name="CountingOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html#CountingOutputStream">CountingOutputStream</a>[] additionalCountingStreams;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> Iterable&lt;? <strong class="jxr_keyword">extends</strong> SevenZMethodConfiguration&gt; contentMethods =
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              Collections.singletonList(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html">SevenZMethodConfiguration</a>(SevenZMethod.LZMA2));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              Collections.singletonList(<strong class="jxr_keyword">new</strong> <a name="SevenZMethodConfiguration" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html#SevenZMethodConfiguration">SevenZMethodConfiguration</a>(SevenZMethod.LZMA2));
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;SevenZArchiveEntry, <strong class="jxr_keyword">long</strong>[]&gt; additionalSizes = <strong class="jxr_keyword">new</strong> HashMap&lt;SevenZArchiveEntry, <strong class="jxr_keyword">long</strong>[]&gt;();
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <em class="jxr_javadoccomment">/**</em>
@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * @param filename name of the file to write to</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * @throws IOException if opening the file fails</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZOutputFile.html">SevenZOutputFile</a>(<strong class="jxr_keyword">final</strong> File filename) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> <a name="SevenZOutputFile" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZOutputFile.html#SevenZOutputFile">SevenZOutputFile</a>(<strong class="jxr_keyword">final</strong> File filename) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          file = <strong class="jxr_keyword">new</strong> RandomAccessFile(filename, <span class="jxr_string">"rw"</span>);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          file.seek(SevenZFile.SIGNATURE_HEADER_SIZE);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
@@ -86,8 +86,8 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;This is a short form for passing a single-element iterable</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     * to {@link #setContentMethods}.&lt;/p&gt;</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setContentCompression(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethod.html">SevenZMethod</a> method) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          setContentMethods(Collections.singletonList(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html">SevenZMethodConfiguration</a>(method)));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setContentCompression(<a name="SevenZMethod" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethod.html#SevenZMethod">SevenZMethod</a> method) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          setContentMethods(Collections.singletonList(<strong class="jxr_keyword">new</strong> <a name="SevenZMethodConfiguration" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html#SevenZMethodConfiguration">SevenZMethodConfiguration</a>(method)));
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      }
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_javadoccomment">/**</em>
@@ -128,9 +128,9 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     * </em>
 <a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
 <a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> createArchiveEntry(<strong class="jxr_keyword">final</strong> File inputFile,
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">public</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> createArchiveEntry(<strong class="jxr_keyword">final</strong> File inputFile,
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>             <strong class="jxr_keyword">final</strong> String entryName) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a>();
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu<a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a>are/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry = <strong class="jxr_keyword">new</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a>();
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         entry.setDirectory(inputFile.isDirectory());
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>         entry.setName(entryName);
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         entry.setLastModifiedDate(<strong class="jxr_keyword">new</strong> Date(inputFile.lastModified()));
@@ -146,8 +146,8 @@
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * @param archiveEntry describes the entry</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
 <a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> putArchiveEntry(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> archiveEntry) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry = (SevenZArchiveEntry) archiveEntry;
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> putArchiveEntry(<strong class="jxr_keyword">final</strong> <a name="ArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html#ArchiveEntry">ArchiveEntry</a> archiveEntry) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry"<a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a>/../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry = (<a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a>) archiveEntry;
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         files.add(entry);
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>     
@@ -161,7 +161,7 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>             currentOutputStream.close();
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>         }
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> 
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry = files.get(files.size() - 1);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry = files.get(files.size() - 1);
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">if</strong> (fileBytesWritten &gt; 0) {
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>             entry.setHasStream(<strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>             ++numNonEmptyStreams;
@@ -279,17 +279,17 @@
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">return</strong> currentOutputStream;
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>     }
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> 
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html">CountingOutputStream</a> setupFileOutputStream() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">private</strong> <a name="CountingOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html#CountingOutputStream">CountingOutputStream</a> setupFileOutputStream() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">if</strong> (files.isEmpty()) {
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"No current 7z entry"</span>);
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>         }
 <a class="jxr_linenumber" name="L278" href="#L278">278</a> 
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         OutputStream out = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZOutputFile.html">OutputStreamWrapper</a>();
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         OutputStream out = <strong class="jxr_keyword">new</strong> OutputStreamWrapper();
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>         ArrayList&lt;CountingOutputStream&gt; moreStreams = <strong class="jxr_keyword">new</strong> ArrayList&lt;CountingOutputStream&gt;();
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">for</strong> (SevenZMethodConfiguration m : getContentMethods(files.get(files.size() - 1))) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">for</strong> (<a name="SevenZMethodConfiguration" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html#SevenZMethodConfiguration">SevenZMethodConfiguration</a> m : getContentMethods(files.get(files.size() - 1))) {
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">if</strong> (!first) {
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html">CountingOutputStream</a> cos = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html">CountingOutputStream</a>(out);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 <a name="CountingOutputStream" href="../../../../../../../../../../e<a name="CountingOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html#CountingOutputStream">CountingOutputStream</a>are/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html#CountingOutputStream">CountingOutputStream</a> cos = <strong class="jxr_keyword">new</strong> <a name="CountingOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html#CountingOutputStream">CountingOutputStream</a>(out);
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>                 moreStreams.add(cos);
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>                 out = cos;
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>             }
@@ -297,9 +297,9 @@
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>             first = false;
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>         }
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>         <strong class="jxr_keyword">if</strong> (!moreStreams.isEmpty()) {
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>             additionalCountingStreams = moreStreams.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html">CountingOutputStream</a>[moreStreams.size()]);
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>             additionalCountingStreams = moreStreams.toArray(<strong class="jxr_keyword">new</strong> <a name="CountingOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html#CountingOutputStream">CountingOutputStream</a>[moreStreams.size()]);
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>         }
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html">CountingOutputStream</a>(out) {
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="CountingOutputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/CountingOutputStream.html#CountingOutputStream">CountingOutputStream</a>(out) {
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>             @Override
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> write(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> b) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>                 <strong class="jxr_keyword">super</strong>.write(b);
@@ -321,7 +321,7 @@
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>         };
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>     }
 <a class="jxr_linenumber" name="L315" href="#L315">315</a> 
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>     <strong class="jxr_keyword">private</strong> Iterable&lt;? <strong class="jxr_keyword">extends</strong> SevenZMethodConfiguration&gt; getContentMethods(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry) {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>     <strong class="jxr_keyword">private</strong> Iterable&lt;? <strong class="jxr_keyword">extends</strong> SevenZMethodConfiguration&gt; getContentMethods(<a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry) {
 <a class="jxr_linenumber" name="L317" href="#L317">317</a>         Iterable&lt;? <strong class="jxr_keyword">extends</strong> SevenZMethodConfiguration&gt; ms = entry.getContentMethods();
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">return</strong> ms == <strong class="jxr_keyword">null</strong> ? contentMethods : ms;
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>     }
@@ -353,7 +353,7 @@
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>         writeUint64(header, 0xffffFFFFL &amp; numNonEmptyStreams);
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>         
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>         header.write(NID.kSize);
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>             <strong class="jxr_keyword">if</strong> (entry.hasStream()) {
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>                 writeUint64(header, entry.getCompressedSize());
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>             }
@@ -361,7 +361,7 @@
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>         
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>         header.write(NID.kCRC);
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>         header.write(1); <em class="jxr_comment">// "allAreDefined" == true</em>
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>             <strong class="jxr_keyword">if</strong> (entry.hasStream()) {
 <a class="jxr_linenumber" name="L358" href="#L358">358</a>                 header.writeInt(Integer.reverseBytes((<strong class="jxr_keyword">int</strong>) entry.getCompressedCrcValue()));
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>             }
@@ -376,14 +376,14 @@
 <a class="jxr_linenumber" name="L368" href="#L368">368</a>         header.write(NID.kFolder);
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>         writeUint64(header, numNonEmptyStreams);
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>         header.write(0);
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <strong class="jxr_keyword">for</strong> (SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <strong class="jxr_keyword">for</strong> (<a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L372" href="#L372">372</a>             <strong class="jxr_keyword">if</strong> (entry.hasStream()) {
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>                 writeFolder(header, entry);
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>             }
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>         }
 <a class="jxr_linenumber" name="L376" href="#L376">376</a> 
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>         header.write(NID.kCodersUnpackSize);
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>             <strong class="jxr_keyword">if</strong> (entry.hasStream()) {
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>                 <strong class="jxr_keyword">long</strong>[] moreSizes = additionalSizes.get(entry);
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>                 <strong class="jxr_keyword">if</strong> (moreSizes != <strong class="jxr_keyword">null</strong>) {
@@ -397,7 +397,7 @@
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>         
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>         header.write(NID.kCRC);
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>         header.write(1); <em class="jxr_comment">// "allAreDefined" == true</em>
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>             <strong class="jxr_keyword">if</strong> (entry.hasStream()) {
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>                 header.writeInt(Integer.reverseBytes((<strong class="jxr_keyword">int</strong>) entry.getCrcValue()));
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>             }
@@ -406,10 +406,10 @@
 <a class="jxr_linenumber" name="L398" href="#L398">398</a>         header.write(NID.kEnd);
 <a class="jxr_linenumber" name="L399" href="#L399">399</a>     }
 <a class="jxr_linenumber" name="L400" href="#L400">400</a>     
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeFolder(<strong class="jxr_keyword">final</strong> DataOutput header, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html">SevenZArchiveEntry</a> entry) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeFolder(<strong class="jxr_keyword">final</strong> DataOutput header, <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L402" href="#L402">402</a>         ByteArrayOutputStream bos = <strong class="jxr_keyword">new</strong> ByteArrayOutputStream();
 <a class="jxr_linenumber" name="L403" href="#L403">403</a>         <strong class="jxr_keyword">int</strong> numCoders = 0;
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <strong class="jxr_keyword">for</strong> (SevenZMethodConfiguration m : getContentMethods(entry)) {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <strong class="jxr_keyword">for</strong> (<a name="SevenZMethodConfiguration" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html#SevenZMethodConfiguration">SevenZMethodConfiguration</a> m : getContentMethods(entry)) {
 <a class="jxr_linenumber" name="L405" href="#L405">405</a>             numCoders++;
 <a class="jxr_linenumber" name="L406" href="#L406">406</a>             writeSingleCodec(m, bos);
 <a class="jxr_linenumber" name="L407" href="#L407">407</a>         }
@@ -422,7 +422,7 @@
 <a class="jxr_linenumber" name="L414" href="#L414">414</a>         }
 <a class="jxr_linenumber" name="L415" href="#L415">415</a>     }
 <a class="jxr_linenumber" name="L416" href="#L416">416</a> 
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeSingleCodec(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html">SevenZMethodConfiguration</a> m, OutputStream bos) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeSingleCodec(<a name="SevenZMethodConfiguration" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZMethodConfiguration.html#SevenZMethodConfiguration">SevenZMethodConfiguration</a> m, OutputStream bos) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>         byte[] id = m.getMethod().getId();
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>         byte[] properties = Coders.findByMethod(m.getMethod())
 <a class="jxr_linenumber" name="L420" href="#L420">420</a>             .getOptionsAsProperties(m.getOptions());
@@ -472,7 +472,7 @@
 <a class="jxr_linenumber" name="L464" href="#L464">464</a>     
 <a class="jxr_linenumber" name="L465" href="#L465">465</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeFileEmptyStreams(<strong class="jxr_keyword">final</strong> DataOutput header) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">boolean</strong> hasEmptyStreams = false;
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>             <strong class="jxr_keyword">if</strong> (!entry.hasStream()) {
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>                 hasEmptyStreams = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>                 <strong class="jxr_keyword">break</strong>;
@@ -546,7 +546,7 @@
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>         <strong class="jxr_keyword">final</strong> ByteArrayOutputStream baos = <strong class="jxr_keyword">new</strong> ByteArrayOutputStream();
 <a class="jxr_linenumber" name="L539" href="#L539">539</a>         <strong class="jxr_keyword">final</strong> DataOutputStream out = <strong class="jxr_keyword">new</strong> DataOutputStream(baos);
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>         out.write(0);
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>             out.write(entry.getName().getBytes(<span class="jxr_string">"UTF-16LE"</span>));
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>             out.writeShort(0);
 <a class="jxr_linenumber" name="L544" href="#L544">544</a>         }
@@ -558,7 +558,7 @@
 <a class="jxr_linenumber" name="L550" href="#L550">550</a> 
 <a class="jxr_linenumber" name="L551" href="#L551">551</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeFileCTimes(<strong class="jxr_keyword">final</strong> DataOutput header) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L552" href="#L552">552</a>         <strong class="jxr_keyword">int</strong> numCreationDates = 0;
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L554" href="#L554">554</a>             <strong class="jxr_keyword">if</strong> (entry.getHasCreationDate()) {
 <a class="jxr_linenumber" name="L555" href="#L555">555</a>                 ++numCreationDates;
 <a class="jxr_linenumber" name="L556" href="#L556">556</a>             }
@@ -579,7 +579,7 @@
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>                 out.write(1); <em class="jxr_comment">// "allAreDefined" == true</em>
 <a class="jxr_linenumber" name="L572" href="#L572">572</a>             }
 <a class="jxr_linenumber" name="L573" href="#L573">573</a>             out.write(0);
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L575" href="#L575">575</a>                 <strong class="jxr_keyword">if</strong> (entry.getHasCreationDate()) {
 <a class="jxr_linenumber" name="L576" href="#L576">576</a>                     out.writeLong(Long.reverseBytes(
 <a class="jxr_linenumber" name="L577" href="#L577">577</a>                             SevenZArchiveEntry.javaTimeToNtfsTime(entry.getCreationDate())));
@@ -594,7 +594,7 @@
 <a class="jxr_linenumber" name="L586" href="#L586">586</a> 
 <a class="jxr_linenumber" name="L587" href="#L587">587</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeFileATimes(<strong class="jxr_keyword">final</strong> DataOutput header) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L588" href="#L588">588</a>         <strong class="jxr_keyword">int</strong> numAccessDates = 0;
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L590" href="#L590">590</a>             <strong class="jxr_keyword">if</strong> (entry.getHasAccessDate()) {
 <a class="jxr_linenumber" name="L591" href="#L591">591</a>                 ++numAccessDates;
 <a class="jxr_linenumber" name="L592" href="#L592">592</a>             }
@@ -615,7 +615,7 @@
 <a class="jxr_linenumber" name="L607" href="#L607">607</a>                 out.write(1); <em class="jxr_comment">// "allAreDefined" == true</em>
 <a class="jxr_linenumber" name="L608" href="#L608">608</a>             }
 <a class="jxr_linenumber" name="L609" href="#L609">609</a>             out.write(0);
-<a class="jxr_linenumber" name="L610" href="#L610">610</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L611" href="#L611">611</a>                 <strong class="jxr_keyword">if</strong> (entry.getHasAccessDate()) {
 <a class="jxr_linenumber" name="L612" href="#L612">612</a>                     out.writeLong(Long.reverseBytes(
 <a class="jxr_linenumber" name="L613" href="#L613">613</a>                             SevenZArchiveEntry.javaTimeToNtfsTime(entry.getAccessDate())));
@@ -630,7 +630,7 @@
 <a class="jxr_linenumber" name="L622" href="#L622">622</a> 
 <a class="jxr_linenumber" name="L623" href="#L623">623</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeFileMTimes(<strong class="jxr_keyword">final</strong> DataOutput header) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L624" href="#L624">624</a>         <strong class="jxr_keyword">int</strong> numLastModifiedDates = 0;
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L626" href="#L626">626</a>             <strong class="jxr_keyword">if</strong> (entry.getHasLastModifiedDate()) {
 <a class="jxr_linenumber" name="L627" href="#L627">627</a>                 ++numLastModifiedDates;
 <a class="jxr_linenumber" name="L628" href="#L628">628</a>             }
@@ -651,7 +651,7 @@
 <a class="jxr_linenumber" name="L643" href="#L643">643</a>                 out.write(1); <em class="jxr_comment">// "allAreDefined" == true</em>
 <a class="jxr_linenumber" name="L644" href="#L644">644</a>             }
 <a class="jxr_linenumber" name="L645" href="#L645">645</a>             out.write(0);
-<a class="jxr_linenumber" name="L646" href="#L646">646</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L646" href="#L646">646</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L647" href="#L647">647</a>                 <strong class="jxr_keyword">if</strong> (entry.getHasLastModifiedDate()) {
 <a class="jxr_linenumber" name="L648" href="#L648">648</a>                     out.writeLong(Long.reverseBytes(
 <a class="jxr_linenumber" name="L649" href="#L649">649</a>                             SevenZArchiveEntry.javaTimeToNtfsTime(entry.getLastModifiedDate())));
@@ -666,7 +666,7 @@
 <a class="jxr_linenumber" name="L658" href="#L658">658</a> 
 <a class="jxr_linenumber" name="L659" href="#L659">659</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeFileWindowsAttributes(<strong class="jxr_keyword">final</strong> DataOutput header) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L660" href="#L660">660</a>         <strong class="jxr_keyword">int</strong> numWindowsAttributes = 0;
-<a class="jxr_linenumber" name="L661" href="#L661">661</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L661" href="#L661">661</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L662" href="#L662">662</a>             <strong class="jxr_keyword">if</strong> (entry.getHasWindowsAttributes()) {
 <a class="jxr_linenumber" name="L663" href="#L663">663</a>                 ++numWindowsAttributes;
 <a class="jxr_linenumber" name="L664" href="#L664">664</a>             }
@@ -687,7 +687,7 @@
 <a class="jxr_linenumber" name="L679" href="#L679">679</a>                 out.write(1); <em class="jxr_comment">// "allAreDefined" == true</em>
 <a class="jxr_linenumber" name="L680" href="#L680">680</a>             }
 <a class="jxr_linenumber" name="L681" href="#L681">681</a>             out.write(0);
-<a class="jxr_linenumber" name="L682" href="#L682">682</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> SevenZArchiveEntry entry : files) {
+<a class="jxr_linenumber" name="L682" href="#L682">682</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <a name="SevenZArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZArchiveEntry.html#SevenZArchiveEntry">SevenZArchiveEntry</a> entry : files) {
 <a class="jxr_linenumber" name="L683" href="#L683">683</a>                 <strong class="jxr_keyword">if</strong> (entry.getHasWindowsAttributes()) {
 <a class="jxr_linenumber" name="L684" href="#L684">684</a>                     out.writeInt(Integer.reverseBytes(entry.getWindowsAttributes()));
 <a class="jxr_linenumber" name="L685" href="#L685">685</a>                 }
@@ -742,7 +742,7 @@
 <a class="jxr_linenumber" name="L734" href="#L734">734</a>         <strong class="jxr_keyword">return</strong> l;
 <a class="jxr_linenumber" name="L735" href="#L735">735</a>     }
 <a class="jxr_linenumber" name="L736" href="#L736">736</a> 
-<a class="jxr_linenumber" name="L737" href="#L737">737</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/sevenz/SevenZOutputFile.html">OutputStreamWrapper</a> <strong class="jxr_keyword">extends</strong> OutputStream {
+<a class="jxr_linenumber" name="L737" href="#L737">737</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> OutputStreamWrapper <strong class="jxr_keyword">extends</strong> OutputStream {
 <a class="jxr_linenumber" name="L738" href="#L738">738</a>         @Override
 <a class="jxr_linenumber" name="L739" href="#L739">739</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> write(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> b) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L740" href="#L740">740</a>             file.write(b);
@@ -776,6 +776,6 @@
 <a class="jxr_linenumber" name="L768" href="#L768">768</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

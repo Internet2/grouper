@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -37,15 +37,15 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GetGroupsLite;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGetGroupsLiteResult;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroup;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.GetGroupsLite;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetGroupsLiteResult;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * sample rampart call</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/webservicesClient/RampartSampleGetGroupsLite.html">RampartSampleGetGroupsLite</a> <strong class="jxr_keyword">implements</strong> WsSampleGenerated {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="RampartSampleGetGroupsLite" href="../../../../../edu/internet2/middleware/grouper/webservicesClient/RampartSampleGetGroupsLite.html#RampartSampleGetGroupsLite">RampartSampleGetGroupsLite</a> <strong class="jxr_keyword">implements</strong> WsSampleGenerated {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     */</em>
@@ -71,7 +71,7 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                          <span class="jxr_string">"edu/internet2/middleware/grouper/webservicesClient/rampart"</span>)
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                                                                                                                                     .getAbsolutePath(),
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                      <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <a href="../../../../../edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.html">GrouperServiceStub</a> stub = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.html">GrouperServiceStub</a>(ctx,
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <a name="GrouperServiceStub" href="../../../../../edu/internet2/mid<a name="GrouperServiceStub" href="../../../../../edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.html#GrouperServiceStub">GrouperServiceStub</a>bservicesClient/GrouperServiceStub.html#GrouperServiceStub">GrouperServiceStub</a> stub = <strong class="jxr_keyword">new</strong> <a name="GrouperServiceStub" href="../../../../../edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.html#GrouperServiceStub">GrouperServiceStub</a>(ctx,
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                      GeneratedClientSettings.URL);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              Options options = stub._getServiceClient().getOptions();
@@ -94,7 +94,7 @@
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              <em class="jxr_comment">//stub._getServiceClient().engageModule("addressing");</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              stub._getServiceClient().engageModule(<span class="jxr_string">"rampart"</span>);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <a href="../../../../../edu/internet2/middleware/grouper/ws/soap_v2_3/xsd/GetGroupsLite.html">GetGroupsLite</a> getGroupsLite = GetGroupsLite.<strong class="jxr_keyword">class</strong>.newInstance();
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              GetGroupsLite getGroupsLite = GetGroupsLite.<strong class="jxr_keyword">class</strong>.newInstance();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              <em class="jxr_comment">//version, e.g. v1_3_000</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              getGroupsLite.setClientVersion(GeneratedClientSettings.VERSION);
@@ -110,13 +110,13 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>             getGroupsLite.setSubjectIdentifier(<span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>             getGroupsLite.setSubjectSourceId(<span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> 
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <a href="../../../../../edu/internet2/middleware/grouper/ws/soap_v2_3/xsd/WsGetGroupsLiteResult.html">WsGetGroupsLiteResult</a> wsGetGroupsLiteResult = stub.getGroupsLite(getGroupsLite)
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             WsGetGroupsLiteResult wsGetGroupsLiteResult = stub.getGroupsLite(getGroupsLite)
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>                                                               .get_<strong class="jxr_keyword">return</strong>();
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> 
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>             System.out.println(ToStringBuilder.reflectionToString(
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>                     wsGetGroupsLiteResult));
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> 
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>             <a href="../../../../../edu/internet2/middleware/grouper/ws/soap_v2_3/xsd/WsGroup.html">WsGroup</a>[] results = wsGetGroupsLiteResult.getWsGroups();
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>             WsGroup[] results = wsGetGroupsLiteResult.getWsGroups();
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> 
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>             <strong class="jxr_keyword">if</strong> (results != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <strong class="jxr_keyword">for</strong> (WsGroup wsGroup : results) {
@@ -137,6 +137,6 @@
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

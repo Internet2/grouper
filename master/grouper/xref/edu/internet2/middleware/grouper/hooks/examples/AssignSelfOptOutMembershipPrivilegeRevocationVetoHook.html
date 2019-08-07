@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -49,7 +49,7 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * grouper.optOutRequired.attributeDefName = a:b:c:assignOptOut</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> * https://bugs.internet2.edu/jira/browse/GRP-1197</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> * <a href="https://bugs.internet2.edu/jira/browse/GRP-1197" target="alexandria_uri">https://bugs.internet2.edu/jira/browse/GRP-1197</a></em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * grouperSession = GrouperSession.startRootSession(); </em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * String attributeFolderName = "a:b:c"; </em>
@@ -65,7 +65,7 @@
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/examples/AssignSelfOptOutMembershipPrivilegeRevocationVetoHook.html">AssignSelfOptOutMembershipPrivilegeRevocationVetoHook</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/MembershipHooks.html">MembershipHooks</a> {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AssignSelfOptOutMembershipPrivilegeRevocationVetoHook" href="../../../../../../edu/internet2/middleware/grouper/hooks/examples/AssignSelfOptOutMembershipPrivilegeRevocationVetoHook.html#AssignSelfOptOutMembershipPrivilegeRevocationVetoHook">AssignSelfOptOutMembershipPrivilegeRevocationVetoHook</a> <strong class="jxr_keyword">extends</strong> <a name="MembershipHooks" href="../../../../../../edu/internet2/middleware/grouper/hooks/MembershipHooks.html#MembershipHooks">MembershipHooks</a> {
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">   * </em>
@@ -81,21 +81,21 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreRemoveMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean)</em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>    @Override
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> membershipPreRemoveMember(<a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html">HooksContext</a> hooksContext,
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>        <a href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksMembershipChangeBean.html">HooksMembershipChangeBean</a> preDeleteMemberBean) {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> membershipPreRemoveMember(<a name="HooksContext" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksContext.html#HooksContext">HooksContext</a> hooksContext,
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>        <a name="HooksMembershipChangeBean" href="../../../../../../edu/internet2/middleware/grouper/hooks/beans/HooksMembershipChangeBean.html#HooksMembershipChangeBean">HooksMembershipChangeBean</a> preDeleteMemberBean) {
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_comment">//if we are in group delete, then allow</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">if</strong> (Group.deleteOccuring()) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>        <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <a href="../../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field = preDeleteMemberBean.getMembership().getField();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <a name="Field" href="../../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field = preDeleteMemberBean.getMembership().getField();
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">if</strong> (AccessPrivilege.OPTOUT.getField().getName().equals(field.getName())
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          &amp;&amp; StringUtils.equals(preDeleteMemberBean.getMember().getSubjectSourceId(), GrouperSourceAdapter.groupSourceId())) {
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>        
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>        <a href="../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> thisGroup = preDeleteMemberBean.getGroup();
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>        <a href="../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> membershipGroup = preDeleteMemberBean.getMember().toGroup();
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>        <a name="Group" href="../../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> thisGroup = preDeleteMemberBean.getGroup();
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>        <a name="Group" href="../../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> membershipGroup = preDeleteMemberBean.getMember().toGroup();
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>        <strong class="jxr_keyword">if</strong> (thisGroup.getUuid().equals(membershipGroup.getUuid())) {
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  
@@ -104,7 +104,7 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">if</strong> (thisGroup.getAttributeDelegate().hasAttributeOrAncestorHasAttribute(optoutRequiredAttributeDefName, false)) {
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>            <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html">HookVeto</a>(<span class="jxr_string">"self.optout.remove.veto"</span>,
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>            <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="HookVeto" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html#HookVeto">HookVeto</a>(<span class="jxr_string">"self.optout.remove.veto"</span>,
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>               <span class="jxr_string">"Cannot remove self-assigned OptOut privilege."</span>);
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         }
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>       }
@@ -113,6 +113,6 @@
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

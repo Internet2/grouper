@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -43,7 +43,7 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * @author  mchyzer</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * @version $Id: Hib3RoleSetDAO.java,v 1.6 2009-11-08 13:16:53 mchyzer Exp $</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3RoleSetDAO.html">Hib3RoleSetDAO</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html">Hib3DAO</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/RoleSetDAO.html">RoleSetDAO</a> {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Hib3RoleSetDAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3RoleSetDAO.html#Hib3RoleSetDAO">Hib3RoleSetDAO</a> <strong class="jxr_keyword">extends</strong> <a name="Hib3DAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html#Hib3DAO">Hib3DAO</a> <strong class="jxr_keyword">implements</strong> <a name="RoleSetDAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/RoleSetDAO.html#RoleSetDAO">RoleSetDAO</a> {
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>    
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">   * </em>
@@ -54,7 +54,7 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">   * reset the role sets</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">   * @param hibernateSession</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> reset(<a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> reset(<a name="HibernateSession" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>        <em class="jxr_comment">//do this since mysql cant handle self-referential foreign keys</em>
@@ -69,12 +69,12 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#findById(java.lang.String, boolean)</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> findById(String id, <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) <strong class="jxr_keyword">throws</strong> AttributeDefNameSetNotFoundException {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> roleSet = HibernateSession.byHqlStatic().createQuery(
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">public</strong> <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> findById(String id, <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) <strong class="jxr_keyword">throws</strong> <a name="AttributeDefNameSetNotFoundException" href="../../../../../../../edu/internet2/middleware/grouper/exception/AttributeDefNameSetNotFoundException.html#AttributeDefNameSetNotFoundException">AttributeDefNameSetNotFoundException</a> {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet = HibernateSession.byHqlStatic().createQuery(
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          <span class="jxr_string">"from RoleSet where id = :theId"</span>)
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>        .setString(<span class="jxr_string">"theId"</span>, id).uniqueResult(RoleSet.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">if</strong> (roleSet == <strong class="jxr_keyword">null</strong> &amp;&amp; exceptionIfNotFound) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/exception/RoleSetNotFoundException.html">RoleSetNotFoundException</a>(<span class="jxr_string">"Cant find role name set by id: "</span> + id);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="RoleSetNotFoundException" href="../../../../../../../edu/internet2/middleware/grouper/exception/RoleSetNotFoundException.html#RoleSetNotFoundException">RoleSetNotFoundException</a>(<span class="jxr_string">"Cant find role name set by id: "</span> + id);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">return</strong> roleSet;
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>    }
@@ -83,20 +83,20 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#saveOrUpdate(edu.internet2.middleware.grouper.permissions.role.RoleSet)</em>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> saveOrUpdate(<a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> roleSet) {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> saveOrUpdate(<a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet) {
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      HibernateSession.byObjectStatic().saveOrUpdate(roleSet);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>    }
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#delete(edu.internet2.middleware.grouper.permissions.role.RoleSet)</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> delete(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> roleSet) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> delete(<strong class="jxr_keyword">final</strong> <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet) {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      <em class="jxr_comment">//HibernateSession.byObjectStatic().delete(roleSet);</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a name="HibernateHandler" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html#HibernateHandler">HibernateHandler</a>() {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>            <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                <strong class="jxr_keyword">throws</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>            <strong class="jxr_keyword">public</strong> Object callback(<a name="HibernateHandlerBean" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html#HibernateHandlerBean">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                <em class="jxr_comment">//set parent to null so mysql doest get mad</em>
@@ -164,16 +164,16 @@
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#findByIfThenImmediate(java.lang.String, java.lang.String, boolean)</em>
 <a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> findByIfThenImmediate(String roleIdIf, String roleIdThen,
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>   <strong class="jxr_keyword">public</strong> <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> findByIfThenImmediate(String roleIdIf, String roleIdThen,
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>       <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> roleSet = HibernateSession.byHqlStatic().createQuery(
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet = HibernateSession.byHqlStatic().createQuery(
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>         <span class="jxr_string">"from RoleSet where ifHasRoleId = :ifId "</span> +
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>         <span class="jxr_string">"and thenHasRoleId = :thenId "</span> + 
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         <span class="jxr_string">"and depth = 1"</span>)
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         .setString(<span class="jxr_string">"ifId"</span>, roleIdIf).setString(<span class="jxr_string">"thenId"</span>, roleIdThen)
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         .uniqueResult(RoleSet.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>       <strong class="jxr_keyword">if</strong> (roleSet == <strong class="jxr_keyword">null</strong> &amp;&amp; exceptionIfNotFound) {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/exception/RoleSetNotFoundException.html">RoleSetNotFoundException</a>(<span class="jxr_string">"RoleSet immediate if "</span>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="RoleSetNotFoundException" href="../../../../../../../edu/internet2/middleware/grouper/exception/RoleSetNotFoundException.html#RoleSetNotFoundException">RoleSetNotFoundException</a>(<span class="jxr_string">"RoleSet immediate if "</span>
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>             + roleIdIf + <span class="jxr_string">", then: "</span> + roleIdThen);
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>       }
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>       <strong class="jxr_keyword">return</strong> roleSet;
@@ -204,17 +204,17 @@
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#deleteByIfHasRole(edu.internet2.middleware.grouper.permissions.role.Role)</em>
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> deleteByIfHasRole(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html">Role</a> role) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> deleteByIfHasRole(<strong class="jxr_keyword">final</strong> <a name="Role" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html#Role">Role</a> role) {
 <a class="jxr_linenumber" name="L200" href="#L200">200</a> 
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>         AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>()  {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a name="HibernateHandler" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html#HibernateHandler">HibernateHandler</a>()  {
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>           
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>           <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>               <strong class="jxr_keyword">throws</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>           <strong class="jxr_keyword">public</strong> Object callback(<a name="HibernateHandlerBean" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html#HibernateHandlerBean">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>               <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>                         
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>             Set&lt;RoleSet&gt; roleSets = HibernateSession.byHqlStatic().createQuery(
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>               <span class="jxr_string">"from RoleSet where ifHasRoleId = :theId order by depth desc"</span>).setString(<span class="jxr_string">"theId"</span>, role.getId()).listSet(RoleSet.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>             <strong class="jxr_keyword">for</strong> (RoleSet roleSet : roleSets) {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             <strong class="jxr_keyword">for</strong> (<a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet : roleSets) {
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>               <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>                 <em class="jxr_comment">//do this since mysql cant handle self-referential foreign keys</em>
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>                 roleSet.setParentRoleSetId(<strong class="jxr_keyword">null</strong>);
@@ -269,10 +269,10 @@
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#findByUuidOrKey(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, boolean)</em>
 <a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> findByUuidOrKey(String id, String ifHasRoleId, String thenHasRoleId,
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>   <strong class="jxr_keyword">public</strong> <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> findByUuidOrKey(String id, String ifHasRoleId, String thenHasRoleId,
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>       String parentRoleSetId, <strong class="jxr_keyword">int</strong> depth, <strong class="jxr_keyword">boolean</strong> exceptionIfNull) {
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> roleSet = HibernateSession.byHqlStatic()
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>       <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet = HibernateSession.byHqlStatic()
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>         .createQuery(<span class="jxr_string">"from RoleSet as theRoleSet where theRoleSet.id = :theId or (theRoleSet.ifHasRoleId = :theIfHasRoleId "</span> +
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>         		<span class="jxr_string">" and theRoleSet.thenHasRoleId = :theThenHasRoleId and theRoleSet.parentRoleSetId = :theParentRoleSetId "</span> +
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>         		<span class="jxr_string">" and theRoleSet.depth = :theDepth)"</span>)
@@ -290,18 +290,18 @@
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>       }
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>       <strong class="jxr_keyword">return</strong> roleSet;
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">catch</strong> (GrouperDAOException e) {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">catch</strong> (<a name="GrouperDAOException" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> e) {
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>       String error = <span class="jxr_string">"Problem find roleSet by id: '"</span> + id + <span class="jxr_string">"' or ifHasRoleId '"</span> + ifHasRoleId 
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>             + <span class="jxr_string">"', thenHasRoleId: "</span> + thenHasRoleId + <span class="jxr_string">", parentRoleSetId: "</span> + parentRoleSetId 
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>             + <span class="jxr_string">", depth: "</span> + depth + <span class="jxr_string">"', "</span> + e.getMessage();
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a>( error, e );
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperDAOException" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a>( error, e );
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>   }
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> 
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#saveUpdateProperties(edu.internet2.middleware.grouper.permissions.role.RoleSet)</em>
 <a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> saveUpdateProperties(<a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> roleSet) {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> saveUpdateProperties(<a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet) {
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> 
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>     <em class="jxr_comment">//run an update statement since the business methods affect these properties</em>
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>     HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"update RoleSet "</span> +
@@ -317,14 +317,14 @@
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>         .setString(<span class="jxr_string">"theId"</span>, roleSet.getId()).executeUpdate();
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>   }
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> 
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> findSelfRoleSet(String groupId, <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) {
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html">RoleSet</a> roleSet = HibernateSession.byHqlStatic().createQuery(
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>   <strong class="jxr_keyword">public</strong> <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> findSelfRoleSet(String groupId, <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) {
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <a name="RoleSet" href="../../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html#RoleSet">RoleSet</a> roleSet = HibernateSession.byHqlStatic().createQuery(
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>         <span class="jxr_string">"from RoleSet where ifHasRoleId = :groupId and thenHasRoleId = :groupId and depth = 0"</span>)
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>         .setString(<span class="jxr_string">"groupId"</span>, groupId)
 <a class="jxr_linenumber" name="L316" href="#L316">316</a>         .uniqueResult(RoleSet.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L317" href="#L317">317</a>     
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>     <strong class="jxr_keyword">if</strong> (roleSet == <strong class="jxr_keyword">null</strong> &amp;&amp; exceptionIfNotFound) {
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/exception/RoleSetNotFoundException.html">RoleSetNotFoundException</a>(<span class="jxr_string">"Self roleSet for not found for "</span> + groupId);
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="RoleSetNotFoundException" href="../../../../../../../edu/internet2/middleware/grouper/exception/RoleSetNotFoundException.html#RoleSetNotFoundException">RoleSetNotFoundException</a>(<span class="jxr_string">"Self roleSet for not found for "</span> + groupId);
 <a class="jxr_linenumber" name="L320" href="#L320">320</a>     }
 <a class="jxr_linenumber" name="L321" href="#L321">321</a>     
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>     <strong class="jxr_keyword">return</strong> roleSet;
@@ -334,6 +334,6 @@
 <a class="jxr_linenumber" name="L326" href="#L326">326</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

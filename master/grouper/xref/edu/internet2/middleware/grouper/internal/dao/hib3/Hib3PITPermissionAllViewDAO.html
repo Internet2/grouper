@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -44,7 +44,7 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * @author shilen</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * $Id$</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3PITPermissionAllViewDAO.html">Hib3PITPermissionAllViewDAO</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html">Hib3DAO</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/PITPermissionAllViewDAO.html">PITPermissionAllViewDAO</a> {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Hib3PITPermissionAllViewDAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3PITPermissionAllViewDAO.html#Hib3PITPermissionAllViewDAO">Hib3PITPermissionAllViewDAO</a> <strong class="jxr_keyword">extends</strong> <a name="Hib3DAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html#Hib3DAO">Hib3DAO</a> <strong class="jxr_keyword">implements</strong> <a name="PITPermissionAllViewDAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/PITPermissionAllViewDAO.html#PITPermissionAllViewDAO">PITPermissionAllViewDAO</a> {
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PERMISSION_ENTRY_COLUMNS = <span class="jxr_string">"gr.nameDb as roleName, gm.subjectSourceId as subjectSourceId, gm.subjectId as subjectId, gaaa.nameDb as action, gadn.nameDb as attributeDefNameName, gr.id as roleId, gadn.attributeDefId as attributeDefId, gm.id as memberId, gadn.id as attributeDefNameId, gaaa.id as actionId, gmav.depth as membershipDepth, grs.depth as roleSetDepth, gadns.depth as attributeDefNameSetDepth, gaaas.depth as attributeAssignActionSetDepth, gmav.membershipId as membershipId, gmav.groupSetId as groupSetId, grs.id as roleSetId, gadns.id as attributeDefNameSetId, gaaas.id as actionSetId, gaa.id as attributeAssignId, gaa.attributeAssignTypeDb as attributeAssignTypeDb, gmav.groupSetActiveDb as groupSetActiveDb, gmav.groupSetStartTimeDb as groupSetStartTimeDb, gmav.groupSetEndTimeDb as groupSetEndTimeDb, gmav.membershipActiveDb as membershipActiveDb, gmav.membershipStartTimeDb as membershipStartTimeDb, gmav.membershipEndTimeDb as membershipEndTimeDb, grs.activeDb as roleSetActiveDb, grs.startTimeDb as roleSetStartTimeDb, grs.endTimeDb as roleSetEndTimeDb, gaaas.activeDb as actionSetActiveDb, gaaas.startTimeDb as actionSetStartTimeDb, gaaas.endTimeDb as actionSetEndTimeDb, gadns.activeDb as attributeDefNameSetActiveDb, gadns.startTimeDb as attributeDefNameSetStartTimeDb, gadns.endTimeDb as attributeDefNameSetEndTimeDb, gaa.activeDb as attributeAssignActiveDb, gaa.startTimeDb as attributeAssignStartTimeDb, gaa.endTimeDb as attributeAssignEndTimeDb, gaa.disallowedDb as disallowedDb, gaaa.sourceId as actionSourceId, gr.sourceId as roleSourceId, gadn.sourceId as attributeDefNameSourceId, gad.sourceId as attributeDefSourceId, gm.sourceId as memberSourceId, gmav.membershipSourceId as membershipSourceId, gaa.sourceId as attributeAssignSourceId"</span>;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
@@ -81,7 +81,7 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>            + attributeDefIdsSize + <span class="jxr_string">" or attributeDefNameIds "</span> + attributeDefNameIdsSize + <span class="jxr_string">" or actionsSize "</span> + actionsSize );
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html">ByHqlStatic</a> byHqlStatic = HibernateSession.byHqlStatic();
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <a name="ByHqlStatic" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html#ByHqlStatic">ByHqlStatic</a> byHqlStatic = HibernateSession.byHqlStatic();
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      String selectPrefix = <span class="jxr_string">"select distinct "</span> + PERMISSION_ENTRY_COLUMNS + <span class="jxr_string">" "</span>;
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      
@@ -89,9 +89,9 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      StringBuilder sqlWhereClause = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">" "</span> + PERMISSION_ENTRY_WHERE_CLAUSE + <span class="jxr_string">" "</span>);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <a href="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <a name="GrouperSession" href="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession = GrouperSession.staticGrouperSession();
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      Subject grouperSessionSubject = grouperSession.getSubject();
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <a name="Subject" href="../../../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> grouperSessionSubject = grouperSession.getSubject();
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>        grouperSessionSubject, byHqlStatic, 
@@ -102,7 +102,7 @@
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          sqlTables, <span class="jxr_string">"gr.sourceId"</span>, AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      StringBuilder sql;
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">if</strong> (changedQuery) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">if</strong> (changedQuery &amp;&amp; sqlTables.toString().contains(<span class="jxr_string">" where "</span>)) {
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>        <strong class="jxr_keyword">if</strong> (sqlWhereClause.length() &gt; 0) {
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          sql = sqlTables.append(<span class="jxr_string">" and "</span>).append(sqlWhereClause);
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>       } <strong class="jxr_keyword">else</strong> {
@@ -198,6 +198,6 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientLdapUtils.html">GrouperClientLdapUtils</a> {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GrouperClientLdapUtils" href="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientLdapUtils.html#GrouperClientLdapUtils">GrouperClientLdapUtils</a> {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * logger</em>
@@ -442,7 +442,7 @@
 <a class="jxr_linenumber" name="L434" href="#L434">434</a>             <strong class="jxr_keyword">if</strong> (needsReconfigure) {
 <a class="jxr_linenumber" name="L435" href="#L435">435</a>               
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>               <em class="jxr_comment">//register the failover client</em>
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>               <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverConfig</a> failoverConfig = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverConfig</a>();
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>               <a name="FailoverConfig" href="../../../../../edu/internet2/middleware/gr<a name="FailoverConfig" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html#FailoverConfig">FailoverConfig</a>ilover/FailoverConfig.html#FailoverConfig">FailoverConfig</a> failoverConfig = <strong class="jxr_keyword">new</strong> <a name="FailoverConfig" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html#FailoverConfig">FailoverConfig</a>();
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>               
 <a class="jxr_linenumber" name="L439" href="#L439">439</a>               <em class="jxr_comment">//lets get the defaults</em>
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>               
@@ -468,7 +468,7 @@
 <a class="jxr_linenumber" name="L460" href="#L460">460</a>               
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>               
 <a class="jxr_linenumber" name="L462" href="#L462">462</a>               <em class="jxr_comment">//grouperClient.discoveryDefault.ldap.loadBalancing = active/active</em>
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>               <a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverConfig.html">FailoverStrategy</a> failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>               FailoverStrategy failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
 <a class="jxr_linenumber" name="L464" href="#L464">464</a>                   GrouperClientConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"grouperClient.discoveryDefault.ldap.loadBalancing"</span>), false);
 <a class="jxr_linenumber" name="L465" href="#L465">465</a>               <strong class="jxr_keyword">if</strong> (failoverStrategy != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L466" href="#L466">466</a>                 failoverConfig.setFailoverStrategy(failoverStrategy);
@@ -624,6 +624,6 @@
 <a class="jxr_linenumber" name="L616" href="#L616">616</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

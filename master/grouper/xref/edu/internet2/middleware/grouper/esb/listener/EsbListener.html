@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -42,8 +42,8 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * root privileges</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/esb/listener/EsbListener.html">EsbListener</a> {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  	<strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="EsbListener" href="../../../../../../edu/internet2/middleware/grouper/esb/listener/EsbListener.html#EsbListener">EsbListener</a> {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  	<strong class="jxr_keyword">private</strong> <a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Log LOG = GrouperUtil.getLog(EsbListener.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  	<em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">	 * </em>
@@ -52,10 +52,10 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">	 * @return returnMessage - a human readable string containing results of operations</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">	 * to return to calling client</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">	 */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  	<strong class="jxr_keyword">public</strong> String processEvent(String jsonString, <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  	<strong class="jxr_keyword">public</strong> String processEvent(String jsonString, <a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  		<strong class="jxr_keyword">this</strong>.grouperSession = grouperSession;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  		String returnMessage=<span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  		EsbListenerEvents events = (EsbListenerEvents) GrouperUtil.jsonConvertFrom(jsonString, EsbListenerEvents.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  		EsbListenerEvents events = (<a name="EsbListenerEvents" href="../../../../../../edu/internet2/middleware/grouper/esb/listener/EsbListenerEvents.html#EsbListenerEvents">EsbListenerEvents</a>) GrouperUtil.jsonConvertFrom(jsonString, EsbListenerEvents.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  		<strong class="jxr_keyword">for</strong>(<strong class="jxr_keyword">int</strong> i=0;i&lt;events.getEsbListenerEvent().length;i++) {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  			EsbListenerEvent event = events.getEsbListenerEvent()[i];
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  		
@@ -87,7 +87,7 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">	 * @param addOp - true is add memberships, false if delete memberships</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">	 * @return returnMessage - simple human readable result to return to calling client</em>
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">	 */</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  	<strong class="jxr_keyword">private</strong> String processMembershipChanges(String[][] groups, Subject subject, <strong class="jxr_keyword">boolean</strong> addOp) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  	<strong class="jxr_keyword">private</strong> String processMembershipChanges(String[][] groups, <a name="Subject" href="../../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject, <strong class="jxr_keyword">boolean</strong> addOp) {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  		<strong class="jxr_keyword">if</strong>(groups==<strong class="jxr_keyword">null</strong>) <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  		String returnMessage=<span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  		<strong class="jxr_keyword">if</strong>(LOG.isDebugEnabled()) {
@@ -144,6 +144,6 @@
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

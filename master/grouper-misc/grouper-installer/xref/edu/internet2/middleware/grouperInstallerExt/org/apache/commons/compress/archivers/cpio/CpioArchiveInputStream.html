@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -72,12 +72,12 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Based on code from the jRPM project (jrpm.sourceforge.net)</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html">CpioArchiveInputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveInputStream.html">ArchiveInputStream</a> <strong class="jxr_keyword">implements</strong>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioConstants.html">CpioConstants</a> {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="CpioArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html#CpioArchiveInputStream">CpioArchiveInputStream</a> <strong class="jxr_keyword">extends</strong> <a name="ArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveInputStream.html#ArchiveInputStream">ArchiveInputStream</a> <strong class="jxr_keyword">implements</strong>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <a name="CpioConstants" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioConstants.html#CpioConstants">CpioConstants</a> {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> closed = false;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a> entry;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a> entry;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> entryBytesRead = 0;
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
@@ -99,7 +99,7 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * The encoding to use for filenames and labels.</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> encoding;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> encoding;
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * Construct the cpio input stream with a blocksize of {@link</em>
@@ -109,7 +109,7 @@
 <a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     * @param in</em>
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     *            The cpio stream</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html">CpioArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> <a name="CpioArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html#CpioArchiveInputStream">CpioArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in) {
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">this</strong>(in, BLOCK_SIZE, CharsetNames.US_ASCII);
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> 
@@ -124,7 +124,7 @@
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     *            the platform's default.</em>
 <a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * @since 1.6</em>
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html">CpioArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in, String encoding) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">public</strong> <a name="CpioArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html#CpioArchiveInputStream">CpioArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in, String encoding) {
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">this</strong>(in, BLOCK_SIZE, encoding);
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
 <a class="jxr_linenumber" name="L122" href="#L122">122</a> 
@@ -139,7 +139,7 @@
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     *            The block size of the archive.</em>
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     * @since 1.5</em>
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html">CpioArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in, <strong class="jxr_keyword">int</strong> blockSize) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">public</strong> <a name="CpioArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html#CpioArchiveInputStream">CpioArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in, <strong class="jxr_keyword">int</strong> blockSize) {
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">this</strong>(in, blockSize, CharsetNames.US_ASCII);
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> 
@@ -155,7 +155,7 @@
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     *            the platform's default.</em>
 <a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * @since 1.6</em>
 <a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html">CpioArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in, <strong class="jxr_keyword">int</strong> blockSize, String encoding) {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">public</strong> <a name="CpioArchiveInputStream" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.html#CpioArchiveInputStream">CpioArchiveInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in, <strong class="jxr_keyword">int</strong> blockSize, String encoding) {
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">this</strong>.in = in;
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">this</strong>.blockSize = blockSize;
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">this</strong>.encoding = ZipEncodingHelper.getZipEncoding(encoding);
@@ -233,7 +233,7 @@
 <a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">     *             if an I/O error has occurred or if a CPIO file error has</em>
 <a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">     *             occurred</em>
 <a class="jxr_linenumber" name="L227" href="#L227">227</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a> getNextCPIOEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">public</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a> getNextCPIOEntry() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>         ensureOpen();
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.entry != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>             closeEntry();
@@ -360,13 +360,13 @@
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>         <strong class="jxr_keyword">return</strong> Long.parseLong(ArchiveUtils.toAsciiString(tmpBuffer), radix);
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>     }
 <a class="jxr_linenumber" name="L354" href="#L354">354</a> 
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a> readNewEntry(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> hasCrc)
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>     <strong class="jxr_keyword">private</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a> readNewEntry(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> hasCrc)
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>             <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a> ret;
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a> ret;
 <a class="jxr_linenumber" name="L358" href="#L358">358</a>         <strong class="jxr_keyword">if</strong> (hasCrc) {
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>             ret = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a>(FORMAT_NEW_CRC);
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>             ret = <strong class="jxr_keyword">new</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a>(FORMAT_NEW_CRC);
 <a class="jxr_linenumber" name="L360" href="#L360">360</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>             ret = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a>(FORMAT_NEW);
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>             ret = <strong class="jxr_keyword">new</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a>(FORMAT_NEW);
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>         }
 <a class="jxr_linenumber" name="L363" href="#L363">363</a> 
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>         ret.setInode(readAsciiLong(8, 16));
@@ -395,8 +395,8 @@
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">return</strong> ret;
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>     }
 <a class="jxr_linenumber" name="L389" href="#L389">389</a> 
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a> readOldAsciiEntry() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a> ret = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a>(FORMAT_OLD_ASCII);
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>     <strong class="jxr_keyword">private</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a> readOldAsciiEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         <a name="CpioArchiveEntry" href="../../../../../../../../../../e<a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a>dleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a> ret = <strong class="jxr_keyword">new</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a>(FORMAT_OLD_ASCII);
 <a class="jxr_linenumber" name="L392" href="#L392">392</a> 
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>         ret.setDevice(readAsciiLong(6, 8));
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>         ret.setInode(readAsciiLong(6, 8));
@@ -420,9 +420,9 @@
 <a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">return</strong> ret;
 <a class="jxr_linenumber" name="L413" href="#L413">413</a>     }
 <a class="jxr_linenumber" name="L414" href="#L414">414</a> 
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a> readOldBinaryEntry(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> swapHalfWord)
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     <strong class="jxr_keyword">private</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a> readOldBinaryEntry(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> swapHalfWord)
 <a class="jxr_linenumber" name="L416" href="#L416">416</a>             <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a> ret = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html">CpioArchiveEntry</a>(FORMAT_OLD_BINARY);
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <a name="CpioArchiveEntry" href="../../../../../../../../../../e<a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a>dleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a> ret = <strong class="jxr_keyword">new</strong> <a name="CpioArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/cpio/CpioArchiveEntry.html#CpioArchiveEntry">CpioArchiveEntry</a>(FORMAT_OLD_BINARY);
 <a class="jxr_linenumber" name="L418" href="#L418">418</a> 
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>         ret.setDevice(readBinaryLong(2, swapHalfWord));
 <a class="jxr_linenumber" name="L420" href="#L420">420</a>         ret.setInode(readBinaryLong(2, swapHalfWord));
@@ -491,7 +491,7 @@
 <a class="jxr_linenumber" name="L483" href="#L483">483</a>     }
 <a class="jxr_linenumber" name="L484" href="#L484">484</a> 
 <a class="jxr_linenumber" name="L485" href="#L485">485</a>     @Override
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> getNextEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>     <strong class="jxr_keyword">public</strong> <a name="ArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html#ArchiveEntry">ArchiveEntry</a> getNextEntry() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L487" href="#L487">487</a>         <strong class="jxr_keyword">return</strong> getNextCPIOEntry();
 <a class="jxr_linenumber" name="L488" href="#L488">488</a>     }
 <a class="jxr_linenumber" name="L489" href="#L489">489</a> 
@@ -570,6 +570,6 @@
 <a class="jxr_linenumber" name="L562" href="#L562">562</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

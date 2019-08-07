@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -38,19 +38,19 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.Converter;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.SingleValueConverter;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/MapperWrapper.html">MapperWrapper</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="MapperWrapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/MapperWrapper.html#MapperWrapper">MapperWrapper</a> <strong class="jxr_keyword">implements</strong> <a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> {
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> wrapped;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> wrapped;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/MapperWrapper.html">MapperWrapper</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> wrapped) {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> <a name="MapperWrapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/MapperWrapper.html#MapperWrapper">MapperWrapper</a>(<a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> wrapped) {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">this</strong>.wrapped = wrapped;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @deprecated As of 1.2, use {@link #MapperWrapper(Mapper)}</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/MapperWrapper.html">MapperWrapper</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/ClassMapper.html">ClassMapper</a> wrapped) {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">this</strong>((Mapper)wrapped);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <a name="MapperWrapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/MapperWrapper.html#MapperWrapper">MapperWrapper</a>(<a name="ClassMapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/alias/ClassMapper.html#ClassMapper">ClassMapper</a> wrapped) {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">this</strong>((<a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a>)wrapped);
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> String serializedClass(Class type) {
@@ -121,7 +121,7 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">return</strong> wrapped.getItemTypeForItemFieldName(definedIn, itemFieldName);
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> 
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">ImplicitCollectionMapping</a> getImplicitCollectionDefForFieldName(Class itemType, String fieldName) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">public</strong> ImplicitCollectionMapping getImplicitCollectionDefForFieldName(Class itemType, String fieldName) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">return</strong> wrapped.getImplicitCollectionDefForFieldName(itemType, fieldName);
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> 
@@ -132,33 +132,33 @@
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     * @deprecated since 1.3, use {@link #getConverterFromItemType(String, Class, Class)}</em>
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> getConverterFromItemType(String fieldName, Class type) {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">public</strong> <a name="SingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> getConverterFromItemType(String fieldName, Class type) {
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">return</strong> wrapped.getConverterFromItemType(fieldName, type);
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> 
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     * @deprecated since 1.3, use {@link #getConverterFromItemType(String, Class, Class)}</em>
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> getConverterFromItemType(Class type) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">public</strong> <a name="SingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> getConverterFromItemType(Class type) {
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">return</strong> wrapped.getConverterFromItemType(type);
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> 
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * @deprecated since 1.3, use {@link #getConverterFromAttribute(Class, String)}</em>
 <a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> getConverterFromAttribute(String name) {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <a name="SingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> getConverterFromAttribute(String name) {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">return</strong> wrapped.getConverterFromAttribute(name);
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     }
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html">Converter</a> getLocalConverter(Class definedIn, String fieldName) {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">public</strong> <a name="Converter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html#Converter">Converter</a> getLocalConverter(Class definedIn, String fieldName) {
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">return</strong> wrapped.getLocalConverter(definedIn, fieldName);
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     }
 <a class="jxr_linenumber" name="L148" href="#L148">148</a> 
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html">Mapper</a> lookupMapperOfType(Class type) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">public</strong> <a name="Mapper" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/mapper/Mapper.html#Mapper">Mapper</a> lookupMapperOfType(Class type) {
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">return</strong> type.isAssignableFrom(getClass()) ? <strong class="jxr_keyword">this</strong> : wrapped.lookupMapperOfType(type);
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>     
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> getConverterFromItemType(String fieldName, Class type, Class definedIn) {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">public</strong> <a name="SingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> getConverterFromItemType(String fieldName, Class type, Class definedIn) {
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>     	<strong class="jxr_keyword">return</strong> wrapped.getConverterFromItemType(fieldName, type, definedIn);
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>     }
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     
@@ -176,13 +176,13 @@
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     	<strong class="jxr_keyword">return</strong> wrapped.attributeForAlias(definedIn, alias);
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>     }
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html">SingleValueConverter</a> getConverterFromAttribute(Class type, String attribute) {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">public</strong> <a name="SingleValueConverter" href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/SingleValueConverter.html#SingleValueConverter">SingleValueConverter</a> getConverterFromAttribute(Class type, String attribute) {
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>     	<strong class="jxr_keyword">return</strong> wrapped.getConverterFromAttribute(type, attribute);
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> 
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

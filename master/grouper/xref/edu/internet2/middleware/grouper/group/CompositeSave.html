@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -54,34 +54,34 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * e.g.</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * composite = new CompositeSave(grouperSession).assignOwnerGroupName("test:testGroup").assignLeftFactorGroupName("a:b"c).assignRightFactorGroupName("a:b:d").assignCompsiteType(CompositeType.COMPLEMENT).save();</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">   * create a new composite save</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   * @param theGrouperSession</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a>(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> theGrouperSession) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a>(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> theGrouperSession) {
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">this</strong>.grouperSession = theGrouperSession;
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>    }
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>    
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>    <em class="jxr_javadoccomment">/** grouper session is required */</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>    <strong class="jxr_keyword">private</strong> <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession;
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>    <em class="jxr_javadoccomment">/** save mode */</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html">SaveMode</a> saveMode;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>    <strong class="jxr_keyword">private</strong> <a name="SaveMode" href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html#SaveMode">SaveMode</a> saveMode;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">   * assign save mode</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   * @param theSaveMode</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignSaveMode(<a href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html">SaveMode</a> theSaveMode) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>    <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignSaveMode(<a name="SaveMode" href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html#SaveMode">SaveMode</a> theSaveMode) {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">this</strong>.saveMode = theSaveMode;
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>    }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>    
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>    <em class="jxr_javadoccomment">/** save type after the save */</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/SaveResultType.html">SaveResultType</a> saveResultType = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <strong class="jxr_keyword">private</strong> <a name="SaveResultType" href="../../../../../edu/internet2/middleware/grouper/misc/SaveResultType.html#SaveResultType">SaveResultType</a> saveResultType = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>    <em class="jxr_javadoccomment">/** id of this composite */</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">private</strong> String id;
@@ -91,7 +91,7 @@
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">   * @param theId</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignId(String theId) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>    <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignId(String theId) {
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">this</strong>.id = theId;
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>    }
@@ -106,7 +106,7 @@
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">   * @param theOwnerGroupId</em>
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignOwnerGroupId(String theOwnerGroupId) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignOwnerGroupId(String theOwnerGroupId) {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">this</strong>.ownerGroupId = theOwnerGroupId;
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>   }
@@ -121,7 +121,7 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">   * @param theLeftFactorGroupName</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignLeftFactorGroupName(String theLeftFactorGroupName) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignLeftFactorGroupName(String theLeftFactorGroupName) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">this</strong>.leftFactorGroupName = theLeftFactorGroupName;
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>   }
@@ -131,7 +131,7 @@
 <a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">   * @param theOwnerGroup</em>
 <a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignOwnerGroup(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> theOwnerGroup) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignOwnerGroup(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> theOwnerGroup) {
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">this</strong>.ownerGroup = theOwnerGroup;
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">this</strong>.ownerGroupId = theOwnerGroup == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : theOwnerGroup.getId();
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">this</strong>.ownerGroupName = theOwnerGroup == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : theOwnerGroup.getName();
@@ -142,19 +142,19 @@
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">   * get the save type</em>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">   * @return save type</em>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/SaveResultType.html">SaveResultType</a> getSaveResultType() {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>   <strong class="jxr_keyword">public</strong> <a name="SaveResultType" href="../../../../../edu/internet2/middleware/grouper/misc/SaveResultType.html#SaveResultType">SaveResultType</a> getSaveResultType() {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.saveResultType;
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>   }
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>   
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">   * owner group of composite</em>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> ownerGroup = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>   <strong class="jxr_keyword">private</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> ownerGroup = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> 
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">   * leftFactor group of composite</em>
 <a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> leftFactorGroup = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>   <strong class="jxr_keyword">private</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> leftFactorGroup = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L150" href="#L150">150</a> 
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>   <em class="jxr_javadoccomment">/** </em>
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">   * leftFactorGroupId, this is the foreign key mutually exclusive with leftFactorGroupName</em>
@@ -169,7 +169,7 @@
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">   * rightFactor group of composite</em>
 <a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> rightFactorGroup = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>   <strong class="jxr_keyword">private</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> rightFactorGroup = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> 
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>   <em class="jxr_javadoccomment">/** </em>
 <a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">   * right factor group id, this is the foreign key mutually exclusive with fightFactorGroupName</em>
@@ -184,14 +184,14 @@
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">   * type of composite</em>
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html">CompositeType</a> compositeType;
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>   <strong class="jxr_keyword">private</strong> <a name="CompositeType" href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html#CompositeType">CompositeType</a> compositeType;
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>   
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">   * assign the composite type</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">   * @param theCompositeType</em>
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignCompositeType(<a href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html">CompositeType</a> theCompositeType) {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignCompositeType(<a name="CompositeType" href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html#CompositeType">CompositeType</a> theCompositeType) {
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">this</strong>.compositeType = theCompositeType;
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>   }
@@ -290,20 +290,20 @@
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>     
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     <em class="jxr_comment">//default to insert or update</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">this</strong>.saveMode = (SaveMode)ObjectUtils.defaultIfNull(<strong class="jxr_keyword">this</strong>.saveMode, SaveMode.INSERT_OR_UPDATE);
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">this</strong>.saveMode = (<a name="SaveMode" href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html#SaveMode">SaveMode</a>)ObjectUtils.defaultIfNull(<strong class="jxr_keyword">this</strong>.saveMode, SaveMode.INSERT_OR_UPDATE);
 <a class="jxr_linenumber" name="L286" href="#L286">286</a> 
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>   }
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> 
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">   * the composite</em>
 <a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Composite.html">Composite</a> composite;
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>   <strong class="jxr_keyword">private</strong> <a name="Composite" href="../../../../../edu/internet2/middleware/grouper/Composite.html#Composite">Composite</a> composite;
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> 
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">   * @return the composite</em>
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Composite.html">Composite</a> getComposite() {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>   <strong class="jxr_keyword">public</strong> <a name="Composite" href="../../../../../edu/internet2/middleware/grouper/Composite.html#Composite">Composite</a> getComposite() {
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.composite;
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>   }
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>   
@@ -329,32 +329,32 @@
 <a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">   * @throws GroupNotFoundException</em>
 <a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">   * @throws AttributeDefNameNotFoundException</em>
 <a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Composite.html">Composite</a> save() 
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>   <strong class="jxr_keyword">public</strong> <a name="Composite" href="../../../../../edu/internet2/middleware/grouper/Composite.html#Composite">Composite</a> save() 
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">throws</strong> AttributeDefNameNotFoundException, InsufficientPrivilegeException, StemNotFoundException, 
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <a href="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html">GroupNotFoundException</a> {
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <a name="GroupNotFoundException" href="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html#GroupNotFoundException">GroupNotFoundException</a> {
 <a class="jxr_linenumber" name="L327" href="#L327">327</a> 
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>     <em class="jxr_comment">// figure out fields, validate them</em>
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>     massageAndValidateFields();
 <a class="jxr_linenumber" name="L330" href="#L330">330</a> 
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html">SaveMode</a> SAVE_MODE = CompositeSave.<strong class="jxr_keyword">this</strong>.saveMode;
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>     <strong class="jxr_keyword">final</strong> <a name="SaveMode" href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html#SaveMode">SaveMode</a> SAVE_MODE = CompositeSave.<strong class="jxr_keyword">this</strong>.saveMode;
 <a class="jxr_linenumber" name="L332" href="#L332">332</a> 
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> THIS = <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>     <strong class="jxr_keyword">final</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> THIS = <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>     
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>       GrouperTransaction.callbackGrouperTransaction(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionHandler.html">GrouperTransactionHandler</a>() {
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>       GrouperTransaction.callbackGrouperTransaction(<strong class="jxr_keyword">new</strong> <a name="GrouperTransactionHandler" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionHandler.html#GrouperTransactionHandler">GrouperTransactionHandler</a>() {
 <a class="jxr_linenumber" name="L337" href="#L337">337</a> 
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>         @SuppressWarnings(<span class="jxr_string">"cast"</span>)
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>         @Override
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html">GrouperTransaction</a> grouperTransaction)
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperTransaction" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html#GrouperTransaction">GrouperTransaction</a> grouperTransaction)
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>             <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>           
 <a class="jxr_linenumber" name="L343" href="#L343">343</a>           grouperTransaction.setCachingEnabled(false);
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>           
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>           <strong class="jxr_keyword">return</strong> (Void)GrouperSession.callbackGrouperSession(THIS.grouperSession, <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>           <strong class="jxr_keyword">return</strong> (Void)GrouperSession.callbackGrouperSession(THIS.grouperSession, <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L346" href="#L346">346</a> 
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>               @Override
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>               <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> theGrouperSession)
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>                   <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>               <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> theGrouperSession)
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                   <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>                                 
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>                 <em class="jxr_comment">//see if update</em>
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>                 <strong class="jxr_keyword">boolean</strong> isUpdate = THIS.saveMode == SaveMode.UPDATE;
@@ -435,8 +435,8 @@
 <a class="jxr_linenumber" name="L427" href="#L427">427</a>           + <span class="jxr_string">", thread: "</span> + Integer.toHexString(Thread.currentThread().hashCode()));
 <a class="jxr_linenumber" name="L428" href="#L428">428</a>       
 <a class="jxr_linenumber" name="L429" href="#L429">429</a>       Throwable throwable = re.getCause();
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>       <strong class="jxr_keyword">if</strong> (throwable instanceof InsufficientPrivilegeException) {
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">throw</strong> (InsufficientPrivilegeException)throwable;
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>       <strong class="jxr_keyword">if</strong> (throwable instanceof <a name="InsufficientPrivilegeException" href="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html#InsufficientPrivilegeException">InsufficientPrivilegeException</a>) {
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">throw</strong> (<a name="InsufficientPrivilegeException" href="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html#InsufficientPrivilegeException">InsufficientPrivilegeException</a>)throwable;
 <a class="jxr_linenumber" name="L432" href="#L432">432</a>       }
 <a class="jxr_linenumber" name="L433" href="#L433">433</a>       <em class="jxr_comment">//must just be runtime</em>
 <a class="jxr_linenumber" name="L434" href="#L434">434</a>       <strong class="jxr_keyword">throw</strong> re;
@@ -449,7 +449,7 @@
 <a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">   * @param theLeftFactorGroup</em>
 <a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignLeftFactorGroup(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> theLeftFactorGroup) {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignLeftFactorGroup(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> theLeftFactorGroup) {
 <a class="jxr_linenumber" name="L445" href="#L445">445</a>     <strong class="jxr_keyword">this</strong>.leftFactorGroup = theLeftFactorGroup;
 <a class="jxr_linenumber" name="L446" href="#L446">446</a>     <strong class="jxr_keyword">this</strong>.leftFactorGroupId = theLeftFactorGroup == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : theLeftFactorGroup.getId();
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>     <strong class="jxr_keyword">this</strong>.leftFactorGroupName = theLeftFactorGroup == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : theLeftFactorGroup.getName();
@@ -461,7 +461,7 @@
 <a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">   * @param theLeftFactorGroupId</em>
 <a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignLeftFactorGroupId(String theLeftFactorGroupId) {
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignLeftFactorGroupId(String theLeftFactorGroupId) {
 <a class="jxr_linenumber" name="L457" href="#L457">457</a>     <strong class="jxr_keyword">this</strong>.leftFactorGroupId = theLeftFactorGroupId;
 <a class="jxr_linenumber" name="L458" href="#L458">458</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L459" href="#L459">459</a>   }
@@ -471,7 +471,7 @@
 <a class="jxr_linenumber" name="L463" href="#L463">463</a> <em class="jxr_javadoccomment">   * @param theRightFactorGroupName</em>
 <a class="jxr_linenumber" name="L464" href="#L464">464</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L465" href="#L465">465</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignRightFactorGroupName(String theRightFactorGroupName) {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignRightFactorGroupName(String theRightFactorGroupName) {
 <a class="jxr_linenumber" name="L467" href="#L467">467</a>     <strong class="jxr_keyword">this</strong>.rightFactorGroupName = theRightFactorGroupName;
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>   }
@@ -481,7 +481,7 @@
 <a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">   * @param theRightFactorGroup</em>
 <a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignRightFactorGroup(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> theRightFactorGroup) {
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignRightFactorGroup(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> theRightFactorGroup) {
 <a class="jxr_linenumber" name="L477" href="#L477">477</a>     <strong class="jxr_keyword">this</strong>.rightFactorGroup = theRightFactorGroup;
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>     <strong class="jxr_keyword">this</strong>.rightFactorGroupId = theRightFactorGroup == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : theRightFactorGroup.getId();
 <a class="jxr_linenumber" name="L479" href="#L479">479</a>     <strong class="jxr_keyword">this</strong>.rightFactorGroupName = theRightFactorGroup == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : theRightFactorGroup.getName();
@@ -493,7 +493,7 @@
 <a class="jxr_linenumber" name="L485" href="#L485">485</a> <em class="jxr_javadoccomment">   * @param theRightFactorGroupId</em>
 <a class="jxr_linenumber" name="L486" href="#L486">486</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L487" href="#L487">487</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignRightFactorGroupId(String theRightFactorGroupId) {
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignRightFactorGroupId(String theRightFactorGroupId) {
 <a class="jxr_linenumber" name="L489" href="#L489">489</a>     <strong class="jxr_keyword">this</strong>.rightFactorGroupId = theRightFactorGroupId;
 <a class="jxr_linenumber" name="L490" href="#L490">490</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L491" href="#L491">491</a>   }
@@ -503,7 +503,7 @@
 <a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">   * @param theOwnerGroupName</em>
 <a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html">CompositeSave</a> assignOwnerGroupName(String theOwnerGroupName) {
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>   <strong class="jxr_keyword">public</strong> <a name="CompositeSave" href="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html#CompositeSave">CompositeSave</a> assignOwnerGroupName(String theOwnerGroupName) {
 <a class="jxr_linenumber" name="L499" href="#L499">499</a>     <strong class="jxr_keyword">this</strong>.ownerGroupName = theOwnerGroupName;
 <a class="jxr_linenumber" name="L500" href="#L500">500</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>   }
@@ -511,6 +511,6 @@
 <a class="jxr_linenumber" name="L503" href="#L503">503</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

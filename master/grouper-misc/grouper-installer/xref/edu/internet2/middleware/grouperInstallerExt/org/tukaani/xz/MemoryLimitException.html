@@ -24,7 +24,7 @@
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * The amount of memory required and the memory usage limit are</em>
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * included in the error detail message in human readable format.</em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/MemoryLimitException.html">MemoryLimitException</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a> {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MemoryLimitException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/MemoryLimitException.html#MemoryLimitException">MemoryLimitException</a> <strong class="jxr_keyword">extends</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a> {
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 3L;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> memoryNeeded;
@@ -39,7 +39,7 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * @param   memoryNeeded    amount of memory needed as kibibytes (KiB)</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * @param   memoryLimit     specified memory usage limit as kibibytes (KiB)</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/MemoryLimitException.html">MemoryLimitException</a>(<strong class="jxr_keyword">int</strong> memoryNeeded, <strong class="jxr_keyword">int</strong> memoryLimit) {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">public</strong> <a name="MemoryLimitException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/MemoryLimitException.html#MemoryLimitException">MemoryLimitException</a>(<strong class="jxr_keyword">int</strong> memoryNeeded, <strong class="jxr_keyword">int</strong> memoryLimit) {
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>          <strong class="jxr_keyword">super</strong>(<span class="jxr_string">""</span> + memoryNeeded + <span class="jxr_string">" KiB of memory would be needed; limit was "</span>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>                + memoryLimit + <span class="jxr_string">" KiB"</span>);
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
@@ -68,6 +68,6 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -49,7 +49,7 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * type of find group queries</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../../edu/internet2/middleware/grouper/ws/query/WsStemQueryFilterType.html">WsStemQueryFilterType</a> {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> enum <a name="WsStemQueryFilterType" href="../../../../../../edu/internet2/middleware/grouper/ws/query/WsStemQueryFilterType.html#WsStemQueryFilterType">WsStemQueryFilterType</a> {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">   * find by uuid.  pass the uuid in.</em>
@@ -63,8 +63,8 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      @Override
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter)
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html">WsInvalidQueryException</a> {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter)
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">throws</strong> <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a> {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>        <em class="jxr_comment">//for a uuid, needs the uuid and nothing else</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>        wsStemQueryFilter.validateNoParentStemName();
@@ -84,7 +84,7 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">     * @return the query filter</em>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      @Override
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> StemUuidFilter(wsStemQueryFilter.getStemUuid());
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  
@@ -102,8 +102,8 @@
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      @Override
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter)
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html">WsInvalidQueryException</a> {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter)
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">throws</strong> <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a> {
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>       <em class="jxr_comment">//for a name, needs the name and nothing else</em>
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>       wsStemQueryFilter.validateNoParentStemName();
@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     * @return the query filter</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     @Override
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter) {
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> StemNameExactFilter(wsStemQueryFilter.getStemName());
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
 <a class="jxr_linenumber" name="L121" href="#L121">121</a> 
@@ -141,8 +141,8 @@
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>     @Override
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter)
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html">WsInvalidQueryException</a> {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter)
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">throws</strong> <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a> {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> 
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>       <em class="jxr_comment">//for a name, needs the name and optionally parent stem name</em>
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>       <em class="jxr_comment">// optional wsStemQueryFilter.validateNoParentStemName();</em>
@@ -162,7 +162,7 @@
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     * @return the query filter</em>
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     @Override
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter) {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter) {
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>       
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>       Stem stem = wsStemQueryFilter.retrieveParentStem();
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>       <strong class="jxr_keyword">if</strong> (stem == <strong class="jxr_keyword">null</strong>) {
@@ -190,8 +190,8 @@
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">     * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>     @Override
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter)
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html">WsInvalidQueryException</a> {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter)
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">throws</strong> <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a> {
 <a class="jxr_linenumber" name="L187" href="#L187">187</a> 
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>       <em class="jxr_comment">//for a stem name, needs the stem name and optional scope</em>
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>       wsStemQueryFilter.validateHasParentStemName();
@@ -211,9 +211,9 @@
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     * @return the query filter</em>
 <a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>     @Override
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter) {
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter) {
 <a class="jxr_linenumber" name="L207" href="#L207">207</a> 
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>       <a href="../../../../../../edu/internet2/middleware/grouper/ws/query/StemScope.html">StemScope</a> stemScope = StemScope.valueOfIgnoreCase(wsStemQueryFilter.getParentStemNameScope());
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>       <a name="StemScope" href="../../../../../../edu/internet2/middleware/grouper/ws/query/StemScope.html#StemScope">StemScope</a> stemScope = StemScope.valueOfIgnoreCase(wsStemQueryFilter.getParentStemNameScope());
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>       
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>       stemScope = GrouperUtil.defaultIfNull(stemScope, StemScope.ONE_LEVEL);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>       
@@ -241,8 +241,8 @@
 <a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>     @Override
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter)
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html">WsInvalidQueryException</a> {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter)
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">throws</strong> <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a> {
 <a class="jxr_linenumber" name="L238" href="#L238">238</a> 
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>       <em class="jxr_comment">//for a attribute, need value, optional name, and optional stem name</em>
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>       <em class="jxr_comment">// optional wsStemQueryFilter.validateNoParentStemName();</em>
@@ -261,7 +261,7 @@
 <a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">     * @return the query filter</em>
 <a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>     @Override
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter) {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter) {
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>       Stem stem = wsStemQueryFilter.retrieveParentStem();
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>       <strong class="jxr_keyword">if</strong> (stem == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         <em class="jxr_comment">//if not passed in, then use root</em>
@@ -289,8 +289,8 @@
 <a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">     * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>     @Override
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter)
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html">WsInvalidQueryException</a> {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter)
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">throws</strong> <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a> {
 <a class="jxr_linenumber" name="L286" href="#L286">286</a> 
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>       <em class="jxr_comment">//for an and, needs almost nothing, but needs the queryFilter0 and queryFilter1</em>
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>       wsStemQueryFilter.validateNoParentStemName();
@@ -310,7 +310,7 @@
 <a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     * @return the query filter</em>
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>     @Override
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter) {
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter) {
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> IntersectionFilter(wsStemQueryFilter.getStemQueryFilter0()
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>           .retrieveQueryFilter(), wsStemQueryFilter.getStemQueryFilter1()
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>           .retrieveQueryFilter());
@@ -330,8 +330,8 @@
 <a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">     * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>     @Override
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter)
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html">WsInvalidQueryException</a> {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter)
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">throws</strong> <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a> {
 <a class="jxr_linenumber" name="L327" href="#L327">327</a> 
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>       <em class="jxr_comment">//for an or, needs nothing but queryFilter0 and queryFilter1</em>
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>       wsStemQueryFilter.validateNoParentStemName();
@@ -351,7 +351,7 @@
 <a class="jxr_linenumber" name="L343" href="#L343">343</a> <em class="jxr_javadoccomment">     * @return the query filter</em>
 <a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>     @Override
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter) {
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter) {
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UnionFilter(wsStemQueryFilter.getStemQueryFilter0()
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>           .retrieveQueryFilter(), wsStemQueryFilter.getStemQueryFilter1()
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>           .retrieveQueryFilter());
@@ -371,8 +371,8 @@
 <a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L365" href="#L365">365</a>     @Override
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter)
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html">WsInvalidQueryException</a> {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter)
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <strong class="jxr_keyword">throws</strong> <a name="WsInvalidQueryException" href="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html#WsInvalidQueryException">WsInvalidQueryException</a> {
 <a class="jxr_linenumber" name="L368" href="#L368">368</a> 
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>       <em class="jxr_comment">//for a minus, needs nothing but queryFilter0 and queryFilter1</em>
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>       wsStemQueryFilter.validateNoParentStemName();
@@ -392,7 +392,7 @@
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">     * @return the query filter</em>
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L386" href="#L386">386</a>     @Override
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter) {
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>     <strong class="jxr_keyword">public</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter) {
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ComplementFilter(wsStemQueryFilter.getStemQueryFilter0()
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>           .retrieveQueryFilter(), wsStemQueryFilter.getStemQueryFilter1()
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>           .retrieveQueryFilter());
@@ -405,7 +405,7 @@
 <a class="jxr_linenumber" name="L397" href="#L397">397</a> <em class="jxr_javadoccomment">   * @param wsStemQuery is the query params to validate based on type</em>
 <a class="jxr_linenumber" name="L398" href="#L398">398</a> <em class="jxr_javadoccomment">   * @throws WsInvalidQueryException if invalid</em>
 <a class="jxr_linenumber" name="L399" href="#L399">399</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> validate(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQuery)
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> validate(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQuery)
 <a class="jxr_linenumber" name="L401" href="#L401">401</a>       <strong class="jxr_keyword">throws</strong> WsInvalidQueryException;
 <a class="jxr_linenumber" name="L402" href="#L402">402</a> 
 <a class="jxr_linenumber" name="L403" href="#L403">403</a>   <em class="jxr_javadoccomment">/**</em>
@@ -414,7 +414,7 @@
 <a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">   * @param string</em>
 <a class="jxr_linenumber" name="L407" href="#L407">407</a> <em class="jxr_javadoccomment">   * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/query/WsStemQueryFilterType.html">WsStemQueryFilterType</a> valueOfIgnoreCase(String string) {
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="WsStemQueryFilterType" href="../../../../../../edu/internet2/middleware/grouper/ws/query/WsStemQueryFilterType.html#WsStemQueryFilterType">WsStemQueryFilterType</a> valueOfIgnoreCase(String string) {
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>     <strong class="jxr_keyword">return</strong> GrouperServiceUtils.enumValueOfIgnoreCase(WsStemQueryFilterType.<strong class="jxr_keyword">class</strong>, 
 <a class="jxr_linenumber" name="L411" href="#L411">411</a>         string, false);
 <a class="jxr_linenumber" name="L412" href="#L412">412</a>   }
@@ -424,11 +424,11 @@
 <a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">   * @param wsStemQueryFilter</em>
 <a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">   * @return the query filter</em>
 <a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> QueryFilter retrieveQueryFilter(<a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html">WsStemQueryFilter</a> wsStemQueryFilter);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> QueryFilter retrieveQueryFilter(<a name="WsStemQueryFilter" href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html#WsStemQueryFilter">WsStemQueryFilter</a> wsStemQueryFilter);
 <a class="jxr_linenumber" name="L420" href="#L420">420</a> 
 <a class="jxr_linenumber" name="L421" href="#L421">421</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

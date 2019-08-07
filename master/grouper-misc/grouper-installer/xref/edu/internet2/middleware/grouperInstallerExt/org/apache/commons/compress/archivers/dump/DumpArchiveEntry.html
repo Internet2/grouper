@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -186,9 +186,9 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment"> * @NotThreadSafe</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">DumpArchiveEntry</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a> <strong class="jxr_keyword">implements</strong> <a name="ArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html#ArchiveEntry">ArchiveEntry</a> {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">private</strong> String name;
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TYPE</a> type = TYPE.UNKNOWN;
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">private</strong> TYPE type = TYPE.UNKNOWN;
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> mode;
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">private</strong> Set&lt;PERMISSION&gt; permissions = Collections.emptySet();
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> size;
@@ -200,10 +200,10 @@
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     * Currently unused</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveSummary.html">DumpArchiveSummary</a> summary = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="DumpArchiveSummary" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveSummary.html#DumpArchiveSummary">DumpArchiveSummary</a> summary = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L196" href="#L196">196</a> 
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>     <em class="jxr_comment">// this information is available from standard index.</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TapeSegmentHeader</a> header = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TapeSegmentHeader</a>();
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TapeSegmentHeader header = <strong class="jxr_keyword">new</strong> TapeSegmentHeader();
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>     <strong class="jxr_keyword">private</strong> String simpleName;
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">private</strong> String originalName;
 <a class="jxr_linenumber" name="L201" href="#L201">201</a> 
@@ -219,7 +219,7 @@
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     * Default constructor.</em>
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">DumpArchiveEntry</a>() {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">public</strong> <a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a>() {
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>     }
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> 
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>     <em class="jxr_javadoccomment">/**</em>
@@ -227,7 +227,7 @@
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">     * @param name pathname</em>
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">     * @param simpleName actual filename.</em>
 <a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">DumpArchiveEntry</a>(String name, String simpleName) {
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <strong class="jxr_keyword">public</strong> <a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a>(String name, String simpleName) {
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>         setName(name);
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">this</strong>.simpleName = simpleName;
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
@@ -240,8 +240,8 @@
 <a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * @param ino</em>
 <a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * @param type</em>
 <a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">DumpArchiveEntry</a>(String name, String simpleName, <strong class="jxr_keyword">int</strong> ino,
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>                                <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TYPE</a> type) {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">protected</strong> <a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a>(String name, String simpleName, <strong class="jxr_keyword">int</strong> ino,
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                                TYPE type) {
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>         setType(type);
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>         setName(name);
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">this</strong>.simpleName = simpleName;
@@ -408,7 +408,7 @@
 <a class="jxr_linenumber" name="L400" href="#L400">400</a>             <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L401" href="#L401">401</a>         }
 <a class="jxr_linenumber" name="L402" href="#L402">402</a> 
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">DumpArchiveEntry</a> rhs = (DumpArchiveEntry) o;
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <a name="DumpArchiveEntr<a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a>./../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a> rhs = (<a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a>) o;
 <a class="jxr_linenumber" name="L404" href="#L404">404</a> 
 <a class="jxr_linenumber" name="L405" href="#L405">405</a>         <strong class="jxr_keyword">if</strong> ((header == <strong class="jxr_keyword">null</strong>) || (rhs.header == <strong class="jxr_keyword">null</strong>)) {
 <a class="jxr_linenumber" name="L406" href="#L406">406</a>             <strong class="jxr_keyword">return</strong> false;
@@ -441,9 +441,9 @@
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">     * @param buffer</em>
 <a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_javadoccomment">     * @throws Exception</em>
 <a class="jxr_linenumber" name="L435" href="#L435">435</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <strong class="jxr_keyword">static</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">DumpArchiveEntry</a> parse(byte[] buffer) {
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">DumpArchiveEntry</a> entry = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">DumpArchiveEntry</a>();
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TapeSegmentHeader</a> header = entry.header;
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <strong class="jxr_keyword">static</strong> <a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a> parse(byte[] buffer) {
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <a name="DumpArchiveEntry" href="../../../../../../../../../../edu<a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a>eware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a> entry = <strong class="jxr_keyword">new</strong> <a name="DumpArchiveEntry" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html#DumpArchiveEntry">DumpArchiveEntry</a>();
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         TapeSegmentHeader header = entry.header;
 <a class="jxr_linenumber" name="L439" href="#L439">439</a> 
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>         header.type = DumpArchiveConstants.SEGMENT_TYPE.find(DumpArchiveUtil.convert32(
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>                     buffer, 0));
@@ -527,7 +527,7 @@
 <a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">     * Archive entry as stored on tape. There is one TSH for (at most)</em>
 <a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">     * every 512k in the file.</em>
 <a class="jxr_linenumber" name="L521" href="#L521">521</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TapeSegmentHeader</a> {
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> TapeSegmentHeader {
 <a class="jxr_linenumber" name="L523" href="#L523">523</a>         <strong class="jxr_keyword">private</strong> DumpArchiveConstants.SEGMENT_TYPE type;
 <a class="jxr_linenumber" name="L524" href="#L524">524</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> volume;
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> ino;
@@ -645,14 +645,14 @@
 <a class="jxr_linenumber" name="L637" href="#L637">637</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L638" href="#L638">638</a> <em class="jxr_javadoccomment">     * Get the type of the entry.</em>
 <a class="jxr_linenumber" name="L639" href="#L639">639</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L640" href="#L640">640</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TYPE</a> getType() {
+<a class="jxr_linenumber" name="L640" href="#L640">640</a>     <strong class="jxr_keyword">public</strong> TYPE getType() {
 <a class="jxr_linenumber" name="L641" href="#L641">641</a>         <strong class="jxr_keyword">return</strong> type;
 <a class="jxr_linenumber" name="L642" href="#L642">642</a>     }
 <a class="jxr_linenumber" name="L643" href="#L643">643</a> 
 <a class="jxr_linenumber" name="L644" href="#L644">644</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L645" href="#L645">645</a> <em class="jxr_javadoccomment">     * Set the type of the entry.</em>
 <a class="jxr_linenumber" name="L646" href="#L646">646</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L647" href="#L647">647</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setType(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TYPE</a> type) {
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setType(TYPE type) {
 <a class="jxr_linenumber" name="L648" href="#L648">648</a>         <strong class="jxr_keyword">this</strong>.type = type;
 <a class="jxr_linenumber" name="L649" href="#L649">649</a>     }
 <a class="jxr_linenumber" name="L650" href="#L650">650</a> 
@@ -748,7 +748,7 @@
 <a class="jxr_linenumber" name="L740" href="#L740">740</a>         <strong class="jxr_keyword">this</strong>.gid = gid;
 <a class="jxr_linenumber" name="L741" href="#L741">741</a>     }
 <a class="jxr_linenumber" name="L742" href="#L742">742</a> 
-<a class="jxr_linenumber" name="L743" href="#L743">743</a>     <strong class="jxr_keyword">public</strong> enum <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TYPE</a> {
+<a class="jxr_linenumber" name="L743" href="#L743">743</a>     <strong class="jxr_keyword">public</strong> enum TYPE {
 <a class="jxr_linenumber" name="L744" href="#L744">744</a>         WHITEOUT(14),
 <a class="jxr_linenumber" name="L745" href="#L745">745</a>         SOCKET(12),
 <a class="jxr_linenumber" name="L746" href="#L746">746</a>         LINK(10),
@@ -761,12 +761,12 @@
 <a class="jxr_linenumber" name="L753" href="#L753">753</a> 
 <a class="jxr_linenumber" name="L754" href="#L754">754</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> code;
 <a class="jxr_linenumber" name="L755" href="#L755">755</a> 
-<a class="jxr_linenumber" name="L756" href="#L756">756</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TYPE</a>(<strong class="jxr_keyword">int</strong> code) {
+<a class="jxr_linenumber" name="L756" href="#L756">756</a>         <strong class="jxr_keyword">private</strong> TYPE(<strong class="jxr_keyword">int</strong> code) {
 <a class="jxr_linenumber" name="L757" href="#L757">757</a>             <strong class="jxr_keyword">this</strong>.code = code;
 <a class="jxr_linenumber" name="L758" href="#L758">758</a>         }
 <a class="jxr_linenumber" name="L759" href="#L759">759</a> 
-<a class="jxr_linenumber" name="L760" href="#L760">760</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TYPE</a> find(<strong class="jxr_keyword">int</strong> code) {
-<a class="jxr_linenumber" name="L761" href="#L761">761</a>             <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">TYPE</a> type = UNKNOWN;
+<a class="jxr_linenumber" name="L760" href="#L760">760</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> TYPE find(<strong class="jxr_keyword">int</strong> code) {
+<a class="jxr_linenumber" name="L761" href="#L761">761</a>             TYPE type = UNKNOWN;
 <a class="jxr_linenumber" name="L762" href="#L762">762</a> 
 <a class="jxr_linenumber" name="L763" href="#L763">763</a>             <strong class="jxr_keyword">for</strong> (TYPE t : TYPE.values()) {
 <a class="jxr_linenumber" name="L764" href="#L764">764</a>                 <strong class="jxr_keyword">if</strong> (code == t.code) {
@@ -778,7 +778,7 @@
 <a class="jxr_linenumber" name="L770" href="#L770">770</a>         }
 <a class="jxr_linenumber" name="L771" href="#L771">771</a>     }
 <a class="jxr_linenumber" name="L772" href="#L772">772</a> 
-<a class="jxr_linenumber" name="L773" href="#L773">773</a>     <strong class="jxr_keyword">public</strong> enum <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">PERMISSION</a> {
+<a class="jxr_linenumber" name="L773" href="#L773">773</a>     <strong class="jxr_keyword">public</strong> enum PERMISSION {
 <a class="jxr_linenumber" name="L774" href="#L774">774</a>         SETUID(04000),
 <a class="jxr_linenumber" name="L775" href="#L775">775</a>         SETGUI(02000),
 <a class="jxr_linenumber" name="L776" href="#L776">776</a>         STICKY(01000),
@@ -794,7 +794,7 @@
 <a class="jxr_linenumber" name="L786" href="#L786">786</a> 
 <a class="jxr_linenumber" name="L787" href="#L787">787</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> code;
 <a class="jxr_linenumber" name="L788" href="#L788">788</a> 
-<a class="jxr_linenumber" name="L789" href="#L789">789</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/dump/DumpArchiveEntry.html">PERMISSION</a>(<strong class="jxr_keyword">int</strong> code) {
+<a class="jxr_linenumber" name="L789" href="#L789">789</a>         <strong class="jxr_keyword">private</strong> PERMISSION(<strong class="jxr_keyword">int</strong> code) {
 <a class="jxr_linenumber" name="L790" href="#L790">790</a>             <strong class="jxr_keyword">this</strong>.code = code;
 <a class="jxr_linenumber" name="L791" href="#L791">791</a>         }
 <a class="jxr_linenumber" name="L792" href="#L792">792</a> 
@@ -817,6 +817,6 @@
 <a class="jxr_linenumber" name="L809" href="#L809">809</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

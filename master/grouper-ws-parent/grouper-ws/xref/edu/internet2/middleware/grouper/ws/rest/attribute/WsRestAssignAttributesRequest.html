@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -44,7 +44,7 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * request bean in body of rest request</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesRequest.html">WsRestAssignAttributesRequest</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRequestBean.html">WsRequestBean</a> {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WsRestAssignAttributesRequest" href="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesRequest.html#WsRestAssignAttributesRequest">WsRestAssignAttributesRequest</a> <strong class="jxr_keyword">implements</strong> <a name="WsRequestBean" href="../../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRequestBean.html#WsRequestBean">WsRequestBean</a> {
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">   * operation to perform for attribute on owners, from enum AttributeAssignOperation</em>
@@ -59,7 +59,7 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">   * if replacing attributeDefNames, then these </em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">   * are the related attributeDefs, if blank, then just do all</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html">WsAttributeDefLookup</a>[] attributeDefsToReplace;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">private</strong> <a name="WsAttributeDefLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html#WsAttributeDefLookup">WsAttributeDefLookup</a>[] attributeDefsToReplace;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>    
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">   * if replacing attributeDefNames, then these are the</em>
@@ -79,7 +79,7 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   * are the related attributeDefs, if blank, then just do all</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">   * @return the attributeDefsToReplace</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html">WsAttributeDefLookup</a>[] getAttributeDefsToReplace() {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>    <strong class="jxr_keyword">public</strong> <a name="WsAttributeDefLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html#WsAttributeDefLookup">WsAttributeDefLookup</a>[] getAttributeDefsToReplace() {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.attributeDefsToReplace;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>    }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  
@@ -89,7 +89,7 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">   * are the related attributeDefs, if blank, then just do all</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">   * @param attributeDefsToReplace1 the attributeDefsToReplace to set</em>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setAttributeDefsToReplace(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html">WsAttributeDefLookup</a>[] attributeDefsToReplace1) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setAttributeDefsToReplace(<a name="WsAttributeDefLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html#WsAttributeDefLookup">WsAttributeDefLookup</a>[] attributeDefsToReplace1) {
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">this</strong>.attributeDefsToReplace = attributeDefsToReplace1;
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>    }
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
@@ -219,7 +219,7 @@
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">   * for assignment on assignment</em>
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">   * @return assignment lookup</em>
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html">WsAttributeAssignLookup</a>[] getWsOwnerAttributeAssignLookups() {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>   <strong class="jxr_keyword">public</strong> <a name="WsAttributeAssignLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html#WsAttributeAssignLookup">WsAttributeAssignLookup</a>[] getWsOwnerAttributeAssignLookups() {
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsOwnerAttributeAssignLookups;
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>   }
 <a class="jxr_linenumber" name="L217" href="#L217">217</a> 
@@ -228,7 +228,7 @@
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">   * @param wsOwnerAttributeAssignLookups1</em>
 <a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerAttributeAssignLookups(
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html">WsAttributeAssignLookup</a>[] wsOwnerAttributeAssignLookups1) {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>       <a name="WsAttributeAssignLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html#WsAttributeAssignLookup">WsAttributeAssignLookup</a>[] wsOwnerAttributeAssignLookups1) {
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>     <strong class="jxr_keyword">this</strong>.wsOwnerAttributeAssignLookups = wsOwnerAttributeAssignLookups1;
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>   }
 <a class="jxr_linenumber" name="L226" href="#L226">226</a> 
@@ -256,7 +256,7 @@
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">   * for assignment on assignment</em>
 <a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html">WsAttributeAssignLookup</a>[] wsOwnerAttributeAssignLookups;
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>   <strong class="jxr_keyword">private</strong> <a name="WsAttributeAssignLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html#WsAttributeAssignLookup">WsAttributeAssignLookup</a>[] wsOwnerAttributeAssignLookups;
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>   
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">   * operation to perform for attribute on owners, from enum AttributeAssignOperation</em>
@@ -280,14 +280,14 @@
 <a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">   * are the values to assign, replace, remove, etc.  If removing, and id is specified, will</em>
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">   * only remove values with that id.</em>
 <a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignValue.html">WsAttributeAssignValue</a>[] values;
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>   <strong class="jxr_keyword">private</strong> <a name="WsAttributeAssignValue" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignValue.html#WsAttributeAssignValue">WsAttributeAssignValue</a>[] values;
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>   
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">   * are the values to assign, replace, remove, etc.  If removing, and id is specified, will</em>
 <a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   * only remove values with that id.</em>
 <a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">   * @return values</em>
 <a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignValue.html">WsAttributeAssignValue</a>[] getValues() {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>   <strong class="jxr_keyword">public</strong> <a name="WsAttributeAssignValue" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignValue.html#WsAttributeAssignValue">WsAttributeAssignValue</a>[] getValues() {
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.values;
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>   }
 <a class="jxr_linenumber" name="L285" href="#L285">285</a> 
@@ -296,14 +296,14 @@
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">   * only remove values with that id.</em>
 <a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">   * @param values1</em>
 <a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setValues(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignValue.html">WsAttributeAssignValue</a>[] values1) {
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setValues(<a name="WsAttributeAssignValue" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignValue.html#WsAttributeAssignValue">WsAttributeAssignValue</a>[] values1) {
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">this</strong>.values = values1;
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>   }
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> 
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()</em>
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperRestHttpMethod.html">GrouperRestHttpMethod</a> retrieveRestHttpMethod() {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperRestHttpMethod" href="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperRestHttpMethod.html#GrouperRestHttpMethod">GrouperRestHttpMethod</a> retrieveRestHttpMethod() {
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>     <strong class="jxr_keyword">return</strong> GrouperRestHttpMethod.PUT;
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>   }
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>   
@@ -346,13 +346,13 @@
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>   }
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>   
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>   <em class="jxr_javadoccomment">/** if you know the assign ids you want, put them here */</em>
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html">WsAttributeAssignLookup</a>[] wsAttributeAssignLookups;
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>   <strong class="jxr_keyword">private</strong> <a name="WsAttributeAssignLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html#WsAttributeAssignLookup">WsAttributeAssignLookup</a>[] wsAttributeAssignLookups;
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>   
 <a class="jxr_linenumber" name="L343" href="#L343">343</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">   * if you know the assign ids you want, put them here</em>
 <a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">   * @return attribute assign lookups</em>
 <a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html">WsAttributeAssignLookup</a>[] getWsAttributeAssignLookups() {
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>   <strong class="jxr_keyword">public</strong> <a name="WsAttributeAssignLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html#WsAttributeAssignLookup">WsAttributeAssignLookup</a>[] getWsAttributeAssignLookups() {
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsAttributeAssignLookups;
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>   }
 <a class="jxr_linenumber" name="L350" href="#L350">350</a> 
@@ -360,20 +360,20 @@
 <a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">   * if you know the assign ids you want, put them here</em>
 <a class="jxr_linenumber" name="L353" href="#L353">353</a> <em class="jxr_javadoccomment">   * @param wsAttributeAssignLookups1</em>
 <a class="jxr_linenumber" name="L354" href="#L354">354</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsAttributeAssignLookups(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html">WsAttributeAssignLookup</a>[] wsAttributeAssignLookups1) {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsAttributeAssignLookups(<a name="WsAttributeAssignLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html#WsAttributeAssignLookup">WsAttributeAssignLookup</a>[] wsAttributeAssignLookups1) {
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>     <strong class="jxr_keyword">this</strong>.wsAttributeAssignLookups = wsAttributeAssignLookups1;
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>   }
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> 
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">   * assign these attribute def names (optional)</em>
 <a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html">WsAttributeDefNameLookup</a>[] wsAttributeDefNameLookups;
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>   <strong class="jxr_keyword">private</strong> <a name="WsAttributeDefNameLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html#WsAttributeDefNameLookup">WsAttributeDefNameLookup</a>[] wsAttributeDefNameLookups;
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>   
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">   *  find assignments in these attribute def names (optional)</em>
 <a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">   *  @return def name lookups</em>
 <a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html">WsAttributeDefNameLookup</a>[] getWsAttributeDefNameLookups() {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>   <strong class="jxr_keyword">public</strong> <a name="WsAttributeDefNameLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html#WsAttributeDefNameLookup">WsAttributeDefNameLookup</a>[] getWsAttributeDefNameLookups() {
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsAttributeDefNameLookups;
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>   }
 <a class="jxr_linenumber" name="L371" href="#L371">371</a> 
@@ -382,18 +382,18 @@
 <a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">   * @param wsAttributeDefNameLookups1</em>
 <a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsAttributeDefNameLookups(
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html">WsAttributeDefNameLookup</a>[] wsAttributeDefNameLookups1) {
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>       <a name="WsAttributeDefNameLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html#WsAttributeDefNameLookup">WsAttributeDefNameLookup</a>[] wsAttributeDefNameLookups1) {
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>     <strong class="jxr_keyword">this</strong>.wsAttributeDefNameLookups = wsAttributeDefNameLookups1;
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>   }
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>   
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>   <em class="jxr_javadoccomment">/** wsOwnerGroupLookups are groups to assign */</em>
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html">WsGroupLookup</a>[] wsOwnerGroupLookups;
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>   <strong class="jxr_keyword">private</strong> <a name="WsGroupLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html#WsGroupLookup">WsGroupLookup</a>[] wsOwnerGroupLookups;
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>   
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">   * wsOwnerGroupLookups are groups to assign</em>
 <a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_javadoccomment">   * @return owner group lookups</em>
 <a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html">WsGroupLookup</a>[] getWsOwnerGroupLookups() {
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>   <strong class="jxr_keyword">public</strong> <a name="WsGroupLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html#WsGroupLookup">WsGroupLookup</a>[] getWsOwnerGroupLookups() {
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsOwnerGroupLookups;
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>   }
 <a class="jxr_linenumber" name="L391" href="#L391">391</a> 
@@ -401,18 +401,18 @@
 <a class="jxr_linenumber" name="L393" href="#L393">393</a> <em class="jxr_javadoccomment">   * wsOwnerGroupLookups are groups to assign</em>
 <a class="jxr_linenumber" name="L394" href="#L394">394</a> <em class="jxr_javadoccomment">   * @param wsOwnerGroupLookups1</em>
 <a class="jxr_linenumber" name="L395" href="#L395">395</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerGroupLookups(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html">WsGroupLookup</a>[] wsOwnerGroupLookups1) {
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerGroupLookups(<a name="WsGroupLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html#WsGroupLookup">WsGroupLookup</a>[] wsOwnerGroupLookups1) {
 <a class="jxr_linenumber" name="L397" href="#L397">397</a>     <strong class="jxr_keyword">this</strong>.wsOwnerGroupLookups = wsOwnerGroupLookups1;
 <a class="jxr_linenumber" name="L398" href="#L398">398</a>   }
 <a class="jxr_linenumber" name="L399" href="#L399">399</a> 
 <a class="jxr_linenumber" name="L400" href="#L400">400</a>   <em class="jxr_javadoccomment">/** are stems to assign */</em>
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html">WsStemLookup</a>[] wsOwnerStemLookups;
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>   <strong class="jxr_keyword">private</strong> <a name="WsStemLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html#WsStemLookup">WsStemLookup</a>[] wsOwnerStemLookups;
 <a class="jxr_linenumber" name="L402" href="#L402">402</a>   
 <a class="jxr_linenumber" name="L403" href="#L403">403</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">   * are stems to assign</em>
 <a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">   * @return are stems to assign</em>
 <a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html">WsStemLookup</a>[] getWsOwnerStemLookups() {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>   <strong class="jxr_keyword">public</strong> <a name="WsStemLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html#WsStemLookup">WsStemLookup</a>[] getWsOwnerStemLookups() {
 <a class="jxr_linenumber" name="L408" href="#L408">408</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsOwnerStemLookups;
 <a class="jxr_linenumber" name="L409" href="#L409">409</a>   }
 <a class="jxr_linenumber" name="L410" href="#L410">410</a> 
@@ -420,12 +420,12 @@
 <a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_javadoccomment">   * are stems to assign</em>
 <a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">   * @param wsOwnerStemLookups1</em>
 <a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerStemLookups(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html">WsStemLookup</a>[] wsOwnerStemLookups1) {
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerStemLookups(<a name="WsStemLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html#WsStemLookup">WsStemLookup</a>[] wsOwnerStemLookups1) {
 <a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">this</strong>.wsOwnerStemLookups = wsOwnerStemLookups1;
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>   }
 <a class="jxr_linenumber" name="L418" href="#L418">418</a> 
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>   <em class="jxr_javadoccomment">/** are subjects to assign */</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a>[] wsOwnerSubjectLookups;
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>   <strong class="jxr_keyword">private</strong> <a name="WsSubjectLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a>[] wsOwnerSubjectLookups;
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>   
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>   
 <a class="jxr_linenumber" name="L423" href="#L423">423</a>   
@@ -433,7 +433,7 @@
 <a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">   * are subjects to assign</em>
 <a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">   * @return subject</em>
 <a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a>[] getWsOwnerSubjectLookups() {
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>   <strong class="jxr_keyword">public</strong> <a name="WsSubjectLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a>[] getWsOwnerSubjectLookups() {
 <a class="jxr_linenumber" name="L429" href="#L429">429</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsOwnerSubjectLookups;
 <a class="jxr_linenumber" name="L430" href="#L430">430</a>   }
 <a class="jxr_linenumber" name="L431" href="#L431">431</a> 
@@ -441,15 +441,15 @@
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">   * are subjects to assign</em>
 <a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_javadoccomment">   * @param wsOwnerSubjectLookups1</em>
 <a class="jxr_linenumber" name="L435" href="#L435">435</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerSubjectLookups(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a>[] wsOwnerSubjectLookups1) {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerSubjectLookups(<a name="WsSubjectLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a>[] wsOwnerSubjectLookups1) {
 <a class="jxr_linenumber" name="L437" href="#L437">437</a>     <strong class="jxr_keyword">this</strong>.wsOwnerSubjectLookups = wsOwnerSubjectLookups1;
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>   }
 <a class="jxr_linenumber" name="L439" href="#L439">439</a>   
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>   <em class="jxr_javadoccomment">/** to query attributes on immediate memberships */</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipLookup.html">WsMembershipLookup</a>[] wsOwnerMembershipLookups;
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>   <strong class="jxr_keyword">private</strong> <a name="WsMembershipLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipLookup.html#WsMembershipLookup">WsMembershipLookup</a>[] wsOwnerMembershipLookups;
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>   
 <a class="jxr_linenumber" name="L443" href="#L443">443</a>   <em class="jxr_javadoccomment">/** to query attributes in "any" memberships which are on immediate or effective memberships */</em>
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html">WsMembershipAnyLookup</a>[] wsOwnerMembershipAnyLookups;
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>   <strong class="jxr_keyword">private</strong> <a name="WsMembershipAnyLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html#WsMembershipAnyLookup">WsMembershipAnyLookup</a>[] wsOwnerMembershipAnyLookups;
 <a class="jxr_linenumber" name="L445" href="#L445">445</a>   
 <a class="jxr_linenumber" name="L446" href="#L446">446</a>   
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>   
@@ -457,7 +457,7 @@
 <a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">   * to query attributes on immediate memberships</em>
 <a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">   * @return owner memberships</em>
 <a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipLookup.html">WsMembershipLookup</a>[] getWsOwnerMembershipLookups() {
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>   <strong class="jxr_keyword">public</strong> <a name="WsMembershipLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipLookup.html#WsMembershipLookup">WsMembershipLookup</a>[] getWsOwnerMembershipLookups() {
 <a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsOwnerMembershipLookups;
 <a class="jxr_linenumber" name="L454" href="#L454">454</a>   }
 <a class="jxr_linenumber" name="L455" href="#L455">455</a> 
@@ -465,7 +465,7 @@
 <a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">   * to query attributes on immediate memberships</em>
 <a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">   * @param wsOwnerMembershipLookups1</em>
 <a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerMembershipLookups(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipLookup.html">WsMembershipLookup</a>[] wsOwnerMembershipLookups1) {
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerMembershipLookups(<a name="WsMembershipLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipLookup.html#WsMembershipLookup">WsMembershipLookup</a>[] wsOwnerMembershipLookups1) {
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">this</strong>.wsOwnerMembershipLookups = wsOwnerMembershipLookups1;
 <a class="jxr_linenumber" name="L462" href="#L462">462</a>   }
 <a class="jxr_linenumber" name="L463" href="#L463">463</a> 
@@ -473,7 +473,7 @@
 <a class="jxr_linenumber" name="L465" href="#L465">465</a> <em class="jxr_javadoccomment">   * to query attributes in "any" memberships which are on immediate or effective memberships</em>
 <a class="jxr_linenumber" name="L466" href="#L466">466</a> <em class="jxr_javadoccomment">   * @return any memberships</em>
 <a class="jxr_linenumber" name="L467" href="#L467">467</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html">WsMembershipAnyLookup</a>[] getWsOwnerMembershipAnyLookups() {
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>   <strong class="jxr_keyword">public</strong> <a name="WsMembershipAnyLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html#WsMembershipAnyLookup">WsMembershipAnyLookup</a>[] getWsOwnerMembershipAnyLookups() {
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsOwnerMembershipAnyLookups;
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>   }
 <a class="jxr_linenumber" name="L471" href="#L471">471</a> 
@@ -482,20 +482,20 @@
 <a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">   * @param wsOwnerMembershipAnyLookups1</em>
 <a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L476" href="#L476">476</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerMembershipAnyLookups(
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html">WsMembershipAnyLookup</a>[] wsOwnerMembershipAnyLookups1) {
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>       <a name="WsMembershipAnyLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html#WsMembershipAnyLookup">WsMembershipAnyLookup</a>[] wsOwnerMembershipAnyLookups1) {
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>     <strong class="jxr_keyword">this</strong>.wsOwnerMembershipAnyLookups = wsOwnerMembershipAnyLookups1;
 <a class="jxr_linenumber" name="L479" href="#L479">479</a>   }
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>   
 <a class="jxr_linenumber" name="L481" href="#L481">481</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L482" href="#L482">482</a> <em class="jxr_javadoccomment">   * to query attributes assigned on attribute defs</em>
 <a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html">WsAttributeDefLookup</a>[] wsOwnerAttributeDefLookups;
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>   <strong class="jxr_keyword">private</strong> <a name="WsAttributeDefLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html#WsAttributeDefLookup">WsAttributeDefLookup</a>[] wsOwnerAttributeDefLookups;
 <a class="jxr_linenumber" name="L485" href="#L485">485</a>   
 <a class="jxr_linenumber" name="L486" href="#L486">486</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L487" href="#L487">487</a> <em class="jxr_javadoccomment">   * to query attributes assigned on attribute defs</em>
 <a class="jxr_linenumber" name="L488" href="#L488">488</a> <em class="jxr_javadoccomment">   * @return attribute def</em>
 <a class="jxr_linenumber" name="L489" href="#L489">489</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html">WsAttributeDefLookup</a>[] getWsOwnerAttributeDefLookups() {
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>   <strong class="jxr_keyword">public</strong> <a name="WsAttributeDefLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html#WsAttributeDefLookup">WsAttributeDefLookup</a>[] getWsOwnerAttributeDefLookups() {
 <a class="jxr_linenumber" name="L491" href="#L491">491</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wsOwnerAttributeDefLookups;
 <a class="jxr_linenumber" name="L492" href="#L492">492</a>   }
 <a class="jxr_linenumber" name="L493" href="#L493">493</a> 
@@ -504,7 +504,7 @@
 <a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">   * @param wsOwnerAttributeDefLookups1</em>
 <a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L498" href="#L498">498</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWsOwnerAttributeDefLookups(
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html">WsAttributeDefLookup</a>[] wsOwnerAttributeDefLookups1) {
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>       <a name="WsAttributeDefLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html#WsAttributeDefLookup">WsAttributeDefLookup</a>[] wsOwnerAttributeDefLookups1) {
 <a class="jxr_linenumber" name="L500" href="#L500">500</a>     <strong class="jxr_keyword">this</strong>.wsOwnerAttributeDefLookups = wsOwnerAttributeDefLookups1;
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>   }
 <a class="jxr_linenumber" name="L502" href="#L502">502</a> 
@@ -530,13 +530,13 @@
 <a class="jxr_linenumber" name="L522" href="#L522">522</a>   }
 <a class="jxr_linenumber" name="L523" href="#L523">523</a> 
 <a class="jxr_linenumber" name="L524" href="#L524">524</a>   <em class="jxr_javadoccomment">/** if acting as someone else */</em>
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup;
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>   <strong class="jxr_keyword">private</strong> <a name="WsSubjectLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> actAsSubjectLookup;
 <a class="jxr_linenumber" name="L526" href="#L526">526</a>   
 <a class="jxr_linenumber" name="L527" href="#L527">527</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">   * if acting as someone else</em>
 <a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">   * @return act as subject</em>
 <a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> getActAsSubjectLookup() {
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>   <strong class="jxr_keyword">public</strong> <a name="WsSubjectLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> getActAsSubjectLookup() {
 <a class="jxr_linenumber" name="L532" href="#L532">532</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.actAsSubjectLookup;
 <a class="jxr_linenumber" name="L533" href="#L533">533</a>   }
 <a class="jxr_linenumber" name="L534" href="#L534">534</a> 
@@ -544,7 +544,7 @@
 <a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">   * if acting as someone else</em>
 <a class="jxr_linenumber" name="L537" href="#L537">537</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup1</em>
 <a class="jxr_linenumber" name="L538" href="#L538">538</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setActAsSubjectLookup(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup1) {
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setActAsSubjectLookup(<a name="WsSubjectLookup" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html#WsSubjectLookup">WsSubjectLookup</a> actAsSubjectLookup1) {
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>     <strong class="jxr_keyword">this</strong>.actAsSubjectLookup = actAsSubjectLookup1;
 <a class="jxr_linenumber" name="L541" href="#L541">541</a>   }
 <a class="jxr_linenumber" name="L542" href="#L542">542</a> 
@@ -619,7 +619,7 @@
 <a class="jxr_linenumber" name="L611" href="#L611">611</a>   }
 <a class="jxr_linenumber" name="L612" href="#L612">612</a> 
 <a class="jxr_linenumber" name="L613" href="#L613">613</a>   <em class="jxr_javadoccomment">/** optional: reserved for future use */</em>
-<a class="jxr_linenumber" name="L614" href="#L614">614</a>   <strong class="jxr_keyword">private</strong>  WsParam[] params;
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>   <strong class="jxr_keyword">private</strong>  <a name="WsParam" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html#WsParam">WsParam</a>[] params;
 <a class="jxr_linenumber" name="L615" href="#L615">615</a> 
 <a class="jxr_linenumber" name="L616" href="#L616">616</a>   
 <a class="jxr_linenumber" name="L617" href="#L617">617</a>   
@@ -627,7 +627,7 @@
 <a class="jxr_linenumber" name="L619" href="#L619">619</a> <em class="jxr_javadoccomment">   * optional: reserved for future use</em>
 <a class="jxr_linenumber" name="L620" href="#L620">620</a> <em class="jxr_javadoccomment">   * @return params</em>
 <a class="jxr_linenumber" name="L621" href="#L621">621</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] getParams() {
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>   <strong class="jxr_keyword">public</strong> <a name="WsParam" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html#WsParam">WsParam</a>[] getParams() {
 <a class="jxr_linenumber" name="L623" href="#L623">623</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.params;
 <a class="jxr_linenumber" name="L624" href="#L624">624</a>   }
 <a class="jxr_linenumber" name="L625" href="#L625">625</a> 
@@ -635,7 +635,7 @@
 <a class="jxr_linenumber" name="L627" href="#L627">627</a> <em class="jxr_javadoccomment">   * optional: reserved for future use</em>
 <a class="jxr_linenumber" name="L628" href="#L628">628</a> <em class="jxr_javadoccomment">   * @param params1</em>
 <a class="jxr_linenumber" name="L629" href="#L629">629</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setParams(<a href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] params1) {
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setParams(<a name="WsParam" href="../../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html#WsParam">WsParam</a>[] params1) {
 <a class="jxr_linenumber" name="L631" href="#L631">631</a>     <strong class="jxr_keyword">this</strong>.params = params1;
 <a class="jxr_linenumber" name="L632" href="#L632">632</a>   }
 <a class="jxr_linenumber" name="L633" href="#L633">633</a> 
@@ -645,6 +645,6 @@
 <a class="jxr_linenumber" name="L637" href="#L637">637</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">  you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -40,78 +40,78 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouper.privs;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> junit.framework.Assert;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> junit.framework.TestCase;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> junit.textui.TestRunner;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.logging.Log;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Group;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GroupType;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GrouperSession;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Member;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Stem;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.SubjectFinder;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.exception.GrouperSessionException;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.GroupHelper;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.GrouperTest;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.MemberHelper;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.PrivHelper;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.SessionHelper;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.StemHelper;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.registry.RegistryReset;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.util.GrouperUtil;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.subject.Subject;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment"> * Test use of the ADMIN {@link AccessPrivilege}.</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> * &lt;p /&gt;</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> * @author  blair christensen.</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment"> * @version $Id: TestPrivADMIN.java,v 1.2 2009-03-24 17:12:09 mchyzer Exp $</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/TestPrivADMIN.html">TestPrivADMIN</a> <strong class="jxr_keyword">extends</strong> TestCase {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * Method main.</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   * @param args String[]</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   * @throws Exception</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) <strong class="jxr_keyword">throws</strong> Exception {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_comment">//TestRunner.run(new TestPrivADMIN("testRenameGroupWithoutADMIN"));</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      TestRunner.run(TestPrivADMIN.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>    }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>    
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/TestPrivADMIN.html">TestPrivADMIN</a>() {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">super</strong>();
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>    }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>    <em class="jxr_comment">// Private Class Constants</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Log LOG = GrouperUtil.getLog(TestPrivADMIN.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> junit.textui.TestRunner;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.logging.Log;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Group;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GroupType;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GrouperSession;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Member;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Stem;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.SubjectFinder;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.exception.GrouperSessionException;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.GroupHelper;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.GrouperTest;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.MemberHelper;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.PrivHelper;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.SessionHelper;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.StemHelper;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.registry.RegistryReset;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.util.GrouperUtil;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.subject.Subject;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment"> * Test use of the ADMIN {@link AccessPrivilege}.</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment"> * &lt;p /&gt;</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> * @author  blair christensen.</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> * @version $Id: TestPrivADMIN.java,v 1.2 2009-03-24 17:12:09 mchyzer Exp $</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="TestPrivADMIN" href="../../../../../edu/internet2/middleware/grouper/privs/TestPrivADMIN.html#TestPrivADMIN">TestPrivADMIN</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperTest" href="../../../../../edu/internet2/middleware/grouper/helper/GrouperTest.html#GrouperTest">GrouperTest</a> {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   * Method main.</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * @param args String[]</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   * @throws Exception</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      TestRunner.run(<strong class="jxr_keyword">new</strong> <a name="TestPrivADMIN" href="../../../../../edu/internet2/middleware/grouper/privs/TestPrivADMIN.html#TestPrivADMIN">TestPrivADMIN</a>(<span class="jxr_string">"testRenameGroupWithoutADMIN"</span>));
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_comment">//TestRunner.run(TestPrivADMIN.class);</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>    }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>    
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">public</strong> <a name="TestPrivADMIN" href="../../../../../edu/internet2/middleware/grouper/privs/TestPrivADMIN.html#TestPrivADMIN">TestPrivADMIN</a>() {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <em class="jxr_comment">// Private Class Constants</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Log LOG = GrouperUtil.getLog(TestPrivADMIN.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <em class="jxr_comment">// Private Class Variables</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Group          a;
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Stem           edu;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Group          i2;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Member         m;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> GrouperSession nrs;
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Stem           root;
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> GrouperSession s;
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Subject        subj0;
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Subject        subj1;
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Group          uofc;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>    <em class="jxr_comment">// Private Class Variables</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Group          a;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Stem           edu;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Group          i2;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Member         m;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> GrouperSession nrs;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Stem           root;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> GrouperSession s;
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Subject        subj0;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Subject        subj1;
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Group          uofc;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/privs/TestPrivADMIN.html">TestPrivADMIN</a>(String name) {
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">super</strong>(name);
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>   }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> 
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> setUp () <strong class="jxr_keyword">throws</strong> Exception {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     LOG.debug(<span class="jxr_string">"setUp"</span>);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>   <strong class="jxr_keyword">public</strong> <a name="TestPrivADMIN" href="../../../../../edu/internet2/middleware/grouper/privs/TestPrivADMIN.html#TestPrivADMIN">TestPrivADMIN</a>(String name) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">super</strong>(name);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>   }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> setUp () {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     LOG.debug(<span class="jxr_string">"setUp"</span>);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">super</strong>.setUp();
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     RegistryReset.internal_resetRegistryAndAddTestSubjects();
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     GrouperTest.initGroupsAndAttributes();
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> 
@@ -130,7 +130,7 @@
 <a class="jxr_linenumber" name="L122" href="#L122">122</a> 
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> tearDown () {
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>     LOG.debug(<span class="jxr_string">"tearDown"</span>);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <em class="jxr_comment">// Nothing </em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">super</strong>.tearDown();
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>   }
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>   
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGrantedToCreator() {
@@ -504,59 +504,68 @@
 <a class="jxr_linenumber" name="L496" href="#L496">496</a> 
 <a class="jxr_linenumber" name="L497" href="#L497">497</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRenameGroupWithoutADMIN() {
 <a class="jxr_linenumber" name="L498" href="#L498">498</a>     LOG.info(<span class="jxr_string">"testRenameGroupWithoutADMIN"</span>);
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>     a = GroupHelper.findByName(nrs, i2.getName());
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>     String orig = a.getExtension();
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>       a.setExtension(<span class="jxr_string">"foo"</span>);
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>       a.store();
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>       Assert.fail(<span class="jxr_string">"set extension"</span>);
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>     }
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>     <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>       Assert.assertTrue(<span class="jxr_string">"failed to set extension"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>       a = GroupHelper.findByName(nrs, i2.getName());
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>       Assert.assertTrue(<span class="jxr_string">"extension"</span>, a.getExtension().equals(orig));
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>     } 
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>     orig = a.getDisplayExtension();
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>       a.setDisplayExtension(<span class="jxr_string">"foo"</span>);
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>       a.store();
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>       Assert.fail(<span class="jxr_string">"set displayExtension"</span>);
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>     }
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>     <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>       Assert.assertTrue(<span class="jxr_string">"failed to set displayExtension"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>       a = GroupHelper.findByName(nrs, i2.getName());
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>       Assert.assertTrue(<span class="jxr_string">"displayExtension"</span>, a.getDisplayExtension().equals(orig));
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     } 
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>   } <em class="jxr_comment">// public void testRenameGroupWithoutADMIN()</em>
-<a class="jxr_linenumber" name="L523" href="#L523">523</a> 
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRenameGroupWithADMIN() {
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>     LOG.info(<span class="jxr_string">"testRenameGroupWithADMIN"</span>);
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>     a = GroupHelper.findByName(nrs, i2.getName());
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>     String  val   = <span class="jxr_string">"foo"</span>;
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>       a.setExtension(val);
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>       a.store();
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>       Assert.assertTrue(<span class="jxr_string">"set extension"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>       Assert.assertTrue(<span class="jxr_string">"extension"</span>, a.getExtension().equals(val));
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>     }
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>     <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>       Assert.fail(<span class="jxr_string">"failed to set extension"</span>);
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>     } 
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>     
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>     GrouperSession.internal_callbackRootGrouperSession(<strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>       
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>       <strong class="jxr_keyword">public</strong> Object callback(GrouperSession grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         i2.grantPriv(nrs.getSubject(), AccessPrivilege.READ);
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>       }
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>     });
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>     
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>     a = GroupHelper.findByName(nrs, i2.getName());
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     String orig = a.getExtension();
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>       a.setExtension(<span class="jxr_string">"foo"</span>);
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>       a.store();
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>       Assert.fail(<span class="jxr_string">"set extension"</span>);
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>     }
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>     <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>       Assert.assertTrue(<span class="jxr_string">"failed to set extension"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>       a = GroupHelper.findByName(nrs, i2.getName());
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>       Assert.assertTrue(<span class="jxr_string">"extension"</span>, a.getExtension().equals(orig));
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>     } 
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>     orig = a.getDisplayExtension();
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>       a.setDisplayExtension(<span class="jxr_string">"foo"</span>);
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>       a.store();
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>       Assert.fail(<span class="jxr_string">"set displayExtension"</span>);
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     }
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>     <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>       Assert.assertTrue(<span class="jxr_string">"failed to set displayExtension"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>       a = GroupHelper.findByName(nrs, i2.getName());
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>       Assert.assertTrue(<span class="jxr_string">"displayExtension"</span>, a.getDisplayExtension().equals(orig));
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>     } 
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>   } <em class="jxr_comment">// public void testRenameGroupWithoutADMIN()</em>
+<a class="jxr_linenumber" name="L532" href="#L532">532</a> 
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRenameGroupWithADMIN() {
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>     LOG.info(<span class="jxr_string">"testRenameGroupWithADMIN"</span>);
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>     a = GroupHelper.findByName(nrs, i2.getName());
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>     String  val   = <span class="jxr_string">"foo"</span>;
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>       a.setDisplayExtension(<span class="jxr_string">"foo"</span>);
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>       a.setExtension(val);
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>       a.store();
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>       Assert.assertTrue(<span class="jxr_string">"set displayExtension"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>       Assert.assertTrue(<span class="jxr_string">"displayExtension"</span>, a.getDisplayExtension().equals(val));
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>       Assert.assertTrue(<span class="jxr_string">"set extension"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>       Assert.assertTrue(<span class="jxr_string">"extension"</span>, a.getExtension().equals(val));
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>     }
 <a class="jxr_linenumber" name="L544" href="#L544">544</a>     <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>       Assert.fail(<span class="jxr_string">"failed to set displayExtension"</span>);
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>       Assert.fail(<span class="jxr_string">"failed to set extension"</span>);
 <a class="jxr_linenumber" name="L546" href="#L546">546</a>     } 
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>   } <em class="jxr_comment">// public void testRenameGroupWithADMIN()</em>
-<a class="jxr_linenumber" name="L548" href="#L548">548</a> }
-<a class="jxr_linenumber" name="L549" href="#L549">549</a> 
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>       a.setDisplayExtension(<span class="jxr_string">"foo"</span>);
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>       a.store();
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>       Assert.assertTrue(<span class="jxr_string">"set displayExtension"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>       Assert.assertTrue(<span class="jxr_string">"displayExtension"</span>, a.getDisplayExtension().equals(val));
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>     }
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>     <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>       Assert.fail(<span class="jxr_string">"failed to set displayExtension"</span>);
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>     } 
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>   } <em class="jxr_comment">// public void testRenameGroupWithADMIN()</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> }
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

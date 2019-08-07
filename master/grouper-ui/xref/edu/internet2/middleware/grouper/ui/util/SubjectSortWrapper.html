@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -40,7 +40,7 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ui/util/SubjectSortWrapper.html">SubjectSortWrapper</a> <strong class="jxr_keyword">implements</strong> Subject, Comparable {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SubjectSortWrapper" href="../../../../../../edu/internet2/middleware/grouper/ui/util/SubjectSortWrapper.html#SubjectSortWrapper">SubjectSortWrapper</a> <strong class="jxr_keyword">implements</strong> Subject, Comparable {
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>    <em class="jxr_javadoccomment">/** wrapped subject */</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">private</strong> Subject wrappedSubject;
@@ -84,7 +84,7 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">   * wrapped subject</em>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">   * @param subject</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ui/util/SubjectSortWrapper.html">SubjectSortWrapper</a>(Subject subject) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">public</strong> <a name="SubjectSortWrapper" href="../../../../../../edu/internet2/middleware/grouper/ui/util/SubjectSortWrapper.html#SubjectSortWrapper">SubjectSortWrapper</a>(Subject subject) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">this</strong>.wrappedSubject = subject;
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>    }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>    
@@ -156,10 +156,10 @@
 <a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">   * @see java.lang.Comparable#compareTo(java.lang.Object)</em>
 <a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compareTo(Object o) {
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">if</strong> (!(o instanceof SubjectSortWrapper)) {
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">if</strong> (!(o instanceof <a name="SubjectSortWrapper" href="../../../../../../edu/internet2/middleware/grouper/ui/util/SubjectSortWrapper.html#SubjectSortWrapper">SubjectSortWrapper</a>)) {
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>       <strong class="jxr_keyword">return</strong> -1;
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ui/util/SubjectSortWrapper.html">SubjectSortWrapper</a> subjectSortWrapper = (SubjectSortWrapper)o;
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <a name="SubjectSortWrapper" href="../../<a name="SubjectSortWrapper" href="../../../../../../edu/internet2/middleware/grouper/ui/util/SubjectSortWrapper.html#SubjectSortWrapper">SubjectSortWrapper</a>ternet2/middleware/grouper/ui/util/SubjectSortWrapper.html#SubjectSortWrapper">SubjectSortWrapper</a> subjectSortWrapper = (<a name="SubjectSortWrapper" href="../../../../../../edu/internet2/middleware/grouper/ui/util/SubjectSortWrapper.html#SubjectSortWrapper">SubjectSortWrapper</a>)o;
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.getScreenLabel().compareToIgnoreCase(subjectSortWrapper.getScreenLabel());
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>   }
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> 
@@ -237,6 +237,6 @@
 <a class="jxr_linenumber" name="L229" href="#L229">229</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

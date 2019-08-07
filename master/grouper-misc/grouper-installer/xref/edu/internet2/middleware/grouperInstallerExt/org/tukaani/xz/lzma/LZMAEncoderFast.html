@@ -10,7 +10,7 @@
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * LZMAEncoderFast</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Authors: Lasse Collin &lt;lasse.collin@tukaani.org&gt;</em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *          Igor Pavlov &lt;<a href="http://7-zip.org/&gt" target="alexandria_uri">http://7-zip.org/&gt</a>;</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *          Igor Pavlov &lt;<a href="http://7-zip.org/&gt;" target="alexandria_uri">http://7-zip.org/&gt;</a></em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * This file has been put into the public domain.</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * You can do whatever you want with this file.</em>
@@ -22,11 +22,11 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.lz.Matches;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.rangecoder.RangeEncoder;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoderFast.html">LZMAEncoderFast</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoder.html">LZMAEncoder</a> {
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LZMAEncoderFast" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoderFast.html#LZMAEncoderFast">LZMAEncoderFast</a> <strong class="jxr_keyword">extends</strong> <a name="LZMAEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoder.html#LZMAEncoder">LZMAEncoder</a> {
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> EXTRA_SIZE_BEFORE = 1;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> EXTRA_SIZE_AFTER = MATCH_LEN_MAX - 1;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/Matches.html">Matches</a> matches = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">private</strong> <a name="Matches" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/Matches.html#Matches">Matches</a> matches = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getMemoryUsage(<strong class="jxr_keyword">int</strong> dictSize, <strong class="jxr_keyword">int</strong> extraSizeBefore, <strong class="jxr_keyword">int</strong> mf) {
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>          <strong class="jxr_keyword">return</strong> LZEncoder.getMemoryUsage(
@@ -34,7 +34,7 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>                  EXTRA_SIZE_AFTER, MATCH_LEN_MAX, mf);
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>      }
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoderFast.html">LZMAEncoderFast</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/rangecoder/RangeEncoder.html">RangeEncoder</a> rc, <strong class="jxr_keyword">int</strong> lc, <strong class="jxr_keyword">int</strong> lp, <strong class="jxr_keyword">int</strong> pb,
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <a name="LZMAEncoderFast" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMAEncoderFast.html#LZMAEncoderFast">LZMAEncoderFast</a>(<a name="RangeEncoder" href="../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/rangecoder/RangeEncoder.html#RangeEncoder">RangeEncoder</a> rc, <strong class="jxr_keyword">int</strong> lc, <strong class="jxr_keyword">int</strong> lp, <strong class="jxr_keyword">int</strong> pb,
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>                             <strong class="jxr_keyword">int</strong> dictSize, <strong class="jxr_keyword">int</strong> extraSizeBefore,
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>                             <strong class="jxr_keyword">int</strong> niceLen, <strong class="jxr_keyword">int</strong> mf, <strong class="jxr_keyword">int</strong> depthLimit) {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">super</strong>(rc, LZEncoder.getInstance(dictSize,
@@ -159,6 +159,6 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

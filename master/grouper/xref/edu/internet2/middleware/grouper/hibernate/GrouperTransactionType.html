@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -34,7 +34,7 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> {
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">public</strong> enum <a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> {
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>    
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>    <em class="jxr_javadoccomment">/** use the current transaction if one exists, if not, create a new readonly tx.</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">   * Note, the enclosing transaction could be readonly or readwrite, and no error</em>
@@ -78,8 +78,8 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     * @throws GrouperDAOException if there is a compatibility problem</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      @Override
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> existingGrouperTransactionType)
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>        <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> existingGrouperTransactionType)
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>        <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>        
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>        <em class="jxr_comment">//if the underlying is readonly or not, we are fine...</em>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
@@ -87,7 +87,7 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     * convert the declared tx type to one that is not "if exists"...</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * @return the type to use (e.g. not an if exists one)</em>
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> grouperTransactionTypeToUse() {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> grouperTransactionTypeToUse() {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>        <strong class="jxr_keyword">return</strong> READONLY_NEW;
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>    },
@@ -132,8 +132,8 @@
 <a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * @throws GrouperDAOException if there is a compatibility problem</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>     @Override
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> existingGrouperTransactionType)
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>       <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> existingGrouperTransactionType)
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>       <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>       
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>       <em class="jxr_comment">//if the underlying is readonly or not, we are fine...</em>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
@@ -141,7 +141,7 @@
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * convert the declared tx type to one that is not "if exists"...</em>
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * @return the type to use (e.g. not an if exists one)</em>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> grouperTransactionTypeToUse() {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> grouperTransactionTypeToUse() {
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>       <strong class="jxr_keyword">return</strong> NONE;
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>   },
@@ -187,8 +187,8 @@
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * @throws GrouperDAOException if there is a compatibility problem</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>     @Override
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> existingGrouperTransactionType)
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>       <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> existingGrouperTransactionType)
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>       <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>       
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>       <em class="jxr_comment">//this is a new tx, so if one exists, its fine</em>
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
@@ -196,7 +196,7 @@
 <a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     * convert the declared tx type to one that is not "if exists"...</em>
 <a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     * @return the type to use (e.g. not an if exists one)</em>
 <a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> grouperTransactionTypeToUse() {
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <strong class="jxr_keyword">public</strong> <a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> grouperTransactionTypeToUse() {
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>     }
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>   },
@@ -248,11 +248,11 @@
 <a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     * @throws GrouperDAOException if there is a compatibility problem</em>
 <a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>     @Override
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> existingGrouperTransactionType)
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>       <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> existingGrouperTransactionType)
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>       <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>       
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>       <strong class="jxr_keyword">if</strong> (existingGrouperTransactionType != <strong class="jxr_keyword">null</strong> &amp;&amp; existingGrouperTransactionType.isReadonly()) {
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a>(<span class="jxr_string">"Problem since this transaction type '"</span> 
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a>(<span class="jxr_string">"Problem since this transaction type '"</span> 
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>             + <strong class="jxr_keyword">this</strong> + <span class="jxr_string">"' requires read/write, but existing"</span> +
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>         		<span class="jxr_string">" is read/only: '"</span> + existingGrouperTransactionType + <span class="jxr_string">"'"</span>);
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>       }
@@ -261,7 +261,7 @@
 <a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">     * convert the declared tx type to one that is not "if exists"...</em>
 <a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     * @return the type to use (e.g. not an if exists one)</em>
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> grouperTransactionTypeToUse() {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">public</strong> <a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> grouperTransactionTypeToUse() {
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>       <strong class="jxr_keyword">return</strong> READ_WRITE_NEW;
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>     }
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>   },
@@ -309,8 +309,8 @@
 <a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     * @throws GrouperDAOException if there is a compatibility problem</em>
 <a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>     @Override
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> existingGrouperTransactionType)
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>       <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> existingGrouperTransactionType)
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>       <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>       
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>       <em class="jxr_comment">//this is a new tx, so if one exists, its fine</em>
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>     }
@@ -318,7 +318,7 @@
 <a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">     * convert the declared tx type to one that is not "if exists"...</em>
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">     * @return the type to use (e.g. not an if exists one)</em>
 <a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> grouperTransactionTypeToUse() {
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">public</strong> <a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> grouperTransactionTypeToUse() {
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>     }
 <a class="jxr_linenumber" name="L316" href="#L316">316</a>   };
@@ -329,7 +329,7 @@
 <a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">   * @param string</em>
 <a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">   * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> valueOfIgnoreCase(String string) {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> valueOfIgnoreCase(String string) {
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>     <strong class="jxr_keyword">return</strong> GrouperUtil.enumValueOfIgnoreCase(GrouperTransactionType.<strong class="jxr_keyword">class</strong>,string, false );
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>   }
 <a class="jxr_linenumber" name="L327" href="#L327">327</a> 
@@ -359,18 +359,18 @@
 <a class="jxr_linenumber" name="L351" href="#L351">351</a> <em class="jxr_javadoccomment">   * type</em>
 <a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">   * @throws GrouperDAOException if there is a compatibility problem</em>
 <a class="jxr_linenumber" name="L353" href="#L353">353</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> existingGrouperTransactionType)
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> checkCompatibility(<a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> existingGrouperTransactionType)
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>     <strong class="jxr_keyword">throws</strong> GrouperDAOException;
 <a class="jxr_linenumber" name="L356" href="#L356">356</a> 
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">   * convert the declared tx type to one that is not "if exists"...</em>
 <a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">   * @return the type to use (e.g. not an if exists one)</em>
 <a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html">GrouperTransactionType</a> grouperTransactionTypeToUse();
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <a name="GrouperTransactionType" href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html#GrouperTransactionType">GrouperTransactionType</a> grouperTransactionTypeToUse();
 <a class="jxr_linenumber" name="L362" href="#L362">362</a> 
 <a class="jxr_linenumber" name="L363" href="#L363">363</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

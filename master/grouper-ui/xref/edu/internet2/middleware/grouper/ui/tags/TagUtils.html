@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">  you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -50,7 +50,7 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ui/tags/TagUtils.html">TagUtils</a> {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="TagUtils" href="../../../../../../edu/internet2/middleware/grouper/ui/tags/TagUtils.html#TagUtils">TagUtils</a> {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">   * based on request get a nav string</em>
@@ -59,7 +59,7 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String navResourceString(String key) {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      LocalizationContext localizationContext = (LocalizationContext)GrouperUiFilter
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      LocalizationContext localizationContext = (LocalizationContext)<a name="GrouperUiFilter" href="../../../../../../edu/internet2/middleware/grouper/ui/GrouperUiFilter.html#GrouperUiFilter">GrouperUiFilter</a>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>        .retrieveHttpServletRequest().getSession().getAttribute(<span class="jxr_string">"nav"</span>);
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      ResourceBundle nav = localizationContext.getResourceBundle();
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      String value = nav.getString(key);
@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> navResourceContainsKey(String key) {
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      LocalizationContext localizationContext = (LocalizationContext)GrouperUiFilter
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      LocalizationContext localizationContext = (LocalizationContext)<a name="GrouperUiFilter" href="../../../../../../edu/internet2/middleware/grouper/ui/GrouperUiFilter.html#GrouperUiFilter">GrouperUiFilter</a>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>        .retrieveHttpServletRequest().getSession().getAttribute(<span class="jxr_string">"nav"</span>);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      ResourceBundle nav = localizationContext.getResourceBundle();
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">return</strong> nav.containsKey(key);
@@ -82,6 +82,6 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

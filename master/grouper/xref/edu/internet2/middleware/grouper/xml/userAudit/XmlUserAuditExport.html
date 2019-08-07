@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -64,7 +64,7 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> * export user audits</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlUserAuditExport.html">XmlUserAuditExport</a> {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XmlUserAuditExport" href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlUserAuditExport.html#XmlUserAuditExport">XmlUserAuditExport</a> {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">   * logger </em>
@@ -118,12 +118,12 @@
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>       <strong class="jxr_keyword">final</strong> CompactWriter xmlAuditCompactWriter = <strong class="jxr_keyword">new</strong> CompactWriter(xmlAuditFileWriter);
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>   
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>       HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>           AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>           AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a name="HibernateHandler" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html#HibernateHandler">HibernateHandler</a>() {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>   
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">public</strong> Object callback(<a name="HibernateHandlerBean" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html#HibernateHandlerBean">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>               <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession = hibernateHandlerBean.getHibernateSession();
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 <a name="HibernateSession" href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession = hibernateHandlerBean.getHibernateSession();
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>                 Session session = hibernateSession.getSession();
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>   
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                 xmlExportFileWriter.write(<span class="jxr_string">"&lt;userAudits version=\&quot;"</span> + GrouperVersion.GROUPER_VERSION + <span class="jxr_string">"\&quot;&gt;\n"</span>);
@@ -148,8 +148,8 @@
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>                   <strong class="jxr_keyword">int</strong> typeCount = 0;
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>                   <strong class="jxr_keyword">while</strong>(results.next()) {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>                     Object object = results.get(0);
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>                     <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a> auditType = (AuditType)object;
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>                     <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditType.html">XmlAuditType</a> xmlAuditType = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditType.html">XmlAuditType</a>(auditType);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                     <a name="AuditType" hre<a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a>../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a> auditType = (<a name="AuditType" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html#AuditType">AuditType</a>)object;
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                     <a name="XmlAuditType" href="../../../../../../edu/internet2/middlewa<a name="XmlAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditType.html#XmlAuditType">XmlAuditType</a>ml/userAudit/XmlAuditType.html#XmlAuditType">XmlAuditType</a> xmlAuditType = <strong class="jxr_keyword">new</strong> <a name="XmlAuditType" href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditType.html#XmlAuditType">XmlAuditType</a>(auditType);
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>                     xStream.marshal(xmlAuditType, xmlAuditCompactWriter);
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>                     xmlAuditCompactWriter.flush();
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>                     xmlAuditFileWriter.write(<span class="jxr_string">"\n"</span>);
@@ -181,8 +181,8 @@
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>                   <strong class="jxr_keyword">while</strong>(results.next()) {
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>                     currentRecordIndex++;
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>                     Object object = results.get(0);
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>                     <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html">AuditEntry</a> auditEntry = (AuditEntry)object;
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>                     <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditEntry.html">XmlAuditEntry</a> xmlAuditEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditEntry.html">XmlAuditEntry</a>(auditEntry);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                     <a name="AuditEntry" href<a name="AuditEntry" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html#AuditEntry">AuditEntry</a>/../../../edu/internet2/middleware/grouper/audit/AuditEntry.html#AuditEntry">AuditEntry</a> auditEntry = (<a name="AuditEntry" href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html#AuditEntry">AuditEntry</a>)object;
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                     <a name="XmlAuditEntry" href="../../../../../../edu/internet2/middlewar<a name="XmlAuditEntry" href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditEntry.html#XmlAuditEntry">XmlAuditEntry</a>/userAudit/XmlAuditEntry.html#XmlAuditEntry">XmlAuditEntry</a> xmlAuditEntry = <strong class="jxr_keyword">new</strong> <a name="XmlAuditEntry" href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditEntry.html#XmlAuditEntry">XmlAuditEntry</a>(auditEntry);
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>                     xStream.marshal(xmlAuditEntry, xmlAuditCompactWriter);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>                     xmlAuditCompactWriter.flush();
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>                     xmlAuditFileWriter.write(<span class="jxr_string">"\n"</span>);
@@ -315,6 +315,6 @@
 <a class="jxr_linenumber" name="L307" href="#L307">307</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

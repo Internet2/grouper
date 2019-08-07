@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> * is a copy in memory or disk, then it will still work.  I believe the disk store is</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment"> * only read on startup, but Im not sure.</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a> <strong class="jxr_keyword">implements</strong> Job, StatefulJob {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a> <strong class="jxr_keyword">implements</strong> Job, StatefulJob {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * logger</em>
@@ -69,11 +69,11 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   * all permissions for activemq</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">   * @return the permissions</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a> permissions() {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">static</strong> <a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a> permissions() {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      startupOnce();
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a> grouperActivemqPermissionsEngineLocal = grouperActivemqPermissionsEngine; 
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a> grouperActivemqPermissionsEngineLocal = grouperActivemqPermissionsEngine; 
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">if</strong> (grouperActivemqPermissionsEngineLocal == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>        <strong class="jxr_keyword">synchronized</strong> (GrouperActivemqPermissionsEngine.<strong class="jxr_keyword">class</strong>) {
@@ -110,7 +110,7 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">   * @param user is the user to check</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">   * @return true if the user has any permission</em>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasAnyPermissionHelper(<a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a> localGrouperActivemqPermissionsEngine, String user) {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasAnyPermissionHelper(<a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a> localGrouperActivemqPermissionsEngine, String user) {
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">return</strong> GrouperClientUtils.length(localGrouperActivemqPermissionsEngine.getCachedGrouperActivemqPermissions().get(user)) &gt; 0;
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>   }
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> 
@@ -122,9 +122,9 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>   <strong class="jxr_keyword">static</strong> {
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>       whitelist = <strong class="jxr_keyword">new</strong> HashSet&lt;GrouperActivemqPermission&gt;();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>       whitelist.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a>(GrouperActivemqPermissionAction.createDestination, <span class="jxr_string">"ActiveMQ.Advisory.Connection"</span>));
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>       whitelist.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a>(GrouperActivemqPermissionAction.receiveMessage, <span class="jxr_string">"ActiveMQ.Advisory.TempTopic"</span>));
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>       whitelist.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a>(GrouperActivemqPermissionAction.receiveMessage, <span class="jxr_string">"ActiveMQ.Advisory.TempQueue"</span>));
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>       whitelist.add(<strong class="jxr_keyword">new</strong> <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a>(GrouperActivemqPermissionAction.createDestination, <span class="jxr_string">"ActiveMQ.Advisory.Connection"</span>));
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>       whitelist.add(<strong class="jxr_keyword">new</strong> <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a>(GrouperActivemqPermissionAction.receiveMessage, <span class="jxr_string">"ActiveMQ.Advisory.TempTopic"</span>));
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>       whitelist.add(<strong class="jxr_keyword">new</strong> <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a>(GrouperActivemqPermissionAction.receiveMessage, <span class="jxr_string">"ActiveMQ.Advisory.TempQueue"</span>));
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException re) {
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>       log.error(<span class="jxr_string">"Error loading whitelist"</span>, re);
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>       <strong class="jxr_keyword">throw</strong> re;
@@ -142,7 +142,7 @@
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">   * @param destination to check</em>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">   * @return the permissions</em>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasPermission(String user, <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html">GrouperActivemqPermissionAction</a> action,
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasPermission(String user, <a name="GrouperActivemqPermissionAction" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html#GrouperActivemqPermissionAction">GrouperActivemqPermissionAction</a> action,
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>       String destination) {
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>     
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">if</strong> (destination.startsWith(<span class="jxr_string">"ActiveMQ.Advisory.Consumer.Queue."</span>)) {
@@ -150,11 +150,11 @@
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>     }
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>     <em class="jxr_comment">//lets see if someone has a permission from cache</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a> engine = permissions();
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a> engine = permissions();
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>     
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">boolean</strong> useCache = cachePermissionsMinutes() != 0;
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>     
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a> grouperActivemqPermission = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a>(action, 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActive<a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a>ivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a> grouperActivemqPermission = <strong class="jxr_keyword">new</strong> <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a>(action, 
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>         destination);
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>     
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">if</strong> (whitelist.contains(grouperActivemqPermission)) {
@@ -211,7 +211,7 @@
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">   * @param destination to check</em>
 <a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">   * @return the permissions</em>
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>   <strong class="jxr_keyword">boolean</strong> hasPermissionNoCache(String user, <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html">GrouperActivemqPermissionAction</a> action,
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>   <strong class="jxr_keyword">boolean</strong> hasPermissionNoCache(String user, <a name="GrouperActivemqPermissionAction" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html#GrouperActivemqPermissionAction">GrouperActivemqPermissionAction</a> action,
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>       String destination) {
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>     Map&lt;String, Set&lt;GrouperActivemqPermission&gt;&gt; allPermissions = <strong class="jxr_keyword">this</strong>.getCachedGrouperActivemqPermissions();
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">return</strong> hasPermissionHelper(allPermissions, user, action, destination);
@@ -225,7 +225,7 @@
 <a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">   * @param destination to check</em>
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">   * @return the permissions</em>
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasPermissionHelper(Map&lt;String, Set&lt;GrouperActivemqPermission&gt;&gt; allPermissions, String user, <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html">GrouperActivemqPermissionAction</a> action, String destination) {
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasPermissionHelper(Map&lt;String, Set&lt;GrouperActivemqPermission&gt;&gt; allPermissions, String user, <a name="GrouperActivemqPermissionAction" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html#GrouperActivemqPermissionAction">GrouperActivemqPermissionAction</a> action, String destination) {
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>     
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     <em class="jxr_comment">//get the permissions for a user</em>
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>     Set&lt;GrouperActivemqPermission&gt; permissionsForUser = allPermissions.get(user);
@@ -234,7 +234,7 @@
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>     }
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>     
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <strong class="jxr_keyword">for</strong> (GrouperActivemqPermission permission : permissionsForUser) {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <strong class="jxr_keyword">for</strong> (<a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a> permission : permissionsForUser) {
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>       
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>       <em class="jxr_comment">//see if that is the exact permission</em>
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>       <strong class="jxr_keyword">if</strong> (permission.getAction() == action &amp;&amp; GrouperClientUtils.equals(permission.getDestination(), destination)) {
@@ -407,7 +407,7 @@
 <a class="jxr_linenumber" name="L399" href="#L399">399</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L400" href="#L400">400</a> <em class="jxr_javadoccomment">   * @param cachedGrouperActivemqPermissions1</em>
 <a class="jxr_linenumber" name="L401" href="#L401">401</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a>(
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a>(
 <a class="jxr_linenumber" name="L403" href="#L403">403</a>       Map&lt;String, Set&lt;GrouperActivemqPermission&gt;&gt; cachedGrouperActivemqPermissions1) {
 <a class="jxr_linenumber" name="L404" href="#L404">404</a>     <strong class="jxr_keyword">this</strong>.cachedGrouperActivemqPermissions = cachedGrouperActivemqPermissions1;
 <a class="jxr_linenumber" name="L405" href="#L405">405</a>     <strong class="jxr_keyword">int</strong> minutesToCacheDecisions = cachePermissionsMinutes();
@@ -418,7 +418,7 @@
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L411" href="#L411">411</a> <em class="jxr_javadoccomment">   * cached engine from grouper or file (if grouper is not available)</em>
 <a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a> grouperActivemqPermissionsEngine = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a> grouperActivemqPermissionsEngine = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L414" href="#L414">414</a>   
 <a class="jxr_linenumber" name="L415" href="#L415">415</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">   * cache grouper activemq permissions</em>
@@ -469,14 +469,14 @@
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">if</strong> (userToPermissionMap != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L462" href="#L462">462</a>       
 <a class="jxr_linenumber" name="L463" href="#L463">463</a>       <em class="jxr_comment">//rewrite the cache</em>
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>       grouperActivemqPermissionsEngine = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a>(userToPermissionMap);
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>       grouperActivemqPermissionsEngine = <strong class="jxr_keyword">new</strong> <a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a>(userToPermissionMap);
 <a class="jxr_linenumber" name="L465" href="#L465">465</a>       writePermissionsToFile(userToPermissionMap);
 <a class="jxr_linenumber" name="L466" href="#L466">466</a> 
 <a class="jxr_linenumber" name="L467" href="#L467">467</a>     } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>       
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>       <em class="jxr_comment">//couldnt get from grouper, read again from file</em>
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>       userToPermissionMap = readPermissionsFromFileCache();
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>       grouperActivemqPermissionsEngine = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html">GrouperActivemqPermissionsEngine</a>(userToPermissionMap);
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>       grouperActivemqPermissionsEngine = <strong class="jxr_keyword">new</strong> <a name="GrouperActivemqPermissionsEngine" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionsEngine.html#GrouperActivemqPermissionsEngine">GrouperActivemqPermissionsEngine</a>(userToPermissionMap);
 <a class="jxr_linenumber" name="L472" href="#L472">472</a>       
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>     }
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>     
@@ -515,7 +515,7 @@
 <a class="jxr_linenumber" name="L507" href="#L507">507</a>       }
 <a class="jxr_linenumber" name="L508" href="#L508">508</a>       
 <a class="jxr_linenumber" name="L509" href="#L509">509</a>     }
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>     Map&lt;String, String&gt; sourceToLoginIdAttributeName = <a href="../../../../../edu/internet2/middleware/grouperActivemq/config/GrouperActivemqConfig.html">GrouperActivemqConfig</a>
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>     Map&lt;String, String&gt; sourceToLoginIdAttributeName = <a name="GrouperActivemqConfig" href="../../../../../edu/internet2/middleware/grouperActivemq/config/GrouperActivemqConfig.html#GrouperActivemqConfig">GrouperActivemqConfig</a>
 <a class="jxr_linenumber" name="L511" href="#L511">511</a>       .retrieveConfig().subjectSourceToLoginAttributeName();
 <a class="jxr_linenumber" name="L512" href="#L512">512</a>     
 <a class="jxr_linenumber" name="L513" href="#L513">513</a>     <strong class="jxr_keyword">for</strong> (String loginAttributeName : sourceToLoginIdAttributeName.values()) {
@@ -526,7 +526,7 @@
 <a class="jxr_linenumber" name="L518" href="#L518">518</a>     }
 <a class="jxr_linenumber" name="L519" href="#L519">519</a>     
 <a class="jxr_linenumber" name="L520" href="#L520">520</a>     <em class="jxr_comment">//add actions, dont worry about rollups</em>
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     <strong class="jxr_keyword">for</strong> (GrouperActivemqPermissionAction grouperActivemqPermissionAction : GrouperActivemqPermissionAction.values()) {
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>     <strong class="jxr_keyword">for</strong> (<a name="GrouperActivemqPermissionAction" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html#GrouperActivemqPermissionAction">GrouperActivemqPermissionAction</a> grouperActivemqPermissionAction : GrouperActivemqPermissionAction.values()) {
 <a class="jxr_linenumber" name="L522" href="#L522">522</a>       gcGetPermissionAssignments.addAction(grouperActivemqPermissionAction.name());
 <a class="jxr_linenumber" name="L523" href="#L523">523</a>     }
 <a class="jxr_linenumber" name="L524" href="#L524">524</a>     
@@ -639,8 +639,8 @@
 <a class="jxr_linenumber" name="L631" href="#L631">631</a>         userToPermissions.put(loginid, permissionsForUser);
 <a class="jxr_linenumber" name="L632" href="#L632">632</a>       }
 <a class="jxr_linenumber" name="L633" href="#L633">633</a>       
-<a class="jxr_linenumber" name="L634" href="#L634">634</a>       <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a> grouperActivemqPermission = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a>();
-<a class="jxr_linenumber" name="L635" href="#L635">635</a>       <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html">GrouperActivemqPermissionAction</a> grouperActivemqPermissionAction = GrouperActivemqPermissionAction.valueOfIgnoreCase(wsPermissionAssign.getAction(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>       <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActive<a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a>ivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a> grouperActivemqPermission = <strong class="jxr_keyword">new</strong> <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a>();
+<a class="jxr_linenumber" name="L635" href="#L635">635</a>       <a name="GrouperActivemqPermissionAction" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html#GrouperActivemqPermissionAction">GrouperActivemqPermissionAction</a> grouperActivemqPermissionAction = GrouperActivemqPermissionAction.valueOfIgnoreCase(wsPermissionAssign.getAction(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L636" href="#L636">636</a>       grouperActivemqPermission.setAction(grouperActivemqPermissionAction);
 <a class="jxr_linenumber" name="L637" href="#L637">637</a>       grouperActivemqPermission.setDestination(permissionName);
 <a class="jxr_linenumber" name="L638" href="#L638">638</a>       
@@ -680,7 +680,7 @@
 <a class="jxr_linenumber" name="L672" href="#L672">672</a>       Set&lt;GrouperActivemqPermission&gt; grouperActivemqPermissions = userToPermissions.get(userId);
 <a class="jxr_linenumber" name="L673" href="#L673">673</a>       
 <a class="jxr_linenumber" name="L674" href="#L674">674</a>       <strong class="jxr_keyword">int</strong> permissionIndex = 0;
-<a class="jxr_linenumber" name="L675" href="#L675">675</a>       <strong class="jxr_keyword">for</strong> (GrouperActivemqPermission grouperActivemqPermission : grouperActivemqPermissions) {
+<a class="jxr_linenumber" name="L675" href="#L675">675</a>       <strong class="jxr_keyword">for</strong> (<a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a> grouperActivemqPermission : grouperActivemqPermissions) {
 <a class="jxr_linenumber" name="L676" href="#L676">676</a>         fileContents.append(<span class="jxr_string">"activemq.permission."</span>).append(userIndex).append(<span class="jxr_string">".permission."</span>)
 <a class="jxr_linenumber" name="L677" href="#L677">677</a>           .append(permissionIndex).append(<span class="jxr_string">" = "</span>).append(grouperActivemqPermission.getAction())
 <a class="jxr_linenumber" name="L678" href="#L678">678</a>           .append(<span class="jxr_string">"__"</span>).append(grouperActivemqPermission.getDestination()).append(<span class="jxr_string">"\n"</span>);
@@ -848,7 +848,7 @@
 <a class="jxr_linenumber" name="L840" href="#L840">840</a>         String actionString = matcher.group(1);
 <a class="jxr_linenumber" name="L841" href="#L841">841</a>         String permissionResource = matcher.group(2);
 <a class="jxr_linenumber" name="L842" href="#L842">842</a>         
-<a class="jxr_linenumber" name="L843" href="#L843">843</a>         <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html">GrouperActivemqPermissionAction</a> grouperActivemqPermissionAction 
+<a class="jxr_linenumber" name="L843" href="#L843">843</a>         <a name="GrouperActivemqPermissionAction" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermissionAction.html#GrouperActivemqPermissionAction">GrouperActivemqPermissionAction</a> grouperActivemqPermissionAction 
 <a class="jxr_linenumber" name="L844" href="#L844">844</a>           = GrouperActivemqPermissionAction.valueOfIgnoreCase(actionString, false);
 <a class="jxr_linenumber" name="L845" href="#L845">845</a>         
 <a class="jxr_linenumber" name="L846" href="#L846">846</a>         <strong class="jxr_keyword">if</strong> (grouperActivemqPermissionAction == <strong class="jxr_keyword">null</strong>) {
@@ -857,8 +857,8 @@
 <a class="jxr_linenumber" name="L849" href="#L849">849</a>         }
 <a class="jxr_linenumber" name="L850" href="#L850">850</a> 
 <a class="jxr_linenumber" name="L851" href="#L851">851</a>         <em class="jxr_comment">//ok, we have everything</em>
-<a class="jxr_linenumber" name="L852" href="#L852">852</a>         <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a> grouperActivemqPermission = 
-<a class="jxr_linenumber" name="L853" href="#L853">853</a>           <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html">GrouperActivemqPermission</a>(grouperActivemqPermissionAction, permissionResource);
+<a class="jxr_linenumber" name="L852" href="#L852">852</a>         <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a> grouperActivemqPermission = 
+<a class="jxr_linenumber" name="L853" href="#L853">853</a>           <strong class="jxr_keyword">new</strong> <a name="GrouperActivemqPermission" href="../../../../../edu/internet2/middleware/grouperActivemq/permissions/GrouperActivemqPermission.html#GrouperActivemqPermission">GrouperActivemqPermission</a>(grouperActivemqPermissionAction, permissionResource);
 <a class="jxr_linenumber" name="L854" href="#L854">854</a>         
 <a class="jxr_linenumber" name="L855" href="#L855">855</a>         permissions.add(grouperActivemqPermission);
 <a class="jxr_linenumber" name="L856" href="#L856">856</a>         
@@ -1055,6 +1055,6 @@
 <a class="jxr_linenumber" name="L1047" href="#L1047">1047</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

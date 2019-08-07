@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -41,18 +41,18 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * @Immutable</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_comment">// CheckStyle:HideUtilityClassConstructorCheck OFF (bc)</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarUtils.html">TarUtils</a> {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="TarUtils" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarUtils.html#TarUtils">TarUtils</a> {
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BYTE_MASK = 255;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> DEFAULT_ENCODING =
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> DEFAULT_ENCODING =
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>          ZipEncodingHelper.getZipEncoding(<strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     * Encapsulates the algorithms used up to Commons Compress 1.3 as</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     * ZipEncoding.</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> FALLBACK_ENCODING = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a>() {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/m<a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a>rouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> FALLBACK_ENCODING = <strong class="jxr_keyword">new</strong> <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a>() {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> canEncode(String name) { <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>; }
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>              <strong class="jxr_keyword">public</strong> ByteBuffer encode(String name) {
@@ -83,7 +83,7 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          };
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      <em class="jxr_javadoccomment">/** Private constructor to prevent instantiation of this utility class. */</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarUtils.html">TarUtils</a>(){
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <a name="TarUtils" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/tar/TarUtils.html#TarUtils">TarUtils</a>(){
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      <em class="jxr_javadoccomment">/**</em>
@@ -292,7 +292,7 @@
 <a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String parseName(byte[] buffer, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> offset,
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>                                    <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length,
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>                                    <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> encoding)
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                                    <strong class="jxr_keyword">final</strong> <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> encoding)
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L289" href="#L289">289</a> 
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">int</strong> len = length;
@@ -357,7 +357,7 @@
 <a class="jxr_linenumber" name="L349" href="#L349">349</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> formatNameBytes(String name, byte[] buf, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> offset,
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length,
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>                                       <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> encoding)
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>                                       <strong class="jxr_keyword">final</strong> <a name="ZipEncoding" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html#ZipEncoding">ZipEncoding</a> encoding)
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>         <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">int</strong> len = name.length();
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>         ByteBuffer b = encoding.encode(name);
@@ -588,7 +588,7 @@
 <a class="jxr_linenumber" name="L580" href="#L580">580</a> <em class="jxr_javadoccomment">     * &lt;/blockquote&gt;</em>
 <a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
 <a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">     * In addition there are</em>
-<a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">     * &lt;a href="https://issues.apache.org/jira/browse/COMPRESS-117"&gt;some tar files&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="https://issues.apache.org/jira/browse/COMPRESS-117" target="alexandria_uri">https://issues.apache.org/jira/browse/COMPRESS-117</a>"&gt;some tar files&lt;/a&gt;</em>
 <a class="jxr_linenumber" name="L584" href="#L584">584</a> <em class="jxr_javadoccomment">     * that seem to have parts of their header cleared to zero (no detectable</em>
 <a class="jxr_linenumber" name="L585" href="#L585">585</a> <em class="jxr_javadoccomment">     * magic bytes, etc.) but still have a reasonable-looking checksum field</em>
 <a class="jxr_linenumber" name="L586" href="#L586">586</a> <em class="jxr_javadoccomment">     * present. It looks like we can detect such cases reasonably well by</em>
@@ -604,7 +604,7 @@
 <a class="jxr_linenumber" name="L596" href="#L596">596</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_javadoccomment">     * @param header tar header</em>
 <a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_javadoccomment">     * @return whether the checksum is reasonably good</em>
-<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_javadoccomment">     * @see &lt;a href="https://issues.apache.org/jira/browse/COMPRESS-191"&gt;COMPRESS-191&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_javadoccomment">     * @see &lt;a href="<a href="https://issues.apache.org/jira/browse/COMPRESS-191" target="alexandria_uri">https://issues.apache.org/jira/browse/COMPRESS-191</a>"&gt;COMPRESS-191&lt;/a&gt;</em>
 <a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_javadoccomment">     * @since 1.5</em>
 <a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L602" href="#L602">602</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> verifyCheckSum(byte[] header) {
@@ -634,6 +634,6 @@
 <a class="jxr_linenumber" name="L626" href="#L626">626</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

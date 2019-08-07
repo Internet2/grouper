@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -46,16 +46,16 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * delegate the attribute def name set</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefNameSetDelegate.html">AttributeDefNameSetDelegate</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AttributeDefNameSetDelegate" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefNameSetDelegate.html#AttributeDefNameSetDelegate">AttributeDefNameSetDelegate</a> <strong class="jxr_keyword">implements</strong> Serializable {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>    <em class="jxr_javadoccomment">/** keep a reference to the attribute def name */</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefName;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>    <strong class="jxr_keyword">private</strong> <a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefName;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>    
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">   * @param attributeDefName1</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefNameSetDelegate.html">AttributeDefNameSetDelegate</a>(<a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefName1) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">public</strong> <a name="AttributeDefNameSetDelegate" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefNameSetDelegate.html#AttributeDefNameSetDelegate">AttributeDefNameSetDelegate</a>(<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefName1) {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">this</strong>.attributeDefName = attributeDefName1;
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>    }
@@ -76,7 +76,7 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>    <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeDefNameNamesImpliedByThis() {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      Set&lt;String&gt; names = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">for</strong> (AttributeDefName attributeDefName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeDefNamesImpliedByThis())) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">for</strong> (<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeDefNamesImpliedByThis())) {
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>        names.add(attributeDefName.getName());
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">return</strong> names;
@@ -90,7 +90,7 @@
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>    <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeDefNameNamesImpliedByThisImmediate() {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      Set&lt;String&gt; names = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">for</strong> (AttributeDefName attributeDefName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeDefNamesImpliedByThisImmediate())) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">for</strong> (<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeDefNamesImpliedByThisImmediate())) {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>        names.add(attributeDefName.getName());
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">return</strong> names;
@@ -104,7 +104,7 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>    <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeDefNameNamesThatImplyThisImmediate() {
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>      
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>      Set&lt;String&gt; names = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">for</strong> (AttributeDefName attributeDefName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeDefNamesThatImplyThisImmediate())) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">for</strong> (<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeDefNamesThatImplyThisImmediate())) {
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>       names.add(attributeDefName.getName());
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     }
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">return</strong> names;
@@ -118,7 +118,7 @@
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAttributeDefNameNamesThatImplyThis() {
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>     
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>     Set&lt;String&gt; names = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">for</strong> (AttributeDefName attributeDefName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeDefNamesThatImplyThis())) {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">for</strong> (<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefName : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.getAttributeDefNamesThatImplyThis())) {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>       names.add(attributeDefName.getName());
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>     }
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">return</strong> names;
@@ -160,7 +160,7 @@
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">   * @param newAttributeDefName</em>
 <a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">   * @return true if added, false if already there</em>
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> addToAttributeDefNameSet(<a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> newAttributeDefName) {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> addToAttributeDefNameSet(<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> newAttributeDefName) {
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">return</strong> internal_addToAttributeDefNameSet(newAttributeDefName, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>   }
 <a class="jxr_linenumber" name="L158" href="#L158">158</a> 
@@ -169,7 +169,7 @@
 <a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">   * @param newAttributeDefName</em>
 <a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">   * @return true if added, false if already there</em>
 <a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> internal_addToAttributeDefNameSet(<a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> newAttributeDefName, String uuid) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> internal_addToAttributeDefNameSet(<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> newAttributeDefName, String uuid) {
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     assertCanAdminAttributeDefs(newAttributeDefName);
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">return</strong> GrouperSetEnum.ATTRIBUTE_SET.addToGrouperSet(<strong class="jxr_keyword">this</strong>.attributeDefName, newAttributeDefName, uuid);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>   }
@@ -179,7 +179,7 @@
 <a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">   * @param attributeDefNameToRemove</em>
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">   * @return true if removed, false if already removed</em>
 <a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> removeFromAttributeDefNameSet(<a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefNameToRemove) {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> removeFromAttributeDefNameSet(<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> attributeDefNameToRemove) {
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>     assertCanAdminAttributeDefs(attributeDefNameToRemove);
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">return</strong> GrouperSetEnum.ATTRIBUTE_SET.removeFromGrouperSet(<strong class="jxr_keyword">this</strong>.attributeDefName, attributeDefNameToRemove);
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>   }
@@ -188,7 +188,7 @@
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">   * @param other</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> assertCanAdminAttributeDefs(<a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> other) {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> assertCanAdminAttributeDefs(<a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> other) {
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">this</strong>.attributeDefName.assertCanAdminAttributeDefStatic();
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>     other.assertCanAdminAttributeDefStatic();
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>   }
@@ -196,6 +196,6 @@
 <a class="jxr_linenumber" name="L188" href="#L188">188</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

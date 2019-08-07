@@ -1,9 +1,17 @@
 edu.internet2.middleware.grouper
 edu.internet2.middleware.grouper.app
+edu.internet2.middleware.grouper.app.attestation
+edu.internet2.middleware.grouper.app.deprovisioning
+edu.internet2.middleware.grouper.app.grouperTypes
 edu.internet2.middleware.grouper.app.gsh
 edu.internet2.middleware.grouper.app.loader
 edu.internet2.middleware.grouper.app.loader.db
 edu.internet2.middleware.grouper.app.loader.ldap
+edu.internet2.middleware.grouper.app.messaging
+edu.internet2.middleware.grouper.app.provisioning
+edu.internet2.middleware.grouper.app.reports
+edu.internet2.middleware.grouper.app.tableSync
+edu.internet2.middleware.grouper.app.upgradeTasks
 edu.internet2.middleware.grouper.app.usdu
 edu.internet2.middleware.grouper.attr
 edu.internet2.middleware.grouper.attr.assign
@@ -11,6 +19,7 @@ edu.internet2.middleware.grouper.attr.finder
 edu.internet2.middleware.grouper.attr.value
 edu.internet2.middleware.grouper.audit
 edu.internet2.middleware.grouper.cfg
+edu.internet2.middleware.grouper.cfg.dbConfig
 edu.internet2.middleware.grouper.changeLog
 edu.internet2.middleware.grouper.changeLog.esb.consumer
 edu.internet2.middleware.grouper.client
@@ -41,6 +50,7 @@ edu.internet2.middleware.grouper.service
 edu.internet2.middleware.grouper.stem
 edu.internet2.middleware.grouper.stress
 edu.internet2.middleware.grouper.subj
+edu.internet2.middleware.grouper.subj.cache
 edu.internet2.middleware.grouper.tableIndex
 edu.internet2.middleware.grouper.userData
 edu.internet2.middleware.grouper.util

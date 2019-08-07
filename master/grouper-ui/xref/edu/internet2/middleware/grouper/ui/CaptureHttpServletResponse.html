@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">  <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">  <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -53,7 +53,7 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * @author Gary Brown.</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * @version $Id: CaptureHttpServletResponse.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/ui/CaptureHttpServletResponse.html">CaptureHttpServletResponse</a> <strong class="jxr_keyword">extends</strong> HttpServletResponseWrapper {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="CaptureHttpServletResponse" href="../../../../../edu/internet2/middleware/grouper/ui/CaptureHttpServletResponse.html#CaptureHttpServletResponse">CaptureHttpServletResponse</a> <strong class="jxr_keyword">extends</strong> HttpServletResponseWrapper {
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  	<strong class="jxr_keyword">protected</strong> CharArrayWriter charWriter;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  	<strong class="jxr_keyword">protected</strong> ServletOutputStream out;
@@ -70,11 +70,11 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">	 * @param response</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">	 *            to be wrapped</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">	 */</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/ui/CaptureHttpServletResponse.html">CaptureHttpServletResponse</a>(HttpServletResponse response) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  	<strong class="jxr_keyword">public</strong> <a name="CaptureHttpServletResponse" href="../../../../../edu/internet2/middleware/grouper/ui/CaptureHttpServletResponse.html#CaptureHttpServletResponse">CaptureHttpServletResponse</a>(HttpServletResponse response) {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  		<strong class="jxr_keyword">super</strong>(response);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  		<em class="jxr_comment">// Create the writer</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  		charWriter = <strong class="jxr_keyword">new</strong> CharArrayWriter();
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  		out = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/ui/CaptureServletOutputStream.html">CaptureServletOutputStream</a>();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  		out = <strong class="jxr_keyword">new</strong> <a name="CaptureServletOutputStream" href="../../../../../edu/internet2/middleware/grouper/ui/CaptureServletOutputStream.html#CaptureServletOutputStream">CaptureServletOutputStream</a>();
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  	}
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  	<em class="jxr_comment">/*</em>
@@ -125,6 +125,6 @@
 <a class="jxr_linenumber" name="L117" href="#L117">117</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -52,7 +52,7 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> * $Id$</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/GrouperPIT.html">GrouperPIT</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html">Hib3GrouperVersioned</a> {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperPIT" href="../../../../../edu/internet2/middleware/grouper/pit/GrouperPIT.html#GrouperPIT">GrouperPIT</a> <strong class="jxr_keyword">implements</strong> <a name="Hib3GrouperVersioned" href="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html#Hib3GrouperVersioned">Hib3GrouperVersioned</a> {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>    <em class="jxr_javadoccomment">/** db id for this row */</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String COLUMN_ID = <span class="jxr_string">"id"</span>;
@@ -272,7 +272,7 @@
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()</em>
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>   @Override
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> clone() {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> clone() {
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>     <strong class="jxr_keyword">return</strong> GrouperUtil.clone(<strong class="jxr_keyword">this</strong>, CLONE_FIELDS);
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>   }
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> 
@@ -510,18 +510,18 @@
 <a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L503" href="#L503">503</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L504" href="#L504">504</a>   @Override
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreSave(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreSave(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L506" href="#L506">506</a>     <strong class="jxr_keyword">super</strong>.onPreSave(hibernateSession);
 <a class="jxr_linenumber" name="L507" href="#L507">507</a>     
 <a class="jxr_linenumber" name="L508" href="#L508">508</a>     <em class="jxr_comment">// add change log entry for flat memberships</em>
 <a class="jxr_linenumber" name="L509" href="#L509">509</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.isActive() &amp;&amp; (<strong class="jxr_keyword">this</strong>.getFlatMembershipNotificationsOnSaveOrUpdate() || <strong class="jxr_keyword">this</strong>.getFlatPrivilegeNotificationsOnSaveOrUpdate())) {
 <a class="jxr_linenumber" name="L510" href="#L510">510</a>       Set&lt;ChangeLogEntry&gt; changeLogEntryBatch = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;ChangeLogEntry&gt;();
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>       <strong class="jxr_keyword">int</strong> batchSize = GrouperConfig.getHibernatePropertyInt(<span class="jxr_string">"hibernate.jdbc.batch_size"</span>, 20);
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>       <strong class="jxr_keyword">int</strong> batchSize = GrouperConfig.getHibernatePropertyInt(<span class="jxr_string">"hibernate.jdbc.batch_size"</span>, 200);
 <a class="jxr_linenumber" name="L512" href="#L512">512</a>       <strong class="jxr_keyword">if</strong> (batchSize &lt;= 0) {
 <a class="jxr_linenumber" name="L513" href="#L513">513</a>         batchSize = 1;
 <a class="jxr_linenumber" name="L514" href="#L514">514</a>       }
 <a class="jxr_linenumber" name="L515" href="#L515">515</a> 
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitField = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>       <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitField = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L517" href="#L517">517</a>       String ownerId = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L518" href="#L518">518</a>       String ownerName = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L519" href="#L519">519</a>       String privilegeName = <strong class="jxr_keyword">null</strong>;
@@ -533,7 +533,7 @@
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>       <strong class="jxr_keyword">if</strong> (pitMemberships.size() &gt; 0) {
 <a class="jxr_linenumber" name="L526" href="#L526">526</a>         pitField = GrouperDAOFactory.getFactory().getPITField().findById(<strong class="jxr_keyword">this</strong>.getFieldId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L527" href="#L527">527</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.getOwnerGroupId() != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>           <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>           <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L529" href="#L529">529</a>           ownerId = pitGroup.getSourceId();
 <a class="jxr_linenumber" name="L530" href="#L530">530</a>           ownerName = pitGroup.getName();
 <a class="jxr_linenumber" name="L531" href="#L531">531</a>           <strong class="jxr_keyword">if</strong> (pitField.getType().equals(FieldType.LIST.getType())) {
@@ -544,14 +544,14 @@
 <a class="jxr_linenumber" name="L536" href="#L536">536</a>             ownerType = Membership.OWNER_TYPE_GROUP;
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>           }
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.getOwnerStemId() != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>           <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>           <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>           ownerId = pitStem.getSourceId();
 <a class="jxr_linenumber" name="L541" href="#L541">541</a>           ownerName = pitStem.getName();
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>           privilegeType = FieldType.NAMING.getType();
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>           privilegeName = NamingPrivilege.listToPriv(pitField.getName()).getName();
 <a class="jxr_linenumber" name="L544" href="#L544">544</a>           ownerType = Membership.OWNER_TYPE_STEM;
 <a class="jxr_linenumber" name="L545" href="#L545">545</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.getOwnerAttrDefId() != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>           <a href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html">PITAttributeDef</a> pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>           <a name="PITAttributeDef" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html#PITAttributeDef">PITAttributeDef</a> pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L547" href="#L547">547</a>           ownerId = pitAttributeDef.getSourceId();
 <a class="jxr_linenumber" name="L548" href="#L548">548</a>           ownerName = pitAttributeDef.getName();
 <a class="jxr_linenumber" name="L549" href="#L549">549</a>           privilegeType = FieldType.ATTRIBUTE_DEF.getType();
@@ -564,12 +564,12 @@
 <a class="jxr_linenumber" name="L556" href="#L556">556</a>       
 <a class="jxr_linenumber" name="L557" href="#L557">557</a>       Iterator&lt;PITMembership&gt; iter = pitMemberships.iterator();
 <a class="jxr_linenumber" name="L558" href="#L558">558</a>       <strong class="jxr_keyword">while</strong> (iter.hasNext()) {
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         <a href="../../../../../edu/internet2/middleware/grouper/pit/PITMembership.html">PITMembership</a> pitMembership = iter.next();
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>         <a name="PITMembership" href="../../../../../edu/internet2/middleware/grouper/pit/PITMembership.html#PITMembership">PITMembership</a> pitMembership = iter.next();
 <a class="jxr_linenumber" name="L560" href="#L560">560</a>         
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a> changeLogEntry = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a> changeLogEntry = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L562" href="#L562">562</a>         
 <a class="jxr_linenumber" name="L563" href="#L563">563</a>         <strong class="jxr_keyword">if</strong> (isMembership &amp;&amp; <strong class="jxr_keyword">this</strong>.getFlatMembershipNotificationsOnSaveOrUpdate()) {
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>           changeLogEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a>(false, ChangeLogTypeBuiltin.MEMBERSHIP_ADD,
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>           changeLogEntry = <strong class="jxr_keyword">new</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>(false, ChangeLogTypeBuiltin.MEMBERSHIP_ADD,
 <a class="jxr_linenumber" name="L565" href="#L565">565</a>               ChangeLogLabels.MEMBERSHIP_ADD.id.name(), pitMembership.getSourceId(),
 <a class="jxr_linenumber" name="L566" href="#L566">566</a>               ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), pitField.getName(),
 <a class="jxr_linenumber" name="L567" href="#L567">567</a>               ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name(), pitField.getSourceId(),
@@ -581,7 +581,7 @@
 <a class="jxr_linenumber" name="L573" href="#L573">573</a>               ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), ownerName,
 <a class="jxr_linenumber" name="L574" href="#L574">574</a>               ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0.name(), pitMembership.getMember().getSubjectIdentifier0());
 <a class="jxr_linenumber" name="L575" href="#L575">575</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!isMembership &amp;&amp; <strong class="jxr_keyword">this</strong>.getFlatPrivilegeNotificationsOnSaveOrUpdate()) {
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>           changeLogEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a>(false, ChangeLogTypeBuiltin.PRIVILEGE_ADD,
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>           changeLogEntry = <strong class="jxr_keyword">new</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>(false, ChangeLogTypeBuiltin.PRIVILEGE_ADD,
 <a class="jxr_linenumber" name="L577" href="#L577">577</a>               ChangeLogLabels.PRIVILEGE_ADD.id.name(), pitMembership.getSourceId(),
 <a class="jxr_linenumber" name="L578" href="#L578">578</a>               ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), privilegeName,
 <a class="jxr_linenumber" name="L579" href="#L579">579</a>               ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), pitField.getSourceId(),
@@ -619,18 +619,18 @@
 <a class="jxr_linenumber" name="L611" href="#L611">611</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L612" href="#L612">612</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L613" href="#L613">613</a>   @Override
-<a class="jxr_linenumber" name="L614" href="#L614">614</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreUpdate(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreUpdate(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L615" href="#L615">615</a>     <strong class="jxr_keyword">super</strong>.onPreUpdate(hibernateSession);
 <a class="jxr_linenumber" name="L616" href="#L616">616</a>     
 <a class="jxr_linenumber" name="L617" href="#L617">617</a>     <em class="jxr_comment">// add change log entry for flat memberships</em>
 <a class="jxr_linenumber" name="L618" href="#L618">618</a>     <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.isActive() &amp;&amp; <strong class="jxr_keyword">this</strong>.dbVersion().isActive() &amp;&amp; (<strong class="jxr_keyword">this</strong>.getFlatMembershipNotificationsOnSaveOrUpdate() || <strong class="jxr_keyword">this</strong>.getFlatPrivilegeNotificationsOnSaveOrUpdate())) {
 <a class="jxr_linenumber" name="L619" href="#L619">619</a>       Set&lt;ChangeLogEntry&gt; changeLogEntryBatch = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;ChangeLogEntry&gt;();
-<a class="jxr_linenumber" name="L620" href="#L620">620</a>       <strong class="jxr_keyword">int</strong> batchSize = GrouperConfig.getHibernatePropertyInt(<span class="jxr_string">"hibernate.jdbc.batch_size"</span>, 20);
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>       <strong class="jxr_keyword">int</strong> batchSize = GrouperConfig.getHibernatePropertyInt(<span class="jxr_string">"hibernate.jdbc.batch_size"</span>, 200);
 <a class="jxr_linenumber" name="L621" href="#L621">621</a>       <strong class="jxr_keyword">if</strong> (batchSize &lt;= 0) {
 <a class="jxr_linenumber" name="L622" href="#L622">622</a>         batchSize = 1;
 <a class="jxr_linenumber" name="L623" href="#L623">623</a>       }
 <a class="jxr_linenumber" name="L624" href="#L624">624</a> 
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitField = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>       <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitField = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L626" href="#L626">626</a>       String ownerId = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L627" href="#L627">627</a>       String ownerName = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L628" href="#L628">628</a>       String privilegeName = <strong class="jxr_keyword">null</strong>;
@@ -642,7 +642,7 @@
 <a class="jxr_linenumber" name="L634" href="#L634">634</a>       <strong class="jxr_keyword">if</strong> (pitMemberships.size() &gt; 0) {
 <a class="jxr_linenumber" name="L635" href="#L635">635</a>         pitField = GrouperDAOFactory.getFactory().getPITField().findById(<strong class="jxr_keyword">this</strong>.getFieldId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L636" href="#L636">636</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.getOwnerGroupId() != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L637" href="#L637">637</a>           <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L637" href="#L637">637</a>           <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L638" href="#L638">638</a>           ownerId = pitGroup.getSourceId();
 <a class="jxr_linenumber" name="L639" href="#L639">639</a>           ownerName = pitGroup.getName();
 <a class="jxr_linenumber" name="L640" href="#L640">640</a>           <strong class="jxr_keyword">if</strong> (pitField.getType().equals(FieldType.LIST.getType())) {
@@ -653,14 +653,14 @@
 <a class="jxr_linenumber" name="L645" href="#L645">645</a>             ownerType = Membership.OWNER_TYPE_GROUP;
 <a class="jxr_linenumber" name="L646" href="#L646">646</a>           }
 <a class="jxr_linenumber" name="L647" href="#L647">647</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.getOwnerStemId() != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L648" href="#L648">648</a>           <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>           <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L649" href="#L649">649</a>           ownerId = pitStem.getSourceId();
 <a class="jxr_linenumber" name="L650" href="#L650">650</a>           ownerName = pitStem.getName();
 <a class="jxr_linenumber" name="L651" href="#L651">651</a>           privilegeType = FieldType.NAMING.getType();
 <a class="jxr_linenumber" name="L652" href="#L652">652</a>           privilegeName = NamingPrivilege.listToPriv(pitField.getName()).getName();
 <a class="jxr_linenumber" name="L653" href="#L653">653</a>           ownerType = Membership.OWNER_TYPE_STEM;
 <a class="jxr_linenumber" name="L654" href="#L654">654</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.getOwnerAttrDefId() != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>           <a href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html">PITAttributeDef</a> pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>           <a name="PITAttributeDef" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html#PITAttributeDef">PITAttributeDef</a> pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(<strong class="jxr_keyword">this</strong>.getOwnerId(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L656" href="#L656">656</a>           ownerId = pitAttributeDef.getSourceId();
 <a class="jxr_linenumber" name="L657" href="#L657">657</a>           ownerName = pitAttributeDef.getName();
 <a class="jxr_linenumber" name="L658" href="#L658">658</a>           privilegeType = FieldType.ATTRIBUTE_DEF.getType();
@@ -673,23 +673,23 @@
 <a class="jxr_linenumber" name="L665" href="#L665">665</a>       
 <a class="jxr_linenumber" name="L666" href="#L666">666</a>       Iterator&lt;PITMembership&gt; iter = pitMemberships.iterator();
 <a class="jxr_linenumber" name="L667" href="#L667">667</a>       <strong class="jxr_keyword">while</strong> (iter.hasNext()) {
-<a class="jxr_linenumber" name="L668" href="#L668">668</a>         <a href="../../../../../edu/internet2/middleware/grouper/pit/PITMembership.html">PITMembership</a> pitMembership = iter.next();
+<a class="jxr_linenumber" name="L668" href="#L668">668</a>         <a name="PITMembership" href="../../../../../edu/internet2/middleware/grouper/pit/PITMembership.html#PITMembership">PITMembership</a> pitMembership = iter.next();
 <a class="jxr_linenumber" name="L669" href="#L669">669</a>         
-<a class="jxr_linenumber" name="L670" href="#L670">670</a>         <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a> changeLogEntry = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L670" href="#L670">670</a>         <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a> changeLogEntry = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L671" href="#L671">671</a>         
 <a class="jxr_linenumber" name="L672" href="#L672">672</a>         <strong class="jxr_keyword">if</strong> (isMembership &amp;&amp; <strong class="jxr_keyword">this</strong>.getFlatMembershipNotificationsOnSaveOrUpdate()) {
 <a class="jxr_linenumber" name="L673" href="#L673">673</a>           String subjectName = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L674" href="#L674">674</a>           
 <a class="jxr_linenumber" name="L675" href="#L675">675</a>           <em class="jxr_comment">// get the subject name if the subject is a group</em>
 <a class="jxr_linenumber" name="L676" href="#L676">676</a>           <strong class="jxr_keyword">if</strong> (pitMembership.getMember().getSubjectTypeId().equals(<span class="jxr_string">"group"</span>)) {
-<a class="jxr_linenumber" name="L677" href="#L677">677</a>             <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(pitMembership.getMember().getSubjectId(), false);
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>             <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(pitMembership.getMember().getSubjectId(), false);
 <a class="jxr_linenumber" name="L678" href="#L678">678</a>             
 <a class="jxr_linenumber" name="L679" href="#L679">679</a>             <strong class="jxr_keyword">if</strong> (memberGroup != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L680" href="#L680">680</a>               subjectName = memberGroup.getName();
 <a class="jxr_linenumber" name="L681" href="#L681">681</a>             }
 <a class="jxr_linenumber" name="L682" href="#L682">682</a>           }  
 <a class="jxr_linenumber" name="L683" href="#L683">683</a>           
-<a class="jxr_linenumber" name="L684" href="#L684">684</a>           changeLogEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a>(false, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE,
+<a class="jxr_linenumber" name="L684" href="#L684">684</a>           changeLogEntry = <strong class="jxr_keyword">new</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>(false, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE,
 <a class="jxr_linenumber" name="L685" href="#L685">685</a>               ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), pitMembership.getSourceId(),
 <a class="jxr_linenumber" name="L686" href="#L686">686</a>               ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), pitField.getName(),
 <a class="jxr_linenumber" name="L687" href="#L687">687</a>               ChangeLogLabels.MEMBERSHIP_DELETE.fieldId.name(), pitField.getSourceId(),
@@ -702,7 +702,7 @@
 <a class="jxr_linenumber" name="L694" href="#L694">694</a>               ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), ownerName,
 <a class="jxr_linenumber" name="L695" href="#L695">695</a>               ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0.name(), pitMembership.getMember().getSubjectIdentifier0());
 <a class="jxr_linenumber" name="L696" href="#L696">696</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!isMembership &amp;&amp; <strong class="jxr_keyword">this</strong>.getFlatPrivilegeNotificationsOnSaveOrUpdate()) {
-<a class="jxr_linenumber" name="L697" href="#L697">697</a>           changeLogEntry = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a>(false, ChangeLogTypeBuiltin.PRIVILEGE_DELETE,
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>           changeLogEntry = <strong class="jxr_keyword">new</strong> <a name="ChangeLogEntry" href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html#ChangeLogEntry">ChangeLogEntry</a>(false, ChangeLogTypeBuiltin.PRIVILEGE_DELETE,
 <a class="jxr_linenumber" name="L698" href="#L698">698</a>               ChangeLogLabels.PRIVILEGE_DELETE.id.name(), pitMembership.getSourceId(),
 <a class="jxr_linenumber" name="L699" href="#L699">699</a>               ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), privilegeName,
 <a class="jxr_linenumber" name="L700" href="#L700">700</a>               ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), pitField.getSourceId(),
@@ -740,11 +740,11 @@
 <a class="jxr_linenumber" name="L732" href="#L732">732</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L733" href="#L733">733</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L734" href="#L734">734</a>   @Override
-<a class="jxr_linenumber" name="L735" href="#L735">735</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPostSave(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L735" href="#L735">735</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPostSave(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L736" href="#L736">736</a>     
 <a class="jxr_linenumber" name="L737" href="#L737">737</a>     <em class="jxr_comment">// take care of effective PIT group sets</em>
 <a class="jxr_linenumber" name="L738" href="#L738">738</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.getDepth() == 1 &amp;&amp; <strong class="jxr_keyword">this</strong>.getMemberGroupId() != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L739" href="#L739">739</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L739" href="#L739">739</a>       <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L740" href="#L740">740</a>       Set&lt;PITGroupSet&gt; results = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;PITGroupSet&gt;();
 <a class="jxr_linenumber" name="L741" href="#L741">741</a>       Set&lt;PITGroupSet&gt; pitGroupSetHasMembers = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByPITGroupOwnerAndPITField(
 <a class="jxr_linenumber" name="L742" href="#L742">742</a>           <strong class="jxr_keyword">this</strong>.getMemberGroupId(), defaultListField);
@@ -762,7 +762,7 @@
 <a class="jxr_linenumber" name="L754" href="#L754">754</a>       
 <a class="jxr_linenumber" name="L755" href="#L755">755</a>       Iterator&lt;PITGroupSet&gt; iter = results.iterator();
 <a class="jxr_linenumber" name="L756" href="#L756">756</a>       <strong class="jxr_keyword">while</strong> (iter.hasNext()) {
-<a class="jxr_linenumber" name="L757" href="#L757">757</a>         <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitGroupSet = iter.next();
+<a class="jxr_linenumber" name="L757" href="#L757">757</a>         <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitGroupSet = iter.next();
 <a class="jxr_linenumber" name="L758" href="#L758">758</a>         pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(<strong class="jxr_keyword">this</strong>.getFlatMembershipNotificationsOnSaveOrUpdate());
 <a class="jxr_linenumber" name="L759" href="#L759">759</a>         pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(<strong class="jxr_keyword">this</strong>.getFlatPrivilegeNotificationsOnSaveOrUpdate());
 <a class="jxr_linenumber" name="L760" href="#L760">760</a>         pitGroupSet.saveOrUpdate();
@@ -783,7 +783,7 @@
 <a class="jxr_linenumber" name="L775" href="#L775">775</a> 
 <a class="jxr_linenumber" name="L776" href="#L776">776</a>     Iterator&lt;PITGroupSet&gt; iterator = members.iterator();
 <a class="jxr_linenumber" name="L777" href="#L777">777</a>     <strong class="jxr_keyword">while</strong> (iterator.hasNext()) {
-<a class="jxr_linenumber" name="L778" href="#L778">778</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitGroupSet = iterator.next();
+<a class="jxr_linenumber" name="L778" href="#L778">778</a>       <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitGroupSet = iterator.next();
 <a class="jxr_linenumber" name="L779" href="#L779">779</a>       String parentId = pitGroupSet.getParentId();
 <a class="jxr_linenumber" name="L780" href="#L780">780</a> 
 <a class="jxr_linenumber" name="L781" href="#L781">781</a>       <strong class="jxr_keyword">if</strong> (parentId != <strong class="jxr_keyword">null</strong> &amp;&amp; !parentId.equals(<span class="jxr_string">""</span>)) {
@@ -805,14 +805,14 @@
 <a class="jxr_linenumber" name="L797" href="#L797">797</a> <em class="jxr_javadoccomment">   * @param hasMembers</em>
 <a class="jxr_linenumber" name="L798" href="#L798">798</a> <em class="jxr_javadoccomment">   * @return set</em>
 <a class="jxr_linenumber" name="L799" href="#L799">799</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L800" href="#L800">800</a>   <strong class="jxr_keyword">private</strong> Set&lt;PITGroupSet&gt; addHasMembersToOwner(<a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitImmediateGroupSet, Set&lt;PITGroupSet&gt; hasMembers, <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> defaultListField) {
+<a class="jxr_linenumber" name="L800" href="#L800">800</a>   <strong class="jxr_keyword">private</strong> Set&lt;PITGroupSet&gt; addHasMembersToOwner(<a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitImmediateGroupSet, Set&lt;PITGroupSet&gt; hasMembers, <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> defaultListField) {
 <a class="jxr_linenumber" name="L801" href="#L801">801</a>     Set&lt;PITGroupSet&gt; pitGroupSets = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;PITGroupSet&gt;();
 <a class="jxr_linenumber" name="L802" href="#L802">802</a>   
 <a class="jxr_linenumber" name="L803" href="#L803">803</a>     Map&lt;String, Set&lt;PITGroupSet&gt;&gt; parentToChildrenMap = getParentToChildrenMap(hasMembers);
 <a class="jxr_linenumber" name="L804" href="#L804">804</a> 
 <a class="jxr_linenumber" name="L805" href="#L805">805</a>     Iterator&lt;PITGroupSet&gt; it = hasMembers.iterator();
 <a class="jxr_linenumber" name="L806" href="#L806">806</a>     <strong class="jxr_keyword">while</strong> (it.hasNext()) {
-<a class="jxr_linenumber" name="L807" href="#L807">807</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitGroupSet = it.next();
+<a class="jxr_linenumber" name="L807" href="#L807">807</a>       <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitGroupSet = it.next();
 <a class="jxr_linenumber" name="L808" href="#L808">808</a>       <strong class="jxr_keyword">if</strong> (pitGroupSet.getDepth() == 1) {
 <a class="jxr_linenumber" name="L809" href="#L809">809</a>         Set&lt;PITGroupSet&gt; newAdditions = addHasMembersRecursively(pitGroupSet, pitImmediateGroupSet, parentToChildrenMap, defaultListField);
 <a class="jxr_linenumber" name="L810" href="#L810">810</a>         pitGroupSets.addAll(newAdditions);
@@ -828,9 +828,9 @@
 <a class="jxr_linenumber" name="L820" href="#L820">820</a> <em class="jxr_javadoccomment">   * @param parentToChildrenMap</em>
 <a class="jxr_linenumber" name="L821" href="#L821">821</a> <em class="jxr_javadoccomment">   * @return set</em>
 <a class="jxr_linenumber" name="L822" href="#L822">822</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L823" href="#L823">823</a>   <strong class="jxr_keyword">private</strong> Set&lt;PITGroupSet&gt; addHasMembersRecursively(<a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitGroupSet, <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> parentPITGroupSet, Map&lt;String, Set&lt;PITGroupSet&gt;&gt; parentToChildrenMap, <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitMemberField) {
+<a class="jxr_linenumber" name="L823" href="#L823">823</a>   <strong class="jxr_keyword">private</strong> Set&lt;PITGroupSet&gt; addHasMembersRecursively(<a name="PITGroupSet" hre<a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a>/../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitGroupSet, <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> parentPITGroupSet, Map&lt;String, Set&lt;PITGroupSet&gt;&gt; parentToChildrenMap, <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitMemberField) {
 <a class="jxr_linenumber" name="L824" href="#L824">824</a> 
-<a class="jxr_linenumber" name="L825" href="#L825">825</a>     <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> newPITGroupSet = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a>();
+<a class="jxr_linenumber" name="L825" href="#L825">825</a>     <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/gr<a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a>ITGroupSet.html#PITGroupSet">PITGroupSet</a> newPITGroupSet = <strong class="jxr_keyword">new</strong> <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a>();
 <a class="jxr_linenumber" name="L826" href="#L826">826</a>     newPITGroupSet.setId(GrouperUuid.getUuid());
 <a class="jxr_linenumber" name="L827" href="#L827">827</a>     newPITGroupSet.setFieldId(parentPITGroupSet.getFieldId());
 <a class="jxr_linenumber" name="L828" href="#L828">828</a>     newPITGroupSet.setMemberFieldId(pitMemberField.getId());
@@ -856,9 +856,9 @@
 <a class="jxr_linenumber" name="L848" href="#L848">848</a>     }
 <a class="jxr_linenumber" name="L849" href="#L849">849</a>     
 <a class="jxr_linenumber" name="L850" href="#L850">850</a>     <em class="jxr_comment">// now get the existing group set so we have the source id.</em>
-<a class="jxr_linenumber" name="L851" href="#L851">851</a>     <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(newPITGroupSet.getMemberId(), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L852" href="#L852">852</a>     <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitField = GrouperDAOFactory.getFactory().getPITField().findById(newPITGroupSet.getFieldId(), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L853" href="#L853">853</a>     <a href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html">GroupSet</a> gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
+<a class="jxr_linenumber" name="L851" href="#L851">851</a>     <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(newPITGroupSet.getMemberId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L852" href="#L852">852</a>     <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitField = GrouperDAOFactory.getFactory().getPITField().findById(newPITGroupSet.getFieldId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L853" href="#L853">853</a>     <a name="GroupSet" href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html#GroupSet">GroupSet</a> gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
 <a class="jxr_linenumber" name="L854" href="#L854">854</a>         ownerSourceId, pitMemberGroup.getSourceId(), pitField.getSourceId(), 
 <a class="jxr_linenumber" name="L855" href="#L855">855</a>         parentPITGroupSet.getSourceId(), <span class="jxr_string">"effective"</span>, false);
 <a class="jxr_linenumber" name="L856" href="#L856">856</a>     
@@ -882,7 +882,7 @@
 <a class="jxr_linenumber" name="L874" href="#L874">874</a>     <strong class="jxr_keyword">if</strong> (children != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L875" href="#L875">875</a>       Iterator&lt;PITGroupSet&gt; it = children.iterator();
 <a class="jxr_linenumber" name="L876" href="#L876">876</a>       <strong class="jxr_keyword">while</strong> (it.hasNext()) {
-<a class="jxr_linenumber" name="L877" href="#L877">877</a>         <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> nextPITGroupSet = it.next();
+<a class="jxr_linenumber" name="L877" href="#L877">877</a>         <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> nextPITGroupSet = it.next();
 <a class="jxr_linenumber" name="L878" href="#L878">878</a>         Set&lt;PITGroupSet&gt; newAdditions = addHasMembersRecursively(nextPITGroupSet, newPITGroupSet, parentToChildrenMap, pitMemberField);
 <a class="jxr_linenumber" name="L879" href="#L879">879</a>         newPITGroupSets.addAll(newAdditions);
 <a class="jxr_linenumber" name="L880" href="#L880">880</a>       }
@@ -898,7 +898,7 @@
 <a class="jxr_linenumber" name="L890" href="#L890">890</a> <em class="jxr_javadoccomment">   * @return set</em>
 <a class="jxr_linenumber" name="L891" href="#L891">891</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L892" href="#L892">892</a>   <strong class="jxr_keyword">private</strong> Set&lt;PITGroupSet&gt; addHasMembersToWhereGroupIsMember(String memberGroupId,
-<a class="jxr_linenumber" name="L893" href="#L893">893</a>       Set&lt;PITGroupSet&gt; pitGroupSetIsMember, Set&lt;PITGroupSet&gt; pitGroupSetHasMembers, <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitMemberField) {
+<a class="jxr_linenumber" name="L893" href="#L893">893</a>       Set&lt;PITGroupSet&gt; pitGroupSetIsMember, Set&lt;PITGroupSet&gt; pitGroupSetHasMembers, <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitMemberField) {
 <a class="jxr_linenumber" name="L894" href="#L894">894</a>     
 <a class="jxr_linenumber" name="L895" href="#L895">895</a>     Set&lt;PITGroupSet&gt; pitGroupSets = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;PITGroupSet&gt;();
 <a class="jxr_linenumber" name="L896" href="#L896">896</a> 
@@ -909,14 +909,14 @@
 <a class="jxr_linenumber" name="L901" href="#L901">901</a>     Set&lt;PITGroupSet&gt; hasMembersOneDepth = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;PITGroupSet&gt;();
 <a class="jxr_linenumber" name="L902" href="#L902">902</a>     Iterator&lt;PITGroupSet&gt; hasMembersIter = pitGroupSetHasMembers.iterator();
 <a class="jxr_linenumber" name="L903" href="#L903">903</a>     <strong class="jxr_keyword">while</strong> (hasMembersIter.hasNext()) {
-<a class="jxr_linenumber" name="L904" href="#L904">904</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitGroupSet = hasMembersIter.next();
+<a class="jxr_linenumber" name="L904" href="#L904">904</a>       <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitGroupSet = hasMembersIter.next();
 <a class="jxr_linenumber" name="L905" href="#L905">905</a>       <strong class="jxr_keyword">if</strong> (pitGroupSet.getDepth() == 1) {
 <a class="jxr_linenumber" name="L906" href="#L906">906</a>         hasMembersOneDepth.add(pitGroupSet);
 <a class="jxr_linenumber" name="L907" href="#L907">907</a>       }
 <a class="jxr_linenumber" name="L908" href="#L908">908</a>     }
 <a class="jxr_linenumber" name="L909" href="#L909">909</a> 
 <a class="jxr_linenumber" name="L910" href="#L910">910</a>     <strong class="jxr_keyword">while</strong> (isMembersIter.hasNext()) {
-<a class="jxr_linenumber" name="L911" href="#L911">911</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> isPITGS = isMembersIter.next();
+<a class="jxr_linenumber" name="L911" href="#L911">911</a>       <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> isPITGS = isMembersIter.next();
 <a class="jxr_linenumber" name="L912" href="#L912">912</a> 
 <a class="jxr_linenumber" name="L913" href="#L913">913</a>       String ownerGroupId = isPITGS.getOwnerGroupId();
 <a class="jxr_linenumber" name="L914" href="#L914">914</a>       String ownerStemId = isPITGS.getOwnerStemId();
@@ -925,7 +925,7 @@
 <a class="jxr_linenumber" name="L917" href="#L917">917</a>       String id = isPITGS.getId();
 <a class="jxr_linenumber" name="L918" href="#L918">918</a>       <strong class="jxr_keyword">int</strong> depth = isPITGS.getDepth();
 <a class="jxr_linenumber" name="L919" href="#L919">919</a> 
-<a class="jxr_linenumber" name="L920" href="#L920">920</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitGroupSet = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a>();
+<a class="jxr_linenumber" name="L920" href="#L920">920</a>       <a name="PITGroupSet" href="../../../../../edu/internet2/middleware<a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a>t/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitGroupSet = <strong class="jxr_keyword">new</strong> <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a>();
 <a class="jxr_linenumber" name="L921" href="#L921">921</a>       pitGroupSet.setId(GrouperUuid.getUuid());
 <a class="jxr_linenumber" name="L922" href="#L922">922</a>       pitGroupSet.setDepth(depth + 1);
 <a class="jxr_linenumber" name="L923" href="#L923">923</a>       pitGroupSet.setParentId(id);
@@ -951,9 +951,9 @@
 <a class="jxr_linenumber" name="L943" href="#L943">943</a>       }
 <a class="jxr_linenumber" name="L944" href="#L944">944</a>       
 <a class="jxr_linenumber" name="L945" href="#L945">945</a>       <em class="jxr_comment">// now get the existing group set so we have the source id.</em>
-<a class="jxr_linenumber" name="L946" href="#L946">946</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroupSet.getMemberId(), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L947" href="#L947">947</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitGroupSet.getFieldId(), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L948" href="#L948">948</a>       <a href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html">GroupSet</a> gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
+<a class="jxr_linenumber" name="L946" href="#L946">946</a>       <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroupSet.getMemberId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L947" href="#L947">947</a>       <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitGroupSet.getFieldId(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L948" href="#L948">948</a>       <a name="GroupSet" href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html#GroupSet">GroupSet</a> gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
 <a class="jxr_linenumber" name="L949" href="#L949">949</a>           ownerSourceId, pitMemberGroup.getSourceId(), pitField.getSourceId(),
 <a class="jxr_linenumber" name="L950" href="#L950">950</a>           isPITGS.getSourceId(), <span class="jxr_string">"effective"</span>, false);
 <a class="jxr_linenumber" name="L951" href="#L951">951</a>       
@@ -973,7 +973,7 @@
 <a class="jxr_linenumber" name="L965" href="#L965">965</a> 
 <a class="jxr_linenumber" name="L966" href="#L966">966</a>       Iterator&lt;PITGroupSet&gt; itHM = hasMembersOneDepth.iterator();
 <a class="jxr_linenumber" name="L967" href="#L967">967</a>       <strong class="jxr_keyword">while</strong> (itHM.hasNext()) {
-<a class="jxr_linenumber" name="L968" href="#L968">968</a>         <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> hasPITGS = itHM.next();
+<a class="jxr_linenumber" name="L968" href="#L968">968</a>         <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> hasPITGS = itHM.next();
 <a class="jxr_linenumber" name="L969" href="#L969">969</a>         Set&lt;PITGroupSet&gt; newAdditions = addHasMembersRecursively(hasPITGS, pitGroupSet, parentToChildrenMap, pitMemberField);
 <a class="jxr_linenumber" name="L970" href="#L970">970</a>         pitGroupSets.addAll(newAdditions);
 <a class="jxr_linenumber" name="L971" href="#L971">971</a>       }
@@ -986,12 +986,12 @@
 <a class="jxr_linenumber" name="L978" href="#L978">978</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L979" href="#L979">979</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L980" href="#L980">980</a>   @Override
-<a class="jxr_linenumber" name="L981" href="#L981">981</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPostUpdate(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L981" href="#L981">981</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPostUpdate(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L982" href="#L982">982</a> 
 <a class="jxr_linenumber" name="L983" href="#L983">983</a>     <em class="jxr_comment">// take care of effective group sets</em>
 <a class="jxr_linenumber" name="L984" href="#L984">984</a>     <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.isActive() &amp;&amp; <strong class="jxr_keyword">this</strong>.dbVersion().isActive() &amp;&amp; <strong class="jxr_keyword">this</strong>.getDepth() == 1) {
 <a class="jxr_linenumber" name="L985" href="#L985">985</a>       Set&lt;PITGroupSet&gt; pitGroupSetsToEnd = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;PITGroupSet&gt;();
-<a class="jxr_linenumber" name="L986" href="#L986">986</a>       <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L986" href="#L986">986</a>       <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L987" href="#L987">987</a> 
 <a class="jxr_linenumber" name="L988" href="#L988">988</a>       <em class="jxr_comment">// Get all children of this PIT group set</em>
 <a class="jxr_linenumber" name="L989" href="#L989">989</a>       Set&lt;PITGroupSet&gt; childResults = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveChildren(<strong class="jxr_keyword">this</strong>);
@@ -1004,8 +1004,8 @@
 <a class="jxr_linenumber" name="L996" href="#L996">996</a>         
 <a class="jxr_linenumber" name="L997" href="#L997">997</a>         Iterator&lt;PITGroupSet&gt; pitGroupSetIsMemberIter = pitGroupSetIsMember.iterator();
 <a class="jxr_linenumber" name="L998" href="#L998">998</a>         <strong class="jxr_keyword">while</strong> (pitGroupSetIsMemberIter.hasNext()) {
-<a class="jxr_linenumber" name="L999" href="#L999">999</a>           <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> currPITGroupSet = pitGroupSetIsMemberIter.next();
-<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>           <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> childToUpdate = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateChildByParentAndMemberPITGroup(currPITGroupSet, <strong class="jxr_keyword">this</strong>.getMemberGroupId());
+<a class="jxr_linenumber" name="L999" href="#L999">999</a>           <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> currPITGroupSet = pitGroupSetIsMemberIter.next();
+<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>           <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> childToUpdate = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateChildByParentAndMemberPITGroup(currPITGroupSet, <strong class="jxr_keyword">this</strong>.getMemberGroupId());
 <a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>   
 <a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>           <strong class="jxr_keyword">if</strong> (childToUpdate != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>             Set&lt;PITGroupSet&gt; childrenOfChildResults = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveChildren(childToUpdate);
@@ -1018,7 +1018,7 @@
 <a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>       
 <a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>       Iterator&lt;PITGroupSet&gt; iter = pitGroupSetsToEnd.iterator();
 <a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>       <strong class="jxr_keyword">while</strong> (iter.hasNext()) {
-<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>         <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitGroupSet = iter.next();
+<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>         <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitGroupSet = iter.next();
 <a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>         pitGroupSet.setActiveDb(<span class="jxr_string">"F"</span>);
 <a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>         pitGroupSet.setEndTimeDb(<strong class="jxr_keyword">this</strong>.getEndTimeDb());
 <a class="jxr_linenumber" name="L1016" href="#L1016">1016</a>         pitGroupSet.setContextId(<strong class="jxr_keyword">this</strong>.getContextId());
@@ -1037,8 +1037,8 @@
 <a class="jxr_linenumber" name="L1029" href="#L1029">1029</a> <em class="jxr_javadoccomment">   * @return the dbVersion</em>
 <a class="jxr_linenumber" name="L1030" href="#L1030">1030</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L1031" href="#L1031">1031</a>   @Override
-<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> dbVersion() {
-<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>     <strong class="jxr_keyword">return</strong> (PITGroupSet)<strong class="jxr_keyword">this</strong>.dbVersion;
+<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>   <strong class="jxr_keyword">public</strong> <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> dbVersion() {
+<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>     <strong class="jxr_keyword">return</strong> (<a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a>)<strong class="jxr_keyword">this</strong>.dbVersion;
 <a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>   }
 <a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>   
 <a class="jxr_linenumber" name="L1036" href="#L1036">1036</a>   <em class="jxr_javadoccomment">/**</em>
@@ -1069,7 +1069,7 @@
 <a class="jxr_linenumber" name="L1061" href="#L1061">1061</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)</em>
 <a class="jxr_linenumber" name="L1062" href="#L1062">1062</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>   @Override
-<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreDelete(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onPreDelete(<a name="HibernateSession" href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>     <strong class="jxr_keyword">super</strong>.onPreDelete(hibernateSession);
 <a class="jxr_linenumber" name="L1066" href="#L1066">1066</a> 
 <a class="jxr_linenumber" name="L1067" href="#L1067">1067</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.isActive()) {
@@ -1082,25 +1082,25 @@
 <a class="jxr_linenumber" name="L1074" href="#L1074">1074</a> 
 <a class="jxr_linenumber" name="L1075" href="#L1075">1075</a>     Set&lt;PITGroupSet&gt; childResults = GrouperDAOFactory.getFactory().getPITGroupSet().findImmediateChildren(<strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L1076" href="#L1076">1076</a> 
-<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>     <strong class="jxr_keyword">for</strong> (PITGroupSet child : childResults) {
+<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>     <strong class="jxr_keyword">for</strong> (<a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> child : childResults) {
 <a class="jxr_linenumber" name="L1078" href="#L1078">1078</a>       GrouperDAOFactory.getFactory().getPITGroupSet().delete(child);
 <a class="jxr_linenumber" name="L1079" href="#L1079">1079</a>     }
 <a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>   }
 <a class="jxr_linenumber" name="L1081" href="#L1081">1081</a> 
-<a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> pitOwnerGroup = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html">PITAttributeDef</a> pitOwnerAttributeDef = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1084" href="#L1084">1084</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> pitOwnerStem = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> pitMemberGroup = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html">PITAttributeDef</a> pitMemberAttributeDef = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1087" href="#L1087">1087</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> pitMemberStem = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitField = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitMemberField = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1090" href="#L1090">1090</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> pitParentGroupSet = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>   <strong class="jxr_keyword">private</strong> <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> pitOwnerGroup = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>   <strong class="jxr_keyword">private</strong> <a name="PITAttributeDef" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html#PITAttributeDef">PITAttributeDef</a> pitOwnerAttributeDef = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1084" href="#L1084">1084</a>   <strong class="jxr_keyword">private</strong> <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> pitOwnerStem = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>   <strong class="jxr_keyword">private</strong> <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> pitMemberGroup = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>   <strong class="jxr_keyword">private</strong> <a name="PITAttributeDef" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html#PITAttributeDef">PITAttributeDef</a> pitMemberAttributeDef = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1087" href="#L1087">1087</a>   <strong class="jxr_keyword">private</strong> <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> pitMemberStem = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>   <strong class="jxr_keyword">private</strong> <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitField = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>   <strong class="jxr_keyword">private</strong> <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitMemberField = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1090" href="#L1090">1090</a>   <strong class="jxr_keyword">private</strong> <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> pitParentGroupSet = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1091" href="#L1091">1091</a>   
 <a class="jxr_linenumber" name="L1092" href="#L1092">1092</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1093" href="#L1093">1093</a> <em class="jxr_javadoccomment">   * @return pitParentGroupSet</em>
 <a class="jxr_linenumber" name="L1094" href="#L1094">1094</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1095" href="#L1095">1095</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html">PITGroupSet</a> getParentPITGroupSet() {
+<a class="jxr_linenumber" name="L1095" href="#L1095">1095</a>   <strong class="jxr_keyword">public</strong> <a name="PITGroupSet" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html#PITGroupSet">PITGroupSet</a> getParentPITGroupSet() {
 <a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>     <strong class="jxr_keyword">if</strong> (depth == 0) {
 <a class="jxr_linenumber" name="L1097" href="#L1097">1097</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>     }
@@ -1115,7 +1115,7 @@
 <a class="jxr_linenumber" name="L1107" href="#L1107">1107</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1108" href="#L1108">1108</a> <em class="jxr_javadoccomment">   * @return pitField</em>
 <a class="jxr_linenumber" name="L1109" href="#L1109">1109</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1110" href="#L1110">1110</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> getPITField() {
+<a class="jxr_linenumber" name="L1110" href="#L1110">1110</a>   <strong class="jxr_keyword">public</strong> <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> getPITField() {
 <a class="jxr_linenumber" name="L1111" href="#L1111">1111</a>     <strong class="jxr_keyword">if</strong> (pitField == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1112" href="#L1112">1112</a>       pitField = GrouperDAOFactory.getFactory().getPITField().findById(fieldId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1113" href="#L1113">1113</a>     }
@@ -1126,7 +1126,7 @@
 <a class="jxr_linenumber" name="L1118" href="#L1118">1118</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1119" href="#L1119">1119</a> <em class="jxr_javadoccomment">   * @return pitMemberField</em>
 <a class="jxr_linenumber" name="L1120" href="#L1120">1120</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1121" href="#L1121">1121</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> getMemberPITField() {
+<a class="jxr_linenumber" name="L1121" href="#L1121">1121</a>   <strong class="jxr_keyword">public</strong> <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> getMemberPITField() {
 <a class="jxr_linenumber" name="L1122" href="#L1122">1122</a>     <strong class="jxr_keyword">if</strong> (pitMemberField == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1123" href="#L1123">1123</a>       pitMemberField = GrouperDAOFactory.getFactory().getPITField().findById(memberFieldId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1124" href="#L1124">1124</a>     }
@@ -1137,7 +1137,7 @@
 <a class="jxr_linenumber" name="L1129" href="#L1129">1129</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1130" href="#L1130">1130</a> <em class="jxr_javadoccomment">   * @return pitMemberGroup</em>
 <a class="jxr_linenumber" name="L1131" href="#L1131">1131</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1132" href="#L1132">1132</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> getMemberPITGroup() {
+<a class="jxr_linenumber" name="L1132" href="#L1132">1132</a>   <strong class="jxr_keyword">public</strong> <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> getMemberPITGroup() {
 <a class="jxr_linenumber" name="L1133" href="#L1133">1133</a>     <strong class="jxr_keyword">if</strong> (pitMemberGroup == <strong class="jxr_keyword">null</strong> &amp;&amp; memberGroupId != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1134" href="#L1134">1134</a>       pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(memberGroupId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1135" href="#L1135">1135</a>     }
@@ -1148,7 +1148,7 @@
 <a class="jxr_linenumber" name="L1140" href="#L1140">1140</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1141" href="#L1141">1141</a> <em class="jxr_javadoccomment">   * @return pitMemberAttributeDef</em>
 <a class="jxr_linenumber" name="L1142" href="#L1142">1142</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1143" href="#L1143">1143</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html">PITAttributeDef</a> getMemberPITAttributeDef() {
+<a class="jxr_linenumber" name="L1143" href="#L1143">1143</a>   <strong class="jxr_keyword">public</strong> <a name="PITAttributeDef" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html#PITAttributeDef">PITAttributeDef</a> getMemberPITAttributeDef() {
 <a class="jxr_linenumber" name="L1144" href="#L1144">1144</a>     <strong class="jxr_keyword">if</strong> (pitMemberAttributeDef == <strong class="jxr_keyword">null</strong> &amp;&amp; memberAttrDefId != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1145" href="#L1145">1145</a>       pitMemberAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(memberAttrDefId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1146" href="#L1146">1146</a>     }
@@ -1159,7 +1159,7 @@
 <a class="jxr_linenumber" name="L1151" href="#L1151">1151</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1152" href="#L1152">1152</a> <em class="jxr_javadoccomment">   * @return pitMemberStem</em>
 <a class="jxr_linenumber" name="L1153" href="#L1153">1153</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1154" href="#L1154">1154</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> getMemberPITStem() {
+<a class="jxr_linenumber" name="L1154" href="#L1154">1154</a>   <strong class="jxr_keyword">public</strong> <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> getMemberPITStem() {
 <a class="jxr_linenumber" name="L1155" href="#L1155">1155</a>     <strong class="jxr_keyword">if</strong> (pitMemberStem == <strong class="jxr_keyword">null</strong> &amp;&amp; memberStemId != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1156" href="#L1156">1156</a>       pitMemberStem = GrouperDAOFactory.getFactory().getPITStem().findById(memberStemId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1157" href="#L1157">1157</a>     }
@@ -1170,7 +1170,7 @@
 <a class="jxr_linenumber" name="L1162" href="#L1162">1162</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1163" href="#L1163">1163</a> <em class="jxr_javadoccomment">   * @return pitOwnerGroup</em>
 <a class="jxr_linenumber" name="L1164" href="#L1164">1164</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1165" href="#L1165">1165</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html">PITGroup</a> getOwnerPITGroup() {
+<a class="jxr_linenumber" name="L1165" href="#L1165">1165</a>   <strong class="jxr_keyword">public</strong> <a name="PITGroup" href="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html#PITGroup">PITGroup</a> getOwnerPITGroup() {
 <a class="jxr_linenumber" name="L1166" href="#L1166">1166</a>     <strong class="jxr_keyword">if</strong> (pitOwnerGroup == <strong class="jxr_keyword">null</strong> &amp;&amp; ownerGroupId != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1167" href="#L1167">1167</a>       pitOwnerGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(ownerGroupId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1168" href="#L1168">1168</a>     }
@@ -1181,7 +1181,7 @@
 <a class="jxr_linenumber" name="L1173" href="#L1173">1173</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1174" href="#L1174">1174</a> <em class="jxr_javadoccomment">   * @return pitOwnerAttributeDef</em>
 <a class="jxr_linenumber" name="L1175" href="#L1175">1175</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1176" href="#L1176">1176</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html">PITAttributeDef</a> getOwnerPITAttributeDef() {
+<a class="jxr_linenumber" name="L1176" href="#L1176">1176</a>   <strong class="jxr_keyword">public</strong> <a name="PITAttributeDef" href="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html#PITAttributeDef">PITAttributeDef</a> getOwnerPITAttributeDef() {
 <a class="jxr_linenumber" name="L1177" href="#L1177">1177</a>     <strong class="jxr_keyword">if</strong> (pitOwnerAttributeDef == <strong class="jxr_keyword">null</strong> &amp;&amp; ownerAttrDefId != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1178" href="#L1178">1178</a>       pitOwnerAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(ownerAttrDefId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1179" href="#L1179">1179</a>     }
@@ -1192,7 +1192,7 @@
 <a class="jxr_linenumber" name="L1184" href="#L1184">1184</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1185" href="#L1185">1185</a> <em class="jxr_javadoccomment">   * @return pitOwnerStem</em>
 <a class="jxr_linenumber" name="L1186" href="#L1186">1186</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1187" href="#L1187">1187</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> getOwnerPITStem() {
+<a class="jxr_linenumber" name="L1187" href="#L1187">1187</a>   <strong class="jxr_keyword">public</strong> <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> getOwnerPITStem() {
 <a class="jxr_linenumber" name="L1188" href="#L1188">1188</a>     <strong class="jxr_keyword">if</strong> (pitOwnerStem == <strong class="jxr_keyword">null</strong> &amp;&amp; ownerStemId != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L1189" href="#L1189">1189</a>       pitOwnerStem = GrouperDAOFactory.getFactory().getPITStem().findById(ownerStemId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1190" href="#L1190">1190</a>     }
@@ -1216,6 +1216,6 @@
 <a class="jxr_linenumber" name="L1208" href="#L1208">1208</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -55,7 +55,7 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * @author J&amp;ouml;rg Schaible</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStreamer.html">XStreamer</a> {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XStreamer" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStreamer.html#XStreamer">XStreamer</a> {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * Serialize an object including the XStream to a pretty-printed XML String.</em>
@@ -65,14 +65,14 @@
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @since 1.2</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * @see #toXML(XStream, Object, Writer)</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> String toXML(<a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">XStream</a> xstream, Object obj) <strong class="jxr_keyword">throws</strong> ObjectStreamException {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> String toXML(<a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a> xstream, Object obj) <strong class="jxr_keyword">throws</strong> ObjectStreamException {
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          Writer writer = <strong class="jxr_keyword">new</strong> StringWriter();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>              toXML(xstream, obj, writer);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          } <strong class="jxr_keyword">catch</strong> (ObjectStreamException e) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">throw</strong> e;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(<span class="jxr_string">"Unexpeced IO error from a StringWriter"</span>, e);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(<span class="jxr_string">"Unexpeced IO error from a StringWriter"</span>, e);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> writer.toString();
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
@@ -92,9 +92,9 @@
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     * @throws edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStreamException if the object cannot be serialized</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     * @since 1.2</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> toXML(<a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">XStream</a> xstream, Object obj, Writer out)
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> toXML(<a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a> xstream, Object obj, Writer out)
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">XStream</a> <strong class="jxr_keyword">outer</strong> = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">XStream</a>();
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/tho<a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a>ks/xstream/XStream.html#XStream">XStream</a> <strong class="jxr_keyword">outer</strong> = <strong class="jxr_keyword">new</strong> <a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a>();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          ObjectOutputStream oos = <strong class="jxr_keyword">outer</strong>.createObjectOutputStream(out);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              oos.writeObject(xstream);
@@ -121,7 +121,7 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         } <strong class="jxr_keyword">catch</strong> (ObjectStreamException e) {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">throw</strong> e;
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(<span class="jxr_string">"Unexpeced IO error from a StringReader"</span>, e);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(<span class="jxr_string">"Unexpeced IO error from a StringReader"</span>, e);
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> 
@@ -134,14 +134,14 @@
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @since 1.2</em>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     * @see #toXML(XStream, Object, Writer)</em>
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">public</strong> Object fromXML(<a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamDriver.html">HierarchicalStreamDriver</a> driver, String xml)
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">public</strong> Object fromXML(<a name="HierarchicalStreamDriver" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamDriver.html#HierarchicalStreamDriver">HierarchicalStreamDriver</a> driver, String xml)
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">throws</strong> ClassNotFoundException, ObjectStreamException {
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">return</strong> fromXML(driver, <strong class="jxr_keyword">new</strong> StringReader(xml));
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         } <strong class="jxr_keyword">catch</strong> (ObjectStreamException e) {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>             <strong class="jxr_keyword">throw</strong> e;
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html">ConversionException</a>(<span class="jxr_string">"Unexpeced IO error from a StringReader"</span>, e);
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ConversionException" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/ConversionException.html#ConversionException">ConversionException</a>(<span class="jxr_string">"Unexpeced IO error from a StringReader"</span>, e);
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         }
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> 
@@ -157,7 +157,7 @@
 <a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">public</strong> Object fromXML(Reader xml)
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>             <strong class="jxr_keyword">throws</strong> IOException, ClassNotFoundException {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">return</strong> fromXML(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/XppDriver.html">XppDriver</a>(), xml);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">return</strong> fromXML(<strong class="jxr_keyword">new</strong> <a name="XppDriver" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/XppDriver.html#XppDriver">XppDriver</a>(), xml);
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> 
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>     <em class="jxr_javadoccomment">/**</em>
@@ -168,13 +168,13 @@
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     * @throws edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStreamException if the object cannot be deserialized</em>
 <a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     * @since 1.2</em>
 <a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">public</strong> Object fromXML(<a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamDriver.html">HierarchicalStreamDriver</a> driver, Reader xml)
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">public</strong> Object fromXML(<a name="HierarchicalStreamDriver" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamDriver.html#HierarchicalStreamDriver">HierarchicalStreamDriver</a> driver, Reader xml)
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>             <strong class="jxr_keyword">throws</strong> IOException, ClassNotFoundException {
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">XStream</a> <strong class="jxr_keyword">outer</strong> = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">XStream</a>(driver);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> reader = driver.createReader(xml);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/tho<a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a>ks/xstream/XStream.html#XStream">XStream</a> <strong class="jxr_keyword">outer</strong> = <strong class="jxr_keyword">new</strong> <a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a>(driver);
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <a name="HierarchicalStreamReader" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> reader = driver.createReader(xml);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>         ObjectInputStream configIn = <strong class="jxr_keyword">outer</strong>.createObjectInputStream(reader);
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <a href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">XStream</a> configured = (XStream)configIn.readObject();
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <a name="XStream" href<a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a>/../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a> configured = (<a name="XStream" href="../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html#XStream">XStream</a>)configIn.readObject();
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>             ObjectInputStream in = configured.createObjectInputStream(reader);
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>                 <strong class="jxr_keyword">return</strong> in.readObject();
@@ -189,6 +189,6 @@
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

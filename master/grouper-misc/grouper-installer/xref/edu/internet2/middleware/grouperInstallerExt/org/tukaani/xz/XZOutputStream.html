@@ -59,14 +59,14 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> * XZOutputStream outxz = new XZOutputStream(outfile, options);</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;&lt;/blockquote&gt;</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html">XZOutputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FinishableOutputStream.html">FinishableOutputStream</a> {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XZOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html#XZOutputStream">XZOutputStream</a> <strong class="jxr_keyword">extends</strong> <a name="FinishableOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FinishableOutputStream.html#FinishableOutputStream">FinishableOutputStream</a> {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> OutputStream out;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/common/StreamFlags.html">StreamFlags</a> streamFlags = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/common/StreamFlags.html">StreamFlags</a>();
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/check/Check.html">Check</a> check;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html">IndexEncoder</a> index = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html">IndexEncoder</a>();
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="StreamFlags" href="../../../../../../../edu/internet2/midd<a name="StreamFlags" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/common/StreamFlags.html#StreamFlags">StreamFlags</a>perInstallerExt/org/tukaani/xz/common/StreamFlags.html#StreamFlags">StreamFlags</a> streamFlags = <strong class="jxr_keyword">new</strong> <a name="StreamFlags" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/common/StreamFlags.html#StreamFlags">StreamFlags</a>();
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="Check" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/check/Check.html#Check">Check</a> check;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="IndexEncoder" href="../../../../../../../edu/internet<a name="IndexEncoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html#IndexEncoder">IndexEncoder</a>/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html#IndexEncoder">IndexEncoder</a> index = <strong class="jxr_keyword">new</strong> <a name="IndexEncoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/index/IndexEncoder.html#IndexEncoder">IndexEncoder</a>();
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/BlockOutputStream.html">BlockOutputStream</a> blockEncoder = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterEncoder.html">FilterEncoder</a>[] filters;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">private</strong> <a name="BlockOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/BlockOutputStream.html#BlockOutputStream">BlockOutputStream</a> blockEncoder = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <a name="FilterEncoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterEncoder.html#FilterEncoder">FilterEncoder</a>[] filters;
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * True if the current filter chain supports flushing.</em>
@@ -97,7 +97,7 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     * @throws      IOException may be thrown from &lt;code&gt;out&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html">XZOutputStream</a>(OutputStream out, <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a> filterOptions)
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">public</strong> <a name="XZOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html#XZOutputStream">XZOutputStream</a>(OutputStream out, <a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a> filterOptions)
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">this</strong>(out, filterOptions, XZ.CHECK_CRC64);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
@@ -122,9 +122,9 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     * @throws      IOException may be thrown from &lt;code&gt;out&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html">XZOutputStream</a>(OutputStream out, <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a> filterOptions,
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> <a name="XZOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html#XZOutputStream">XZOutputStream</a>(OutputStream out, <a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a> filterOptions,
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>                           <strong class="jxr_keyword">int</strong> checkType) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">this</strong>(out, <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a>[] { filterOptions }, checkType);
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">this</strong>(out, <strong class="jxr_keyword">new</strong> <a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a>[] { filterOptions }, checkType);
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
 <a class="jxr_linenumber" name="L121" href="#L121">121</a> 
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>     <em class="jxr_javadoccomment">/**</em>
@@ -143,7 +143,7 @@
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     * @throws      IOException may be thrown from &lt;code&gt;out&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html">XZOutputStream</a>(OutputStream out, <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a>[] filterOptions)
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">public</strong> <a name="XZOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html#XZOutputStream">XZOutputStream</a>(OutputStream out, <a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a>[] filterOptions)
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>             <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">this</strong>(out, filterOptions, XZ.CHECK_CRC64);
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
@@ -166,7 +166,7 @@
 <a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     * @throws      IOException may be thrown from &lt;code&gt;out&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html">XZOutputStream</a>(OutputStream out, <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a>[] filterOptions,
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">public</strong> <a name="XZOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZOutputStream.html#XZOutputStream">XZOutputStream</a>(OutputStream out, <a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a>[] filterOptions,
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>                           <strong class="jxr_keyword">int</strong> checkType) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">this</strong>.out = out;
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         updateFilters(filterOptions);
@@ -189,9 +189,9 @@
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">     *                          unsupported filter chain, or trying to change</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">     *                          the filter chain in the middle of a Block</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> updateFilters(<a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a> filterOptions)
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a> {
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a>[] opts = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a>[1];
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> updateFilters(<a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a> filterOptions)
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">throws</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a> {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <a name="FilterOptions" href="../../../../../../../edu/internet2<a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a>rouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a>[] opts = <strong class="jxr_keyword">new</strong> <a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a>[1];
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>         opts[0] = filterOptions;
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         updateFilters(opts);
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
@@ -211,18 +211,18 @@
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     *                          unsupported filter chain, or trying to change</em>
 <a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     *                          the filter chain in the middle of a Block</em>
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> updateFilters(<a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html">FilterOptions</a>[] filterOptions)
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a> {
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> updateFilters(<a name="FilterOptions" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterOptions.html#FilterOptions">FilterOptions</a>[] filterOptions)
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             <strong class="jxr_keyword">throws</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a> {
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">if</strong> (blockEncoder != <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html">UnsupportedOptionsException</a>(<span class="jxr_string">"Changing filter options "</span>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="UnsupportedOptionsException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html#UnsupportedOptionsException">UnsupportedOptionsException</a>(<span class="jxr_string">"Changing filter options "</span>
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>                     + <span class="jxr_string">"in the middle of a XZ Block not implemented"</span>);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> 
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">if</strong> (filterOptions.length &lt; 1 || filterOptions.length &gt; 4)
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html">UnsupportedOptionsException</a>(
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="UnsupportedOptionsException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html#UnsupportedOptionsException">UnsupportedOptionsException</a>(
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>                         <span class="jxr_string">"XZ filter chain must be 1-4 filters"</span>);
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> 
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>         filtersSupportFlushing = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterEncoder.html">FilterEncoder</a>[] newFilters = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterEncoder.html">FilterEncoder</a>[filterOptions.length];
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <a name="FilterEncoder" href="../../../../../../../edu/internet2/middl<a name="FilterEncoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterEncoder.html#FilterEncoder">FilterEncoder</a>InstallerExt/org/tukaani/xz/FilterEncoder.html#FilterEncoder">FilterEncoder</a>[] newFilters = <strong class="jxr_keyword">new</strong> <a name="FilterEncoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/FilterEncoder.html#FilterEncoder">FilterEncoder</a>[filterOptions.length];
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; filterOptions.length; ++i) {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>             newFilters[i] = filterOptions[i].getFilterEncoder();
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>             filtersSupportFlushing &amp;= newFilters[i].supportsFlushing();
@@ -281,11 +281,11 @@
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>             <strong class="jxr_keyword">throw</strong> exception;
 <a class="jxr_linenumber" name="L274" href="#L274">274</a> 
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">if</strong> (finished)
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a>(<span class="jxr_string">"Stream finished or closed"</span>);
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a>(<span class="jxr_string">"Stream finished or closed"</span>);
 <a class="jxr_linenumber" name="L277" href="#L277">277</a> 
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>             <strong class="jxr_keyword">if</strong> (blockEncoder == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 blockEncoder = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/BlockOutputStream.html">BlockOutputStream</a>(out, filters, check);
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 blockEncoder = <strong class="jxr_keyword">new</strong> <a name="BlockOutputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/BlockOutputStream.html#BlockOutputStream">BlockOutputStream</a>(out, filters, check);
 <a class="jxr_linenumber" name="L281" href="#L281">281</a> 
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>             blockEncoder.write(buf, off, len);
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
@@ -324,7 +324,7 @@
 <a class="jxr_linenumber" name="L316" href="#L316">316</a>             <strong class="jxr_keyword">throw</strong> exception;
 <a class="jxr_linenumber" name="L317" href="#L317">317</a> 
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">if</strong> (finished)
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a>(<span class="jxr_string">"Stream finished or closed"</span>);
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a>(<span class="jxr_string">"Stream finished or closed"</span>);
 <a class="jxr_linenumber" name="L320" href="#L320">320</a> 
 <a class="jxr_linenumber" name="L321" href="#L321">321</a>         <em class="jxr_comment">// NOTE: Once there is threading with multiple Blocks, it's possible</em>
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>         <em class="jxr_comment">// that this function will be more like a barrier that returns</em>
@@ -369,7 +369,7 @@
 <a class="jxr_linenumber" name="L361" href="#L361">361</a>             <strong class="jxr_keyword">throw</strong> exception;
 <a class="jxr_linenumber" name="L362" href="#L362">362</a> 
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>         <strong class="jxr_keyword">if</strong> (finished)
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a>(<span class="jxr_string">"Stream finished or closed"</span>);
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a>(<span class="jxr_string">"Stream finished or closed"</span>);
 <a class="jxr_linenumber" name="L365" href="#L365">365</a> 
 <a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L367" href="#L367">367</a>             <strong class="jxr_keyword">if</strong> (blockEncoder != <strong class="jxr_keyword">null</strong>) {
@@ -496,6 +496,6 @@
 <a class="jxr_linenumber" name="L488" href="#L488">488</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

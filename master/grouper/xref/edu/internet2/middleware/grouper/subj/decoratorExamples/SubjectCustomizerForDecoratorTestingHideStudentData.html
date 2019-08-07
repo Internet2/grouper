@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -42,7 +42,7 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/subj/decoratorExamples/SubjectCustomizerForDecoratorTestingHideStudentData.html">SubjectCustomizerForDecoratorTestingHideStudentData</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../edu/internet2/middleware/grouper/subj/SubjectCustomizerBase.html">SubjectCustomizerBase</a> {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SubjectCustomizerForDecoratorTestingHideStudentData" href="../../../../../../edu/internet2/middleware/grouper/subj/decoratorExamples/SubjectCustomizerForDecoratorTestingHideStudentData.html#SubjectCustomizerForDecoratorTestingHideStudentData">SubjectCustomizerForDecoratorTestingHideStudentData</a> <strong class="jxr_keyword">extends</strong> <a name="SubjectCustomizerBase" href="../../../../../../edu/internet2/middleware/grouper/subj/SubjectCustomizerBase.html#SubjectCustomizerBase">SubjectCustomizerBase</a> {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>    <em class="jxr_javadoccomment">/** student (protected data) group name */</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String STUDENT_GROUP_NAME = <span class="jxr_string">"apps:subjectSecurity:groups:student"</span>;
@@ -56,7 +56,7 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">   * @see SubjectCustomizer#filterSubjects(GrouperSession, Set, String)</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>    @Override
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>    <strong class="jxr_keyword">public</strong> Set&lt;Subject&gt; filterSubjects(<a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, Set&lt;Subject&gt; subjects, String findSubjectsInStemName) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>    <strong class="jxr_keyword">public</strong> Set&lt;Subject&gt; filterSubjects(<a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession, Set&lt;Subject&gt; subjects, String findSubjectsInStemName) {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      <em class="jxr_comment">//nothing to do if no results</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">if</strong> (GrouperUtil.length(subjects) == 0) {
@@ -64,7 +64,7 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_comment">//get results in one query</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <a href="../../../../../../edu/internet2/middleware/grouper/membership/MembershipResult.html">MembershipResult</a> groupMembershipResult = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/MembershipFinder.html">MembershipFinder</a>().assignCheckSecurity(false).addGroup(STUDENT_GROUP_NAME)
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <a name="MembershipResult" href="../../../../../../edu/internet2/middleware/grouper/membership/MembershipResult.html#MembershipResult">MembershipResult</a> groupMembershipResult = <strong class="jxr_keyword">new</strong> <a name="MembershipFinder" href="../../../../../../edu/internet2/middleware/grouper/MembershipFinder.html#MembershipFinder">MembershipFinder</a>().assignCheckSecurity(false).addGroup(STUDENT_GROUP_NAME)
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          .addGroup(PRIVILEGED_EMPLOYEE_GROUP_NAME).addSubjects(subjects).addSubject(grouperSession.getSubject())
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          .findMembershipResult();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>        
@@ -78,10 +78,10 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_comment">//loop through the subjects and see which are students, change their name and description to be their netId, with no other attributes</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      Set&lt;Subject&gt; results = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Subject&gt;();
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">for</strong> (Subject subject : subjects) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">for</strong> (<a name="Subject" href="../../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject : subjects) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>        <strong class="jxr_keyword">if</strong> (StringUtils.equals(SOURCE_ID, subject.getSourceId()) &amp;&amp; groupMembershipResult.hasGroupMembership(STUDENT_GROUP_NAME, subject)) {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          String loginid = subject.getAttributeValue(<span class="jxr_string">"loginid"</span>);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          Subject replacementSubject = <strong class="jxr_keyword">new</strong> SubjectImpl(subject.getId(), loginid, loginid, subject.getTypeName(), subject.getSourceId());
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <a name="Subject" href="../../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> replacementSubject = <strong class="jxr_keyword">new</strong> <a name="SubjectImpl" href="../../../../../../edu/internet2/middleware/subject/provider/SubjectImpl.html#SubjectImpl">SubjectImpl</a>(subject.getId(), loginid, loginid, subject.getTypeName(), subject.getSourceId());
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          results.add(replacementSubject);
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>        } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          results.add(subject);
@@ -92,6 +92,6 @@
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -48,17 +48,17 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * @NotThreadSafe</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html">Zip64ExtendedInformationExtraField</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipExtraField.html">ZipExtraField</a> {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Zip64ExtendedInformationExtraField" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html#Zip64ExtendedInformationExtraField">Zip64ExtendedInformationExtraField</a> <strong class="jxr_keyword">implements</strong> <a name="ZipExtraField" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipExtraField.html#ZipExtraField">ZipExtraField</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html">ZipShort</a> HEADER_ID = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html">ZipShort</a>(0x0001);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="ZipShort" href="../../../../../../../../../../edu/int<a name="ZipShort" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html#ZipShort">ZipShort</a>iddleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html#ZipShort">ZipShort</a> HEADER_ID = <strong class="jxr_keyword">new</strong> <a name="ZipShort" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html#ZipShort">ZipShort</a>(0x0001);
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String LFH_MUST_HAVE_BOTH_SIZES_MSG =
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          <span class="jxr_string">"Zip64 extended information must contain"</span>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          + <span class="jxr_string">" both size values in the local file header."</span>;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] EMPTY = <strong class="jxr_keyword">new</strong> byte[0];
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> size, compressedSize, relativeHeaderOffset;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> diskStart;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> size, compressedSize, relativeHeaderOffset;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <a name="ZipLong" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html#ZipLong">ZipLong</a> diskStart;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * Stored in {@link #parseFromCentralDirectoryData</em>
@@ -76,7 +76,7 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     * This constructor should only be used by the code that reads</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">     * archives inside of Commons Compress.</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html">Zip64ExtendedInformationExtraField</a>() { }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a name="Zip64ExtendedInformationExtraField" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html#Zip64ExtendedInformationExtraField">Zip64ExtendedInformationExtraField</a>() { }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * Creates an extra field based on the original and compressed size.</em>
@@ -86,8 +86,8 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     * @throws IllegalArgumentException if size or compressedSize is null</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html">Zip64ExtendedInformationExtraField</a>(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> size,
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                                                <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> compressedSize) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">public</strong> <a name="Zip64ExtendedInformationExtraField" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html#Zip64ExtendedInformationExtraField">Zip64ExtendedInformationExtraField</a>(<a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> size,
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                                                <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> compressedSize) {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">this</strong>(size, compressedSize, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
@@ -99,26 +99,26 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * @throws IllegalArgumentException if size or compressedSize is null</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html">Zip64ExtendedInformationExtraField</a>(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> size,
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                                                <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> compressedSize,
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                                                <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> relativeHeaderOffset,
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                                                <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> diskStart) {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">public</strong> <a name="Zip64ExtendedInformationExtraField" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html#Zip64ExtendedInformationExtraField">Zip64ExtendedInformationExtraField</a>(<a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> size,
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                                                <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> compressedSize,
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                                                <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> relativeHeaderOffset,
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                                                <a name="ZipLong" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html#ZipLong">ZipLong</a> diskStart) {
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">this</strong>.size = size;
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">this</strong>.compressedSize = compressedSize;
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">this</strong>.relativeHeaderOffset = relativeHeaderOffset;
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">this</strong>.diskStart = diskStart;
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> 
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html">ZipShort</a> getHeaderId() {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> <a name="ZipShort" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html#ZipShort">ZipShort</a> getHeaderId() {
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> HEADER_ID;
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> 
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html">ZipShort</a> getLocalFileDataLength() {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html">ZipShort</a>(size != <strong class="jxr_keyword">null</strong> ? 2 * DWORD : 0);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">public</strong> <a name="ZipShort" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html#ZipShort">ZipShort</a> getLocalFileDataLength() {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="ZipShort" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html#ZipShort">ZipShort</a>(size != <strong class="jxr_keyword">null</strong> ? 2 * DWORD : 0);
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> 
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html">ZipShort</a> getCentralDirectoryLength() {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html">ZipShort</a>((size != <strong class="jxr_keyword">null</strong> ? DWORD : 0)
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">public</strong> <a name="ZipShort" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html#ZipShort">ZipShort</a> getCentralDirectoryLength() {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="ZipShort" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipShort.html#ZipShort">ZipShort</a>((size != <strong class="jxr_keyword">null</strong> ? DWORD : 0)
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>                             + (compressedSize != <strong class="jxr_keyword">null</strong> ? DWORD : 0)
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>                             + (relativeHeaderOffset != <strong class="jxr_keyword">null</strong> ? DWORD : 0)
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>                             + (diskStart != <strong class="jxr_keyword">null</strong> ? WORD : 0));
@@ -162,18 +162,18 @@
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">if</strong> (length &lt; 2 * DWORD) {
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ZipException(LFH_MUST_HAVE_BOTH_SIZES_MSG);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         size = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(buffer, offset);
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         size = <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(buffer, offset);
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         offset += DWORD;
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         compressedSize = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(buffer, offset);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         compressedSize = <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(buffer, offset);
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         offset += DWORD;
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">int</strong> remaining = length - 2 * DWORD;
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">if</strong> (remaining &gt;= DWORD) {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             relativeHeaderOffset = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(buffer, offset);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             relativeHeaderOffset = <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(buffer, offset);
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>             offset += DWORD;
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>             remaining -= DWORD;
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         }
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">if</strong> (remaining &gt;= WORD) {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             diskStart = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(buffer, offset);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             diskStart = <strong class="jxr_keyword">new</strong> <a name="ZipLong" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html#ZipLong">ZipLong</a>(buffer, offset);
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>             offset += WORD;
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>             remaining -= WORD;
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
@@ -195,13 +195,13 @@
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">if</strong> (length &gt;= 3 * DWORD + WORD) {
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>             parseFromLocalFileData(buffer, offset, length);
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (length == 3 * DWORD) {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>             size = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(buffer, offset);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>             size = <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(buffer, offset);
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>             offset += DWORD;
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>             compressedSize = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(buffer, offset);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>             compressedSize = <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(buffer, offset);
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>             offset += DWORD;
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>             relativeHeaderOffset = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(buffer, offset);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             relativeHeaderOffset = <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(buffer, offset);
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (length % DWORD == WORD) {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>             diskStart = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(buffer, offset + length - WORD);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             diskStart = <strong class="jxr_keyword">new</strong> <a name="ZipLong" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html#ZipLong">ZipLong</a>(buffer, offset + length - WORD);
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>         }
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>     }
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> 
@@ -234,21 +234,21 @@
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>             }
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>             <strong class="jxr_keyword">int</strong> offset = 0;
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>             <strong class="jxr_keyword">if</strong> (hasUncompressedSize) {
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>                 size = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(rawCentralDirectoryData, offset);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>                 size = <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(rawCentralDirectoryData, offset);
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>                 offset += DWORD;
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>             }
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>             <strong class="jxr_keyword">if</strong> (hasCompressedSize) {
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>                 compressedSize = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(rawCentralDirectoryData,
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                 compressedSize = <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(rawCentralDirectoryData,
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>                                                          offset);
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>                 offset += DWORD;
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>             }
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>             <strong class="jxr_keyword">if</strong> (hasRelativeHeaderOffset) {
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>                 relativeHeaderOffset =
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>                     <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a>(rawCentralDirectoryData, offset);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                     <strong class="jxr_keyword">new</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a>(rawCentralDirectoryData, offset);
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>                 offset += DWORD;
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>             }
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>             <strong class="jxr_keyword">if</strong> (hasDiskStart) {
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>                 diskStart = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(rawCentralDirectoryData, offset);
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>                 diskStart = <strong class="jxr_keyword">new</strong> <a name="ZipLong" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html#ZipLong">ZipLong</a>(rawCentralDirectoryData, offset);
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>                 offset += WORD;
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>             }
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>         }
@@ -257,56 +257,56 @@
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     * The uncompressed size stored in this extra field.</em>
 <a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> getSize() {
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">public</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> getSize() {
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> size;
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> 
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * The uncompressed size stored in this extra field.</em>
 <a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSize(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> size) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSize(<a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> size) {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">this</strong>.size = size;
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>     }
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> 
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     * The compressed size stored in this extra field.</em>
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> getCompressedSize() {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">public</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> getCompressedSize() {
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">return</strong> compressedSize;
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
 <a class="jxr_linenumber" name="L269" href="#L269">269</a> 
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     * The uncompressed size stored in this extra field.</em>
 <a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setCompressedSize(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> compressedSize) {
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setCompressedSize(<a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> compressedSize) {
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">this</strong>.compressedSize = compressedSize;
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>     }
 <a class="jxr_linenumber" name="L276" href="#L276">276</a> 
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">     * The relative header offset stored in this extra field.</em>
 <a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> getRelativeHeaderOffset() {
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">public</strong> <a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> getRelativeHeaderOffset() {
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">return</strong> relativeHeaderOffset;
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
 <a class="jxr_linenumber" name="L283" href="#L283">283</a> 
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * The relative header offset stored in this extra field.</em>
 <a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setRelativeHeaderOffset(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html">ZipEightByteInteger</a> rho) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setRelativeHeaderOffset(<a name="ZipEightByteInteger" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEightByteInteger.html#ZipEightByteInteger">ZipEightByteInteger</a> rho) {
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>         relativeHeaderOffset = rho;
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>     }
 <a class="jxr_linenumber" name="L290" href="#L290">290</a> 
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * The disk start number stored in this extra field.</em>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> getDiskStartNumber() {
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     <strong class="jxr_keyword">public</strong> <a name="ZipLong" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html#ZipLong">ZipLong</a> getDiskStartNumber() {
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">return</strong> diskStart;
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>     }
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> 
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     * The disk start number stored in this extra field.</em>
 <a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setDiskStartNumber(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> ds) {
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setDiskStartNumber(<a name="ZipLong" href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html#ZipLong">ZipLong</a> ds) {
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>         diskStart = ds;
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>     }
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> 
@@ -325,6 +325,6 @@
 <a class="jxr_linenumber" name="L317" href="#L317">317</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

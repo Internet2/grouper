@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -49,7 +49,7 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * @author J&amp;ouml;rg Schaible</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * @since 1.2.2</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html">DependencyInjectionFactory</a> {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="DependencyInjectionFactory" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html#DependencyInjectionFactory">DependencyInjectionFactory</a> {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * Create an instance with dependency injection. The given dependencies are used to match the parameters of the</em>
@@ -74,18 +74,18 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              });
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html">TypedValue</a>[] typedDependencies = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html">TypedValue</a>[dependencies.length];
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">final</strong> TypedValue[] typedDependencies = <strong class="jxr_keyword">new</strong> TypedValue[dependencies.length];
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; dependencies.length; i++) {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>              Object dependency = dependencies[i];
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>              Class depType = dependency.getClass();
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">if</strong> (depType.isPrimitive()) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>                  depType = Primitives.box(depType);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (depType == TypedNull.<strong class="jxr_keyword">class</strong>) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  depType = ((TypedNull)dependency).getType();
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  depType = ((<a name="TypedNull" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/TypedNull.html#TypedNull">TypedNull</a>)dependency).getType();
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>                  dependency = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              }
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              typedDependencies[i] = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html">TypedValue</a>(depType, dependency);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              typedDependencies[i] = <strong class="jxr_keyword">new</strong> TypedValue(depType, dependency);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          Constructor bestMatchingCtor = <strong class="jxr_keyword">null</strong>;
@@ -133,7 +133,7 @@
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                 possibleCtor = constructor; <em class="jxr_comment">// assumption</em>
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> 
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                 <em class="jxr_comment">// try to match all dependencies in the sequence of the parameter declaration</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html">TypedValue</a>[] deps = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html">TypedValue</a>[typedDependencies.length];
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 <strong class="jxr_keyword">final</strong> TypedValue[] deps = <strong class="jxr_keyword">new</strong> TypedValue[typedDependencies.length];
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>                 System.arraycopy(typedDependencies, 0, deps, 0, deps.length);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                 matchingDependencies.clear();
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; parameterTypes.length; j++) {
@@ -167,7 +167,7 @@
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> 
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">if</strong> (bestMatchingCtor == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>             <strong class="jxr_keyword">if</strong> (possibleCtor == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html">ObjectAccessException</a>(<span class="jxr_string">"Cannot construct "</span>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ObjectAccessException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html#ObjectAccessException">ObjectAccessException</a>(<span class="jxr_string">"Cannot construct "</span>
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>                         + type.getName()
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>                         + <span class="jxr_string">", none of the dependencies match any constructor's parameters"</span>);
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>             } <strong class="jxr_keyword">else</strong> {
@@ -178,19 +178,19 @@
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">return</strong> bestMatchingCtor.newInstance(matchingDependencies.toArray());
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         } <strong class="jxr_keyword">catch</strong> (<strong class="jxr_keyword">final</strong> InstantiationException e) {
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html">ObjectAccessException</a>(<span class="jxr_string">"Cannot construct "</span> + type.getName(), e);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ObjectAccessException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html#ObjectAccessException">ObjectAccessException</a>(<span class="jxr_string">"Cannot construct "</span> + type.getName(), e);
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>         } <strong class="jxr_keyword">catch</strong> (<strong class="jxr_keyword">final</strong> IllegalAccessException e) {
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html">ObjectAccessException</a>(<span class="jxr_string">"Cannot construct "</span> + type.getName(), e);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ObjectAccessException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html#ObjectAccessException">ObjectAccessException</a>(<span class="jxr_string">"Cannot construct "</span> + type.getName(), e);
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>         } <strong class="jxr_keyword">catch</strong> (<strong class="jxr_keyword">final</strong> InvocationTargetException e) {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html">ObjectAccessException</a>(<span class="jxr_string">"Cannot construct "</span> + type.getName(), e);
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="ObjectAccessException" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/reflection/ObjectAccessException.html#ObjectAccessException">ObjectAccessException</a>(<span class="jxr_string">"Cannot construct "</span> + type.getName(), e);
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>         }
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>     }
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> 
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html">TypedValue</a> {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> TypedValue {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">final</strong> Class type;
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">final</strong> Object value;
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> 
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/DependencyInjectionFactory.html">TypedValue</a>(<strong class="jxr_keyword">final</strong> Class type, <strong class="jxr_keyword">final</strong> Object value) {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">public</strong> TypedValue(<strong class="jxr_keyword">final</strong> Class type, <strong class="jxr_keyword">final</strong> Object value) {
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">super</strong>();
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>             <strong class="jxr_keyword">this</strong>.type = type;
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>             <strong class="jxr_keyword">this</strong>.value = value;
@@ -200,6 +200,6 @@
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

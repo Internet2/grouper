@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">  you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -69,21 +69,21 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> * @version $Id: Hib3GroupDAO.java,v 1.51 2009-12-10 08:54:15 mchyzer Exp $</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> * @since   @HEAD@</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3EntityDAO.html">Hib3EntityDAO</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html">Hib3DAO</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/EntityDAO.html">EntityDAO</a> {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Hib3EntityDAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3EntityDAO.html#Hib3EntityDAO">Hib3EntityDAO</a> <strong class="jxr_keyword">extends</strong> <a name="Hib3DAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html#Hib3DAO">Hib3DAO</a> <strong class="jxr_keyword">implements</strong> <a name="EntityDAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/EntityDAO.html#EntityDAO">EntityDAO</a> {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   * @see EntityDAO#findEntitiesSecure(GrouperSession, List, List, List, List, List, List, String, Set, QueryOptions)</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>    <strong class="jxr_keyword">public</strong> Set&lt;Entity&gt; findEntitiesSecure(<a href="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession,
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>    <strong class="jxr_keyword">public</strong> Set&lt;Entity&gt; findEntitiesSecure(<a name="GrouperSession" href="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession,
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>        List&lt;String&gt; ancestorFolderIds, List&lt;String&gt; ancestorFolderNames, List&lt;String&gt; ids,
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>        List&lt;String&gt; names, List&lt;String&gt; parentFolderIds, List&lt;String&gt; parentFolderNames,
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>        String terms,
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>        Set&lt;Privilege&gt; inPrivSet, <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>        Set&lt;Privilege&gt; inPrivSet, <a name="QueryOptions" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html#QueryOptions">QueryOptions</a> queryOptions) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">int</strong> parentFolderNamesLength = GrouperUtil.length(parentFolderNames);
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">if</strong> (queryOptions == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>        queryOptions = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a>();
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>        queryOptions = <strong class="jxr_keyword">new</strong> <a name="QueryOptions" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html#QueryOptions">QueryOptions</a>();
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">if</strong> (queryOptions.getQuerySort() == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>        queryOptions.sortAsc(<span class="jxr_string">"theGroup.displayNameDb"</span>);
@@ -96,13 +96,13 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>        sql.append(<span class="jxr_string">", Stem parentStem "</span>);
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html">ByHqlStatic</a> byHqlStatic = HibernateSession.byHqlStatic();
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <a name="ByHqlStatic" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html#ByHqlStatic">ByHqlStatic</a> byHqlStatic = HibernateSession.byHqlStatic();
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>    
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      <em class="jxr_comment">//see if we are adding more to the query</em>
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">boolean</strong> changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic,
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>          sql, <span class="jxr_string">"theGroup.uuid"</span>, inPrivSet);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">if</strong> (changedQuery) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">if</strong> (changedQuery &amp;&amp; sql.toString().contains(<span class="jxr_string">" where "</span>)) {
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>        sql.append(<span class="jxr_string">" and "</span>);
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>      } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>       sql.append(<span class="jxr_string">" where "</span>);
@@ -135,7 +135,7 @@
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>       <strong class="jxr_keyword">if</strong> (ancestorFolderNames == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         ancestorFolderNames = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>       }
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>       <strong class="jxr_keyword">for</strong> (Stem stem : ancestorFolders) {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>       <strong class="jxr_keyword">for</strong> (<a name="Stem" href="../../../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem : ancestorFolders) {
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         ancestorFolderNames.add(stem.getName());
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>       }
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>       ancestorFolderNamesLength = GrouperUtil.length(ancestorFolderNames);
@@ -326,7 +326,7 @@
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>       StringBuilder sql = <strong class="jxr_keyword">new</strong> StringBuilder(
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>           <span class="jxr_string">"select distinct theGroup, theAttributeAssignValue from Group theGroup, AttributeAssign theAttributeAssign, AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName "</span>);
 <a class="jxr_linenumber" name="L320" href="#L320">320</a>     
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html">ByHqlStatic</a> byHqlStatic = HibernateSession.byHqlStatic();
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>       <a name="ByHqlStatic" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html#ByHqlStatic">ByHqlStatic</a> byHqlStatic = HibernateSession.byHqlStatic();
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>     
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>       sql.append(<span class="jxr_string">" where theGroup.typeOfGroupDb = 'entity' "</span>);
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>       sql.append(<span class="jxr_string">" and theGroup.uuid = theAttributeAssign.ownerGroupId "</span>);
@@ -356,6 +356,6 @@
 <a class="jxr_linenumber" name="L348" href="#L348">348</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

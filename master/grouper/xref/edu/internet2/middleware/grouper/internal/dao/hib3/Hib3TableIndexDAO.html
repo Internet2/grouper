@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -48,7 +48,7 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * @author  mchyzer</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * @version $Id$</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3TableIndexDAO.html">Hib3TableIndexDAO</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html">Hib3DAO</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/TableIndexDAO.html">TableIndexDAO</a> {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Hib3TableIndexDAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3TableIndexDAO.html#Hib3TableIndexDAO">Hib3TableIndexDAO</a> <strong class="jxr_keyword">extends</strong> <a name="Hib3DAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html#Hib3DAO">Hib3DAO</a> <strong class="jxr_keyword">implements</strong> <a name="TableIndexDAO" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/TableIndexDAO.html#TableIndexDAO">TableIndexDAO</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>    
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">   * </em>
@@ -59,11 +59,11 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">   * @param hibernateSession</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> reset(<a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> reset(<a name="HibernateSession" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html#HibernateSession">HibernateSession</a> hibernateSession) {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      hibernateSession.byHql().createQuery(<span class="jxr_string">"delete from TableIndex"</span>).executeUpdate();
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">for</strong> (TableIndexType tableIndexType : TableIndexType.values()) {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">for</strong> (<a name="TableIndexType" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> tableIndexType : TableIndexType.values()) {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>        TableIndex.clearReservedIds(tableIndexType);
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      
@@ -73,8 +73,8 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.TableIndexDAO#findById(java.lang.String, boolean)</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> findById(String id, <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> tableIndex = HibernateSession.byHqlStatic()
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>    <strong class="jxr_keyword">public</strong> <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> findById(String id, <strong class="jxr_keyword">boolean</strong> exceptionIfNotFound) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> tableIndex = HibernateSession.byHqlStatic()
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>        .createQuery(<span class="jxr_string">"from TableIndex where id = :theId"</span>)
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>        .setString(<span class="jxr_string">"theId"</span>, id).uniqueResult(TableIndex.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      
@@ -88,14 +88,14 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.TableIndexDAO#saveOrUpdate(TableIndex)</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> saveOrUpdate(<a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> tableIndex) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> saveOrUpdate(<a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> tableIndex) {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      HibernateSession.byObjectStatic().saveOrUpdate(tableIndex);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>    }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>    
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.internal.dao.TableIndexDAO#delete(TableIndex)</em>
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> delete(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> tableIndex) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> delete(<strong class="jxr_keyword">final</strong> <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> tableIndex) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      HibernateSession.byObjectStatic().delete(tableIndex);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>    }
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  
@@ -103,8 +103,8 @@
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">   * @see TableIndexDAO#findByType(String)</em>
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>    @Override
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> findByType(<a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> type) {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> tableIndex = HibernateSession.byHqlStatic()
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>    <strong class="jxr_keyword">public</strong> <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> findByType(<a name="TableIndexType" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> type) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> tableIndex = HibernateSession.byHqlStatic()
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         .createQuery(<span class="jxr_string">"from TableIndex where typeDb = :theType"</span>)
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         .setString(<span class="jxr_string">"theType"</span>, type.name()).uniqueResult(TableIndex.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">return</strong> tableIndex;
@@ -119,8 +119,8 @@
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">   * @see TableIndexDAO#reserveIds(TableIndexType, int)</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>   @Override
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> reserveIds(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> tableIndexType, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numberOfIndicesToReserve) {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> tableIndex = reserveIdsHelper(tableIndexType, numberOfIndicesToReserve);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>   <strong class="jxr_keyword">public</strong> <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> reserveIds(<strong class="jxr_keyword">final</strong> <a name="TableIndexType" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> tableIndexType, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numberOfIndicesToReserve) {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> tableIndex = reserveIdsHelper(tableIndexType, numberOfIndicesToReserve);
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>       LOG.debug(<span class="jxr_string">"Reserved from DB: "</span> + numberOfIndicesToReserve + <span class="jxr_string">" indexes, for type: "</span> 
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>           + tableIndexType + <span class="jxr_string">", lastIndexReserved: "</span> + tableIndex.getLastIndexReserved());
@@ -144,7 +144,7 @@
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">   * @param numberOfIndicesToReserve</em>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">   * @return TableIndex</em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> reserveIdsHelper(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html">TableIndexType</a> tableIndexType, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numberOfIndicesToReserve) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>   <strong class="jxr_keyword">private</strong> <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> reserveIdsHelper(<strong class="jxr_keyword">final</strong> <a name="TableIndexType" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndexType.html#TableIndexType">TableIndexType</a> tableIndexType, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numberOfIndicesToReserve) {
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>     
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     <em class="jxr_comment">//try 50 times, if not successful keep trying</em>
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">int</strong> numberOfTries = GrouperConfig.retrieveConfig().propertyValueInt(<span class="jxr_string">"grouper.tableIndex.numberOfTries"</span>, 50);
@@ -157,21 +157,21 @@
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         testingNumberOfTimesReservedIndexes++;
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>         
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>         <em class="jxr_comment">//lets do an autonomous transaction</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> tableIndex = (TableIndex)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> HibernateHandler() {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <a name="TableIndex" href<a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a>/../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> tableIndex = (<a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a>)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a name="HibernateHandler" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html#HibernateHandler">HibernateHandler</a>() {
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>           
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>           <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">           * callback</em>
 <a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">           */</em>
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>           @Override
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>           <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>               <strong class="jxr_keyword">throws</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>           <strong class="jxr_keyword">public</strong> Object callback(<a name="HibernateHandlerBean" href="../../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html#HibernateHandlerBean">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>               <strong class="jxr_keyword">throws</strong> <a name="GrouperDAOException" href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html#GrouperDAOException">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>             
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>             <em class="jxr_comment">//lets get the table index... see if it exists</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>             <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a> localTableIndex = findByType(tableIndexType);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a> localTableIndex = findByType(tableIndexType);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">int</strong> minIndex = GrouperConfig.retrieveConfig().propertyValueInt(<span class="jxr_string">"idIndex."</span> + tableIndexType + <span class="jxr_string">".minIndex"</span>, 10000);
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> 
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">if</strong> (localTableIndex == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>               localTableIndex = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html">TableIndex</a>();
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>               localTableIndex = <strong class="jxr_keyword">new</strong> <a name="TableIndex" href="../../../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html#TableIndex">TableIndex</a>();
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>                             
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>               
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>               <strong class="jxr_keyword">int</strong> lastReservedIndex = (minIndex + numberOfIndicesToReserve) -1;
@@ -251,6 +251,6 @@
 <a class="jxr_linenumber" name="L243" href="#L243">243</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

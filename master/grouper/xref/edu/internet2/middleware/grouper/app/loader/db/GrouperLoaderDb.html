@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -54,7 +54,7 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * db profile from grouper.properties (or possibly grouper.hibernate.properties)</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html">GrouperLoaderDb</a> {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GrouperLoaderDb" href="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html#GrouperLoaderDb">GrouperLoaderDb</a> {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>    
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    <em class="jxr_javadoccomment">/** user to login to db */</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>    <strong class="jxr_keyword">private</strong> String user;
@@ -110,7 +110,7 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>   <strong class="jxr_keyword">static</strong> String retrieveConfigName(String url, String user) {
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>     
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderConfig.html">GrouperLoaderConfig</a> grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <a name="GrouperLoaderConfig" href="../../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderConfig.html#GrouperLoaderConfig">GrouperLoaderConfig</a> grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> 
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     Pattern pattern = Pattern.compile(<span class="jxr_string">"^db.([^.]+).user$"</span>);
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     
@@ -347,7 +347,7 @@
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L340" href="#L340">340</a> <em class="jxr_javadoccomment">   * empty constructor</em>
 <a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html">GrouperLoaderDb</a>() {
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperLoaderDb" href="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html#GrouperLoaderDb">GrouperLoaderDb</a>() {
 <a class="jxr_linenumber" name="L343" href="#L343">343</a>     <em class="jxr_comment">//empty  </em>
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>   }
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>   
@@ -358,7 +358,7 @@
 <a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_javadoccomment">   * @param url1</em>
 <a class="jxr_linenumber" name="L351" href="#L351">351</a> <em class="jxr_javadoccomment">   * @param driver1</em>
 <a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html">GrouperLoaderDb</a>(String user1, String pass1, String url1, String driver1) {
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperLoaderDb" href="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html#GrouperLoaderDb">GrouperLoaderDb</a>(String user1, String pass1, String url1, String driver1) {
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>     <strong class="jxr_keyword">super</strong>();
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>     <strong class="jxr_keyword">this</strong>.user = user1;
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>     <strong class="jxr_keyword">this</strong>.pass = pass1;
@@ -370,6 +370,6 @@
 <a class="jxr_linenumber" name="L362" href="#L362">362</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

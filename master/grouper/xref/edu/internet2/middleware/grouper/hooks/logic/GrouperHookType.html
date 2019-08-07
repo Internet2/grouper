@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -62,7 +62,7 @@
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> * type of hook, and manages the classes and instances</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookType.html">GrouperHookType</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookTypeInterface.html">GrouperHookTypeInterface</a> {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">public</strong> enum <a name="GrouperHookType" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookType.html#GrouperHookType">GrouperHookType</a> <strong class="jxr_keyword">implements</strong> <a name="GrouperHookTypeInterface" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookTypeInterface.html#GrouperHookTypeInterface">GrouperHookTypeInterface</a> {
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">   * external subject hooks</em>
@@ -154,7 +154,7 @@
 <a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">   * @param thePropertyFileKey</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">   * @param theBaseClass</em>
 <a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookType.html">GrouperHookType</a>(String thePropertyFileKey, Class&lt;?&gt; theBaseClass) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>   <strong class="jxr_keyword">private</strong> <a name="GrouperHookType" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookType.html#GrouperHookType">GrouperHookType</a>(String thePropertyFileKey, Class&lt;?&gt; theBaseClass) {
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">this</strong>.propertyFileKey = thePropertyFileKey;
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">this</strong>.baseClass = theBaseClass;
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>     
@@ -173,7 +173,7 @@
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">   * @param beanClass e.g. HooksGroupBean.class</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">   * @return the instance / methods or empty list if none configured</em>
 <a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;GrouperHookMethodAndObject&gt; hooksInstances(<a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookTypeInterface.html">GrouperHookTypeInterface</a> grouperHookTypeInterface, String methodName, 
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;GrouperHookMethodAndObject&gt; hooksInstances(<a name="GrouperHookTypeInterface" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookTypeInterface.html#GrouperHookTypeInterface">GrouperHookTypeInterface</a> grouperHookTypeInterface, String methodName, 
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>       Class&lt;?&gt; beanClass) {
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     <strong class="jxr_keyword">return</strong> (List&lt;GrouperHookMethodAndObject&gt;)hooksInstances(grouperHookTypeInterface, grouperHookTypeInterface.getPropertyFileKey(), 
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>         grouperHookTypeInterface.getBaseClass(), methodName, beanClass);
@@ -317,7 +317,7 @@
 <a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">   * @param beanClass e.g. HooksGroupBean.class</em>
 <a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">   * @return the instances or empty list if none configured.  Dont edit this list!</em>
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;GrouperHookMethodAndObject&gt; hooksInstances(<a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookTypeInterface.html">GrouperHookTypeInterface</a> grouperHookTypeInterface, 
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;GrouperHookMethodAndObject&gt; hooksInstances(<a name="GrouperHookTypeInterface" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookTypeInterface.html#GrouperHookTypeInterface">GrouperHookTypeInterface</a> grouperHookTypeInterface, 
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>       String propertyFileKey, Class&lt;?&gt; baseClass,
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>       String methodName, Class&lt;?&gt; beanClass) {
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>     
@@ -354,7 +354,7 @@
 <a class="jxr_linenumber" name="L346" href="#L346">346</a> 
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>       <em class="jxr_comment">//we have a class, make sure it is the right one</em>
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>       <strong class="jxr_keyword">if</strong> (!baseClass.isAssignableFrom(theHooksClass)) {
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Class configured in grouper config: '"</span> + propertyFileKey 
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException((theHooksClass == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : theHooksClass.getName()) + <span class="jxr_string">" class configured in grouper config: '"</span> + propertyFileKey 
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>             + <span class="jxr_string">"' does not extend "</span> + baseClass.getName());
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>       }
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>       
@@ -363,7 +363,7 @@
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>           grouperHookTypeInterface.getBaseClass(), false, false, <strong class="jxr_keyword">null</strong>, false);
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>       
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>       <strong class="jxr_keyword">if</strong> (method != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>         results.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookMethodAndObject.html">GrouperHookMethodAndObject</a>(method, GrouperUtil.newInstance(theHooksClass)));
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         results.add(<strong class="jxr_keyword">new</strong> <a name="GrouperHookMethodAndObject" href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/GrouperHookMethodAndObject.html#GrouperHookMethodAndObject">GrouperHookMethodAndObject</a>(method, GrouperUtil.newInstance(theHooksClass)));
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>       }
 <a class="jxr_linenumber" name="L360" href="#L360">360</a>       
 <a class="jxr_linenumber" name="L361" href="#L361">361</a>     }
@@ -392,6 +392,6 @@
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

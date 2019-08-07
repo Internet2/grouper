@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -51,13 +51,13 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleDefinition.html">RuleDefinition</a> {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="RuleDefinition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleDefinition.html#RuleDefinition">RuleDefinition</a> {
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">   * load rules for one attribute type assign id</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">   * @param attributeTypeAssignId</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleDefinition.html">RuleDefinition</a>(String attributeTypeAssignId) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>    <strong class="jxr_keyword">public</strong> <a name="RuleDefinition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleDefinition.html#RuleDefinition">RuleDefinition</a>(String attributeTypeAssignId) {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      Set&lt;AttributeAssignValueContainer&gt; result = GrouperDAOFactory.getFactory()
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>        .getAttributeAssign().findByAssignTypeId(attributeTypeAssignId);
@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   * rule definitions from attribute assigns</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">   * @param attributeAssignValueContainers</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleDefinition.html">RuleDefinition</a>(
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">public</strong> <a name="RuleDefinition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleDefinition.html#RuleDefinition">RuleDefinition</a>(
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>        Set&lt;AttributeAssignValueContainer&gt; attributeAssignValueContainers) {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      construct(attributeAssignValueContainers);
@@ -97,20 +97,20 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      <em class="jxr_comment">//RuleUtils.RULE_THEN_EL</em>
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <em class="jxr_comment">//RuleUtils.RULE_RUN_DAEMON</em>
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      String actAsSubjectId = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      String actAsSubjectId = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>        .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectIdName());
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      String actAsSubjectIdentifier = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      String actAsSubjectIdentifier = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>        .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectIdentifierName());
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      String actAsSubjectSourceId = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      String actAsSubjectSourceId = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>        .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectSourceIdName());
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      String checkTypeString = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      String checkTypeString = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>        .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckTypeName());
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     String checkOwnerId = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     String checkOwnerId = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerIdName());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     String checkOwnerName = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     String checkOwnerName = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerNameName());
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>     
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> attributeAssignType = attributeAssignValueContainers.iterator().next().getAttributeTypeAssign();
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <a name="AttributeAssign" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> attributeAssignType = attributeAssignValueContainers.iterator().next().getAttributeTypeAssign();
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> 
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     <em class="jxr_comment">//this is done in the RuleCheckType I believe</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     <em class="jxr_comment">////if owner id and name are blank, then we get from where the rules are assigned</em>
@@ -125,50 +125,50 @@
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     <em class="jxr_comment">//  }</em>
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     <em class="jxr_comment">//}</em>
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> 
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     String checkArg0 = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     String checkArg0 = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckArg0Name());
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     String checkArg1 = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     String checkArg1 = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckArg1Name());
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     String checkStemScope = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     String checkStemScope = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckStemScopeName());
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>     String ifConditionEl = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     String ifConditionEl = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionElName());
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>     String ifConditionEnum = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     String ifConditionEnum = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumName());
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     String ifConditionEnumArg0 = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     String ifConditionEnumArg0 = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumArg0Name());
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     String ifConditionEnumArg1 = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     String ifConditionEnumArg1 = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumArg1Name());
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     String ifOwnerId = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     String ifOwnerId = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfOwnerIdName());
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     String ifOwnerName = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     String ifOwnerName = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfOwnerNameName());
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>     String ifStemScope = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     String ifStemScope = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfStemScopeName());
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     String thenEl = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     String thenEl = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenElName());
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     String thenEnum = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     String thenEnum = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumName());
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     String thenEnumArg0 = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     String thenEnumArg0 = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumArg0Name());
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     String thenEnumArg1 = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     String thenEnumArg1 = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumArg1Name());
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     String thenEnumArg2 = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     String thenEnumArg2 = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumArg2Name());
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     String runDaemonTf = <a href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html">AttributeAssignValueContainer</a>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     String runDaemonTf = <a name="AttributeAssignValueContainer" href="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValueContainer.html#AttributeAssignValueContainer">AttributeAssignValueContainer</a>
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleRunDaemonName());
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>     
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     <em class="jxr_comment">//lets do the subject first</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html">RuleSubjectActAs</a> ruleSubjectActAs = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html">RuleSubjectActAs</a>(
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <a name="RuleSubjectActAs" href="../../../../../edu/internet2/middleware/grou<a name="RuleSubjectActAs" href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html#RuleSubjectActAs">RuleSubjectActAs</a>bjectActAs.html#RuleSubjectActAs">RuleSubjectActAs</a> ruleSubjectActAs = <strong class="jxr_keyword">new</strong> <a name="RuleSubjectActAs" href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html#RuleSubjectActAs">RuleSubjectActAs</a>(
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html">RuleCheck</a> ruleCheck = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html">RuleCheck</a>(checkTypeString, checkOwnerId, 
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <a name="RuleCheck" href="../../../../../edu/internet2/middlewa<a name="RuleCheck" href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html#RuleCheck">RuleCheck</a>r/rules/RuleCheck.html#RuleCheck">RuleCheck</a> ruleCheck = <strong class="jxr_keyword">new</strong> <a name="RuleCheck" href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html#RuleCheck">RuleCheck</a>(checkTypeString, checkOwnerId, 
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         checkOwnerName, checkStemScope, checkArg0, checkArg1);
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html">RuleIfCondition</a> ruleIfCondition = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html">RuleIfCondition</a>(ifConditionEl, ifConditionEnum, 
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <a name="RuleIfCondition" href="../../../../../edu/internet2/middleware/gro<a name="RuleIfCondition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html#RuleIfCondition">RuleIfCondition</a>IfCondition.html#RuleIfCondition">RuleIfCondition</a> ruleIfCondition = <strong class="jxr_keyword">new</strong> <a name="RuleIfCondition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html#RuleIfCondition">RuleIfCondition</a>(ifConditionEl, ifConditionEnum, 
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>         ifOwnerId, ifOwnerName, ifStemScope, ifConditionEnumArg0, ifConditionEnumArg1);
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html">RuleThen</a> ruleThen = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html">RuleThen</a>(thenEl, thenEnum, thenEnumArg0, thenEnumArg1, thenEnumArg2);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <a name="RuleThen" href="../../../../../edu/internet2/middlew<a name="RuleThen" href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html#RuleThen">RuleThen</a>per/rules/RuleThen.html#RuleThen">RuleThen</a> ruleThen = <strong class="jxr_keyword">new</strong> <a name="RuleThen" href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html#RuleThen">RuleThen</a>(thenEl, thenEnum, thenEnumArg0, thenEnumArg1, thenEnumArg2);
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> 
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     construct(attributeAssignType, 
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         ruleSubjectActAs, ruleCheck, ruleIfCondition, ruleThen);
@@ -181,14 +181,14 @@
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">   * keep a reference to this to get back to the owner etc</em>
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> attributeAssignType;
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>   <strong class="jxr_keyword">private</strong> <a name="AttributeAssign" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> attributeAssignType;
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>   
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>   
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">   * keep a reference to this to get back to the owner etc</em>
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">   * @return the attributeAssignType</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> getAttributeAssignType() {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeAssign" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> getAttributeAssignType() {
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.attributeAssignType;
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>   }
 <a class="jxr_linenumber" name="L186" href="#L186">186</a> 
@@ -197,14 +197,14 @@
 <a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">   * keep a reference to this to get back to the owner etc</em>
 <a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">   * @param attributeAssignType1 the attributeAssignType to set</em>
 <a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setAttributeAssignType(<a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> attributeAssignType1) {
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setAttributeAssignType(<a name="AttributeAssign" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> attributeAssignType1) {
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>     <strong class="jxr_keyword">this</strong>.attributeAssignType = attributeAssignType1;
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>   }
 <a class="jxr_linenumber" name="L195" href="#L195">195</a> 
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleDefinition.html">RuleDefinition</a>() {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>   <strong class="jxr_keyword">public</strong> <a name="RuleDefinition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleDefinition.html#RuleDefinition">RuleDefinition</a>() {
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">super</strong>();
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>     
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>   }
@@ -216,8 +216,8 @@
 <a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">   * @param ifCondition</em>
 <a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">   * @param then</em>
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> construct(<a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> theAttributeAssignType, <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html">RuleSubjectActAs</a> actAs,
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>       <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html">RuleCheck</a> check, <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html">RuleIfCondition</a> ifCondition, <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html">RuleThen</a> then) {
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> construct(<a name="AttributeAssign" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> theAttributeAssignType, <a name="RuleSubjectActAs" href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html#RuleSubjectActAs">RuleSubjectActAs</a> actAs,
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>       <a name="RuleCheck" href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html#RuleCheck">RuleCheck</a> check, <a name="RuleIfCondition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html#RuleIfCondition">RuleIfCondition</a> ifCondition, <a name="RuleThen" href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html#RuleThen">RuleThen</a> then) {
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>     <strong class="jxr_keyword">this</strong>.attributeAssignType = theAttributeAssignType;
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">this</strong>.actAs = actAs;
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>     <strong class="jxr_keyword">this</strong>.check = check;
@@ -229,22 +229,22 @@
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>   <strong class="jxr_keyword">private</strong> String runDaemon;
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>   
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>   <em class="jxr_javadoccomment">/** who this rule acts as */</em>
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html">RuleSubjectActAs</a> actAs;
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>   <strong class="jxr_keyword">private</strong> <a name="RuleSubjectActAs" href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html#RuleSubjectActAs">RuleSubjectActAs</a> actAs;
 <a class="jxr_linenumber" name="L225" href="#L225">225</a> 
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>   <em class="jxr_javadoccomment">/** when this rules is triggered */</em>
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html">RuleCheck</a> check;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>   <strong class="jxr_keyword">private</strong> <a name="RuleCheck" href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html#RuleCheck">RuleCheck</a> check;
 <a class="jxr_linenumber" name="L228" href="#L228">228</a> 
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>   <em class="jxr_javadoccomment">/** only fire if this condition occurs */</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html">RuleIfCondition</a> ifCondition;
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>   <strong class="jxr_keyword">private</strong> <a name="RuleIfCondition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html#RuleIfCondition">RuleIfCondition</a> ifCondition;
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>   
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>   <em class="jxr_javadoccomment">/** do this when the rule fires */</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html">RuleThen</a> then;
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>   <strong class="jxr_keyword">private</strong> <a name="RuleThen" href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html#RuleThen">RuleThen</a> then;
 <a class="jxr_linenumber" name="L234" href="#L234">234</a> 
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">   * who this rule acts as</em>
 <a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">   * @return who this rule acts as</em>
 <a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html">RuleSubjectActAs</a> getActAs() {
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>   <strong class="jxr_keyword">public</strong> <a name="RuleSubjectActAs" href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html#RuleSubjectActAs">RuleSubjectActAs</a> getActAs() {
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.actAs;
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>   }
 <a class="jxr_linenumber" name="L242" href="#L242">242</a> 
@@ -252,7 +252,7 @@
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">   * who this rule acts as</em>
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">   * @param actAs1</em>
 <a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setActAs(<a href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html">RuleSubjectActAs</a> actAs1) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setActAs(<a name="RuleSubjectActAs" href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html#RuleSubjectActAs">RuleSubjectActAs</a> actAs1) {
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">this</strong>.actAs = actAs1;
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>   }
 <a class="jxr_linenumber" name="L250" href="#L250">250</a> 
@@ -260,7 +260,7 @@
 <a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">   * when this rules is triggered</em>
 <a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">   * @return the check</em>
 <a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html">RuleCheck</a> getCheck() {
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>   <strong class="jxr_keyword">public</strong> <a name="RuleCheck" href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html#RuleCheck">RuleCheck</a> getCheck() {
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">return</strong> check;
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>   }
 <a class="jxr_linenumber" name="L258" href="#L258">258</a> 
@@ -268,7 +268,7 @@
 <a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">   * when this rules is triggered</em>
 <a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">   * @param check1</em>
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setCheck(<a href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html">RuleCheck</a> check1) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setCheck(<a name="RuleCheck" href="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html#RuleCheck">RuleCheck</a> check1) {
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>     <strong class="jxr_keyword">this</strong>.check = check1;
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>   }
 <a class="jxr_linenumber" name="L266" href="#L266">266</a> 
@@ -276,7 +276,7 @@
 <a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">   * only fire if this condition occurs</em>
 <a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">   * @return the if condition</em>
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html">RuleIfCondition</a> getIfCondition() {
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>   <strong class="jxr_keyword">public</strong> <a name="RuleIfCondition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html#RuleIfCondition">RuleIfCondition</a> getIfCondition() {
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>     <strong class="jxr_keyword">return</strong> ifCondition;
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>   }
 <a class="jxr_linenumber" name="L274" href="#L274">274</a> 
@@ -284,7 +284,7 @@
 <a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">   * only fire if this condition occurs</em>
 <a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">   * @param ifCondition1</em>
 <a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setIfCondition(<a href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html">RuleIfCondition</a> ifCondition1) {
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setIfCondition(<a name="RuleIfCondition" href="../../../../../edu/internet2/middleware/grouper/rules/RuleIfCondition.html#RuleIfCondition">RuleIfCondition</a> ifCondition1) {
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">this</strong>.ifCondition = ifCondition1;
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>   }
 <a class="jxr_linenumber" name="L282" href="#L282">282</a> 
@@ -292,7 +292,7 @@
 <a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">   * do this when the rule fires</em>
 <a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">   * @return the then part</em>
 <a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html">RuleThen</a> getThen() {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>   <strong class="jxr_keyword">public</strong> <a name="RuleThen" href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html#RuleThen">RuleThen</a> getThen() {
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">return</strong> then;
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>   }
 <a class="jxr_linenumber" name="L290" href="#L290">290</a> 
@@ -300,7 +300,7 @@
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">   * do this when the rule fires</em>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">   * @param then1</em>
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setThen(<a href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html">RuleThen</a> then1) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setThen(<a name="RuleThen" href="../../../../../edu/internet2/middleware/grouper/rules/RuleThen.html#RuleThen">RuleThen</a> then1) {
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">this</strong>.then = then1;
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>   }
 <a class="jxr_linenumber" name="L298" href="#L298">298</a> 
@@ -325,18 +325,18 @@
 <a class="jxr_linenumber" name="L317" href="#L317">317</a>       <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>     }
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>     <em class="jxr_comment">//setup the actAs</em>
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>     <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html">RuleSubjectActAs</a> actAs = <strong class="jxr_keyword">this</strong>.getActAs();
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>     Subject actAsSubject = actAs.subject(false);
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>     <a name="RuleSubjectActAs" href="../../../../../edu/internet2/middleware/grouper/rules/RuleSubjectActAs.html#RuleSubjectActAs">RuleSubjectActAs</a> actAs = <strong class="jxr_keyword">this</strong>.getActAs();
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> actAsSubject = actAs.subject(false);
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>     <strong class="jxr_keyword">if</strong> (actAsSubject == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>       LOG.error(<span class="jxr_string">"Cant find subject for rule: "</span> + <strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>     } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>       
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>       GrouperSession.callbackGrouperSession(GrouperSession.start(actAsSubject, false), <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html">GrouperSessionHandler</a>() {
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>       GrouperSession.callbackGrouperSession(GrouperSession.start(actAsSubject, false), <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L327" href="#L327">327</a> 
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>         <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_javadoccomment">         * </em>
 <a class="jxr_linenumber" name="L330" href="#L330">330</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L332" href="#L332">332</a>           <em class="jxr_comment">//we are running the daemon, lets go</em>
 <a class="jxr_linenumber" name="L333" href="#L333">333</a>           RuleDefinition.<strong class="jxr_keyword">this</strong>.getCheck().checkTypeEnum().runDaemon(RuleDefinition.<strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -472,20 +472,20 @@
 <a class="jxr_linenumber" name="L464" href="#L464">464</a> <em class="jxr_javadoccomment">   * @param rulesBean </em>
 <a class="jxr_linenumber" name="L465" href="#L465">465</a> <em class="jxr_javadoccomment">   * @param hasAccessToEl </em>
 <a class="jxr_linenumber" name="L466" href="#L466">466</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addElVariables(Map&lt;String, Object&gt; variableMap, <a href="../../../../../edu/internet2/middleware/grouper/rules/beans/RulesBean.html">RulesBean</a> rulesBean, <strong class="jxr_keyword">boolean</strong> hasAccessToEl) {
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addElVariables(Map&lt;String, Object&gt; variableMap, <a name="RulesBean" href="../../../../../edu/internet2/middleware/grouper/rules/beans/RulesBean.html#RulesBean">RulesBean</a> rulesBean, <strong class="jxr_keyword">boolean</strong> hasAccessToEl) {
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>     <strong class="jxr_keyword">this</strong>.getCheck().addElVariables(<strong class="jxr_keyword">this</strong>, variableMap, rulesBean, hasAccessToEl);
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>     
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>     <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> attributeAssign = <strong class="jxr_keyword">this</strong>.getAttributeAssignType();
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>     <a name="AttributeAssign" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> attributeAssign = <strong class="jxr_keyword">this</strong>.getAttributeAssignType();
 <a class="jxr_linenumber" name="L471" href="#L471">471</a> 
 <a class="jxr_linenumber" name="L472" href="#L472">472</a>     <strong class="jxr_keyword">if</strong> (hasAccessToEl) {
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>       variableMap.put(<span class="jxr_string">"attributeAssignType"</span>, attributeAssign);
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>       variableMap.put(<span class="jxr_string">"ruleDefinition"</span>, <strong class="jxr_keyword">this</strong>);
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>       variableMap.put(<span class="jxr_string">"grouperUtil"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/util/GrouperUtil.html">GrouperUtil</a>());
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>       variableMap.put(<span class="jxr_string">"ruleUtils"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleUtils.html">RuleUtils</a>());
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>       variableMap.put(<span class="jxr_string">"grouperUtil"</span>, <strong class="jxr_keyword">new</strong> <a name="GrouperUtil" href="../../../../../edu/internet2/middleware/grouper/util/GrouperUtil.html#GrouperUtil">GrouperUtil</a>());
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>       variableMap.put(<span class="jxr_string">"ruleUtils"</span>, <strong class="jxr_keyword">new</strong> <a name="RuleUtils" href="../../../../../edu/internet2/middleware/grouper/rules/RuleUtils.html#RuleUtils">RuleUtils</a>());
 <a class="jxr_linenumber" name="L477" href="#L477">477</a>       
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>     }
 <a class="jxr_linenumber" name="L479" href="#L479">479</a> 
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>     variableMap.put(<span class="jxr_string">"ruleElUtils"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/rules/RuleElUtils.html">RuleElUtils</a>());
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>     variableMap.put(<span class="jxr_string">"ruleElUtils"</span>, <strong class="jxr_keyword">new</strong> <a name="RuleElUtils" href="../../../../../edu/internet2/middleware/grouper/rules/RuleElUtils.html#RuleElUtils">RuleElUtils</a>());
 <a class="jxr_linenumber" name="L481" href="#L481">481</a> 
 <a class="jxr_linenumber" name="L482" href="#L482">482</a>     <strong class="jxr_keyword">if</strong> (attributeAssign != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L483" href="#L483">483</a>       
@@ -526,6 +526,6 @@
 <a class="jxr_linenumber" name="L518" href="#L518">518</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

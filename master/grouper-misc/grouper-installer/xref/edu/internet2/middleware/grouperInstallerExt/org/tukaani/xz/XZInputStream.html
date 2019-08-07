@@ -68,10 +68,10 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> * @see SingleXZInputStream</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZInputStream.html">XZInputStream</a> <strong class="jxr_keyword">extends</strong> InputStream {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="XZInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZInputStream.html#XZInputStream">XZInputStream</a> <strong class="jxr_keyword">extends</strong> InputStream {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> memoryLimit;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> InputStream in;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SingleXZInputStream.html">SingleXZInputStream</a> xzIn;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> <a name="SingleXZInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SingleXZInputStream.html#SingleXZInputStream">SingleXZInputStream</a> xzIn;
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> endReached = false;
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> IOException exception = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  
@@ -103,7 +103,7 @@
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     * @throws      IOException may be thrown by &lt;code&gt;in&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZInputStream.html">XZInputStream</a>(InputStream in) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">public</strong> <a name="XZInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZInputStream.html#XZInputStream">XZInputStream</a>(InputStream in) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">this</strong>(in, -1);
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
 <a class="jxr_linenumber" name="L101" href="#L101">101</a> 
@@ -136,10 +136,10 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     * @throws      IOException may be thrown by &lt;code&gt;in&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZInputStream.html">XZInputStream</a>(InputStream in, <strong class="jxr_keyword">int</strong> memoryLimit) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">public</strong> <a name="XZInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZInputStream.html#XZInputStream">XZInputStream</a>(InputStream in, <strong class="jxr_keyword">int</strong> memoryLimit) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">this</strong>.in = in;
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">this</strong>.memoryLimit = memoryLimit;
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">this</strong>.xzIn = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SingleXZInputStream.html">SingleXZInputStream</a>(in, memoryLimit);
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">this</strong>.xzIn = <strong class="jxr_keyword">new</strong> <a name="SingleXZInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SingleXZInputStream.html#SingleXZInputStream">SingleXZInputStream</a>(in, memoryLimit);
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> 
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
@@ -209,7 +209,7 @@
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>             <strong class="jxr_keyword">return</strong> 0;
 <a class="jxr_linenumber" name="L202" href="#L202">202</a> 
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>         <strong class="jxr_keyword">if</strong> (in == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a>(<span class="jxr_string">"Stream closed"</span>);
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a>(<span class="jxr_string">"Stream closed"</span>);
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> 
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">if</strong> (exception != <strong class="jxr_keyword">null</strong>)
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>             <strong class="jxr_keyword">throw</strong> exception;
@@ -273,11 +273,11 @@
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>         inData.readFully(buf, 4, DecoderUtil.STREAM_HEADER_SIZE - 4);
 <a class="jxr_linenumber" name="L266" href="#L266">266</a> 
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>             xzIn = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SingleXZInputStream.html">SingleXZInputStream</a>(in, memoryLimit, buf);
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         } <strong class="jxr_keyword">catch</strong> (XZFormatException e) {
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             xzIn = <strong class="jxr_keyword">new</strong> <a name="SingleXZInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/SingleXZInputStream.html#SingleXZInputStream">SingleXZInputStream</a>(in, memoryLimit, buf);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         } <strong class="jxr_keyword">catch</strong> (<a name="XZFormatException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZFormatException.html#XZFormatException">XZFormatException</a> e) {
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>             <em class="jxr_comment">// Since this isn't the first .xz Stream, it is more</em>
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>             <em class="jxr_comment">// logical to tell that the data is corrupt.</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html">CorruptedInputException</a>(
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="CorruptedInputException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html#CorruptedInputException">CorruptedInputException</a>(
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>                     <span class="jxr_string">"Garbage after a valid XZ Stream"</span>);
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>         }
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>     }
@@ -295,7 +295,7 @@
 <a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> available() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">if</strong> (in == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a>(<span class="jxr_string">"Stream closed"</span>);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a>(<span class="jxr_string">"Stream closed"</span>);
 <a class="jxr_linenumber" name="L291" href="#L291">291</a> 
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>         <strong class="jxr_keyword">if</strong> (exception != <strong class="jxr_keyword">null</strong>)
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>             <strong class="jxr_keyword">throw</strong> exception;
@@ -321,6 +321,6 @@
 <a class="jxr_linenumber" name="L313" href="#L313">313</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

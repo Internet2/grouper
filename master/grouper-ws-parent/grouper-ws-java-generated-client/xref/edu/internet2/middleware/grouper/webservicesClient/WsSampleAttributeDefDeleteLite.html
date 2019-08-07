@@ -12,7 +12,7 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * file except in compliance with the License. You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software distributed under</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</em>
@@ -33,15 +33,15 @@
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefDeleteLite;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefDeleteLiteResponse;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteLiteResult;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefDeleteLite;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefDeleteLiteResponse;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefDeleteLiteResult;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/webservicesClient/WsSampleAttributeDefDeleteLite.html">WsSampleAttributeDefDeleteLite</a> <strong class="jxr_keyword">implements</strong> WsSampleGenerated {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WsSampleAttributeDefDeleteLite" href="../../../../../edu/internet2/middleware/grouper/webservicesClient/WsSampleAttributeDefDeleteLite.html#WsSampleAttributeDefDeleteLite">WsSampleAttributeDefDeleteLite</a> <strong class="jxr_keyword">implements</strong> WsSampleGenerated {
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">   * @param args</em>
@@ -65,7 +65,7 @@
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> attributeDefSaveLite(WsSampleGeneratedType wsSampleGeneratedType) {
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>        <em class="jxr_comment">//URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>        <a href="../../../../../edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.html">GrouperServiceStub</a> stub = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.html">GrouperServiceStub</a>(GeneratedClientSettings.URL);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>        <a name="GrouperServiceStub" href="../../../../../edu/internet2/mid<a name="GrouperServiceStub" href="../../../../../edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.html#GrouperServiceStub">GrouperServiceStub</a>bservicesClient/GrouperServiceStub.html#GrouperServiceStub">GrouperServiceStub</a> stub = <strong class="jxr_keyword">new</strong> <a name="GrouperServiceStub" href="../../../../../edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.html#GrouperServiceStub">GrouperServiceStub</a>(GeneratedClientSettings.URL);
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>        Options options = stub._getServiceClient().getOptions();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>        HttpTransportProperties.Authenticator auth = <strong class="jxr_keyword">new</strong> HttpTransportProperties.Authenticator();
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>        auth.setUsername(GeneratedClientSettings.USER);
@@ -77,8 +77,8 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>        options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>            <strong class="jxr_keyword">new</strong> Integer(3600000));
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>        <a href="../../../../../edu/internet2/middleware/grouper/ws/soap_v2_3/xsd/AttributeDefDeleteLite.html">AttributeDefDeleteLite</a> attributeDefDeleteLite = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>        <a href="../../../../../edu/internet2/middleware/grouper/ws/soap_v2_3/xsd/AttributeDefDeleteLiteResponse.html">AttributeDefDeleteLiteResponse</a> attributeDefDeleteLiteResponse = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>        AttributeDefDeleteLite attributeDefDeleteLite = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>        AttributeDefDeleteLiteResponse attributeDefDeleteLiteResponse = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>        attributeDefDeleteLite = AttributeDefDeleteLite.<strong class="jxr_keyword">class</strong>.newInstance();
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
@@ -98,7 +98,7 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>        attributeDefDeleteLite.setParamValue1(<span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>        attributeDefDeleteLiteResponse = stub.attributeDefDeleteLite(attributeDefDeleteLite);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>        <a href="../../../../../edu/internet2/middleware/grouper/ws/soap_v2_3/xsd/WsAttributeDefDeleteLiteResult.html">WsAttributeDefDeleteLiteResult</a> wsAttributeDefDeleteLiteResult = attributeDefDeleteLiteResponse
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>        WsAttributeDefDeleteLiteResult wsAttributeDefDeleteLiteResult = attributeDefDeleteLiteResponse
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>            .get_<strong class="jxr_keyword">return</strong>();
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>        System.out.println(ToStringBuilder.reflectionToString(
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>            wsAttributeDefDeleteLiteResult));
@@ -115,6 +115,6 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

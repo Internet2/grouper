@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -40,15 +40,15 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html">DiagnosticMinGroupSize</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticTask.html">DiagnosticTask</a> {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="DiagnosticMinGroupSize" href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html#DiagnosticMinGroupSize">DiagnosticMinGroupSize</a> <strong class="jxr_keyword">extends</strong> <a name="DiagnosticTask" href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticTask.html#DiagnosticTask">DiagnosticTask</a> {
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    @Override
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object obj) {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">if</strong> (obj instanceof DiagnosticMinGroupSize) {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>        <a href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html">DiagnosticMinGroupSize</a> other = (DiagnosticMinGroupSize)obj;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">if</strong> (obj instanceof <a name="DiagnosticMinGroupSize" href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html#DiagnosticMinGroupSize">DiagnosticMinGroupSize</a>) {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>        <a name="DiagnosticMinGroupSize"<a name="DiagnosticMinGroupSize" href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html#DiagnosticMinGroupSize">DiagnosticMinGroupSize</a>../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html#DiagnosticMinGroupSize">DiagnosticMinGroupSize</a> other = (<a name="DiagnosticMinGroupSize" href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html#DiagnosticMinGroupSize">DiagnosticMinGroupSize</a>)obj;
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> EqualsBuilder().append(<strong class="jxr_keyword">this</strong>.groupName, other.groupName).append(<strong class="jxr_keyword">this</strong>.minSize, other.minSize).isEquals();
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      }
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">return</strong> false;
@@ -74,7 +74,7 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">   * @param theGroupName</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   * @param theMinSize</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html">DiagnosticMinGroupSize</a>(String theGroupName, <strong class="jxr_keyword">int</strong> theMinSize) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>    <strong class="jxr_keyword">public</strong> <a name="DiagnosticMinGroupSize" href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html#DiagnosticMinGroupSize">DiagnosticMinGroupSize</a>(String theGroupName, <strong class="jxr_keyword">int</strong> theMinSize) {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">this</strong>.groupName = theGroupName;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">this</strong>.minSize = theMinSize;
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>    }
@@ -128,7 +128,7 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">   * bean stored in cache holds when it was done and how many it got.</em>
 <a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html">SuccessMinGroupBean</a> {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> SuccessMinGroupBean {
 <a class="jxr_linenumber" name="L124" href="#L124">124</a> 
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>     <em class="jxr_javadoccomment">/** when query was executed */</em>
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> timestamp;
@@ -182,7 +182,7 @@
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>   @Override
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> doTask() {
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>     
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html">SuccessMinGroupBean</a> successMinGroupBean = groupSizeResultsCache().get(<strong class="jxr_keyword">this</strong>.groupName);
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     SuccessMinGroupBean successMinGroupBean = groupSizeResultsCache().get(<strong class="jxr_keyword">this</strong>.groupName);
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>     
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">if</strong> (successMinGroupBean != <strong class="jxr_keyword">null</strong> &amp;&amp; successMinGroupBean.getCount() &gt; <strong class="jxr_keyword">this</strong>.minSize ) {
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>       <strong class="jxr_keyword">this</strong>.appendSuccessTextLine(<span class="jxr_string">"Not checking, there was a success from before: "</span> 
@@ -216,7 +216,7 @@
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>     		.uniqueResult(<strong class="jxr_keyword">long</strong>.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>     
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>     
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     successMinGroupBean = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/status/DiagnosticMinGroupSize.html">SuccessMinGroupBean</a>();
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     successMinGroupBean = <strong class="jxr_keyword">new</strong> SuccessMinGroupBean();
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>     successMinGroupBean.setCount((<strong class="jxr_keyword">int</strong>)count);
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>     successMinGroupBean.setTimestamp(System.currentTimeMillis());
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     
@@ -274,6 +274,6 @@
 <a class="jxr_linenumber" name="L266" href="#L266">266</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

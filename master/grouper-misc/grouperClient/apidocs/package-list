@@ -8,6 +8,7 @@ edu.internet2.middleware.grouperClient.encryption
 edu.internet2.middleware.grouperClient.examples
 edu.internet2.middleware.grouperClient.failover
 edu.internet2.middleware.grouperClient.jdbc
+edu.internet2.middleware.grouperClient.jdbc.tableSync
 edu.internet2.middleware.grouperClient.messaging
 edu.internet2.middleware.grouperClient.messaging.security
 edu.internet2.middleware.grouperClient.ssl

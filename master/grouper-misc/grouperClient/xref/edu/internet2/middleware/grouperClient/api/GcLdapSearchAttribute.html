@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -54,7 +54,7 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    <em class="jxr_javadoccomment">/** name to search, e.g. ou=pennnames */</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>    <strong class="jxr_keyword">private</strong> String ldapName;
@@ -78,7 +78,7 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   * copy from the argument to this object</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   * @param gcLdapSearchAttribute</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> copyFrom(<a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> gcLdapSearchAttribute) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> copyFrom(<a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> gcLdapSearchAttribute) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">this</strong>.ldapName = gcLdapSearchAttribute.ldapName;
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">this</strong>.matchingAttributes = gcLdapSearchAttribute.matchingAttributes;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">this</strong>.namingEnumeration = gcLdapSearchAttribute.namingEnumeration;
@@ -150,7 +150,7 @@
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">   * @param attributeValue</em>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> addMatchingAttribute(String attributeName, String attributeValue) {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>   <strong class="jxr_keyword">public</strong> <a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> addMatchingAttribute(String attributeName, String attributeValue) {
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">this</strong>.matchingAttributes.put(attributeName, attributeValue);
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>   }
@@ -160,7 +160,7 @@
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">   * @param returningAttribute</em>
 <a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">   * @return the ldap call for chaining</em>
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> addReturningAttribute(String returningAttribute) {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>   <strong class="jxr_keyword">public</strong> <a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> addReturningAttribute(String returningAttribute) {
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">this</strong>.returningAttributes.add(returningAttribute);
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>   }
@@ -197,14 +197,14 @@
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>     GrouperClientLdapUtils.configureFailoverClient();
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>     
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>     <em class="jxr_comment">//there could be multiple ldaps accepting connections, try each one if error or timeout</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> gcLdapSearchAttribute = FailoverClient.failoverLogic(
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> gcLdapSearchAttribute = FailoverClient.failoverLogic(
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>         GrouperClientLdapUtils.LDAP_FAILOVER_CONFIG_NAME, <strong class="jxr_keyword">new</strong> FailoverLogic&lt;GcLdapSearchAttribute&gt;() {
 <a class="jxr_linenumber" name="L194" href="#L194">194</a> 
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>       <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">       * </em>
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">       */</em>
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>       @Override
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>       <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> logic(<a href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverLogicBean.html">FailoverLogicBean</a> failoverLogicBean) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>       <strong class="jxr_keyword">public</strong> <a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> logic(<a name="FailoverLogicBean" href="../../../../../edu/internet2/middleware/grouperClient/failover/FailoverLogicBean.html#FailoverLogicBean">FailoverLogicBean</a> failoverLogicBean) {
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">return</strong> executeHelper(GcLdapSearchAttribute.<strong class="jxr_keyword">this</strong>, failoverLogicBean.getConnectionName());
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>       }
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>     });
@@ -224,9 +224,9 @@
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">   * @param url </em>
 <a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">   * @return the instance to copy from</em>
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> executeHelper(<a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> input, String url) {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="GcLdapSearchAttribute" href<a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a>internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> executeHelper(<a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> input, String url) {
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> 
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> gcLdapSearchAttribute = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a>();
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperCl<a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a>Attribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> gcLdapSearchAttribute = <strong class="jxr_keyword">new</strong> <a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a>();
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     gcLdapSearchAttribute.copyFrom(input);
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>     gcLdapSearchAttribute.validate();
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>     
@@ -300,7 +300,7 @@
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">   * @param theName</em>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">   * @return this for chaining</em>
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html">GcLdapSearchAttribute</a> assignLdapName(String theName) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>   <strong class="jxr_keyword">public</strong> <a name="GcLdapSearchAttribute" href="../../../../../edu/internet2/middleware/grouperClient/api/GcLdapSearchAttribute.html#GcLdapSearchAttribute">GcLdapSearchAttribute</a> assignLdapName(String theName) {
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">this</strong>.ldapName = theName;
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>   }
@@ -318,6 +318,6 @@
 <a class="jxr_linenumber" name="L310" href="#L310">310</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -53,7 +53,7 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html">PermissionLimitBean</a> {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PermissionLimitBean" href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html#PermissionLimitBean">PermissionLimitBean</a> {
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>    
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    <em class="jxr_javadoccomment">/**</em>
@@ -64,7 +64,7 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, Set&lt;PermissionEntry&gt;&gt; attributeAssignIdsToPermissionEntry(Collection&lt;PermissionEntry&gt; permissionEntrySet) {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      Map&lt;String, Set&lt;PermissionEntry&gt;&gt; result = <strong class="jxr_keyword">new</strong> HashMap&lt;String, Set&lt;PermissionEntry&gt;&gt;();
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntrySet) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntrySet) {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>        
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>        String attributeAssignId = permissionEntry.getAttributeAssignId();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>        
@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, Set&lt;PermissionEntry&gt;&gt; roleIdsToPermissionEntry(Collection&lt;PermissionEntry&gt; permissionEntrySet) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      Map&lt;String, Set&lt;PermissionEntry&gt;&gt; result = <strong class="jxr_keyword">new</strong> HashMap&lt;String, Set&lt;PermissionEntry&gt;&gt;();
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntrySet) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntrySet) {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>        
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>        String roleId = permissionEntry.getRoleId();
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>        
@@ -112,7 +112,7 @@
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;MultiKey, Set&lt;PermissionEntry&gt;&gt; roleIdsMemberIdsToPermissionEntry(Collection&lt;PermissionEntry&gt; permissionEntrySet) {
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>     Map&lt;MultiKey, Set&lt;PermissionEntry&gt;&gt; result = <strong class="jxr_keyword">new</strong> HashMap&lt;MultiKey, Set&lt;PermissionEntry&gt;&gt;();
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntrySet) {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntrySet) {
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>       
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>       String roleId = permissionEntry.getRoleId();
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>       String memberId = permissionEntry.getMemberId();
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; attributeAssignIds(Collection&lt;PermissionEntry&gt; permissionEntrySet) {
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>     Set&lt;String&gt; result = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntrySet) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntrySet) {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>       
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>       String attributeAssignId = permissionEntry.getAttributeAssignId();
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>       result.add(attributeAssignId);
@@ -154,7 +154,7 @@
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; roleIds(Collection&lt;PermissionEntry&gt; permissionEntrySet) {
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     Set&lt;String&gt; result = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>     
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntrySet) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntrySet) {
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>       result.add(permissionEntry.getRoleId());
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">return</strong> result;
@@ -168,7 +168,7 @@
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;MultiKey&gt; roleMemberIds(Collection&lt;PermissionEntry&gt; permissionEntrySet) {
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     Set&lt;MultiKey&gt; result = <strong class="jxr_keyword">new</strong> HashSet&lt;MultiKey&gt;();
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntrySet) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntrySet) {
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>       result.add(<strong class="jxr_keyword">new</strong> MultiKey(permissionEntry.getRoleId(), permissionEntry.getMemberId()));
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">return</strong> result;
@@ -180,9 +180,9 @@
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">   * @param permissionEntries</em>
 <a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">   * @param limitAssignsMap</em>
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> addLimitToPermissionEntries(<a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> limitAssign, Collection&lt;PermissionEntry&gt; permissionEntries, Map&lt;PermissionEntry, Set&lt;AttributeAssign&gt;&gt; limitAssignsMap) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> addLimitToPermissionEntries(<a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssign, Collection&lt;PermissionEntry&gt; permissionEntries, Map&lt;PermissionEntry, Set&lt;AttributeAssign&gt;&gt; limitAssignsMap) {
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>     
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>       Set&lt;AttributeAssign&gt; assignSet = limitAssignsMap.get(permissionEntry);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>       <strong class="jxr_keyword">if</strong> (assignSet == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>         assignSet = <strong class="jxr_keyword">new</strong> HashSet&lt;AttributeAssign&gt;();
@@ -235,9 +235,9 @@
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>       
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>       <em class="jxr_comment">//lets get the limits for those attribute assign ids</em>
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>       <em class="jxr_comment">//do this as grouper system so we dont miss any</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>       GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>       GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>         
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>           
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>           Set&lt;AttributeAssign&gt; allLimitAssignments = <strong class="jxr_keyword">new</strong> HashSet&lt;AttributeAssign&gt;();
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>           
@@ -249,7 +249,7 @@
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>             allLimitAssignments.addAll(limitAssignments);
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>             
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>             <em class="jxr_comment">//keep track of limit assignments on permission assignments</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>             <strong class="jxr_keyword">for</strong> (AttributeAssign limitAssign : limitAssignments) {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             <strong class="jxr_keyword">for</strong> (<a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssign : limitAssignments) {
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>               
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>               Set&lt;PermissionEntry&gt; permissionEntries = attributeAssignIdToPermissionEntries.get(limitAssign.getOwnerAttributeAssignId());
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>               
@@ -271,7 +271,7 @@
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>             
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>             allLimitAssignments.addAll(roleAssigns);
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> 
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">for</strong> (AttributeAssign limitAssign : roleAssigns) {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">for</strong> (<a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssign : roleAssigns) {
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>               
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>               Set&lt;PermissionEntry&gt; permissionEntries = roleIdToPermissionEntries.get(limitAssign.getOwnerGroupId());
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>               addLimitToPermissionEntries(limitAssign, permissionEntries, limitAssignsMap);
@@ -294,7 +294,7 @@
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>             
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>             allLimitAssignments.addAll(roleMemberAssigns);
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> 
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>             <strong class="jxr_keyword">for</strong> (AttributeAssign limitAssign : roleMemberAssigns) {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>             <strong class="jxr_keyword">for</strong> (<a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssign : roleMemberAssigns) {
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>               
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>               Set&lt;PermissionEntry&gt; permissionEntries = roleIdMemberIdToPermissionEntries.get(<strong class="jxr_keyword">new</strong> MultiKey(limitAssign.getOwnerGroupId(), limitAssign.getOwnerMemberId()));
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>               addLimitToPermissionEntries(limitAssign, permissionEntries, limitAssignsMap);
@@ -308,7 +308,7 @@
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>             Set&lt;String&gt; limitAssignIds = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>             
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>             <em class="jxr_comment">//get all the assign ids</em>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>             <strong class="jxr_keyword">for</strong> (AttributeAssign limitAssign : allLimitAssignments) {
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>             <strong class="jxr_keyword">for</strong> (<a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssign : allLimitAssignments) {
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>               limitAssignIds.add(limitAssign.getId());
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>             }
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>   
@@ -316,7 +316,7 @@
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>             Set&lt;AttributeAssignValue&gt; limitAssignValues = GrouperDAOFactory.getFactory()
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>               .getAttributeAssignValue().findByAttributeAssignIds(limitAssignIds);
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>             
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>             <strong class="jxr_keyword">for</strong> (AttributeAssignValue limitAssignValue : GrouperUtil.nonNull(limitAssignValues)) {
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>             <strong class="jxr_keyword">for</strong> (<a name="AttributeAssignValue" href="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html#AttributeAssignValue">AttributeAssignValue</a> limitAssignValue : GrouperUtil.nonNull(limitAssignValues)) {
 <a class="jxr_linenumber" name="L312" href="#L312">312</a>               Set&lt;AttributeAssignValue&gt; limitAssignValuesSet = limitAssignValuesMap.get(limitAssignValue.getAttributeAssignId());
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>               <strong class="jxr_keyword">if</strong> (limitAssignValuesSet == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>                 limitAssignValuesSet = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;AttributeAssignValue&gt;();
@@ -330,7 +330,7 @@
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>         }
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>       });
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>       
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>       <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntrySet) {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>       <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntrySet) {
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>         
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>         Set&lt;AttributeAssign&gt; limitAttributeAssigns = limitAssignsMap.get(permissionEntry);
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>         <strong class="jxr_keyword">if</strong> (GrouperUtil.length(limitAttributeAssigns) &gt; 0) {
@@ -341,8 +341,8 @@
 <a class="jxr_linenumber" name="L333" href="#L333">333</a>             result.put(permissionEntry, permissionLimitBeanSet);
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>           }
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>           
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>           <strong class="jxr_keyword">for</strong> (AttributeAssign limitAssign : limitAttributeAssigns) {
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>             <a href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html">PermissionLimitBean</a> permissionLimitBean = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html">PermissionLimitBean</a>();
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>           <strong class="jxr_keyword">for</strong> (<a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssign : limitAttributeAssigns) {
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>             <a name="PermissionLimitBean" href="../../../../../../edu/internet2/middleware/grou<a name="PermissionLimitBean" href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html#PermissionLimitBean">PermissionLimitBean</a>its/PermissionLimitBean.html#PermissionLimitBean">PermissionLimitBean</a> permissionLimitBean = <strong class="jxr_keyword">new</strong> <a name="PermissionLimitBean" href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html#PermissionLimitBean">PermissionLimitBean</a>();
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>             permissionLimitBean.setPermissionLimitBeanType(PermissionLimitBeanType.ATTRIBUTE_ASSIGNMENT);
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>             permissionLimitBean.setLimitAssign(limitAssign);
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>             permissionLimitBean.setLimitAssignValues(limitAssignValuesMap.get(limitAssign.getId()));
@@ -352,7 +352,7 @@
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>         }
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>       }
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>       <em class="jxr_comment">//init uninitialized values to null</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>       <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntrySet) {
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>       <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntrySet) {
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>         
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">if</strong> (!limitAssignsMap.containsKey(permissionEntry)) {
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>           result.put(permissionEntry, <strong class="jxr_keyword">null</strong>);
@@ -366,13 +366,13 @@
 <a class="jxr_linenumber" name="L358" href="#L358">358</a>   }
 <a class="jxr_linenumber" name="L359" href="#L359">359</a> 
 <a class="jxr_linenumber" name="L360" href="#L360">360</a>   <em class="jxr_javadoccomment">/** the type of this permission limit, e.g. permission assign, role, role membership, etc */</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBeanType.html">PermissionLimitBeanType</a> permissionLimitBeanType;
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">private</strong> <a name="PermissionLimitBeanType" href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBeanType.html#PermissionLimitBeanType">PermissionLimitBeanType</a> permissionLimitBeanType;
 <a class="jxr_linenumber" name="L362" href="#L362">362</a> 
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">   * the type of this permission limit, e.g. permission assign, role, role membership, etc</em>
 <a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">   * @return the type of permission limit</em>
 <a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBeanType.html">PermissionLimitBeanType</a> getPermissionLimitBeanType() {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>   <strong class="jxr_keyword">public</strong> <a name="PermissionLimitBeanType" href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBeanType.html#PermissionLimitBeanType">PermissionLimitBeanType</a> getPermissionLimitBeanType() {
 <a class="jxr_linenumber" name="L368" href="#L368">368</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.permissionLimitBeanType;
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>   }
 <a class="jxr_linenumber" name="L370" href="#L370">370</a> 
@@ -380,18 +380,18 @@
 <a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">   * the type of this permission limit, e.g. permission assign, role, role membership, etc.</em>
 <a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">   * @param permissionLimitBeanType1</em>
 <a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setPermissionLimitBeanType(<a href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBeanType.html">PermissionLimitBeanType</a> permissionLimitBeanType1) {
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setPermissionLimitBeanType(<a name="PermissionLimitBeanType" href="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBeanType.html#PermissionLimitBeanType">PermissionLimitBeanType</a> permissionLimitBeanType1) {
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>     <strong class="jxr_keyword">this</strong>.permissionLimitBeanType = permissionLimitBeanType1;
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>   }
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>   
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>   <em class="jxr_javadoccomment">/** the attribute assignment of the permission limit */</em>
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> limitAssign;
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>   <strong class="jxr_keyword">private</strong> <a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> limitAssign;
 <a class="jxr_linenumber" name="L381" href="#L381">381</a> 
 <a class="jxr_linenumber" name="L382" href="#L382">382</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">   * the attribute assignment of the permission limit</em>
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">   * @return the attribute assignment of the permission limit</em>
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> getLimitAssign() {
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> getLimitAssign() {
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.limitAssign;
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>   }
 <a class="jxr_linenumber" name="L389" href="#L389">389</a> 
@@ -399,7 +399,7 @@
 <a class="jxr_linenumber" name="L391" href="#L391">391</a> <em class="jxr_javadoccomment">   * the attribute assignment of the permission limit</em>
 <a class="jxr_linenumber" name="L392" href="#L392">392</a> <em class="jxr_javadoccomment">   * @param attributeAssign1</em>
 <a class="jxr_linenumber" name="L393" href="#L393">393</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setLimitAssign(<a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> attributeAssign1) {
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setLimitAssign(<a name="AttributeAssign" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> attributeAssign1) {
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>     <strong class="jxr_keyword">this</strong>.limitAssign = attributeAssign1;
 <a class="jxr_linenumber" name="L396" href="#L396">396</a>   }
 <a class="jxr_linenumber" name="L397" href="#L397">397</a>   
@@ -429,6 +429,6 @@
 <a class="jxr_linenumber" name="L421" href="#L421">421</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

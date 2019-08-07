@@ -11,170 +11,208 @@
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouper.attr.assign;
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> java.util.HashSet;
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.Set;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Group;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GroupFinder;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GrouperSession;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Member;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.MemberFinder;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.SubjectFinder;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.attr.AttributeDefName;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.subject.Subject;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignMain.html">AttributeAssignMain</a> {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignMain.html">AttributeAssignMain</a>() {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>    }
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">   * @param args</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <em class="jxr_comment">//attributeAssignExample();</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      GrouperSession grouperSession = GrouperSession.startRootSession();
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">long</strong> gshTotalObjectCount = 0L;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">long</strong> gshTotalChangeCount = 0L;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">long</strong> gshTotalErrorCount = 0L;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      System.out.println(<span class="jxr_string">"Hello0"</span>);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      Set attributeAssignIdsAlreadyUsed = <strong class="jxr_keyword">new</strong> HashSet();
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">boolean</strong> problemWithAttributeAssign = false;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      AttributeAssignSave attributeAssignSave = <strong class="jxr_keyword">new</strong> AttributeAssignSave(grouperSession);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      attributeAssignSave.assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      attributeAssignSave.assignAttributeAssignType(AttributeAssignType.imm_mem);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <span class="jxr_string">"etc:attribute:userData:grouperUserData"</span>, false);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">if</strong> (attributeDefName == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>        gshTotalErrorCount++;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>        System.out
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>            .println(<span class="jxr_string">"Error: cant find attributeDefName: etc:attribute:userData:grouperUserData"</span>);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>        problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      attributeAssignSave.assignAttributeDefName(attributeDefName);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      attributeAssignSave.assignPutAttributeAssignIdsToNotUseSet(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      Group ownerGroup = GroupFinder.findByName(grouperSession,
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <span class="jxr_string">"etc:grouperUi:grouperUiUserData"</span>, false);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">if</strong> (ownerGroup == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>        gshTotalErrorCount++;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>        System.out.println(<span class="jxr_string">"Error: cant find group: etc:grouperUi:grouperUiUserData"</span>);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>        problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      attributeAssignSave.assignOwnerGroup(ownerGroup);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      Subject ownerSubject = SubjectFinder.findByIdAndSource(
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <span class="jxr_string">"5557e047c3214621819bd21c3b91d763"</span>, <span class="jxr_string">"grouperExternal"</span>, false);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">if</strong> (ownerSubject == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>        gshTotalErrorCount++;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>        System.out
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>            .println(<span class="jxr_string">"Error: cant find subject: grouperExternal: 5557e047c3214621819bd21c3b91d763"</span>);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>        problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">if</strong> (ownerSubject != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>        Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>        attributeAssignSave.assignOwnerMember(ownerMember);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      AttributeAssignSave attributeAssignOnAssignSave = <strong class="jxr_keyword">new</strong> AttributeAssignSave(
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          grouperSession);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      attributeAssignOnAssignSave
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          .assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      attributeAssignOnAssignSave
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          .assignAttributeAssignType(AttributeAssignType.imm_mem_asgn);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      attributeDefName = AttributeDefNameFinder.findByName(
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <span class="jxr_string">"etc:attribute:userData:grouperUserDataRecentGroups"</span>, false);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">if</strong> (attributeDefName == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>        gshTotalErrorCount++;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>        System.out
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>            .println(<span class="jxr_string">"Error: cant find attributeDefName: etc:attribute:userData:grouperUserDataRecentGroups"</span>);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>        problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      attributeAssignOnAssignSave.assignPutAttributeAssignIdsToNotUseSet(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      AttributeAssignValue attributeAssignValue = <strong class="jxr_keyword">new</strong> AttributeAssignValue();
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      attributeAssignValue
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          .setValueString(<span class="jxr_string">"{&amp;quot;list&amp;quot;:[{&amp;quot;timestamp&amp;quot;:1453992092662,&amp;quot;uuid&amp;quot;:&amp;quot;01d1ec77e56f4f63933b95887d67de30&amp;quot;},{&amp;quot;timestamp&amp;quot;:1453991965490,&amp;quot;uuid&amp;quot;:&amp;quot;8a860d07dadb46b5bcc65544a6e89350&amp;quot;},{&amp;quot;timestamp&amp;quot;:1447190902786,&amp;quot;uuid&amp;quot;:&amp;quot;9d25e467-b127-4229-880b-ba65d0506c02&amp;quot;}]}"</span>);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      attributeAssignOnAssignSave.addAttributeAssignValue(attributeAssignValue);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      gshTotalObjectCount += 3;
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">if</strong> (!problemWithAttributeAssign) {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>       AttributeAssign attributeAssign = attributeAssignSave.save();
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>       <strong class="jxr_keyword">if</strong> (attributeAssignSave.getChangesCount() &gt; 0) {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         gshTotalChangeCount += attributeAssignSave.getChangesCount();
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         System.out.println(<span class="jxr_string">"Made "</span> + attributeAssignSave.getChangesCount()
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             + <span class="jxr_string">" changes for attribute assign: "</span> + attributeAssign.toString());
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>       }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>   }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a> 
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> attributeAssignExample() {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     GrouperSession grouperSession = GrouperSession.startRootSession();
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     Set attributeAssignIdsAlreadyUsed = <strong class="jxr_keyword">new</strong> HashSet();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>       <strong class="jxr_keyword">boolean</strong> problemWithAttributeAssign = false;
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>       AttributeAssignSave attributeAssignSave = <strong class="jxr_keyword">new</strong> AttributeAssignSave(grouperSession);
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>       attributeAssignSave.assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>       attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>       AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>           <span class="jxr_string">"test:attributeDefName0"</span>, false);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>       <strong class="jxr_keyword">if</strong> (attributeDefName == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         System.out.println(<span class="jxr_string">"Error: cant find attributeDefName: test:attributeDefName0"</span>);
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>       }
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>       attributeAssignSave.assignAttributeDefName(attributeDefName);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>       Group ownerGroup = GroupFinder.findByName(grouperSession, <span class="jxr_string">"test:group0"</span>, false);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>       <strong class="jxr_keyword">if</strong> (ownerGroup == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         System.out.println(<span class="jxr_string">"Error: cant find group: test:group0"</span>);
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>       }
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>       attributeAssignSave.assignOwnerGroup(ownerGroup);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>       attributeAssignSave.assignPutAttributeAssignIdsToNotUseSet(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>       <strong class="jxr_keyword">if</strong> (!problemWithAttributeAssign) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         AttributeAssign attributeAssign = attributeAssignSave.save();
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         System.out.println(<span class="jxr_string">"Made "</span> + attributeAssignSave.getChangesCount() + <span class="jxr_string">" changes for attribute assign: "</span> + attributeAssign.toString());
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>       }
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     {
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>       <strong class="jxr_keyword">boolean</strong> problemWithAttributeAssign = false;
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>       AttributeAssignSave attributeAssignSave = <strong class="jxr_keyword">new</strong> AttributeAssignSave(grouperSession);
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>       attributeAssignSave.assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>       attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>       AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>           <span class="jxr_string">"test:attributeDefName0"</span>, false);
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>       <strong class="jxr_keyword">if</strong> (attributeDefName == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         System.out.println(<span class="jxr_string">"Error: cant find attributeDefName: test:attributeDefName0"</span>);
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>       }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>       attributeAssignSave.assignAttributeDefName(attributeDefName);
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>       Group ownerGroup = GroupFinder.findByName(grouperSession, <span class="jxr_string">"test:group0"</span>, false);
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>       <strong class="jxr_keyword">if</strong> (ownerGroup == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         System.out.println(<span class="jxr_string">"Error: cant find group: test:group0"</span>);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>       }
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>       attributeAssignSave.assignOwnerGroup(ownerGroup);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>       attributeAssignSave.assignPutAttributeAssignIdsToNotUseSet(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>       <strong class="jxr_keyword">if</strong> (!problemWithAttributeAssign) {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         AttributeAssign attributeAssign = attributeAssignSave.save();
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         System.out.println(<span class="jxr_string">"Made "</span> + attributeAssignSave.getChangesCount() + <span class="jxr_string">" changes for attribute assign: "</span> + attributeAssign.toString());
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>       }
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>   }
-<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> }
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.HashSet;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.LinkedHashSet;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.TreeSet;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Group;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GroupFinder;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.GrouperSession;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Stem;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.attr.AttributeDefName;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.hibernate.HibernateSession;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.util.GrouperUtil;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AttributeAssignMain" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignMain.html#AttributeAssignMain">AttributeAssignMain</a> {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>    <strong class="jxr_keyword">public</strong> <a name="AttributeAssignMain" href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignMain.html#AttributeAssignMain">AttributeAssignMain</a>() {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>    }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">   * @param args</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_comment">//attributeAssignExample();</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      String provisionTarget = <span class="jxr_string">"ad"</span>;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      GrouperSession grouperSession = GrouperSession.startRootSession();
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <em class="jxr_comment">//HibernateSession.bySqlStatic().listSelect(String.class, "SELECT DISTINCT gaaa.value_string FROM grouper_attribute_assign_value gaaa, grouper_attribute_assign gaa, grouper_attribute_def_name gadn WHERE gaaa.attribute_assign_id = gaa.id AND gaa.attribute_def_name_id = gadn.id AND gadn.extension IN ('provision_to', 'do_not_provision_to')", null, null);</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      Set stemsToProvisionToSet = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select s from Stem s, AttributeAssign aa, AttributeDefName adn, AttributeAssignValue aav where s.id = aa.ownerStemId and aav.attributeAssignId = aa.id and aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'stem' and aa.enabledDb = 'T' and adn.extensionDb = 'provision_to' and aav.valueString = '"</span> + provisionTarget + <span class="jxr_string">"'"</span>).listSet(Stem.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">for</strong> (Object stemObject : stemsToProvisionToSet) { Stem stem = (Stem)stemObject; System.out.println(<span class="jxr_string">"provision_to assigned to stem: "</span> + stem.getName());  }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      Set stemsToNotProvisionToSet = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select s from Stem s, AttributeAssign aa, AttributeDefName adn, AttributeAssignValue aav where s.id = aa.ownerStemId and aav.attributeAssignId = aa.id and aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'stem' and aa.enabledDb = 'T' and adn.extensionDb = 'do_not_provision_to' and aav.valueString = '"</span> + provisionTarget + <span class="jxr_string">"'"</span>).listSet(Stem.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">for</strong> (Object stemObject : stemsToNotProvisionToSet) { Stem stem = (Stem)stemObject; System.out.println(<span class="jxr_string">"do_not_provision_to assigned to stem: "</span> + stem.getName());  }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      Set groupsToProvisionToSet = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select g from Group g, AttributeAssign aa, AttributeDefName adn, AttributeAssignValue aav where g.id = aa.ownerGroupId and aav.attributeAssignId = aa.id and aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'group' and aa.enabledDb = 'T' and adn.extensionDb = 'provision_to' and aav.valueString = '"</span> + provisionTarget + <span class="jxr_string">"'"</span>).listSet(Stem.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">for</strong> (Object groupObject : groupsToProvisionToSet) { Group group = (Group)groupObject; System.out.println(<span class="jxr_string">"provision_to assigned to group: "</span> + group.getName());  }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      Set groupsToNotProvisionToSet = HibernateSession.byHqlStatic().createQuery(<span class="jxr_string">"select g from Group g, AttributeAssign aa, AttributeDefName adn, AttributeAssignValue aav where g.id = aa.ownerGroupId and aav.attributeAssignId = aa.id and aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'group' and aa.enabledDb = 'T' and adn.extensionDb = 'do_not_provision_to' and aav.valueString = '"</span> + provisionTarget + <span class="jxr_string">"'"</span>).listSet(Stem.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">for</strong> (Object groupObject : groupsToNotProvisionToSet) { Group group = (Group)groupObject; System.out.println(<span class="jxr_string">"do_not_provision_to assigned to group: "</span> + group.getName());  }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      Set allGroups = <strong class="jxr_keyword">new</strong> LinkedHashSet();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      Set allGroupsToProvision = <strong class="jxr_keyword">new</strong> TreeSet();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      allGroupsToProvision.addAll(groupsToProvisionToSet);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      Set stemNamesToNotProvisionTo = <strong class="jxr_keyword">new</strong> HashSet();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      Set stemNamesToProvisionTo = <strong class="jxr_keyword">new</strong> HashSet();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">for</strong> (Object stemToProvision : stemsToProvisionToSet) { stemNamesToProvisionTo.add(((Stem)stemToProvision).getName()); }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">for</strong> (Object stemNotToProvision : stemsToNotProvisionToSet) { stemNamesToNotProvisionTo.add(((Stem)stemNotToProvision).getName()); }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <em class="jxr_comment">// go through stems to provision</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">for</strong> (Object stemToProvision : stemsToProvisionToSet) { allGroups.addAll(((Stem)stemToProvision).getChildGroups(edu.internet2.middleware.grouper.Stem.Scope.SUB)); }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_comment">// go through all groups</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      Map groupToPaths = <strong class="jxr_keyword">new</strong> HashMap();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">for</strong> (Object groupObject : allGroups) { Group group = (Group)groupObject; <strong class="jxr_keyword">if</strong> (allGroupsToProvision.contains(group)) {<strong class="jxr_keyword">continue</strong>;} <strong class="jxr_keyword">if</strong> (groupsToNotProvisionToSet.contains(group)) {<strong class="jxr_keyword">continue</strong>;} List paths = <strong class="jxr_keyword">new</strong> ArrayList(); groupToPaths.put(group, paths); String currentName = group.getName(); paths.add(currentName);  <strong class="jxr_keyword">while</strong>(<strong class="jxr_keyword">true</strong>) { currentName = GrouperUtil.parentStemNameFromName(currentName);  <strong class="jxr_keyword">if</strong> (GrouperUtil.isBlank(currentName)) {<strong class="jxr_keyword">break</strong>;} paths.add(currentName);  }   }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_comment">//go through all group paths</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">for</strong> (Object groupObject : groupToPaths.keySet()) {Group group = (Group)groupObject; List paths = (List)groupToPaths.get(group); <strong class="jxr_keyword">for</strong> (Object pathObject : paths) { String path = (String)pathObject; <strong class="jxr_keyword">if</strong> (stemNamesToProvisionTo.contains(path)) { allGroupsToProvision.add(group); <strong class="jxr_keyword">break</strong>; } <strong class="jxr_keyword">if</strong> (stemNamesToNotProvisionTo.contains(path)) { <strong class="jxr_keyword">break</strong>; } } }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">for</strong> (Object groupObject : allGroupsToProvision) { Group group = (Group)groupObject; System.out.println(<span class="jxr_string">"configured to provision to: "</span> + provisionTarget + <span class="jxr_string">": "</span> + group.getName()); }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_comment">//    GrouperSession grouperSession = GrouperSession.startRootSession();</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_comment">//    long gshTotalObjectCount = 0L;</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_comment">//    long gshTotalChangeCount = 0L;</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_comment">//    long gshTotalErrorCount = 0L;</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_comment">//    System.out.println("Hello0");</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_comment">//    Set attributeAssignIdsAlreadyUsed = new HashSet();</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_comment">//    boolean problemWithAttributeAssign = false;</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_comment">//    AttributeAssignSave attributeAssignSave = new AttributeAssignSave(grouperSession);</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_comment">//    attributeAssignSave.assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_comment">//    attributeAssignSave.assignAttributeAssignType(AttributeAssignType.imm_mem);</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_comment">//    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_comment">//        "etc:attribute:userData:grouperUserData", false);</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_comment">//    if (attributeDefName == null) {</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_comment">//      gshTotalErrorCount++;</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_comment">//      System.out</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_comment">//          .println("Error: cant find attributeDefName: etc:attribute:userData:grouperUserData");</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_comment">//      problemWithAttributeAssign = true;</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_comment">//    attributeAssignSave.assignAttributeDefName(attributeDefName);</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_comment">//    attributeAssignSave.assignPutAttributeAssignIdsToNotUseSet(true);</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_comment">//    Group ownerGroup = GroupFinder.findByName(grouperSession,</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_comment">//        "etc:grouperUi:grouperUiUserData", false);</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_comment">//    if (ownerGroup == null) {</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_comment">//      gshTotalErrorCount++;</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_comment">//      System.out.println("Error: cant find group: etc:grouperUi:grouperUiUserData");</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_comment">//      problemWithAttributeAssign = true;</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_comment">//    attributeAssignSave.assignOwnerGroup(ownerGroup);</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_comment">//    Subject ownerSubject = SubjectFinder.findByIdAndSource(</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_comment">//        "5557e047c3214621819bd21c3b91d763", "grouperExternal", false);</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_comment">//    if (ownerSubject == null) {</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_comment">//      gshTotalErrorCount++;</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_comment">//      System.out</em>
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_comment">//          .println("Error: cant find subject: grouperExternal: 5557e047c3214621819bd21c3b91d763");</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_comment">//      problemWithAttributeAssign = true;</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_comment">//    if (ownerSubject != null) {</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_comment">//      Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true);</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_comment">//      attributeAssignSave.assignOwnerMember(ownerMember);</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_comment">//    AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_comment">//        grouperSession);</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_comment">//    attributeAssignOnAssignSave</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_comment">//        .assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_comment">//    attributeAssignOnAssignSave</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_comment">//        .assignAttributeAssignType(AttributeAssignType.imm_mem_asgn);</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_comment">//    attributeDefName = AttributeDefNameFinder.findByName(</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_comment">//        "etc:attribute:userData:grouperUserDataRecentGroups", false);</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_comment">//    if (attributeDefName == null) {</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_comment">//      gshTotalErrorCount++;</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_comment">//      System.out</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_comment">//          .println("Error: cant find attributeDefName: etc:attribute:userData:grouperUserDataRecentGroups");</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_comment">//      problemWithAttributeAssign = true;</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_comment">//    attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_comment">//    attributeAssignOnAssignSave.assignPutAttributeAssignIdsToNotUseSet(true);</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_comment">//    AttributeAssignValue attributeAssignValue = new AttributeAssignValue();</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_comment">//    attributeAssignValue</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_comment">//        .setValueString("{&amp;quot;list&amp;quot;:[{&amp;quot;timestamp&amp;quot;:1453992092662,&amp;quot;uuid&amp;quot;:&amp;quot;01d1ec77e56f4f63933b95887d67de30&amp;quot;},{&amp;quot;timestamp&amp;quot;:1453991965490,&amp;quot;uuid&amp;quot;:&amp;quot;8a860d07dadb46b5bcc65544a6e89350&amp;quot;},{&amp;quot;timestamp&amp;quot;:1447190902786,&amp;quot;uuid&amp;quot;:&amp;quot;9d25e467-b127-4229-880b-ba65d0506c02&amp;quot;}]}");</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_comment">//    attributeAssignOnAssignSave.addAttributeAssignValue(attributeAssignValue);</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_comment">//    attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_comment">//    gshTotalObjectCount += 3;</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_comment">//    if (!problemWithAttributeAssign) {</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_comment">//      AttributeAssign attributeAssign = attributeAssignSave.save();</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_comment">//      if (attributeAssignSave.getChangesCount() &gt; 0) {</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_comment">//        gshTotalChangeCount += attributeAssignSave.getChangesCount();</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_comment">//        System.out.println("Made " + attributeAssignSave.getChangesCount()</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_comment">//            + " changes for attribute assign: " + attributeAssign.toString());</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_comment">//      }</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>   }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> attributeAssignExample() {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     GrouperSession grouperSession = GrouperSession.startRootSession();
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     Set attributeAssignIdsAlreadyUsed = <strong class="jxr_keyword">new</strong> HashSet();
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>       <strong class="jxr_keyword">boolean</strong> problemWithAttributeAssign = false;
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>       AttributeAssignSave attributeAssignSave = <strong class="jxr_keyword">new</strong> AttributeAssignSave(grouperSession);
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>       attributeAssignSave.assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>       attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>       AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>           <span class="jxr_string">"test:attributeDefName0"</span>, false);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>       <strong class="jxr_keyword">if</strong> (attributeDefName == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         System.out.println(<span class="jxr_string">"Error: cant find attributeDefName: test:attributeDefName0"</span>);
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>       }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>       attributeAssignSave.assignAttributeDefName(attributeDefName);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>       Group ownerGroup = GroupFinder.findByName(grouperSession, <span class="jxr_string">"test:group0"</span>, false);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>       <strong class="jxr_keyword">if</strong> (ownerGroup == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         System.out.println(<span class="jxr_string">"Error: cant find group: test:group0"</span>);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>       }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>       attributeAssignSave.assignOwnerGroup(ownerGroup);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>       attributeAssignSave.assignPutAttributeAssignIdsToNotUseSet(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>       <strong class="jxr_keyword">if</strong> (!problemWithAttributeAssign) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         AttributeAssign attributeAssign = attributeAssignSave.save();
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         System.out.println(<span class="jxr_string">"Made "</span> + attributeAssignSave.getChangesCount() + <span class="jxr_string">" changes for attribute assign: "</span> + attributeAssign.toString());
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>       }
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>       <strong class="jxr_keyword">boolean</strong> problemWithAttributeAssign = false;
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>       AttributeAssignSave attributeAssignSave = <strong class="jxr_keyword">new</strong> AttributeAssignSave(grouperSession);
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>       attributeAssignSave.assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>       attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>       AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>           <span class="jxr_string">"test:attributeDefName0"</span>, false);
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>       <strong class="jxr_keyword">if</strong> (attributeDefName == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         System.out.println(<span class="jxr_string">"Error: cant find attributeDefName: test:attributeDefName0"</span>);
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>       }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>       attributeAssignSave.assignAttributeDefName(attributeDefName);
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>       Group ownerGroup = GroupFinder.findByName(grouperSession, <span class="jxr_string">"test:group0"</span>, false);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>       <strong class="jxr_keyword">if</strong> (ownerGroup == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         System.out.println(<span class="jxr_string">"Error: cant find group: test:group0"</span>);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         problemWithAttributeAssign = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>       }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>       attributeAssignSave.assignOwnerGroup(ownerGroup);
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>       attributeAssignSave.assignPutAttributeAssignIdsToNotUseSet(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>       <strong class="jxr_keyword">if</strong> (!problemWithAttributeAssign) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         AttributeAssign attributeAssign = attributeAssignSave.save();
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         System.out.println(<span class="jxr_string">"Made "</span> + attributeAssignSave.getChangesCount() + <span class="jxr_string">" changes for attribute assign: "</span> + attributeAssign.toString());
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>       }
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     }
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>   }
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

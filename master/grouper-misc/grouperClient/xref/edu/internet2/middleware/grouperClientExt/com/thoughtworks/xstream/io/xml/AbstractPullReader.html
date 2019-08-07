@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -47,7 +47,7 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * @author Joe Walnes</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * @author James Strachan</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html">AbstractPullReader</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractXmlReader.html">AbstractXmlReader</a> {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="AbstractPullReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html#AbstractPullReader">AbstractPullReader</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractXmlReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractXmlReader.html#AbstractXmlReader">AbstractXmlReader</a> {
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> START_NODE = 1;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> END_NODE = 2;
@@ -55,13 +55,13 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> COMMENT = 4;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> OTHER = 0;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a> elementStack = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a>(16);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="FastStack" href="../../../../../../../../../edu/internet2<a name="FastStack" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>re/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a> elementStack = <strong class="jxr_keyword">new</strong> <a name="FastStack" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>(16);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a> lookahead = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a>(4);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a> lookback = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html">FastStack</a>(4);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="FastStack" href="../../../../../../../../../edu/intern<a name="FastStack" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>eware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a> lookahead = <strong class="jxr_keyword">new</strong> <a name="FastStack" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>(4);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="FastStack" href="../../../../../../../../../edu/inter<a name="FastStack" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>leware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a> lookback = <strong class="jxr_keyword">new</strong> <a name="FastStack" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/FastStack.html#FastStack">FastStack</a>(4);
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> marked;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html">Event</a> {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> Event {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">int</strong> type;
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          String value;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      }
@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * @since 1.2</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html">AbstractPullReader</a>(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/XmlFriendlyReplacer.html">XmlFriendlyReplacer</a> replacer) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">protected</strong> <a name="AbstractPullReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html#AbstractPullReader">AbstractPullReader</a>(<a name="XmlFriendlyReplacer" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/XmlFriendlyReplacer.html#XmlFriendlyReplacer">XmlFriendlyReplacer</a> replacer) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">super</strong>(replacer);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      
@@ -139,7 +139,7 @@
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         }
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html">Event</a> readEvent() {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">private</strong> Event readEvent() {
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">if</strong> (marked) {
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">if</strong> (lookback.hasStuff()) {
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>                 <strong class="jxr_keyword">return</strong> (Event) lookahead.push(lookback.pop());
@@ -155,8 +155,8 @@
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>         }
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>     }
 <a class="jxr_linenumber" name="L149" href="#L149">149</a> 
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html">Event</a> readRealEvent() {
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html">Event</a> event = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html">Event</a>();
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">private</strong> Event readRealEvent() {
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         Event event = <strong class="jxr_keyword">new</strong> Event();
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>         event.type = pullNextEvent();
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">if</strong> (event.type == TEXT) {
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>             event.value = pullText();
@@ -187,7 +187,7 @@
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>         StringBuffer buffer = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> 
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>         mark();
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/xml/AbstractPullReader.html">Event</a> event = readEvent();
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         Event event = readEvent();
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             <strong class="jxr_keyword">if</strong> (event.type == TEXT) {
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>                 String text = event.value;
@@ -215,20 +215,20 @@
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>     }
 <a class="jxr_linenumber" name="L208" href="#L208">208</a> 
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">public</strong> Iterator getAttributeNames() {
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/AttributeNameIterator.html">AttributeNameIterator</a>(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="AttributeNameIterator" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/AttributeNameIterator.html#AttributeNameIterator">AttributeNameIterator</a>(<strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>     }
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> 
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>     <strong class="jxr_keyword">public</strong> String getNodeName() {
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">return</strong> unescapeXmlName((String) elementStack.peek());
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>     }
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> 
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html">HierarchicalStreamReader</a> underlyingReader() {
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">public</strong> <a name="HierarchicalStreamReader" href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/HierarchicalStreamReader.html#HierarchicalStreamReader">HierarchicalStreamReader</a> underlyingReader() {
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>     }
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> 
 <a class="jxr_linenumber" name="L221" href="#L221">221</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

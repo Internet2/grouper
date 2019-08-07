@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * analyze group privileges for a group and a member</em>
@@ -78,8 +78,8 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   * @param subject</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   * @return the membershipPathGroup</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group, <strong class="jxr_keyword">final</strong> Subject subject) {
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group, <strong class="jxr_keyword">final</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">return</strong> analyzePrivileges(group, member);
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>    }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  
@@ -89,14 +89,14 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">   * @param member</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">   * @return the membershipPathGroup</em>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member) {
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">final</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">final</strong> <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>        
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>        @Override
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>        <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>        <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>          
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          membershipPathGroup.analyzePrivilegesHelper(group, member, GROUPER_SESSION.getSubject());
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -123,8 +123,8 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   * @param field</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group, <strong class="jxr_keyword">final</strong> Subject subject, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field) {
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group, <strong class="jxr_keyword">final</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject, <strong class="jxr_keyword">final</strong> <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">return</strong> analyze(group, member, field);
 <a class="jxr_linenumber" name="L121" href="#L121">121</a> 
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>   }
@@ -136,13 +136,13 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">   * @param field</em>
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field) {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <strong class="jxr_keyword">final</strong> <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">final</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">final</strong> <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>       
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>       @Override
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>       <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         membershipPathGroup.analyzeHelper(group, member, field, GROUPER_SESSION.getSubject(), DEFAULT_TIME_TO_LIVE);
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -161,9 +161,9 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">   * @param timeToLive prevent recursive loops</em>
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field, Subject callingSubject,
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <strong class="jxr_keyword">final</strong> <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field, <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject,
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>       <strong class="jxr_keyword">int</strong> timeToLive) {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     membershipPathGroup.analyzeHelper(group, member, field, callingSubject, timeToLive);
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">return</strong> membershipPathGroup;
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>   }
@@ -175,8 +175,8 @@
 <a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">   * @param callingSubject</em>
 <a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, Subject callingSubject) {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject) {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>     membershipPathGroup.analyzePrivilegesHelper(group, member, callingSubject);
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">return</strong> membershipPathGroup;
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>   }
@@ -186,10 +186,10 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">   * @param compositePath </em>
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">   * @param membershipPathGroup</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> mergeMembershipPathGroup(<a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html">MembershipPath</a> compositePath, <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> mergeMembershipPathGroup(<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a> compositePath, <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup) {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">if</strong> (membershipPathGroup != <strong class="jxr_keyword">null</strong> &amp;&amp; membershipPathGroup.isHasMembership()) {
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>       <strong class="jxr_keyword">for</strong> (MembershipPath membershipPath : membershipPathGroup.getMembershipPaths()) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>       <strong class="jxr_keyword">for</strong> (<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a> membershipPath : membershipPathGroup.getMembershipPaths()) {
 <a class="jxr_linenumber" name="L185" href="#L185">185</a> 
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>         List&lt;MembershipPathNode&gt; membershipPathNodes = <strong class="jxr_keyword">new</strong> ArrayList&lt;MembershipPathNode&gt;();
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>         <em class="jxr_comment">//first add the closest</em>
@@ -198,13 +198,13 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>         <em class="jxr_comment">//then add the ones all the way to the destination</em>
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>         <em class="jxr_comment">//we need to clone the composite and put the other node in there, since we dont want to edit the original node</em>
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">for</strong> (MembershipPathNode membershipPathNode : compositePath.getMembershipPathNodes()) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">for</strong> (<a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a> membershipPathNode : compositePath.getMembershipPathNodes()) {
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>           <strong class="jxr_keyword">if</strong> (first) {
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>             
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>             {
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>               <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html">MembershipPathNode</a> compositePathNode = (MembershipPathNode)membershipPathNode.clone();
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>               <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html">MembershipPathNode</a> factorPathNode = membershipPath.getMembershipPathNodes().get(membershipPath.getMembershipPathNodes().size()-1);
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>               <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> factorGroup = factorPathNode.getOwnerGroup();
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>               <a name="MembershipPathNode" href="../..<a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a>rnet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a> compositePathNode = (<a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a>)membershipPathNode.clone();
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>               <a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a> factorPathNode = membershipPath.getMembershipPathNodes().get(membershipPath.getMembershipPathNodes().size()-1);
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>               <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> factorGroup = factorPathNode.getOwnerGroup();
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>               <strong class="jxr_keyword">if</strong> (factorGroup.equals(compositePathNode.getLeftCompositeFactor())) {
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>                 compositePathNode.setOtherFactor(compositePathNode.getRightCompositeFactor());
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>               } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (factorGroup.equals(compositePathNode.getRightCompositeFactor())) {
@@ -221,7 +221,7 @@
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>           first = false;
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>         }
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>         
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html">MembershipPath</a> newMembershipPath = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html">MembershipPath</a>(membershipPath.getMember(), membershipPathNodes, 
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <a name="MembershipPath" href="../../../../../edu/internet2/middleware/group<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a>MembershipPath.html#MembershipPath">MembershipPath</a> newMembershipPath = <strong class="jxr_keyword">new</strong> <a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a>(membershipPath.getMember(), membershipPathNodes, 
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>             membershipPath.getMembershipType() == MembershipType.IMMEDIATE ? MembershipType.EFFECTIVE : membershipPath.getMembershipType());
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>         
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>         newMembershipPath.getFields().addAll(compositePath.getFields());
@@ -242,23 +242,23 @@
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
 <a class="jxr_linenumber" name="L235" href="#L235">235</a> 
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>     <em class="jxr_comment">//########################## Non composite</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = GrouperSession.startRootSession();
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession = GrouperSession.startRootSession();
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>     
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     Subject memberSubject = SubjectFinder.findById(<span class="jxr_string">"test.subject.0"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     Subject sessionSubject = SubjectFinder.findById(<span class="jxr_string">"test.subject.1"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>     Subject sessionSubject2 = SubjectFinder.findById(<span class="jxr_string">"test.subject.2"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>     Subject sessionSubject3 = SubjectFinder.findById(<span class="jxr_string">"test.subject.3"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     Subject sessionSubject4 = SubjectFinder.findById(<span class="jxr_string">"test.subject.4"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> memberMember = MemberFinder.findBySubject(grouperSession, memberSubject, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> memberSubject = SubjectFinder.findById(<span class="jxr_string">"test.subject.0"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> sessionSubject = SubjectFinder.findById(<span class="jxr_string">"test.subject.1"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> sessionSubject2 = SubjectFinder.findById(<span class="jxr_string">"test.subject.2"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> sessionSubject3 = SubjectFinder.findById(<span class="jxr_string">"test.subject.3"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> sessionSubject4 = SubjectFinder.findById(<span class="jxr_string">"test.subject.4"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> memberMember = MemberFinder.findBySubject(grouperSession, memberSubject, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>     
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> endGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> endGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>         .assignName(<span class="jxr_string">"test:mpaths:overallGroup"</span>).save();
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>     
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> privGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>).assignName(<span class="jxr_string">"test:mpaths:privGroup"</span>).save();    
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> privGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>).assignName(<span class="jxr_string">"test:mpaths:privGroup"</span>).save();    
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>     
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> privStem = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/StemSave.html">StemSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>).assignName(<span class="jxr_string">"test:mpaths"</span>).save();
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> privStem = <strong class="jxr_keyword">new</strong> <a name="StemSave" href="../../../../../edu/internet2/middleware/grouper/StemSave.html#StemSave">StemSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>).assignName(<span class="jxr_string">"test:mpaths"</span>).save();
 <a class="jxr_linenumber" name="L252" href="#L252">252</a> 
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> privAttributeDef = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefSave.html">AttributeDefSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>).assignAttributeDefType(AttributeDefType.attr).assignName(<span class="jxr_string">"test:mpaths:privAttrDef"</span>).assignToStem(<strong class="jxr_keyword">true</strong>).save();
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> privAttributeDef = <strong class="jxr_keyword">new</strong> <a name="AttributeDefSave" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefSave.html#AttributeDefSave">AttributeDefSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>).assignAttributeDefType(AttributeDefType.attr).assignName(<span class="jxr_string">"test:mpaths:privAttrDef"</span>).assignToStem(<strong class="jxr_keyword">true</strong>).save();
 <a class="jxr_linenumber" name="L254" href="#L254">254</a> 
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>     endGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>     endGroup.grantPriv(sessionSubject2, AccessPrivilege.READ, false);
@@ -297,7 +297,7 @@
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>     
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>     <em class="jxr_comment">//one hop membership</em>
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>     {
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> intermediateGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> intermediateGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>           .assignName(<span class="jxr_string">"test:mpaths:intermediateGroup"</span>).save();
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>   
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>       intermediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
@@ -314,10 +314,10 @@
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>     
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>     <em class="jxr_comment">//two hop membership</em>
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>     {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> intermediateGroup2a_member = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> intermediateGroup2a_member = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>           .assignName(<span class="jxr_string">"test:mpaths:intermediateGroup2a_member"</span>).save();
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>       intermediateGroup2a_member.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> intermediateGroup2b_owner = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> intermediateGroup2b_owner = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>           .assignName(<span class="jxr_string">"test:mpaths:intermediateGroup2b_owner"</span>).save();
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>       intermediateGroup2b_owner.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L315" href="#L315">315</a> 
@@ -326,19 +326,19 @@
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>       intermediateGroup2a_member.addMember(memberSubject, false);
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>     }
 <a class="jxr_linenumber" name="L320" href="#L320">320</a> 
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> overallComposite = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> overallComposite = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>         .assignName(<span class="jxr_string">"test:mpaths:overallComposite"</span>).save();
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>     overallComposite.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>     overallComposite.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>     overallComposite.grantPriv(endGroup.toSubject(), AccessPrivilege.OPTOUT, false);
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>     
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>     {
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> appGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> appGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>           .assignName(<span class="jxr_string">"test:mpaths:appGroup"</span>).save();
 <a class="jxr_linenumber" name="L330" href="#L330">330</a>       appGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L331" href="#L331">331</a>       appGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L332" href="#L332">332</a>   
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> employeeGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> employeeGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>           .assignName(<span class="jxr_string">"test:mpaths:employeeGroup"</span>).save();
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>       employeeGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L336" href="#L336">336</a>       employeeGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
@@ -353,20 +353,20 @@
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>       endGroup.addMember(overallComposite.toSubject(), false);
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>     }
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>     
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> overallCompositeDepth2owner = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> overallCompositeDepth2owner = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>         .assignName(<span class="jxr_string">"test:mpaths:overallCompositeDepth2owner"</span>).save();
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>     overallCompositeDepth2owner.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L351" href="#L351">351</a> 
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>     {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> overallCompositeDepth2 = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> overallCompositeDepth2 = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>           .assignName(<span class="jxr_string">"test:mpaths:overallCompositeDepth2"</span>).save();
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>       overallCompositeDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L356" href="#L356">356</a> 
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> appGroupDepth2 = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> appGroupDepth2 = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L358" href="#L358">358</a>           .assignName(<span class="jxr_string">"test:mpaths:appGroupDepth2"</span>).save();
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>       appGroupDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L360" href="#L360">360</a> 
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> employeeGroupDepth2 = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> employeeGroupDepth2 = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>           .assignName(<span class="jxr_string">"test:mpaths:employeeGroupDepth2"</span>).save();
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>       employeeGroupDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L364" href="#L364">364</a> 
@@ -382,22 +382,22 @@
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>       endGroup.addMember(overallCompositeDepth2owner.toSubject(), false);
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>     }
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>     
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> overallEffectiveComposite = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> overallEffectiveComposite = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>         .assignName(<span class="jxr_string">"test:mpaths:overallEffectiveComposite"</span>).save();
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>     overallEffectiveComposite.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L380" href="#L380">380</a> 
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>     {
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> appEffectiveGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> appEffectiveGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>           .assignName(<span class="jxr_string">"test:mpaths:appEffectiveGroup"</span>).save();
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>       appEffectiveGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> appImmediateGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> appImmediateGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L386" href="#L386">386</a>           .assignName(<span class="jxr_string">"test:mpaths:appImmediateGroup"</span>).save();
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>       appImmediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L388" href="#L388">388</a> 
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> employeeEffectiveGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> employeeEffectiveGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>           .assignName(<span class="jxr_string">"test:mpaths:employeeEffectiveGroup"</span>).save();
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>       employeeEffectiveGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> employeeImmediateGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupSave.html">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> employeeImmediateGroup = <strong class="jxr_keyword">new</strong> <a name="GroupSave" href="../../../../../edu/internet2/middleware/grouper/GroupSave.html#GroupSave">GroupSave</a>(grouperSession).assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>)
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>           .assignName(<span class="jxr_string">"test:mpaths:employeeImmediateGroup"</span>).save();
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>       employeeImmediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 <a class="jxr_linenumber" name="L395" href="#L395">395</a> 
@@ -414,7 +414,7 @@
 <a class="jxr_linenumber" name="L406" href="#L406">406</a>       endGroup.addMember(overallEffectiveComposite.toSubject(), false);
 <a class="jxr_linenumber" name="L407" href="#L407">407</a>     }
 <a class="jxr_linenumber" name="L408" href="#L408">408</a>     
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>     <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>     <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>     
 <a class="jxr_linenumber" name="L411" href="#L411">411</a>     System.out.println(<span class="jxr_string">"########################## Non composite\n"</span>);
 <a class="jxr_linenumber" name="L412" href="#L412">412</a>     System.out.println(<span class="jxr_string">"####### member #######"</span>);
@@ -574,7 +574,7 @@
 <a class="jxr_linenumber" name="L566" href="#L566">566</a>     StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
 <a class="jxr_linenumber" name="L567" href="#L567">567</a>     
 <a class="jxr_linenumber" name="L568" href="#L568">568</a>     <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>     <strong class="jxr_keyword">for</strong> (MembershipPath membershipPath : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.membershipPaths)) {
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>     <strong class="jxr_keyword">for</strong> (<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a> membershipPath : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.membershipPaths)) {
 <a class="jxr_linenumber" name="L570" href="#L570">570</a> 
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>       <strong class="jxr_keyword">if</strong> (!first) {
 <a class="jxr_linenumber" name="L572" href="#L572">572</a>         result.append(<span class="jxr_string">"\n"</span>);
@@ -594,27 +594,27 @@
 <a class="jxr_linenumber" name="L586" href="#L586">586</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L587" href="#L587">587</a> <em class="jxr_javadoccomment">   * member for this membership</em>
 <a class="jxr_linenumber" name="L588" href="#L588">588</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member;
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>   <strong class="jxr_keyword">private</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member;
 <a class="jxr_linenumber" name="L590" href="#L590">590</a>   
 <a class="jxr_linenumber" name="L591" href="#L591">591</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L592" href="#L592">592</a> <em class="jxr_javadoccomment">   * if this is a list or group privilege, this is the owner group</em>
 <a class="jxr_linenumber" name="L593" href="#L593">593</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> ownerGroup;
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>   <strong class="jxr_keyword">private</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> ownerGroup;
 <a class="jxr_linenumber" name="L595" href="#L595">595</a> 
 <a class="jxr_linenumber" name="L596" href="#L596">596</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_javadoccomment">   * if this is a stem privilege, this is the owner stem</em>
 <a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ownerStem;
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>   <strong class="jxr_keyword">private</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ownerStem;
 <a class="jxr_linenumber" name="L600" href="#L600">600</a> 
 <a class="jxr_linenumber" name="L601" href="#L601">601</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_javadoccomment">   * if this is an attributeDef privilege, this is the owner attribute def</em>
 <a class="jxr_linenumber" name="L603" href="#L603">603</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> ownerAttributeDef;
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>   <strong class="jxr_keyword">private</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> ownerAttributeDef;
 <a class="jxr_linenumber" name="L605" href="#L605">605</a> 
 <a class="jxr_linenumber" name="L606" href="#L606">606</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_javadoccomment">   * what type e.g. list, or stemPrivilege</em>
 <a class="jxr_linenumber" name="L608" href="#L608">608</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipOwnerType.html">MembershipOwnerType</a> membershipOwnerType;
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>   <strong class="jxr_keyword">private</strong> <a name="MembershipOwnerType" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipOwnerType.html#MembershipOwnerType">MembershipOwnerType</a> membershipOwnerType;
 <a class="jxr_linenumber" name="L610" href="#L610">610</a> 
 <a class="jxr_linenumber" name="L611" href="#L611">611</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L612" href="#L612">612</a> <em class="jxr_javadoccomment">   * set of membership paths</em>
@@ -636,7 +636,7 @@
 <a class="jxr_linenumber" name="L628" href="#L628">628</a> <em class="jxr_javadoccomment">   * member for this membership</em>
 <a class="jxr_linenumber" name="L629" href="#L629">629</a> <em class="jxr_javadoccomment">   * @return member</em>
 <a class="jxr_linenumber" name="L630" href="#L630">630</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L631" href="#L631">631</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> getMember() {
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>   <strong class="jxr_keyword">public</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> getMember() {
 <a class="jxr_linenumber" name="L632" href="#L632">632</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.member;
 <a class="jxr_linenumber" name="L633" href="#L633">633</a>   }
 <a class="jxr_linenumber" name="L634" href="#L634">634</a> 
@@ -644,7 +644,7 @@
 <a class="jxr_linenumber" name="L636" href="#L636">636</a> <em class="jxr_javadoccomment">   * member for this membership</em>
 <a class="jxr_linenumber" name="L637" href="#L637">637</a> <em class="jxr_javadoccomment">   * @param member1</em>
 <a class="jxr_linenumber" name="L638" href="#L638">638</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L639" href="#L639">639</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMember(<a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member1) {
+<a class="jxr_linenumber" name="L639" href="#L639">639</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMember(<a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member1) {
 <a class="jxr_linenumber" name="L640" href="#L640">640</a>     <strong class="jxr_keyword">this</strong>.member = member1;
 <a class="jxr_linenumber" name="L641" href="#L641">641</a>   }
 <a class="jxr_linenumber" name="L642" href="#L642">642</a> 
@@ -652,7 +652,7 @@
 <a class="jxr_linenumber" name="L644" href="#L644">644</a> <em class="jxr_javadoccomment">   * if this is a list or group privilege, this is the owner group</em>
 <a class="jxr_linenumber" name="L645" href="#L645">645</a> <em class="jxr_javadoccomment">   * @return group</em>
 <a class="jxr_linenumber" name="L646" href="#L646">646</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L647" href="#L647">647</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> getOwnerGroup() {
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>   <strong class="jxr_keyword">public</strong> <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> getOwnerGroup() {
 <a class="jxr_linenumber" name="L648" href="#L648">648</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.ownerGroup;
 <a class="jxr_linenumber" name="L649" href="#L649">649</a>   }
 <a class="jxr_linenumber" name="L650" href="#L650">650</a> 
@@ -660,7 +660,7 @@
 <a class="jxr_linenumber" name="L652" href="#L652">652</a> <em class="jxr_javadoccomment">   * if this is a list or group privilege, this is the owner group</em>
 <a class="jxr_linenumber" name="L653" href="#L653">653</a> <em class="jxr_javadoccomment">   * @param ownerGroup1</em>
 <a class="jxr_linenumber" name="L654" href="#L654">654</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setOwnerGroup(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> ownerGroup1) {
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setOwnerGroup(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> ownerGroup1) {
 <a class="jxr_linenumber" name="L656" href="#L656">656</a>     <strong class="jxr_keyword">this</strong>.ownerGroup = ownerGroup1;
 <a class="jxr_linenumber" name="L657" href="#L657">657</a>   }
 <a class="jxr_linenumber" name="L658" href="#L658">658</a> 
@@ -668,7 +668,7 @@
 <a class="jxr_linenumber" name="L660" href="#L660">660</a> <em class="jxr_javadoccomment">   * if this is a stem privilege, this is the owner stem</em>
 <a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">   * @return owner stem</em>
 <a class="jxr_linenumber" name="L662" href="#L662">662</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L663" href="#L663">663</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> getOwnerStem() {
+<a class="jxr_linenumber" name="L663" href="#L663">663</a>   <strong class="jxr_keyword">public</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> getOwnerStem() {
 <a class="jxr_linenumber" name="L664" href="#L664">664</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.ownerStem;
 <a class="jxr_linenumber" name="L665" href="#L665">665</a>   }
 <a class="jxr_linenumber" name="L666" href="#L666">666</a> 
@@ -676,7 +676,7 @@
 <a class="jxr_linenumber" name="L668" href="#L668">668</a> <em class="jxr_javadoccomment">   * if this is a stem privilege, this is the owner stem</em>
 <a class="jxr_linenumber" name="L669" href="#L669">669</a> <em class="jxr_javadoccomment">   * @param ownerStem1</em>
 <a class="jxr_linenumber" name="L670" href="#L670">670</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L671" href="#L671">671</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setOwnerStem(<a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> ownerStem1) {
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setOwnerStem(<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> ownerStem1) {
 <a class="jxr_linenumber" name="L672" href="#L672">672</a>     <strong class="jxr_keyword">this</strong>.ownerStem = ownerStem1;
 <a class="jxr_linenumber" name="L673" href="#L673">673</a>   }
 <a class="jxr_linenumber" name="L674" href="#L674">674</a> 
@@ -684,7 +684,7 @@
 <a class="jxr_linenumber" name="L676" href="#L676">676</a> <em class="jxr_javadoccomment">   * if this is an attributeDef privilege, this is the owner attribute def</em>
 <a class="jxr_linenumber" name="L677" href="#L677">677</a> <em class="jxr_javadoccomment">   * @return attribute def</em>
 <a class="jxr_linenumber" name="L678" href="#L678">678</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L679" href="#L679">679</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> getOwnerAttributeDef() {
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> getOwnerAttributeDef() {
 <a class="jxr_linenumber" name="L680" href="#L680">680</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.ownerAttributeDef;
 <a class="jxr_linenumber" name="L681" href="#L681">681</a>   }
 <a class="jxr_linenumber" name="L682" href="#L682">682</a> 
@@ -692,7 +692,7 @@
 <a class="jxr_linenumber" name="L684" href="#L684">684</a> <em class="jxr_javadoccomment">   * if this is an attributeDef privilege, this is the owner attribute def</em>
 <a class="jxr_linenumber" name="L685" href="#L685">685</a> <em class="jxr_javadoccomment">   * @param ownerAttributeDef1</em>
 <a class="jxr_linenumber" name="L686" href="#L686">686</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L687" href="#L687">687</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setOwnerAttributeDef(<a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> ownerAttributeDef1) {
+<a class="jxr_linenumber" name="L687" href="#L687">687</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setOwnerAttributeDef(<a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> ownerAttributeDef1) {
 <a class="jxr_linenumber" name="L688" href="#L688">688</a>     <strong class="jxr_keyword">this</strong>.ownerAttributeDef = ownerAttributeDef1;
 <a class="jxr_linenumber" name="L689" href="#L689">689</a>   }
 <a class="jxr_linenumber" name="L690" href="#L690">690</a> 
@@ -700,7 +700,7 @@
 <a class="jxr_linenumber" name="L692" href="#L692">692</a> <em class="jxr_javadoccomment">   * what type e.g. list, or stemPrivilege</em>
 <a class="jxr_linenumber" name="L693" href="#L693">693</a> <em class="jxr_javadoccomment">   * @return owner type</em>
 <a class="jxr_linenumber" name="L694" href="#L694">694</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L695" href="#L695">695</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipOwnerType.html">MembershipOwnerType</a> getMembershipOwnerType() {
+<a class="jxr_linenumber" name="L695" href="#L695">695</a>   <strong class="jxr_keyword">public</strong> <a name="MembershipOwnerType" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipOwnerType.html#MembershipOwnerType">MembershipOwnerType</a> getMembershipOwnerType() {
 <a class="jxr_linenumber" name="L696" href="#L696">696</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.membershipOwnerType;
 <a class="jxr_linenumber" name="L697" href="#L697">697</a>   }
 <a class="jxr_linenumber" name="L698" href="#L698">698</a> 
@@ -708,7 +708,7 @@
 <a class="jxr_linenumber" name="L700" href="#L700">700</a> <em class="jxr_javadoccomment">   * what type e.g. list, or stemPrivilege</em>
 <a class="jxr_linenumber" name="L701" href="#L701">701</a> <em class="jxr_javadoccomment">   * @param membershipOwnerType1</em>
 <a class="jxr_linenumber" name="L702" href="#L702">702</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L703" href="#L703">703</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMembershipOwnerType(<a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipOwnerType.html">MembershipOwnerType</a> membershipOwnerType1) {
+<a class="jxr_linenumber" name="L703" href="#L703">703</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMembershipOwnerType(<a name="MembershipOwnerType" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipOwnerType.html#MembershipOwnerType">MembershipOwnerType</a> membershipOwnerType1) {
 <a class="jxr_linenumber" name="L704" href="#L704">704</a>     <strong class="jxr_keyword">this</strong>.membershipOwnerType = membershipOwnerType1;
 <a class="jxr_linenumber" name="L705" href="#L705">705</a>   }
 <a class="jxr_linenumber" name="L706" href="#L706">706</a> 
@@ -718,7 +718,7 @@
 <a class="jxr_linenumber" name="L710" href="#L710">710</a> <em class="jxr_javadoccomment">   * @param theMember</em>
 <a class="jxr_linenumber" name="L711" href="#L711">711</a> <em class="jxr_javadoccomment">   * @param callingSubject is who is executing the call</em>
 <a class="jxr_linenumber" name="L712" href="#L712">712</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L713" href="#L713">713</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> analyzePrivilegesHelper(<a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group, <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> theMember, <strong class="jxr_keyword">final</strong> Subject callingSubject) {
+<a class="jxr_linenumber" name="L713" href="#L713">713</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> analyzePrivilegesHelper(<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group, <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> theMember, <strong class="jxr_keyword">final</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject) {
 <a class="jxr_linenumber" name="L714" href="#L714">714</a>     <strong class="jxr_keyword">this</strong>.ownerGroup = group;
 <a class="jxr_linenumber" name="L715" href="#L715">715</a>     <strong class="jxr_keyword">this</strong>.member = theMember;
 <a class="jxr_linenumber" name="L716" href="#L716">716</a>     <strong class="jxr_keyword">this</strong>.membershipPaths = <strong class="jxr_keyword">new</strong> TreeSet&lt;MembershipPath&gt;();
@@ -728,10 +728,10 @@
 <a class="jxr_linenumber" name="L720" href="#L720">720</a>     }
 <a class="jxr_linenumber" name="L721" href="#L721">721</a>     
 <a class="jxr_linenumber" name="L722" href="#L722">722</a>     <em class="jxr_comment">//loop through all the access privileges, and analyze them</em>
-<a class="jxr_linenumber" name="L723" href="#L723">723</a>     <strong class="jxr_keyword">for</strong> (Privilege privilege : AccessPrivilege.ALL_PRIVILEGES) {
+<a class="jxr_linenumber" name="L723" href="#L723">723</a>     <strong class="jxr_keyword">for</strong> (<a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> privilege : AccessPrivilege.ALL_PRIVILEGES) {
 <a class="jxr_linenumber" name="L724" href="#L724">724</a>       
-<a class="jxr_linenumber" name="L725" href="#L725">725</a>       <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field = privilege.getField();
-<a class="jxr_linenumber" name="L726" href="#L726">726</a>       <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> fieldMembershipPathGroup = MembershipPathGroup.analyze(group, 
+<a class="jxr_linenumber" name="L725" href="#L725">725</a>       <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field = privilege.getField();
+<a class="jxr_linenumber" name="L726" href="#L726">726</a>       <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> fieldMembershipPathGroup = MembershipPathGroup.analyze(group, 
 <a class="jxr_linenumber" name="L727" href="#L727">727</a>           theMember, field, callingSubject, DEFAULT_TIME_TO_LIVE);
 <a class="jxr_linenumber" name="L728" href="#L728">728</a>       
 <a class="jxr_linenumber" name="L729" href="#L729">729</a>       <em class="jxr_comment">//merge this field in with the overall</em>
@@ -740,9 +740,9 @@
 <a class="jxr_linenumber" name="L732" href="#L732">732</a>     }
 <a class="jxr_linenumber" name="L733" href="#L733">733</a>     
 <a class="jxr_linenumber" name="L734" href="#L734">734</a>     <em class="jxr_comment">//add in indirect privs</em>
-<a class="jxr_linenumber" name="L735" href="#L735">735</a>     <strong class="jxr_keyword">for</strong> (MembershipPath membershipPath : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.membershipPaths)) {
+<a class="jxr_linenumber" name="L735" href="#L735">735</a>     <strong class="jxr_keyword">for</strong> (<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a> membershipPath : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.membershipPaths)) {
 <a class="jxr_linenumber" name="L736" href="#L736">736</a>       
-<a class="jxr_linenumber" name="L737" href="#L737">737</a>       <strong class="jxr_keyword">for</strong> (Field field : <strong class="jxr_keyword">new</strong> HashSet&lt;Field&gt;(membershipPath.getFields())) {
+<a class="jxr_linenumber" name="L737" href="#L737">737</a>       <strong class="jxr_keyword">for</strong> (<a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field : <strong class="jxr_keyword">new</strong> HashSet&lt;Field&gt;(membershipPath.getFields())) {
 <a class="jxr_linenumber" name="L738" href="#L738">738</a>         membershipPath.getFieldsIncludingImplied().addAll(field.getImpliedFields());
 <a class="jxr_linenumber" name="L739" href="#L739">739</a>       }
 <a class="jxr_linenumber" name="L740" href="#L740">740</a>       
@@ -754,15 +754,15 @@
 <a class="jxr_linenumber" name="L746" href="#L746">746</a> <em class="jxr_javadoccomment">   * merge in a field membership path group into the overall</em>
 <a class="jxr_linenumber" name="L747" href="#L747">747</a> <em class="jxr_javadoccomment">   * @param membershipPathGroup</em>
 <a class="jxr_linenumber" name="L748" href="#L748">748</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L749" href="#L749">749</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> mergeFieldMembershipPathGroup(<a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup) {
+<a class="jxr_linenumber" name="L749" href="#L749">749</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> mergeFieldMembershipPathGroup(<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup) {
 <a class="jxr_linenumber" name="L750" href="#L750">750</a>     <strong class="jxr_keyword">if</strong> (membershipPathGroup != <strong class="jxr_keyword">null</strong> &amp;&amp; membershipPathGroup.isHasMembership()) {
 <a class="jxr_linenumber" name="L751" href="#L751">751</a>       
-<a class="jxr_linenumber" name="L752" href="#L752">752</a>       <strong class="jxr_keyword">for</strong> (MembershipPath newMembershipPath : membershipPathGroup.getMembershipPaths()) {
+<a class="jxr_linenumber" name="L752" href="#L752">752</a>       <strong class="jxr_keyword">for</strong> (<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a> newMembershipPath : membershipPathGroup.getMembershipPaths()) {
 <a class="jxr_linenumber" name="L753" href="#L753">753</a> 
 <a class="jxr_linenumber" name="L754" href="#L754">754</a>         <strong class="jxr_keyword">boolean</strong> foundExistingPath = false;
 <a class="jxr_linenumber" name="L755" href="#L755">755</a>         
 <a class="jxr_linenumber" name="L756" href="#L756">756</a>         <em class="jxr_comment">//see if one exists in the parent</em>
-<a class="jxr_linenumber" name="L757" href="#L757">757</a>         <strong class="jxr_keyword">for</strong> (MembershipPath existingMembershipPath : <strong class="jxr_keyword">this</strong>.membershipPaths) {
+<a class="jxr_linenumber" name="L757" href="#L757">757</a>         <strong class="jxr_keyword">for</strong> (<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a> existingMembershipPath : <strong class="jxr_keyword">this</strong>.membershipPaths) {
 <a class="jxr_linenumber" name="L758" href="#L758">758</a>           
 <a class="jxr_linenumber" name="L759" href="#L759">759</a>           <em class="jxr_comment">//see if equals except fields</em>
 <a class="jxr_linenumber" name="L760" href="#L760">760</a>           <strong class="jxr_keyword">if</strong> (existingMembershipPath.equalsExceptFields(newMembershipPath)) {
@@ -791,16 +791,16 @@
 <a class="jxr_linenumber" name="L783" href="#L783">783</a> <em class="jxr_javadoccomment">   * @param theMember</em>
 <a class="jxr_linenumber" name="L784" href="#L784">784</a> <em class="jxr_javadoccomment">   * @param callingSubject is who is executing the call</em>
 <a class="jxr_linenumber" name="L785" href="#L785">785</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L786" href="#L786">786</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> analyzePrivilegesHelper(<a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> theMember, <strong class="jxr_keyword">final</strong> Subject callingSubject) {
+<a class="jxr_linenumber" name="L786" href="#L786">786</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> analyzePrivilegesHelper(<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem, <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> theMember, <strong class="jxr_keyword">final</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject) {
 <a class="jxr_linenumber" name="L787" href="#L787">787</a>     <strong class="jxr_keyword">this</strong>.ownerStem = stem;
 <a class="jxr_linenumber" name="L788" href="#L788">788</a>     <strong class="jxr_keyword">this</strong>.member = theMember;
 <a class="jxr_linenumber" name="L789" href="#L789">789</a>     <strong class="jxr_keyword">this</strong>.membershipPaths = <strong class="jxr_keyword">new</strong> TreeSet&lt;MembershipPath&gt;();
 <a class="jxr_linenumber" name="L790" href="#L790">790</a>   
 <a class="jxr_linenumber" name="L791" href="#L791">791</a>     <em class="jxr_comment">//loop through all the access privileges, and analyze them</em>
-<a class="jxr_linenumber" name="L792" href="#L792">792</a>     <strong class="jxr_keyword">for</strong> (Privilege privilege : NamingPrivilege.ALL_PRIVILEGES) {
+<a class="jxr_linenumber" name="L792" href="#L792">792</a>     <strong class="jxr_keyword">for</strong> (<a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> privilege : NamingPrivilege.ALL_PRIVILEGES) {
 <a class="jxr_linenumber" name="L793" href="#L793">793</a>       
-<a class="jxr_linenumber" name="L794" href="#L794">794</a>       <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field = privilege.getField();
-<a class="jxr_linenumber" name="L795" href="#L795">795</a>       <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> fieldMembershipPathGroup = MembershipPathGroup.analyze(stem, theMember, field, callingSubject);
+<a class="jxr_linenumber" name="L794" href="#L794">794</a>       <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field = privilege.getField();
+<a class="jxr_linenumber" name="L795" href="#L795">795</a>       <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> fieldMembershipPathGroup = MembershipPathGroup.analyze(stem, theMember, field, callingSubject);
 <a class="jxr_linenumber" name="L796" href="#L796">796</a>       
 <a class="jxr_linenumber" name="L797" href="#L797">797</a>       <em class="jxr_comment">//merge this field in with the overall</em>
 <a class="jxr_linenumber" name="L798" href="#L798">798</a>       <strong class="jxr_keyword">this</strong>.mergeFieldMembershipPathGroup(fieldMembershipPathGroup);
@@ -808,9 +808,9 @@
 <a class="jxr_linenumber" name="L800" href="#L800">800</a>     }
 <a class="jxr_linenumber" name="L801" href="#L801">801</a>     
 <a class="jxr_linenumber" name="L802" href="#L802">802</a>     <em class="jxr_comment">//add in indirect privs</em>
-<a class="jxr_linenumber" name="L803" href="#L803">803</a>     <strong class="jxr_keyword">for</strong> (MembershipPath membershipPath : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.membershipPaths)) {
+<a class="jxr_linenumber" name="L803" href="#L803">803</a>     <strong class="jxr_keyword">for</strong> (<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a> membershipPath : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.membershipPaths)) {
 <a class="jxr_linenumber" name="L804" href="#L804">804</a>       
-<a class="jxr_linenumber" name="L805" href="#L805">805</a>       <strong class="jxr_keyword">for</strong> (Field field : <strong class="jxr_keyword">new</strong> HashSet&lt;Field&gt;(membershipPath.getFields())) {
+<a class="jxr_linenumber" name="L805" href="#L805">805</a>       <strong class="jxr_keyword">for</strong> (<a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field : <strong class="jxr_keyword">new</strong> HashSet&lt;Field&gt;(membershipPath.getFields())) {
 <a class="jxr_linenumber" name="L806" href="#L806">806</a>         membershipPath.getFieldsIncludingImplied().addAll(field.getImpliedFields());
 <a class="jxr_linenumber" name="L807" href="#L807">807</a>       }
 <a class="jxr_linenumber" name="L808" href="#L808">808</a>       
@@ -824,25 +824,25 @@
 <a class="jxr_linenumber" name="L816" href="#L816">816</a> <em class="jxr_javadoccomment">   * @param theMember</em>
 <a class="jxr_linenumber" name="L817" href="#L817">817</a> <em class="jxr_javadoccomment">   * @param callingSubject is who is executing the call</em>
 <a class="jxr_linenumber" name="L818" href="#L818">818</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L819" href="#L819">819</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> analyzePrivilegesHelper(<a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef, <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> theMember, <strong class="jxr_keyword">final</strong> Subject callingSubject) {
+<a class="jxr_linenumber" name="L819" href="#L819">819</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> analyzePrivilegesHelper(<a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef, <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> theMember, <strong class="jxr_keyword">final</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject) {
 <a class="jxr_linenumber" name="L820" href="#L820">820</a>     <strong class="jxr_keyword">this</strong>.ownerAttributeDef = attributeDef;
 <a class="jxr_linenumber" name="L821" href="#L821">821</a>     <strong class="jxr_keyword">this</strong>.member = theMember;
 <a class="jxr_linenumber" name="L822" href="#L822">822</a>     <strong class="jxr_keyword">this</strong>.membershipPaths = <strong class="jxr_keyword">new</strong> TreeSet&lt;MembershipPath&gt;();
 <a class="jxr_linenumber" name="L823" href="#L823">823</a>   
 <a class="jxr_linenumber" name="L824" href="#L824">824</a>     <em class="jxr_comment">//loop through all the access privileges, and analyze them</em>
-<a class="jxr_linenumber" name="L825" href="#L825">825</a>     <strong class="jxr_keyword">for</strong> (Privilege privilege : AttributeDefPrivilege.ALL_PRIVILEGES) {
+<a class="jxr_linenumber" name="L825" href="#L825">825</a>     <strong class="jxr_keyword">for</strong> (<a name="Privilege" href="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> privilege : AttributeDefPrivilege.ALL_PRIVILEGES) {
 <a class="jxr_linenumber" name="L826" href="#L826">826</a>       
-<a class="jxr_linenumber" name="L827" href="#L827">827</a>       <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field = privilege.getField();
-<a class="jxr_linenumber" name="L828" href="#L828">828</a>       <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> fieldMembershipPathGroup = MembershipPathGroup.analyze(attributeDef, theMember, field, callingSubject);
+<a class="jxr_linenumber" name="L827" href="#L827">827</a>       <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field = privilege.getField();
+<a class="jxr_linenumber" name="L828" href="#L828">828</a>       <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> fieldMembershipPathGroup = MembershipPathGroup.analyze(attributeDef, theMember, field, callingSubject);
 <a class="jxr_linenumber" name="L829" href="#L829">829</a>       
 <a class="jxr_linenumber" name="L830" href="#L830">830</a>       <em class="jxr_comment">//merge this field in with the overall</em>
 <a class="jxr_linenumber" name="L831" href="#L831">831</a>       <strong class="jxr_keyword">this</strong>.mergeFieldMembershipPathGroup(fieldMembershipPathGroup);
 <a class="jxr_linenumber" name="L832" href="#L832">832</a>       
 <a class="jxr_linenumber" name="L833" href="#L833">833</a>     }
 <a class="jxr_linenumber" name="L834" href="#L834">834</a>     <em class="jxr_comment">//add in indirect privs</em>
-<a class="jxr_linenumber" name="L835" href="#L835">835</a>     <strong class="jxr_keyword">for</strong> (MembershipPath membershipPath : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.membershipPaths)) {
+<a class="jxr_linenumber" name="L835" href="#L835">835</a>     <strong class="jxr_keyword">for</strong> (<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a> membershipPath : GrouperUtil.nonNull(<strong class="jxr_keyword">this</strong>.membershipPaths)) {
 <a class="jxr_linenumber" name="L836" href="#L836">836</a>       
-<a class="jxr_linenumber" name="L837" href="#L837">837</a>       <strong class="jxr_keyword">for</strong> (Field field : <strong class="jxr_keyword">new</strong> HashSet&lt;Field&gt;(membershipPath.getFields())) {
+<a class="jxr_linenumber" name="L837" href="#L837">837</a>       <strong class="jxr_keyword">for</strong> (<a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field : <strong class="jxr_keyword">new</strong> HashSet&lt;Field&gt;(membershipPath.getFields())) {
 <a class="jxr_linenumber" name="L838" href="#L838">838</a>         membershipPath.getFieldsIncludingImplied().addAll(field.getImpliedFields());
 <a class="jxr_linenumber" name="L839" href="#L839">839</a>       }
 <a class="jxr_linenumber" name="L840" href="#L840">840</a>       
@@ -859,22 +859,22 @@
 <a class="jxr_linenumber" name="L851" href="#L851">851</a> <em class="jxr_javadoccomment">   * @param callingSubject is who is executing the call</em>
 <a class="jxr_linenumber" name="L852" href="#L852">852</a> <em class="jxr_javadoccomment">   * @param timeToLive when it is less than 0, stop recursing</em>
 <a class="jxr_linenumber" name="L853" href="#L853">853</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L854" href="#L854">854</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> analyzeHelper(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/GrouperObject.html">GrouperObject</a> theOwner, <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> theMember, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field, <strong class="jxr_keyword">final</strong> Subject callingSubject,
+<a class="jxr_linenumber" name="L854" href="#L854">854</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> analyzeHelper(<strong class="jxr_keyword">final</strong> <a name="GrouperObject" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperObject.html#GrouperObject">GrouperObject</a> theOwner, <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> theMember, <strong class="jxr_keyword">final</strong> <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field, <strong class="jxr_keyword">final</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject,
 <a class="jxr_linenumber" name="L855" href="#L855">855</a>       <strong class="jxr_keyword">int</strong> timeToLive){
 <a class="jxr_linenumber" name="L856" href="#L856">856</a> 
 <a class="jxr_linenumber" name="L857" href="#L857">857</a>     <strong class="jxr_keyword">boolean</strong> isGroup = false;
 <a class="jxr_linenumber" name="L858" href="#L858">858</a>     <strong class="jxr_keyword">boolean</strong> isStem = false;
 <a class="jxr_linenumber" name="L859" href="#L859">859</a>     <strong class="jxr_keyword">boolean</strong> isAttributeDef = false;
 <a class="jxr_linenumber" name="L860" href="#L860">860</a> 
-<a class="jxr_linenumber" name="L861" href="#L861">861</a>     <strong class="jxr_keyword">if</strong> (theOwner instanceof Group) {
+<a class="jxr_linenumber" name="L861" href="#L861">861</a>     <strong class="jxr_keyword">if</strong> (theOwner instanceof <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a>) {
 <a class="jxr_linenumber" name="L862" href="#L862">862</a>       isGroup = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L863" href="#L863">863</a>       <strong class="jxr_keyword">this</strong>.ownerGroup = (Group)theOwner;
-<a class="jxr_linenumber" name="L864" href="#L864">864</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (theOwner instanceof Stem) {
+<a class="jxr_linenumber" name="L863" href="#L863">863</a>       <strong class="jxr_keyword">this</strong>.ownerGroup = (<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a>)theOwner;
+<a class="jxr_linenumber" name="L864" href="#L864">864</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (theOwner instanceof <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a>) {
 <a class="jxr_linenumber" name="L865" href="#L865">865</a>       isStem = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L866" href="#L866">866</a>       <strong class="jxr_keyword">this</strong>.ownerStem = (Stem)theOwner;
-<a class="jxr_linenumber" name="L867" href="#L867">867</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (theOwner instanceof AttributeDef) {
+<a class="jxr_linenumber" name="L866" href="#L866">866</a>       <strong class="jxr_keyword">this</strong>.ownerStem = (<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a>)theOwner;
+<a class="jxr_linenumber" name="L867" href="#L867">867</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (theOwner instanceof <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a>) {
 <a class="jxr_linenumber" name="L868" href="#L868">868</a>       isAttributeDef = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L869" href="#L869">869</a>       <strong class="jxr_keyword">this</strong>.ownerAttributeDef = (AttributeDef)theOwner;
+<a class="jxr_linenumber" name="L869" href="#L869">869</a>       <strong class="jxr_keyword">this</strong>.ownerAttributeDef = (<a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a>)theOwner;
 <a class="jxr_linenumber" name="L870" href="#L870">870</a>     } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L871" href="#L871">871</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Not expecting owner: "</span> + theOwner);
 <a class="jxr_linenumber" name="L872" href="#L872">872</a>     }
@@ -934,30 +934,30 @@
 <a class="jxr_linenumber" name="L926" href="#L926">926</a>   
 <a class="jxr_linenumber" name="L927" href="#L927">927</a>     <em class="jxr_comment">//lets get all the groups (not secure for calling user</em>
 <a class="jxr_linenumber" name="L928" href="#L928">928</a>     <strong class="jxr_keyword">final</strong> Set&lt;String&gt; groupIds = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L929" href="#L929">929</a>     <strong class="jxr_keyword">for</strong> (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+<a class="jxr_linenumber" name="L929" href="#L929">929</a>     <strong class="jxr_keyword">for</strong> (<a name="GroupSet" href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html#GroupSet">GroupSet</a> groupSet : GrouperUtil.nonNull(groupSets)) {
 <a class="jxr_linenumber" name="L930" href="#L930">930</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(groupSet.getMemberGroupId())) {
 <a class="jxr_linenumber" name="L931" href="#L931">931</a>         groupIds.add(groupSet.getMemberGroupId());
 <a class="jxr_linenumber" name="L932" href="#L932">932</a>       }
 <a class="jxr_linenumber" name="L933" href="#L933">933</a>     }
 <a class="jxr_linenumber" name="L934" href="#L934">934</a>     
 <a class="jxr_linenumber" name="L935" href="#L935">935</a>     Set&lt;Group&gt; groups = GrouperUtil.length(groupIds) == 0 ? <strong class="jxr_keyword">new</strong> HashSet&lt;Group&gt;() 
-<a class="jxr_linenumber" name="L936" href="#L936">936</a>         : <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupFinder.html">GroupFinder</a>().assignGroupIds(groupIds).findGroups();
+<a class="jxr_linenumber" name="L936" href="#L936">936</a>         : <strong class="jxr_keyword">new</strong> <a name="GroupFinder" href="../../../../../edu/internet2/middleware/grouper/GroupFinder.html#GroupFinder">GroupFinder</a>().assignGroupIds(groupIds).findGroups();
 <a class="jxr_linenumber" name="L937" href="#L937">937</a>     
 <a class="jxr_linenumber" name="L938" href="#L938">938</a>     <em class="jxr_comment">//lets put these in a map</em>
 <a class="jxr_linenumber" name="L939" href="#L939">939</a>     Map&lt;String, Group&gt; groupIdToGroupMapUnsecure = <strong class="jxr_keyword">new</strong> HashMap&lt;String, Group&gt;();
-<a class="jxr_linenumber" name="L940" href="#L940">940</a>     <strong class="jxr_keyword">for</strong> (Group group : GrouperUtil.nonNull(groups)) {
+<a class="jxr_linenumber" name="L940" href="#L940">940</a>     <strong class="jxr_keyword">for</strong> (<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> group : GrouperUtil.nonNull(groups)) {
 <a class="jxr_linenumber" name="L941" href="#L941">941</a>       groupIdToGroupMapUnsecure.put(group.getId(), group);
 <a class="jxr_linenumber" name="L942" href="#L942">942</a>     }
 <a class="jxr_linenumber" name="L943" href="#L943">943</a>     
 <a class="jxr_linenumber" name="L944" href="#L944">944</a>     <em class="jxr_comment">//secure group query, see what the subject can READ</em>
-<a class="jxr_linenumber" name="L945" href="#L945">945</a>     <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> secureSession = GrouperSession.start(callingSubject, false);
+<a class="jxr_linenumber" name="L945" href="#L945">945</a>     <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> secureSession = GrouperSession.start(callingSubject, false);
 <a class="jxr_linenumber" name="L946" href="#L946">946</a>     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L947" href="#L947">947</a>     Set&lt;Group&gt; groupsSecure = (Set&lt;Group&gt;)GrouperSession.callbackGrouperSession(secureSession, <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L947" href="#L947">947</a>     Set&lt;Group&gt; groupsSecure = (Set&lt;Group&gt;)GrouperSession.callbackGrouperSession(secureSession, <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L948" href="#L948">948</a>       
 <a class="jxr_linenumber" name="L949" href="#L949">949</a>       @Override
-<a class="jxr_linenumber" name="L950" href="#L950">950</a>       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L950" href="#L950">950</a>       <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L951" href="#L951">951</a>         
-<a class="jxr_linenumber" name="L952" href="#L952">952</a>         <a href="../../../../../edu/internet2/middleware/grouper/GroupFinder.html">GroupFinder</a> groupFinder = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/GroupFinder.html">GroupFinder</a>().assignGroupIds(groupIds).assignSubject(callingSubject);
+<a class="jxr_linenumber" name="L952" href="#L952">952</a>         <a name="GroupFinder" href="../../../../../edu/internet2/middleware<a name="GroupFinder" href="../../../../../edu/internet2/middleware/grouper/GroupFinder.html#GroupFinder">GroupFinder</a>oupFinder.html#GroupFinder">GroupFinder</a> groupFinder = <strong class="jxr_keyword">new</strong> <a name="GroupFinder" href="../../../../../edu/internet2/middleware/grouper/GroupFinder.html#GroupFinder">GroupFinder</a>().assignGroupIds(groupIds).assignSubject(callingSubject);
 <a class="jxr_linenumber" name="L953" href="#L953">953</a>         <em class="jxr_comment">//this is read since it is more about the groups in groups as members</em>
 <a class="jxr_linenumber" name="L954" href="#L954">954</a>         groupFinder.assignPrivileges(AccessPrivilege.READ_PRIVILEGES);
 <a class="jxr_linenumber" name="L955" href="#L955">955</a>         <strong class="jxr_keyword">return</strong> groupFinder.findGroups();
@@ -966,12 +966,12 @@
 <a class="jxr_linenumber" name="L958" href="#L958">958</a>     GrouperSession.stopQuietly(secureSession);
 <a class="jxr_linenumber" name="L959" href="#L959">959</a> 
 <a class="jxr_linenumber" name="L960" href="#L960">960</a>     Map&lt;String, GroupSet&gt; groupSetIdToGroupSet = <strong class="jxr_keyword">new</strong> HashMap&lt;String, GroupSet&gt;();
-<a class="jxr_linenumber" name="L961" href="#L961">961</a>     <strong class="jxr_keyword">for</strong> (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+<a class="jxr_linenumber" name="L961" href="#L961">961</a>     <strong class="jxr_keyword">for</strong> (<a name="GroupSet" href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html#GroupSet">GroupSet</a> groupSet : GrouperUtil.nonNull(groupSets)) {
 <a class="jxr_linenumber" name="L962" href="#L962">962</a>       groupSetIdToGroupSet.put(groupSet.getId(), groupSet);
 <a class="jxr_linenumber" name="L963" href="#L963">963</a>     }
 <a class="jxr_linenumber" name="L964" href="#L964">964</a>   
 <a class="jxr_linenumber" name="L965" href="#L965">965</a>     <em class="jxr_comment">//see which ones have immediate memberships (these are the ones we care about).  get the list for this field and members</em>
-<a class="jxr_linenumber" name="L966" href="#L966">966</a>     <a href="../../../../../edu/internet2/middleware/grouper/MembershipFinder.html">MembershipFinder</a> membershipFinder = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/MembershipFinder.html">MembershipFinder</a>();
+<a class="jxr_linenumber" name="L966" href="#L966">966</a>     <a name="MembershipFinder" href="../../../../../edu/internet2/middleware/grou<a name="MembershipFinder" href="../../../../../edu/internet2/middleware/grouper/MembershipFinder.html#MembershipFinder">MembershipFinder</a>nder.html#MembershipFinder">MembershipFinder</a> membershipFinder = <strong class="jxr_keyword">new</strong> <a name="MembershipFinder" href="../../../../../edu/internet2/middleware/grouper/MembershipFinder.html#MembershipFinder">MembershipFinder</a>();
 <a class="jxr_linenumber" name="L967" href="#L967">967</a>     <strong class="jxr_keyword">if</strong> (isGroup) {
 <a class="jxr_linenumber" name="L968" href="#L968">968</a>       membershipFinder.addGroupId(<strong class="jxr_keyword">this</strong>.ownerGroup.getId());
 <a class="jxr_linenumber" name="L969" href="#L969">969</a> 
@@ -988,7 +988,7 @@
 <a class="jxr_linenumber" name="L980" href="#L980">980</a>     {  
 <a class="jxr_linenumber" name="L981" href="#L981">981</a>       <em class="jxr_comment">//also add in the list ones, since a subject could be a member of a group that has a field on something else. </em>
 <a class="jxr_linenumber" name="L982" href="#L982">982</a>       <em class="jxr_comment">//note, you cant do this above since membership finder works on one field type at a time</em>
-<a class="jxr_linenumber" name="L983" href="#L983">983</a>       Set&lt;Object[]&gt; listMembershipGroupMemberSet = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/MembershipFinder.html">MembershipFinder</a>().assignGroupIds(groupIds).assignMembershipType(MembershipType.IMMEDIATE)
+<a class="jxr_linenumber" name="L983" href="#L983">983</a>       Set&lt;Object[]&gt; listMembershipGroupMemberSet = <strong class="jxr_keyword">new</strong> <a name="MembershipFinder" href="../../../../../edu/internet2/middleware/grouper/MembershipFinder.html#MembershipFinder">MembershipFinder</a>().assignGroupIds(groupIds).assignMembershipType(MembershipType.IMMEDIATE)
 <a class="jxr_linenumber" name="L984" href="#L984">984</a>           .addField(Group.getDefaultList()).addMemberId(<strong class="jxr_keyword">this</strong>.member.getId()).findMembershipsMembers();
 <a class="jxr_linenumber" name="L985" href="#L985">985</a>       
 <a class="jxr_linenumber" name="L986" href="#L986">986</a>       membershipGroupMemberSet.addAll(listMembershipGroupMemberSet);
@@ -999,23 +999,23 @@
 <a class="jxr_linenumber" name="L991" href="#L991">991</a>   
 <a class="jxr_linenumber" name="L992" href="#L992">992</a>     <strong class="jxr_keyword">for</strong> (Object[] membershipGroupMember : GrouperUtil.nonNull(membershipGroupMemberSet)) {
 <a class="jxr_linenumber" name="L993" href="#L993">993</a>       String ownerId = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L994" href="#L994">994</a>         <strong class="jxr_keyword">if</strong> (membershipGroupMember[1] instanceof Group) {
-<a class="jxr_linenumber" name="L995" href="#L995">995</a>           ownerId = ((Group)membershipGroupMember[1]).getId();
-<a class="jxr_linenumber" name="L996" href="#L996">996</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (membershipGroupMember[1] instanceof AttributeDef) {
-<a class="jxr_linenumber" name="L997" href="#L997">997</a>           ownerId = ((AttributeDef)membershipGroupMember[1]).getId();
-<a class="jxr_linenumber" name="L998" href="#L998">998</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (membershipGroupMember[1] instanceof Stem) {
-<a class="jxr_linenumber" name="L999" href="#L999">999</a>           ownerId = ((Stem)membershipGroupMember[1]).getId();
+<a class="jxr_linenumber" name="L994" href="#L994">994</a>         <strong class="jxr_keyword">if</strong> (membershipGroupMember[1] instanceof <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a>) {
+<a class="jxr_linenumber" name="L995" href="#L995">995</a>           ownerId = ((<a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a>)membershipGroupMember[1]).getId();
+<a class="jxr_linenumber" name="L996" href="#L996">996</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (membershipGroupMember[1] instanceof <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a>) {
+<a class="jxr_linenumber" name="L997" href="#L997">997</a>           ownerId = ((<a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a>)membershipGroupMember[1]).getId();
+<a class="jxr_linenumber" name="L998" href="#L998">998</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (membershipGroupMember[1] instanceof <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a>) {
+<a class="jxr_linenumber" name="L999" href="#L999">999</a>           ownerId = ((<a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a>)membershipGroupMember[1]).getId();
 <a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Not expecting owner type: "</span> + membershipGroupMember[1]);
 <a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>         }
 <a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>         
-<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a>       String fieldId = ((Membership)membershipGroupMember[0]).getFieldId();
+<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a>       String fieldId = ((<a name="Membership" href="../../../../../edu/internet2/middleware/grouper/Membership.html#Membership">Membership</a>)membershipGroupMember[0]).getFieldId();
 <a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>       ownerIdFieldIdWithImmediateMemberships.add(<strong class="jxr_keyword">new</strong> MultiKey(ownerId, fieldId));
 <a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>     }
 <a class="jxr_linenumber" name="L1007" href="#L1007">1007</a>   
-<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>     <strong class="jxr_keyword">for</strong> (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>     <strong class="jxr_keyword">for</strong> (<a name="GroupSet" href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html#GroupSet">GroupSet</a> groupSet : GrouperUtil.nonNull(groupSets)) {
 <a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>   
-<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>       <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>       <a name="MembershipType" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html#MembershipType">MembershipType</a> membershipType = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>       <strong class="jxr_keyword">if</strong> (StringUtils.equals(<span class="jxr_string">"immediate"</span>, groupSet.getType())) {
 <a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>         membershipType = MembershipType.IMMEDIATE;
 <a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (StringUtils.equals(<span class="jxr_string">"effective"</span>, groupSet.getType())) {
@@ -1028,18 +1028,18 @@
 <a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>       
 <a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>       List&lt;MembershipPathNode&gt; membershipPathNodes = <strong class="jxr_keyword">new</strong> ArrayList&lt;MembershipPathNode&gt;();
 <a class="jxr_linenumber" name="L1022" href="#L1022">1022</a>       
-<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>       <a href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html">GroupSet</a> currentGroupSet = groupSet;
+<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>       <a name="GroupSet" href="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html#GroupSet">GroupSet</a> currentGroupSet = groupSet;
 <a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>       
 <a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>       <strong class="jxr_keyword">boolean</strong> allowed = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L1026" href="#L1026">1026</a> 
 <a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i=groupSet.getDepth(); i&gt;=0; i--) {
 <a class="jxr_linenumber" name="L1028" href="#L1028">1028</a> 
-<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>         <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html">MembershipPathNode</a> membershipPathNode = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>         <a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a> membershipPathNode = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1030" href="#L1030">1030</a> 
 <a class="jxr_linenumber" name="L1031" href="#L1031">1031</a>         <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(currentGroupSet.getMemberGroupId())) {
 <a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>           <em class="jxr_comment">//if direct, use that field</em>
-<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>           <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> memberGroup = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>           <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> memberField = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>           <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> memberGroup = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>           <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> memberField = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>           
 <a class="jxr_linenumber" name="L1036" href="#L1036">1036</a>           <strong class="jxr_keyword">if</strong> (isGroup &amp;&amp; StringUtils.equals(currentGroupSet.getMemberGroupId(), <strong class="jxr_keyword">this</strong>.ownerGroup.getId())) {
 <a class="jxr_linenumber" name="L1037" href="#L1037">1037</a>             memberField = field;
@@ -1052,25 +1052,25 @@
 <a class="jxr_linenumber" name="L1044" href="#L1044">1044</a>           }
 <a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>           <strong class="jxr_keyword">if</strong> (memberGroup.hasComposite()) {
 <a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>     
-<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a>             <a href="../../../../../edu/internet2/middleware/grouper/Composite.html">Composite</a> composite = memberGroup.getComposite(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>             <a href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html">CompositeType</a> compositeType = composite.getType();
+<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a>             <a name="Composite" href="../../../../../edu/internet2/middleware/grouper/Composite.html#Composite">Composite</a> composite = memberGroup.getComposite(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>             <a name="CompositeType" href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html#CompositeType">CompositeType</a> compositeType = composite.getType();
 <a class="jxr_linenumber" name="L1049" href="#L1049">1049</a>             
-<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a>             <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> leftGroup = composite.getLeftGroup();
-<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>             <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> rightGroup = composite.getRightGroup();
+<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a>             <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> leftGroup = composite.getLeftGroup();
+<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>             <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> rightGroup = composite.getRightGroup();
 <a class="jxr_linenumber" name="L1052" href="#L1052">1052</a>     
-<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a>             membershipPathNode = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html">MembershipPathNode</a>(memberField, memberGroup, compositeType, leftGroup, rightGroup, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a>             membershipPathNode = <strong class="jxr_keyword">new</strong> <a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a>(memberField, memberGroup, compositeType, leftGroup, rightGroup, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L1054" href="#L1054">1054</a>     
 <a class="jxr_linenumber" name="L1055" href="#L1055">1055</a>           } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L1056" href="#L1056">1056</a>           
-<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a>             membershipPathNode = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html">MembershipPathNode</a>(memberField, memberGroup);
+<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a>             membershipPathNode = <strong class="jxr_keyword">new</strong> <a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a>(memberField, memberGroup);
 <a class="jxr_linenumber" name="L1058" href="#L1058">1058</a>           }
 <a class="jxr_linenumber" name="L1059" href="#L1059">1059</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (isStem &amp;&amp; !StringUtils.isBlank(currentGroupSet.getMemberStemId())
 <a class="jxr_linenumber" name="L1060" href="#L1060">1060</a>             &amp;&amp; StringUtils.equals(currentGroupSet.getMemberStemId(), <strong class="jxr_keyword">this</strong>.ownerStem.getId())) {
-<a class="jxr_linenumber" name="L1061" href="#L1061">1061</a>           membershipPathNode = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html">MembershipPathNode</a>(field, <strong class="jxr_keyword">this</strong>.ownerStem);
+<a class="jxr_linenumber" name="L1061" href="#L1061">1061</a>           membershipPathNode = <strong class="jxr_keyword">new</strong> <a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a>(field, <strong class="jxr_keyword">this</strong>.ownerStem);
 <a class="jxr_linenumber" name="L1062" href="#L1062">1062</a> 
 <a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (isAttributeDef &amp;&amp; !StringUtils.isBlank(currentGroupSet.getMemberAttrDefId())
 <a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>             &amp;&amp; StringUtils.equals(currentGroupSet.getMemberAttrDefId(), <strong class="jxr_keyword">this</strong>.ownerAttributeDef.getId())) {
-<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>           membershipPathNode = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html">MembershipPathNode</a>(field, <strong class="jxr_keyword">this</strong>.ownerAttributeDef);
+<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>           membershipPathNode = <strong class="jxr_keyword">new</strong> <a name="MembershipPathNode" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathNode.html#MembershipPathNode">MembershipPathNode</a>(field, <strong class="jxr_keyword">this</strong>.ownerAttributeDef);
 <a class="jxr_linenumber" name="L1066" href="#L1066">1066</a>             
 <a class="jxr_linenumber" name="L1067" href="#L1067">1067</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Not expecting group set: "</span> + groupSet);
@@ -1083,9 +1083,9 @@
 <a class="jxr_linenumber" name="L1075" href="#L1075">1075</a>       }
 <a class="jxr_linenumber" name="L1076" href="#L1076">1076</a>   
 <a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>       <em class="jxr_comment">//if its a composite, we need to deal with the factors</em>
-<a class="jxr_linenumber" name="L1078" href="#L1078">1078</a>       <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> memberGroup = groupIdToGroupMapUnsecure.get(groupSet.getMemberGroupId());
+<a class="jxr_linenumber" name="L1078" href="#L1078">1078</a>       <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> memberGroup = groupIdToGroupMapUnsecure.get(groupSet.getMemberGroupId());
 <a class="jxr_linenumber" name="L1079" href="#L1079">1079</a>   
-<a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>       <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html">MembershipPath</a> membershipPath = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html">MembershipPath</a>(<strong class="jxr_keyword">this</strong>.member, membershipPathNodes, membershipType);
+<a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>       <a name="MembershipPath" href="../../../../../edu/internet2/middleware/gr<a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a>ip/MembershipPath.html#MembershipPath">MembershipPath</a> membershipPath = <strong class="jxr_keyword">new</strong> <a name="MembershipPath" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPath.html#MembershipPath">MembershipPath</a>(<strong class="jxr_keyword">this</strong>.member, membershipPathNodes, membershipType);
 <a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>       
 <a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>       membershipPath.getFields().add(field);
 <a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>       
@@ -1104,28 +1104,28 @@
 <a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>       <strong class="jxr_keyword">if</strong> (memberGroup != <strong class="jxr_keyword">null</strong> &amp;&amp; memberGroup.hasComposite()) {
 <a class="jxr_linenumber" name="L1097" href="#L1097">1097</a>         
 <a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>         <em class="jxr_comment">//lets analyze each factor</em>
-<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>         <a href="../../../../../edu/internet2/middleware/grouper/Composite.html">Composite</a> composite = memberGroup.getComposite(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L1100" href="#L1100">1100</a>         <a href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html">CompositeType</a> compositeType = composite.getType();
+<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>         <a name="Composite" href="../../../../../edu/internet2/middleware/grouper/Composite.html#Composite">Composite</a> composite = memberGroup.getComposite(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1100" href="#L1100">1100</a>         <a name="CompositeType" href="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html#CompositeType">CompositeType</a> compositeType = composite.getType();
 <a class="jxr_linenumber" name="L1101" href="#L1101">1101</a>         <strong class="jxr_keyword">if</strong> (compositeType == CompositeType.UNION) {
 <a class="jxr_linenumber" name="L1102" href="#L1102">1102</a>           
-<a class="jxr_linenumber" name="L1103" href="#L1103">1103</a>           <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroupLeft = MembershipPathGroup.analyze(
+<a class="jxr_linenumber" name="L1103" href="#L1103">1103</a>           <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroupLeft = MembershipPathGroup.analyze(
 <a class="jxr_linenumber" name="L1104" href="#L1104">1104</a>               composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject, timeToLive);
 <a class="jxr_linenumber" name="L1105" href="#L1105">1105</a>           mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
-<a class="jxr_linenumber" name="L1106" href="#L1106">1106</a>           <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroupRight = MembershipPathGroup.analyze(
+<a class="jxr_linenumber" name="L1106" href="#L1106">1106</a>           <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroupRight = MembershipPathGroup.analyze(
 <a class="jxr_linenumber" name="L1107" href="#L1107">1107</a>               composite.getRightGroup(), theMember, Group.getDefaultList(), callingSubject, timeToLive);
 <a class="jxr_linenumber" name="L1108" href="#L1108">1108</a>           mergeMembershipPathGroup(membershipPath, membershipPathGroupRight);
 <a class="jxr_linenumber" name="L1109" href="#L1109">1109</a>           
 <a class="jxr_linenumber" name="L1110" href="#L1110">1110</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (compositeType == CompositeType.COMPLEMENT) {
 <a class="jxr_linenumber" name="L1111" href="#L1111">1111</a>   
-<a class="jxr_linenumber" name="L1112" href="#L1112">1112</a>           <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroupLeft = MembershipPathGroup.analyze(
+<a class="jxr_linenumber" name="L1112" href="#L1112">1112</a>           <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroupLeft = MembershipPathGroup.analyze(
 <a class="jxr_linenumber" name="L1113" href="#L1113">1113</a>               composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject, timeToLive);
 <a class="jxr_linenumber" name="L1114" href="#L1114">1114</a>           mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
 <a class="jxr_linenumber" name="L1115" href="#L1115">1115</a>           
 <a class="jxr_linenumber" name="L1116" href="#L1116">1116</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (compositeType == CompositeType.INTERSECTION) {
-<a class="jxr_linenumber" name="L1117" href="#L1117">1117</a>           <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroupLeft = MembershipPathGroup.analyze(
+<a class="jxr_linenumber" name="L1117" href="#L1117">1117</a>           <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroupLeft = MembershipPathGroup.analyze(
 <a class="jxr_linenumber" name="L1118" href="#L1118">1118</a>               composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject, timeToLive);
 <a class="jxr_linenumber" name="L1119" href="#L1119">1119</a>           mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
-<a class="jxr_linenumber" name="L1120" href="#L1120">1120</a>           <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroupRight = MembershipPathGroup.analyze(
+<a class="jxr_linenumber" name="L1120" href="#L1120">1120</a>           <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroupRight = MembershipPathGroup.analyze(
 <a class="jxr_linenumber" name="L1121" href="#L1121">1121</a>               composite.getRightGroup(), theMember, Group.getDefaultList(), callingSubject, timeToLive);
 <a class="jxr_linenumber" name="L1122" href="#L1122">1122</a>           mergeMembershipPathGroup(membershipPath, membershipPathGroupRight);
 <a class="jxr_linenumber" name="L1123" href="#L1123">1123</a>           
@@ -1142,8 +1142,8 @@
 <a class="jxr_linenumber" name="L1134" href="#L1134">1134</a> <em class="jxr_javadoccomment">   * @param subject</em>
 <a class="jxr_linenumber" name="L1135" href="#L1135">1135</a> <em class="jxr_javadoccomment">   * @return the membershipPathGroup</em>
 <a class="jxr_linenumber" name="L1136" href="#L1136">1136</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1137" href="#L1137">1137</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <strong class="jxr_keyword">final</strong> Subject subject) {
-<a class="jxr_linenumber" name="L1138" href="#L1138">1138</a>     <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+<a class="jxr_linenumber" name="L1137" href="#L1137">1137</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject) {
+<a class="jxr_linenumber" name="L1138" href="#L1138">1138</a>     <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
 <a class="jxr_linenumber" name="L1139" href="#L1139">1139</a>     <strong class="jxr_keyword">return</strong> analyzePrivileges(stem, member);
 <a class="jxr_linenumber" name="L1140" href="#L1140">1140</a>   }
 <a class="jxr_linenumber" name="L1141" href="#L1141">1141</a> 
@@ -1153,8 +1153,8 @@
 <a class="jxr_linenumber" name="L1145" href="#L1145">1145</a> <em class="jxr_javadoccomment">   * @param subject</em>
 <a class="jxr_linenumber" name="L1146" href="#L1146">1146</a> <em class="jxr_javadoccomment">   * @return the membershipPathGroup</em>
 <a class="jxr_linenumber" name="L1147" href="#L1147">1147</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1148" href="#L1148">1148</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> Subject subject) {
-<a class="jxr_linenumber" name="L1149" href="#L1149">1149</a>     <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+<a class="jxr_linenumber" name="L1148" href="#L1148">1148</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject) {
+<a class="jxr_linenumber" name="L1149" href="#L1149">1149</a>     <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
 <a class="jxr_linenumber" name="L1150" href="#L1150">1150</a>     <strong class="jxr_keyword">return</strong> analyzePrivileges(attributeDef, member);
 <a class="jxr_linenumber" name="L1151" href="#L1151">1151</a>   }
 <a class="jxr_linenumber" name="L1152" href="#L1152">1152</a> 
@@ -1165,13 +1165,13 @@
 <a class="jxr_linenumber" name="L1157" href="#L1157">1157</a> <em class="jxr_javadoccomment">   * @param field</em>
 <a class="jxr_linenumber" name="L1158" href="#L1158">1158</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L1159" href="#L1159">1159</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1160" href="#L1160">1160</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field) {
-<a class="jxr_linenumber" name="L1161" href="#L1161">1161</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
-<a class="jxr_linenumber" name="L1162" href="#L1162">1162</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L1163" href="#L1163">1163</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L1160" href="#L1160">1160</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <strong class="jxr_keyword">final</strong> <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field) {
+<a class="jxr_linenumber" name="L1161" href="#L1161">1161</a>     <strong class="jxr_keyword">final</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L1162" href="#L1162">1162</a>     <strong class="jxr_keyword">final</strong> <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L1163" href="#L1163">1163</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L1164" href="#L1164">1164</a>       
 <a class="jxr_linenumber" name="L1165" href="#L1165">1165</a>       @Override
-<a class="jxr_linenumber" name="L1166" href="#L1166">1166</a>       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L1166" href="#L1166">1166</a>       <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L1167" href="#L1167">1167</a>         
 <a class="jxr_linenumber" name="L1168" href="#L1168">1168</a>         membershipPathGroup.analyzeHelper(stem, member, field, GROUPER_SESSION.getSubject(), DEFAULT_TIME_TO_LIVE);
 <a class="jxr_linenumber" name="L1169" href="#L1169">1169</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -1193,13 +1193,13 @@
 <a class="jxr_linenumber" name="L1185" href="#L1185">1185</a> <em class="jxr_javadoccomment">   * @param field</em>
 <a class="jxr_linenumber" name="L1186" href="#L1186">1186</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L1187" href="#L1187">1187</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1188" href="#L1188">1188</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field) {
-<a class="jxr_linenumber" name="L1189" href="#L1189">1189</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
-<a class="jxr_linenumber" name="L1190" href="#L1190">1190</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L1191" href="#L1191">1191</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L1188" href="#L1188">1188</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <strong class="jxr_keyword">final</strong> <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field) {
+<a class="jxr_linenumber" name="L1189" href="#L1189">1189</a>     <strong class="jxr_keyword">final</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L1190" href="#L1190">1190</a>     <strong class="jxr_keyword">final</strong> <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L1191" href="#L1191">1191</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L1192" href="#L1192">1192</a>       
 <a class="jxr_linenumber" name="L1193" href="#L1193">1193</a>       @Override
-<a class="jxr_linenumber" name="L1194" href="#L1194">1194</a>       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L1194" href="#L1194">1194</a>       <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L1195" href="#L1195">1195</a>         
 <a class="jxr_linenumber" name="L1196" href="#L1196">1196</a>         membershipPathGroup.analyzeHelper(attributeDef, member, field, GROUPER_SESSION.getSubject(), DEFAULT_TIME_TO_LIVE);
 <a class="jxr_linenumber" name="L1197" href="#L1197">1197</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -1217,8 +1217,8 @@
 <a class="jxr_linenumber" name="L1209" href="#L1209">1209</a> <em class="jxr_javadoccomment">   * @param callingSubject</em>
 <a class="jxr_linenumber" name="L1210" href="#L1210">1210</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L1211" href="#L1211">1211</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1212" href="#L1212">1212</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field, Subject callingSubject) {
-<a class="jxr_linenumber" name="L1213" href="#L1213">1213</a>     <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L1212" href="#L1212">1212</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <strong class="jxr_keyword">final</strong> <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field, <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject) {
+<a class="jxr_linenumber" name="L1213" href="#L1213">1213</a>     <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
 <a class="jxr_linenumber" name="L1214" href="#L1214">1214</a>     membershipPathGroup.analyzeHelper(attributeDef, member, field, callingSubject, DEFAULT_TIME_TO_LIVE);
 <a class="jxr_linenumber" name="L1215" href="#L1215">1215</a>     <strong class="jxr_keyword">return</strong> membershipPathGroup;
 <a class="jxr_linenumber" name="L1216" href="#L1216">1216</a>   }
@@ -1231,8 +1231,8 @@
 <a class="jxr_linenumber" name="L1223" href="#L1223">1223</a> <em class="jxr_javadoccomment">   * @param callingSubject</em>
 <a class="jxr_linenumber" name="L1224" href="#L1224">1224</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L1225" href="#L1225">1225</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1226" href="#L1226">1226</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field, Subject callingSubject) {
-<a class="jxr_linenumber" name="L1227" href="#L1227">1227</a>     <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L1226" href="#L1226">1226</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyze(<strong class="jxr_keyword">final</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <strong class="jxr_keyword">final</strong> <a name="Field" href="../../../../../edu/internet2/middleware/grouper/Field.html#Field">Field</a> field, <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject) {
+<a class="jxr_linenumber" name="L1227" href="#L1227">1227</a>     <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
 <a class="jxr_linenumber" name="L1228" href="#L1228">1228</a>     membershipPathGroup.analyzeHelper(stem, member, field, callingSubject, DEFAULT_TIME_TO_LIVE);
 <a class="jxr_linenumber" name="L1229" href="#L1229">1229</a>     <strong class="jxr_keyword">return</strong> membershipPathGroup;
 <a class="jxr_linenumber" name="L1230" href="#L1230">1230</a>   }
@@ -1243,14 +1243,14 @@
 <a class="jxr_linenumber" name="L1235" href="#L1235">1235</a> <em class="jxr_javadoccomment">   * @param member</em>
 <a class="jxr_linenumber" name="L1236" href="#L1236">1236</a> <em class="jxr_javadoccomment">   * @return the membershipPathGroup</em>
 <a class="jxr_linenumber" name="L1237" href="#L1237">1237</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1238" href="#L1238">1238</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member) {
+<a class="jxr_linenumber" name="L1238" href="#L1238">1238</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member) {
 <a class="jxr_linenumber" name="L1239" href="#L1239">1239</a>     
-<a class="jxr_linenumber" name="L1240" href="#L1240">1240</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
-<a class="jxr_linenumber" name="L1241" href="#L1241">1241</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L1242" href="#L1242">1242</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L1240" href="#L1240">1240</a>     <strong class="jxr_keyword">final</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L1241" href="#L1241">1241</a>     <strong class="jxr_keyword">final</strong> <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L1242" href="#L1242">1242</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L1243" href="#L1243">1243</a>       
 <a class="jxr_linenumber" name="L1244" href="#L1244">1244</a>       @Override
-<a class="jxr_linenumber" name="L1245" href="#L1245">1245</a>       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L1245" href="#L1245">1245</a>       <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L1246" href="#L1246">1246</a>         
 <a class="jxr_linenumber" name="L1247" href="#L1247">1247</a>         membershipPathGroup.analyzePrivilegesHelper(stem, member, GROUPER_SESSION.getSubject());
 <a class="jxr_linenumber" name="L1248" href="#L1248">1248</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -1269,8 +1269,8 @@
 <a class="jxr_linenumber" name="L1261" href="#L1261">1261</a> <em class="jxr_javadoccomment">   * @param callingSubject</em>
 <a class="jxr_linenumber" name="L1262" href="#L1262">1262</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L1263" href="#L1263">1263</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1264" href="#L1264">1264</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, Subject callingSubject) {
-<a class="jxr_linenumber" name="L1265" href="#L1265">1265</a>     <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L1264" href="#L1264">1264</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject) {
+<a class="jxr_linenumber" name="L1265" href="#L1265">1265</a>     <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
 <a class="jxr_linenumber" name="L1266" href="#L1266">1266</a>     membershipPathGroup.analyzePrivilegesHelper(stem, member, callingSubject);
 <a class="jxr_linenumber" name="L1267" href="#L1267">1267</a>     <strong class="jxr_keyword">return</strong> membershipPathGroup;
 <a class="jxr_linenumber" name="L1268" href="#L1268">1268</a>   }
@@ -1281,14 +1281,14 @@
 <a class="jxr_linenumber" name="L1273" href="#L1273">1273</a> <em class="jxr_javadoccomment">   * @param member</em>
 <a class="jxr_linenumber" name="L1274" href="#L1274">1274</a> <em class="jxr_javadoccomment">   * @return the membershipPathGroup</em>
 <a class="jxr_linenumber" name="L1275" href="#L1275">1275</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1276" href="#L1276">1276</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member) {
+<a class="jxr_linenumber" name="L1276" href="#L1276">1276</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member) {
 <a class="jxr_linenumber" name="L1277" href="#L1277">1277</a>     
-<a class="jxr_linenumber" name="L1278" href="#L1278">1278</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
-<a class="jxr_linenumber" name="L1279" href="#L1279">1279</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L1280" href="#L1280">1280</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L1278" href="#L1278">1278</a>     <strong class="jxr_keyword">final</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L1279" href="#L1279">1279</a>     <strong class="jxr_keyword">final</strong> <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> GROUPER_SESSION = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L1280" href="#L1280">1280</a>     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> <a name="GrouperSessionHandler" href="../../../../../edu/internet2/middleware/grouper/misc/GrouperSessionHandler.html#GrouperSessionHandler">GrouperSessionHandler</a>() {
 <a class="jxr_linenumber" name="L1281" href="#L1281">1281</a>       
 <a class="jxr_linenumber" name="L1282" href="#L1282">1282</a>       @Override
-<a class="jxr_linenumber" name="L1283" href="#L1283">1283</a>       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
+<a class="jxr_linenumber" name="L1283" href="#L1283">1283</a>       <strong class="jxr_keyword">public</strong> Object callback(<a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> <a name="GrouperSessionException" href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html#GrouperSessionException">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L1284" href="#L1284">1284</a>         
 <a class="jxr_linenumber" name="L1285" href="#L1285">1285</a>         membershipPathGroup.analyzePrivilegesHelper(attributeDef, member, GROUPER_SESSION.getSubject());
 <a class="jxr_linenumber" name="L1286" href="#L1286">1286</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -1307,8 +1307,8 @@
 <a class="jxr_linenumber" name="L1299" href="#L1299">1299</a> <em class="jxr_javadoccomment">   * @param callingSubject</em>
 <a class="jxr_linenumber" name="L1300" href="#L1300">1300</a> <em class="jxr_javadoccomment">   * @return the group of paths</em>
 <a class="jxr_linenumber" name="L1301" href="#L1301">1301</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1302" href="#L1302">1302</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member, Subject callingSubject) {
-<a class="jxr_linenumber" name="L1303" href="#L1303">1303</a>     <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html">MembershipPathGroup</a>();
+<a class="jxr_linenumber" name="L1302" href="#L1302">1302</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> analyzePrivileges(<strong class="jxr_keyword">final</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> attributeDef, <strong class="jxr_keyword">final</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member, <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> callingSubject) {
+<a class="jxr_linenumber" name="L1303" href="#L1303">1303</a>     <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper<a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>hipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a> membershipPathGroup = <strong class="jxr_keyword">new</strong> <a name="MembershipPathGroup" href="../../../../../edu/internet2/middleware/grouper/membership/MembershipPathGroup.html#MembershipPathGroup">MembershipPathGroup</a>();
 <a class="jxr_linenumber" name="L1304" href="#L1304">1304</a>     membershipPathGroup.analyzePrivilegesHelper(attributeDef, member, callingSubject);
 <a class="jxr_linenumber" name="L1305" href="#L1305">1305</a>     <strong class="jxr_keyword">return</strong> membershipPathGroup;
 <a class="jxr_linenumber" name="L1306" href="#L1306">1306</a>   }
@@ -1317,6 +1317,6 @@
 <a class="jxr_linenumber" name="L1309" href="#L1309">1309</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

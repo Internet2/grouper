@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -38,7 +38,7 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html">AttributeDefType</a> {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">public</strong> enum <a name="AttributeDefType" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html#AttributeDefType">AttributeDefType</a> {
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>    <em class="jxr_javadoccomment">/** if this is an attribute */</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>    attr, 
@@ -62,7 +62,7 @@
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   * @param exceptionOnNull will not allow null or blank entries</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html">AttributeDefType</a> valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="AttributeDefType" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html#AttributeDefType">AttributeDefType</a> valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_comment">//v2.2+ convert domain to service</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"domain"</span>, string)) {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>        string = service.name();
@@ -83,7 +83,7 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>        <strong class="jxr_keyword">return</strong> result;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">for</strong> (String attributeDefTypeString : attributeDefTypeStrings) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>        <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html">AttributeDefType</a> attributeDefType = valueOfIgnoreCase(attributeDefTypeString, false);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>        <a name="AttributeDefType" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html#AttributeDefType">AttributeDefType</a> attributeDefType = valueOfIgnoreCase(attributeDefTypeString, false);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>        <strong class="jxr_keyword">if</strong> (attributeDefType != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          result.add(attributeDefType);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>        }
@@ -94,6 +94,6 @@
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

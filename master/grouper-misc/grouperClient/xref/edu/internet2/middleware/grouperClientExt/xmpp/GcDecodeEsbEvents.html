@@ -23,15 +23,15 @@
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * translate json to esb events</em>
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GcDecodeEsbEvents.html">GcDecodeEsbEvents</a> {
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GcDecodeEsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/GcDecodeEsbEvents.html#GcDecodeEsbEvents">GcDecodeEsbEvents</a> {
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">   * @param json</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">   * @return esb events</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html">EsbEvents</a> decodeEsbEvents(String json) {
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html">EsbEvents</a> esbEvents = (EsbEvents)JsonUtils.jsonConvertFrom(json, EsbEvents.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a> decodeEsbEvents(String json) {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <a name="EsbEvents" hre<a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a>../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a> esbEvents = (<a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a>)JsonUtils.jsonConvertFrom(json, EsbEvents.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">return</strong> esbEvents;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>    }
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
@@ -40,7 +40,7 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">   * @param esbEvents</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">   * @return esb events</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html">EsbEvents</a> unencryptEsbEvents(<a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html">EsbEvents</a> esbEvents) {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="EsbEvents" href="../<a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a>../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a> unencryptEsbEvents(<a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a> esbEvents) {
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>      
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <em class="jxr_comment">//  ## if you want to encrypt messages, set this to an implementation of edu.internet2.middleware.grouperClient.encryption.GcEncryptionInterface</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <em class="jxr_comment">//  #esb.consumer.encryptionImplementation = edu.internet2.middleware.grouperClient.encryption.GcSymmetricEncryptAesCbcPkcs5Padding</em>
@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      Class&lt;GcEncryptionInterface&gt; encryptionImplClass = GrouperClientUtils.forName(encryptionImplName);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <a href="../../../../../edu/internet2/middleware/grouperClient/encryption/GcEncryptionInterface.html">GcEncryptionInterface</a> gcEncryptionInterface = GrouperClientUtils.newInstance(encryptionImplClass);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <a name="GcEncryptionInterface" href="../../../../../edu/internet2/middleware/grouperClient/encryption/GcEncryptionInterface.html#GcEncryptionInterface">GcEncryptionInterface</a> gcEncryptionInterface = GrouperClientUtils.newInstance(encryptionImplClass);
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">return</strong> unencryptEsbEvents(esbEvents, gcEncryptionInterface, keys);
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>    }
@@ -85,8 +85,8 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">   * @param keys</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   * @return esb events</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html">EsbEvents</a> unencryptEsbEvents(<a href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html">EsbEvents</a> esbEvents, 
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>        <a href="../../../../../edu/internet2/middleware/grouperClient/encryption/GcEncryptionInterface.html">GcEncryptionInterface</a> gcEncryptionInterface, Set&lt;String&gt; keys) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="EsbEvents" href="../<a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a>../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a> unencryptEsbEvents(<a name="EsbEvents" href="../../../../../edu/internet2/middleware/grouperClientExt/xmpp/EsbEvents.html#EsbEvents">EsbEvents</a> esbEvents, 
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>        <a name="GcEncryptionInterface" href="../../../../../edu/internet2/middleware/grouperClient/encryption/GcEncryptionInterface.html#GcEncryptionInterface">GcEncryptionInterface</a> gcEncryptionInterface, Set&lt;String&gt; keys) {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      String encryptionKeySha1First4 = esbEvents.getEncryptionKeySha1First4();
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      
@@ -125,6 +125,6 @@
 <a class="jxr_linenumber" name="L117" href="#L117">117</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

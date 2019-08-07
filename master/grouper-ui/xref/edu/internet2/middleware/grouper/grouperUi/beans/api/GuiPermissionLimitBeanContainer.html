@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -43,7 +43,7 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiPermissionLimitBeanContainer.html">GuiPermissionLimitBeanContainer</a> <strong class="jxr_keyword">implements</strong> Serializable, Comparable&lt;GuiPermissionLimitBeanContainer&gt; {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GuiPermissionLimitBeanContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiPermissionLimitBeanContainer.html#GuiPermissionLimitBeanContainer">GuiPermissionLimitBeanContainer</a> <strong class="jxr_keyword">implements</strong> Serializable, Comparable&lt;GuiPermissionLimitBeanContainer&gt; {
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>    
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>    <em class="jxr_javadoccomment">/** permission limit and values */</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">private</strong> PermissionLimitBean permissionLimitBean;
@@ -150,14 +150,14 @@
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>     result.append(<span class="jxr_string">" "</span>).append(role.getDisplayName()).append(<span class="jxr_string">"&lt;br /&gt;"</span>);
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> 
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>     <strong class="jxr_keyword">if</strong> (AttributeAssignType.any_mem == attributeAssignType) {
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a> guiSubject = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a>(limitAssign.getOwnerMember().getSubject());
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>       <a name="GuiSubject" href="../../../../../../../edu/internet2/mid<a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>ouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a> guiSubject = <strong class="jxr_keyword">new</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>(limitAssign.getOwnerMember().getSubject());
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>       
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>       result.append(GrouperUiUtils.escapeHtml(TagUtils.navResourceString(<span class="jxr_string">"simplePermissionUpdate.limitAssignedToEntityLabel"</span>), <strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>       result.append(<span class="jxr_string">" "</span>).append(guiSubject.getScreenLabel()).append(<span class="jxr_string">"&lt;br /&gt;"</span>);
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>     }
 <a class="jxr_linenumber" name="L150" href="#L150">150</a> 
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">if</strong> (AttributeAssignType.any_mem_asgn == attributeAssignType) {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a> guiSubject = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html">GuiSubject</a>(ownerAttributeAssign.getOwnerMember().getSubject());
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>       <a name="GuiSubject" href="../../../../../../../edu/internet2/mid<a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>ouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a> guiSubject = <strong class="jxr_keyword">new</strong> <a name="GuiSubject" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiSubject.html#GuiSubject">GuiSubject</a>(ownerAttributeAssign.getOwnerMember().getSubject());
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>       
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>       result.append(GrouperUiUtils.escapeHtml(TagUtils.navResourceString(<span class="jxr_string">"simplePermissionUpdate.limitAssignedToEntityLabel"</span>), <strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>       result.append(<span class="jxr_string">" "</span>).append(guiSubject.getScreenLabel()).append(<span class="jxr_string">"&lt;br /&gt;"</span>);
@@ -183,7 +183,7 @@
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">   * @see Comparable#compareTo(Object)</em>
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>   @Override
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compareTo(<a href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiPermissionLimitBeanContainer.html">GuiPermissionLimitBeanContainer</a> other) {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compareTo(<a name="GuiPermissionLimitBeanContainer" href="../../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/api/GuiPermissionLimitBeanContainer.html#GuiPermissionLimitBeanContainer">GuiPermissionLimitBeanContainer</a> other) {
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>     <em class="jxr_comment">//keep the limit display extension cached</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.limitDisplayExtension.compareTo(other.limitDisplayExtension);
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>   }
@@ -193,6 +193,6 @@
 <a class="jxr_linenumber" name="L185" href="#L185">185</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

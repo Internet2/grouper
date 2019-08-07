@@ -56,7 +56,7 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperActivemq/utils/GcElUtilsSafe.html">GcElUtilsSafe</a> {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GcElUtilsSafe" href="../../../../../edu/internet2/middleware/grouperActivemq/utils/GcElUtilsSafe.html#GcElUtilsSafe">GcElUtilsSafe</a> {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   * append objects since there is no way to do this in EL</em>
@@ -1418,8 +1418,8 @@
 <a class="jxr_linenumber" name="L1410" href="#L1410">1410</a>     <strong class="jxr_keyword">if</strong> (objectOrArrayOrCollection instanceof Collection) {
 <a class="jxr_linenumber" name="L1411" href="#L1411">1411</a>       Collection collection = (Collection) objectOrArrayOrCollection;
 <a class="jxr_linenumber" name="L1412" href="#L1412">1412</a>       Object first = collection.iterator().next();
-<a class="jxr_linenumber" name="L1413" href="#L1413">1413</a>       <strong class="jxr_keyword">return</strong> toArray(collection, first == <strong class="jxr_keyword">null</strong> ? Object.<strong class="jxr_keyword">class</strong> : first
-<a class="jxr_linenumber" name="L1414" href="#L1414">1414</a>           .getClass());
+<a class="jxr_linenumber" name="L1413" href="#L1413">1413</a>       <strong class="jxr_keyword">return</strong> toArray(collection, (Class&lt;?&gt;)(first == <strong class="jxr_keyword">null</strong> ? Object.<strong class="jxr_keyword">class</strong> : first
+<a class="jxr_linenumber" name="L1414" href="#L1414">1414</a>           .getClass()));
 <a class="jxr_linenumber" name="L1415" href="#L1415">1415</a>     }
 <a class="jxr_linenumber" name="L1416" href="#L1416">1416</a>     <em class="jxr_comment">// make an array of the type of object passed in, size one</em>
 <a class="jxr_linenumber" name="L1417" href="#L1417">1417</a>     Object array = Array.newInstance(objectOrArrayOrCollection.getClass(),
@@ -6014,6 +6014,6 @@
 <a class="jxr_linenumber" name="L6006" href="#L6006">6006</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

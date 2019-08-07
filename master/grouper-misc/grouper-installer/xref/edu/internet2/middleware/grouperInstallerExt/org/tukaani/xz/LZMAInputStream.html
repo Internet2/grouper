@@ -10,7 +10,7 @@
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * LZMAInputStream</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Authors: Lasse Collin &lt;lasse.collin@tukaani.org&gt;</em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *          Igor Pavlov &lt;<a href="http://7-zip.org/&gt" target="alexandria_uri">http://7-zip.org/&gt</a>;</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *          Igor Pavlov &lt;<a href="http://7-zip.org/&gt;" target="alexandria_uri">http://7-zip.org/&gt;</a></em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * This file has been put into the public domain.</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * You can do whatever you want with this file.</em>
@@ -42,7 +42,7 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * @since 1.4</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html">LZMAInputStream</a> <strong class="jxr_keyword">extends</strong> InputStream {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="LZMAInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html#LZMAInputStream">LZMAInputStream</a> <strong class="jxr_keyword">extends</strong> InputStream {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * Largest dictionary size supported by this implementation.</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
@@ -55,9 +55,9 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DICT_SIZE_MAX = Integer.MAX_VALUE &amp; ~15;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> InputStream in;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZDecoder.html">LZDecoder</a> lz;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/rangecoder/RangeDecoderFromStream.html">RangeDecoderFromStream</a> rc;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMADecoder.html">LZMADecoder</a> lzma;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <a name="LZDecoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZDecoder.html#LZDecoder">LZDecoder</a> lz;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <a name="RangeDecoderFromStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/rangecoder/RangeDecoderFromStream.html#RangeDecoderFromStream">RangeDecoderFromStream</a> rc;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <a name="LZMADecoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMADecoder.html#LZMADecoder">LZMADecoder</a> lzma;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> endReached = false;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
@@ -93,14 +93,14 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     *                          if &lt;code&gt;propsByte&lt;/code&gt; is invalid</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getMemoryUsage(<strong class="jxr_keyword">int</strong> dictSize, byte propsByte)
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">throws</strong> UnsupportedOptionsException, <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html">CorruptedInputException</a> {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">throws</strong> UnsupportedOptionsException, <a name="CorruptedInputException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html#CorruptedInputException">CorruptedInputException</a> {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">if</strong> (dictSize &lt; 0 || dictSize &gt; DICT_SIZE_MAX)
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html">UnsupportedOptionsException</a>(
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="UnsupportedOptionsException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html#UnsupportedOptionsException">UnsupportedOptionsException</a>(
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                      <span class="jxr_string">"LZMA dictionary is too big for this implementation"</span>);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">int</strong> props = propsByte &amp; 0xFF;
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">if</strong> (props &gt; (4 * 5 + 4) * 9 + 8)
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html">CorruptedInputException</a>(<span class="jxr_string">"Invalid LZMA properties byte"</span>);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="CorruptedInputException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html#CorruptedInputException">CorruptedInputException</a>(<span class="jxr_string">"Invalid LZMA properties byte"</span>);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>          props %= 9 * 5;
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">int</strong> lp = props / 9;
@@ -186,7 +186,7 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * @throws      IOException may be thrown by &lt;code&gt;in&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html">LZMAInputStream</a>(InputStream in) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     <strong class="jxr_keyword">public</strong> <a name="LZMAInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html#LZMAInputStream">LZMAInputStream</a>(InputStream in) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">this</strong>(in, -1);
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>     }
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> 
@@ -220,7 +220,7 @@
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     * @throws      IOException may be thrown by &lt;code&gt;in&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html">LZMAInputStream</a>(InputStream in, <strong class="jxr_keyword">int</strong> memoryLimit)
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>     <strong class="jxr_keyword">public</strong> <a name="LZMAInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html#LZMAInputStream">LZMAInputStream</a>(InputStream in, <strong class="jxr_keyword">int</strong> memoryLimit)
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>         DataInputStream inData = <strong class="jxr_keyword">new</strong> DataInputStream(in);
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> 
@@ -243,7 +243,7 @@
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>         <em class="jxr_comment">// Check the memory usage limit.</em>
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">int</strong> memoryNeeded = getMemoryUsage(dictSize, propsByte);
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">if</strong> (memoryLimit != -1 &amp;&amp; memoryNeeded &gt; memoryLimit)
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/MemoryLimitException.html">MemoryLimitException</a>(memoryNeeded, memoryLimit);
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="MemoryLimitException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/MemoryLimitException.html#MemoryLimitException">MemoryLimitException</a>(memoryNeeded, memoryLimit);
 <a class="jxr_linenumber" name="L239" href="#L239">239</a> 
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>         initialize(in, uncompSize, propsByte, dictSize, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>     }
@@ -294,7 +294,7 @@
 <a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html">LZMAInputStream</a>(InputStream in, <strong class="jxr_keyword">long</strong> uncompSize, byte propsByte,
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">public</strong> <a name="LZMAInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html#LZMAInputStream">LZMAInputStream</a>(InputStream in, <strong class="jxr_keyword">long</strong> uncompSize, byte propsByte,
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>                            <strong class="jxr_keyword">int</strong> dictSize) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>         initialize(in, uncompSize, propsByte, dictSize, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>     }
@@ -331,7 +331,7 @@
 <a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L324" href="#L324">324</a> <em class="jxr_javadoccomment">     * @throws      IOException may be thrown by &lt;code&gt;in&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L325" href="#L325">325</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html">LZMAInputStream</a>(InputStream in, <strong class="jxr_keyword">long</strong> uncompSize, byte propsByte,
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <strong class="jxr_keyword">public</strong> <a name="LZMAInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html#LZMAInputStream">LZMAInputStream</a>(InputStream in, <strong class="jxr_keyword">long</strong> uncompSize, byte propsByte,
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>                            <strong class="jxr_keyword">int</strong> dictSize, byte[] presetDict)
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>             <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>         initialize(in, uncompSize, propsByte, dictSize, presetDict);
@@ -369,7 +369,7 @@
 <a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     * @throws      IOException may be thrown by &lt;code&gt;in&lt;/code&gt;</em>
 <a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html">LZMAInputStream</a>(InputStream in, <strong class="jxr_keyword">long</strong> uncompSize,
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>     <strong class="jxr_keyword">public</strong> <a name="LZMAInputStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/LZMAInputStream.html#LZMAInputStream">LZMAInputStream</a>(InputStream in, <strong class="jxr_keyword">long</strong> uncompSize,
 <a class="jxr_linenumber" name="L365" href="#L365">365</a>                            <strong class="jxr_keyword">int</strong> lc, <strong class="jxr_keyword">int</strong> lp, <strong class="jxr_keyword">int</strong> pb,
 <a class="jxr_linenumber" name="L366" href="#L366">366</a>                            <strong class="jxr_keyword">int</strong> dictSize, byte[] presetDict)
 <a class="jxr_linenumber" name="L367" href="#L367">367</a>             <strong class="jxr_keyword">throws</strong> IOException {
@@ -382,14 +382,14 @@
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>         <em class="jxr_comment">// Validate the uncompressed size since the other "initialize" throws</em>
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>         <em class="jxr_comment">// IllegalArgumentException if uncompSize &lt; -1.</em>
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>         <strong class="jxr_keyword">if</strong> (uncompSize &lt; -1)
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html">UnsupportedOptionsException</a>(
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="UnsupportedOptionsException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html#UnsupportedOptionsException">UnsupportedOptionsException</a>(
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>                     <span class="jxr_string">"Uncompressed size is too big"</span>);
 <a class="jxr_linenumber" name="L379" href="#L379">379</a> 
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>         <em class="jxr_comment">// Decode the properties byte. In contrast to LZMA2, there is no</em>
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>         <em class="jxr_comment">// limit of lc + lp &lt;= 4.</em>
 <a class="jxr_linenumber" name="L382" href="#L382">382</a>         <strong class="jxr_keyword">int</strong> props = propsByte &amp; 0xFF;
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>         <strong class="jxr_keyword">if</strong> (props &gt; (4 * 5 + 4) * 9 + 8)
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html">CorruptedInputException</a>(<span class="jxr_string">"Invalid LZMA properties byte"</span>);
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="CorruptedInputException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html#CorruptedInputException">CorruptedInputException</a>(<span class="jxr_string">"Invalid LZMA properties byte"</span>);
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> 
 <a class="jxr_linenumber" name="L386" href="#L386">386</a>         <strong class="jxr_keyword">int</strong> pb = props / (9 * 5);
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>         props -= pb * 9 * 5;
@@ -399,7 +399,7 @@
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>         <em class="jxr_comment">// Validate the dictionary size since the other "initialize" throws</em>
 <a class="jxr_linenumber" name="L392" href="#L392">392</a>         <em class="jxr_comment">// IllegalArgumentException if dictSize is not supported.</em>
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">if</strong> (dictSize &lt; 0 || dictSize &gt; DICT_SIZE_MAX)
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html">UnsupportedOptionsException</a>(
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="UnsupportedOptionsException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/UnsupportedOptionsException.html#UnsupportedOptionsException">UnsupportedOptionsException</a>(
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>                     <span class="jxr_string">"LZMA dictionary is too big for this implementation"</span>);
 <a class="jxr_linenumber" name="L396" href="#L396">396</a> 
 <a class="jxr_linenumber" name="L397" href="#L397">397</a>         initialize(in, uncompSize, lc, lp, pb, dictSize, presetDict);
@@ -423,9 +423,9 @@
 <a class="jxr_linenumber" name="L415" href="#L415">415</a>         <strong class="jxr_keyword">if</strong> (uncompSize &gt;= 0 &amp;&amp; dictSize &gt; uncompSize)
 <a class="jxr_linenumber" name="L416" href="#L416">416</a>             dictSize = getDictSize((<strong class="jxr_keyword">int</strong>)uncompSize);
 <a class="jxr_linenumber" name="L417" href="#L417">417</a> 
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>         lz = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZDecoder.html">LZDecoder</a>(getDictSize(dictSize), presetDict);
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>         rc = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/rangecoder/RangeDecoderFromStream.html">RangeDecoderFromStream</a>(in);
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         lzma = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMADecoder.html">LZMADecoder</a>(lz, rc, lc, lp, pb);
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         lz = <strong class="jxr_keyword">new</strong> <a name="LZDecoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lz/LZDecoder.html#LZDecoder">LZDecoder</a>(getDictSize(dictSize), presetDict);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         rc = <strong class="jxr_keyword">new</strong> <a name="RangeDecoderFromStream" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/rangecoder/RangeDecoderFromStream.html#RangeDecoderFromStream">RangeDecoderFromStream</a>(in);
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         lzma = <strong class="jxr_keyword">new</strong> <a name="LZMADecoder" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/lzma/LZMADecoder.html#LZMADecoder">LZMADecoder</a>(lz, rc, lc, lp, pb);
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>         remainingSize = uncompSize;
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>     }
 <a class="jxr_linenumber" name="L423" href="#L423">423</a> 
@@ -483,7 +483,7 @@
 <a class="jxr_linenumber" name="L475" href="#L475">475</a>             <strong class="jxr_keyword">return</strong> 0;
 <a class="jxr_linenumber" name="L476" href="#L476">476</a> 
 <a class="jxr_linenumber" name="L477" href="#L477">477</a>         <strong class="jxr_keyword">if</strong> (in == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html">XZIOException</a>(<span class="jxr_string">"Stream closed"</span>);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="XZIOException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/XZIOException.html#XZIOException">XZIOException</a>(<span class="jxr_string">"Stream closed"</span>);
 <a class="jxr_linenumber" name="L479" href="#L479">479</a> 
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>         <strong class="jxr_keyword">if</strong> (exception != <strong class="jxr_keyword">null</strong>)
 <a class="jxr_linenumber" name="L481" href="#L481">481</a>             <strong class="jxr_keyword">throw</strong> exception;
@@ -507,7 +507,7 @@
 <a class="jxr_linenumber" name="L499" href="#L499">499</a>                 <em class="jxr_comment">// Decode into the dictionary buffer.</em>
 <a class="jxr_linenumber" name="L500" href="#L500">500</a>                 <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>                     lzma.decode();
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>                 } <strong class="jxr_keyword">catch</strong> (CorruptedInputException e) {
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>                 } <strong class="jxr_keyword">catch</strong> (<a name="CorruptedInputException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html#CorruptedInputException">CorruptedInputException</a> e) {
 <a class="jxr_linenumber" name="L503" href="#L503">503</a>                     <em class="jxr_comment">// The end marker is encoded with a LZMA symbol that</em>
 <a class="jxr_linenumber" name="L504" href="#L504">504</a>                     <em class="jxr_comment">// indicates maximum match distance. This is larger</em>
 <a class="jxr_linenumber" name="L505" href="#L505">505</a>                     <em class="jxr_comment">// than any supported dictionary and thus causes</em>
@@ -545,7 +545,7 @@
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>                     <em class="jxr_comment">// the first check and thus it accepts many invalid</em>
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>                     <em class="jxr_comment">// files that this implementation and XZ Utils don't.</em>
 <a class="jxr_linenumber" name="L539" href="#L539">539</a>                     <strong class="jxr_keyword">if</strong> (!rc.isFinished() || lz.hasPending())
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html">CorruptedInputException</a>();
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="CorruptedInputException" href="../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/tukaani/xz/CorruptedInputException.html#CorruptedInputException">CorruptedInputException</a>();
 <a class="jxr_linenumber" name="L541" href="#L541">541</a> 
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>                     <strong class="jxr_keyword">return</strong> size == 0 ? -1 : size;
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>                 }
@@ -577,6 +577,6 @@
 <a class="jxr_linenumber" name="L569" href="#L569">569</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

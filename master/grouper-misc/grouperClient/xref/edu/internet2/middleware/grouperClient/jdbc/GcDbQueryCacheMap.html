@@ -17,7 +17,7 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * Map for caching some query results for x amount of time. This map checks itself every X minutes and evicts expired content.</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * @author harveycg</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html">GcDbQueryCacheMap</a> <strong class="jxr_keyword">extends</strong> java.util.HashMap&lt;MultiKey, GcDbQueryCache&gt; {
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GcDbQueryCacheMap" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html#GcDbQueryCacheMap">GcDbQueryCacheMap</a> <strong class="jxr_keyword">extends</strong> java.util.HashMap&lt;MultiKey, GcDbQueryCache&gt; {
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment">   * Serial.</em>
@@ -38,12 +38,12 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">   * Constructor.</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html">GcDbQueryCacheMap</a>(){
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>    <strong class="jxr_keyword">public</strong> <a name="GcDbQueryCacheMap" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html#GcDbQueryCacheMap">GcDbQueryCacheMap</a>(){
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      <em class="jxr_comment">// Don't evict until a while after we are instantiated.</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">this</strong>.lastEvictMillis = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <em class="jxr_comment">// Start eviction thread.</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      Thread janitor = <strong class="jxr_keyword">new</strong> Thread(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html">Janitor</a>(<strong class="jxr_keyword">this</strong>));
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      Thread janitor = <strong class="jxr_keyword">new</strong> Thread(<strong class="jxr_keyword">new</strong> Janitor(<strong class="jxr_keyword">this</strong>));
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>      janitor.setDaemon(<strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      
@@ -55,19 +55,19 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">   * Associated thread to call get every once in a while to ensure that eviction happens.</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html">Janitor</a> <strong class="jxr_keyword">implements</strong> Runnable{
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> Janitor <strong class="jxr_keyword">implements</strong> Runnable{
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * The map to call every so often to clear.</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html">GcDbQueryCacheMap</a> dbQueryCacheMap;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <a name="GcDbQueryCacheMap" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html#GcDbQueryCacheMap">GcDbQueryCacheMap</a> dbQueryCacheMap;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * Constructor.</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * @param _dbQueryCacheMap is the cache to clear.</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html">Janitor</a>(<a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html">GcDbQueryCacheMap</a> _dbQueryCacheMap){
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> Janitor(<a name="GcDbQueryCacheMap" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCacheMap.html#GcDbQueryCacheMap">GcDbQueryCacheMap</a> _dbQueryCacheMap){
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>        <strong class="jxr_keyword">this</strong>.dbQueryCacheMap = _dbQueryCacheMap;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      @Override
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> run() {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>        <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>){
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">this</strong>.dbQueryCacheMap.get(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/collections/MultiKey.html">MultiKey</a>(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">this</strong>.dbQueryCacheMap.get(<strong class="jxr_keyword">new</strong> <a name="MultiKey" href="../../../../../edu/internet2/middleware/grouperClient/collections/MultiKey.html#MultiKey">MultiKey</a>(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>));
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">try</strong>{
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>            Thread.sleep(1000 * 30);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          } <strong class="jxr_keyword">catch</strong> (Exception e){
@@ -93,10 +93,10 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">   * @see java.util.HashMap#get(java.lang.Object)</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>    @Override
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCache.html">GcDbQueryCache</a> get(Object key) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <a name="GcDbQueryCache" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCache.html#GcDbQueryCache">GcDbQueryCache</a> get(Object key) {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      checkEvict();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCache.html">GcDbQueryCache</a> dbQueryCache = <strong class="jxr_keyword">super</strong>.get(key);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <a name="GcDbQueryCache" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCache.html#GcDbQueryCache">GcDbQueryCache</a> dbQueryCache = <strong class="jxr_keyword">super</strong>.get(key);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">if</strong> (dbQueryCache == <strong class="jxr_keyword">null</strong>){
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
@@ -115,7 +115,7 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">if</strong> (System.currentTimeMillis() &gt; <strong class="jxr_keyword">this</strong>.lastEvictMillis + <strong class="jxr_keyword">this</strong>.evictMillis){
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>       Iterator&lt;GcDbQueryCache&gt; values = <strong class="jxr_keyword">this</strong>.values().iterator();
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>       <strong class="jxr_keyword">while</strong> (values.hasNext()){
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <a href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCache.html">GcDbQueryCache</a> dbQueryCache = values.next();
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <a name="GcDbQueryCache" href="../../../../../edu/internet2/middleware/grouperClient/jdbc/GcDbQueryCache.html#GcDbQueryCache">GcDbQueryCache</a> dbQueryCache = values.next();
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">if</strong> (dbQueryCache.expired()){
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>           values.remove();
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         }
@@ -127,6 +127,6 @@
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

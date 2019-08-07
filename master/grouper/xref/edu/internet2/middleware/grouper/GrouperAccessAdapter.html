@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment">  you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment">  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment">    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment">  Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_comment">  distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -66,7 +66,7 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment"> * @author  blair christensen.</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment"> * @version $Id: GrouperAccessAdapter.java,v 1.84 2009-09-21 06:14:27 mchyzer Exp $</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../edu/internet2/middleware/grouper/GrouperAccessAdapter.html">GrouperAccessAdapter</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../edu/internet2/middleware/grouper/privs/GrouperNonDbAccessAdapter.html">GrouperNonDbAccessAdapter</a> {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GrouperAccessAdapter" href="../../../../edu/internet2/middleware/grouper/GrouperAccessAdapter.html#GrouperAccessAdapter">GrouperAccessAdapter</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperNonDbAccessAdapter" href="../../../../edu/internet2/middleware/grouper/privs/GrouperNonDbAccessAdapter.html#GrouperNonDbAccessAdapter">GrouperNonDbAccessAdapter</a> {
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">   * Caller can see if this string ends up in the filter to indicate that no results would be returned.</em>
@@ -77,8 +77,8 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   * note, can use </em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hqlFilterGroupsWhereClause(<a href="../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession,
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>        Subject subject, <a href="../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html">HqlQuery</a> hqlQuery, StringBuilder hql, String groupColumn, Set&lt;Privilege&gt; privInSet) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hqlFilterGroupsWhereClause(<a name="GrouperSession" href="../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession,
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>        <a name="Subject" href="../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject, <a name="HqlQuery" href="../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html#HqlQuery">HqlQuery</a> hqlQuery, StringBuilder hql, String groupColumn, Set&lt;Privilege&gt; privInSet) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <em class="jxr_comment">//no privs no filter</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">if</strong> (GrouperUtil.length(privInSet) == 0) {
@@ -89,8 +89,8 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      checkIfAllManagePrivs.removeAll(AccessPrivilege.MANAGE_PRIVILEGES);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">boolean</strong> includeGrouperAll = checkIfAllManagePrivs.size() == 0 ? false : <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <a href="../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = MemberFinder.internal_findBySubject(subject, <strong class="jxr_keyword">null</strong>, false);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <a href="../../../../edu/internet2/middleware/grouper/Member.html">Member</a> allMember = MemberFinder.internal_findAllMember();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <a name="Member" href="../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member = MemberFinder.internal_findBySubject(subject, <strong class="jxr_keyword">null</strong>, false);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <a name="Member" href="../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> allMember = MemberFinder.internal_findAllMember();
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      <em class="jxr_comment">//FieldFinder.findAllIdsByType(FieldType.ACCESS);</em>
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      Collection&lt;String&gt; accessPrivs = GrouperPrivilegeAdapter.fieldIdSet(priv2list, privInSet); 
@@ -126,11 +126,11 @@
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsNotWithPrivWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)</em>
 <a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hqlFilterGroupsNotWithPrivWhereClause(<a href="../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession,
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>       Subject subject, <a href="../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html">HqlQuery</a> hqlQuery, StringBuilder hql, String groupColumn, <a href="../../../../edu/internet2/middleware/grouper/privs/Privilege.html">Privilege</a> privilege, <strong class="jxr_keyword">boolean</strong> considerAllSubject) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hqlFilterGroupsNotWithPrivWhereClause(<a name="GrouperSession" href="../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession,
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>       <a name="Subject" href="../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject, <a name="HqlQuery" href="../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html#HqlQuery">HqlQuery</a> hqlQuery, StringBuilder hql, String groupColumn, <a name="Privilege" href="../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> privilege, <strong class="jxr_keyword">boolean</strong> considerAllSubject) {
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>     
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <a href="../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = MemberFinder.internal_findBySubject(subject, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <a href="../../../../edu/internet2/middleware/grouper/Member.html">Member</a> allMember = MemberFinder.internal_findAllMember();
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <a name="Member" href="../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member = MemberFinder.internal_findBySubject(subject, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <a name="Member" href="../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> allMember = MemberFinder.internal_findAllMember();
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> 
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     String fieldId = privilege.getField().getUuid();
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>     
@@ -162,8 +162,8 @@
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#postHqlFilterGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)</em>
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>   @Override
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; postHqlFilterGroups(<a href="../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession,
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>       Set&lt;Group&gt; inputGroups, Subject subject, Set&lt;Privilege&gt; privInSet) {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; postHqlFilterGroups(<a name="GrouperSession" href="../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession,
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>       Set&lt;Group&gt; inputGroups, <a name="Subject" href="../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject, Set&lt;Privilege&gt; privInSet) {
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     <em class="jxr_comment">//assume the HQL filtered everything</em>
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">return</strong> inputGroups;
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>   }
@@ -172,17 +172,50 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#postHqlFilterStemsWithGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)</em>
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>   @Override
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>   <strong class="jxr_keyword">public</strong> Set&lt;Stem&gt; postHqlFilterStemsWithGroups(<a href="../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession,
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>       Set&lt;Stem&gt; stems, Subject subject, Set&lt;Privilege&gt; inPrivSet) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>   <strong class="jxr_keyword">public</strong> Set&lt;Stem&gt; postHqlFilterStemsWithGroups(<a name="GrouperSession" href="../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession,
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>       Set&lt;Stem&gt; stems, <a name="Subject" href="../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject, Set&lt;Privilege&gt; inPrivSet) {
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>     <strong class="jxr_keyword">return</strong> stems;
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>   }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>   
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>   
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>   
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> } <em class="jxr_comment">// public class GrouperAccessAdapter </em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsWithPrivWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hqlFilterGroupsWithPrivWhereClause(<a name="GrouperSession" href="../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> grouperSession,
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>       <a name="Subject" href="../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject, <a name="HqlQuery" href="../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html#HqlQuery">HqlQuery</a> hqlQuery, StringBuilder hql, String groupColumn, <a name="Privilege" href="../../../../edu/internet2/middleware/grouper/privs/Privilege.html#Privilege">Privilege</a> privilege, <strong class="jxr_keyword">boolean</strong> considerAllSubject) {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <a name="Member" href="../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> member = MemberFinder.internal_findBySubject(subject, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <a name="Member" href="../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> allMember = MemberFinder.internal_findAllMember();
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>   
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     String fieldId = privilege.getField().getUuid();
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">if</strong> (hql.indexOf(<span class="jxr_string">" where "</span>) == -1) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>       hql.append(<span class="jxr_string">" where "</span>);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>       hql.append(<span class="jxr_string">" and "</span>);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>     
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <strong class="jxr_keyword">boolean</strong> reallyConsiderAllPrivilege = considerAllSubject &amp;&amp; !AccessPrivilege.MANAGE_PRIVILEGES.contains(privilege);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     hql.append(<span class="jxr_string">" exists (select __inMembership.uuid from MembershipEntry __inMembership where "</span> +
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     		<span class="jxr_string">" __inMembership.enabledDb = 'T' and __inMembership.ownerGroupId = "</span> + groupColumn + <span class="jxr_string">" "</span> +
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     				<span class="jxr_string">" and __inMembership.fieldId = :inMembershipFieldId and __inMembership.memberUuid in ( "</span> +
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     				<span class="jxr_string">" :inMembershipMemberId"</span> + (reallyConsiderAllPrivilege ? <span class="jxr_string">", :inMembershipAllMemberId"</span> : <span class="jxr_string">""</span>) + <span class="jxr_string">")) "</span>);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     hqlQuery.setString(<span class="jxr_string">"inMembershipFieldId"</span>, fieldId);
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     hqlQuery.setString(<span class="jxr_string">"inMembershipMemberId"</span>, member.getUuid());
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">if</strong> (reallyConsiderAllPrivilege) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>       hqlQuery.setString(<span class="jxr_string">"inMembershipAllMemberId"</span>, allMember.getUuid());
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>   
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>   }
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>   
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>   
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>   
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> } <em class="jxr_comment">// public class GrouperAccessAdapter </em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

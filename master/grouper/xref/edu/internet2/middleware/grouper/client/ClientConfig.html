@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -44,13 +44,13 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * @author mchyzer</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientConfig</a> {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ClientConfig" href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html#ClientConfig">ClientConfig</a> {
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">   * parse the config for writing to local or remote grouper, write by id or identifier or either</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">GroupSyncWriteIdentifier</a> {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum GroupSyncWriteIdentifier {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_javadoccomment">/** write with id */</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      id {
@@ -67,7 +67,7 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">       * @see GroupSyncWriteIdentifier#findSubject(String, String)</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">       */</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>        @Override
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>        <strong class="jxr_keyword">public</strong> Subject findSubject(String sourceId, String identifier) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>        <strong class="jxr_keyword">public</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> findSubject(String sourceId, String identifier) {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(sourceId)) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>            <strong class="jxr_keyword">return</strong> SubjectFinder.findById(identifier, false);
@@ -92,7 +92,7 @@
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">       * @see GroupSyncWriteIdentifier#findSubject(String, String)</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">       */</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>        @Override
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>        <strong class="jxr_keyword">public</strong> Subject findSubject(String sourceId, String identifier) {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>        <strong class="jxr_keyword">public</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> findSubject(String sourceId, String identifier) {
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(sourceId)) {
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>            <strong class="jxr_keyword">return</strong> SubjectFinder.findByIdentifier(identifier, false);
@@ -118,7 +118,7 @@
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">       * @see GroupSyncWriteIdentifier#findSubject(String, String)</em>
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">       */</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>       @Override
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>       <strong class="jxr_keyword">public</strong> Subject findSubject(String sourceId, String identifier) {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>       <strong class="jxr_keyword">public</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> findSubject(String sourceId, String identifier) {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(sourceId)) {
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>           <strong class="jxr_keyword">return</strong> SubjectFinder.findByIdOrIdentifier(identifier, false);
@@ -140,7 +140,7 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     * @param identifier</em>
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * @return the subject</em>
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> Subject findSubject(String sourceId, String identifier);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> findSubject(String sourceId, String identifier);
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * do a case-insensitive matching</em>
@@ -149,7 +149,7 @@
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     * @param exceptionOnNull will not allow null or blank entries</em>
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">GroupSyncWriteIdentifier</a> valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> GroupSyncWriteIdentifier valueOfIgnoreCase(String string, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>       <strong class="jxr_keyword">return</strong> GrouperUtil.enumValueOfIgnoreCase(GroupSyncWriteIdentifier.<strong class="jxr_keyword">class</strong>, 
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>           string, exceptionOnNull);
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     
@@ -159,7 +159,7 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">   * holds the state of one connection in the</em>
 <a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientConnectionSourceConfigBean</a> {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ClientConnectionSourceConfigBean {
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>     
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     * id of this connection source config</em>
@@ -195,7 +195,7 @@
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     * this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"</em>
 <a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">GroupSyncWriteIdentifier</a> localWriteSubjectId;
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">private</strong> GroupSyncWriteIdentifier localWriteSubjectId;
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>     
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>     
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_javadoccomment">/**</em>
@@ -211,7 +211,7 @@
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     * this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"</em>
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">GroupSyncWriteIdentifier</a> remoteWriteSubjectId;
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">private</strong> GroupSyncWriteIdentifier remoteWriteSubjectId;
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>     
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     * sourceId can be blank if you dont want to specify</em>
@@ -249,7 +249,7 @@
 <a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"</em>
 <a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     * @return identifier</em>
 <a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">GroupSyncWriteIdentifier</a> getLocalWriteSubjectId() {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">public</strong> GroupSyncWriteIdentifier getLocalWriteSubjectId() {
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.localWriteSubjectId;
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>     }
 <a class="jxr_linenumber" name="L247" href="#L247">247</a> 
@@ -257,7 +257,7 @@
 <a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     * this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"</em>
 <a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     * @param localWriteSubjectId1</em>
 <a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setLocalWriteSubjectId(<a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">GroupSyncWriteIdentifier</a> localWriteSubjectId1) {
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setLocalWriteSubjectId(GroupSyncWriteIdentifier localWriteSubjectId1) {
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>       <strong class="jxr_keyword">this</strong>.localWriteSubjectId = localWriteSubjectId1;
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> 
@@ -297,7 +297,7 @@
 <a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"</em>
 <a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * @return remote write subject id</em>
 <a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">GroupSyncWriteIdentifier</a> getRemoteWriteSubjectId() {
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">public</strong> GroupSyncWriteIdentifier getRemoteWriteSubjectId() {
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.remoteWriteSubjectId;
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>     }
 <a class="jxr_linenumber" name="L295" href="#L295">295</a> 
@@ -305,7 +305,7 @@
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">     * this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"</em>
 <a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">     * @param remoteWriteSubjectId1</em>
 <a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setRemoteWriteSubjectId(<a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">GroupSyncWriteIdentifier</a> remoteWriteSubjectId1) {
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setRemoteWriteSubjectId(GroupSyncWriteIdentifier remoteWriteSubjectId1) {
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>       <strong class="jxr_keyword">this</strong>.remoteWriteSubjectId = remoteWriteSubjectId1;
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> 
@@ -314,7 +314,7 @@
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_javadoccomment">   * bean represents the group connections to external groupers</em>
 <a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientGroupConfigBean</a> {
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ClientGroupConfigBean {
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>     
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
@@ -351,7 +351,7 @@
 <a class="jxr_linenumber" name="L343" href="#L343">343</a> <em class="jxr_javadoccomment">     * #syncAnotherGrouper.testGroup0.syncType = incremental_push</em>
 <a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/GroupSyncType.html">GroupSyncType</a> groupSyncType;
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>     <strong class="jxr_keyword">private</strong> <a name="GroupSyncType" href="../../../../../edu/internet2/middleware/grouper/client/GroupSyncType.html#GroupSyncType">GroupSyncType</a> groupSyncType;
 <a class="jxr_linenumber" name="L347" href="#L347">347</a> 
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L349" href="#L349">349</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
@@ -411,7 +411,7 @@
 <a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">     * @return the sync type</em>
 <a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/GroupSyncType.html">GroupSyncType</a> getGroupSyncType() {
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <strong class="jxr_keyword">public</strong> <a name="GroupSyncType" href="../../../../../edu/internet2/middleware/grouper/client/GroupSyncType.html#GroupSyncType">GroupSyncType</a> getGroupSyncType() {
 <a class="jxr_linenumber" name="L407" href="#L407">407</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.groupSyncType;
 <a class="jxr_linenumber" name="L408" href="#L408">408</a>     }
 <a class="jxr_linenumber" name="L409" href="#L409">409</a> 
@@ -422,7 +422,7 @@
 <a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L415" href="#L415">415</a> <em class="jxr_javadoccomment">     * @param groupSyncType1</em>
 <a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setGroupSyncType(<a href="../../../../../edu/internet2/middleware/grouper/client/GroupSyncType.html">GroupSyncType</a> groupSyncType1) {
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setGroupSyncType(<a name="GroupSyncType" href="../../../../../edu/internet2/middleware/grouper/client/GroupSyncType.html#GroupSyncType">GroupSyncType</a> groupSyncType1) {
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>       <strong class="jxr_keyword">this</strong>.groupSyncType = groupSyncType1;
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>     }
 <a class="jxr_linenumber" name="L420" href="#L420">420</a> 
@@ -514,7 +514,7 @@
 <a class="jxr_linenumber" name="L506" href="#L506">506</a> <em class="jxr_javadoccomment">   * holds the state of one connection in the</em>
 <a class="jxr_linenumber" name="L507" href="#L507">507</a> <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L508" href="#L508">508</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientConnectionConfigBean</a> {
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ClientConnectionConfigBean {
 <a class="jxr_linenumber" name="L510" href="#L510">510</a> 
 <a class="jxr_linenumber" name="L511" href="#L511">511</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L512" href="#L512">512</a> <em class="jxr_javadoccomment">     * connection id in config</em>
@@ -646,7 +646,7 @@
 <a class="jxr_linenumber" name="L638" href="#L638">638</a>               <em class="jxr_comment">//this is the ID</em>
 <a class="jxr_linenumber" name="L639" href="#L639">639</a>               String connectionId = matcher.group(1);
 <a class="jxr_linenumber" name="L640" href="#L640">640</a>               
-<a class="jxr_linenumber" name="L641" href="#L641">641</a>               <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientConnectionConfigBean</a> clientConnectionConfigBean = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientConnectionConfigBean</a>();
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>               ClientConnectionConfigBean clientConnectionConfigBean = <strong class="jxr_keyword">new</strong> ClientConnectionConfigBean();
 <a class="jxr_linenumber" name="L642" href="#L642">642</a>               
 <a class="jxr_linenumber" name="L643" href="#L643">643</a>               <em class="jxr_comment">//note, doesnt really matter what the id is... but it is a mandatory config</em>
 <a class="jxr_linenumber" name="L644" href="#L644">644</a>               
@@ -695,7 +695,7 @@
 <a class="jxr_linenumber" name="L687" href="#L687">687</a>               <em class="jxr_comment">//this is the ID</em>
 <a class="jxr_linenumber" name="L688" href="#L688">688</a>               String groupConfigName = matcher.group(1);
 <a class="jxr_linenumber" name="L689" href="#L689">689</a>               
-<a class="jxr_linenumber" name="L690" href="#L690">690</a>               <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientGroupConfigBean</a> clientGroupConfigBean = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientGroupConfigBean</a>();
+<a class="jxr_linenumber" name="L690" href="#L690">690</a>               ClientGroupConfigBean clientGroupConfigBean = <strong class="jxr_keyword">new</strong> ClientGroupConfigBean();
 <a class="jxr_linenumber" name="L691" href="#L691">691</a>               
 <a class="jxr_linenumber" name="L692" href="#L692">692</a>               <em class="jxr_comment">//# we need to know where our</em>
 <a class="jxr_linenumber" name="L693" href="#L693">693</a>               <em class="jxr_comment">//# connection name in grouper client connections above</em>
@@ -774,7 +774,7 @@
 <a class="jxr_linenumber" name="L766" href="#L766">766</a>         <em class="jxr_comment">//this is the ID</em>
 <a class="jxr_linenumber" name="L767" href="#L767">767</a>         String sourceConfigKey = sourceMatcher.group(1);
 <a class="jxr_linenumber" name="L768" href="#L768">768</a>         
-<a class="jxr_linenumber" name="L769" href="#L769">769</a>         <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientConnectionSourceConfigBean</a> clientConnectionSourceConfigBean = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/client/ClientConfig.html">ClientConnectionSourceConfigBean</a>();
+<a class="jxr_linenumber" name="L769" href="#L769">769</a>         ClientConnectionSourceConfigBean clientConnectionSourceConfigBean = <strong class="jxr_keyword">new</strong> ClientConnectionSourceConfigBean();
 <a class="jxr_linenumber" name="L770" href="#L770">770</a>         
 <a class="jxr_linenumber" name="L771" href="#L771">771</a>         clientConnectionSourceConfigBean.setConfigId(configId);
 <a class="jxr_linenumber" name="L772" href="#L772">772</a>         
@@ -851,6 +851,6 @@
 <a class="jxr_linenumber" name="L843" href="#L843">843</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

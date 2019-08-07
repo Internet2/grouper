@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -35,7 +35,7 @@
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * @author shilen</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../edu/internet2/middleware/grouper/member/SortStringEnum.html">SortStringEnum</a> {
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">public</strong> enum <a name="SortStringEnum" href="../../../../../edu/internet2/middleware/grouper/member/SortStringEnum.html#SortStringEnum">SortStringEnum</a> {
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">   * sortString0</em>
@@ -227,8 +227,8 @@
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">   * @return boolean</em>
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasAccess(<strong class="jxr_keyword">boolean</strong> wheelOnly, String allowOnlyGroupName) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> session = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     Subject subject = session.getSubject();
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <a name="GrouperSession" href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html#GrouperSession">GrouperSession</a> session = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <a name="Subject" href="../../../../../edu/internet2/middleware/subject/Subject.html#Subject">Subject</a> subject = session.getSubject();
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>     
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">if</strong> (PrivilegeHelper.isWheelOrRoot(subject)) {
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
@@ -242,14 +242,14 @@
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>     }
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>     
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <a href="../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> allowOnlyGroup = GrouperDAOFactory.getFactory().getGroup().findByName(allowOnlyGroupName, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <a name="Group" href="../../../../../edu/internet2/middleware/grouper/Group.html#Group">Group</a> allowOnlyGroup = GrouperDAOFactory.getFactory().getGroup().findByName(allowOnlyGroupName, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>     <strong class="jxr_keyword">return</strong> allowOnlyGroup.hasMember(subject);
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>   }
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>   
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">   * @return get the default sort string based on what this subject has access to or null if the subject doesn't have access to any.</em>
 <a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/member/SortStringEnum.html">SortStringEnum</a> getDefaultSortString() {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="SortStringEnum" href="../../../../../edu/internet2/middleware/grouper/member/SortStringEnum.html#SortStringEnum">SortStringEnum</a> getDefaultSortString() {
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> 
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>     String defaultIndexOrder = GrouperConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"member.sort.defaultIndexOrder"</span>);
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>     <strong class="jxr_keyword">if</strong> (GrouperUtil.isEmpty(defaultIndexOrder)) {
@@ -258,7 +258,7 @@
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>     
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>     String[] indexes = GrouperUtil.splitTrim(defaultIndexOrder, <span class="jxr_string">","</span>);
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">for</strong> (String index : indexes) {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>       <a href="../../../../../edu/internet2/middleware/grouper/member/SortStringEnum.html">SortStringEnum</a> curr = newInstance(Integer.parseInt(index));
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>       <a name="SortStringEnum" href="../../../../../edu/internet2/middleware/grouper/member/SortStringEnum.html#SortStringEnum">SortStringEnum</a> curr = newInstance(Integer.parseInt(index));
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>       <strong class="jxr_keyword">if</strong> (curr.hasAccess()) {
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">return</strong> curr;
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>       }
@@ -271,7 +271,7 @@
 <a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">   * @param index</em>
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">   * @return return enum based on the index value</em>
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/member/SortStringEnum.html">SortStringEnum</a> newInstance(<strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="SortStringEnum" href="../../../../../edu/internet2/middleware/grouper/member/SortStringEnum.html#SortStringEnum">SortStringEnum</a> newInstance(<strong class="jxr_keyword">int</strong> index) {
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>     <strong class="jxr_keyword">if</strong> (index == 0) {
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>       <strong class="jxr_keyword">return</strong> SORT_STRING_0;
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>     }
@@ -297,6 +297,6 @@
 <a class="jxr_linenumber" name="L289" href="#L289">289</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

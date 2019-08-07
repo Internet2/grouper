@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -40,7 +40,7 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * $Id$</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  @SuppressWarnings(<span class="jxr_string">"serial"</span>)
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/PITMember.html">PITMember</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../edu/internet2/middleware/grouper/pit/GrouperPIT.html">GrouperPIT</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html">Hib3GrouperVersioned</a> {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PITMember" href="../../../../../edu/internet2/middleware/grouper/pit/PITMember.html#PITMember">PITMember</a> <strong class="jxr_keyword">extends</strong> <a name="GrouperPIT" href="../../../../../edu/internet2/middleware/grouper/pit/GrouperPIT.html#GrouperPIT">GrouperPIT</a> <strong class="jxr_keyword">implements</strong> <a name="Hib3GrouperVersioned" href="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html#Hib3GrouperVersioned">Hib3GrouperVersioned</a> {
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>    <em class="jxr_javadoccomment">/** db id for this row */</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String COLUMN_ID = <span class="jxr_string">"id"</span>;
@@ -143,7 +143,7 @@
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()</em>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>   @Override
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html">GrouperAPI</a> clone() {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>   <strong class="jxr_keyword">public</strong> <a name="GrouperAPI" href="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html#GrouperAPI">GrouperAPI</a> clone() {
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">return</strong> GrouperUtil.clone(<strong class="jxr_keyword">this</strong>, CLONE_FIELDS);
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>   }
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> 
@@ -261,8 +261,8 @@
 <a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">   * @param queryOptions optional query options.</em>
 <a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">   * @return Set of PITGroup</em>
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>   <strong class="jxr_keyword">public</strong> Set&lt;PITGroup&gt; getGroups(String fieldSourceId, String scope, <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> pitStem, <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Timestamp pointInTimeFrom, 
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>       Timestamp pointInTimeTo, <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions) {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>   <strong class="jxr_keyword">public</strong> Set&lt;PITGroup&gt; getGroups(String fieldSourceId, String scope, <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> pitStem, Scope stemScope, Timestamp pointInTimeFrom, 
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>       Timestamp pointInTimeTo, <a name="QueryOptions" href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html#QueryOptions">QueryOptions</a> queryOptions) {
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">return</strong> PITMember.getGroups(<strong class="jxr_keyword">this</strong>.getSourceId(), fieldSourceId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>   }
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>   
@@ -277,8 +277,8 @@
 <a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">   * @param queryOptions optional query options.</em>
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">   * @return Set of PITGroup</em>
 <a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Set&lt;PITGroup&gt; getGroups(String memberSourceId, String fieldSourceId, String scope, <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> pitStem, <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Timestamp pointInTimeFrom, 
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>       Timestamp pointInTimeTo, <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions) {
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Set&lt;PITGroup&gt; getGroups(String memberSourceId, String fieldSourceId, String scope, <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> pitStem, Scope stemScope, Timestamp pointInTimeFrom, 
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>       Timestamp pointInTimeTo, <a name="QueryOptions" href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html#QueryOptions">QueryOptions</a> queryOptions) {
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>     
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">if</strong> (memberSourceId == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"memberSourceId required."</span>);
@@ -288,12 +288,12 @@
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"fieldSourceId required."</span>);
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>     }
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>         
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <a href="../../../../../edu/internet2/middleware/grouper/pit/PITMember.html">PITMember</a> pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberSourceId, false);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <a name="PITMember" href="../../../../../edu/internet2/middleware/grouper/pit/PITMember.html#PITMember">PITMember</a> pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberSourceId, false);
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">if</strong> (pitMember == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;PITGroup&gt;();
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>     }
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>     
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <a href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html">PITField</a> pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldSourceId, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <a name="PITField" href="../../../../../edu/internet2/middleware/grouper/pit/PITField.html#PITField">PITField</a> pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldSourceId, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">return</strong> GrouperDAOFactory.getFactory().getPITGroup().getAllGroupsMembershipSecure(
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>         pitMember.getId(), pitField.getId(), scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>   }
@@ -309,10 +309,10 @@
 <a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">   * @param queryOptions optional query options.</em>
 <a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">   * @return Set of PITGroup</em>
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Set&lt;PITGroup&gt; getGroups(String memberSourceId, String fieldSourceId, String scope, <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Timestamp pointInTimeFrom, 
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>       Timestamp pointInTimeTo, <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions) {
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Set&lt;PITGroup&gt; getGroups(String memberSourceId, String fieldSourceId, String scope, <a name="Stem" href="../../../../../edu/internet2/middleware/grouper/Stem.html#Stem">Stem</a> stem, Scope stemScope, Timestamp pointInTimeFrom, 
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>       Timestamp pointInTimeTo, <a name="QueryOptions" href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html#QueryOptions">QueryOptions</a> queryOptions) {
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>     
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>     <a href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html">PITStem</a> pitStem = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>     <a name="PITStem" href="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html#PITStem">PITStem</a> pitStem = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>     
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>     <strong class="jxr_keyword">if</strong> (stem != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>       pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getUuid(), <strong class="jxr_keyword">true</strong>);
@@ -323,6 +323,6 @@
 <a class="jxr_linenumber" name="L315" href="#L315">315</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

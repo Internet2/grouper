@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -37,18 +37,18 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * @author shilen</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionEntry</a> <strong class="jxr_keyword">extends</strong> Comparable&lt;PermissionEntry&gt; {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> <strong class="jxr_keyword">extends</strong> Comparable&lt;PermissionEntry&gt; {
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">   * type of permission, either assigned to role, or assigned to role and user combined</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionType</a> {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> enum PermissionType {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_javadoccomment">/** permission assigned to role */</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>      role {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>        @Override
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>        <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html">AttributeAssignType</a> convertToAttributeAssignType() {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>        <strong class="jxr_keyword">public</strong> <a name="AttributeAssignType" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html#AttributeAssignType">AttributeAssignType</a> convertToAttributeAssignType() {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">return</strong> AttributeAssignType.group;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>        }
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      },
@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      role_subject {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>        @Override
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>        <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html">AttributeAssignType</a> convertToAttributeAssignType() {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>        <strong class="jxr_keyword">public</strong> <a name="AttributeAssignType" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html#AttributeAssignType">AttributeAssignType</a> convertToAttributeAssignType() {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">return</strong> AttributeAssignType.any_mem;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>        }
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      };
@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     * @param exceptionOnNull will not allow null or blank entries</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * @return the enum or null or exception if not found</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionType</a> valueOfIgnoreCase(String theString, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> PermissionType valueOfIgnoreCase(String theString, <strong class="jxr_keyword">boolean</strong> exceptionOnNull) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>        <strong class="jxr_keyword">return</strong> GrouperUtil.enumValueOfIgnoreCase(PermissionType.<strong class="jxr_keyword">class</strong>, 
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>            theString, exceptionOnNull);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * convert to attribute assign type</em>
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * @return type</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html">AttributeAssignType</a> convertToAttributeAssignType();
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <a name="AttributeAssignType" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html#AttributeAssignType">AttributeAssignType</a> convertToAttributeAssignType();
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>    }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>    
@@ -184,13 +184,13 @@
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">   * cache the weighting of this assignment</em>
 <a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">   * @return the permission heuristic</em>
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a> getPermissionHeuristics();
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>   <strong class="jxr_keyword">public</strong> <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a> getPermissionHeuristics();
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> 
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">   * cache the weighting of this assignment</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">   * @param permissionHeuristics1</em>
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setPermissionHeuristics(<a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a> permissionHeuristics1);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setPermissionHeuristics(<a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a> permissionHeuristics1);
 <a class="jxr_linenumber" name="L186" href="#L186">186</a> 
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">   * depth of memberships, 0 means immediate</em>
@@ -353,19 +353,19 @@
 <a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">   * owner role</em>
 <a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">   * @return the ownerRole</em>
 <a class="jxr_linenumber" name="L347" href="#L347">347</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html">Role</a> getRole();
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>   <strong class="jxr_keyword">public</strong> <a name="Role" href="../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html#Role">Role</a> getRole();
 <a class="jxr_linenumber" name="L349" href="#L349">349</a> 
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L351" href="#L351">351</a> <em class="jxr_javadoccomment">   * get attribute def name</em>
 <a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">   * @return attributeDefName</em>
 <a class="jxr_linenumber" name="L353" href="#L353">353</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> getAttributeDefName();
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeDefName" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html#AttributeDefName">AttributeDefName</a> getAttributeDefName();
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>   
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_javadoccomment">   * get attribute assign</em>
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">   * @return attributeAssign</em>
 <a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html">AttributeAssign</a> getAttributeAssign();
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeAssign" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html#AttributeAssign">AttributeAssign</a> getAttributeAssign();
 <a class="jxr_linenumber" name="L361" href="#L361">361</a>   
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">   * id of the role which the subject is in to get the permission</em>
@@ -384,7 +384,7 @@
 <a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L377" href="#L377">377</a> <em class="jxr_javadoccomment">   * @return attributeDef</em>
 <a class="jxr_linenumber" name="L378" href="#L378">378</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> getAttributeDef();
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeDef" href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html#AttributeDef">AttributeDef</a> getAttributeDef();
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>   
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_javadoccomment">   * id of the attributeDef</em>
@@ -403,7 +403,7 @@
 <a class="jxr_linenumber" name="L395" href="#L395">395</a> <em class="jxr_javadoccomment">   * get the member</em>
 <a class="jxr_linenumber" name="L396" href="#L396">396</a> <em class="jxr_javadoccomment">   * @return the member</em>
 <a class="jxr_linenumber" name="L397" href="#L397">397</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> getMember();
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>   <strong class="jxr_keyword">public</strong> <a name="Member" href="../../../../../edu/internet2/middleware/grouper/Member.html#Member">Member</a> getMember();
 <a class="jxr_linenumber" name="L399" href="#L399">399</a> 
 <a class="jxr_linenumber" name="L400" href="#L400">400</a>   
 <a class="jxr_linenumber" name="L401" href="#L401">401</a>   <em class="jxr_javadoccomment">/**</em>
@@ -429,7 +429,7 @@
 <a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">   * get the enum for delegatable, do not return null</em>
 <a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">   * @return the attributeAssignDelegatable</em>
 <a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegatable.html">AttributeAssignDelegatable</a> getAttributeAssignDelegatable();
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">public</strong> <a name="AttributeAssignDelegatable" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegatable.html#AttributeAssignDelegatable">AttributeAssignDelegatable</a> getAttributeAssignDelegatable();
 <a class="jxr_linenumber" name="L425" href="#L425">425</a> 
 <a class="jxr_linenumber" name="L426" href="#L426">426</a> 
 <a class="jxr_linenumber" name="L427" href="#L427">427</a>   <em class="jxr_javadoccomment">/**</em>
@@ -483,7 +483,7 @@
 <a class="jxr_linenumber" name="L475" href="#L475">475</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L476" href="#L476">476</a> <em class="jxr_javadoccomment">   * @param attributeAssignDelegatable1 the attributeAssignDelegatable to set</em>
 <a class="jxr_linenumber" name="L477" href="#L477">477</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setAttributeAssignDelegatable(<a href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegatable.html">AttributeAssignDelegatable</a> attributeAssignDelegatable1);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setAttributeAssignDelegatable(<a name="AttributeAssignDelegatable" href="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegatable.html#AttributeAssignDelegatable">AttributeAssignDelegatable</a> attributeAssignDelegatable1);
 <a class="jxr_linenumber" name="L479" href="#L479">479</a> 
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L481" href="#L481">481</a> <em class="jxr_javadoccomment">   * internal method for hibernate to set if delegatable</em>
@@ -547,7 +547,7 @@
 <a class="jxr_linenumber" name="L539" href="#L539">539</a> <em class="jxr_javadoccomment">   * type of permission, either assigned to role, or assigned to role and user combined: role_subject</em>
 <a class="jxr_linenumber" name="L540" href="#L540">540</a> <em class="jxr_javadoccomment">   * @return permission type</em>
 <a class="jxr_linenumber" name="L541" href="#L541">541</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionType</a> getPermissionType();
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>   <strong class="jxr_keyword">public</strong> PermissionType getPermissionType();
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>   
 <a class="jxr_linenumber" name="L544" href="#L544">544</a> 
 <a class="jxr_linenumber" name="L545" href="#L545">545</a>   <em class="jxr_javadoccomment">/**</em>
@@ -561,7 +561,7 @@
 <a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">   * @param thePermissionType</em>
 <a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">   * @return if immediate, considering which permission type we are looking at</em>
 <a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isImmediate(<a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionType</a> thePermissionType);
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isImmediate(PermissionType thePermissionType);
 <a class="jxr_linenumber" name="L557" href="#L557">557</a>   
 <a class="jxr_linenumber" name="L558" href="#L558">558</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L559" href="#L559">559</a> <em class="jxr_javadoccomment">   * see if the membership is unassignable directly</em>
@@ -638,6 +638,6 @@
 <a class="jxr_linenumber" name="L630" href="#L630">630</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>

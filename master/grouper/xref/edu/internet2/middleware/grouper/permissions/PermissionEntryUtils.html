@@ -13,7 +13,7 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
@@ -36,7 +36,7 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * @author shilen</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * $Id$</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryUtils.html">PermissionEntryUtils</a> {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PermissionEntryUtils" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryUtils.html#PermissionEntryUtils">PermissionEntryUtils</a> {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">   * if internal heuristic is not set, set it, order by so most important as at top...</em>
@@ -47,10 +47,10 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>        <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntries) {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>        <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a> permissionHeuristics = permissionEntry.getPermissionHeuristics();
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntries) {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>        <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a> permissionHeuristics = permissionEntry.getPermissionHeuristics();
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>        <strong class="jxr_keyword">if</strong> (permissionHeuristics == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          permissionHeuristics = <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a>();
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          permissionHeuristics = <strong class="jxr_keyword">new</strong> <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a>();
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>          permissionEntry.setPermissionHeuristics(permissionHeuristics);
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>        }
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>        <strong class="jxr_keyword">if</strong> (permissionHeuristics.getInternalScore() == -1) {
@@ -61,9 +61,9 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      Collections.sort(permissionEntries, <strong class="jxr_keyword">new</strong> Comparator&lt;PermissionEntry&gt;() {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>        <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(<a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionEntry</a> o1, <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionEntry</a> o2) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a> permissionHeuristics1 = o1.getPermissionHeuristics();
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a> permissionHeuristics2 = o2.getPermissionHeuristics();
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>        <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(<a name="PermissionE<a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a>../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> o1, <a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> o2) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a> permissionHeuristics1 = o1.getPermissionHeuristics();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a> permissionHeuristics2 = o2.getPermissionHeuristics();
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          Long score1 = permissionHeuristics1.getInternalScore();
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          Long score2 = permissionHeuristics2.getInternalScore();
@@ -75,8 +75,8 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">int</strong> previousFriendlyScore = 0;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">long</strong> previousHeuristic = -1;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : permissionEntries) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>        <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html">PermissionHeuristics</a> permissionHeuristics = permissionEntry.getPermissionHeuristics();
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : permissionEntries) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>        <a name="PermissionHeuristics" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristics.html#PermissionHeuristics">PermissionHeuristics</a> permissionHeuristics = permissionEntry.getPermissionHeuristics();
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>        <strong class="jxr_keyword">if</strong> (previousHeuristic == -1) {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          permissionHeuristics.setFriendlyScore(1);
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>        } <strong class="jxr_keyword">else</strong> {
@@ -122,7 +122,7 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * @param permissionType e.g. role or role_subject</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   * @return true if the item is in the list</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionEntry</a> collectionFindFirst(Collection&lt;PermissionEntry&gt; permissionEntries, String roleName, 
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> collectionFindFirst(Collection&lt;PermissionEntry&gt; permissionEntries, String roleName, 
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>       String attributeDefNameName, String action, String subjectSourceId, String subjectId, String permissionType) {
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">return</strong> collectionFindFirst(permissionEntries, roleName, attributeDefNameName, action, subjectSourceId, subjectId, permissionType, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>   }
@@ -140,9 +140,9 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">   * @param considerPermissionType </em>
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">   * @return true if the item is in the list</em>
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html">PermissionEntry</a> collectionFindFirst(Collection&lt;PermissionEntry&gt; permissionEntries, String roleName, 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> collectionFindFirst(Collection&lt;PermissionEntry&gt; permissionEntries, String roleName, 
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>       String attributeDefNameName, String action, String subjectSourceId, String subjectId, String permissionType, <strong class="jxr_keyword">boolean</strong> considerPermissionType) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">for</strong> (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">for</strong> (<a name="PermissionEntry" href="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html#PermissionEntry">PermissionEntry</a> permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>       <strong class="jxr_keyword">if</strong> (StringUtils.equals(roleName, permissionEntry.getRoleName())
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>           &amp;&amp; StringUtils.equals(attributeDefNameName, permissionEntry.getAttributeDefNameName())
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>           &amp;&amp; StringUtils.equals(action, permissionEntry.getAction())
@@ -158,6 +158,6 @@
 <a class="jxr_linenumber" name="L150" href="#L150">150</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
 </body>
 </html>
