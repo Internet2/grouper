@@ -547,8 +547,8 @@ public class XmlExportAttributeDefNameSet {
       @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
       String ifHasAttributeDefName, String thenHasAttributeDefName) throws IOException {
     
-    writer.write("AttributeDefName ifHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ifHasAttributeDefName) + "\", false);\n");
-    writer.write("AttributeDefName thenHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(thenHasAttributeDefName) + "\", false);\n");
+    writer.write("ifHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ifHasAttributeDefName) + "\", false);\n");
+    writer.write("thenHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(thenHasAttributeDefName) + "\", false);\n");
 
     writer.write("if (ifHasAttributeDefName != null) { ");
 

@@ -464,14 +464,14 @@ public class XmlExportComposite {
   public static void toGsh(GrouperVersion grouperVersion, Writer writer, String ownerGroupName, 
       String type, String leftFactorName, String rightFactorName) throws IOException {
 
-    writer.write("Group ownerGroup = GroupFinder.findByName(grouperSession, \""
+    writer.write("ownerGroup = GroupFinder.findByName(grouperSession, \""
         + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerGroupName) + "\", false);\n");
-    writer.write("Group leftFactorGroup = GroupFinder.findByName(grouperSession, \""
+    writer.write("leftFactorGroup = GroupFinder.findByName(grouperSession, \""
         + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(leftFactorName) + "\", false);\n");
-    writer.write("Group rightFactorGroup = GroupFinder.findByName(grouperSession, \""
+    writer.write("rightFactorGroup = GroupFinder.findByName(grouperSession, \""
         + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(rightFactorName) + "\", false);\n");
 
-    writer.write("CompositeType compositeType = CompositeType." + CompositeType.valueOfIgnoreCase(type).name() + ";\n");
+    writer.write("compositeType = CompositeType." + CompositeType.valueOfIgnoreCase(type).name() + ";\n");
     
     writer.write("if (ownerGroup != null) { ");
 

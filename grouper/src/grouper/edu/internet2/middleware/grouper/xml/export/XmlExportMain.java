@@ -314,12 +314,56 @@ public class XmlExportMain {
       });
       
       thread.start();
-      
-      //note, cant use stax since you cant mix stax and non stax since it wont close elements
+
+      writer.write("/* imports for use under Java, or in groovy if evaluating as an external file */\n");
+      writer.write("import edu.internet2.middleware.grouper.*;\n");
+      writer.write("import edu.internet2.middleware.grouper.attr.*;\n");
+      writer.write("import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;\n");
+      writer.write("import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;\n");
+      writer.write("import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;\n");
+      writer.write("import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;\n");
+      writer.write("import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;\n");
+      writer.write("import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;\n");
+      writer.write("import edu.internet2.middleware.grouper.group.CompositeSave;\n");
+      writer.write("import edu.internet2.middleware.grouper.group.TypeOfGroup;\n");
+      writer.write("import edu.internet2.middleware.grouper.misc.CompositeType;\n");
+      writer.write("import edu.internet2.middleware.grouper.misc.SaveResultType;\n");
+      writer.write("import edu.internet2.middleware.grouper.privs.Privilege;\n");
+      writer.write("import edu.internet2.middleware.grouper.util.GrouperUtil;\n");
+      writer.write("import edu.internet2.middleware.subject.Subject;\n");
+      writer.write("import java.util.HashSet;\n");
+      writer.write("import java.util.Set;\n");
+      writer.write("import java.util.Date;\n\n");
+
       writer.write("GrouperSession grouperSession = GrouperSession.startRootSession();\n");
       writer.write("long gshTotalObjectCount = 0L;\n");
       writer.write("long gshTotalChangeCount = 0L;\n");
-      writer.write("long gshTotalErrorCount = 0L;\n");
+      writer.write("long gshTotalErrorCount = 0L;\n\n");
+
+      // Define reusable objects
+      writer.write("StemSave stemSave = null;\n");
+      writer.write("Stem stem = null;\n");
+      writer.write("GroupSave groupSave = null;\n");
+      writer.write("Group group = null;\n");
+      writer.write("Group ownerGroup = null;\n");
+      writer.write("Group leftFactorGroup = null;\n");
+      writer.write("Group rightFactorGroup = null;\n");
+      writer.write("Group ifHasRole = null;\n");
+      writer.write("Group thenHasRole = null;\n");
+      writer.write("CompositeType compositeType = null;\n");
+      writer.write("AttributeDefSave attributeDefSave = null;\n");
+      writer.write("AttributeDef attributeDef = null;\n");
+      writer.write("Privilege privilege = null;\n");
+      writer.write("Subject subject = null;\n");
+      writer.write("Subject ownerSubject = null;\n");
+      writer.write("AttributeDefNameSave attributeDefNameSave = null;\n");
+      writer.write("AttributeDefName attributeDefName = null;\n");
+      writer.write("AttributeDefName ifHasAttributeDefName = null;\n");
+      writer.write("AttributeDefName thenHasAttributeDefName = null;\n");
+      writer.write("AttributeDefScopeType attributeDefScopeType = null;\n");
+      writer.write("AttributeAssignSave attributeAssignSave = null;\n");
+      writer.write("AttributeAssignSave attributeAssignOnAssignSave = null;\n");
+      writer.write("boolean problemWithAttributeAssign = false;\n\n");
 
       XmlExportStem.exportStemsGsh(writer, this);
 
@@ -429,7 +473,7 @@ public class XmlExportMain {
       if (group != null) {
         String groupName = group.getName();
         
-        writer.write("Subject " + subjectVariableName + " = SubjectFinder.findByIdentifierAndSource(\"" 
+        writer.write(subjectVariableName + " = SubjectFinder.findByIdentifierAndSource(\""
             + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(groupName) 
             + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + "\", false);\n"); 
 
@@ -452,7 +496,7 @@ public class XmlExportMain {
 
         String subjectIdentifier = subject.getAttributeValue("identifier");
         
-        writer.write("Subject " + subjectVariableName + " = SubjectFinder.findByIdentifierAndSource(\"" 
+        writer.write(subjectVariableName + " = SubjectFinder.findByIdentifierAndSource(\""
             + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectIdentifier) 
             + "\", ExternalSubject.sourceId(), false);\n"); 
   
@@ -535,7 +579,7 @@ public class XmlExportMain {
       }
     }
     
-    writer.write("Subject " + subjectVariableName + " = SubjectFinder.findByIdAndSource(\"" 
+    writer.write(subjectVariableName + " = SubjectFinder.findByIdAndSource(\""
         + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectId) 
         + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + "\", false);\n"); 
     writer.write("if (" + subjectVariableName + " == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find subject: " 

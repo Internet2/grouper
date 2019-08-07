@@ -442,7 +442,7 @@ public class XmlExportStem {
       @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer) throws IOException {
     //new StemSave(grouperSession).assignName(this.name).assignCreateParentStemsIfNotExist(true)
     //.assignDescription(this.description).assignDisplayName(this.displayName).save();
-    writer.write("StemSave stemSave = new StemSave(grouperSession).assignName(\""
+    writer.write("stemSave = new StemSave(grouperSession).assignName(\""
         + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
     if (!StringUtils.isBlank(this.description)) {
