@@ -81,7 +81,7 @@ public class GuiMembershipContainer {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     
     return simpleDateFormat.format(this.membershipContainer.getImmediateMembership().getEnabledTime());
     
@@ -98,7 +98,7 @@ public class GuiMembershipContainer {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     
     return simpleDateFormat.format(this.membershipContainer.getImmediateMembership().getDisabledTime());
     

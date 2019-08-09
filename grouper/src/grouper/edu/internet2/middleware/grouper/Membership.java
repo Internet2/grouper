@@ -479,10 +479,10 @@ public class Membership extends GrouperAPI implements
   }
   
   /**
-   * Is this membership enabled?  Only applies to immediate memberships.
+   * Should this membership be enabled based on the enabled and disabled dates?  Only applies to immediate memberships.
    * @return boolean
    */
-  public boolean isEnabled() {
+  private boolean internal_isEnabledUsingTimestamps() {
     if (!this.isImmediate()) {
       throw new RuntimeException("This only applies to immediate memberships.");
     }
@@ -496,6 +496,18 @@ public class Membership extends GrouperAPI implements
       return false;
     }
     return true;
+  }
+  
+  /**
+   * Is this membership enabled?  Only applies to immediate memberships.
+   * @return boolean
+   */
+  public boolean isEnabled() {
+    if (!this.isImmediate()) {
+      throw new RuntimeException("This only applies to immediate memberships.");
+    }
+    
+    return this.enabled;
   }
   
   /**
@@ -515,7 +527,7 @@ public class Membership extends GrouperAPI implements
             
             Membership.this.delete();
             //recalculate
-            Membership.this.enabled = Membership.this.isEnabled();
+            Membership.this.enabled = Membership.this.internal_isEnabledUsingTimestamps();
             //insert this again
             Membership.this.setHibernateVersionNumber(GrouperAPI.INITIAL_VERSION_NUMBER);
             GrouperDAOFactory.getFactory().getMembership().save(Membership.this);
@@ -643,7 +655,7 @@ public class Membership extends GrouperAPI implements
       this.enabledTimeDb = enabledTimeDb.getTime();
     }
     
-    setEnabled(isEnabled());
+    setEnabled(internal_isEnabledUsingTimestamps());
   }
   
   /**
@@ -693,7 +705,7 @@ public class Membership extends GrouperAPI implements
       this.disabledTimeDb = disabledTimeDb.getTime();
     }
     
-    setEnabled(isEnabled());
+    setEnabled(this.internal_isEnabledUsingTimestamps());
   }
   
   
@@ -1772,12 +1784,12 @@ public class Membership extends GrouperAPI implements
       }
       
       // if the immediate membership already exists and it's active, throw MembershipAlreadyExistsException.
-      if (ms != null && ms.isEnabled() == true) {
+      if (ms != null && ms.internal_isEnabledUsingTimestamps() == true) {
         throw new MembershipAlreadyExistsException(ImmediateMembershipValidator.INVALID_EXISTS);
       }
       
       // if the immediate membership already exists and it's not active, delete it.
-      if (ms != null && ms.isEnabled() == false) {
+      if (ms != null && ms.internal_isEnabledUsingTimestamps() == false) {
         ms.delete();
       }
       
