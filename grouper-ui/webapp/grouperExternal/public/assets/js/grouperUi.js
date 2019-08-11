@@ -2144,8 +2144,10 @@ function guiSubmitFileForm(event, formJqueryHandle, operation) {
   }
   
   var options = {
-      iframe: true, 
-      dataType: "json", 
+      // GRP-2249: member batch import incompatible with content security policy blocking frame-ancestor;
+      // File upload seems to still work even if iframe is not set to true
+      //iframe: true,
+      dataType: "json",
       success:    function(json) { 
         guiProcessJsonResponse(json);
       },
