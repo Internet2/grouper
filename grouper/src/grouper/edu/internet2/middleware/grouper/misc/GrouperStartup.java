@@ -22,7 +22,6 @@ package edu.internet2.middleware.grouper.misc;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -61,6 +60,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
+
+import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 
 
 /**
@@ -413,26 +414,33 @@ public class GrouperStartup {
       return;
     }
     
+
+    // Property configuration.detect.utf8.problems wasn't functioning as intended. Discourage its use
+    if (!isBlank(GrouperConfig.retrieveConfig().propertyValueString("configuration.detect.utf8.problems"))) {
+      String error = "Warning: grouper property configuration.detect.utf8.problems is no longer used. Instead, "
+          + "set configuration.detect.utf8.file.problems and configuration.detect.utf8.db.problems";
+      LOG.warn(error);
+      System.out.println(error);
+
+    }
+
     boolean detectTransactionProblems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.db.transaction.problems", true);
 
-    boolean detectUtf8Problems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.utf8.problems", true);
-
     boolean detectUtf8FileProblems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.utf8.file.problems", true);
-    
+
+    boolean detectUtf8DbProblems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.utf8.db.problems", true);
+
     boolean detectCaseSensitiveProblems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.db.caseSensitive.problems", true);
 
-    boolean utfProblems = false;
-    
-    if (!detectUtf8Problems && !detectTransactionProblems && !detectCaseSensitiveProblems) {
+    if (!detectUtf8FileProblems && !detectUtf8DbProblems && !detectTransactionProblems && !detectCaseSensitiveProblems) {
       return;
     }
 
     final String someUtfString = "ٹٺٻټكلل";
 
-    final String name = "grouperUtf_" + GrouperUuid.getUuid();
-    final String id = GrouperUuid.getUuid();
-    
-    if (detectUtf8FileProblems && !utfProblems) {
+    /* Do the contents of grouper/conf/grouperUtf8.txt match the hard-coded string above? */
+    if (detectUtf8FileProblems) {
+      boolean utfProblems = false;
       String theStringFromFile = null;
       try {
         theStringFromFile = GrouperUtil.readResourceIntoString("grouperUtf8.txt", false);
@@ -444,7 +452,7 @@ public class GrouperStartup {
         utfProblems = true;
       }
       if (!utfProblems && !StringUtils.equals(theStringFromFile, someUtfString)) {
-        String error = "Error: Cannot properly read UTF string from resource: grouperUtf8.txt: '" + theStringFromFile
+        String error = "Error: Cannot properly read UTF-8 string from resource: grouperUtf8.txt: '" + theStringFromFile
             + "'";
 
         String fileEncoding = System.getProperty("file.encoding");
@@ -463,34 +471,35 @@ public class GrouperStartup {
         utfProblems = true;
       }
       if (!utfProblems & GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.utf8.success.message", false)) {
-        System.out.println("Grouper can read UTF characters correctly from files");
+        System.out.println("Grouper can read UTF-8 characters correctly from files");
       }
     }
 
-    //lets check case sensitive
+    /* Check for case-insensitive selects. The row in grouper_ddl is object_name='Grouper'. If it can be found
+     * with object_name='GROUPER', the database is not case-sensitive */
     if (detectCaseSensitiveProblems) {
-      //load the grouper object in app upper
-
       Hib3GrouperDdl grouperDdl = GrouperDdlUtils.retrieveDdlByNameFromDatabase("GROUPER");
 
       if (grouperDdl != null) {
-
         String error = "Error: Queries in your database seem to be case insensitive, "
             + "this can be a problem for Grouper, if you are using MySQL you should use a bin collation";
         LOG.error(error);
         System.out.println(error);
-
       } else if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.db.caseSensitive.success.message", false)) {
-
         System.out.println("Your database can handle case sensitive queries correctly");
-
       }
     }
 
+    /* Check for both DB transactions and UTF-8 support. Insert a new entry in grouper_ddl, with
+      * object_name = grouperUtf_{random uuid} and history = {a UTF string}. When read back, is the history
+       * still the original string? */
     if (!HibernateSession.isReadonlyMode()) {
       //this shouldnt exist, just make sure
       GrouperDdlUtils.deleteUtfDdls();
-  
+
+      final String id = GrouperUuid.getUuid();
+      final String name = "grouperUtf_" + id;
+
       Hib3GrouperDdl grouperDdl = GrouperDdlUtils.storeAndReadUtfString(someUtfString, id, name);
   
       //lets check transactions
@@ -509,24 +518,29 @@ public class GrouperStartup {
           System.out.println("Your database can handle transactions correctly");
         }
       }
-  
-      if (grouperDdl == null) {
-        String error = "Error: Why is grouperDdl utf null???";
-        LOG.error(error);
-        System.out.println(error);
-        utfProblems = true;
-      } else if (!utfProblems) {
-  
-        if (!StringUtils.equals(grouperDdl.getHistory(), someUtfString)) {
-          String error = "Error: Cannot properly read UTF string from database: '" + grouperDdl.getHistory()
-              + "', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties";
+
+      //check reading a utf8 string
+      if (detectUtf8DbProblems) {
+
+        boolean utfProblems = false;
+
+        if (grouperDdl == null) {
+          String error = "Error: Why is grouperDdl utf null???";
           LOG.error(error);
           System.out.println(error);
           utfProblems = true;
+        } else {
+          if (!StringUtils.equals(grouperDdl.getHistory(), someUtfString)) {
+            String error = "Error: Cannot properly read UTF-8 string from database: '" + grouperDdl.getHistory()
+              + "', make sure your database has UTF-8 tables and perhaps a hibernate.connection.url in grouper.hibernate.properties";
+            LOG.error(error);
+            System.out.println(error);
+            utfProblems = true;
+          }
         }
-      }
-      if (!utfProblems & GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.utf8.success.message", false)) {
-        System.out.println("Grouper and the database can handle UTF characters correctly");
+        if (!utfProblems & GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.utf8.success.message", false)) {
+          System.out.println("The grouper database can handle UTF-8 characters correctly");
+        }
       }
     }
   }
