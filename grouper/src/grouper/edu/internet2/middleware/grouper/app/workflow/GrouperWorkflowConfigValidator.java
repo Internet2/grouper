@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.COMPLETE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.EXCEPTION_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.REJECTED_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_CONFIG_ENABLED_FALSE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_CONFIG_ENABLED_NO_NEW_SUBMISSIONS;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_CONFIG_ENABLED_TRUE;
@@ -30,11 +32,11 @@ public class GrouperWorkflowConfigValidator {
   /**
    * validate workflow config
    * @param group
-   * @param checkForDuplicateConfig
+   * @param isAddMode
    * @return list of errors
    */
   public List<String> validate(GrouperWorkflowConfig config,
-      Group group, boolean checkForDuplicateConfig) {
+      Group group, boolean isAddMode) {
 
     final List<String> errors = new ArrayList<String>();
 
@@ -54,7 +56,7 @@ public class GrouperWorkflowConfigValidator {
       errors.add(contentKeys.get("workflowConfigNameRequiredError"));
     }
     
-    if (checkForDuplicateConfig) {
+    if (isAddMode) {
       List<GrouperWorkflowConfig> configs = GrouperWorkflowConfigService.getWorkflowConfigs(group);
 
       for (GrouperWorkflowConfig aConfig : configs) {
@@ -76,7 +78,7 @@ public class GrouperWorkflowConfigValidator {
       errors.add(contentKeys.get("workflowConfigIdNotValidError"));
     }
 
-    if (checkForDuplicateConfig && GrouperWorkflowConfigService.workflowIdExists(config.getWorkflowConfigId())) {
+    if (isAddMode && GrouperWorkflowConfigService.workflowIdExists(config.getWorkflowConfigId())) {
       errors.add(contentKeys.get("workflowConfigIdAlreadyInUseError"));
     }
 
@@ -113,9 +115,49 @@ public class GrouperWorkflowConfigValidator {
     if (!validEnabledValues.contains(config.getWorkflowConfigEnabled())) {
       errors.add(contentKeys.get("workflowConfigEnabledInvalidValueError"));
     }
-
+    
+    if(!isAddMode) {
+      validateNonEditableFieldsInEditMode(group, config, errors);
+    }
+    
     return errors;
-
+  }
+  
+  private void validateNonEditableFieldsInEditMode(Group group, GrouperWorkflowConfig config, List<String> errors) {
+    
+    final Map<String, String> contentKeys = GrouperTextContainer.retrieveFromRequest().getText();
+    
+    String configId = config.getWorkflowConfigId();
+    GrouperWorkflowConfig existingConfig = GrouperWorkflowConfigService.getWorkflowConfig(group, configId);
+    
+    if (config == null) {
+      throw new RuntimeException("workflow config is null for config id: "+configId);
+    }
+    
+    boolean checkForm = true;
+    if (StringUtils.isEmpty(existingConfig.getWorkflowConfigForm()) && StringUtils.isEmpty(config.getWorkflowConfigForm())) {
+      checkForm = false;
+    }
+    
+    boolean formChanged = checkForm && !StringUtils.equals(existingConfig.getWorkflowConfigForm(), config.getWorkflowConfigForm());
+    boolean paramsChanged = !StringUtils.equals(existingConfig.getWorkflowConfigParamsString(), config.getWorkflowConfigParamsString());
+    boolean approvalsChanged = !StringUtils.equals(existingConfig.getWorkflowConfigApprovalsString(), config.getWorkflowConfigApprovalsString());
+    
+    if (formChanged || paramsChanged || approvalsChanged) {
+      
+      List<GrouperWorkflowInstance> instances = GrouperWorkflowInstanceService.getWorkflowInstances(group, configId);
+      
+      List<String> states = Arrays.asList(COMPLETE_STATE, EXCEPTION_STATE, REJECTED_STATE);
+      
+      for (GrouperWorkflowInstance instance: instances) {
+        if ( !states.contains(instance.getWorkflowInstanceState())) {
+          errors.add(contentKeys.get("workflowConfigFieldsNotEditableError"));
+          break;
+        }
+      }
+      
+    }
+    
   }
   
   private GrouperWorkflowConfigParams validateConfigParams(GrouperWorkflowConfig config, 
