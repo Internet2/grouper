@@ -53,6 +53,7 @@ public class GrouperGroupInfo {
   }
 
   // Create a barebones group info when neither Group nor PITGroup can be found
+  // This is used when groups are deleted, but PIT information is not available.
   public GrouperGroupInfo(String name, Long idIndex) {
     this.pitGroup = null;
     this.group = null;
@@ -127,6 +128,8 @@ public class GrouperGroupInfo {
 
       if ( group.getIdIndex() != null )
         result.put("idIndex", idIndex);
+
+      result.put("groupId", group.getId());
       
       Map<String, Object> stemAttributes = PspUtils.getStemAttributes(group);
       result.put("stemAttributes", stemAttributes);
@@ -139,6 +142,7 @@ public class GrouperGroupInfo {
       result.put("name", pitGroup.getName());
 
       result.put("idIndex", idIndex);
+      result.put("groupId", pitGroup.getSourceId());
 
       result.put("extension", GrouperUtil.extensionFromName(pitGroup.getName()));
 
@@ -158,12 +162,24 @@ public class GrouperGroupInfo {
       
     }
     else if ( name != null ) {
+      // This is used when groups are deleted, but PIT information is not available.
+
       result.put("name", name);
       result.put("extension",GrouperUtil.extensionFromName(name) );
 
       // Make display properties the same... since that is all we have
       result.put("displayName", result.get("name"));
       result.put("displayExtension", result.get("extension"));
+
+
+      // Maintain compatibility with expressions with some bogus values
+      result.put("idIndex", -999999);
+      result.put("groupId", "-9a9a9a9a9a9a");
+      result.put("group", null);
+      result.put("pitGroup", null);
+
+      result.put("stemAttributes", Collections.EMPTY_MAP);
+      result.put("groupAttributes", Collections.EMPTY_MAP);
     }
     return result;
   }
