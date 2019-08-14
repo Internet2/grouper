@@ -434,6 +434,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
   }
 
   private Iterator<LdapEntry> getLdapResultsHelper(Search search, String searchValue, String[] attributeNames, boolean firstPageOnly ) {
+    if (searchValue == null ) {
+      return null;
+    }
 
     SubjectStatusResult subjectStatusResult = null;
 
