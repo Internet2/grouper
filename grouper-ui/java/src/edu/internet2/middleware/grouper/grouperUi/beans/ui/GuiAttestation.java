@@ -302,22 +302,6 @@ public class GuiAttestation {
     return new SimpleDateFormat("yyyy/MM/dd").format(dateNeedsCertify);
   }
   
-  /**
-   * return the gui folder with settings
-   * @return gui stem
-   */
-  public GuiStem getGuiFolderWithSettings() {
-    AttributeAssignable attributeAssignable = this.getAttributeAssignable();
-    if (attributeAssignable == null) {
-      return null;
-    }
-    Stem stem = attributeAssignable.getAttributeDelegate().getAttributeAssigns().iterator().next().getOwnerStemFailsafe();
-    if (stem == null) {
-      return null;
-    }
-    return new GuiStem(stem);
-  }
-  
   public AttributeAssignable getAttributeAssignable() {
     return attributeAssignable;
   }

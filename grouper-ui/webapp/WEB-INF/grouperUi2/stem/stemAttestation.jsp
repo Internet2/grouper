@@ -55,15 +55,6 @@
                           </td>
                         </tr>
                       
-                        <c:if test="${grouperRequestContainer.attestationContainer.ancestorStemAttestationAssignment}">
-                          <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationParentFolderLabel']}</strong></td>
-                            <td>${grouperRequestContainer.attestationContainer.guiAttestation.guiFolderWithSettings.shortLinkWithIcon}
-                              <br />
-                              <span class="description">${textContainer.text['attestationFolderParentFolderDescription']}</span>
-                            </td>
-                          </tr>
-                        </c:if>
                         <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.hasAttestation}">
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationTypeLabel']}</strong></td>
