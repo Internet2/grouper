@@ -44,6 +44,10 @@ public class GuiPaging implements Serializable {
    */
   private int totalRecordCount;
   
+  /**
+   * text to display after the page count (e.g. Showing 1-2 of 3 <here>)
+   */
+  private String textAfterPageCount;
   
   /**
    * query paging bean
@@ -149,5 +153,20 @@ public class GuiPaging implements Serializable {
     }
     return guiPaging;
   }
+
   
+  /**
+   * @return the textAfterPageCount
+   */
+  public String getTextAfterPageCount() {
+    return textAfterPageCount;
+  }
+
+  
+  /**
+   * @param textAfterPageCount the textAfterPageCount to set
+   */
+  public void setTextAfterPageCount(String textAfterPageCount) {
+    this.textAfterPageCount = textAfterPageCount;
+  }
 }
