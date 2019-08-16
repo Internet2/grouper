@@ -524,31 +524,13 @@ public class UiV2Stem {
         
       }
 
-      //MCH 20131224: dont need this since we are searching by stemmed folders above
-      //{
-      //  //make sure the user can stem the parent folder
-      //  boolean canStemParent = (Boolean)GrouperSession.callbackGrouperSession(
-      //      GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-      //        
-      //        @Override
-      //        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-      //          return parentFolder.hasStem(loggedInSubject);
-      //        }
-      //      });
-      //
-      //  if (!canStemParent) {
-      //
-      //    guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-      //        TextContainer.retrieveFromRequest().getText().get("stemCopyCantStemParent")));
-      //    return;
-      //
-      //  }
-      //}
-      
       Stem newStem = null;
       
       try {
 
+        stem.setExtension(extension, false);
+        stem.setDisplayExtension(displayExtension);
+        
         //get the new folder that was created
         newStem = new StemCopy(stem, parentFolder).copyAttributes(copyGroupAttributes)
             .copyListGroupAsMember(copyListMembershipsInOtherGroups)
@@ -567,25 +549,6 @@ public class UiV2Stem {
 
       }
 
-      boolean changed = false;
-      
-      //see if we are changing the extension
-      if (!StringUtils.equals(newStem.getExtension(), extension)) {
-        newStem.setExtension(extension, false);
-        changed = true;
-      }
-      
-      //see if we are changing the display extension
-      if (!StringUtils.equals(newStem.getDisplayExtension(), displayExtension)) {
-        newStem.setDisplayExtension(displayExtension);
-        changed = true;
-      }
-
-      //save it if we need to
-      if (changed) {
-        newStem.store();
-      }
-      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + newStem.getId() + "')"));
 
       //lets show a success message on the new screen
