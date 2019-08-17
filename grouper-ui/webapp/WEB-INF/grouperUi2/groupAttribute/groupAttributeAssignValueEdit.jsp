@@ -6,7 +6,7 @@
 <div class="row-fluid">
   <div class="span12">
     
-    <form id="simpleAttributeAssignValueEditForm" name="simpleAttributeAssignValueEditFormName" class="form-horizontal">
+    <form id="simpleAttributeAssignValueEditForm" name="simpleAttributeAssignValueEditFormName" class="form-horizontal" action="javascript:void(0);">
       
       <input name="groupId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerGroupId }" />
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
