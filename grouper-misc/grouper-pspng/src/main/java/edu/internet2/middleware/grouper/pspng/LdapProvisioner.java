@@ -654,7 +654,11 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     
     @SuppressWarnings("unchecked")
     List<ModifyRequest> modRequests = (List) workItem.getProvisioningDataValues(LDAP_MOD_LIST);
-    
+
+    if ( modRequests == null ) {
+      return false;
+    }
+
     // This is complicated and nested because of the data structures involved, but it boils down to looking 
     // through all the ldap changes and compare the following: DN, AttributeName, AttributeValue
     for ( ModifyRequest modRequest : modRequests ) {
