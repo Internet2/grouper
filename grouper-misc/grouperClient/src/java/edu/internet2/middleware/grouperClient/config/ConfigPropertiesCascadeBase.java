@@ -43,7 +43,6 @@ import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionProvider;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -706,27 +705,9 @@ public abstract class ConfigPropertiesCascadeBase {
                   
                   long startingNanos = System.nanoTime();
                   
-                  // select from the database
-                  String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-
-                  debugMap.put("dbUrl", dbUrl);
-
-                  String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-
-                  debugMap.put("dbUser", dbUser);
-
-                  String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-
-                  debugMap.put("dbPass", "******");
-
-                  dbPass = Morph.decryptIfFile(dbPass);
-          
-                  String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
-                  driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
-
-                  debugMap.put("driver", driver);
-
                   String databaseConnectionProvider = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.config.databaseConnectionProvider");
+ 
+                  boolean isGrouperConnection = GrouperClientUtils.equals("edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider", databaseConnectionProvider);
                   
                   Class<GcJdbcConnectionProvider> gcJdbcConnectionProviderClass = null;
                   try {
@@ -741,8 +722,30 @@ public abstract class ConfigPropertiesCascadeBase {
                   }
           
                   GcJdbcConnectionProvider gcJdbcConnectionProvider = GrouperClientUtils.newInstance(gcJdbcConnectionProviderClass);
-                  gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
-                      null, 5, dbUrl, dbUser, dbPass, null, true);
+          
+                  if (!isGrouperConnection) {
+//                  // select from the database
+//                  String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+//
+//                  debugMap.put("dbUrl", dbUrl);
+//
+//                  String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+//
+//                  debugMap.put("dbUser", dbUser);
+//
+//                  String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+//
+//                  debugMap.put("dbPass", "******");
+//
+//                  dbPass = Morph.decryptIfFile(dbPass);
+//          
+//                  String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+//                  driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
+//
+//                  debugMap.put("driver", driver);
+//                  gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
+//                      null, 5, dbUrl, dbUser, dbPass, null, true);
+                  }
                   GcJdbcConnectionBean gcJdbcConnectionBean = null;
                   Connection connection = null;
                   PreparedStatement preparedStatement = null;
@@ -1887,7 +1890,7 @@ public abstract class ConfigPropertiesCascadeBase {
       }
 
       if (!hasProperty) {
-        if (!"newline".equals(variable)) {
+        if (!whitelistConfigVariables.contains(variable)) {
           LOG.debug("Cant find text for variable: '" + variable + "'");
         }
         //if we cant find it just keep the variable name
@@ -1904,5 +1907,9 @@ public abstract class ConfigPropertiesCascadeBase {
     
   }
 
+  /**
+   * variables that are allowed to be in the config file
+   */
+  private static Set<String> whitelistConfigVariables = GrouperClientUtils.toSet("newline", "subjectName", "reportConfigName", "reportLink");
 
 }
