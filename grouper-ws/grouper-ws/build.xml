@@ -6,10 +6,6 @@
 			<pathelement location="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
 		</classpath>
 	</taskdef>
-    <if><not><available file="conf/grouper-ws.properties" /></not>
-      <then><copy file="misc/grouper-ws.example.properties" 
-        tofile="conf/grouper-ws.properties" /></then>
-    </if> 
 
 	<!-- 
 	provides all environment variables as Ant properties prefixed by "env.". 
