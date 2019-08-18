@@ -341,9 +341,10 @@ class FullSyncQueueItem {
 
   public void acknowledgeMessage() {
     if ( messageToAcknowledge != null ) {
-      LOG.info("Acknowledging that message was processed: {}", this);
+      LOG.debug("Acknowledging that message was processed: {}", this);
       GrouperMessagingEngine.acknowledge(messageToAcknowledge);
     }
+    messageToAcknowledge = null;
   }
 
   public boolean hasBeenProcessed() {
