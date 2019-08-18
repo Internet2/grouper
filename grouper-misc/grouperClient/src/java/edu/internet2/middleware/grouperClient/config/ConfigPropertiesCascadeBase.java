@@ -578,7 +578,12 @@ public abstract class ConfigPropertiesCascadeBase {
    * cache database configs
    */
   private static Map<String, Map<String, String>> databaseConfigCache = new HashMap<String, Map<String, String>>();
-  
+
+  /**
+   * cache database configs last successful retrieval so if something goes wrong we can just use that
+   */
+  private static Map<String, Map<String, String>> databaseConfigCacheFailsafe = new HashMap<String, Map<String, String>>();
+
   /**
    * millis since 1970 that the database configs were last retrieved
    * will cache for grouper.cache.database.configs.seconds in grouper.hibernate.properties
@@ -806,6 +811,7 @@ public abstract class ConfigPropertiesCascadeBase {
                   cachedPropertiesForThisConfigFileName = databaseConfigCacheTemp.get(mainConfigFileName);
                   
                   ConfigPropertiesCascadeBase.databaseConfigCache = databaseConfigCacheTemp;
+                  ConfigPropertiesCascadeBase.databaseConfigCacheFailsafe = databaseConfigCacheTemp;
                   ConfigPropertiesCascadeBase.databaseConfigCacheLastRetrieved = System.currentTimeMillis();
                   databaseConfigRefreshCount++;
                   
@@ -820,6 +826,11 @@ public abstract class ConfigPropertiesCascadeBase {
             
 //            LOG.debug("From cache: " + GrouperClientUtils.mapToString(ConfigPropertiesCascadeBase.databaseConfigCache));
 
+            // get from failsafe if something goes wrong
+            if (cachedPropertiesForThisConfigFileName  == null && databaseConfigCacheFailsafe != null) {
+              cachedPropertiesForThisConfigFileName = databaseConfigCacheFailsafe.get(mainConfigFileName);
+            }
+            
             if (cachedPropertiesForThisConfigFileName != null) {
               for (String key : cachedPropertiesForThisConfigFileName.keySet()) {
                 properties.put(key, cachedPropertiesForThisConfigFileName.get(key));
