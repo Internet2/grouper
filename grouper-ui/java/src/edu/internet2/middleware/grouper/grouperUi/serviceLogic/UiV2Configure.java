@@ -371,7 +371,7 @@ public class UiV2Configure {
    * @param request
    * @param response
    */
-  public void configurationFileItemDelete(HttpServletRequest request, HttpServletResponse response) {
+  public void configurationFileItemDelete(final HttpServletRequest request, HttpServletResponse response) {
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     

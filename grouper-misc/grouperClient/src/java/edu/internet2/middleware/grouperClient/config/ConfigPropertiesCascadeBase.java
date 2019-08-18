@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionProvider;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
