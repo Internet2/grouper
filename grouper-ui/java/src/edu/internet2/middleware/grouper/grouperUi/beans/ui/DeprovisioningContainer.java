@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningConfiguration;
@@ -169,6 +170,23 @@ public class DeprovisioningContainer {
     }
     return false;
   }
+  
+  /**
+   * if root has deprovisioning attributes for any of the affiliations
+   * @return is there is deprovisioning on root stem
+   */
+  public boolean isHasRootDeprovisioningAttributes() {
+    Stem rootStem  = StemFinder.findRootStem(GrouperSession.staticGrouperSession().internal_getRootSession());
+    GrouperDeprovisioningOverallConfiguration rootOverallConfig = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(rootStem);
+    
+    for (GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration : rootOverallConfig.getAffiliationToConfiguration().values()) {
+    
+      if (grouperDeprovisioningConfiguration.getOriginalConfig() != null && !StringUtils.isBlank(grouperDeprovisioningConfiguration.getOriginalConfig().getAffiliationString())) {
+        return true;
+      }
+    }
+    return false;
+  } 
   
   /**
    * overall configuration for this user and this object (group, folder, attributeDef)

@@ -39,12 +39,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -609,7 +603,8 @@ public class GrouperDeprovisioningLogic {
 
         // we good
         GrouperDeprovisioningAttributeValue originalConfig = grouperDeprovisioningConfiguration.getOriginalConfig();
-        if (originalConfig != null && originalConfig.isDirectAssignment()) {
+        if (originalConfig != null && (originalConfig.isDirectAssignment() || 
+            grouperDeprovisioningConfiguration.getInheritedOwner() != null && grouperDeprovisioningConfiguration.getInheritedOwner().isRootStem())) {
           
           if (LOG.isDebugEnabled()) {
             debugMap.put("directAssign", true);
@@ -622,7 +617,8 @@ public class GrouperDeprovisioningLogic {
         
         GrouperDeprovisioningConfiguration inheritedConfiguration = grouperDeprovisioningConfiguration.getInheritedConfig();
 
-        if (inheritedConfiguration != null && inheritedConfiguration.getOriginalConfig() != null) {
+        if (inheritedConfiguration != null && inheritedConfiguration.getOriginalConfig() != null
+            && !((Stem)inheritedConfiguration.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner()).isRootStem()) {
 
           if (LOG.isDebugEnabled()) {
             debugMap.put("inheritedFrom", inheritedConfiguration.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner().getName());
