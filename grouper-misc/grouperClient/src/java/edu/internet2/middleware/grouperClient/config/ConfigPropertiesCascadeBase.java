@@ -761,7 +761,7 @@ public abstract class ConfigPropertiesCascadeBase {
                     
                     connection = gcJdbcConnectionBean.connection();
           
-                    preparedStatement = connection.prepareStatement("select config_file_name, config_key, config_value from grouper_config where config_file_hierarchy = ?");
+                    preparedStatement = connection.prepareStatement("select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?");
                     preparedStatement.setString(1, "INSTITUTION");
           
                     resultSet = preparedStatement.executeQuery();
@@ -770,12 +770,18 @@ public abstract class ConfigPropertiesCascadeBase {
                       String configFileName = resultSet.getString("config_file_name");
                       String configKey = resultSet.getString("config_key");
                       String configValue = resultSet.getString("config_value");
+                      String configEncrypted = resultSet.getString("config_encrypted");
                       
                       Map<String, String> configPropertiesForFile = databaseConfigCacheTemp.get(configFileName);
                       
                       if (configPropertiesForFile == null) {
                         configPropertiesForFile = new HashMap<String, String>();
                         databaseConfigCacheTemp.put(configFileName, configPropertiesForFile);
+                      }
+                      
+                      // decrypt if encrypted
+                      if (GrouperClientUtils.booleanValue(configEncrypted, false)) {
+                        configValue = Morph.decrypt(configValue);
                       }
                       
                       configPropertiesForFile.put(configKey, configValue);

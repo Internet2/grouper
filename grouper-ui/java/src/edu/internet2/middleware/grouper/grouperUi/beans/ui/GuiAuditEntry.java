@@ -974,9 +974,21 @@ public class GuiAuditEntry {
           
           return TextContainer.retrieveFromRequest().getText().get("audits_XML_IMPORT");
         
+        case CONFIGURATION_ADD:
+          
+          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Add", "<b>Added</b>");
+          
+        case CONFIGURATION_DELETE:
+
+          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Delete", "<b>Deleted</b>");
+
+        case CONFIGURATION_UPDATE:
+ 
+          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Update", "<b>Added</b>");
+  
         default:
           LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
-          return TextContainer.retrieveFromRequest().getText().get("auditsUndefinedAction");
+          return this.auditEntry.getDescription();
           
       }
     } catch (RuntimeException re) {

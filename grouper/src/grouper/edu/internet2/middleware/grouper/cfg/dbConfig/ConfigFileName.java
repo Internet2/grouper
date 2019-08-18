@@ -133,6 +133,32 @@ public enum ConfigFileName {
   }
   
   /**
+   * 
+   * @param key
+   * @return config item metadata related to this key
+   */
+  public static ConfigItemMetadata findConfigItemMetdata(String key) {
+    if (key == null) {
+      return null;
+    }
+    for (ConfigFileName configFileName : ConfigFileName.values()) {
+      
+      ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+      for (ConfigSectionMetadata configSectionMetadata : configFileMetadata.getConfigSectionMetadataList()) {
+        for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
+          
+          if (StringUtils.equals(key, configItemMetadata.getKey())) {
+            
+            return configItemMetadata;
+            
+          }
+        }
+      }
+    }
+    return null;
+  }
+  
+  /**
    * order the config gets loaded
    * the lower the number the first it is read
    */

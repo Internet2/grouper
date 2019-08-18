@@ -21,6 +21,7 @@ public class GuiConfigProperty {
 
   private static final String ESCAPED_PASSWORD = "*******";
 
+  
   /**
    * if this is a scriptlet, get the scriptlet
    * @return the scriptlet
@@ -96,8 +97,7 @@ public class GuiConfigProperty {
     String keyLower = key.toLowerCase();
     if (keyLower.contains("pass") || keyLower.contains("secret") || this.configItemMetadata.isSensitive() 
         || this.configItemMetadata.getValueType() == ConfigItemMetadataType.PASSWORD) {
-      boolean isPass = StringUtils.isBlank(value);
-      if (!isPass) {
+      if (!StringUtils.isBlank(value)) {
         File theFile = new File(value);
         if (theFile.exists() && theFile.isFile()) {
           return theFile.getAbsolutePath();
