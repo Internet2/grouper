@@ -40,10 +40,12 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -241,12 +243,27 @@ public class UiV2Configure {
           String propertyNameToUse = isExpressionLanguage ? (propertyNameString + ".elConfig") : propertyNameString;
           
           String valueString = request.getParameter("valueName");
-          if (StringUtils.isBlank(valueString)) {
-            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#valueId", 
-                TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyValueRequired")));
-            return false;
-          }
+          // this could be blank I guess
+//          if (StringUtils.isBlank(valueString)) {
+//            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#valueId", 
+//                TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyValueRequired")));
+//            return false;
+//          }
 
+          String passwordString = request.getParameter("configwordName");
+          
+          // if not sent, thats a problem
+          if (StringUtils.isBlank(passwordString)) {
+            throw new RuntimeException("Why is password blank!");
+          }
+          
+          // is this a password or not?
+          boolean isPassword = GrouperUtil.booleanValue(passwordString);
+
+          if (isPassword) {
+            valueString = request.getParameter("passwordValueName");
+          }
+          
           StringBuilder message = new StringBuilder();
           
           GrouperConfigHibernate[] grouperConfigHibernateToReturn = new GrouperConfigHibernate[1];
@@ -272,6 +289,10 @@ public class UiV2Configure {
           grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
           // this will switch to or from .elConfig
           grouperConfigHibernate.setConfigKey(propertyNameToUse);
+          if (ConfigUtils.isPassword(configFileName, null, propertyNameString, valueString, true, isPassword)) {
+            grouperConfigHibernate.setConfigEncrypted(true);
+            valueString = Morph.encrypt(valueString);
+          }
           grouperConfigHibernate.setConfigValue(valueString);
           grouperConfigHibernate.saveOrUpdate();
 
@@ -346,6 +367,147 @@ public class UiV2Configure {
   }
   
   /**
+   * delete config
+   * @param request
+   * @param response
+   */
+  public void configurationFileItemDelete(final HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      
+      final String configFileString = request.getParameter("configFile");
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+
+      if (StringUtils.isBlank(configFileString)) {
+      
+        throw new RuntimeException("configFile is not being sent!");
+
+      }
+
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+        
+        @Override
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+
+          GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+          ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+          String configFileString = request.getParameter("configFile");
+          ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+          configurationContainer.setConfigFileName(configFileName);
+          
+          // if not sent, thats a problem
+          if (StringUtils.isBlank(configFileString)) {
+            throw new RuntimeException("Config file name does not exist");
+          }
+          
+          String propertyNameString = StringUtils.trim(request.getParameter("propertyNameName"));
+          if (StringUtils.isBlank(propertyNameString)) {
+            throw new RuntimeException("Property name does not exist");
+          }
+          
+          propertyNameString = GrouperUtil.stripEnd(propertyNameString, ".elConfig");
+          
+          Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(configFileName, null, propertyNameString);
+          Set<GrouperConfigHibernate> grouperConfigHibernatesEl = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString + ".elConfig");
+          
+          GrouperConfigHibernate grouperConfigHibernate = null;
+          GrouperConfigHibernate grouperConfigHibernateEl = null;
+          
+          for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernates)) {
+            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
+              if (grouperConfigHibernate != null) {
+                // why are there two???
+                LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
+                  + ", " + current.getConfigKey() + ", " + current.getConfigValue());
+                current.delete();
+              }
+              grouperConfigHibernate = current;
+            }
+          }
+          
+          for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernatesEl)) {
+            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
+              if (grouperConfigHibernate != null) {
+                // why are there two???
+                LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
+                  + ", " + current.getConfigKey() + ", " + current.getConfigValue());
+                current.delete();
+              }
+              grouperConfigHibernateEl = current;
+            }
+          }
+
+          if (grouperConfigHibernate != null) {
+            configurationFileItemDeleteHelper(grouperConfigHibernate);
+          }
+          if (grouperConfigHibernateEl != null) {
+            configurationFileItemDeleteHelper(grouperConfigHibernateEl);
+          }
+
+          return true;
+        }
+      });
+      
+      ConfigPropertiesCascadeBase.clearCache();
+      
+      buildConfigFileAndMetadata();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/configure/configure.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
+  /**
+   * configuration file item delete helper
+   * @param grouperConfigHibernate
+   */
+  private void configurationFileItemDeleteHelper(GrouperConfigHibernate grouperConfigHibernate) {
+
+    // see if we are creating a new one
+    if (grouperConfigHibernate == null) {
+      return;
+    }
+
+    grouperConfigHibernate.delete();
+    
+    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CONFIGURATION_DELETE, "id", 
+        grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
+        "key", grouperConfigHibernate.getConfigKey(), "previousValue", 
+        grouperConfigHibernate.getConfigValueDb(), "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
+    auditEntry.setDescription("Delete config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
+      + ", " + grouperConfigHibernate.getConfigKey() + " = " + grouperConfigHibernate.getConfigValueDb());
+    auditEntry.saveOrUpdate(true);
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        
+    guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+        TextContainer.retrieveFromRequest().getText().get("configurationFilesDeleted")));
+  }
+  
+  /**
    * configure
    * @param request
    * @param response
@@ -385,7 +547,52 @@ public class UiV2Configure {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+  
+      
+  public void configurationFileSelectPassword(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String passwordString = request.getParameter("passwordName");
+      
+      // if not sent, thats a problem
+      if (StringUtils.isBlank(passwordString)) {
+        throw new RuntimeException("Why is password blank!");
+      }
+      
+      // is this a password or not?
+      boolean isPassword = GrouperUtil.booleanValue(passwordString);
 
+      // clear out values
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('#passwordValueId').val('');"));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("valueName", null));
+
+      // we need to hide or show the password and value
+      if (isPassword) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('#passwordValueDivId').show('slow')"));
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('#valueDivId').hide('slow')"));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('#passwordValueDivId').hide('slow')"));
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('#valueDivId').show('slow')"));
+      }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  
   /**
    * configure
    * @param request

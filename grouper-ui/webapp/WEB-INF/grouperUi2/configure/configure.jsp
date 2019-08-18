@@ -68,7 +68,7 @@
                 
                   <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                     <thead>
-                    
+                      <c:set var="i" value="0" />
                       <c:forEach items="${grouperRequestContainer.configurationContainer.guiConfigFile.guiConfigSections}" var="guiConfigSection">
                         <tr>
                           <th colspan="3">
@@ -79,6 +79,9 @@
                           </th>
                         </tr>
                       <tr>
+                        <th style="white-space: nowrap; background-color: white">
+                          ${textContainer.text['configurationColumnAction']}
+                        </th>
                         <th style="white-space: nowrap; background-color: white">
                           ${textContainer.text['configurationColumnPropertyName']}
                         </th>
@@ -94,7 +97,20 @@
                     <tbody> <%-- configConftainer.propertyNames --%>
                       <c:forEach items="${guiConfigSection.guiConfigProperties}" var="guiConfigProperty">
                         <c:set value="${guiConfigProperty.configItemMetadata}" var="configItemMetadata" />
-                        <tr>
+                        <tr id="row_${i}">
+                          <td style="vertical-align: top">
+                             
+                            <div class="btn-group"><a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiConfigurationFilesActions']}" href="#" class="btn btn-mini dropdown-toggle"
+                              aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                                ${textContainer.text['groupViewActionsButton'] } 
+                                <span class="caret"></span>
+                              </a>
+                              <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
+                                <li><a href="#" onclick="return ajax('../app/UiV2Configure.configurationFileItemEdit?configFile=${grouper:escapeUrl(grouperRequestContainer.configurationContainer.configFileName.configFileName)}&propertyNameName=${grouper:escapeUrl(configItemMetadata.keyOrSampleKey)}&index=${i}');" class="actions-revoke-membership">${textContainer.text['configurationFilesActionEdit'] }</a></li>
+                                <li><a href="#" onclick="return ajax('../app/UiV2Configure.configurationFileItemDelete?configFile=${grouper:escapeUrl(grouperRequestContainer.configurationContainer.configFileName.configFileName)}&propertyNameName=${grouper:escapeUrl(configItemMetadata.keyOrSampleKey)}');" class="actions-revoke-membership">${textContainer.text['configurationFilesActionDelete'] }</a></li>
+                              </ul>
+                            </div>
+                          </td>
                           <td style="vertical-align: top">
                             <b>${grouper:escapeHtml(configItemMetadata.keyOrSampleKey)}</b><br />
                             <c:if test="${guiConfigProperty.hasType}">
@@ -132,6 +148,8 @@
                             </c:if>
                           </td>
                         </tr>
+                        <c:set var="i" value="${i+1}" />
+                        
                       </c:forEach>
                     </tbody>
                   </c:forEach>

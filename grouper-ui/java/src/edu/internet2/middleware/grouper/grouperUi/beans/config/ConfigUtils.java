@@ -1,11 +1,15 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.config;
 
+import java.io.File;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ConfigurationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -28,6 +32,82 @@ public class ConfigUtils {
   protected static Log LOG = LogFactory.getLog(ConfigUtils.class);
 
   public ConfigUtils() {
+  }
+
+  /**
+   * see if password based on various factors
+   * @param configFileName if known or null if not
+   * @param configItemMetadata if known or null if not
+   * @param key or null if not known
+   * @param value if there is one at this point or null if not
+   * @param hasValue true if there is a value, false if not
+   * @param userSelectedPassword true if the user selected that this is a password.   null if NA
+   * @return true if password
+   */
+  public static boolean isPassword(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, String key, String value, boolean hasValue, Boolean userSelectedPassword) {
+    return isPasswordHelper(configFileName, configItemMetadata, key, value, hasValue, userSelectedPassword);
+  }
+
+  /**
+   * see if password based on various factors
+   * @param configFileName
+   * @param configItemMetadata
+   * @param key
+   * @param value
+   * @param hasValue
+   * @param userSelectedPassword
+   * @return true if password
+   */
+  private static boolean isPasswordHelper(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, 
+      String key, String value, boolean hasValue, Boolean userSelectedPassword) {
+
+    // if there is a value, and it is a file, then its not a password
+    if (hasValue && !StringUtils.isBlank(value)) {
+      File theFile = new File(value);
+      if (theFile.exists() && theFile.isFile()) {
+        return false;
+      }
+    }
+    
+    // if the configured metadata is not null then check that
+    if (isPasswordHelper(configItemMetadata)) {
+      return true;
+    }
+    
+    // look for a key with certain words inside
+    if (key != null) {
+      key = key.toLowerCase();
+
+      if (key != null && (key.contains("pass") || key.contains("secret"))) {
+        return true;
+      }
+    
+      //lets try to find the config item metadata by key to be sure
+      configItemMetadata = ConfigFileName.findConfigItemMetdata(key);
+      if (isPasswordHelper(configItemMetadata)) {
+        return true;
+      }
+    }
+
+    // if the user selected that this is a password, then i guess it is
+    if (userSelectedPassword != null && userSelectedPassword) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * see if password based on various factors
+   * @param configItemMetadata
+   * @return true if password
+   */
+  private static boolean isPasswordHelper(ConfigItemMetadata configItemMetadata) {
+    
+    if (configItemMetadata != null) {
+      return configItemMetadata.isSensitive() || configItemMetadata.getValueType() == ConfigItemMetadataType.PASSWORD;
+    }
+    return false;
   }
 
   /**

@@ -579,7 +579,12 @@ public abstract class ConfigPropertiesCascadeBase {
    * cache database configs
    */
   private static Map<String, Map<String, String>> databaseConfigCache = new HashMap<String, Map<String, String>>();
-  
+
+  /**
+   * cache database configs last successful retrieval so if something goes wrong we can just use that
+   */
+  private static Map<String, Map<String, String>> databaseConfigCacheFailsafe = new HashMap<String, Map<String, String>>();
+
   /**
    * millis since 1970 that the database configs were last retrieved
    * will cache for grouper.cache.database.configs.seconds in grouper.hibernate.properties
@@ -706,27 +711,9 @@ public abstract class ConfigPropertiesCascadeBase {
                   
                   long startingNanos = System.nanoTime();
                   
-                  // select from the database
-                  String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-
-                  debugMap.put("dbUrl", dbUrl);
-
-                  String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-
-                  debugMap.put("dbUser", dbUser);
-
-                  String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-
-                  debugMap.put("dbPass", "******");
-
-                  dbPass = Morph.decryptIfFile(dbPass);
-          
-                  String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
-                  driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
-
-                  debugMap.put("driver", driver);
-
                   String databaseConnectionProvider = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.config.databaseConnectionProvider");
+ 
+                  boolean isGrouperConnection = GrouperClientUtils.equals("edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider", databaseConnectionProvider);
                   
                   Class<GcJdbcConnectionProvider> gcJdbcConnectionProviderClass = null;
                   try {
@@ -741,8 +728,30 @@ public abstract class ConfigPropertiesCascadeBase {
                   }
           
                   GcJdbcConnectionProvider gcJdbcConnectionProvider = GrouperClientUtils.newInstance(gcJdbcConnectionProviderClass);
-                  gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
-                      null, 5, dbUrl, dbUser, dbPass, null, true);
+          
+                  if (!isGrouperConnection) {
+//                  // select from the database
+//                  String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+//
+//                  debugMap.put("dbUrl", dbUrl);
+//
+//                  String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+//
+//                  debugMap.put("dbUser", dbUser);
+//
+//                  String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+//
+//                  debugMap.put("dbPass", "******");
+//
+//                  dbPass = Morph.decryptIfFile(dbPass);
+//          
+//                  String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+//                  driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
+//
+//                  debugMap.put("driver", driver);
+//                  gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
+//                      null, 5, dbUrl, dbUser, dbPass, null, true);
+                  }
                   GcJdbcConnectionBean gcJdbcConnectionBean = null;
                   Connection connection = null;
                   PreparedStatement preparedStatement = null;
@@ -758,7 +767,7 @@ public abstract class ConfigPropertiesCascadeBase {
                     
                     connection = gcJdbcConnectionBean.connection();
           
-                    preparedStatement = connection.prepareStatement("select config_file_name, config_key, config_value from grouper_config where config_file_hierarchy = ?");
+                    preparedStatement = connection.prepareStatement("select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?");
                     preparedStatement.setString(1, "INSTITUTION");
           
                     resultSet = preparedStatement.executeQuery();
@@ -767,12 +776,18 @@ public abstract class ConfigPropertiesCascadeBase {
                       String configFileName = resultSet.getString("config_file_name");
                       String configKey = resultSet.getString("config_key");
                       String configValue = resultSet.getString("config_value");
+                      String configEncrypted = resultSet.getString("config_encrypted");
                       
                       Map<String, String> configPropertiesForFile = databaseConfigCacheTemp.get(configFileName);
                       
                       if (configPropertiesForFile == null) {
                         configPropertiesForFile = new HashMap<String, String>();
                         databaseConfigCacheTemp.put(configFileName, configPropertiesForFile);
+                      }
+                      
+                      // decrypt if encrypted
+                      if (GrouperClientUtils.booleanValue(configEncrypted, false)) {
+                        configValue = Morph.decrypt(configValue);
                       }
                       
                       configPropertiesForFile.put(configKey, configValue);
@@ -797,6 +812,7 @@ public abstract class ConfigPropertiesCascadeBase {
                   cachedPropertiesForThisConfigFileName = databaseConfigCacheTemp.get(mainConfigFileName);
                   
                   ConfigPropertiesCascadeBase.databaseConfigCache = databaseConfigCacheTemp;
+                  ConfigPropertiesCascadeBase.databaseConfigCacheFailsafe = databaseConfigCacheTemp;
                   ConfigPropertiesCascadeBase.databaseConfigCacheLastRetrieved = System.currentTimeMillis();
                   databaseConfigRefreshCount++;
                   
@@ -811,6 +827,11 @@ public abstract class ConfigPropertiesCascadeBase {
             
 //            LOG.debug("From cache: " + GrouperClientUtils.mapToString(ConfigPropertiesCascadeBase.databaseConfigCache));
 
+            // get from failsafe if something goes wrong
+            if (cachedPropertiesForThisConfigFileName  == null && databaseConfigCacheFailsafe != null) {
+              cachedPropertiesForThisConfigFileName = databaseConfigCacheFailsafe.get(mainConfigFileName);
+            }
+            
             if (cachedPropertiesForThisConfigFileName != null) {
               for (String key : cachedPropertiesForThisConfigFileName.keySet()) {
                 properties.put(key, cachedPropertiesForThisConfigFileName.get(key));
@@ -1887,7 +1908,7 @@ public abstract class ConfigPropertiesCascadeBase {
       }
 
       if (!hasProperty) {
-        if (!"newline".equals(variable)) {
+        if (!whitelistConfigVariables.contains(variable)) {
           LOG.debug("Cant find text for variable: '" + variable + "'");
         }
         //if we cant find it just keep the variable name
@@ -1904,5 +1925,9 @@ public abstract class ConfigPropertiesCascadeBase {
     
   }
 
+  /**
+   * variables that are allowed to be in the config file
+   */
+  private static Set<String> whitelistConfigVariables = GrouperClientUtils.toSet("newline", "subjectName", "reportConfigName", "reportLink");
 
 }

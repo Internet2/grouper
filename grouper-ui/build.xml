@@ -28,10 +28,6 @@
     <then><copy file="template-tomcat-context.xml" 
       tofile="tomcat-context.xml" /></then>
   </if> 
-  <if><not><available file="conf/grouper-ui.properties" /></not>
-    <then><copy file="misc/grouper-ui.example.properties" 
-      tofile="conf/grouper-ui.properties" /></then>
-  </if> 
 
 	<filter filtersfile="build.properties"/>
 	<property file=".lastbuild.properties"/>
@@ -322,7 +318,6 @@
 			<fileset dir="${ui.folder}/conf/resources"/>
 		</copy>
 
-		<copy file="${ui.folder}/conf/grouper-ui.properties" todir="${webapp.class.folder}" overwrite="true"/>
 		<!-- copy file="${ui.folder}/conf/grouper-ui.base.properties" todir="${webapp.class.folder}" overwrite="true"/ -->
     <copy file="${ui.folder}/conf/Owasp.CsrfGuard.overlay.properties" todir="${webapp.class.folder}" overwrite="true"/>
     <copy file="${ui.folder}/conf/Owasp.CsrfGuard.properties" todir="${webapp.class.folder}" overwrite="true"/>

@@ -670,7 +670,7 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * delete configuration
    */
   CONFIGURATION_DELETE(new AuditType("configurationFile", "deleteConfigEntry", null, "id", "configFile", 
-      "key", "value", "configHierarchy"));
+      "key", "value", "configHierarchy", "previousValue"));
 
   /**
    * defaults for audit type, though doesnt hold the id

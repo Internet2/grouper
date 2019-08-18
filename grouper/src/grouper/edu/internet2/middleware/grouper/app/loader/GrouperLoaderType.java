@@ -2926,15 +2926,17 @@ public enum GrouperLoaderType {
               LOG.debug(groupName + " will add subject to group: " + subject.getSource().getName() + "/" + subject.getId() + ", " + count + " of " + numberOfRows + " subjects");
             }
             subjectsToAdd.add(subject);
+            count++;
+            totalCount++;
           }
         } else {
           
           //put something in log
           hib3GrouploaderLog.appendJobMessage(row.getSubjectError());
           hib3GrouploaderLog.addUnresolvableSubjectCount(1);  
+          count++;
+          totalCount++;
         }
-        count++;
-        totalCount++;
         
         if (totalCount != 0 && totalCount % 500 == 0) {
           String logStatus = groupName + " processed " + totalCount + " records, finding new members, " + count + " of " + numberOfRows + " subjects";

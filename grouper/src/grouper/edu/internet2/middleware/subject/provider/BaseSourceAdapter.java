@@ -193,6 +193,10 @@ public abstract class BaseSourceAdapter implements Source {
     
     Subject subject = null;
     for (String theIdentifier : identifiers) {
+      if (theIdentifier == null ) {
+        continue;
+      }
+
       try {
         subject = getSubjectByIdentifier(theIdentifier, true);
         result.put(theIdentifier, subject);
