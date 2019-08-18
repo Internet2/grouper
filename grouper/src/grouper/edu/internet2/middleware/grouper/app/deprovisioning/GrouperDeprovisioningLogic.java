@@ -27,6 +27,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -39,12 +40,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -166,26 +161,46 @@ public class GrouperDeprovisioningLogic {
    */
   private static GrouperDeprovisioningCache grouperDeprovisioningCache(final boolean useCache) {
     
-    GrouperDeprovisioningCache grouperDeprovisioningCache = deprovisionedSubjectCache().get(Boolean.TRUE);
-    
-    if (!useCache || grouperDeprovisioningCache == null) {
+    final Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    long startNanos = System.nanoTime();
+
+    GrouperDeprovisioningCache grouperDeprovisioningCache = null;
+    try {
+
+      grouperDeprovisioningCache = deprovisionedSubjectCache().get(Boolean.TRUE);
+
+      if (debugMap != null) {
+        debugMap.put("useCache", true);
+        debugMap.put("grouperDeprovisioningCacheExists", grouperDeprovisioningCache != null);
+      }
+
+      // see if we can return early
+      if (useCache && grouperDeprovisioningCache != null) {
+        return grouperDeprovisioningCache;
+      }
+
+      if (debugMap != null) {
+        debugMap.put("failsafeCacheExists", grouperDeprovisioningCacheFailsafe != null);
+      }
       
+      // we need to get the cache again
       if (useCache && grouperDeprovisioningCacheFailsafe != null) {
         
         final GrouperDeprovisioningCache[] GROUPER_DEPROVISIONING_CACHE = new GrouperDeprovisioningCache[]{null};
         
         GROUPER_DEPROVISIONING_CACHE[0] = grouperDeprovisioningCacheFailsafe;
-        
-        Thread thread = new Thread(new Runnable() {
 
+        if (debugMap != null) {
+          debugMap.put("gettingCacheInThread", true);
+        }
+
+        Thread thread = new Thread(new Runnable() {
+  
           public void run() {
-            GrouperSession grouperSession = GrouperSession.startRootSession();
             try {
-              GROUPER_DEPROVISIONING_CACHE[0] = grouperDeprovisioningCacheHelperAsRoot(useCache);
+              GROUPER_DEPROVISIONING_CACHE[0] = grouperDeprovisioningCacheHelperAsRoot(useCache, debugMap);
             } catch (RuntimeException re) {
               LOG.error("Error refreshing deprovisioning cache", re);
-            } finally {
-              GrouperSession.stopQuietly(grouperSession);
             }
           }
           
@@ -193,111 +208,193 @@ public class GrouperDeprovisioningLogic {
         
         //run job
         thread.start();
-
+  
+        //  # number of seconds to wait for refresh before giving up and using failsafe (if caching)
+        //  deprovisioning.cacheFailsafeSeconds = 10 
+        int cacheFailsafeSeconds = GrouperConfig.retrieveConfig().propertyValueInt("deprovisioning.cacheFailsafeSeconds", 10);
+        GrouperUtil.threadJoin(thread, cacheFailsafeSeconds*1000);
+  
         // maybe we should only wait for a little while...
         if (GROUPER_DEPROVISIONING_CACHE[0] != null) {
-
-          //  # number of seconds to wait for refresh before giving up and using failsafe (if caching)
-          //  deprovisioning.cacheFailsafeSeconds = 10 
-          int cacheFailsafeSeconds = GrouperConfig.retrieveConfig().propertyValueInt("deprovisioning.cacheFailsafeSeconds", 10);
-          GrouperUtil.threadJoin(thread, cacheFailsafeSeconds*1000);
-          
-        }
-        
-      } else {
-
-        grouperDeprovisioningCache = (GrouperDeprovisioningCache)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-          
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-            return grouperDeprovisioningCacheHelperAsRoot(useCache);
+          if (debugMap != null) {
+            debugMap.put("gotCacheFromThread", true);
           }
-        });
+          grouperDeprovisioningCache = GROUPER_DEPROVISIONING_CACHE[0];
+          return GROUPER_DEPROVISIONING_CACHE[0];
+        }
+        // just use the failsafe
+        
+        if (debugMap != null) {
+          debugMap.put("gotCacheFromFailsafe", true);
+        }
+        grouperDeprovisioningCache = grouperDeprovisioningCacheFailsafe;
+        return grouperDeprovisioningCacheFailsafe;
       }
-      
-      
+      if (debugMap != null) {
+        debugMap.put("gotCacheNotFromThread", true);
+      }
+      // we arent using cache and we need to wait for cache
+      grouperDeprovisioningCache = grouperDeprovisioningCacheHelperAsRoot(useCache, debugMap);
+      return grouperDeprovisioningCache;
+    } catch (RuntimeException re) {
+      if (debugMap != null) {
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
+      }
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        long elapsedMillis = (System.nanoTime() - startNanos) / 1000000;
+        debugMap.put("took", elapsedMillis + "ms");
+        debugMap.put("finalCacheExists", grouperDeprovisioningCache!= null);
+        if (grouperDeprovisioningCache != null) {
+          debugMap.put("finalCacheSubjectSetExists", grouperDeprovisioningCache.getDeprovisionedSubjectSet() != null);
+          debugMap.put("finalCacheSubjectSetSize", GrouperUtil.length(grouperDeprovisioningCache.getDeprovisionedSubjectSet()));
+          debugMap.put("finalCacheSubjectSetMapExists", grouperDeprovisioningCache.getDeprovisionedSubjectSetMap() != null);
+          debugMap.put("finalCacheSubjectSetMapSize", GrouperUtil.length(grouperDeprovisioningCache.getDeprovisionedSubjectSetMap()));
+        }
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
-    return grouperDeprovisioningCache;
+
   }
 
   /**
    * 
    * @param useCache
+   * @param debugMap 
    * @return the cache
    */
-  private static GrouperDeprovisioningCache grouperDeprovisioningCacheHelperAsRoot(final boolean useCache) {
+  private static GrouperDeprovisioningCache grouperDeprovisioningCacheHelperAsRoot(final boolean useCache, final Map<String, Object> debugMap) {
     
-    final long lastRetrievedNanos = System.nanoTime();
+    long lastRetrievedNanos = System.nanoTime();
+    long now = lastRetrievedNanos;
     
-    synchronized(GrouperDeprovisioningLogic.class) {
-      GrouperDeprovisioningCache grouperDeprovisioningCache = deprovisionedSubjectCache().get(Boolean.TRUE);
-      boolean hasCache = grouperDeprovisioningCache != null;
-      boolean newEnoughCache = deprovisionedSubjectCacheLastRetrievedNanos > lastRetrievedNanos;
+    try {
       
-      if (!hasCache || !newEnoughCache) {
-
-        grouperDeprovisioningCache = new GrouperDeprovisioningCache();
-        grouperDeprovisioningCache.setDeprovisionedSubjectSet(new HashSet<MultiKey>());
-        grouperDeprovisioningCache.setDeprovisionedSubjectSetMap(new HashMap<MultiKey, Set<Subject>>());
-
-        MembershipFinder membershipFinder = new MembershipFinder();
-        
-        Map<String, MultiKey> mapGroupNameFirstTwoKeys = new HashMap<String, MultiKey>();
-        
-        // add overall managers group
-        String deprovisioningAdminGroupName = GrouperDeprovisioningSettings.retrieveDeprovisioningAdminGroupName();
-        
-        membershipFinder.addGroup(deprovisioningAdminGroupName);
-        
-        
-        //  key is affiliation, deprovisionedGroup|inAffiliationGroup|deprovisioningAdmins, sourceId, subjectId 
-        //  if affiliation is null and deprovisioningAdmins is second key then its overall admins
-        
-        mapGroupNameFirstTwoKeys.put(deprovisioningAdminGroupName, multiKeyMapDeprovisioningAdmins());
-        
-        //add affiliation groups
-        for (GrouperDeprovisioningAffiliation grouperDeprovisioningAffiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().values()) {
-          
-          membershipFinder.addGroup(grouperDeprovisioningAffiliation.getManagersGroupName());
-          mapGroupNameFirstTwoKeys.put(grouperDeprovisioningAffiliation.getManagersGroupName(), 
-              multiKeyMapAffiliationAdmins(grouperDeprovisioningAffiliation.getLabel()));
-
-          membershipFinder.addGroup(grouperDeprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroupName());
-          mapGroupNameFirstTwoKeys.put(grouperDeprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroupName(), 
-              multiKeyMapAffiliationDeprovisionedGroup(grouperDeprovisioningAffiliation.getLabel()));
-          
-          String groupNameMeansInAffiliation = grouperDeprovisioningAffiliation.getGroupNameMeansInAffiliation();
-          
-          if (!StringUtils.isBlank(groupNameMeansInAffiliation)) {
-
-            membershipFinder.addGroup(groupNameMeansInAffiliation);
-            mapGroupNameFirstTwoKeys.put(groupNameMeansInAffiliation, 
-                multiKeyMapInAffiliationGroup(grouperDeprovisioningAffiliation));
-          }
-          
-        }
-        
-        MembershipResult membershipResult = membershipFinder.assignField(Group.getDefaultList()).findMembershipResult();
-
-        for (Object[] membershipOwnerMember : membershipResult.getMembershipsOwnersMembers()) {
-          Group group = (Group)membershipOwnerMember[1];
-          String groupName = group.getName();
-          MultiKey firstTwoKeys = mapGroupNameFirstTwoKeys.get(groupName);
-          Member member = (Member)membershipOwnerMember[2];
-          grouperDeprovisioningCache.getDeprovisionedSubjectSet().add(new MultiKey(firstTwoKeys.getKey(0), 
-              firstTwoKeys.getKey(1), member.getSubjectSourceId(), member.getSubjectId()));
-          Set<Subject> subjects = grouperDeprovisioningCache.getDeprovisionedSubjectSetMap().get(firstTwoKeys);
-          if (subjects == null) {
-            subjects = new HashSet<Subject>();
-            grouperDeprovisioningCache.getDeprovisionedSubjectSetMap().put(firstTwoKeys, subjects);
-          }
-          subjects.add(member.getSubject());
-        }
-        
-        deprovisionedSubjectCache.put(Boolean.TRUE, grouperDeprovisioningCache);
-        grouperDeprovisioningCacheFailsafe = grouperDeprovisioningCache;
-        deprovisionedSubjectCacheLastRetrievedNanos = System.nanoTime();
+      // try before we get to synchronized block
+      final GrouperDeprovisioningCache[] GROUPER_DEPROVISIONING_CACHE = new GrouperDeprovisioningCache[] { deprovisionedSubjectCache().get(Boolean.TRUE) };
+      boolean hasCache = GROUPER_DEPROVISIONING_CACHE[0] != null;
+      boolean newEnoughCache = deprovisionedSubjectCacheLastRetrievedNanos > lastRetrievedNanos;
+  
+      if (debugMap != null) {
+        debugMap.put("grouperDeprovisioningCacheHelperAsRoot", true);
+        debugMap.put("cacheHelperUseCache", useCache);
       }
-      return grouperDeprovisioningCache;
+      
+      if (hasCache && newEnoughCache && useCache) {
+        if (debugMap != null) {
+          debugMap.put("cacheHelperEarlyExit", true);
+          debugMap.put("cacheHelperHasCache", hasCache);
+          debugMap.put("cacheHelperNewEnoughCache", newEnoughCache);
+        }      
+        return GROUPER_DEPROVISIONING_CACHE[0];
+      }
+      
+      synchronized(GrouperDeprovisioningLogic.class) {
+        lastRetrievedNanos = System.nanoTime();
+        GROUPER_DEPROVISIONING_CACHE[0] = deprovisionedSubjectCache().get(Boolean.TRUE);
+        hasCache = GROUPER_DEPROVISIONING_CACHE[0] != null;
+        newEnoughCache = deprovisionedSubjectCacheLastRetrievedNanos > lastRetrievedNanos;
+        
+        if (!hasCache || !newEnoughCache || !useCache) {
+  
+          GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+            
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              GROUPER_DEPROVISIONING_CACHE[0] = new GrouperDeprovisioningCache();
+              GROUPER_DEPROVISIONING_CACHE[0].setDeprovisionedSubjectSet(new HashSet<MultiKey>());
+              GROUPER_DEPROVISIONING_CACHE[0].setDeprovisionedSubjectSetMap(new HashMap<MultiKey, Set<Subject>>());
+  
+              MembershipFinder membershipFinder = new MembershipFinder();
+              
+              Map<String, MultiKey> mapGroupNameFirstTwoKeys = new HashMap<String, MultiKey>();
+              
+              // add overall managers group
+              String deprovisioningAdminGroupName = GrouperDeprovisioningSettings.retrieveDeprovisioningAdminGroupName();
+              
+              int groupCount = 1;
+              
+              membershipFinder.addGroup(deprovisioningAdminGroupName);
+              
+              
+              //  key is affiliation, deprovisionedGroup|inAffiliationGroup|deprovisioningAdmins, sourceId, subjectId 
+              //  if affiliation is null and deprovisioningAdmins is second key then its overall admins
+              
+              mapGroupNameFirstTwoKeys.put(deprovisioningAdminGroupName, multiKeyMapDeprovisioningAdmins());
+              
+              //add affiliation groups
+              for (GrouperDeprovisioningAffiliation grouperDeprovisioningAffiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().values()) {
+  
+                groupCount++;
+  
+                membershipFinder.addGroup(grouperDeprovisioningAffiliation.getManagersGroupName());
+                mapGroupNameFirstTwoKeys.put(grouperDeprovisioningAffiliation.getManagersGroupName(), 
+                    multiKeyMapAffiliationAdmins(grouperDeprovisioningAffiliation.getLabel()));
+  
+                groupCount++;
+  
+                membershipFinder.addGroup(grouperDeprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroupName());
+                mapGroupNameFirstTwoKeys.put(grouperDeprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroupName(), 
+                    multiKeyMapAffiliationDeprovisionedGroup(grouperDeprovisioningAffiliation.getLabel()));
+                
+                String groupNameMeansInAffiliation = grouperDeprovisioningAffiliation.getGroupNameMeansInAffiliation();
+                
+                if (!StringUtils.isBlank(groupNameMeansInAffiliation)) {
+  
+                  groupCount++;
+                  membershipFinder.addGroup(groupNameMeansInAffiliation);
+                  mapGroupNameFirstTwoKeys.put(groupNameMeansInAffiliation, 
+                      multiKeyMapInAffiliationGroup(grouperDeprovisioningAffiliation));
+                }
+                
+              }
+  
+              if (debugMap != null) {
+                debugMap.put("cacheHelperGroupCount", groupCount);
+              }
+              
+              MembershipResult membershipResult = membershipFinder.assignField(Group.getDefaultList()).findMembershipResult();
+  
+              if (debugMap != null) {
+                debugMap.put("cacheHelperMembershipCount", membershipResult.getMembershipsOwnersMembers().size());
+              }
+              
+              for (Object[] membershipOwnerMember : membershipResult.getMembershipsOwnersMembers()) {
+                Group group = (Group)membershipOwnerMember[1];
+                String groupName = group.getName();
+                MultiKey firstTwoKeys = mapGroupNameFirstTwoKeys.get(groupName);
+                Member member = (Member)membershipOwnerMember[2];
+                GROUPER_DEPROVISIONING_CACHE[0].getDeprovisionedSubjectSet().add(new MultiKey(firstTwoKeys.getKey(0), 
+                    firstTwoKeys.getKey(1), member.getSubjectSourceId(), member.getSubjectId()));
+                Set<Subject> subjects = GROUPER_DEPROVISIONING_CACHE[0].getDeprovisionedSubjectSetMap().get(firstTwoKeys);
+                if (subjects == null) {
+                  subjects = new HashSet<Subject>();
+                  GROUPER_DEPROVISIONING_CACHE[0].getDeprovisionedSubjectSetMap().put(firstTwoKeys, subjects);
+                }
+                subjects.add(member.getSubject());
+              }
+              
+              deprovisionedSubjectCache.put(Boolean.TRUE, GROUPER_DEPROVISIONING_CACHE[0]);
+              grouperDeprovisioningCacheFailsafe = GROUPER_DEPROVISIONING_CACHE[0];
+              deprovisionedSubjectCacheLastRetrievedNanos = System.nanoTime();
+              return null;
+            }
+          });
+        } else {
+          if (debugMap != null) {
+            debugMap.put("cacheHelperEarlyExit", true);
+            debugMap.put("cacheHelperHasCache", hasCache);
+            debugMap.put("cacheHelperNewEnoughCache", newEnoughCache);
+          }      
+        }
+        return GROUPER_DEPROVISIONING_CACHE[0];
+      }
+    } finally {
+      
+      if (debugMap != null) {
+        debugMap.put("cacheHelperTook", ((now - System.nanoTime() ) / 1000000) + "ms");
+      }
+      
     }
   }
 
