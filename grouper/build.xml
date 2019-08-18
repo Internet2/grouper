@@ -71,6 +71,14 @@
     <then><copy file="misc/grouper-loader.example.properties" 
       tofile="${conf.dir}/grouper-loader.properties" /></then>
   </if> 
+  <if><not><available file="conf/grouper-ui.properties" /></not>
+    <then><copy file="misc/grouper-ui.example.properties" 
+      tofile="conf/grouper-ui.properties" /></then>
+  </if> 
+  <if><not><available file="conf/grouper-ws.properties" /></not>
+    <then><copy file="misc/grouper-ws.example.properties" 
+      tofile="conf/grouper-ws.properties" /></then>
+  </if> 
   <if><not><available file="${conf.dir}/log4j.properties" /></not>
     <then><copy file="${conf.dir}/log4j.example.properties" 
       tofile="${conf.dir}/log4j.properties" /></then>
