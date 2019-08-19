@@ -98,6 +98,7 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_MOVE, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_MOVE, "newParentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_MOVE, "newStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE, "stemId");
 
     addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_ADD, "groupId");
     addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_DELETE, "groupId");

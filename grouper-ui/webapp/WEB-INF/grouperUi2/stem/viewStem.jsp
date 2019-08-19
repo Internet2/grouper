@@ -14,6 +14,26 @@
                   </c:if>
                   <%@ include file="stemMoreTab.jsp" %>
                 </ul>
+
+                <c:if test="${grouperRequestContainer.attestationContainer.hasAttestationConfigured && grouperRequestContainer.attestationContainer.canAttestReport}" >
+                  <c:choose>
+                    <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.needsRecertify}">
+                      <p class="lead" style="color: red">${textContainer.text['attestationReportNeedsAttestationNow'] }
+                        <input type="submit" class="btn" value="${textContainer.textEscapeDouble['reportAttestationMarkAsReviewed'] }"
+                          onclick="ajax('../app/UiV2Attestation.attestFolderFromOutside?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" />
+                      </p>
+                      <br />
+                    </c:when>
+                    <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.needsRecertifySoon}">
+                      <p class="lead" style="color: red">${textContainer.text['attestationReportNeedsAttestationSoon'] }
+                        <input type="submit" class="btn" value="${textContainer.textEscapeDouble['reportAttestationMarkAsReviewed'] }"
+                          onclick="ajax('../app/UiV2Attestation.attestFolderFromOutside?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" />
+                      </p>
+                      <br />
+                    </c:when>
+                  </c:choose>
+                </c:if>
+
                 <form class="form-inline form-filter" id="stemFilterFormId">
                   <div class="row-fluid">
                     <div class="span1">

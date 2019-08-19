@@ -88,15 +88,6 @@
                               <span class="description">${textContainer.text['attestationLastEmailedDateDescription']}</span>
                             </td>
                           </tr>
-                          <c:if test="${grouperRequestContainer.attestationContainer.ancestorStemAttestationAssignment}">
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationParentFolderLabel']}</strong></td>
-                              <td>${grouperRequestContainer.attestationContainer.guiAttestation.guiFolderWithSettings.shortLinkWithIcon}
-                                <br />
-                                <span class="description">${textContainer.text['attestationParentFolderDescription']}</span>
-                              </td>
-                            </tr>
-                          </c:if>
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationSendEmailLabel']}</strong></td>
                             <td>

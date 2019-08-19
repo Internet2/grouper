@@ -613,6 +613,11 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * update attestation for stem
    */
   STEM_ATTESTATION_UPDATE(new AuditType("stemAttestation", "updateStemAttestation", null, "stemId", "stemName")),
+
+  /**
+   * update last certified date for stem
+   */
+  STEM_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE(new AuditType("stemAttestation", "updateStemLastCertifiedDate", null, "stemId", "stemName")),
   
   /**
    * add report config for stem

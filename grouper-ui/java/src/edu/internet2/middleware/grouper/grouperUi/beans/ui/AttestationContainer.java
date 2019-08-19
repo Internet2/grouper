@@ -4,15 +4,22 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -208,6 +215,157 @@ public class AttestationContainer {
   }
   
   /**
+   * if should show textarea for type
+   */
+  private boolean editAttestationShowType;
+
+  /**
+   * if should show textarea for type
+   * @return should show type
+   */
+  public boolean isEditAttestationShowType() {
+    return this.editAttestationShowType;
+  }
+
+  /**
+   * 
+   * @param editAttestationShowType1
+   */
+  public void setEditAttestationShowType(
+      boolean editAttestationShowType1) {
+    this.editAttestationShowType = editAttestationShowType1;
+  }
+
+  /**
+   * custom type
+   */
+  private String editAttestationType;
+
+  /**
+   * custom type
+   * @return custom type
+   */
+  public String getEditAttestationType() {
+    this.attributeAssignableHelper();
+    return this.editAttestationType;
+  }
+
+  /**
+   * custom type
+   * @param editAttestationType1
+   */
+  public void setEditAttestationType(String editAttestationType1) {
+    this.editAttestationType = editAttestationType1;
+  }
+  
+  /**
+   * if should show report
+   */
+  private boolean editAttestationShowReportConfiguration;
+
+  /**
+   * if should show report
+   * @return should show report
+   */
+  public boolean isEditAttestationShowReportConfiguration() {
+    return this.editAttestationShowReportConfiguration;
+  }
+
+  /**
+   * 
+   * @param editAttestationShowReportConfiguration1
+   */
+  public void setEditAttestationShowReportConfiguration(
+      boolean editAttestationShowReportConfiguration1) {
+    this.editAttestationShowReportConfiguration = editAttestationShowReportConfiguration1;
+  }
+
+  /**
+   * 
+   */
+  private GrouperReportConfigurationBean editAttestationReportConfiguration;
+
+  /**
+   * @return report
+   */
+  public GrouperReportConfigurationBean getEditAttestationReportConfiguration() {
+    this.attributeAssignableHelper();
+    return this.editAttestationReportConfiguration;
+  }
+
+  /**
+   * @param editAttestationReportConfiguration1
+   */
+  public void setEditAttestationReportConfiguration(GrouperReportConfigurationBean editAttestationReportConfiguration1) {
+    this.editAttestationReportConfiguration = editAttestationReportConfiguration1;
+  }
+  
+  /**
+   * if should show authorized group
+   */
+  private boolean editAttestationShowAuthorizedGroup;
+
+  /**
+   * if should show authorized group
+   * @return should show authorized group
+   */
+  public boolean isEditAttestationShowAuthorizedGroup() {
+    return this.editAttestationShowAuthorizedGroup;
+  }
+
+  /**
+   * 
+   * @param editAttestationShowAuthorizedGroup1
+   */
+  public void setEditAttestationShowAuthorizedGroup(
+      boolean editAttestationShowAuthorizedGroup1) {
+    this.editAttestationShowAuthorizedGroup = editAttestationShowAuthorizedGroup1;
+  }
+  
+  /**
+   * if should show folder scope
+   */
+  private boolean editAttestationShowFolderScope;
+  
+  /**
+   * if should show folder scope
+   * @return the editAttestationShowFolderScope
+   */
+  public boolean isEditAttestationShowFolderScope() {
+    return editAttestationShowFolderScope;
+  }
+
+  
+  /**
+   * if should show folder scope
+   * @param editAttestationShowFolderScope the editAttestationShowFolderScope to set
+   */
+  public void setEditAttestationShowFolderScope(boolean editAttestationShowFolderScope) {
+    this.editAttestationShowFolderScope = editAttestationShowFolderScope;
+  }
+  
+
+  /**
+   * 
+   */
+  private Group editAttestationAuthorizedGroup;
+
+  /**
+   * @return authorized group
+   */
+  public Group getEditAttestationAuthorizedGroup() {
+    this.attributeAssignableHelper();
+    return this.editAttestationAuthorizedGroup;
+  }
+
+  /**
+   * @param editAttestationAuthorizedGroup1
+   */
+  public void setEditAttestationAuthorizedGroup(Group editAttestationAuthorizedGroup1) {
+    this.editAttestationAuthorizedGroup = editAttestationAuthorizedGroup1;
+  }
+  
+  /**
    * default recertify days
    * @return default configured recertify days
    */
@@ -280,6 +438,133 @@ public class AttestationContainer {
             GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
     return attestationEmailAddresses;
   }
+  
+
+  /**
+   * type
+   * @return type
+   */
+  public String getType() {
+
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    String attestationType = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameType().getName());
+    return attestationType;
+  }
+  
+
+  /**
+   * report configuration
+   * @return report
+   */
+  public GrouperReportConfigurationBean getReportConfiguration() {
+
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    String attestationReportConfigurationId = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId().getName());
+    
+    if (attestationReportConfigurationId == null) {
+      return null;
+    }
+    
+    GrouperReportConfigurationBean reportConfiguration = GrouperReportConfigService.getGrouperReportConfigBean(attestationReportConfigurationId);
+    return reportConfiguration;
+  }
+  
+  /**
+   * @return report instance id
+   */
+  public String getMostRecentReportInstanceAssignId() {
+    this.attributeAssignableHelper();
+    final AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    return (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+        String attestationReportConfigurationId = attributeAssign.getAttributeValueDelegate()
+            .retrieveValueString(
+                GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId().getName());
+        
+        if (attestationReportConfigurationId == null) {
+          return null;
+        }
+
+        if (attributeAssign.getOwnerStemId() != null) {
+          GrouperReportInstance instance = GrouperReportInstanceService.getMostRecentReportInstance(attributeAssign.getOwnerStem(), attestationReportConfigurationId);
+          if (instance != null) {
+            return instance.getAttributeAssignId();
+          }
+        }
+        
+        return null;
+      }
+    });
+  }
+  
+  /**
+   * authorized group
+   * @return authorized group
+   */
+  public Group getAuthorizedGroup() {
+
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    String attestationAuthorizedGroupId = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName());
+    
+    if (attestationAuthorizedGroupId == null) {
+      return null;
+    }
+    
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationAuthorizedGroupId, false);
+    
+    return group;
+  }
+  
+  /**
+   * @return true if scope is sub
+   */
+  public Boolean getStemScopeSub() {
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return true;
+    }
+
+    String attestationStemScope = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
+
+    return attestationStemScope == null 
+        || StringUtils.equalsIgnoreCase(attestationStemScope, Scope.SUB.toString());
+  }
+
 
   /**
    * get recertify days
@@ -609,6 +894,13 @@ public class AttestationContainer {
         return true;
       }
     }
+    
+    // check if this is a report that the user can attest
+    boolean isCanAttestReport = this.isCanAttestReport();
+    if (isCanAttestReport) {
+      return true;
+    }
+    
     return false;
   }
   
@@ -647,6 +939,55 @@ public class AttestationContainer {
         return true;
       }
     }
+    return false;
+  }
+  
+  /**
+   * 
+   * @return true if can write
+   */
+  public boolean isCanAttestReport() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+
+    if (guiStem != null) {
+      
+      final Stem stem = guiStem.getStem();
+
+      return (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+              AttributeAssign attributeAssign = stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+              if (attributeAssign != null) {
+                String attestationType = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameType().getName());
+
+                if ("report".equals(attestationType)) {
+                  boolean isRoot = PrivilegeHelper.isWheelOrRoot(loggedInSubject);
+                  if (isRoot) {
+                    return true;
+                  }
+  
+                  String attestationAuthorizedGroupId = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName());
+                  Group attestationAuthorizedGroup = null;
+                  if (attestationAuthorizedGroupId != null) {
+                    attestationAuthorizedGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationAuthorizedGroupId, false);
+                  }
+                  if (attestationAuthorizedGroup != null) {
+                    return attestationAuthorizedGroup.hasMember(loggedInSubject);
+                  }
+                }
+              }
+              
+              return false;
+            }
+          });
+    }
+    
     return false;
   }
 
@@ -741,27 +1082,19 @@ public class AttestationContainer {
         this.hasAttestationConfigured = true;
       }
       if (parentStem == null) {
-        parentStem = stem.getParentStemOrNull();
+        parentStem = stem;
       }
     }
 
     if (parentStem != null) {
-
-      Stem ancestorStem = (Stem)parentStem.getAttributeDelegate().getAttributeOrAncestorAttribute(
-          GrouperAttestationJob.retrieveAttributeDefNameValueDef().getName(), false);
-      if (ancestorStem != null) {
-        AttributeAssign ancestorAssign = ancestorStem.getAttributeDelegate().retrieveAssignment(null, 
-            GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
-        String attestationStemScope = ancestorAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
+      
+      AttributeAssign ancestorAttributeAssign = GrouperAttestationJob.findParentFolderAssign(parentStem);
+      if (ancestorAttributeAssign != null) {
+        Stem ancestorStem = ancestorAttributeAssign.getOwnerStem();
         
-        //if we are blank (default to sub) or sub or the parent is same as ancestor (then ONE)
-        if (StringUtils.isBlank(attestationStemScope) || Scope.SUB == Scope.valueOfIgnoreCase(attestationStemScope, true)
-            || ancestorStem.equals(parentStem)) {
-          
-          this.parentStemWithAttestation = ancestorStem;
-          this.stemInheritedAttributeAssignable = ancestorAssign;
-          hasAttestationConfigured = true;
-        }
+        this.parentStemWithAttestation = ancestorStem;
+        this.stemInheritedAttributeAssignable = ancestorAttributeAssign;
+        hasAttestationConfigured = true;
       }
     }
   }
@@ -828,4 +1161,37 @@ public class AttestationContainer {
     return this.hasAttestationConfigured;
   }
   
+  /**
+   * report configurations on folder
+   * @return reports
+   */
+  public List<GrouperReportConfigurationBean> getAllReportConfigurationsOnFolder() {
+    final GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    if (!GrouperReportSettings.grouperReportsEnabled()) {
+      return new ArrayList<GrouperReportConfigurationBean>();
+    }
+    
+    @SuppressWarnings("unchecked")
+    List<GrouperReportConfigurationBean> grouperReportConfigsSecure = (List<GrouperReportConfigurationBean>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        List<GrouperReportConfigurationBean> grouperReportConfigsAll = GrouperReportConfigService.getGrouperReportConfigs(guiStem.getStem());
+        List<GrouperReportConfigurationBean> grouperReportConfigsSecure = new ArrayList<GrouperReportConfigurationBean>();
+        
+        for (GrouperReportConfigurationBean configBean : grouperReportConfigsAll) {
+          if (configBean.isCanRead(loggedInSubject)) {              
+            grouperReportConfigsSecure.add(configBean);
+          }
+        }
+        
+        return grouperReportConfigsSecure;
+      }
+      
+    });
+    
+    return grouperReportConfigsSecure;
+  }
 }
