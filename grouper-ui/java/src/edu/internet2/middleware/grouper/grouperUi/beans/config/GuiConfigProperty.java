@@ -19,7 +19,7 @@ import net.redhogs.cronparser.CronExpressionDescriptor;
 
 public class GuiConfigProperty {
 
-  private static final String ESCAPED_PASSWORD = "*******";
+  public static final String ESCAPED_PASSWORD = "*******";
 
   
   /**
@@ -87,16 +87,13 @@ public class GuiConfigProperty {
 
   /**
    * see if key is a password
-   * @param key
+   * @param value
    * @return if key is a password
    */
   public String escapePassword(String value) {
     
-    String key = this.configItemMetadata.getKeyOrSampleKey();
-
-    String keyLower = key.toLowerCase();
-    if (keyLower.contains("pass") || keyLower.contains("secret") || this.configItemMetadata.isSensitive() 
-        || this.configItemMetadata.getValueType() == ConfigItemMetadataType.PASSWORD) {
+    if (ConfigUtils.isPassword(this.getGuiConfigSection().getGuiConfigFile().getConfigFileName(), 
+        this.configItemMetadata, this.configItemMetadata.getKeyOrSampleKey(), value, true, this.isEncryptedInDatabase())) {
       if (!StringUtils.isBlank(value)) {
         File theFile = new File(value);
         if (theFile.exists() && theFile.isFile()) {
@@ -317,7 +314,7 @@ public class GuiConfigProperty {
 
   /**
    * config item metadata
-   * @return
+   * @return the metadata
    */
   public ConfigItemMetadata getConfigItemMetadata() {
     return this.configItemMetadata;
@@ -329,6 +326,27 @@ public class GuiConfigProperty {
    */
   public void setConfigItemMetadata(ConfigItemMetadata configItemMetadata1) {
     this.configItemMetadata = configItemMetadata1;
+  }
+
+  /**
+   * if encrypted in database dont show it
+   */
+  private boolean encryptedInDatabase = false;
+
+  /**
+   * if encrypted in database dont show it
+   * @return the encryptedInDatabase
+   */
+  public boolean isEncryptedInDatabase() {
+    return this.encryptedInDatabase;
+  }
+
+  /**
+   * if encrypted in database dont show it
+   * @param encryptedInDatabase1 the encryptedInDatabase to set
+   */
+  public void setEncryptedInDatabase(boolean encryptedInDatabase1) {
+    this.encryptedInDatabase = encryptedInDatabase1;
   }
 
   

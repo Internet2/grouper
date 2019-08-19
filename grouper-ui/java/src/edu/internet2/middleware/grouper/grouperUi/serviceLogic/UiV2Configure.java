@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
@@ -40,6 +41,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -250,7 +252,7 @@ public class UiV2Configure {
 //            return false;
 //          }
 
-          String passwordString = request.getParameter("configwordName");
+          String passwordString = request.getParameter("passwordName");
           
           // if not sent, thats a problem
           if (StringUtils.isBlank(passwordString)) {
@@ -289,7 +291,10 @@ public class UiV2Configure {
           grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
           // this will switch to or from .elConfig
           grouperConfigHibernate.setConfigKey(propertyNameToUse);
-          if (ConfigUtils.isPassword(configFileName, null, propertyNameString, valueString, true, isPassword)) {
+          
+          boolean isValueEncrypted = ConfigUtils.isPassword(configFileName, null, propertyNameString, valueString, true, isPassword);
+          
+          if (isValueEncrypted) {
             grouperConfigHibernate.setConfigEncrypted(true);
             valueString = Morph.encrypt(valueString);
           }
@@ -306,12 +311,14 @@ public class UiV2Configure {
 
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, message.toString()));
           
+          String valueForAudit = isValueEncrypted ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
+          
           AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CONFIGURATION_ADD, "id", 
               grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
               "key", grouperConfigHibernate.getConfigKey(), "value", 
-              grouperConfigHibernate.getConfigValueDb(), "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
+              valueForAudit, "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
           auditEntry.setDescription("Add config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
-            + ", " + grouperConfigHibernate.getConfigKey() + " = " + grouperConfigHibernate.getConfigValueDb());
+            + ", " + grouperConfigHibernate.getConfigKey() + " = " + valueForAudit);
           auditEntry.saveOrUpdate(true);
 
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -440,6 +447,7 @@ public class UiV2Configure {
                 LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
                   + ", " + current.getConfigKey() + ", " + current.getConfigValue());
                 current.delete();
+                configurationFileItemDeleteHelper(current, configFileName);
               }
               grouperConfigHibernate = current;
             }
@@ -458,10 +466,10 @@ public class UiV2Configure {
           }
 
           if (grouperConfigHibernate != null) {
-            configurationFileItemDeleteHelper(grouperConfigHibernate);
+            configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName);
           }
           if (grouperConfigHibernateEl != null) {
-            configurationFileItemDeleteHelper(grouperConfigHibernateEl);
+            configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName);
           }
 
           return true;
@@ -483,8 +491,10 @@ public class UiV2Configure {
   /**
    * configuration file item delete helper
    * @param grouperConfigHibernate
+   * @param configFileName 
    */
-  private void configurationFileItemDeleteHelper(GrouperConfigHibernate grouperConfigHibernate) {
+  private void configurationFileItemDeleteHelper(GrouperConfigHibernate grouperConfigHibernate, 
+      ConfigFileName configFileName) {
 
     // see if we are creating a new one
     if (grouperConfigHibernate == null) {
@@ -493,12 +503,18 @@ public class UiV2Configure {
 
     grouperConfigHibernate.delete();
     
+    boolean isValueEncrypted = ConfigUtils.isPassword(configFileName, null, grouperConfigHibernate.getConfigKey(), 
+        grouperConfigHibernate.getConfigValueDb(), true, grouperConfigHibernate.isConfigEncrypted());
+
+    String valueForAudit = isValueEncrypted ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
+
     AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CONFIGURATION_DELETE, "id", 
         grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
         "key", grouperConfigHibernate.getConfigKey(), "previousValue", 
-        grouperConfigHibernate.getConfigValueDb(), "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
+        valueForAudit, 
+            "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
     auditEntry.setDescription("Delete config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
-      + ", " + grouperConfigHibernate.getConfigKey() + " = " + grouperConfigHibernate.getConfigValueDb());
+      + ", " + grouperConfigHibernate.getConfigKey() + " = " + valueForAudit);
     auditEntry.saveOrUpdate(true);
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -641,6 +657,65 @@ public class UiV2Configure {
   }
 
   /**
+   * edit config
+   * @param request
+   * @param response
+   */
+  public void configurationFileItemEdit(final HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+  
+      
+      final String configFileString = request.getParameter("configFile");
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+  
+      if (StringUtils.isBlank(configFileString)) {
+      
+        throw new RuntimeException("configFile is not being sent!");
+  
+      }
+  
+      String propertyNameString = StringUtils.trim(request.getParameter("propertyNameName"));
+      if (StringUtils.isBlank(propertyNameString)) {
+        throw new RuntimeException("Property name does not exist");
+      }
+          
+      Integer index = GrouperUtil.intObjectValue(request.getParameter("index"), true);
+      if (StringUtils.isBlank(propertyNameString)) {
+        throw new RuntimeException("Index does not exist");
+      }
+      // hide existing edit forms
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('.configFormRow').hide('slow');"));
+      
+      // add a row
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('#row_" + index + "').after(\"<tr class='configFormRow' id='configFormRowId_" + index + "'></tr>\");"));
+
+      // replace the inner html of the row with this jsp
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#configFormRowId_" + index , "/WEB-INF/grouperUi2/configure/configurationFileEditEntry.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+  /**
    * 
    */
   private static void buildConfigFileAndMetadata() {
@@ -665,6 +740,14 @@ public class UiV2Configure {
     // keep track of metadata vs gui objects so we can walk backward for ad hoc properties
     Map<ConfigSectionMetadata, GuiConfigSection> sectionMetadataToSection = new HashMap<ConfigSectionMetadata, GuiConfigSection>();
     
+    Set<GrouperConfigHibernate> grouperConfigHibernateSet = Hib3DAOFactory.getFactory().getConfig().findAll(configFileName, null, null);
+    
+    Map<String, GrouperConfigHibernate> grouperConfigHibernateMap = new HashMap<String, GrouperConfigHibernate>();
+    
+    for (GrouperConfigHibernate grouperConfigHibernate : GrouperUtil.nonNull(grouperConfigHibernateSet)) {
+      grouperConfigHibernateMap.put(grouperConfigHibernate.getConfigKey(), grouperConfigHibernate);
+    }
+    
     for (ConfigSectionMetadata configSectionMetadata : configSectionMetadatas) {
       
       GuiConfigSection guiConfigSection = new GuiConfigSection();
@@ -679,6 +762,12 @@ public class UiV2Configure {
         guiConfigProperty.setGuiConfigSection(guiConfigSection);
         guiConfigProperty.setConfigItemMetadata(configItemMetadata);
         guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
+        
+        // see if the current database item has an encrypted value
+        GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateMap.get(configItemMetadata.getKeyOrSampleKey());
+        if (grouperConfigHibernate != null && grouperConfigHibernate.isConfigEncrypted()) {
+          guiConfigProperty.setEncryptedInDatabase(true);
+        }
       }
       
       guiConfigFile.getGuiConfigSections().add(guiConfigSection);

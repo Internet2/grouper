@@ -71,7 +71,7 @@
                       <c:set var="i" value="0" />
                       <c:forEach items="${grouperRequestContainer.configurationContainer.guiConfigFile.guiConfigSections}" var="guiConfigSection">
                         <tr>
-                          <th colspan="3">
+                          <th colspan="4">
                             <h4 style="margin-top: 2em">${grouper:escapeHtml(guiConfigSection.configSectionMetadata.title) }</h4>
                             <c:if test="${! grouper:isBlank(guiConfigSection.configSectionMetadata.comment)}">
                               <p style="font-weight: normal;">${grouper:escapeHtml(guiConfigSection.configSectionMetadata.comment.trim()) }</p>
@@ -106,7 +106,7 @@
                                 <span class="caret"></span>
                               </a>
                               <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                                <li><a href="#" onclick="return ajax('../app/UiV2Configure.configurationFileItemEdit?configFile=${grouper:escapeUrl(grouperRequestContainer.configurationContainer.configFileName.configFileName)}&propertyNameName=${grouper:escapeUrl(configItemMetadata.keyOrSampleKey)}&index=${i}');" class="actions-revoke-membership">${textContainer.text['configurationFilesActionEdit'] }</a></li>
+                                <%-- li><a href="#" onclick="return ajax('../app/UiV2Configure.configurationFileItemEdit?configFile=${grouper:escapeUrl(grouperRequestContainer.configurationContainer.configFileName.configFileName)}&propertyNameName=${grouper:escapeUrl(configItemMetadata.keyOrSampleKey)}&index=${i}');" class="actions-revoke-membership">${textContainer.text['configurationFilesActionEdit'] }</a></li --%>
                                 <li><a href="#" onclick="return ajax('../app/UiV2Configure.configurationFileItemDelete?configFile=${grouper:escapeUrl(grouperRequestContainer.configurationContainer.configFileName.configFileName)}&propertyNameName=${grouper:escapeUrl(configItemMetadata.keyOrSampleKey)}');" class="actions-revoke-membership">${textContainer.text['configurationFilesActionDelete'] }</a></li>
                               </ul>
                             </div>

@@ -713,6 +713,10 @@ public abstract class ConfigPropertiesCascadeBase {
                   
                   String databaseConnectionProvider = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.config.databaseConnectionProvider");
  
+                  if (!initted) {
+                    databaseConnectionProvider = NonPooledConnectionProvider.class.getName();
+                  }
+                  
                   boolean isGrouperConnection = GrouperClientUtils.equals("edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider", databaseConnectionProvider);
                   
                   Class<GcJdbcConnectionProvider> gcJdbcConnectionProviderClass = null;
@@ -730,27 +734,36 @@ public abstract class ConfigPropertiesCascadeBase {
                   GcJdbcConnectionProvider gcJdbcConnectionProvider = GrouperClientUtils.newInstance(gcJdbcConnectionProviderClass);
           
                   if (!isGrouperConnection) {
-//                  // select from the database
-//                  String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-//
-//                  debugMap.put("dbUrl", dbUrl);
-//
-//                  String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-//
-//                  debugMap.put("dbUser", dbUser);
-//
-//                  String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-//
-//                  debugMap.put("dbPass", "******");
-//
-//                  dbPass = Morph.decryptIfFile(dbPass);
-//          
-//                  String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
-//                  driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
-//
-//                  debugMap.put("driver", driver);
-//                  gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
-//                      null, 5, dbUrl, dbUser, dbPass, null, true);
+                    // select from the database
+                    String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+  
+                    debugMap.put("dbUrl", dbUrl);
+  
+                    String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+  
+                    debugMap.put("dbUser", dbUser);
+  
+                    String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+  
+                    debugMap.put("dbPass", "******");
+  
+                    dbPass = Morph.decryptIfFile(dbPass);
+            
+                    String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+                    driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
+                    if (GrouperClientUtils.equals("com.p6spy.engine.spy.P6SpyDriver", driver) && !initted) {
+                      Properties p6spyProperties = GrouperClientUtils.propertiesFromResourceName("spy.properties");
+                      if (p6spyProperties != null) {
+                        String underlyingDriver = p6spyProperties.getProperty("realdriver");
+                        if (!GrouperClientUtils.isBlank(underlyingDriver)) {
+                          driver = underlyingDriver;
+                        }
+                      }
+                    }
+                    GrouperClientUtils.forName(driver);
+                    debugMap.put("driver", driver);
+                    gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
+                        null, 5, dbUrl, dbUser, dbPass, null, true);
                   }
                   GcJdbcConnectionBean gcJdbcConnectionBean = null;
                   Connection connection = null;
@@ -804,7 +817,9 @@ public abstract class ConfigPropertiesCascadeBase {
                   } finally {
                     GrouperClientUtils.closeQuietly(resultSet);
                     GrouperClientUtils.closeQuietly(preparedStatement);
-                    gcJdbcConnectionBean.doneWithConnectionFinally();
+                    if (gcJdbcConnectionBean != null) {
+                      gcJdbcConnectionBean.doneWithConnectionFinally();
+                    }
                   }
   
 //                  LOG.debug("From db: " + GrouperClientUtils.mapToString(databaseConfigCacheTemp));

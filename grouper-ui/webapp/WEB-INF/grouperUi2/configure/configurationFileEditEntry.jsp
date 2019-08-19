@@ -1,3 +1,4 @@
+  <td colspan="4" style="vertical-align: top">
             <div class="row-fluid" id="configurationMainDivId">
             
               <div id="configuration-select-container">
@@ -64,3 +65,4 @@
              
               </div>
             </div>
+</td>
