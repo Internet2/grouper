@@ -53,7 +53,6 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
-import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -497,7 +496,10 @@ public class GrouperSession implements Serializable {
         s.setUuid( GrouperUuid.getUuid() );
       
       sw.stop();
-      EventLog.info( s.toString(), M.S_START, sw );
+      if (LOG.isInfoEnabled()) {
+        LOG.info("[" + s.toString() + "] " + M.S_START + " (" + sw.getTime() + "ms)");
+      }
+
       if (addToThreadLocal) {
         if (LOG.isDebugEnabled()) {
           GrouperSession tempGrouperSession = staticGrouperSession.get();
