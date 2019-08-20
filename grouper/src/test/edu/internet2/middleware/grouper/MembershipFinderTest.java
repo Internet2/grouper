@@ -60,8 +60,31 @@ public class MembershipFinderTest extends GrouperTest {
     //MembershipResult membershipResult = new MembershipFinder().addGroup(group1).addField(Group.getDefaultList()).assignQueryOptionsForMember(queryOptions).findMembershipResult();
     assertEquals(0, GrouperUtil.length(members));
     assertEquals(3, queryOptions.getCount().intValue());
-  }  
-  
+  }
+
+  /**
+   * (see GRP-2106) effective memberships from multiple sources should not be double counted
+   */
+  public void testMembershipSizeWithMultipleEffective() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup1").save();
+    Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup2").save();
+    Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup3").save();
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    group1.addMember(SubjectTestHelper.SUBJ1);
+    group2.addMember(SubjectTestHelper.SUBJ1);
+    group2.addMember(SubjectTestHelper.SUBJ2);
+    group3.addMember(group1.toSubject());
+    group3.addMember(group2.toSubject());
+
+    QueryOptions queryOptions = new QueryOptions().retrieveResults(true).retrieveCount(true);
+
+    Set<Member> members = group3.getMembers(Group.getDefaultList(), queryOptions);
+
+    assertEquals(5, GrouperUtil.length(members));
+    assertEquals(5, queryOptions.getCount().intValue());
+  }
+
   /**
    * 
    */

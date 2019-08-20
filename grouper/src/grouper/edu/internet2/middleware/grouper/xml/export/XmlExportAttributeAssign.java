@@ -916,7 +916,7 @@ public class XmlExportAttributeAssign {
         try {
           //keep a set of attribute assign ids (original assigns, not the attributes on attribute assignments)
           //so when merging with existing attributes we dont clobber existing one
-          writer.write("Set attributeAssignIdsAlreadyUsed = new HashSet();\n");
+          writer.write("Set<String> attributeAssignIdsAlreadyUsed = new HashSet<>();\n");
 
           results = query.scroll();
           while(results.next()) {
@@ -1104,7 +1104,7 @@ public class XmlExportAttributeAssign {
           
           //now we have all the attributes on attributes, and all values for all
           // boolean problemWithAttributeAssign = false; 
-          writer.write("boolean problemWithAttributeAssign = false;\n");
+          writer.write("problemWithAttributeAssign = false;\n");
           
           Set<AttributeAssignValue> attributeAssignValues = mapOfAttributeAssignIdToValues.get(attributeAssign.getId());
 
@@ -1149,8 +1149,7 @@ public class XmlExportAttributeAssign {
     int numberOfObjectsInvolved = 0;
     
     // AttributeAssignSave attributeAssignSave = new AttributeAssignSave(grouperSession);
-    writer.write("AttributeAssignSave " + variableNameForAttributeAssignSave 
-        + " = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);\n");
+    writer.write(variableNameForAttributeAssignSave + " = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);\n");
     
     // attributeAssignSave.assignAction("action");
     String action = attributeAssign.getAttributeAssignAction().getName();
@@ -1176,7 +1175,7 @@ public class XmlExportAttributeAssign {
     //
     //  attributeAssignSave.assignAttributeDefName(attributeDefName);
     AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeAssign.getAttributeDefNameId(), true);
-    writer.write("AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(\"" 
+    writer.write("attributeDefName = AttributeDefNameFinder.findByName(\""
         + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(attributeDefName.getName()) + "\", false);\n");
     writer.write("if (attributeDefName == null) { gshTotalErrorCount++;  System.out.println(\"Error: cant find attributeDefName: " 
         + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(attributeDefName.getName()) + "\");  problemWithAttributeAssign = true; }\n");
@@ -1226,7 +1225,7 @@ public class XmlExportAttributeAssign {
       
       //attributeAssignSave.assignOwnerGroup(ownerGroup);
 
-      writer.write("Group ownerGroup = GroupFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\", false);\n");
+      writer.write("ownerGroup = GroupFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\", false);\n");
       writer.write("if (ownerGroup == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find group: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
       writer.write(variableNameForAttributeAssignSave + ".assignOwnerGroup(ownerGroup);\n");
     }
@@ -1289,7 +1288,7 @@ public class XmlExportAttributeAssign {
         //    problemWithAttributeAssign = true; 
         //  }
         
-        writer.write("Group ownerGroup = GroupFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\", false);\n");
+        writer.write("ownerGroup = GroupFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\", false);\n");
         writer.write("if (ownerGroup == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find group: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
         writer.write(variableNameForAttributeAssignSave + ".assignOwnerGroup(ownerGroup);\n");
         

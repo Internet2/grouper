@@ -482,7 +482,7 @@ public class XmlExportAttributeAssignActionSet {
       throw new RuntimeException("Why is nameOfAttributeDef null?");
     }
 
-    writer.write("AttributeDef attributeDef = AttributeDefFinder.findByName(\""
+    writer.write("attributeDef = AttributeDefFinder.findByName(\""
         + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "\", false);\n");
 
     writer.write("if (attributeDef != null) { ");

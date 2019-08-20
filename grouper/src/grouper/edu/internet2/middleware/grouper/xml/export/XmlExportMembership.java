@@ -452,12 +452,12 @@ public class XmlExportMembership {
     if (field.isStemListField() || field.isGroupAccessField() || field.isAttributeDefListField()) {
 
       //privilege = Privilege.listToPriv("attrAdmins", false);
-      writer.write("Privilege privilege = Privilege.listToPriv(\""
+      writer.write("privilege = Privilege.listToPriv(\""
           + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(fieldName) + "\", false);\n");
       
     } else {
       
-      writer.write("Privilege privilege = null;\n");
+      writer.write("privilege = null;\n");
       if (!StringUtils.equals(Group.getDefaultList().getName(), fieldName)) {
         if (!membershipFieldsAlreadyErrored.contains(fieldName)) {
           System.out.println("Error: Not expecting field: '" + fieldName + "', only 'members' is supported");
@@ -469,16 +469,16 @@ public class XmlExportMembership {
 
     if (field.isGroupListField() || field.isGroupAccessField()) {
       
-      writer.write("Group group = GroupFinder.findByName(grouperSession, \""
+      writer.write("group = GroupFinder.findByName(grouperSession, \""
           + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(groupName) + "\", false);\n");
       
     } else if (field.isStemListField()) {
-      writer.write("Stem stem = StemFinder.findByName(grouperSession, \""
+      writer.write("stem = StemFinder.findByName(grouperSession, \""
           + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stemName) + "\", false);\n");
 
     } else if (field.isAttributeDefListField()) {
 
-      writer.write("AttributeDef attributeDef = AttributeDefFinder.findByName(\""
+      writer.write("attributeDef = AttributeDefFinder.findByName(\""
           + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "\", false);\n");
 
     }

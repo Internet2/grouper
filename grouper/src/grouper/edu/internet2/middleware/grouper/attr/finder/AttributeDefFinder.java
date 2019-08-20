@@ -122,7 +122,7 @@ public class AttributeDefFinder {
     
     if (attributeDef != null) {
       
-      LOG.info("AttributeDef not found: " + name);
+      LOG.info("AttributeDef found: " + name);
       
       return attributeDef;
     }
@@ -147,7 +147,7 @@ public class AttributeDefFinder {
     
     if (attributeDef != null) {
       
-      LOG.info("AttributeDef not found: " + name);
+      LOG.info("AttributeDef found: " + name);
       
       return attributeDef;
     }
@@ -184,7 +184,7 @@ public class AttributeDefFinder {
     
     if (attributeDef != null) {
       
-      LOG.info("AttributeDef not found: " + idIndex);
+      LOG.info("AttributeDef found: " + idIndex);
       return attributeDef;
     }
     if (!exceptionIfNotFound) {
