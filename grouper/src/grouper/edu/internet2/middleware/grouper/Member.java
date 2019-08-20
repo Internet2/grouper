@@ -4354,11 +4354,35 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.description = description;
   }  
   
+  private boolean memberAttributeUpdateInProgress = false;
+  
+  
   /**
    * @param subject
    * @param storeChanges if there are changes, should they be saved to the database?
    */
   public void updateMemberAttributes(Subject subject, boolean storeChanges) {
+    synchronized(this) {
+      if (memberAttributeUpdateInProgress) {
+        return;
+      }
+      
+      memberAttributeUpdateInProgress = true;
+    }
+    
+    try {
+      boolean changes = internal_updateMemberAttributes(subject, storeChanges);
+      if (!changes) {
+        memberAttributeUpdateInProgress = false;
+      }
+    } catch (RuntimeException e) {
+      memberAttributeUpdateInProgress = false;
+      throw e;
+    }
+  }
+  
+  private boolean internal_updateMemberAttributes(Subject subject, boolean storeChanges) {
+    
     this.subjectIdentifier0 = null;
     this.sortString0 = null;
     this.sortString1 = null;
@@ -4370,7 +4394,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.searchString2 = null;
     this.searchString3 = null;
     this.searchString4 = null;
-
+    
     this.name = GrouperUtil.isEmpty(subject.getName()) ? null : subject.getName();
     this.description = GrouperUtil.isEmpty(subject.getDescription()) ? null : subject.getDescription();
     
@@ -4510,13 +4534,17 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
             });
           } catch (Exception e) {
             LOG.error("Error updating member attributes: ", e);
+          } finally {
+            memberAttributeUpdateInProgress = false;
           }
           return null;
         }
       });
 
-
+      return true;
     }
+    
+    return false;
   }
 } 
 
