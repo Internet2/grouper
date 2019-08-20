@@ -157,7 +157,7 @@ public class UiV2Deprovisioning {
         GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(grouperObject);
       }
 
-      if (grouperObject instanceof Stem) {
+      if (grouperObject instanceof Stem && !((Stem) grouperObject).isRootStem()) {
         final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
         Thread thread = new Thread(new Runnable() {
   

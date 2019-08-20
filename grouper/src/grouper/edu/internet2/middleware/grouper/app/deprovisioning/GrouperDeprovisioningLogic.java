@@ -706,7 +706,8 @@ public class GrouperDeprovisioningLogic {
 
         // we good
         GrouperDeprovisioningAttributeValue originalConfig = grouperDeprovisioningConfiguration.getOriginalConfig();
-        if (originalConfig != null && originalConfig.isDirectAssignment()) {
+        if (originalConfig != null && (originalConfig.isDirectAssignment() || 
+            grouperDeprovisioningConfiguration.getInheritedOwner() != null && grouperDeprovisioningConfiguration.getInheritedOwner().isRootStem())) {
           
           if (LOG.isDebugEnabled()) {
             debugMap.put("directAssign", true);
@@ -719,7 +720,8 @@ public class GrouperDeprovisioningLogic {
         
         GrouperDeprovisioningConfiguration inheritedConfiguration = grouperDeprovisioningConfiguration.getInheritedConfig();
 
-        if (inheritedConfiguration != null && inheritedConfiguration.getOriginalConfig() != null) {
+        if (inheritedConfiguration != null && inheritedConfiguration.getOriginalConfig() != null
+            && !((Stem)inheritedConfiguration.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner()).isRootStem()) {
 
           if (LOG.isDebugEnabled()) {
             debugMap.put("inheritedFrom", inheritedConfiguration.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner().getName());
