@@ -71,7 +71,7 @@
         <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignValueEdit'] }</label>
         <div class="controls">
           <input type="text" name="valueToEdit"  id="valueToEditId"
-              value="${attributeUpdateRequestContainer.attributeAssignValue.valueFriendly}" />
+              value="${grouper:escapeHtml(attributeUpdateRequestContainer.attributeAssignValue.valueFriendly)}" />
         </div>
       </div>
       
