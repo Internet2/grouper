@@ -1967,8 +1967,8 @@ public enum GrouperLoaderType {
     Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(null)
         .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
         .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(groupIdConfigured))
-        .assignIdOfAttributeDefName(loaderMetadataLoadedAttributeDefName.getId())
-        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
+        .assignIdOfAttributeDefName2(loaderMetadataLoadedAttributeDefName.getId())
+        .assignAttributeValuesOnAssignment2(GrouperUtil.toSetObjectType("true"))
         .assignAttributeCheckReadOnAttributeDef(false)
         .findGroups();
     
