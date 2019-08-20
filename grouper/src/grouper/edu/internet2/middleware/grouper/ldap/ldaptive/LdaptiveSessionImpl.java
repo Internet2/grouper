@@ -681,7 +681,7 @@ public class LdaptiveSessionImpl implements LdapSession {
       });
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, "Error querying ldap server id: " + ldapServerId + ", searchDn: " + searchDn
-          + ", filter: '" + filter + "', returning attributes: " + attributeNames);
+          + ", filter: '" + filter + "', returning attributes: " + StringUtils.join(attributeNames, ", "));
       throw re;
     }
   }
