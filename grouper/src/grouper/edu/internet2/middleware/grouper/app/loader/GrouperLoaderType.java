@@ -434,7 +434,7 @@ public enum GrouperLoaderType {
               loaderJobBean.getHib3GrouploaderLogOverall());
           
           if (LOG.isDebugEnabled()) {
-            LOG.debug(groupNameOverall + ": found " + grouperLoaderResultsetOverall + " members overall");
+            LOG.debug(groupNameOverall + ": found " + grouperLoaderResultsetOverall.numberOfRows() + " members overall");
           }
 
           hib3GrouploaderLogOverall.setMillisGetData((int)(System.currentTimeMillis()-startTime));
