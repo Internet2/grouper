@@ -23,7 +23,7 @@
                       <i class="fa fa-user"> </i> ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
                     </c:when>
                     <c:otherwise>
-                      <i class="fa fa-cog"> </i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.displayExtension)}
+                      <i class="fa fa-cog"> </i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.displayName)}
                     </c:otherwise>
                   </c:choose>
                 <br /><small>

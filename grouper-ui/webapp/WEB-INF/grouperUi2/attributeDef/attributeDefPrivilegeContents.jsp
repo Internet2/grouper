@@ -112,7 +112,7 @@
                               <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['attributeDefViewEditMembershipsAndPrivilegesButton'] }</a></li>
                             
                               <c:if test="${guiMembershipSubjectContainer.membershipSubjectContainer.hasNonImmediate}">
-                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceAttributeDefPrivileges&groupId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['attributeDefViewTracePrivilegeButton'] }</a></li>
+                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceAttributeDefPrivileges&groupId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;" class="actions-revoke-membership">${textContainer.text['attributeDefViewTracePrivilegeButton'] }</a></li>
                               </c:if>
                             </ul>
                           </div>
