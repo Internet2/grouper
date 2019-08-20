@@ -16,9 +16,6 @@
 
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 
@@ -307,8 +304,15 @@ public class GrouperDeprovisioningConfiguration {
     } finally {
       if (this.getGrouperDeprovisioningOverallConfiguration() != null 
           && this.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner() != null) {
-        //clear the entire cache
-        GrouperDeprovisioningOverallConfiguration.cacheClear(this.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner());
+                
+        GrouperObject originalOwner = this.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner();
+        GrouperDeprovisioningOverallConfiguration.cacheClear(originalOwner);
+        
+        //clear the entire cache because children derive their values from root and store them in cache
+        if (originalOwner instanceof Stem && ((Stem) originalOwner).isRootStem()) {
+          GrouperDeprovisioningOverallConfiguration.cacheClear();
+        }
+        
       }      
     }
 
