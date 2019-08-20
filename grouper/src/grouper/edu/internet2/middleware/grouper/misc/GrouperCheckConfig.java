@@ -19,6 +19,20 @@
  */
 package edu.internet2.middleware.grouper.misc;
 
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_APPROVALS;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_ATTRIBUTE_NAME;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_DEF;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_DESCRIPTION;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_ENABLED;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_FORM;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_ID;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_NAME;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_PARAMS;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_SEND_EMAIL;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_TYPE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_VALUE_DEF;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -67,10 +81,12 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
-import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
@@ -105,7 +121,6 @@ import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
@@ -1028,68 +1043,15 @@ public class GrouperCheckConfig {
 
       }
       
-      // add attribute defs for grouper types
       {
-        String grouperObjectTypesRootStemName = GrouperObjectTypesSettings.objectTypesStemName();
-        
-        Stem grouperTypesStemName = StemFinder.findByName(grouperSession, grouperObjectTypesRootStemName, false);
-        if (grouperTypesStemName == null) {
-          grouperTypesStemName = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-            .assignDescription("folder for built in Grouper types objects").assignName(grouperObjectTypesRootStemName)
-            .save();
-        }
+        // add workflow admin group
+        String workflowEditorsGroup = GrouperWorkflowSettings.workflowEditorsGroup();
 
-        //see if attributeDef is there
-        String grouperObjectTypeDefName = grouperObjectTypesRootStemName + ":" + GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DEF;
-        AttributeDef grouperObjectType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-            grouperObjectTypeDefName, false, new QueryOptions().secondLevelCache(false));
-        if (grouperObjectType == null) {
-          grouperObjectType = grouperTypesStemName.addChildAttributeDef(GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DEF, AttributeDefType.type);
-          //assign once for each affiliation
-          grouperObjectType.setMultiAssignable(true);
-          grouperObjectType.setAssignToGroup(true);
-          grouperObjectType.setAssignToStem(true);
-          grouperObjectType.store();
-        }
-        
-        //add a name
-        AttributeDefName attribute = checkAttribute(grouperTypesStemName, grouperObjectType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_ATTRIBUTE_NAME, "has grouper object type attributes", wasInCheckConfig);
-        
-        //lets add some rule attributes
-        String grouperObjectTypeAttrDefName = grouperObjectTypesRootStemName + ":" + GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_VALUE_DEF;
-        AttributeDef grouperObjectTypeAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
-            grouperObjectTypeAttrDefName, false, new QueryOptions().secondLevelCache(false));
-        if (grouperObjectTypeAttrType == null) {
-          grouperObjectTypeAttrType = grouperTypesStemName.addChildAttributeDef(GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_VALUE_DEF, AttributeDefType.attr);
-          grouperObjectTypeAttrType.setAssignToGroupAssn(true);
-          grouperObjectTypeAttrType.setAssignToStemAssn(true);
-          grouperObjectTypeAttrType.setAssignToAttributeDefAssn(true);
-          grouperObjectTypeAttrType.setValueType(AttributeDefValueType.string);
-          grouperObjectTypeAttrType.store();
-        }
-
-        //the attributes can only be assigned to the type def
-        // try an attribute def dependent on an attribute def name
-        grouperObjectTypeAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
-        
-        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME,
-            "ref, basis, policy,etc, bundle, org, test, service, app, readOnly, grouperSecurity", wasInCheckConfig);
-        
-        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DATA_OWNER, 
-            "e.g. Registrar's office owns this data", wasInCheckConfig);
-        
-        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION, 
-            "Human readable description of the members of this group", wasInCheckConfig);
-        
-        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT, 
-            "if configuration is directly assigned to the group or folder or inherited from parent", wasInCheckConfig);
-        
-        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_SERVICE_NAME, 
-            "name of the service that this app falls under", wasInCheckConfig);
-        
-        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID, 
-            "Stem ID of the folder where the configuration is inherited from.  This is blank if this is a direct assignment and not inherited", wasInCheckConfig);
-
+        checkGroup(grouperSession, workflowEditorsGroup, wasInCheckConfig, true, 
+            wasInCheckConfig, null,
+            "Workflow editors group",
+            "Workflow editors group",
+            null);
       }
       
       // add attribute defs for provisioning 
@@ -2639,8 +2601,150 @@ public class GrouperCheckConfig {
 
       }
       
-      // add attribute defs for grouper report config and grouper report instance
       {
+        // add workflow config attributes
+        String workflowRootStemName = GrouperWorkflowSettings.workflowStemName();
+        
+        Stem workflowStem = StemFinder.findByName(grouperSession, workflowRootStemName, false);
+        if (workflowStem == null) {
+          workflowStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper workflow attributes").assignName(workflowRootStemName)
+            .save();
+        }
+          //see if attributeDef is there
+
+          String workflowTypeDefName = workflowRootStemName + ":" + GROUPER_WORKFLOW_CONFIG_DEF;
+          AttributeDef workflowType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              workflowTypeDefName, false, new QueryOptions().secondLevelCache(false));
+          if (workflowType == null) {
+            workflowType = workflowStem.addChildAttributeDef(GROUPER_WORKFLOW_CONFIG_DEF, AttributeDefType.type);
+            workflowType.setMultiAssignable(true);
+            workflowType.setAssignToGroup(true);
+            workflowType.store();
+          }
+          
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(workflowType);
+          
+
+          //add a name
+          AttributeDefName attribute = checkAttribute(workflowStem, workflowType, GROUPER_WORKFLOW_CONFIG_ATTRIBUTE_NAME, "has workflow approval attributes", wasInCheckConfig);
+          
+          //add attributes
+          String workflowAttrDefName = workflowRootStemName + ":" + GROUPER_WORKFLOW_CONFIG_VALUE_DEF;
+          AttributeDef workflowAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+              workflowAttrDefName, false, new QueryOptions().secondLevelCache(false));
+          if (workflowAttrType == null) {
+            workflowAttrType = workflowStem.addChildAttributeDef(GROUPER_WORKFLOW_CONFIG_VALUE_DEF, AttributeDefType.attr);
+            workflowAttrType.setAssignToGroupAssn(true);
+            workflowAttrType.setValueType(AttributeDefValueType.string);
+            workflowAttrType.store();
+          }
+
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(workflowAttrType);
+
+          //the attributes can only be assigned to the type def
+          // try an attribute def dependent on an attribute def name
+          workflowAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+
+          //add some names
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_TYPE, 
+              "workflow implementation type. default is grouper", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_APPROVALS,
+              "JSON config of the workflow approvals", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_NAME,
+              "Name of workflow.", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_ID,
+              "Camel-case alphanumeric id of workflow", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_DESCRIPTION,
+              "workflow config description", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_PARAMS,
+              "workflow config params", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_FORM,
+              "workflow form with html, javascript", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID,
+              "GroupId of people who can view this workflow and instances of this workflow.", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_SEND_EMAIL,
+              "true/false if email should be sent", wasInCheckConfig);
+          checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_ENABLED,
+              "Could by true, false, or noNewSubmissions", wasInCheckConfig);
+          
+          // add workflow instance attributes
+          String grouperWorkflowInstanceDefName = workflowRootStemName + ":" + GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_DEF;
+          AttributeDef grouperWorkflowInstance = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              grouperWorkflowInstanceDefName, false, new QueryOptions().secondLevelCache(false));
+          if (grouperWorkflowInstance == null) {
+            grouperWorkflowInstance = workflowStem.addChildAttributeDef(GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_DEF, AttributeDefType.type);
+            grouperWorkflowInstance.setMultiAssignable(true);
+            grouperWorkflowInstance.setAssignToGroup(true);
+            grouperWorkflowInstance.store();
+          }
+          
+          //add a name
+          AttributeDefName instanceAttribute = checkAttribute(workflowStem, grouperWorkflowInstance, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ATTRIBUTE_NAME, "has grouper workflow instance attributes", wasInCheckConfig);
+          
+          //lets add some attributes names
+          String grouperWorkflowInstanceAttrDefName = workflowRootStemName + ":" + GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_VALUE_DEF;
+          AttributeDef grouperWorkflowInstanceAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+              grouperWorkflowInstanceAttrDefName, false, new QueryOptions().secondLevelCache(false));
+          if (grouperWorkflowInstanceAttrType == null) {
+            grouperWorkflowInstanceAttrType = workflowStem.addChildAttributeDef(GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_VALUE_DEF, AttributeDefType.attr);
+            grouperWorkflowInstanceAttrType.setAssignToGroupAssn(true);
+            grouperWorkflowInstanceAttrType.setValueType(AttributeDefValueType.string);
+            grouperWorkflowInstanceAttrType.store();
+          }
+
+          //the attributes can only be assigned to the type def
+          // try an attribute def dependent on an attribute def name
+          grouperWorkflowInstanceAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(instanceAttribute.getName());
+          
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_STATE,
+              "Any of the states, plus exception", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_LAST_UPDATED_MILLIS_SINCE_1970,
+              "number of millis since 1970 when this instance was last updated", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_CONFIG_MARKER_ASSIGNMENT_ID,
+              "Attribute assign ID of the marker attribute of the config", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_INITIATED_MILLIS_SINCE_1970,
+              "millis since 1970 that this workflow was submitted", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_UUID,
+              "uuid assigned to this workflow instance", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_FILE_INFO,
+              "workflow instance file info", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ENCRYPTION_KEY,
+              "randomly generated 16 char alphanumeric encryption key", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_LAST_EMAILED_DATE,
+              "yyyy/mm/dd date that this was last emailed", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_LAST_EMAILED_STATE,
+              "the state of the workflow instance when it was last emailed", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_LOG,
+              "has brief info about who did what when on this instance", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ERROR,
+              "error message including stack of why this instance is in exception state", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_0,
+              "param value 0", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_1,
+              "param value 1", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_2,
+              "param value 2", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_3,
+              "param value 3", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_4,
+              "param value 4", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_5,
+              "param value 5", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_6,
+              "param value 6", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_7,
+              "param value 7", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_8,
+              "param value 8", wasInCheckConfig);
+          checkAttribute(workflowStem, grouperWorkflowInstanceAttrType, GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_9,
+              "param value 9", wasInCheckConfig);
+            
+        }
+      
+
+      {
+        // add attribute defs for grouper report config and grouper report instance
         String reportConfigStemName = GrouperReportSettings.reportConfigStemName();
         
         Stem reportConfigStem = StemFinder.findByName(grouperSession, reportConfigStemName, false);
@@ -2650,7 +2754,6 @@ public class GrouperCheckConfig {
             .save();
         }
 
-        //see if attributeDef is there
         String grouperReportConfigDefName = reportConfigStemName + ":" + GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DEF;
         AttributeDef grouperReportConfig = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
             grouperReportConfigDefName, false, new QueryOptions().secondLevelCache(false));
@@ -2792,7 +2895,6 @@ public class GrouperCheckConfig {
         
         checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_EMAIL_TO_SUBJECTS_ERROR, 
             "source::::subjectId1, source2::::subjectId2 list for subjects who were were NOT emailed successfully, dont include g:gsa groups (cant be more than 4k chars)", wasInCheckConfig);
-                
       }
       
       {

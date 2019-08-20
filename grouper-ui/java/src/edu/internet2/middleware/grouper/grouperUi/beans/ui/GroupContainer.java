@@ -15,11 +15,14 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
@@ -543,6 +546,40 @@ public class GroupContainer {
           });
     }
     return this.canOptin;
+  }
+  
+  /**
+   * can logged in subject join the current group
+   * @return
+   */
+  public boolean isCanJoin() {
+    
+    // can optin or subject is in one of the workflows allowedGroupId
+    if (isCanOptin()) {
+      return true;
+    }
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    Boolean canJoin = (Boolean)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            
+            List<GrouperWorkflowConfig> workflowConfigs = GrouperWorkflowConfigService.getWorkflowConfigs(GroupContainer.this.getGuiGroup().getGroup());
+            
+            for (GrouperWorkflowConfig workflowConfig: workflowConfigs) {
+              if (workflowConfig.canSubjectInitiateWorkflow(loggedInSubject)) {
+                return true;
+              }
+            }
+            return false;
+            
+          }
+        });
+    
+    return canJoin;
   }
 
   /**

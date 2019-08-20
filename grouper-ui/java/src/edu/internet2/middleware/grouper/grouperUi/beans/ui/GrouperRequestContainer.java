@@ -581,6 +581,11 @@ public class GrouperRequestContainer {
    */
   private ObjectTypeContainer objectTypeContainer;
   
+  /**
+   * container for groups workflow
+   */
+  private WorkflowContainer workflowContainer;
+  
   
   /**
    * container for grouper reports
@@ -633,7 +638,17 @@ public class GrouperRequestContainer {
   }
   
   /**
-   * lazy load the grouper report container
+   * lazy load the workflow container
+   * @return the workflow container
+   */
+  public WorkflowContainer getWorkflowContainer() {
+    if (this.workflowContainer == null) {
+      this.workflowContainer = new WorkflowContainer();
+    }
+    return this.workflowContainer;
+  }
+
+  /** lazy load the grouper report container
    * @return the grouper report container
    */
   public GrouperReportContainer getGrouperReportContainer() {

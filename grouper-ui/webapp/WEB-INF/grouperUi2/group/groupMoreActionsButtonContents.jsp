@@ -34,7 +34,7 @@
                         <c:if test="${grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canOptout }">
                           <li><a href="#" onclick="ajax('../app/UiV2Group.leaveGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" >${textContainer.text['groupViewLeaveGroupButton']}</a></li>
                         </c:if>
-                        <c:if test="${!grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canOptin }">
+                        <c:if test="${!grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canJoin }">
                           <li><a href="#" onclick="ajax('../app/UiV2Group.joinGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupViewJoinGroupButton']}</a></li>
                         </c:if>
 
@@ -124,6 +124,12 @@
 	                        <li class="divider"></li>
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupAttributeAssignmentsButton'] }</a></li>
+                        </c:if>
+                        
+                        <c:if test="${grouperRequestContainer.groupContainer.canView && grouperRequestContainer.workflowContainer.canViewElectronicForm}">
+                          <li class="divider"></li>
+                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewForms&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupWorkflowElectronicForms'] }</a></li>
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canReadObjectType}">
