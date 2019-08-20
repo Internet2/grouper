@@ -1328,6 +1328,7 @@ public class UiV2Stem {
     }
 
     GuiPaging guiPaging = stemContainer.getGuiPaging();
+    guiPaging.setTextAfterPageCount(TextContainer.retrieveFromRequest().getText().get("paging2.textAfterPageCount.groupMembershipsInFolder"));
     QueryOptions queryOptions = new QueryOptions();
 
     GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);

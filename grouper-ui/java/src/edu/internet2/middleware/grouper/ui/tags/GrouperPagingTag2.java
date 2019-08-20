@@ -222,7 +222,13 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
     QueryPaging queryPaging = this.guiPaging.queryPaging();
     
     result.append("  <div class=\"pull-right\">" + GrouperUiUtils.message("paging2.showing") + " " + (queryPaging.getFirstIndexOnPage()+1) 
-        + "-" + (queryPaging.getLastIndexOnPage()+1) + " " + GrouperUiUtils.message("paging2.of") + " " + this.guiPaging.getTotalRecordCount() + " &middot; ");
+        + "-" + (queryPaging.getLastIndexOnPage()+1) + " " + GrouperUiUtils.message("paging2.of") + " " + this.guiPaging.getTotalRecordCount());
+    
+    if (!StringUtils.isEmpty(this.guiPaging.getTextAfterPageCount())) {
+      result.append(" " + this.guiPaging.getTextAfterPageCount());
+    }
+    
+    result.append(" &middot; ");
 
     String javascriptEventPrefix = "ajax('";
     String javascriptEventSuffix = "', {formIds: '" + this.formName + "Id" + (StringUtils.isBlank(this.ajaxFormIds) ? "" : ("," + this.ajaxFormIds)) + "'}); return false;";
