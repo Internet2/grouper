@@ -6,6 +6,10 @@ implementation is limited to provisioning LDAP targets like:
   -Active Directory Groups
   -LDAP Attributes (like eduPersonEntitlement)
 
+INSTALLATION:
+Copy the third party jars in lib/custom/*.jar and pspng jar in dist/grouper.pspng-x.y.z.jar 
+to the grouper daemon lib/custom dir.  Configure.  Bounce.
+
 CONFIGURATION:
 Configuration is done via the grouper-loader.properties files, with a paragraph for each
 provisioning destination, as well as an additional paragraph that enables and configures
