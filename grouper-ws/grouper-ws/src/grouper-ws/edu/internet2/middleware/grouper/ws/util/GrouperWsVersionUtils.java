@@ -65,7 +65,7 @@ public class GrouperWsVersionUtils {
   public static void assignCurrentClientVersion(GrouperVersion clientVersion, StringBuilder warnings) {
     currentClientVersion.set(clientVersion);
     if (GrouperVersion.currentVersion().lessThanMajorMinorArg(clientVersion, false)) {
-      String warning = "Client version: " + clientVersion + " is less than (major/minor) server version: " + GrouperVersion.currentVersion();
+      String warning = "Client version: " + clientVersion + " is greater than (major/minor) server version: " + GrouperVersion.currentVersion();
       if (warnings.indexOf(warning) == -1) {
         if (warning.length() > 0) {
           warnings.append(", ");
