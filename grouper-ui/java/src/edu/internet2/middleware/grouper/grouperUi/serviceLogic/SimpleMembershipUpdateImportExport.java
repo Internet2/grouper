@@ -20,24 +20,20 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -46,18 +42,17 @@ import org.apache.commons.logging.LogFactory;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportError;
+import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportProgress;
+import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportProgressForGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
-import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -65,9 +60,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
@@ -75,6 +67,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.util.ExpirableCache;
 
 
 /**
@@ -89,6 +82,9 @@ public class SimpleMembershipUpdateImportExport {
    */
   private static Set<String> nonAttributeCols = GrouperUtil.toSet(
       "subjectid", "entityid", "sourceid", "memberid", "name", "description", "screenlabel");
+  
+  
+  private static ExpirableCache<MultiKey, ImportProgress> importThreadProgress = new ExpirableCache<MultiKey, ImportProgress>(30);
 
   //moved to legacy UI fork of this class
   //public void exportAllCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
@@ -388,6 +384,219 @@ public class SimpleMembershipUpdateImportExport {
     
   }
   
+  public static ImportProgress getImportProgress(Subject subject, String key) {
+    
+    ImportProgress importProgress = importThreadProgress.get(new MultiKey(subject.getId(), key));
+    
+    return importProgress;
+  }
+  
+  public static void importSubjectsFromFile(Reader originalReader, final String fileName, final ImportProgress importProgress, 
+      final Subject subject, final Set<Group> groups, final boolean isReplace, 
+      final boolean isRemove) {
+    
+    //convert from CSV to
+    CSVReader reader = null;
+    
+    //note, the first row is the title
+    List<String[]> csvEntries = null;
+    
+    try {
+      reader = new CSVReader(originalReader);
+      csvEntries = reader.readAll();
+    } catch (IOException ioe) {
+      throw new GrouperImportException("Error processing file: " + fileName, ioe);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (Exception e) {
+          LOG.warn("error", e);
+        }
+      }
+    }
+      
+    final List<Subject> uploadedSubjects = new ArrayList<Subject>();
+    
+    //lets get the headers
+    int sourceIdColumn = -1;
+    int subjectIdColumn = -1;
+    int subjectIdentifierColumn = -1;
+    int subjectIdOrIdentifierColumn = -1;
+    
+    //must have lines
+    if (GrouperUtil.length(csvEntries) == 0) {
+      throw new GrouperImportException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
+    }
+      
+    //lets go through the headers
+    String[] headers = csvEntries.get(0);
+    int headerSize = headers.length;
+    boolean foundHeader = false;
+    for (int i=0;i<headerSize;i++) {
+      if ("sourceId".equalsIgnoreCase(headers[i])) {
+        foundHeader = true;
+        sourceIdColumn = i;
+      }
+      if ("subjectId".equalsIgnoreCase(headers[i]) || "entityId".equalsIgnoreCase(headers[i])) {
+        foundHeader = true;
+        subjectIdColumn = i;
+      }
+      if ("subjectIdentifier".equalsIgnoreCase(headers[i]) || "entityIdentifier".equalsIgnoreCase(headers[i])) {
+        foundHeader = true;
+        subjectIdentifierColumn = i;
+      }
+      if ("subjectIdOrIdentifier".equalsIgnoreCase(headers[i]) || "entityIdOrIdentifier".equalsIgnoreCase(headers[i])) {
+        foundHeader = true;
+        subjectIdOrIdentifierColumn = i;
+      }
+    }
+      
+    //normally start on index 1, if the first row is header
+    int startIndex = 1;
+    
+    //must pass in an id
+    if (subjectIdColumn == -1 && subjectIdentifierColumn == -1 && subjectIdOrIdentifierColumn == -1) {
+      if (!foundHeader && headerSize == 1) {
+        //there was no header, so pretend like it was subjectIdOrIdentifier
+        subjectIdOrIdentifierColumn = 0;
+        startIndex = 0;
+      } else {
+        throw new GrouperImportException(TextContainer.retrieveFromRequest().getText().get("simpleMembershipUpdate.importErrorNoIdCol"));
+      }
+    }
+      
+    final Map<Group, Set<Member>> groupExistingMembers = new HashMap<Group, Set<Member>>();
+    if (isReplace) {
+      // we need to delete all these members from the group
+      for (Group group: groups) {
+        groupExistingMembers.put(group, group.getMembers());
+      }
+    }
+    
+    final int startIndexFinal = startIndex;
+    final List<String[]> csvEntriesFinal = csvEntries;
+    
+    final int sourceIdColumnFinal = sourceIdColumn;
+    final int subjectIdColumnFinal = subjectIdColumn;
+    final int subjectIdentifierColumnFinal = subjectIdentifierColumn;
+    final int subjectIdOrIdentifierColumnFinal = subjectIdOrIdentifierColumn;
+    
+    final Thread thread = new Thread(new Runnable() {
+      
+      @Override
+      public void run() {
+        
+        GrouperSession grouperSession = GrouperSession.startRootSession();
+        
+        String key = UUID.randomUUID().toString();
+        importProgress.setKey(key);
+        importThreadProgress.put(new MultiKey(subject.getId(), key), importProgress);
+        
+        try {
+          
+          //ok, lets go through the rows, start after the headers
+          for (int i=startIndexFinal; i<csvEntriesFinal.size(); i++) {
+            String[] csvEntry = csvEntriesFinal.get(i);
+            int row = i+1;
+            
+            //try catch each one and see where we get
+            String subjectId = null;
+            String subjectIdentifier = null;
+            String subjectIdOrIdentifier = null;
+            try {
+              String sourceId = null;
+        
+              sourceId = sourceIdColumnFinal == -1 ? null : csvEntry[sourceIdColumnFinal]; 
+              subjectId = subjectIdColumnFinal == -1 ? null : csvEntry[subjectIdColumnFinal]; 
+              subjectIdentifier = subjectIdentifierColumnFinal == -1 ? null : csvEntry[subjectIdentifierColumnFinal]; 
+              subjectIdOrIdentifier = subjectIdOrIdentifierColumnFinal == -1 ? null : csvEntry[subjectIdOrIdentifierColumnFinal]; 
+              
+              ImportSubjectWrapper importSubjectWrapper = 
+                new ImportSubjectWrapper(row, sourceId, subjectId, subjectIdentifier, subjectIdOrIdentifier, csvEntry);
+              uploadedSubjects.add(importSubjectWrapper);
+              
+              for (Group group: groups) {
+                
+                ImportProgressForGroup importProgressForGroup = importProgress.getGroupImportProgress().get(new GuiGroup(group));
+                
+                if (isRemove) {
+                  if (group.hasMember(importSubjectWrapper.wrappedSubject())) {
+                    
+                    try {
+                      if (group.deleteMember(importSubjectWrapper.wrappedSubject(), false)) {
+                        importProgressForGroup.setDeletedCount(importProgressForGroup.getDeletedCount()+1);
+                      }
+                    } catch (Exception e) {
+                      String errorLine = errorLine(importSubjectWrapper.wrappedSubject(), GrouperUtil.xmlEscape(e.getMessage()));
+                      importProgressForGroup.getImportErrors().add(errorLine);
+                      LOG.warn(errorLine, e);
+                    }
+                    
+                  }
+                } else {
+                  
+                  try {
+                    if (group.addMember(importSubjectWrapper.wrappedSubject(), false)) {
+                      importProgressForGroup.setAddedCount(importProgressForGroup.getAddedCount()+1);
+                    }
+                  } catch (Exception e) {
+                    String errorLine = errorLine(importSubjectWrapper.wrappedSubject(), GrouperUtil.xmlEscape(e.getMessage()));
+                    importProgressForGroup.getImportErrors().add(errorLine);
+                    LOG.warn(errorLine, e);
+                  }
+                  
+                }
+              }
+              
+            } catch (Exception e) {
+              LOG.info(e);
+              String errorSubjectId = StringUtils.defaultIfEmpty(subjectId, subjectIdentifier);
+              errorSubjectId = StringUtils.defaultIfEmpty(errorSubjectId, subjectIdOrIdentifier);
+              
+              ImportError error = new ImportError();
+              error.setSubjectId(errorSubjectId);
+              error.setRowNumber(row);
+              // error.setErrorKey(errorKey);
+              
+              importProgress.getSubjectErrors().add(error);
+            }
+            
+            try {       
+              Thread.sleep(2000);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          
+          }
+          
+          for (Group group: groupExistingMembers.keySet()) {
+            Set<Member> membersToBeDeleted = groupExistingMembers.get(group);
+            for (Member member: membersToBeDeleted) {      
+              group.deleteMember(member, false);
+            }
+          }
+          
+          System.out.println("Done.. going to set finished to true");
+          importProgress.setFinished(true);
+          
+        } finally {
+          GrouperSession.stopQuietly(grouperSession);
+        }
+        
+      }
+    });
+    
+    thread.start();
+    
+    try {
+      thread.join(1000);
+    } catch (Exception e) {
+      throw new RuntimeException("Exception in thread", e);
+    }
+    
+  }
+  
   /**
    * Note, this will close the reader passed in
    * @param originalReader
@@ -398,7 +607,6 @@ public class SimpleMembershipUpdateImportExport {
    * @return the list, never null
    * @throws GrouperImportException for messages to the screen
    */
-  @SuppressWarnings("unchecked")
   public static List<Subject> parseCsvImportFile(Reader originalReader, String fileName, List<String> subjectErrors, 
       Map<String, Integer> errorSubjectIdsOnRow, boolean isFileUpload) throws GrouperImportException {
     
@@ -513,6 +721,48 @@ public class SimpleMembershipUpdateImportExport {
         }
       }
     }
+    
+  }
+  
+  /**
+   * get an error line
+   * @param subject
+   * @param errorEscaped
+   * @return the line
+   */
+  private static String errorLine(Subject subject, String errorEscaped) {
+
+    String subjectLabel = null;
+    Integer rowNumber = null;
+    if (subject instanceof ImportSubjectWrapper) {
+      subjectLabel = ((ImportSubjectWrapper)subject).getSubjectIdOrIdentifier();
+      rowNumber = ((ImportSubjectWrapper)subject).getRow();
+    } else {
+      subjectLabel = subject.getId();
+    }
+    return errorLine(subjectLabel, errorEscaped, rowNumber);
+  }
+  
+  /**
+   * get an error line
+   * @param subject
+   * @param errorEscaped
+   * @param rowNumber
+   * @return the line
+   */
+  private static String errorLine(String subjectLabel, String errorEscaped, Integer rowNumber) {
+
+    GroupImportContainer groupImportContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer();
+    groupImportContainer.setErrorText(errorEscaped);
+
+    groupImportContainer.setErrorSubject(subjectLabel);
+
+    if (rowNumber != null) {
+      groupImportContainer.setErrorRowNumber(rowNumber);
+      return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLine");
+    }
+    
+    return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLineNoRow");
     
   }
 

@@ -48,6 +48,8 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportProgress;
+import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportProgressForGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -438,6 +440,153 @@ public class UiV2GroupImport {
     return success;
   }
   
+  
+  public void groupImportProgress(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      String key = request.getParameter("key");
+      
+      if (StringUtils.isBlank(key)) {
+        throw new RuntimeException("why is key not there??");
+      }
+      
+      ImportProgress progress = SimpleMembershipUpdateImportExport.getImportProgress(loggedInSubject, key);
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      GroupImportContainer groupImportContainer = grouperRequestContainer.getGroupImportContainer();
+      groupImportContainer.setImportProgress(progress);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#importFileProgressId", 
+          "/WEB-INF/grouperUi2/groupImport/groupImportFileReportContents.jsp"));
+
+    } catch (Exception e) {
+      // TODO: handle exception
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public void groupImportFileHelper(HttpServletRequest request, 
+      HttpServletResponse response, Set<Group> groups) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GroupImportContainer groupImportContainer = grouperRequestContainer.getGroupImportContainer();
+    
+    try {
+      
+      GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+      
+      FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      if (importCsvFile == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#importCsvFileId",
+            TextContainer.retrieveFromRequest().getText().get("groupImportUploadFile")));
+        return;
+      }
+      
+      ImportProgress importProgress = new ImportProgress();
+      groupImportContainer.setImportProgress(importProgress);
+      
+      Iterator<Group> groupIterator = groups.iterator();
+      
+      while(groupIterator.hasNext()) {
+        
+        final Group group = groupIterator.next();
+        
+        {
+          //remove groups that cannot be viewed
+          boolean canView = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+  
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                return group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
+              }
+            });
+  
+          if (!canView) {
+            importProgress.setViewPrivilegeError(true);
+            groupIterator.remove();
+            continue;
+          }
+        }
+        
+        GuiGroup guiGroup = new GuiGroup(group);
+        ImportProgressForGroup groupProgress = new ImportProgressForGroup();
+        importProgress.getGroupImportProgress().put(guiGroup, groupProgress);
+
+        {
+          //give error if cant update
+          boolean canUpdate = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                return group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false);
+              }
+            });
+
+          if (!canUpdate) {
+            groupProgress.setUpdatePrivilegeError(true);
+            groupIterator.remove();
+            continue;
+          }
+        }
+        
+        List<Member> existingMembers = new ArrayList<Member>(GrouperUtil.nonNull(group.getImmediateMembers()));
+        int existingCount = GrouperUtil.length(existingMembers);
+        groupProgress.setOriginalCount(existingCount);
+        
+      }
+      
+      Reader reader = new InputStreamReader(importCsvFile.getInputStream());;
+
+      String fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
+
+      boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
+      boolean removeMembers = GrouperUtil.booleanValue(request.getParameter("removeMembers"), false);
+      
+      try {
+        
+        SimpleMembershipUpdateImportExport.importSubjectsFromFile(reader, fileName, importProgress, loggedInSubject,
+            groups, importReplaceMembers, removeMembers);
+
+      } catch (GrouperImportException gie) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("error in import", gie);
+        }
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#importCsvFileId", GrouperUtil.xmlEscape(gie.getMessage())));
+        return;
+      }
+      
+      //show the report screen
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/groupImport/groupImportFileReport.jsp"));
+
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
+      
+    } catch(Exception e) {
+      
+    }
+    
+  }
+  
   /**
    * submit a group import
    * @param request
@@ -476,38 +625,41 @@ public class UiV2GroupImport {
       Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
       
       final Set<Subject> subjectSet = new LinkedHashSet<Subject>();
+      
+      boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
+      boolean removeMembers = GrouperUtil.booleanValue(request.getParameter("removeMembers"), false);
+
+      if (importReplaceMembers && removeMembers) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#replaceExistingMembersId",
+            TextContainer.retrieveFromRequest().getText().get("groupImportCantReplaceAndRemove")));
+        return;
+      }
+      
+      {
+        Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+        if (group != null) {
+          groupImportContainer.setImportFromGroup(true);
+        }
+      }
+      
+      {
+        Subject subject = UiV2Subject.retrieveSubjectHelper(request, false);
+        if (subject != null) {
+          groupImportContainer.setImportFromSubject(true);
+        }
+      }
+
+      Set<GuiGroup> guiGroups = new LinkedHashSet<GuiGroup>();
+      groupImportContainer.setGuiGroups(guiGroups);
+      
+      Map<String, String> reportByGroupName = new HashMap<String, String>();
+      groupImportContainer.setReportForGroupNameMap(reportByGroupName);
 
       String fileName = null;
       if (StringUtils.equals(bulkAddOption, "import")) {
-
-        GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
-        
-        FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
-
-        if (importCsvFile == null) {
-          
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-              "#importCsvFileId",
-              TextContainer.retrieveFromRequest().getText().get("groupImportUploadFile")));
-          return;
-        }
-        
-        Reader reader = null;
-        reader = new InputStreamReader(importCsvFile.getInputStream());
-        
-        fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
-
-        try {
-          subjectSet.addAll(SimpleMembershipUpdateImportExport.parseCsvImportFile(reader, fileName, new ArrayList<String>(), 
-              listInvalidSubjectIdsAndRow, true));
-        } catch (GrouperImportException gie) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("error in import", gie);
-          }
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-              "#importCsvFileId", GrouperUtil.xmlEscape(gie.getMessage())));
-          return;
-        }
+        groupImportFileHelper(request, response, groups);
+        return;
         
       } else if (StringUtils.equals(bulkAddOption, "input")) {
 
@@ -582,36 +734,7 @@ public class UiV2GroupImport {
         throw new RuntimeException("Not expecting bulk add option: " + bulkAddOption);
       }
       
-      {
-        Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
-        if (group != null) {
-          groupImportContainer.setImportFromGroup(true);
-        }
-      }
-      {
-        Subject subject = UiV2Subject.retrieveSubjectHelper(request, false);
-        if (subject != null) {
-          groupImportContainer.setImportFromSubject(true);
-        }
-      }
-
-      Set<GuiGroup> guiGroups = new LinkedHashSet<GuiGroup>();
-      groupImportContainer.setGuiGroups(guiGroups);
-      
-      Map<String, String> reportByGroupName = new HashMap<String, String>();
-      groupImportContainer.setReportForGroupNameMap(reportByGroupName);
-
       Iterator<Group> groupIterator = groups.iterator();
-
-      boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
-      boolean removeMembers = GrouperUtil.booleanValue(request.getParameter("removeMembers"), false);
-
-      if (importReplaceMembers && removeMembers) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#replaceExistingMembersId",
-            TextContainer.retrieveFromRequest().getText().get("groupImportCantReplaceAndRemove")));
-        return;
-      }
       
       //lets go through the groups that were submitted
       while (groupIterator.hasNext()) {

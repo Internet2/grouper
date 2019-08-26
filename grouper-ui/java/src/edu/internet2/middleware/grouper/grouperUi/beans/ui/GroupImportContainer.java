@@ -8,6 +8,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportProgress;
 
 
 /**
@@ -390,6 +391,16 @@ public class GroupImportContainer {
       return guiGroup.getExportAllFileName();
     }
     return guiGroup.getExportSubjectIdsFileName();
+  }
+  
+  private ImportProgress importProgress;
+
+  public ImportProgress getImportProgress() {
+    return importProgress;
+  }
+
+  public void setImportProgress(ImportProgress importFileProgress) {
+    this.importProgress = importFileProgress;
   }
 
 }
