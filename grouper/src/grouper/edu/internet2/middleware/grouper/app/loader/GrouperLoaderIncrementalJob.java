@@ -150,6 +150,7 @@ public class GrouperLoaderIncrementalJob implements Job {
       String databaseName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobProperty + ".databaseName");
       final String tableName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobProperty + ".tableName");
       int fullSyncThreshold = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + jobProperty + ".fullSyncThreshold", 100);
+      boolean skipIfFullSyncDisabled = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobProperty + ".skipIfFullSyncDisabled", true);
 
       boolean useThreads = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.incrementalThreads", true);
       int threadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.incrementalThreadPoolSize", 10);
@@ -251,7 +252,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         // loader group name -> list of groups being managed by this loader group
         final Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
-          
+
         for (String loaderGroupName : rowsByGroup.keySet()) {
           
           final Group loaderGroup = GroupFinder.findByName(grouperSession, loaderGroupName, false);
@@ -273,6 +274,21 @@ public class GrouperLoaderIncrementalJob implements Job {
             grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapTypeName());
           } else {
             throw new RuntimeException("Not an SQL or LDAP loader group: " + loaderGroup);
+          }
+          
+          if (StringUtils.isBlank(grouperLoaderType)) {
+            LOG.warn("Loader group " + loaderGroupName + " has an empty value for grouperLoaderType.  Skipping changes.");
+            setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
+            continue;
+          }
+
+          GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+          String fullSyncJobName = grouperLoaderTypeEnum.name() + "__" + loaderGroup.getName() + "__" + loaderGroup.getUuid();
+          
+          if (skipIfFullSyncDisabled && !GrouperLoader.isJobEnabled(fullSyncJobName)) {
+            LOG.warn("The full sync job for loader group " + loaderGroupName + " is not enabled.  Skipping incremental changes.");
+            setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
+            continue;
           }
           
           if (rowsByGroup.get(loaderGroupName).size() >= fullSyncThreshold) {
