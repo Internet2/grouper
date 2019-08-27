@@ -2,6 +2,12 @@
 
               <input type="hidden" id="isImportFinished"
                value=${grouperRequestContainer.groupImportContainer.importProgress.finished} />
+               
+               <input type="hidden" id="totalEntriesInFile"
+               value=${grouperRequestContainer.groupImportContainer.importProgress.totalEntriesInFile} />
+               
+               <input type="hidden" id="entriesProcessed"
+               value=${grouperRequestContainer.groupImportContainer.importProgress.entriesProcessed} />
 
               <div class="span12">
                 
@@ -9,34 +15,34 @@
                   <p>${textContainer.text['groupImportGroupCantView']}</p>
                 </c:if>
                 
-                <c:if test="${fn:length(grouperRequestContainer.groupImportContainer.importProgress.subjectErrors) > 0 }">
-                
-                  <c:forEach items="${grouperRequestContainer.groupImportContainer.importProgress.subjectErrors}" var="subjectError">
+                <c:if test="${fn:length(grouperRequestContainer.groupImportContainer.importProgress.subjectNotFoundErrors) > 0 }">
                   
-                    <div>
-                      There is error on row ${subjectError.rowNumber}
-                    </div>
+                  <p style="font-weight: bold;">${textContainer.text['groupFileImportSubjectErrorMessage']}</p>
                   
+                  <c:forEach items="${grouperRequestContainer.groupImportContainer.importProgress.subjectNotFoundErrors}" var="subjectError">
+                    <ul>${subjectError}</ul>
                   </c:forEach>
+                  
+                  <hr />
                 
                 </c:if>
                 
                 <div>
                 
-                  <p class="lead">${textContainer.text['groupImportReportPageSummary']}</p>
-                  
                   <c:forEach items="${grouperRequestContainer.groupImportContainer.importProgress.groupImportProgress}" var="entry" >
                     
                     <div>
-                      <b>
+                      <h4>
                         ${entry.key.linkWithIcon}
-                      </b>
+                      </h4>
                     </div>
                     <div>
                       <p>There were originally ${entry.value.originalCount} members</p>
                       <p>Added: ${entry.value.addedCount}</p>
                       <p>Deleted: ${entry.value.deletedCount}</p>
                     </div>
+                    
+                    <hr />
                     
                   </c:forEach>
                 

@@ -51,8 +51,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportErro
 import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportProgress;
 import edu.internet2.middleware.grouper.grouperUi.beans.importMembers.ImportProgressForGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -492,8 +490,17 @@ public class SimpleMembershipUpdateImportExport {
         String key = UUID.randomUUID().toString();
         importProgress.setKey(key);
         importThreadProgress.put(new MultiKey(subject.getId(), key), importProgress);
-        
+        importProgress.setTotalEntriesInFile(csvEntriesFinal.size());
         try {
+          
+          
+          if (isReplace) {
+            for (Group group: groups) {
+              int currentSize = group.getImmediateMembers().size();
+              group.deleteAllMemberships();
+              importProgress.getGroupImportProgress().get(new GuiGroup(group)).setDeletedCount(currentSize);
+            }
+          }
           
           //ok, lets go through the rows, start after the headers
           for (int i=startIndexFinal; i<csvEntriesFinal.size(); i++) {
@@ -530,6 +537,7 @@ public class SimpleMembershipUpdateImportExport {
                     } catch (Exception e) {
                       String errorLine = errorLine(importSubjectWrapper.wrappedSubject(), GrouperUtil.xmlEscape(e.getMessage()));
                       importProgressForGroup.getImportErrors().add(errorLine);
+                      importProgress.getErrors().add(errorLine);
                       LOG.warn(errorLine, e);
                     }
                     
@@ -543,14 +551,15 @@ public class SimpleMembershipUpdateImportExport {
                   } catch (Exception e) {
                     String errorLine = errorLine(importSubjectWrapper.wrappedSubject(), GrouperUtil.xmlEscape(e.getMessage()));
                     importProgressForGroup.getImportErrors().add(errorLine);
+                    importProgress.getErrors().add(errorLine);
                     LOG.warn(errorLine, e);
                   }
                   
                 }
               }
               
-            } catch (Exception e) {
-              LOG.info(e);
+            } catch(Exception e) {
+              LOG.error(e);
               String errorSubjectId = StringUtils.defaultIfEmpty(subjectId, subjectIdentifier);
               errorSubjectId = StringUtils.defaultIfEmpty(errorSubjectId, subjectIdOrIdentifier);
               
@@ -559,10 +568,17 @@ public class SimpleMembershipUpdateImportExport {
               error.setRowNumber(row);
               // error.setErrorKey(errorKey);
               
+              String errorLine = errorLine(errorSubjectId, TextContainer.retrieveFromRequest().getText().get(
+                  "groupImportProblemFindingSubjectError"), row);
+              
               importProgress.getSubjectErrors().add(error);
+              importProgress.getSubjectNotFoundErrors().add(errorLine);
+              importProgress.getErrors().add(errorLine);
             }
             
-            try {       
+            importProgress.setEntriesProcessed(i+1);
+            
+            try {
               Thread.sleep(2000);
             } catch (Exception e) {
               e.printStackTrace();
@@ -570,14 +586,6 @@ public class SimpleMembershipUpdateImportExport {
           
           }
           
-          for (Group group: groupExistingMembers.keySet()) {
-            Set<Member> membersToBeDeleted = groupExistingMembers.get(group);
-            for (Member member: membersToBeDeleted) {      
-              group.deleteMember(member, false);
-            }
-          }
-          
-          System.out.println("Done.. going to set finished to true");
           importProgress.setFinished(true);
           
         } finally {
@@ -589,11 +597,11 @@ public class SimpleMembershipUpdateImportExport {
     
     thread.start();
     
-    try {
-      thread.join(1000);
-    } catch (Exception e) {
-      throw new RuntimeException("Exception in thread", e);
-    }
+//    try {
+//      thread.join(1000);
+//    } catch (Exception e) {
+//      throw new RuntimeException("Exception in thread", e);
+//    }
     
   }
   
@@ -724,12 +732,6 @@ public class SimpleMembershipUpdateImportExport {
     
   }
   
-  /**
-   * get an error line
-   * @param subject
-   * @param errorEscaped
-   * @return the line
-   */
   private static String errorLine(Subject subject, String errorEscaped) {
 
     String subjectLabel = null;
@@ -743,26 +745,17 @@ public class SimpleMembershipUpdateImportExport {
     return errorLine(subjectLabel, errorEscaped, rowNumber);
   }
   
-  /**
-   * get an error line
-   * @param subject
-   * @param errorEscaped
-   * @param rowNumber
-   * @return the line
-   */
-  private static String errorLine(String subjectLabel, String errorEscaped, Integer rowNumber) {
+  private static String errorLine(String subjectLabel, String errorEscaped, 
+      Integer rowNumber) {
 
-    GroupImportContainer groupImportContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer();
-    groupImportContainer.setErrorText(errorEscaped);
-
-    groupImportContainer.setErrorSubject(subjectLabel);
-
-    if (rowNumber != null) {
-      groupImportContainer.setErrorRowNumber(rowNumber);
-      return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLine");
-    }
+    String errorText = rowNumber != null? TextContainer.retrieveFromRequest().getText().get("groupFileImportReportErrorLine"):
+      TextContainer.retrieveFromRequest().getText().get("groupFileImportReportErrorLineNoRow");
     
-    return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLineNoRow");
+    errorText = errorText.replace("$$rowNum$$", String.valueOf(rowNumber));
+    errorText = errorText.replace("$$errorText$$", errorEscaped);
+    errorText = errorText.replace("$$errorSubject$$", subjectLabel);
+    
+    return errorText;
     
   }
 
