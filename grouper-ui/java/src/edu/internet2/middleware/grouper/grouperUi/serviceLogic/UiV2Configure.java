@@ -641,6 +641,43 @@ public class UiV2Configure {
   }
 
   /**
+   * import config
+   * @param request
+   * @param response
+   */
+  public void configurationFileImport(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+  
+      
+      String configFileString = request.getParameter("configFile");
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/configure/configurationFileImport.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+  /**
    * 
    */
   private static void buildConfigFileAndMetadata() {
