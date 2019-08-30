@@ -965,6 +965,24 @@ public interface AttributeAssignDAO extends GrouperDAO {
   final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2);
   
   /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param queryOptions 
+   * @return groups and assignments
+   */
+  public Set<Object[]> findGroupAttributeAssignments(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, QueryOptions queryOptions);
+  
+  /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids
    * cannot have more than 100 bind variables
    * @param attributeAssignIds
