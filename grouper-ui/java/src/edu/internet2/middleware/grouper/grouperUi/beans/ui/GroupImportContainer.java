@@ -8,6 +8,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 
 
 /**
@@ -16,6 +17,19 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
  *
  */
 public class GroupImportContainer {
+
+  /**
+   * have a progress bean
+   */
+  private ProgressBean progressBean = new ProgressBean();
+  
+  /**
+   * have a progress bean
+   * @return the progressBean
+   */
+  public ProgressBean getProgressBean() {
+    return this.progressBean;
+  }
 
   /**
    * original group count of members
