@@ -10,8 +10,18 @@
               </ul>
               <div class="page-header blue-gradient">
                 <h1>${textContainer.text['groupImportTitle'] }
-                <br />
-                <small>${textContainer.text['groupImportReportSubheading']}</small></h1>
+                  <br />
+                  <small>
+                    <c:choose>
+                      <c:when test="${grouperRequestContainer.groupImportContainer.progressBean.complete}">
+                        ${textContainer.text['groupImportReportSubheading']}
+                      </c:when>
+                      <c:otherwise>
+                        <i class="fa fa-spinner fa-spin" /> ${textContainer.text['groupImportReportSubheadingProgress']}
+                      </c:otherwise>
+                    </c:choose>
+                   </small>
+                 </h1>
               </div>
             </div>
 
