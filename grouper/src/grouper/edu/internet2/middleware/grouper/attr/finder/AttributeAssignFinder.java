@@ -24,10 +24,13 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -38,6 +41,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AttributeAssignFinder {
 
+  /**
+   * queryOptions for calls
+   */
+  private QueryOptions queryOptions;
+  
+  /**
+   * query options paging and sorting
+   * @param theQueryOptions
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignQueryOptions(QueryOptions theQueryOptions) {
+    this.queryOptions = theQueryOptions;
+    return this;
+  }
+  
   /**
    * id of attribute def name that there is an assignment on assignment of with a value or values (optional)
    */
@@ -99,6 +117,11 @@ public class AttributeAssignFinder {
   }
 
   /**
+   * if check attribute read on owner if applicable
+   */
+  private Boolean checkAttributeReadOnOwner;
+  
+  /**
    * use security around attribute def?  default is true
    */
   private Boolean attributeCheckReadOnAttributeDef = null;
@@ -114,9 +137,29 @@ public class AttributeAssignFinder {
   }
   
   /**
+   * query these attribute assign types (if querying by attribute)
+   */
+  private AttributeAssignType attributeAssignType;
+  
+  /**
+   * assign the attribute assign type for querying by attribute
+   * @param theAttributeAssignType
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignAttributeAssignType(AttributeAssignType theAttributeAssignType) {
+    this.attributeAssignType = theAttributeAssignType;
+    return this;
+  }
+  
+  /**
    * attribute def names ids
    */
   private Collection<String> attributeDefNameIds;
+  
+  /**
+   * attribute def ids
+   */
+  private Collection<String> attributeDefIds;
   
   /**
    * attribute def name id to find
@@ -132,12 +175,35 @@ public class AttributeAssignFinder {
   }
   
   /**
+   * attribute def id to find
+   * @param attributeDefId
+   * @return this for chaining
+   */
+  public AttributeAssignFinder addAttributeDefId(String attributeDefId) {
+    if (this.attributeDefIds == null) {
+      this.attributeDefIds = new LinkedHashSet<String>();
+    }
+    this.attributeDefIds.add(attributeDefId);
+    return this;
+  }
+  
+  /**
    * attribute def name ids to find
    * @param theAttributeDefNameIds
    * @return this for chaining
    */
   public AttributeAssignFinder assignAttributeDefNameIds(Collection<String> theAttributeDefNameIds) {
     this.attributeDefNameIds = theAttributeDefNameIds;
+    return this;
+  }
+  
+  /**
+   * attribute def ids to find
+   * @param theAttributeDefIds
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignAttributeDefIds(Collection<String> theAttributeDefIds) {
+    this.attributeDefIds = theAttributeDefIds;
     return this;
   }
   
@@ -243,6 +309,34 @@ public class AttributeAssignFinder {
     this.includeAssignmentsOnAssignments = theIncludeAssignAssignmentsOnAssignments;
     return this;
   }
+
+  /**
+   * find all the attribute assigns
+   * @return the set of groups or the empty set if none found
+   */
+  public AttributeAssignFinderResults findAttributeAssignFinderResults() {
+
+    if (GrouperUtil.length(this.ownerGroupIds) > 0 || GrouperUtil.length(this.ownerStemIds) > 0
+      || GrouperUtil.length(this.ownerAttributeDefIds) > 0 
+      || GrouperUtil.length(this.ownerAttributeAssignIds) > 0 || this.attributeAssignType == null) {
+      throw new RuntimeException("Invalid Query");
+    }
+    
+    if (this.attributeAssignType == AttributeAssignType.group) {
+      AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinderResults();
+      
+      Set<Object[]> results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignments(this.attributeDefIds, attributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.queryOptions);
+      
+            
+      attributeAssignFinderResults.setResultObjects(results);
+      
+      return attributeAssignFinderResults;
+    }
+    
+    throw new RuntimeException("Not supported");
+    
+  }
   
   /**
    * find all the attribute assigns
@@ -250,6 +344,10 @@ public class AttributeAssignFinder {
    */
   public Set<AttributeAssign> findAttributeAssigns() {
   
+    if (this.queryOptions != null) {
+      throw new RuntimeException("queryOptions not supported in this call");
+    }
+    
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
   
       // if passed in empty set of group ids and no names, then no groups found
@@ -273,8 +371,11 @@ public class AttributeAssignFinder {
     if (GrouperUtil.length(this.ownerAttributeAssignIds) > 0) {
       ownerCount++;
     }
+    if (this.attributeAssignType != null) {
+      ownerCount++;
+    }
     if (ownerCount > 1) {
-      throw new RuntimeException("Can only pass one type of owner: groups, stems, attributeDefs, attributeAssigns, but has " + ownerCount + " types");
+      throw new RuntimeException("Can only pass one type of owner: groups, stems, attributeDefs, attributeAssigns, attributeAssignType, but has " + ownerCount + " types");
     }
 
     if (this.ownerGroupIds != null) {
@@ -324,6 +425,13 @@ public class AttributeAssignFinder {
       return GrouperDAOFactory.getFactory().getAttributeAssign()
           .findAssignmentsFromAssignmentsByIds(this.attributeDefNameIds, null, null, true);
 
+    }
+    
+    if (this.attributeAssignType != null) {
+      if (GrouperUtil.length(this.attributeDefNameIds) == 0 ) {
+        throw new RuntimeException("You need to pass in attributeDefNameIds if you are querying by attribute");
+      }
+      throw new RuntimeException("This query is not yet supported");
     }
     
     throw new RuntimeException("Bad query");
