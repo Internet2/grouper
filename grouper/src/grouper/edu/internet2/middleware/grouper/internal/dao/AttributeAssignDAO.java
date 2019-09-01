@@ -973,14 +973,15 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param checkAttributeReadOnGroup 
    * @param queryOptions 
-   * @return groups and assignments
+   * @param retrieveValues
+   * @return groups and assignments and optionally set of values
    */
-  public Set<Object[]> findGroupAttributeAssignments(
+  public Set<Object[]> findGroupAttributeAssignmentsByAttribute(
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> actions, 
       Boolean enabled, 
-      Boolean checkAttributeReadOnGroup, QueryOptions queryOptions);
+      Boolean checkAttributeReadOnGroup, QueryOptions queryOptions, boolean retrieveValues);
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids

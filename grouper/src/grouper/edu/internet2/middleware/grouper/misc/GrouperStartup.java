@@ -269,100 +269,105 @@ public class GrouperStartup {
    * call this when grouper starts up
    * @return false if already started, true if this started it
    */
-  public synchronized static boolean startup() {
+  public static boolean startup() {
     try {
       if (started) {
         return false;
       }
-      started = true;
-      finishedStartupSuccessfully = false;
-      
-      printConfigOnce();
-  
-      //check java version
-//      if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.checkJavaVersion", true)) {
-//        String javaVersion = System.getProperty("java.version");
-//        if (javaVersion != null && !javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7")) {
-//          String error = "Error: Java should be version 6 or 7 (1.6 or 1.7), but is detected as: " + javaVersion;
-//          LOG.error(error);
-//          System.out.println(error);
+      synchronized (GrouperStartup.class) {
+        if (started) {
+          return false;
+        }
+        started = true;
+        finishedStartupSuccessfully = false;
+        
+        printConfigOnce();
+    
+        //check java version
+//        if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.checkJavaVersion", true)) {
+//          String javaVersion = System.getProperty("java.version");
+//          if (javaVersion != null && !javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7")) {
+//            String error = "Error: Java should be version 6 or 7 (1.6 or 1.7), but is detected as: " + javaVersion;
+//            LOG.error(error);
+//            System.out.println(error);
+//          }
 //        }
-//      }
 
-      //add in custom sources
-      SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
-      SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
-      
-      if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
+        //add in custom sources
+        SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
+        SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
         
-        SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
+          
+          SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
+          
+        }
         
-      }
-      
-//      if (GrouperConfig.retrieveConfig().propertyValueBoolean("entities.autoCreateSource", true)) {
-//        
-//        SourceManager.getInstance().loadSource(EntitySourceAdapter.instance());
-//        
-//      }
-      
-      //dont print big classname, dont print nulls
-      ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
+//        if (GrouperConfig.retrieveConfig().propertyValueBoolean("entities.autoCreateSource", true)) {
+//          
+//          SourceManager.getInstance().loadSource(EntitySourceAdapter.instance());
+//          
+//        }
+        
+        //dont print big classname, dont print nulls
+        ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
 
-      //first check databases
-      
-      if (!ignoreCheckConfig) {
-        GrouperCheckConfig.checkGrouperDb();
-      }
-      
-      if (runDdlBootstrap) {
-        //first make sure the DB ddl is up to date
-        GrouperDdlUtils.bootstrap(false, false, false);
-      }
-
-      // we are ready to use the database
-      ConfigPropertiesCascadeBase.assignInitted();
-      
-      if (!ignoreCheckConfig) {
-        //make sure configuration is ok
-        GrouperCheckConfig.checkConfig();
-      }
-      
-      //startup hooks
-      GrouperHooksUtils.fireGrouperStartupHooksIfNotFiredAlready();
-  
-      //register hib objects
-      Hib3DAO.initHibernateIfNotInitted();
-      
-      initData(true);
-      
-      boolean legacyAttributeMigrationIncomplete = GrouperDdlUtils.getTableCount("grouper_types_legacy", false) > 0;
-      
-      // skip for now if legacy attribute migration is not done
-      if (!legacyAttributeMigrationIncomplete) {
-        //init include exclude type
-        initIncludeExcludeType();
+        //first check databases
         
-        //init loader types and attributes if configured
-        initLoaderType();
+        if (!ignoreCheckConfig) {
+          GrouperCheckConfig.checkGrouperDb();
+        }
         
-        //init membership lite config type
-        initMembershipLiteConfigType();
-      }
-      
-      // verify member search and sort config
-      verifyMemberSortAndSearchConfig();
-      
-      // verify id indexes
-      verifyTableIdIndexes();
+        if (runDdlBootstrap) {
+          //first make sure the DB ddl is up to date
+          GrouperDdlUtils.bootstrap(false, false, false);
+        }
 
-      verifyUtf8andTransactions();
-      
-      finishedStartupSuccessfully = true;
-      
-      //uncache config settings
-      GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
-      
-      return true;
+        // we are ready to use the database
+        ConfigPropertiesCascadeBase.assignInitted();
+        
+        if (!ignoreCheckConfig) {
+          //make sure configuration is ok
+          GrouperCheckConfig.checkConfig();
+        }
+        
+        //startup hooks
+        GrouperHooksUtils.fireGrouperStartupHooksIfNotFiredAlready();
+    
+        //register hib objects
+        Hib3DAO.initHibernateIfNotInitted();
+        
+        initData(true);
+        
+        boolean legacyAttributeMigrationIncomplete = GrouperDdlUtils.getTableCount("grouper_types_legacy", false) > 0;
+        
+        // skip for now if legacy attribute migration is not done
+        if (!legacyAttributeMigrationIncomplete) {
+          //init include exclude type
+          initIncludeExcludeType();
+          
+          //init loader types and attributes if configured
+          initLoaderType();
+          
+          //init membership lite config type
+          initMembershipLiteConfigType();
+        }
+        
+        // verify member search and sort config
+        verifyMemberSortAndSearchConfig();
+        
+        // verify id indexes
+        verifyTableIdIndexes();
+
+        verifyUtf8andTransactions();
+        
+        finishedStartupSuccessfully = true;
+        
+        //uncache config settings
+        GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
+        
+        return true;
+      }
     } catch (RuntimeException re) {
       if (logErrorStatic) {
         //NOTE, the caller might not handle this exception, so print now. 

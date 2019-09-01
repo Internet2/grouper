@@ -19,6 +19,7 @@
 package edu.internet2.middleware.grouper.attr;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.textui.TestRunner;
@@ -50,6 +51,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinderResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinderResults;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -57,8 +59,13 @@ import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
@@ -82,6 +89,7 @@ public class AttributeAssignTest extends GrouperTest {
    */
   public static void main(String[] args) {
     TestRunner.run(new AttributeAssignTest("testFindOwners"));
+        
   }
   
   /**
@@ -8386,8 +8394,16 @@ public class AttributeAssignTest extends GrouperTest {
     Group testCtestCGroup2 = new GroupSave(grouperSession).assignName("testC:testCgroup2").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC:testCgroup2").assignTypeOfGroup(TypeOfGroup.group).save();
 
     // attributes to assign (could assign to anything)
-    AttributeDef testCattrDef1 = new AttributeDefSave(grouperSession).assignName("testC:attrDef1").assignCreateParentStemsIfNotExist(true).assignToAttributeDef(true).assignToAttributeDefAssn(true).assignToEffMembership(true).assignToEffMembershipAssn(true).assignToGroup(true).assignToGroupAssn(true).assignToImmMembership(true).assignToImmMembershipAssn(true).assignToMember(true).assignToMemberAssn(true).assignToStem(true).assignToStemAssn(true).assignToImmMembership(true).assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false).assignMultiValued(false).assignValueType(AttributeDefValueType.marker).save();
-    AttributeDef testCattrDef2 = new AttributeDefSave(grouperSession).assignName("testC:attrDef2").assignCreateParentStemsIfNotExist(true).assignToAttributeDef(true).assignToAttributeDefAssn(true).assignToEffMembership(true).assignToEffMembershipAssn(true).assignToGroup(true).assignToGroupAssn(true).assignToImmMembership(true).assignToImmMembershipAssn(true).assignToMember(true).assignToMemberAssn(true).assignToStem(true).assignToStemAssn(true).assignToImmMembership(true).assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false).assignMultiValued(false).assignValueType(AttributeDefValueType.marker).save();
+    AttributeDef testCattrDef1 = new AttributeDefSave(grouperSession).assignName("testC:attrDef1").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string)
+        .assignToAttributeDef(true).assignToAttributeDefAssn(true).assignToEffMembership(true).assignToEffMembershipAssn(true).assignToGroup(true)
+        .assignToGroupAssn(true).assignToImmMembership(true).assignToImmMembershipAssn(true).assignToMember(true).assignToMemberAssn(true)
+        .assignToStem(true).assignToStemAssn(true).assignToImmMembership(true).assignAttributeDefType(AttributeDefType.attr)
+        .assignMultiAssignable(false).assignMultiValued(false).save();
+    AttributeDef testCattrDef2 = new AttributeDefSave(grouperSession).assignName("testC:attrDef2").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string)
+        .assignToAttributeDef(true).assignToAttributeDefAssn(true).assignToEffMembership(true).assignToEffMembershipAssn(true).assignToGroup(true)
+        .assignToGroupAssn(true).assignToImmMembership(true).assignToImmMembershipAssn(true).assignToMember(true).assignToMemberAssn(true)
+        .assignToStem(true).assignToStemAssn(true).assignToImmMembership(true).assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+        .assignMultiValued(false).save();
     testCattrDef1.getAttributeDefActionDelegate().configureActionList("assign");
     testCattrDef2.getAttributeDefActionDelegate().configureActionList("assign");
 
@@ -8407,11 +8423,18 @@ public class AttributeAssignTest extends GrouperTest {
     // assign to groups
     AttributeAssign testCtestCGroup_testCattrDef1name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.group)
         .assignAttributeDefName(testCattrDef1name).assignOwnerGroup(testCtestCGroup).save();
+    
+    AttributeAssignValue testCtestCGroup_testCattrDef1name_abc = testCtestCGroup.getAttributeValueDelegate().assignValue(testCattrDef1name.getName(), "abc").getAttributeAssignValueResult().getAttributeAssignValue();
+    
     AttributeAssign testCtestCGroup_testCattrDef1name_testCattrDef2name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.stem_asgn)
         .assignAttributeDefName(testCattrDef2name).assignOwnerAttributeAssign(testCtestCFolder_testCattrDef1name).save();
-    
+
+    AttributeAssignValue testCtestCGroup_testCattrDef1name_testCattrDef2name_def = testCtestCGroup_testCattrDef1name.getAttributeValueDelegate().assignValue(testCattrDef2name.getName(), "def").getAttributeAssignValueResult().getAttributeAssignValue();
+
     AttributeAssign testCtestCGroup2_testCattrDef2name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.group)
         .assignAttributeDefName(testCattrDef2name).assignOwnerGroup(testCtestCGroup2).save();
+
+    AttributeAssignValue testCtestCGroup2_testCattrDef2name_ghi = testCtestCGroup2.getAttributeValueDelegate().assignValue(testCattrDef2name.getName(), "ghi").getAttributeAssignValueResult().getAttributeAssignValue();
 
     // query by attribute def name
     AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.group)
@@ -8421,6 +8444,18 @@ public class AttributeAssignTest extends GrouperTest {
     AttributeAssignFinderResult attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
     assertEquals(testCtestCGroup2, attributeAssignFinderResult.getGroup());
     assertEquals(testCtestCGroup2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertNull(attributeAssignFinderResult.getAttributeAssignValues());
+    
+    // get values
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.group)
+        .assignAttributeCheckReadOnAttributeDef(true).assignRetrieveValues(true).findAttributeAssignFinderResults();
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(testCtestCGroup2, attributeAssignFinderResult.getGroup());
+    assertEquals(testCtestCGroup2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // did get values
+    assertEquals("ghi", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
 
     // can do everything
     Subject testSubject0 = SubjectFinder.findById("test.subject.0", true);

@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -41,6 +40,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AttributeAssignFinder {
 
+  /**
+   * if should retrieve values
+   */
+  private boolean retrieveValues;
+  
+  /**
+   * if should retrieve values
+   * @param theRetrieveValues
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignRetrieveValues(boolean theRetrieveValues) {
+    this.retrieveValues = theRetrieveValues;
+    return this;
+  }
+  
   /**
    * queryOptions for calls
    */
@@ -325,8 +339,8 @@ public class AttributeAssignFinder {
     if (this.attributeAssignType == AttributeAssignType.group) {
       AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinderResults();
       
-      Set<Object[]> results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignments(this.attributeDefIds, attributeDefNameIds, 
-          null, true, this.checkAttributeReadOnOwner, this.queryOptions);
+      Set<Object[]> results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(this.attributeDefIds, attributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.queryOptions, this.retrieveValues);
       
             
       attributeAssignFinderResults.setResultObjects(results);
@@ -344,6 +358,10 @@ public class AttributeAssignFinder {
    */
   public Set<AttributeAssign> findAttributeAssigns() {
   
+    if (this.retrieveValues) {
+      throw new RuntimeException("retrieveValues not supported in this call");
+    }
+
     if (this.queryOptions != null) {
       throw new RuntimeException("queryOptions not supported in this call");
     }
