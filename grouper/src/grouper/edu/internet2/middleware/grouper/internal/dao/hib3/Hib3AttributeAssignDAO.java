@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -42,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -5136,12 +5138,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignmentsByAttribute(java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)
    */
-  public Set<Object[]> findGroupAttributeAssignments(Collection<String> attributeDefIds,
+  public Set<Object[]> findGroupAttributeAssignmentsByAttribute(Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<String> actions,
       Boolean enabled,
-      Boolean checkAttributeReadOnGroup, QueryOptions queryOptions) {
+      Boolean checkAttributeReadOnGroup, QueryOptions queryOptions, boolean retrieveValues) {
     
     checkAttributeReadOnGroup = GrouperUtil.defaultIfNull(checkAttributeReadOnGroup, true);
     int actionsSize = GrouperUtil.length(actions);
@@ -5157,11 +5159,36 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       throw new RuntimeException("Too many attributeDefIdsSize " 
           + attributeDefIdsSize + " or attributeDefNameIds " + attributeDefNameIdsSize + " or actionsSize " + actionsSize );
     }
-    
-    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
+    // TODO later add outer join when hibernate 5.1+
+    //  GrouperStartup.startup();
+    //  
+    //  ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    //  
+    //  String hql = "select theGroup, aa, aav from Group theGroup "
+    //      + " join AttributeAssign aa on theGroup.id = aa.ownerGroupId "
+    //      + " join AttributeDefName adn on aa.attributeDefNameId = adn.id "
+    //      + " left outer join AttributeAssignValue aav on aav.attributeAssignId = aa.id "
+    //      + " where aa.attributeAssignTypeDb = 'group' and aa.enabledDb = 'T' ";
+    //
+    //  hql = "select theGroup from Group theGroup "
+    //      + " join AttributeAssign aa on theGroup.id = aa.ownerGroupId ";
+    //
+    //  //hql = "select theGroup, aa from Group theGroup, AttributeAssign aa where theGroup.id = aa.ownerGroupId ";
+    //
+    //  Set<Object[]> results = byHqlStatic.createQuery(hql).listSet(Object[].class);
+    //
+    //  for (Object[] result : results) {
+    //    for (Object col : result) {
+    //      System.out.println(col);
+    //    }
+    //    System.out.println("");
+    //  }
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+        
     String selectPrefix = "select theGroup, aa ";
-    String countPrefix = "select count(theGroup, aa) ";
+    String countPrefix = "select count(theGroup, aa ";
     
     StringBuilder sqlTables = new StringBuilder(" from Group theGroup, AttributeAssign aa, AttributeDefName adn ");    
     
@@ -5171,7 +5198,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     StringBuilder sqlWhereClause = new StringBuilder(
         " aa.attributeDefNameId = adn.id and theGroup.id = aa.ownerGroupId ");
-    
     sqlWhereClause.append(" and aa.attributeAssignTypeDb = 'group' ");
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -5273,6 +5299,39 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       }
     }
     
+    if (retrieveValues) {
+      Set<String> attributeAssignIds = new HashSet<String>();
+      for (Object[] result : results) {
+        AttributeAssign attributeAssign = (AttributeAssign)result[1];
+        attributeAssignIds.add(attributeAssign.getId());
+      }
+      
+      Set<AttributeAssignValue> attributeAssignValueSet = new AttributeAssignValueFinder()
+          .assignAttributeAssignIds(attributeAssignIds).findAttributeAssignValues();
+      
+      Map<String, Set<AttributeAssignValue>> attributeAssignIdToValuesMap = new HashMap<String, Set<AttributeAssignValue>>();
+      
+      for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(attributeAssignValueSet)) {
+        Set<AttributeAssignValue> attributeAssignValueSetForThisAssign = attributeAssignIdToValuesMap.get(attributeAssignValue.getAttributeAssignId());
+        if (attributeAssignValueSetForThisAssign == null) {
+          attributeAssignValueSetForThisAssign = new HashSet<AttributeAssignValue>();
+          attributeAssignIdToValuesMap.put(attributeAssignValue.getAttributeAssignId(), attributeAssignValueSetForThisAssign);
+        }
+        attributeAssignValueSetForThisAssign.add(attributeAssignValue);
+      }
+      
+      Set<Object[]> newResults = new LinkedHashSet<Object[]>();
+
+      for (Object[] result : results) {
+        Object[] newResult = new Object[result.length+1];
+        System.arraycopy(result, 0, newResult, 0, result.length);
+        newResult[result.length] = attributeAssignIdToValuesMap.get(((AttributeAssign)result[1]).getId());
+        newResults.add(newResult);
+      }
+      
+      results = newResults;
+      
+    }
     //we should be down to the secure list
     return results;
 
