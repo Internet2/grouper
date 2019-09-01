@@ -4,8 +4,11 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 
 
 /**
@@ -61,6 +64,27 @@ public class AttributeAssignFinderResult {
    */
   public void setAttributeAssign(AttributeAssign attributeAssign1) {
     this.attributeAssign = attributeAssign1;
+  }
+  
+  /**
+   * if getting values, this is the value
+   */
+  private Set<AttributeAssignValue> attributeAssignValues;
+
+  /**
+   * if getting values, this is the value
+   * @return the value
+   */
+  public Set<AttributeAssignValue> getAttributeAssignValues() {
+    return this.attributeAssignValues;
+  }
+
+  /**
+   * if getting values, this is the value
+   * @param attributeAssignValue1
+   */
+  public void setAttributeAssignValues(Set<AttributeAssignValue> attributeAssignValue1) {
+    this.attributeAssignValues = attributeAssignValue1;
   }
   
 }
