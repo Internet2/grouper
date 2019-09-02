@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.attr.finder;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -104,6 +105,26 @@ public class AttributeAssignFinderResult {
   
   public void setOwnerAttributeAssign(AttributeAssign ownerAttributeAssign) {
     this.ownerAttributeAssign = ownerAttributeAssign;
+  }
+
+  /**
+   * stem
+   */
+  private Stem ownerStem;
+  
+  /**
+   * stem
+   * @return the ownerStem
+   */
+  public Stem getOwnerStem() {
+    return this.ownerStem;
+  }
+  
+  /**
+   * @param ownerStem1 the ownerStem to set
+   */
+  public void setOwnerStem(Stem ownerStem1) {
+    this.ownerStem = ownerStem1;
   }
 
 

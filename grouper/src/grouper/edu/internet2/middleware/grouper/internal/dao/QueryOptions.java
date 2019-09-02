@@ -52,6 +52,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class QueryOptions {
 
   /**
+   * see if paging is constraining the query so we dont need a separate count query
+   * @param queryOptions
+   * @param maxResults
+   * @return true if needs extra count query
+   */
+  public static boolean needsCountQuery(QueryOptions queryOptions, int maxResults) {
+    
+    if (queryOptions == null) {
+      return true;
+    }
+
+    QueryPaging queryPaging = queryOptions.getQueryPaging();
+    if (queryPaging == null) {
+      return true;
+    }
+    
+    return queryPaging.getPageSize() > maxResults;
+  }
+  
+  /**
    * 
    * @param queryOptions
    */

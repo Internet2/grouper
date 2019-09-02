@@ -19,18 +19,26 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -342,30 +350,142 @@ public class AttributeAssignFinder {
 
     if (GrouperUtil.length(this.ownerGroupIds) > 0 || GrouperUtil.length(this.ownerStemIds) > 0
       || GrouperUtil.length(this.ownerAttributeDefIds) > 0 
-      || GrouperUtil.length(this.ownerAttributeAssignIds) > 0 || this.attributeAssignType == null) {
+      || GrouperUtil.length(this.ownerAttributeAssignIds) > 0) {
       throw new RuntimeException("Invalid Query");
     }
     
     Set<Object[]> results = null;
     AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinderResults();
+    
+    if (this.attributeAssignType != null) {
+      results = findAttributeAssignFinderResultsHelper(this.attributeDefIds, this.attributeDefNameIds, 
+          this.attributeAssignType);
+    } else {
 
-    if (this.attributeAssignType == AttributeAssignType.group) {
-      
-      results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(this.attributeDefIds, attributeDefNameIds, 
-          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
-            
-    } if (this.attributeAssignType == AttributeAssignType.group_asgn) {
+      // lets get all the attribute defs for each attributeDefId and attributeDefNameId
+      // note, this is not a secure query, that will come later
+      final Map<String, AttributeDef> attributeDefIdToAttributeDefMap = new HashMap<String, AttributeDef>();
+      final Map<String, AttributeDef> attributeDefNameIdToAttributeDefMap = new HashMap<String, AttributeDef>();
+
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          
+          Set<AttributeDefName> attributeDefNamesFound = null;
+          Set<String> attributeDefIdsToQuery = new HashSet<String>();
+          if (AttributeAssignFinder.this.attributeDefIds != null) {
+            attributeDefIdsToQuery.addAll(AttributeAssignFinder.this.attributeDefIds);
+          }
+          if (GrouperUtil.length(AttributeAssignFinder.this.attributeDefNameIds) > 0) {
+            attributeDefNamesFound = new AttributeDefNameFinder().assignIdsOfAttributeDefNames(
+                AttributeAssignFinder.this.attributeDefNameIds).findAttributeNames();
+            for (AttributeDefName attributeDefName : attributeDefNamesFound) {
+              attributeDefIdsToQuery.add(attributeDefName.getAttributeDefId());
+            }
+          }
+          if (GrouperUtil.length(attributeDefIdsToQuery) > 0) {
+            Set<AttributeDef> attributeDefsFound = new AttributeDefFinder().assignAttributeDefIds(attributeDefIdsToQuery).findAttributes();
+            for (AttributeDef attributeDef : attributeDefsFound) {
+              attributeDefIdToAttributeDefMap.put(attributeDef.getId(), attributeDef);
+            }
+          }
+          for (AttributeDefName attributeDefName : attributeDefNamesFound) {
+            AttributeDef attributeDefFound = attributeDefIdToAttributeDefMap.get(attributeDefName.getAttributeDefId());
+            attributeDefNameIdToAttributeDefMap.put(attributeDefName.getId(), attributeDefFound);
+          }
+          
+          return null;
+        }
         
-        results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignmentsByAttribute(this.attributeDefIds, attributeDefNameIds, 
-            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
-              
+      });
+      
+      // we know all the attribute defs, sort them by type
+      Map<AttributeAssignType, Set<String>> attributeAssignTypeToAttributeDefIds = new TreeMap<AttributeAssignType, Set<String>>();
+      Map<AttributeAssignType, Set<String>> attributeAssignTypeToAttributeDefNameIds = new TreeMap<AttributeAssignType, Set<String>>();
+      
+      for (String attributeDefId : GrouperUtil.nonNull(this.attributeDefIds)) {
+        AttributeDef attributeDef = attributeDefIdToAttributeDefMap.get(attributeDefId);
+        for (AttributeAssignType attributeAssignType : attributeDef.getAttributeAssignTypes()) {
+          Set<String> theseAttributeDefIds = attributeAssignTypeToAttributeDefIds.get(attributeAssignType);
+          if (theseAttributeDefIds == null) {
+            theseAttributeDefIds = new HashSet<String>();
+            attributeAssignTypeToAttributeDefIds.put(attributeAssignType, theseAttributeDefIds);
+          }
+          theseAttributeDefIds.add(attributeDefId);
+        }
+      }
+      
+      for (String attributeDefNameId : GrouperUtil.nonNull(this.attributeDefNameIds)) {
+        AttributeDef attributeDef = attributeDefNameIdToAttributeDefMap.get(attributeDefNameId);
+        for (AttributeAssignType attributeAssignType : attributeDef.getAttributeAssignTypes()) {
+          Set<String> theseAttributeDefNameIds = attributeAssignTypeToAttributeDefNameIds.get(attributeAssignType);
+          if (theseAttributeDefNameIds == null) {
+            theseAttributeDefNameIds = new HashSet<String>();
+            attributeAssignTypeToAttributeDefNameIds.put(attributeAssignType, theseAttributeDefNameIds);
+          }
+          theseAttributeDefNameIds.add(attributeDefNameId);
+        }
+      }
+      
+      results = new LinkedHashSet();
+      AttributeAssignType[] attributeAssignTypes = AttributeAssignType.values();
+      Arrays.sort(attributeAssignTypes);
+      
+      // do the specific query for each type
+      for (AttributeAssignType attributeAssignType : attributeAssignTypes) {
+        Set<String> attributeDefIdsToQuery = attributeAssignTypeToAttributeDefIds.get(attributeAssignType);
+        Set<String> attributeDefIdNamesToQuery = attributeAssignTypeToAttributeDefNameIds.get(attributeAssignType);
+        
+        if (GrouperUtil.length(attributeDefIdsToQuery) > 0 || GrouperUtil.length(attributeDefIdNamesToQuery) > 0) {
+          Set<Object[]> tempResults = findAttributeAssignFinderResultsHelper(attributeDefIdsToQuery, attributeDefIdNamesToQuery, 
+              attributeAssignType);
+          results.addAll(tempResults);
+        }
+        
+      }
     }
 
     attributeAssignFinderResults.setResultObjects(results);
     
     return attributeAssignFinderResults;
 
+  }
+
+  /**
+   * get the attribute assign finder results for a certain type
+   * @param theAttributeDefIds
+   * @param theAttributeDefNameIds
+   * @param theAttributeAssignType
+   * @return the results
+   */
+  private Set<Object[]> findAttributeAssignFinderResultsHelper(Collection<String> theAttributeDefIds, Collection<String> theAttributeDefNameIds, 
+      AttributeAssignType theAttributeAssignType) {
+    if (theAttributeAssignType == AttributeAssignType.stem) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+            
+    } else if (theAttributeAssignType == AttributeAssignType.group) {
+        
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+        
+    } if (theAttributeAssignType == AttributeAssignType.group_asgn) {
+        
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+              
+    } if (theAttributeAssignType == AttributeAssignType.stem_asgn) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+            
+    }
+    return new HashSet<Object[]>();
+    //throw new RuntimeException("Not support type: " + theAttributeAssignType);
   }
   
   /**

@@ -231,9 +231,13 @@ public class AttributeDefFinder {
    */
   private boolean findByUuidOrName;
   /**
-   * group ids to find
+   * attribute def ids to find
    */
   private Collection<String> attributeDefIds;
+  /**
+   * attribute def name ids to find
+   */
+  private Collection<String> attributeDefNameIds;
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(AttributeDefFinder.class);
@@ -330,18 +334,31 @@ public class AttributeDefFinder {
    */
   public Set<AttributeDef> findAttributes() {
     
+    if (GrouperUtil.length(this.attributeDefIds) > 1 && GrouperUtil.length(this.attributeDefNameIds) > 1) {
+      throw new RuntimeException("You can only pass one set in of attributeDefs or attributeDefNames");
+    }
+    
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
       // if passed in empty set of attributeDef ids and no names, then no attributeDefs found
       // uncomment this if we can search by attributeDef names
-      if (this.attributeDefIds != null && this.attributeDefIds.size() == 0 /* && GrouperUtil.length(this.namesOrAttributeDefs) == 0 */ ) {
+      if (this.attributeDefIds != null && this.attributeDefIds.size() == 0 /* && GrouperUtil.length(this.namesOrAttributeDefs) == 0 */ 
+          && this.attributeDefNameIds != null && this.attributeDefNameIds.size() == 0) {
         return new HashSet<AttributeDef>();
       }
     }
-    
-    Set<AttributeDef> results = GrouperDAOFactory.getFactory().getAttributeDef()
-      .findAllAttributeDefsSecure(this.scope, this.splitScope, 
-          this.subject, this.privileges, 
-          this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName, this.attributeDefIds);
+
+    Set<AttributeDef> results = null;
+    if (GrouperUtil.length(this.attributeDefNameIds) == 0) {
+      results = GrouperDAOFactory.getFactory().getAttributeDef()
+        .findAllAttributeDefsSecure(this.scope, this.splitScope, 
+            this.subject, this.privileges, 
+            this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName, this.attributeDefIds);
+    } else {
+      results = GrouperDAOFactory.getFactory().getAttributeDef()
+          .findAllAttributeDefsFromNamesSecure(this.scope, this.splitScope, 
+              this.subject, this.privileges, 
+              this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName, this.attributeDefNameIds);
+    }
     
     return results;
   }
@@ -380,6 +397,19 @@ public class AttributeDefFinder {
     this.attributeDefIds.add(attributeDefId);
     return this;
   }
+  
+  /**
+   * add a attribute def id to search for
+   * @param attributeDefNameId
+   * @return this for chaining
+   */
+  public AttributeDefFinder addAttributeDefNameId(String attributeDefNameId) {
+    if (this.attributeDefNameIds == null) {
+      this.attributeDefNameIds = new HashSet<String>();
+    }
+    this.attributeDefNameIds.add(attributeDefNameId);
+    return this;
+  }
 
   /**
    * assign attributeDef ids to search for
@@ -388,6 +418,16 @@ public class AttributeDefFinder {
    */
   public AttributeDefFinder assignAttributeDefIds(Collection<String> theAttributeDefIds) {
     this.attributeDefIds = theAttributeDefIds;
+    return this;
+  }
+
+  /**
+   * assign attributeDef ids to search for
+   * @param theAttributeDefNameIds
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignAttributeDefNameIds(Collection<String> theAttributeDefNameIds) {
+    this.attributeDefNameIds = theAttributeDefNameIds;
     return this;
   }
   
