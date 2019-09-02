@@ -972,16 +972,39 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
    * @param queryOptions 
    * @param retrieveValues
-   * @return groups and assignments and optionally set of values
+   * @return attrdefs, attrdefnames, groups, assignments and optionally set of values
    */
   public Set<Object[]> findGroupAttributeAssignmentsByAttribute(
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> actions, 
       Boolean enabled, 
-      Boolean checkAttributeReadOnGroup, QueryOptions queryOptions, boolean retrieveValues);
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments);
+  
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @return groups and assignments and optionally set of values
+   */
+  public Set<Object[]> findGroupAttributeAssignmentsOnAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues);
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids
