@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,6 +66,21 @@ public class AttributeDefNameFinder {
     }
     
     this.idsOfAttributeDefName.add(theIdsOfAttributeDefName);
+    return this;
+  }
+  
+  /**
+   * id of attribute def name
+   * @param theIdsOfAttributeDefNames
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignIdsOfAttributeDefNames(Collection<String> theIdsOfAttributeDefNames) {
+    
+    if (this.idsOfAttributeDefName == null) {
+      this.idsOfAttributeDefName = new HashSet<String>();
+    }
+    
+    this.idsOfAttributeDefName.addAll(theIdsOfAttributeDefNames);
     return this;
   }
   

@@ -996,9 +996,30 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeCheckReadOnAttributeDef
    * @param queryOptions 
    * @param retrieveValues
-   * @return groups and assignments and optionally set of values
+   * @return attr defs, attr def names, groups and assignments and optionally set of values
    */
   public Set<Object[]> findGroupAttributeAssignmentsOnAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues);
+  
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @return attr defs, attr def names, stems and assignments and optionally set of values
+   */
+  public Set<Object[]> findStemAttributeAssignmentsOnAssignmentsByAttribute(
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> actions, 
@@ -1315,4 +1336,26 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @return the values where the keys are the legacy group type names
    */
   public Map<String, AttributeAssign> findLegacyGroupTypeAssignmentsByGroupId(String groupId);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnStem 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @param includeAssignmentsOnAssignments 
+   * @return attrdefs, attrdefnames, stems, assignments and optionally set of values
+   */
+  public Set<Object[]> findStemAttributeAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnStem, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments);
 }

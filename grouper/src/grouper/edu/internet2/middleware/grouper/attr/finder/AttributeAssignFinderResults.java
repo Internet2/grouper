@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -40,9 +41,23 @@ public class AttributeAssignFinderResults {
   }
 
   /**
-   * id to group mape
+   * id to group map
    */
   private Map<String, Group> idToGroupMap = new HashMap<String, Group>();
+
+  /**
+   * id to stem map
+   */
+  private Map<String, Stem> idToStemMap = new HashMap<String, Stem>();
+
+  
+  /**
+   * id to stem map
+   * @return the idToStemMap
+   */
+  public Map<String, Stem> getIdToStemMap() {
+    return this.idToStemMap;
+  }
 
   /**
    * id to attributeDefName map
@@ -137,6 +152,10 @@ public class AttributeAssignFinderResults {
         Group group = (Group) result[2];
         idToGroupMap.put(group.getId(), group);
         attributeAssignFinderResult.setOwnerGroup(group);
+      } else if (result[2] instanceof Stem) {
+        Stem stem = (Stem) result[2];
+        idToStemMap.put(stem.getId(), stem);
+        attributeAssignFinderResult.setOwnerStem(stem);
       } else if (result[2] instanceof AttributeAssign) {
         AttributeAssign attributeAssign = (AttributeAssign) result[2];
         idToAttributeAssignMap.put(attributeAssign.getId(), attributeAssign);

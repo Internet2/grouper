@@ -267,6 +267,24 @@ public interface AttributeDefDAO extends GrouperDAO {
       Collection<String> attributeDefIds);
 
   /**
+   * do a query based on various params
+   * @param scope
+   * @param splitScope
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param parentStemId
+   * @param stemScope
+   * @param findByUuidOrName
+   * @param attributeDefNameIds
+   * @return the result set
+   */
+  public Set<AttributeDef> findAllAttributeDefsFromNamesSecure(String scope, boolean splitScope, 
+      Subject subject, Set<Privilege> privileges, 
+      QueryOptions queryOptions, String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<String> attributeDefNameIds);
+
+  /**
    * see which attributeDefs do not have this privilege
    * @param grouperSession
    * @param stemId
