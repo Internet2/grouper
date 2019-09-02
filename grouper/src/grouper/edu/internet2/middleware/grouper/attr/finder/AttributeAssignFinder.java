@@ -136,6 +136,16 @@ public class AttributeAssignFinder {
   private Boolean checkAttributeReadOnOwner;
   
   /**
+   * check read on owner
+   * @param theCheckAttributeReadOnOwner
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignCheckAttributeReadOnOwner(boolean theCheckAttributeReadOnOwner) {
+    this.checkAttributeReadOnOwner = theCheckAttributeReadOnOwner;
+    return this;
+  }
+  
+  /**
    * use security around attribute def?  default is true
    */
   private Boolean attributeCheckReadOnAttributeDef = null;
@@ -336,20 +346,26 @@ public class AttributeAssignFinder {
       throw new RuntimeException("Invalid Query");
     }
     
+    Set<Object[]> results = null;
+    AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinderResults();
+
     if (this.attributeAssignType == AttributeAssignType.group) {
-      AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinderResults();
       
-      Set<Object[]> results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(this.attributeDefIds, attributeDefNameIds, 
-          null, true, this.checkAttributeReadOnOwner, this.queryOptions, this.retrieveValues);
-      
+      results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(this.attributeDefIds, attributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
             
-      attributeAssignFinderResults.setResultObjects(results);
-      
-      return attributeAssignFinderResults;
+    } if (this.attributeAssignType == AttributeAssignType.group_asgn) {
+        
+        results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignmentsByAttribute(this.attributeDefIds, attributeDefNameIds, 
+            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+              
     }
+
+    attributeAssignFinderResults.setResultObjects(results);
     
-    throw new RuntimeException("Not supported");
-    
+    return attributeAssignFinderResults;
+
   }
   
   /**
