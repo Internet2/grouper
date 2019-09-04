@@ -4,23 +4,23 @@
  */
 package edu.internet2.middleware.grouperDuo;
 
-import java.io.UnsupportedEncodingException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import com.duosecurity.client.Http;
 
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -738,11 +738,27 @@ public class GrouperDuoCommands {
     }
     return results;
   }
-  
+
+  private static GrouperDuoAdministrator applyJsonObjectToAdministrator(GrouperDuoAdministrator admin, JSONObject responseObject) {
+    GrouperDuoLog.duoLog("applyJsonObjectToAdministrator: " + responseObject.toString());
+
+    admin.setActive(responseObject.getString("status").equals("Active"));
+    admin.setAdminId(responseObject.getString("admin_id"));
+    admin.setLastLogin(responseObject.optLong("last_login", 0));
+    admin.setName(responseObject.getString("name"));
+    admin.setPasswordChangeRequired(responseObject.getBoolean("password_change_required"));
+    admin.setPhone(responseObject.getString("phone"));
+    admin.setRestrictedByAdminUnits(responseObject.getBoolean("restricted_by_admin_units"));
+    admin.setRole(responseObject.getString("role"));
+    admin.setEmail(responseObject.getString("email"));
+    
+    return admin;
+  }
+
   /**
    * create duo group
-   * @param groupName 
-   * @param groupDescription 
+   * @param groupName
+   * @param groupDescription
    * @param isIncremental incremental or full (for logging)
    * @return the json object
    */
@@ -1170,5 +1186,219 @@ public class GrouperDuoCommands {
     }
   
   }
-  
+
+  /**
+   * @throws RuntimeException
+   * @param name
+   * @param emailAddress
+   * @param password
+   * @param phoneNumber
+   * @param role
+   * @param requirePasswordChange
+   * @param isActive
+   * @return
+   */
+  public static GrouperDuoAdministrator createNewAdminAccount(String name, String emailAddress, String password, String phoneNumber, String role, boolean requirePasswordChange, boolean isActive) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("method", "createNewAdminAccount");
+    debugMap.put("name", name);
+    debugMap.put("emailAddress", emailAddress);
+    debugMap.put("password", "is " + (password == null ? "null" : "not null"));
+    debugMap.put("phoneNumber", phoneNumber);
+    debugMap.put("role", role);
+    debugMap.put("requirePasswordChange", requirePasswordChange);
+    debugMap.put("isActive", isActive);
+
+    long startTime = System.nanoTime();
+
+    try {
+      Http request = httpAdmin("POST", "/admin/v1/admins");
+
+      request.addParam("email", emailAddress);
+      request.addParam("password", password);
+      request.addParam("name", name);
+      request.addParam("phone", phoneNumber);
+      request.addParam("password_change_required", String.valueOf(requirePasswordChange));
+      request.addParam("status", isActive ? "Active" : "Disabled");
+      request.addParam("role", role);
+      
+      signHttpAdmin(request);
+      String result = executeRequestRaw(request);
+      debugMap.put("result", result);
+
+      JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(result);
+
+      if (!jsonObject.getString("stat").equals("OK")) {
+        throw new RuntimeException("Received an error response from duo: " + result);
+      }
+
+      GrouperDuoAdministrator admin = applyJsonObjectToAdministrator(new GrouperDuoAdministrator(), jsonObject.getJSONObject("response"));
+
+      debugMap.put("createdAdminId", admin.getAdminId());
+
+      return admin;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperDuoLog.duoLog(debugMap, startTime);
+    }
+  }
+
+  public static Map<String, GrouperDuoAdministrator> retrieveAdminAccounts() {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long startTime = System.nanoTime();
+
+    debugMap.put("method", "retrieveAdminAccounts");
+
+    boolean hasNextPage;
+    int limit = 500;
+    int page = 0;
+
+    Map<String, GrouperDuoAdministrator> administrators = new HashMap<String, GrouperDuoAdministrator>();
+
+    try {
+      do {
+        Http request = httpAdmin("GET", "/admin/v1/admins");
+
+        debugMap.put("limit-" + page, String.valueOf(limit));
+        request.addParam("limit", String.valueOf(limit));
+
+        debugMap.put("offset-" + page, String.valueOf(page * limit));
+        request.addParam("offset", String.valueOf(page * limit));
+
+        signHttpAdmin(request);
+        String result = executeRequestRaw(request);
+        debugMap.put("result-" + page, result);
+
+        JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(result);
+
+        if (!jsonObject.getString("stat").equals("OK")) {
+          throw new RuntimeException("Received an error response from duo: " + result);
+        }
+
+        JSONArray objects = jsonObject.getJSONArray("response");
+        for (int i = 0; i < objects.size(); i++) {
+          GrouperDuoAdministrator admin = applyJsonObjectToAdministrator(new GrouperDuoAdministrator(), objects.getJSONObject(i));
+
+          administrators.put(admin.getAdminId(), admin);
+        }
+
+        hasNextPage = false;
+
+        page++;
+      } while (hasNextPage);
+    }catch (RuntimeException e) {
+      throw e;
+    }finally {
+      GrouperDuoLog.duoLog(debugMap, startTime);
+    }
+
+    return administrators;
+  }
+
+  /**
+   * Retrieve a GrouperDuoAdministrator object from the API.
+   *
+   * @param adminId
+   * @throws RuntimeException when an unexpected response is received.
+   * @return GrouperDuoAdministrator object, or null if no administrator was found
+   */
+  public static GrouperDuoAdministrator retrieveAdminAccount(String adminId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long startTime = System.nanoTime();
+
+    debugMap.put("method", "retrieveAdminAccount");
+    debugMap.put("adminId", adminId);
+
+    GrouperDuoAdministrator administrator = null;
+
+    try {
+      Http request = httpAdmin("GET", "/admin/v1/admins/" + adminId);
+
+      signHttpAdmin(request);
+      String result = executeRequestRaw(request);
+      debugMap.put("result", result);
+
+      JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(result);
+
+      if (jsonObject.containsKey("code") && jsonObject.getInt("code") == 40401) {
+        // Log that we got a '40401' code, 'Resource not found'
+        // This is different than a 'stat != "OK"' error, we should just return null.
+        debugMap.put("response-code", 40401);
+      }else if (!jsonObject.getString("stat").equals("OK")) {
+        throw new RuntimeException("Received an error response from duo: " + result);
+      }else {
+          JSONObject response = jsonObject.getJSONObject("response");
+        administrator = applyJsonObjectToAdministrator(new GrouperDuoAdministrator(), response);
+        GrouperDuoLog.duoLog("JSONOBJECT" + jsonObject.toString());
+        GrouperDuoLog.duoLog("RESPONSE" + response.toString());
+      }
+    }finally {
+      GrouperDuoLog.duoLog(debugMap, startTime);
+    }
+
+    return administrator;
+  }
+
+  public static Http startAdminUpdateRequest(GrouperDuoAdministrator admin) {
+    Http request = httpAdmin("POST", "/admin/v1/admins/" + admin.getAdminId());
+
+    return request;
+  }
+
+  public static void updateAdminStatus(Http request, boolean isActive) {
+    request.addParam("status", isActive ? "Active" : "Disabled");
+  }
+
+  public static void updateAdminRole(Http request, String role) {
+    request.addParam("role", role == null ? "Read-only" : role);
+  }
+
+  public static void updateAdminName(Http request, String name) {
+    request.addParam("name", name);
+  }
+
+  public static void executeAdminUpdateRequest(GrouperDuoAdministrator admin, Http request) {
+    signHttpAdmin(request);
+    String result = executeRequestRaw(request);
+
+    JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(result);
+
+    if (!jsonObject.getString("stat").equals("OK")) {
+      throw new RuntimeException(jsonObject.getString("message"));
+    }
+
+    // Update the admin object with the new properties from the API.
+    applyJsonObjectToAdministrator(admin, jsonObject.getJSONObject("response"));
+  }
+
+  public static void deleteAdminAccount(String adminId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long startTime = System.nanoTime();
+
+    debugMap.put("method", "deleteAdminAccount");
+    debugMap.put("adminId", adminId);
+
+    GrouperDuoAdministrator administrator = null;
+
+    try {
+      Http request = httpAdmin("DELETE", "/admin/v1/admins/" + adminId);
+
+      signHttpAdmin(request);
+      String result = executeRequestRaw(request);
+      debugMap.put("result", result);
+
+      JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(result);
+
+      if (!jsonObject.getString("stat").equals("OK")) {
+        throw new RuntimeException("Received an error response from duo: " + result);
+      }
+    }catch (Exception e) {
+    	GrouperDuoLog.logError("Failed to delete Duo Administrator", e);
+    } finally {
+      GrouperDuoLog.duoLog(debugMap, startTime);
+    }
+  }
+
 }
