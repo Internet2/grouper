@@ -948,6 +948,38 @@ public class HibUtils {
     return result.toString();
   }
 
+
+  /**
+   * Creates a Hibernate Criterion that breaks a (possibly very long) list of values into
+   * an ORed series of IN statements, respecting the IN-statement-size-limit provided.
+   *
+   * See: https://thephilosophicalfacts.wordpress.com/2015/06/22/hibernate-criteria-list-size-is-more-than-1000-values/
+   *
+   * @param propertyName
+   * @param values
+   * @param inStatementSizeLimit
+   * @return
+   */
+  public static Criterion buildInCriterion(String propertyName, List<?> values, int inStatementSizeLimit) {
+    Criterion criterion = null;
+    int listSize = values.size();
+    for (int i = 0; i < listSize; i += inStatementSizeLimit) {
+      List<?> subList;
+      if (listSize > i + inStatementSizeLimit) {
+        subList = values.subList(i, (i + inStatementSizeLimit));
+      } else {
+        subList = values.subList(i, listSize);
+      }
+      if (criterion != null) {
+        criterion = Restrictions.or(criterion, Restrictions.in(propertyName, subList));
+      } else {
+        criterion = Restrictions.in(propertyName, subList);
+      }
+    }
+    return criterion;
+  }
+
+
   /**
    * convert a collection of multikeys to an in clause with multiple args.  currently this only
    * works with strings, though we could add support for more types in future
