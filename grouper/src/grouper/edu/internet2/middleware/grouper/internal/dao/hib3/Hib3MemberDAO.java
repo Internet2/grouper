@@ -38,9 +38,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
@@ -68,6 +70,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import org.hibernate.criterion.Criterion;
 
 
 /**
@@ -594,8 +597,56 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   }
 
   /**
+   * Retrieve Member objects based on a list of SubjectIds within a single SubjectSource
+   *
+   * @param subjectIds
+   * @param subjectSourceId
+   * @return
+   */
+  @Override
+  public Set<Member> findBySubjectIds(
+          Collection<String> subjectIds, String subjectSourceId) {
+    Set<Member> result = new TreeSet<Member>();
+
+    if (GrouperUtil.length(subjectIds) == 0) {
+      return result;
+    }
+
+    List<String> subjectsThatWerentCached = new ArrayList<String>();
+    for (String subjectId : subjectIds) {
+      Member member = membersFlashCacheRetrieveBySubjectId(subjectSourceId, subjectId, null);
+      if (member != null) {
+        result.add(member);
+      } else {
+        subjectsThatWerentCached.add(subjectId);
+      }
+    }
+    if (GrouperUtil.length(subjectsThatWerentCached) > 0) {
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjectsThatWerentCached, 1000);
+
+      for (int i=0; i<numberOfBatches; i++) {
+        List<String>  batchOfIds = GrouperUtil.batchList(subjectsThatWerentCached, 1000, i);
+
+        ByCriteriaStatic byCriteriaStatic = HibernateSession.byCriteriaStatic();
+
+        Criterion filter = HibUtils.buildInCriterion("subjectIdDb", batchOfIds, 1000);
+        List<Member> membersFromDb = byCriteriaStatic.list(Member.class, filter);
+
+        for (Member member : GrouperUtil.nonNull(membersFromDb)) {
+          membersFlashCacheAddIfSupposedTo(member);
+        }
+
+        result.addAll(membersFromDb);
+      }
+
+    }
+
+    return result;
+  }
+
+  /**
    * find members by subjects and create if not exist possibly
-   * @param subjects
+   * @param subjectsOrig
    * @param createIfNotExists
    * @return the members
    */
