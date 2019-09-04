@@ -45,6 +45,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -158,6 +159,13 @@ public abstract class Provisioner
   // work item while we're looping through the work items of a batch
   private ThreadLocal<ProvisioningWorkItem> currentWorkItem = new ThreadLocal<ProvisioningWorkItem>();
 
+
+  // This is used to track what groups are selected for this provisioner and used
+  // when groups are deleted (to know if they were selected before they were deleted)
+  // or when attributes change (to know if new groups are selected or if old ones
+  // are no longer selected)
+  private AtomicReference<Set<GrouperGroupInfo>> selectedGroups = new AtomicReference<>();
+
   /**
    * Should this provisioner operate in Full-Sync mode? This might mean fetching all members of a group
    * which can be expensive in an incremental-sync, but is worth the trouble in a full-sync.
@@ -236,6 +244,8 @@ public abstract class Provisioner
     } else {
       tsUserFetchingService=null;
     }
+
+    selectedGroups.set(getAllGroupsForProvisioner());
   }
   
 
@@ -457,9 +467,16 @@ public abstract class Provisioner
       GrouperGroupInfo group = workItem.getGroupInfo(this);
 
       // Groups that haven't been deleted: Skip them if they're not supposed to be provisioned
-      if ( group != null && !group.hasGroupBeenDeleted() && !shouldGroupBeProvisioned(group)) {
+      if ( group != null ) {
+        if ( !group.hasGroupBeenDeleted() && !shouldGroupBeProvisioned(group)) {
           workItem.markAsSkipped("Ignoring work item because (existing) group should not be provisioned");
           continue;
+        }
+
+        if ( group.hasGroupBeenDeleted() && !selectedGroups.get().contains(group) ) {
+          workItem.markAsSkippedAndWarn("Ignoring work item because (deleted) group was not provisioned before it was deleted");
+          continue;
+        }
       }
 
       if ( shouldWorkItemBeProcessed(workItem) ) {
@@ -505,7 +522,7 @@ public abstract class Provisioner
       }
     }
 
-    // Only group-deletions are processed for groups that have been deleted
+    // Only the actual group-deletions are processed for groups that have been deleted
     // This skips all the membership-removal changelog entries that precede the
     // DElETE changelog entry
     if ( workItem.getGroupInfo(this) != null &&
@@ -1227,8 +1244,18 @@ public abstract class Provisioner
     try {
       if ( workItem.matchesChangelogType(ChangelogHandlingConfig.changelogTypesThatAreHandledIncrementally) ) {
         processIncrementalSyncEvent(workItem);
+        return;
       }
-      else if ( workItem.getGroupInfo(this) != null ) {
+
+      if ( workItemMightChangeGroupSelection(workItem) ) {
+        processAnyChangesInGroupSelection(workItem);
+      }
+
+      // If this is a specific group and is still selected for provisioning,
+      // then we need to do a full sync of that group in case an attribute or
+      // another non-membership aspect of the group changed
+      if ( workItem.getGroupInfo(this) != null &&
+                selectedGroups.get().contains(workItem.getGroupInfo(this)) ) {
         // This is a changelog entry that modifies the group. Do a FullSync to see if any
         // provisioned information changed. Unfortunately, this will do a membership sync which
         // might slow down the processing of this changelog entry. However, non-membership
@@ -1243,25 +1270,72 @@ public abstract class Provisioner
                         "Changelog: %s", workItem);
 
         workItem.markAsSuccess("Handled with scheduled FullSync (qid=%d)", fullSyncStatus.id);
+        return;
       }
-      else if (  workItemShouldBeHandledByFullSyncOfEverything(workItem) ) {
-        LOG.info("{}: Performing sync of all groups to process work item: {}", getDisplayName(), workItem);
-        getFullSyncer().queueAllGroupsForFullSync(FullSyncProvisioner.QUEUE_TYPE.CHANGELOG,workItem_identifier,"Work item invokes full sync for everything: %s", workItem);
-        if ( getConfig().isGrouperAuthoritative() ) {
-          getFullSyncer().scheduleGroupCleanup(FullSyncProvisioner.QUEUE_TYPE.CHANGELOG, workItem_identifier, "Changelog-initiated");
-        }
-        workItem.markAsSuccess("Scheduled a full-sync of all groups");
-      }
-      else
-      {
+
+      // If we've gotten this far without processing it, there's nothing we can do
+      if ( !workItem.hasBeenProcessed() ) {
         workItem.markAsSkipped("Nothing to do (not a supported change)");
       }
+
     } catch (PspException e) {
       LOG.error("Problem provisioning item {}", workItem, e);
       workItem.markAsFailure("Provisioning failure: %s", e.getMessage());
     } finally {
       currentWorkItem.set(null);
     }
+  }
+
+  private void processAnyChangesInGroupSelection(ProvisioningWorkItem workItem) throws PspException {
+    String workItem_identifier;
+    if ( workItem.getChangelogEntry() != null ) {
+      workItem_identifier = String.format("chlog #%d",workItem.getChangelogEntry().getSequenceNumber());
+    } else {
+      workItem_identifier = workItem.toString();
+    }
+
+    LOG.info("{}: Checking to see if group selection has changed", getDisplayName());
+    Set<GrouperGroupInfo> selectedGroups_before = selectedGroups.get();
+    Set<GrouperGroupInfo> selectedGroups_now = getAllGroupsForProvisioner();
+
+    // deselectedGroups = BEFORE GROUPS -minus- NOW GROUPS
+    Set<GrouperGroupInfo> deselectedGroups = new HashSet<>(selectedGroups_before);
+    deselectedGroups.removeAll(selectedGroups_now);
+
+    // newlySelectedGroups = NOW GROUPS -minus- BEFORE GROUPS
+    Set<GrouperGroupInfo> newlySelectedGroups = new HashSet<>(selectedGroups_now);
+    newlySelectedGroups.removeAll(selectedGroups_before);
+
+    // Save updated list of groups selected for provisioner
+    selectedGroups.set(selectedGroups_now);
+
+    LOG.info("{}: Change deselected {} groups from provisioner", deselectedGroups.size());
+    LOG.info("{}: Change selected {} new groups for provisioner", newlySelectedGroups.size());
+
+    for (GrouperGroupInfo group : deselectedGroups) {
+      TSGroupClass tsGroup=null;
+      if ( getConfig().needsTargetSystemGroups() ) {
+        tsGroup = fetchTargetSystemGroup(group);
+        if ( tsGroup == null ) {
+          LOG.info("{}: Group is already not present in target system: {}", getDisplayName(), group.getName());
+          continue;
+        }
+      }
+      LOG.info("{}: Deleting group from target system because it is no longer selected for provisioning: {}", group);
+      deleteGroup(group, tsGroup);
+    }
+
+    for (GrouperGroupInfo group : newlySelectedGroups) {
+      LOG.info("{}: Scheduling full sync of group because it is now selected for provisioning: {}", group);
+
+      getFullSyncer().scheduleGroupForSync(
+              FullSyncProvisioner.QUEUE_TYPE.CHANGELOG,
+              group.getName(),
+              workItem_identifier,
+              "group newly selected for provisioning");
+
+    }
+    workItem.markAsSuccess("Processed any changes in group selection");
   }
 
 
@@ -1639,7 +1713,10 @@ public abstract class Provisioner
    * 
    * @return A collection of groups that are to be provisioned by this provisioner
    */
-  public Set<GrouperGroupInfo> getAllGroupsForProvisioner() throws PspException {
+  public Set<GrouperGroupInfo> getAllGroupsForProvisioner()  {
+    Date start = new Date();
+
+    LOG.debug("{}: Compiling a list of all groups selected for provisioning", getDisplayName());
     Set<GrouperGroupInfo> result = new HashSet<>();
 
     Set<Group> interestingGroups = new HashSet<Group>();
@@ -1679,6 +1756,8 @@ public abstract class Provisioner
       if ( shouldGroupBeProvisioned(grouperGroupInfo) )
         result.add(grouperGroupInfo);
     }
+    LOG.info("{}: There are {} groups selected for provisioning (found in %s)",
+        getDisplayName(), result.size(), PspUtils.formatElapsedTime(start, null));
 
     return result;
   }
@@ -1717,21 +1796,27 @@ public abstract class Provisioner
    * @param grouperGroupInfo
    * @return
    */
-  protected boolean shouldGroupBeProvisioned(GrouperGroupInfo grouperGroupInfo) throws PspException {
+  protected boolean shouldGroupBeProvisioned(GrouperGroupInfo grouperGroupInfo) {
     if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
       return false;
     }
-    
-    String resultString = evaluateJexlExpression("GroupSelection", config.getGroupSelectionExpression(), null, null, grouperGroupInfo, null);
-    
-    boolean result = BooleanUtils.toBoolean(resultString);
-    
-    if ( result )
-      LOG.debug("{}: Group {} matches group-selection filter.", getDisplayName(), grouperGroupInfo);
-    else
-      LOG.trace("{}: Group {} does not match group-selection filter.", getDisplayName(), grouperGroupInfo);
-    
-    return result;
+
+    try {
+      String resultString = evaluateJexlExpression("GroupSelection", config.getGroupSelectionExpression(), null, null, grouperGroupInfo, null);
+
+      boolean result = BooleanUtils.toBoolean(resultString);
+
+      if (result)
+        LOG.debug("{}: Group {} matches group-selection filter.", getDisplayName(), grouperGroupInfo);
+      else
+        LOG.trace("{}: Group {} does not match group-selection filter.", getDisplayName(), grouperGroupInfo);
+
+      return result;
+    } catch (PspException e) {
+      LOG.warn("{}: Error evaluating groupSelection expression for group {}. Assuming group is not selected for provisioner",
+              getDisplayName(), grouperGroupInfo, e);
+      return false;
+    }
   }
 
   public String getDisplayName() {
@@ -1884,9 +1969,9 @@ public abstract class Provisioner
    * a complete sync of all groups.
    * @return true if this work item should initiate a full sync of all groups
    */
-  public boolean workItemShouldBeHandledByFullSyncOfEverything(ProvisioningWorkItem workItem) {
+  public boolean workItemMightChangeGroupSelection(ProvisioningWorkItem workItem) {
     // Skip if this ChangelogHandlingConfig says this doesn't affect group selection
-    if ( !workItem.matchesChangelogType(ChangelogHandlingConfig.changelogTypesThatAreHandledViaFullSync) ) {
+    if ( !workItem.matchesChangelogType(ChangelogHandlingConfig.changelogTypesThatCanChangeGroupSelection) ) {
       return false;
     }
 

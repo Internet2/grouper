@@ -14,7 +14,7 @@ public class ChangelogHandlingConfig {
 
     ////////////////////////////
     // How to find when group-selection might change (mostly attributes and folders)
-    public static final Set<ChangeLogTypeBuiltin> changelogTypesThatAreHandledViaFullSync
+    public static final Set<ChangeLogTypeBuiltin> changelogTypesThatCanChangeGroupSelection
         = new HashSet<>(Arrays.asList(
             ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD,
             ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE,
@@ -37,7 +37,7 @@ public class ChangelogHandlingConfig {
     public static final Set<ChangeLogTypeBuiltin> allRelevantChangelogTypes
         = new HashSet<>();
     static {
-        allRelevantChangelogTypes.addAll(changelogTypesThatAreHandledViaFullSync);
+        allRelevantChangelogTypes.addAll(changelogTypesThatCanChangeGroupSelection);
         allRelevantChangelogTypes.addAll(changelogTypesThatAreHandledIncrementally);
     }
 
