@@ -1210,7 +1210,7 @@ public class XmlExportAttributeAssign {
       //  attributeAssignSave.assignOwnerAttributeDef(ownerAttributeDef);
 
       AttributeDef ownerAttributeDef = AttributeDefFinder.findById(attributeAssign.getOwnerAttributeDefId(), true);
-      writer.write("AttributeDef ownerAttributeDef = AttributeDefFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\", false);\n");
+      writer.write("ownerAttributeDef = AttributeDefFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\", false);\n");
       writer.write("if (ownerAttributeDef == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find attributeDef: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\"); problemWithAttributeAssign = true; }\n");
       writer.write(variableNameForAttributeAssignSave + ".assignOwnerAttributeDef(ownerAttributeDef);\n");
     }
@@ -1264,7 +1264,7 @@ public class XmlExportAttributeAssign {
       
       //attributeAssignSave.assignOwnerStem(ownerStem);
 
-      writer.write("Stem ownerStem = StemFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\", false);\n");
+      writer.write("ownerStem = StemFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\", false);\n");
       writer.write("if (ownerStem == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find stem: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
       writer.write(variableNameForAttributeAssignSave + ".assignOwnerStem(ownerStem);\n");
     }
@@ -1304,7 +1304,7 @@ public class XmlExportAttributeAssign {
         
         //attributeAssignSave.assignOwnerStem(ownerStem);
 
-        writer.write("Stem ownerStem = StemFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\", false);\n");
+        writer.write("ownerStem = StemFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\", false);\n");
         writer.write("if (ownerStem == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find stem: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
         writer.write(variableNameForAttributeAssignSave + ".assignOwnerStem(ownerStem);\n");
         
@@ -1319,7 +1319,7 @@ public class XmlExportAttributeAssign {
         //  attributeAssignSave.assignOwnerAttributeDef(ownerAttributeDef);
 
         AttributeDef ownerAttributeDef = AttributeDefFinder.findById(membership.getOwnerAttrDefId(), true);
-        writer.write("AttributeDef ownerAttributeDef = AttributeDefFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\", false);\n");
+        writer.write("ownerAttributeDef = AttributeDefFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\", false);\n");
         writer.write("if (ownerAttributeDef == null) {gshTotalErrorCount++;  System.out.println(\"Error: cant find attributeDef: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\"); problemWithAttributeAssign = true; }\n");
         writer.write(variableNameForAttributeAssignSave + ".assignOwnerAttributeDef(ownerAttributeDef);\n");
 
