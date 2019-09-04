@@ -1748,10 +1748,10 @@ public class UiV2GrouperLoader {
         }
       }
       {
-        String grouperLoaderLdapUpdatersName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapUpdatersName"));
-        if (!error && !StringUtils.isBlank(grouperLoaderLdapUpdatersName)) {
+        String grouperLoaderLdapAttrUpdatersName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapAttrUpdatersName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapAttrUpdatersName)) {
           
-          grouperLoaderContainer.setEditLoaderLdapAttrUpdaters(grouperLoaderLdapUpdatersName);
+          grouperLoaderContainer.setEditLoaderLdapAttrUpdaters(grouperLoaderLdapAttrUpdatersName);
           
         }
       }
