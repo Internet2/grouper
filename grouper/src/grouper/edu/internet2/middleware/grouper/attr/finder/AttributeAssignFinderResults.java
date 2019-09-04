@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -49,6 +50,11 @@ public class AttributeAssignFinderResults {
    * id to stem map
    */
   private Map<String, Stem> idToStemMap = new HashMap<String, Stem>();
+
+  /**
+   * id to member map
+   */
+  private Map<String, Member> idToMemberMap = new HashMap<String, Member>();
 
   
   /**
@@ -156,6 +162,10 @@ public class AttributeAssignFinderResults {
         Stem stem = (Stem) result[2];
         idToStemMap.put(stem.getId(), stem);
         attributeAssignFinderResult.setOwnerStem(stem);
+      } else if (result[2] instanceof Member) {
+        Member member = (Member) result[2];
+        idToMemberMap.put(member.getId(), member);
+        attributeAssignFinderResult.setOwnerMember(member);
       } else if (result[2] instanceof AttributeAssign) {
         AttributeAssign attributeAssign = (AttributeAssign) result[2];
         idToAttributeAssignMap.put(attributeAssign.getId(), attributeAssign);
@@ -172,7 +182,7 @@ public class AttributeAssignFinderResults {
           Set<AttributeAssignValue> attributeAssignValueSet = (Set<AttributeAssignValue>)result[4];
           attributeAssignIdToAttributeAssignValuesMap.put(attributeAssign.getId(), attributeAssignValueSet);
           attributeAssignFinderResult.setAttributeAssignValues(attributeAssignValueSet);
-        } else {
+        } else if (result[4] != null) {
           throw new RuntimeException("Not expecting value object: " + result[4]);
         }
       }

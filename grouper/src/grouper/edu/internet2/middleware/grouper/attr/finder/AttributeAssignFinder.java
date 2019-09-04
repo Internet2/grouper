@@ -469,19 +469,35 @@ public class AttributeAssignFinder {
             
     } else if (theAttributeAssignType == AttributeAssignType.group) {
         
-      return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
           this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
         
-    } if (theAttributeAssignType == AttributeAssignType.group_asgn) {
+    } else if (theAttributeAssignType == AttributeAssignType.member) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.attributeCheckReadOnAttributeDef, 
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
         
-      return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+    } else if (theAttributeAssignType == AttributeAssignType.group_asgn) {
+        
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
             null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
               
-    } if (theAttributeAssignType == AttributeAssignType.stem_asgn) {
+    } else if (theAttributeAssignType == AttributeAssignType.stem_asgn) {
       
-      return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+            
+    } else if (theAttributeAssignType == AttributeAssignType.mem_asgn) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsOnAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
             
     }
     return new HashSet<Object[]>();

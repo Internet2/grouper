@@ -180,11 +180,20 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   }
 
   /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   */
+  public static void massageMemberSortFields(QuerySort querySort) {
+    massageMemberSortFields(querySort, "m");
+  }
+
+  /**
    * if there are sort fields, go through them, and replace name with m.subjectIdDb, etc,
    * sort_string0 for m.sortString0, etc
    * @param querySort
    */
-  public static void massageMemberSortFields(QuerySort querySort) {
+  public static void massageMemberSortFields(QuerySort querySort, String alias) {
     if (querySort == null) {
       return;
     }
@@ -192,62 +201,62 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
       if (StringUtils.equalsIgnoreCase("uuid", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("id", querySortField.getColumn())) {
-        querySortField.setColumn("m.uuid");
+        querySortField.setColumn(alias + ".uuid");
       }
       if (StringUtils.equalsIgnoreCase("subjectIdDb", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("subject_id", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("subjectId", querySortField.getColumn())) {
-        querySortField.setColumn("m.subjectIdDb");
+        querySortField.setColumn(alias + ".subjectIdDb");
       }
       if (StringUtils.equalsIgnoreCase("subjectSourceIdDb", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("subject_source", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("sourceId", querySortField.getColumn())) {
-        querySortField.setColumn("m.subjectSourceIdDb");
+        querySortField.setColumn(alias + ".subjectSourceIdDb");
       }
       if (StringUtils.equalsIgnoreCase("subjectTypeId", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("subject_type", querySortField.getColumn())) {
-        querySortField.setColumn("m.subjectTypeId");
+        querySortField.setColumn(alias + ".subjectTypeId");
       }
       if (StringUtils.equalsIgnoreCase("sortString0", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("sort_string0", querySortField.getColumn())) {
         if (!SortStringEnum.newInstance(0).hasAccess()) {
           throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
         }
-        querySortField.setColumn("m.sortString0");
+        querySortField.setColumn(alias + ".sortString0");
       }
       if (StringUtils.equalsIgnoreCase("sortString1", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("sort_string1", querySortField.getColumn())) {
         if (!SortStringEnum.newInstance(1).hasAccess()) {
           throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
         }
-        querySortField.setColumn("m.sortString1");
+        querySortField.setColumn(alias + ".sortString1");
       }
       if (StringUtils.equalsIgnoreCase("sortString2", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("sort_string2", querySortField.getColumn())) {
         if (!SortStringEnum.newInstance(2).hasAccess()) {
           throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
         }
-        querySortField.setColumn("m.sortString2");
+        querySortField.setColumn(alias + ".sortString2");
       }
       if (StringUtils.equalsIgnoreCase("sortString3", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("sort_string3", querySortField.getColumn())) {
         if (!SortStringEnum.newInstance(3).hasAccess()) {
           throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
         }
-        querySortField.setColumn("m.sortString3");
+        querySortField.setColumn(alias + ".sortString3");
       }
       if (StringUtils.equalsIgnoreCase("sortString4", querySortField.getColumn())
           || StringUtils.equalsIgnoreCase("sort_string4", querySortField.getColumn())) {
         if (!SortStringEnum.newInstance(4).hasAccess()) {
           throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
         }
-        querySortField.setColumn("m.sortString4");
+        querySortField.setColumn(alias + ".sortString4");
       }
       if (StringUtils.equalsIgnoreCase("name", querySortField.getColumn())) {
-        querySortField.setColumn("m.name");
+        querySortField.setColumn(alias + ".name");
       }
       if (StringUtils.equalsIgnoreCase("description", querySortField.getColumn())) {
-        querySortField.setColumn("m.description");
+        querySortField.setColumn(alias + ".description");
       }
 
     }

@@ -20,7 +20,6 @@ package edu.internet2.middleware.grouper.attr;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -61,13 +60,8 @@ import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
@@ -90,7 +84,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindOwnersGroup"));
+    TestRunner.run(new AttributeAssignTest("testFindOwnersAttributeDef"));
     
 //    GrouperStartup.startup();
 //    
@@ -8393,9 +8387,6 @@ public class AttributeAssignTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    long gshTotalObjectCount = 0L;
-    long gshTotalChangeCount = 0L;
-    long gshTotalErrorCount = 0L;
 
     GroupSave groupSave = null;
     Group group = null;
@@ -8697,9 +8688,6 @@ public class AttributeAssignTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    long gshTotalObjectCount = 0L;
-    long gshTotalChangeCount = 0L;
-    long gshTotalErrorCount = 0L;
   
     GroupSave groupSave = null;
     Group group = null;
@@ -8950,6 +8938,513 @@ public class AttributeAssignTest extends GrouperTest {
     attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
     assertEquals(testCtestCFolder_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
     assertEquals(testCtestCFolder_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    //didnt get values
+    assertEquals("mno", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+  }
+
+  /**
+   * 
+   */
+  public void testFindOwnersMember() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    GroupSave groupSave = null;
+    Group group = null;
+    Group ownerGroup = null;
+    AttributeDefSave attributeDefSave = null;
+    AttributeDef attributeDef = null;
+    AttributeDefNameSave attributeDefNameSave = null;
+    AttributeDefName attributeDefName = null;
+    AttributeAssignSave attributeAssignSave = null;
+    AttributeAssignSave attributeAssignOnAssignSave = null;
+    boolean problemWithAttributeAssign = false;
+
+    // root folder
+    Stem testC = new StemSave(grouperSession).assignName("testC").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC").save();
+  
+    // attributes to assign (could assign to anything)
+    AttributeDef testCattrDef1 = new AttributeDefSave(grouperSession).assignName("testC:attrDef1").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string)
+        .assignToAttributeDef(true).assignToAttributeDefAssn(true).assignToEffMembership(true).assignToEffMembershipAssn(true).assignToGroup(true)
+        .assignToGroupAssn(true).assignToImmMembership(true).assignToImmMembershipAssn(true).assignToMember(true).assignToMemberAssn(true)
+        .assignToStem(true).assignToStemAssn(true).assignToImmMembership(true).assignAttributeDefType(AttributeDefType.attr)
+        .assignMultiAssignable(false).assignMultiValued(false).save();
+    AttributeDef testCattrDef2 = new AttributeDefSave(grouperSession).assignName("testC:attrDef2").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string)
+        .assignToAttributeDef(true).assignToAttributeDefAssn(true).assignToEffMembership(true).assignToEffMembershipAssn(true).assignToGroup(true)
+        .assignToGroupAssn(true).assignToImmMembership(true).assignToImmMembershipAssn(true).assignToMember(true).assignToMemberAssn(true)
+        .assignToStem(true).assignToStemAssn(true).assignToImmMembership(true).assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+        .assignMultiValued(false).save();
+    testCattrDef1.getAttributeDefActionDelegate().configureActionList("assign");
+    testCattrDef2.getAttributeDefActionDelegate().configureActionList("assign");
+  
+    // couple names
+    AttributeDefName testCattrDef1name = new AttributeDefNameSave(grouperSession, testCattrDef1).assignName("testC:attrDef1name").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC:attrDef1name").save(); 
+    AttributeDefName testCattrDef2name = new AttributeDefNameSave(grouperSession, testCattrDef2).assignName("testC:attrDef2name").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC:attrDef2name").save(); 
+  
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    
+    // assign to folders
+    AttributeAssign member_testCattrDef1name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.member)
+        .assignAttributeDefName(testCattrDef1name).assignOwnerMember(member).save();
+  
+    AttributeAssignValue member_testCattrDef1name_jkl = member
+        .getAttributeValueDelegate().assignValue(testCattrDef1name.getName(), "jkl").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    AttributeAssign member_testCattrDef1name_testCattrDef2name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.mem_asgn)
+        .assignAttributeDefName(testCattrDef2name).assignOwnerAttributeAssign(member_testCattrDef1name).save();
+  
+    AttributeAssignValue member_testCattrDef1name_testCattrDef2name_mno = member_testCattrDef1name.getAttributeValueDelegate()
+        .assignValue(testCattrDef2name.getName(), "mno").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    AttributeAssign member2_testCattrDef2name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.member)
+        .assignAttributeDefName(testCattrDef2name).assignOwnerMember(member2).save();
+  
+    AttributeAssignValue member2_testCattrDef2name_pqr = member2
+        .getAttributeValueDelegate().assignValue(testCattrDef2name.getName(), "pqr").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    // query by attribute def name
+    AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinder()
+      .addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.member)
+        .assignCheckAttributeReadOnOwner(true).findAttributeAssignFinderResults();
+      
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    AttributeAssignFinderResult attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(member2, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertNull(attributeAssignFinderResult.getAttributeAssignValues());
+    
+    // get values
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId())
+        .assignAttributeAssignType(AttributeAssignType.member)
+        .assignCheckAttributeReadOnOwner(true).assignRetrieveValues(true).findAttributeAssignFinderResults();
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(member2, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // did get values
+    assertEquals("pqr", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    // get assignments on assignments
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef1name.getId()).assignAttributeAssignType(AttributeAssignType.member)
+        .assignCheckAttributeReadOnOwner(true).assignIncludeAssignmentsOnAssignments(true).findAttributeAssignFinderResults();
+      
+    assertEquals(2, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    List<AttributeAssignFinderResult> attributeAssignFinderResultList = new ArrayList<AttributeAssignFinderResult>(attributeAssignFinderResults.getAttributeAssignFinderResults());
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(0);
+    assertEquals(member, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member_testCattrDef1name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertNull(attributeAssignFinderResult.getAttributeAssignValues());
+  
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
+    assertEquals(member_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
+    assertEquals(member_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertNull(attributeAssignFinderResult.getAttributeAssignValues());
+  
+    // get assignments on assignments with values
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef1name.getId()).assignAttributeAssignType(AttributeAssignType.member)
+        .assignCheckAttributeReadOnOwner(true).assignIncludeAssignmentsOnAssignments(true).assignRetrieveValues(true).findAttributeAssignFinderResults();
+      
+    assertEquals(2, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResultList = new ArrayList<AttributeAssignFinderResult>(attributeAssignFinderResults.getAttributeAssignFinderResults());
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(0);
+    assertEquals(member, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member_testCattrDef1name, attributeAssignFinderResult.getAttributeAssign());
+    // get values
+    assertEquals("jkl", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
+    assertEquals(member_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
+    assertEquals(member_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // get values
+    assertEquals("mno", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    
+    // can do everything
+    Subject testSubject0 = SubjectFinder.findById("test.subject.0", true);
+    testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject0, AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    // can do everything but with attr privs
+    Subject testSubject1 = SubjectFinder.findById("test.subject.1", true);
+    testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_READ, false);
+    
+    // has attr read on groups but cant read attribute
+    Subject testSubject2 = SubjectFinder.findById("test.subject.2", true);
+    testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject2, AttributeDefPrivilege.ATTR_VIEW, false);
+        
+    GrouperSession.stopQuietly(grouperSession);
+    
+    // ######################################### has admin
+    
+    GrouperSession.start(testSubject0);
+    
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.member)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+      
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(member2, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //########################################## can do everything but with attr privs
+  
+    GrouperSession.start(testSubject1);
+  
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.member)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+  
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(member2, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+    //########################################## cant read attribute
+
+    GrouperSession.start(testSubject2);
+
+    // check security on attribute but cant read
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.member)
+        .assignAttributeCheckReadOnAttributeDef(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+
+    assertEquals(0, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+
+    // dont check security on attribute
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.member)
+        .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+
+    // its not checking on attribute
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(member2, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+    //########################################## get assignment on assignment
+  
+    GrouperSession.startRootSession();
+    
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.mem_asgn)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+      
+    // gets the base attribute assignment, and the assignment on assignment
+    assertEquals(2, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResultList = new ArrayList<AttributeAssignFinderResult>(attributeAssignFinderResults.getAttributeAssignFinderResults());
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(0);
+    assertEquals(member, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member_testCattrDef1name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertEquals(0, GrouperUtil.length(attributeAssignFinderResult.getAttributeAssignValues()));
+  
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
+    assertEquals(member_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
+    assertEquals(member_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    //didnt get values
+    assertEquals(0, GrouperUtil.length(attributeAssignFinderResult.getAttributeAssignValues()));
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+    //########################################## get assignment on assignment with values
+  
+    GrouperSession.startRootSession();
+    
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.mem_asgn)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).assignRetrieveValues(true).findAttributeAssignFinderResults();
+      
+    // gets the base attribute assignment, and the assignment on assignment
+    assertEquals(2, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResultList = new ArrayList<AttributeAssignFinderResult>(attributeAssignFinderResults.getAttributeAssignFinderResults());
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(0);
+    assertEquals(member, attributeAssignFinderResult.getOwnerMember());
+    assertEquals(member_testCattrDef1name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertEquals("jkl", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
+    assertEquals(member_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
+    assertEquals(member_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    //didnt get values
+    assertEquals("mno", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+  }
+
+  /**
+   * 
+   */
+  public void testFindOwnersAttributeDef() {
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+    GroupSave groupSave = null;
+    Group group = null;
+    Group ownerGroup = null;
+    AttributeDefSave attributeDefSave = null;
+    AttributeDef attributeDef = null;
+    AttributeDefNameSave attributeDefNameSave = null;
+    AttributeDefName attributeDefName = null;
+    AttributeAssignSave attributeAssignSave = null;
+    AttributeAssignSave attributeAssignOnAssignSave = null;
+    boolean problemWithAttributeAssign = false;
+  
+    // root folder
+    Stem testC = new StemSave(grouperSession).assignName("testC").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC").save();
+  
+    // couple subattributes
+    AttributeDef testCattrDef1owner = new AttributeDefSave(grouperSession).assignName("testC:attrDef1owner").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string)
+        .assignToAttributeDef(true).assignAttributeDefType(AttributeDefType.attr)
+        .assignMultiAssignable(false).assignMultiValued(false).save();
+    AttributeDef testCattrDef2owner = new AttributeDefSave(grouperSession).assignName("testC:attrDef2owner").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string)
+        .assignToAttributeDef(true).assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+        .assignMultiValued(false).save();
+    testCattrDef1owner.getAttributeDefActionDelegate().configureActionList("assign");
+    testCattrDef2owner.getAttributeDefActionDelegate().configureActionList("assign");
+
+    AttributeDefName testCattrDef1nameOwner = new AttributeDefNameSave(grouperSession, testCattrDef1owner).assignName("testC:attrDef1nameOwner").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC:attrDef1name").save(); 
+    AttributeDefName testCattrDef2nameOwner = new AttributeDefNameSave(grouperSession, testCattrDef2owner).assignName("testC:attrDef2nameOwner").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC:attrDef2name").save(); 
+
+    // attributes to assign (could assign to anything)
+    AttributeDef testCattrDef1 = new AttributeDefSave(grouperSession).assignName("testC:attrDef1").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string)
+        .assignToAttributeDef(true).assignToAttributeDefAssn(true).assignToEffMembership(true).assignToEffMembershipAssn(true).assignToGroup(true)
+        .assignToGroupAssn(true).assignToImmMembership(true).assignToImmMembershipAssn(true).assignToMember(true).assignToMemberAssn(true)
+        .assignToStem(true).assignToStemAssn(true).assignToImmMembership(true).assignAttributeDefType(AttributeDefType.attr)
+        .assignMultiAssignable(false).assignMultiValued(false).save();
+    AttributeDef testCattrDef2 = new AttributeDefSave(grouperSession).assignName("testC:attrDef2").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string)
+        .assignToAttributeDef(true).assignToAttributeDefAssn(true).assignToEffMembership(true).assignToEffMembershipAssn(true).assignToGroup(true)
+        .assignToGroupAssn(true).assignToImmMembership(true).assignToImmMembershipAssn(true).assignToMember(true).assignToMemberAssn(true)
+        .assignToStem(true).assignToStemAssn(true).assignToImmMembership(true).assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+        .assignMultiValued(false).save();
+    testCattrDef1.getAttributeDefActionDelegate().configureActionList("assign");
+    testCattrDef2.getAttributeDefActionDelegate().configureActionList("assign");
+  
+    // couple names
+    AttributeDefName testCattrDef1name = new AttributeDefNameSave(grouperSession, testCattrDef1).assignName("testC:attrDef1name").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC:attrDef1name").save(); 
+    AttributeDefName testCattrDef2name = new AttributeDefNameSave(grouperSession, testCattrDef2).assignName("testC:attrDef2name").assignCreateParentStemsIfNotExist(true).assignDisplayName("testC:attrDef2name").save(); 
+  
+    // assign to folders
+    AttributeAssign testCattrDef1owner_testCattrDef1name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignAttributeDefName(testCattrDef1name).assignOwnerAttributeDef(testCattrDef1owner).save();
+  
+    AttributeAssignValue testCattrDef1owner_testCattrDef1name_jkl = testCattrDef1owner
+        .getAttributeValueDelegate().assignValue(testCattrDef1name.getName(), "jkl").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    AttributeAssign testCattrDef1owner_testCattrDef1name_testCattrDef2name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.attr_def_asgn)
+        .assignAttributeDefName(testCattrDef2name).assignOwnerAttributeAssign(testCattrDef1owner_testCattrDef1name).save();
+  
+    AttributeAssignValue testCattrDef1owner_testCattrDef1name_testCattrDef2name_mno = testCattrDef1owner_testCattrDef1name.getAttributeValueDelegate()
+        .assignValue(testCattrDef2name.getName(), "mno").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    AttributeAssign testCattrDef2owner_testCattrDef2name = new AttributeAssignSave(grouperSession).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignAttributeDefName(testCattrDef2name).assignOwnerAttributeDef(testCattrDef2owner).save();
+  
+    AttributeAssignValue testCattrDef2owner_testCattrDef2name_pqr = testCattrDef2owner
+        .getAttributeValueDelegate().assignValue(testCattrDef2name.getName(), "pqr").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    // query by attribute def name
+    AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinder()
+      .addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).findAttributeAssignFinderResults();
+      
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    AttributeAssignFinderResult attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(testCattrDef2owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef2owner_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertNull(attributeAssignFinderResult.getAttributeAssignValues());
+    
+    // get values
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId())
+        .assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).assignRetrieveValues(true).findAttributeAssignFinderResults();
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(testCattrDef2owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef2owner_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // did get values
+    assertEquals("pqr", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    // get assignments on assignments
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef1name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).assignIncludeAssignmentsOnAssignments(true).findAttributeAssignFinderResults();
+      
+    assertEquals(2, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    List<AttributeAssignFinderResult> attributeAssignFinderResultList = new ArrayList<AttributeAssignFinderResult>(attributeAssignFinderResults.getAttributeAssignFinderResults());
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(0);
+    assertEquals(testCattrDef1owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef1owner_testCattrDef1name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertNull(attributeAssignFinderResult.getAttributeAssignValues());
+  
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
+    assertEquals(testCattrDef1owner_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
+    assertEquals(testCattrDef1owner_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertNull(attributeAssignFinderResult.getAttributeAssignValues());
+  
+    // get assignments on assignments with values
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef1name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).assignIncludeAssignmentsOnAssignments(true).assignRetrieveValues(true).findAttributeAssignFinderResults();
+      
+    assertEquals(2, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResultList = new ArrayList<AttributeAssignFinderResult>(attributeAssignFinderResults.getAttributeAssignFinderResults());
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(0);
+    assertEquals(testCattrDef1owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef1owner_testCattrDef1name, attributeAssignFinderResult.getAttributeAssign());
+    // get values
+    assertEquals("jkl", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
+    assertEquals(testCattrDef1owner_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
+    assertEquals(testCattrDef1owner_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    // get values
+    assertEquals("mno", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    
+    // can do everything
+    Subject testSubject0 = SubjectFinder.findById("test.subject.0", true);
+    testCattrDef1owner.getPrivilegeDelegate().grantPriv(testSubject0, AttributeDefPrivilege.ATTR_ADMIN, false);
+    testCattrDef2owner.getPrivilegeDelegate().grantPriv(testSubject0, AttributeDefPrivilege.ATTR_ADMIN, false);
+    testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject0, AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    // can do everything but with attr privs
+    Subject testSubject1 = SubjectFinder.findById("test.subject.1", true);
+    testCattrDef1owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+    testCattrDef2owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+    testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_READ, false);
+    
+    // has attr read on groups but cant read attribute
+    Subject testSubject2 = SubjectFinder.findById("test.subject.2", true);
+    testCattrDef1owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+    testCattrDef2owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+    testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject2, AttributeDefPrivilege.ATTR_VIEW, false);
+    
+    // doesnt have attr read on groups but can read attribute
+    Subject testSubject3 = SubjectFinder.findById("test.subject.3", true);
+    testCattrDef1owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_READ, false);
+    testCattrDef2owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_READ, false);
+    testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject3, AttributeDefPrivilege.ATTR_READ, false);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    // ######################################### has admin
+    
+    GrouperSession.start(testSubject0);
+    
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+      
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(testCattrDef2owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef2owner_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //########################################## can do everything but with attr privs
+  
+    GrouperSession.start(testSubject1);
+  
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+  
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(testCattrDef2owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef2owner_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+    //########################################## has attr read on groups but cant read attribute
+  
+    GrouperSession.start(testSubject2);
+    
+    // check security on attribute but cant read
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).assignAttributeCheckReadOnAttributeDef(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+  
+    assertEquals(0, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+  
+    // dont check security on attribute
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+  
+    // its not checking on attribute
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(testCattrDef2owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef2owner_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+    //########################################## doesnt have attr read on attribute defs but can read attribute
+  
+    GrouperSession.start(testSubject3);
+    
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+      
+    assertEquals(0, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+    //########################################## get assignment on assignment
+  
+    GrouperSession.startRootSession();
+    
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def_asgn)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+      
+    // gets the base attribute assignment, and the assignment on assignment
+    assertEquals(2, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResultList = new ArrayList<AttributeAssignFinderResult>(attributeAssignFinderResults.getAttributeAssignFinderResults());
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(0);
+    assertEquals(testCattrDef1owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef1owner_testCattrDef1name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertEquals(0, GrouperUtil.length(attributeAssignFinderResult.getAttributeAssignValues()));
+  
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
+    assertEquals(testCattrDef1owner_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
+    assertEquals(testCattrDef1owner_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+    //didnt get values
+    assertEquals(0, GrouperUtil.length(attributeAssignFinderResult.getAttributeAssignValues()));
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+    //########################################## get assignment on assignment with values
+  
+    GrouperSession.startRootSession();
+    
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.attr_def_asgn)
+        .assignCheckAttributeReadOnOwner(true).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).assignRetrieveValues(true).findAttributeAssignFinderResults();
+      
+    // gets the base attribute assignment, and the assignment on assignment
+    assertEquals(2, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResultList = new ArrayList<AttributeAssignFinderResult>(attributeAssignFinderResults.getAttributeAssignFinderResults());
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(0);
+    assertEquals(testCattrDef1owner, attributeAssignFinderResult.getOwnerAttributeDef());
+    assertEquals(testCattrDef1owner_testCattrDef1name, attributeAssignFinderResult.getAttributeAssign());
+    // didnt get values
+    assertEquals("jkl", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
+  
+    attributeAssignFinderResult = attributeAssignFinderResultList.get(1);
+    assertEquals(testCattrDef1owner_testCattrDef1name, attributeAssignFinderResult.getOwnerAttributeAssign());
+    assertEquals(testCattrDef1owner_testCattrDef1name_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
     //didnt get values
     assertEquals("mno", attributeAssignFinderResult.getAttributeAssignValues().iterator().next().getValueString());
   

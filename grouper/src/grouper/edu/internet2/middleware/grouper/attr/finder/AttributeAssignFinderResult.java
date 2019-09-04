@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.attr.finder;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -97,21 +98,74 @@ public class AttributeAssignFinderResult {
   
   
   
-  
+  /**
+   * owner attribute assign
+   * @return owner attribute assign
+   */
   public AttributeAssign getOwnerAttributeAssign() {
     return ownerAttributeAssign;
   }
+  
+  /**
+   * 
+   * @param ownerAttributeAssign1
+   */
+  public void setOwnerAttributeAssign(AttributeAssign ownerAttributeAssign1) {
+    this.ownerAttributeAssign = ownerAttributeAssign1;
+  }
+
+  /**
+   * attr def
+   */
+  private AttributeDef ownerAttributeDef;
 
   
-  public void setOwnerAttributeAssign(AttributeAssign ownerAttributeAssign) {
-    this.ownerAttributeAssign = ownerAttributeAssign;
+  /**
+   * attr def
+   * @return the ownerAttributeDef
+   */
+  public AttributeDef getOwnerAttributeDef() {
+    return this.ownerAttributeDef;
   }
+
+  
+  /**
+   * attr def
+   * @param ownerAttributeDef1 the ownerAttributeDef to set
+   */
+  public void setOwnerAttributeDef(AttributeDef ownerAttributeDef1) {
+    this.ownerAttributeDef = ownerAttributeDef1;
+  }
+
 
   /**
    * stem
    */
   private Stem ownerStem;
   
+  /**
+   * member
+   */
+  private Member ownerMember;
+  
+  
+  /**
+   * member
+   * @return the ownerMember
+   */
+  public Member getOwnerMember() {
+    return this.ownerMember;
+  }
+
+  
+  /**
+   * member
+   * @param ownerMember1 the ownerMember to set
+   */
+  public void setOwnerMember(Member ownerMember1) {
+    this.ownerMember = ownerMember1;
+  }
+
   /**
    * stem
    * @return the ownerStem
