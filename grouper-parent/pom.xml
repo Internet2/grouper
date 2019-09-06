@@ -46,7 +46,7 @@
 
     <properties>
         <!-- Build Settings -->
-        <project.site.deployDirectory>/tmp/grouper-parent</project.site.deployDirectory>
+        <project.site.deployDirectory>/tmp/groupersite/grouper-parent</project.site.deployDirectory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -54,7 +54,7 @@
         <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss Z</maven.build.timestamp.format>
 
         <!-- Plugin Versions -->
-        <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
         <maven-source-plugin.version>2.3</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
@@ -66,10 +66,11 @@
         <maven-build-helper-plugin.version>1.9</maven-build-helper-plugin.version>
         <maven-license-plugin.version>2.6</maven-license-plugin.version>
         <maven-pmd-plugin.version>3.1</maven-pmd-plugin.version>
-        <maven-jxr-plugin.version>2.4</maven-jxr-plugin.version>
-        <maven-projectinfo-reports-plugin.version>2.7</maven-projectinfo-reports-plugin.version>
+        <maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
+        <maven-projectinfo-reports-plugin.version>3.0.0</maven-projectinfo-reports-plugin.version>
         <maven-taglist-plugin.version>2.4</maven-taglist-plugin.version>
-        <maven-versions-plugin.version>2.1</maven-versions-plugin.version>
+        <maven-versions-plugin.version>2.7</maven-versions-plugin.version>
+        <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
 
         <!-- Dependency Versions -->
         <json.version>20140107</json.version>
@@ -900,6 +901,9 @@
                     <configuration>
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
+                        <!-- useIncrementalCompilation does the opposite of what you would think. Set to
+                             false to not rebuild everything constantly -->
+                        <useIncrementalCompilation>false</useIncrementalCompilation>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -972,6 +976,11 @@
                         </lifecycleMappingMetadata>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${maven-site-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -1017,6 +1026,8 @@
                         <configuration>
                             <minmemory>128m</minmemory>
                             <maxmemory>1g</maxmemory>
+                            <!-- (for version < 3) <additionalparam>-Xdoclint:none</additionalparam>-->
+                            <doclint>none</doclint>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -1044,9 +1055,12 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
+                    <!-- detectJavaApiLink defaults to true, so this may not need to be set -->
+                    <!--
                     <links>
                         <link>http://java.sun.com/j2se/1.6.0/docs/api/</link>
                     </links>
+                    -->
                     <quiet>true</quiet>
                     <author>false</author>
                     <version>true</version>
@@ -1055,7 +1069,28 @@
                     <overview>src/main/java/overview.html</overview>
                     <minmemory>128m</minmemory>
                     <maxmemory>1g</maxmemory>
+                    <!-- (for version < 3) <additionalparam>-Xdoclint:none</additionalparam>-->
+                    <doclint>none</doclint>
+                    <!-- prevent every javadoc file changing on each run -->
+                    <notimestamp>true</notimestamp>
+                    <!-- prevent the footer from autoincrementing the year; keep it consistent with the original gh-pages -->
+                    <bottom><![CDATA[Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.]]></bottom>
                 </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>default</id>
+                        <reports>
+                            <report>javadoc</report>
+                            <report>test-javadoc</report>
+                        </reports>
+                    </reportSet>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1065,11 +1100,12 @@
                   <reportSet>
                     <reports>
                       <report>index</report>
-                      <report>project-team</report>
-                      <report>mailing-list</report>
-                      <report>issue-tracking</report>
-                      <report>license</report>
+                      <report>team</report>
+                      <report>mailing-lists</report>
+                      <report>issue-management</report>
+                      <report>licenses</report>
                       <report>scm</report>
+                      <!--<report>summary</report>-->
                     </reports>
                   </reportSet>
                 </reportSets>
@@ -1078,6 +1114,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>${maven-jxr-plugin.version}</version>
+                <reportSets>
+                  <reportSet>
+                    <inherited>false</inherited>
+                    <reports>
+                      <report>jxr</report>
+                      <report>test-jxr</report>
+                    </reports>
+                  </reportSet>
+              </reportSets>
               </plugin>
               <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -1119,29 +1164,23 @@
 
     <issueManagement>
         <system>JIRA</system>
-        <url>http://bugs.internet2.edu/</url>
+        <url>https://todos.internet2.edu/browse/GRP</url>
     </issueManagement>
 
     <mailingLists>
         <mailingList>
             <name>Grouper Users</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-users@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-users</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
-            </otherArchives>
+            <subscribe>https://lists.internet2.edu/sympa/subscribe/grouper-users</subscribe>
+            <unsubscribe>https://lists.internet2.edu/sympa/signoff/grouper-users</unsubscribe>
+            <post>mailto:grouper-users@internet2.edu</post>
+            <archive>https://lists.internet2.edu/sympa/arc/grouper-users</archive>
         </mailingList>
         <mailingList>
             <name>Grouper Development</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-dev@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
-            </otherArchives>
+            <subscribe>https://lists.internet2.edu/sympa/subscribe/grouper-dev</subscribe>
+            <unsubscribe>https://lists.internet2.edu/sympa/signoff/grouper-dev</unsubscribe>
+            <post>mailto:grouper-dev@internet2.edu</post>
+            <archive>https://lists.internet2.edu/sympa/arc/</archive>
         </mailingList>
     </mailingLists>
 
@@ -1160,31 +1199,51 @@
             <organizationUrl>http://www.upenn.edu</organizationUrl>
             <email>mchyzer@isc.upenn.edu</email>
             <roles>
-                <role>developer</role>
+                <role>Project Lead</role>
+                <role>Developer</role>
             </roles>
             <timezone>-5</timezone>
         </developer>
         <developer>
-            <id>shilen</id>
+            <id>sipatel2</id>
             <name>Shilen Patel</name>
             <organization>Duke University</organization>
             <organizationUrl>http://www.duke.edu</organizationUrl>
             <email>shilen@duke.edu</email>
             <roles>
-                <role>developer</role>
+                <role>Developer</role>
             </roles>
             <timezone>-5</timezone>
         </developer>
         <developer>
-            <id>mmoayyed</id>
-            <name>Misagh Moayyed</name>
-            <organization>Unicon, Inc</organization>
-            <organizationUrl>http://www.unicon.net/</organizationUrl>
-            <email>mmoayyed@unicon.net</email>
+            <id>bafbl</id>
+            <name>Bert Bee-Lindgren</name>
+            <organization>Georgia Tech</organization>
+            <organizationUrl>https://www.gatech.edu/</organizationUrl>
+            <email>bert.bee-lindgren@oit.gatech.edu</email>
             <roles>
-                <role>developer</role>
+                <role>Developer</role>
             </roles>
-            <timezone>-7</timezone>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>sachdeva-vivek</id>
+            <name>Vivek Sachdeva</name>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>-8</timezone>
+        </developer>
+        <developer>
+            <id>cer28</id>
+            <name>Chad Redman</name>
+            <organization>University of North Carolina - Chapel Hill</organization>
+            <organizationUrl>http://www.unc.edu</organizationUrl>
+            <email>chad_redman@unc.edu</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>America/New_York</timezone>
         </developer>
     </developers>
 

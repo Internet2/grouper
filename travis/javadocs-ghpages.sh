@@ -1,7 +1,7 @@
 #!/bin/bash
 
 invokeJavadoc=false
-grouperDocsDirectory="/tmp"
+grouperDocsDirectory="/tmp/groupersite"
 
 # Only invoke the javadoc deployment process
 # for the first job in the build matrix, so as
