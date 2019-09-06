@@ -847,6 +847,8 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <version>${maven-license-plugin.version}</version>
                 <configuration>
+                    <!-- we don't need to run this every time; use `-Dlicense.skip=false` -->
+                    <skip>true</skip>
                     <header>https://raw.githubusercontent.com/Internet2/grouper/master/LICENSE.txt</header>
                     <failIfMissing>false</failIfMissing>
                     <skipExistingHeaders>true</skipExistingHeaders>
