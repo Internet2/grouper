@@ -11,11 +11,11 @@
     <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/ext/dhtmlxcombo_extra.js"></script>
 
 <%-- for the new group or new stem button --%>
-<input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.parentUuid}" />
+<input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.parentUuid}" />
 
 
     <c:choose>
-      <c:when test="${fn:length(grouperRequestContainer.attributeDefNameContainer.guiAttributeAssignFinderResults.guiAttributeAssignFinderResults) == 0}">
+      <c:when test="${fn:length(grouperRequestContainer.attributeDefContainer.guiAttributeAssignFinderResults.guiAttributeAssignFinderResults) == 0}">
         ${textContainer.text['groupViewAttributeAssignsNoAssignedAttributes']}
       </c:when>
       <c:otherwise>
@@ -32,7 +32,7 @@
              </thead>
              <tbody>
                <c:set var="i" value="0" />
-               <c:forEach items="${grouperRequestContainer.attributeDefNameContainer.guiAttributeAssignFinderResults.guiAttributeAssignFinderResults}" var="guiAttributeAssignFinderResult" >
+               <c:forEach items="${grouperRequestContainer.attributeDefContainer.guiAttributeAssignFinderResults.guiAttributeAssignFinderResults}" var="guiAttributeAssignFinderResult" >
                  
                  <c:set var="attributeAssign" value="${guiAttributeAssignFinderResult.guiAttributeAssign.attributeAssign}" />
                  <c:set var="guiAttributeAssign" value="${guiAttributeAssignFinderResult.guiAttributeAssign}" />
@@ -84,7 +84,7 @@
                        <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
                          <a class="assignmentValueButton" href="#">
                            <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                            id="assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}_${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
+                            id="assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}_${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
                          </a>
                        </c:if>
                        
@@ -104,10 +104,10 @@
                             <span class="caret"></span>
                           </a>
                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefName.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefName.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefName.assignEdit&attributeAssignId=${attributeAssign.id}&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
-                            <li><a href="#" onclick="ajax('../app/UiV2AttributeDefName.assignDelete?attributeAssignId=${attributeAssign.id}&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.assignEdit&attributeAssignId=${attributeAssign.id}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
+                            <li><a href="#" onclick="ajax('../app/UiV2AttributeDef.assignDelete?attributeAssignId=${attributeAssign.id}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
                           </ul>
                       </div>
                     </c:if>
@@ -120,8 +120,8 @@
          
          <%-- attach a menu for each limit value --%>
          <grouper:menu menuId="assignmentValueMenu"
-           operation="UiV2AttributeDefName.assignmentValueMenu"
-           structureOperation="UiV2AttributeDefName.assignmentValueMenuStructure" 
+           operation="UiV2AttributeDef.assignmentValueMenu"
+           structureOperation="UiV2AttributeDef.assignmentValueMenuStructure" 
            contextZoneJqueryHandle=".assignmentValueButton" contextMenu="true" />
       
       </c:otherwise>

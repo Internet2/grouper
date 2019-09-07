@@ -164,6 +164,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2SubjectAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
       UiV2MembershipAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
       UiV2AttributeDefName.class.getSimpleName() + ".assignmentValueMenuStructure",
+      UiV2AttributeDef.class.getSimpleName() + ".assignmentValueMenuStructure",
       UiV2AttributeDef.class.getSimpleName() + ".attributeDefFilter",
       UiV2AttributeDefName.class.getSimpleName() + ".attributeDefNameFilter",
       UiV2GroupPermission.class.getSimpleName() + ".permissionActionNameFilter",

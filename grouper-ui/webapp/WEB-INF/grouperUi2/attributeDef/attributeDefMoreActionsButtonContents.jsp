@@ -53,7 +53,11 @@
                         <c:if test="${grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning}">
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
                             >${textContainer.text['deprovisioningMoreActionsMenuLabel'] }</a></li>
-                        </c:if>         
+                        </c:if>  
+                        <li><a href="#"
+                              onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDefAssignedOwners&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;">
+                            ${textContainer.text['attributeDefViewAssignedEntitiesAttributeDefButton'] }</a>
+                        </li>       
                         
                       </ul>
                     </div>

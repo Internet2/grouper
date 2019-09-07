@@ -747,8 +747,6 @@ public class UiV2AttributeDefName {
 
     GrouperSession grouperSession = null;
   
-    
-
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
   

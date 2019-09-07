@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinderResult;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -54,6 +56,28 @@ public class GuiAttributeAssignFinderResult {
     
     return null;
     
+  }
+  
+  public GuiAttributeDef getOwnerGuiAttributeDef() {
+    
+    AttributeDef ownerAttributeDef = attributeAssignFinderResult.getOwnerAttributeDef();
+    
+    if (ownerAttributeDef != null) {
+      return new GuiAttributeDef(ownerAttributeDef);
+    }
+    
+    return null;
+  }
+  
+  public GuiMember getOwnerGuiMember() {
+    
+    Member ownerMember = attributeAssignFinderResult.getOwnerMember();
+    
+    if (ownerMember != null) {
+      return new GuiMember(ownerMember);
+    }
+    
+    return null;
   }
   
 
