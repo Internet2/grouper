@@ -83,6 +83,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   /** if there is a limit to the number of results */
   protected Integer maxResults;
   
+  /** if error if limit is reached */
+  protected boolean errorOnMaxResults = true;
+  
   /** if there is a limit to the number of results */
   private Integer maxPage;
   
@@ -370,6 +373,10 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           break;
         }
         if (this.maxResults != null && result.size() > this.maxResults) {
+          if (!errorOnMaxResults) {
+            break;
+          }
+          
           throw new SubjectTooManyResults(
               "More results than allowed: " + this.maxResults 
               + " for search '" + search + "'");
@@ -771,6 +778,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       }
       
       {
+        String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
+        if (!StringUtils.isBlank(errorOnMaxResultsString)) {
+          this.errorOnMaxResults = SubjectUtils.booleanValue(errorOnMaxResultsString, true);
+        }
+      }
+      
+      {
         String maxPageString = props.getProperty("maxPageSize");
         if (!StringUtils.isBlank(maxPageString)) {
           try {
@@ -1044,6 +1058,19 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           } catch (Exception e) {
             System.err.println("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString);
             log.error("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString);
+            return;
+          }
+        }
+      }
+      
+      {
+        String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
+        if (!StringUtils.isBlank(errorOnMaxResultsString)) {
+          try {
+            SubjectUtils.booleanValue(errorOnMaxResultsString);
+          } catch (Exception e) {
+            System.err.println("Cant parse errorOnMaxResultsString: " + errorOnMaxResultsString);
+            log.error("Cant parse errorOnMaxResultsString: " + errorOnMaxResultsString);
             return;
           }
         }
