@@ -1361,7 +1361,7 @@ public class AttributeAssignSave {
         break;
       case member:
         existingAttributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignments(null, null, GrouperUtil.toSet(this.attributeDefName.getId()), 
-            GrouperUtil.toSet(this.ownerStem.getId()), GrouperUtil.toSet(this.action), null, true);
+            GrouperUtil.toSet(this.ownerMember.getId()), GrouperUtil.toSet(this.action), null, true);
         break;
       case imm_mem:
         existingAttributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findMembershipAttributeAssignments(null, null, GrouperUtil.toSet(this.attributeDefName.getId()), 
