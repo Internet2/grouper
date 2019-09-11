@@ -880,6 +880,7 @@ public abstract class Provisioner
                 public Map<Subject, TSUserClass> call() throws Exception {
                   Provisioner.activeProvisioner.set(Provisioner.this);
                   Map<Subject, TSUserClass> fetchedData;
+                  GrouperSession grouperSession = GrouperSession.startRootSession();
                   try {
                     fetchedData = fetchTargetSystemUsers(batchOfSubjectsToFetch);
                   } catch (PspException e1) {
@@ -896,6 +897,8 @@ public abstract class Provisioner
                         throw new RuntimeException("Problem fetching information on subject " + subject + ": " + e2.getMessage());
                       }
                     }
+                  } finally {
+                    grouperSession.stop();
                   }
                   return fetchedData;
                 }

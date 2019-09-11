@@ -143,6 +143,7 @@ public class FullSyncProvisioner  {
       @Override
       public void run() {
           PspUtils.setupNewThread();
+          GrouperSession grouperSession = GrouperSession.startRootSession();
           try {
               thread_manageFullSyncProcessing();
           } catch (Throwable t) {
@@ -150,6 +151,7 @@ public class FullSyncProvisioner  {
           }
           finally {
               LOG.warn("{}: FullSync thread has exited", getName());
+              grouperSession.stop();
           }
       }
     }, getName() + "-Thread");
@@ -184,6 +186,7 @@ public class FullSyncProvisioner  {
             public void run() {
 
                 PspUtils.setupNewThread();
+                GrouperSession grouperSession = GrouperSession.startRootSession();
                 try {
                     thread_fullSyncMessageQueueReader(queue_type);
                 } catch (Throwable t) {
@@ -191,6 +194,7 @@ public class FullSyncProvisioner  {
                 }
                 finally {
                     LOG.error("{}: Full-sync queue reader has exited ({})", getName(), queue_type);
+                    grouperSession.stop();
                 }
             }
         }, getName() + "-MessageReaderThread-" + queue_type.queueName_short);
