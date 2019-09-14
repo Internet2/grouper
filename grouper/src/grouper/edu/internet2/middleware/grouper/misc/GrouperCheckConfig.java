@@ -576,6 +576,13 @@ public class GrouperCheckConfig {
         doneWithExtraConfig = false;
         try {
 
+          for (int i=0;i<200;i++) {
+            if (GrouperStartup.isFinishedStartupSuccessfully()) {
+              break;
+            }
+            //wait a sec for other things to get all initted
+            GrouperUtil.sleep(100);
+          }
           if (!testing) {
             //wait a sec for other things to get all initted
             GrouperUtil.sleep(5000);
