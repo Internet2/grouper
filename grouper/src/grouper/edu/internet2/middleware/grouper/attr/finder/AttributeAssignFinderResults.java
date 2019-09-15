@@ -162,6 +162,10 @@ public class AttributeAssignFinderResults {
         Stem stem = (Stem) result[2];
         idToStemMap.put(stem.getId(), stem);
         attributeAssignFinderResult.setOwnerStem(stem);
+      } else if (result[2] instanceof AttributeDef) {
+        AttributeDef attributeDef = (AttributeDef) result[2];
+        idToAttributeDefMap.put(attributeDef.getId(), attributeDef);
+        attributeAssignFinderResult.setOwnerAttributeDef(attributeDef);
       } else if (result[2] instanceof Member) {
         Member member = (Member) result[2];
         idToMemberMap.put(member.getId(), member);

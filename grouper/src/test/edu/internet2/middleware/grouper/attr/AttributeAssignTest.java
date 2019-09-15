@@ -9329,14 +9329,14 @@ public class AttributeAssignTest extends GrouperTest {
     
     // has attr read on groups but cant read attribute
     Subject testSubject2 = SubjectFinder.findById("test.subject.2", true);
-    testCattrDef1owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
-    testCattrDef2owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+    testCattrDef1owner.getPrivilegeDelegate().grantPriv(testSubject2, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+    testCattrDef2owner.getPrivilegeDelegate().grantPriv(testSubject2, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
     testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject2, AttributeDefPrivilege.ATTR_VIEW, false);
     
     // doesnt have attr read on groups but can read attribute
     Subject testSubject3 = SubjectFinder.findById("test.subject.3", true);
-    testCattrDef1owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_READ, false);
-    testCattrDef2owner.getPrivilegeDelegate().grantPriv(testSubject1, AttributeDefPrivilege.ATTR_READ, false);
+    testCattrDef1owner.getPrivilegeDelegate().grantPriv(testSubject3, AttributeDefPrivilege.ATTR_READ, false);
+    testCattrDef2owner.getPrivilegeDelegate().grantPriv(testSubject3, AttributeDefPrivilege.ATTR_READ, false);
     testCattrDef2.getPrivilegeDelegate().grantPriv(testSubject3, AttributeDefPrivilege.ATTR_READ, false);
     
     GrouperSession.stopQuietly(grouperSession);

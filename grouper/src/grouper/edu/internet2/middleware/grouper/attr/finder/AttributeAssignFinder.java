@@ -466,7 +466,13 @@ public class AttributeAssignFinder {
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
           this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
-            
+
+    } else if (theAttributeAssignType == AttributeAssignType.attr_def) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+
     } else if (theAttributeAssignType == AttributeAssignType.group) {
         
       return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(
@@ -490,6 +496,12 @@ public class AttributeAssignFinder {
     } else if (theAttributeAssignType == AttributeAssignType.stem_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+            
+    } else if (theAttributeAssignType == AttributeAssignType.attr_def_asgn) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
             

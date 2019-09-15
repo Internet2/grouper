@@ -1092,6 +1092,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       if (StringUtils.equals("name", querySortField.getColumn())) {
         querySortField.setColumn(alias + ".nameDb");
       }
+      if (StringUtils.equals("displayName", querySortField.getColumn())) {
+        querySortField.setColumn(alias + ".nameDb");
+      }
     }
   }
 
