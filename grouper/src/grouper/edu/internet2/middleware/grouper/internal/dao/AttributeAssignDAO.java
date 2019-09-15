@@ -975,6 +975,9 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeCheckReadOnAttributeDef
    * @param queryOptions 
    * @param retrieveValues
+   * @param includeAssignmentsOnAssignments if include assignments on assignments
+   * @param scope filter if filtering by group info
+   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
    * @return attrdefs, attrdefnames, groups, assignments and optionally set of values
    */
   public Set<Object[]> findGroupAttributeAssignmentsByAttribute(
@@ -983,7 +986,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments);
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope);
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids

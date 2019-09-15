@@ -5171,13 +5171,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean, boolean, String, Boolean)
    */
   public Set<Object[]> findGroupAttributeAssignmentsByAttribute(Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<String> actions,
       Boolean enabled,
       Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments) {
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope) {
     
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     checkAttributeReadOnGroup = GrouperUtil.defaultIfNull(checkAttributeReadOnGroup, true);
@@ -5260,6 +5260,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     } else {
       sqlTables.append(" where ");
     }
+    
+    Hib3GroupDAO.assignScopeToQuery(scope, splitScope, sqlWhereClause, byHqlStatic, false);
+
+    
     
     sql = sqlTables.append(sqlWhereClause);
     

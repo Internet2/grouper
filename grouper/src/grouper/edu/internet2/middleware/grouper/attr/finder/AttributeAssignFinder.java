@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -48,6 +50,36 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AttributeAssignFinder {
 
+  /**
+   * if filtering by owner, this is the filter
+   */
+  private String scope;
+  
+  /**
+   * filter by owner
+   * @param theScope
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignScope(String theScope) {
+    this.scope = theScope;
+    return this;
+  }
+  
+  /**
+   * if scope should be split by whitespace, by default yes
+   */
+  private Boolean splitScope = null;
+  
+  /**
+   * if scope should be split by whitespace, by default yes
+   * @param theSplitScope
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignSplitScope(boolean theSplitScope) {
+    this.splitScope = theSplitScope;
+    return this;
+  }
+  
   /**
    * if should retrieve values
    */
@@ -478,7 +510,7 @@ public class AttributeAssignFinder {
       return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
         
     } else if (theAttributeAssignType == AttributeAssignType.member) {
       
@@ -522,6 +554,10 @@ public class AttributeAssignFinder {
    */
   public Set<AttributeAssign> findAttributeAssigns() {
   
+    if (!StringUtils.isBlank(this.scope) ) {
+      throw new RuntimeException("scope not supported in this call");
+      
+    }
     if (this.retrieveValues) {
       throw new RuntimeException("retrieveValues not supported in this call");
     }

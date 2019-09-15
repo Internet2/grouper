@@ -8617,6 +8617,26 @@ public class AttributeAssignTest extends GrouperTest {
     assertEquals(testCtestCGroup2, attributeAssignFinderResult.getOwnerGroup());
     assertEquals(testCtestCGroup2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
 
+    // dont check security on attribute, filter by group name
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.group).assignScope(testCtestCGroup2.getExtension().toLowerCase())
+        .assignCheckAttributeReadOnOwner(true).assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+
+    // its not checking on attribute
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(testCtestCGroup2, attributeAssignFinderResult.getOwnerGroup());
+    assertEquals(testCtestCGroup2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+
+    // dont check security on attribute, filter by not group name
+    attributeAssignFinderResults = new AttributeAssignFinder().addAttributeDefNameId(testCattrDef2name.getId()).assignAttributeAssignType(AttributeAssignType.group).assignScope("XXX")
+        .assignCheckAttributeReadOnOwner(true).assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create("displayName", true, 1, 100)).findAttributeAssignFinderResults();
+
+    // its not checking on attribute
+    assertEquals(1, GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+    attributeAssignFinderResult = attributeAssignFinderResults.getAttributeAssignFinderResults().iterator().next();
+    assertEquals(testCtestCGroup2, attributeAssignFinderResult.getOwnerGroup());
+    assertEquals(testCtestCGroup2_testCattrDef2name, attributeAssignFinderResult.getAttributeAssign());
+
     GrouperSession.stopQuietly(grouperSession);
 
     //########################################## doesnt have attr read on groups but can read attribute
