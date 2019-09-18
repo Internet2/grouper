@@ -1822,6 +1822,7 @@ public class GrouperCheckConfig {
     checkJar("jline-2.14.5.jar", 268597, "jline.AnsiWindowsTerminal", "null");
     checkJar("joda-time-2.9.9.jar", 634048, "org.joda.time.base.AbstractDateTime", "2.9.9");
     checkJar("json-lib-2.4-jdk15.jar", 159123, "net.sf.json.JSON", "null");
+    checkJar("jsoup-1.12.1.jar", 397112, "org.jsoup.SerializationException", "null");
     checkJar("jta-1.1.jar", 15071, "javax.transaction.HeuristicCommitException", "null");
     checkJar("ldaptive-1.1.2.jar", 818299, "org.ldaptive.AbstractConfig", "null");
     checkJar("log4j-1.2.17.jar", 489884, "org.apache.log4j.Appender", "1.2.17");
