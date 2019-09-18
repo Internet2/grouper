@@ -5260,11 +5260,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     } else {
       sqlTables.append(" where ");
     }
-    
-    Hib3GroupDAO.assignScopeToQuery(scope, splitScope, sqlWhereClause, byHqlStatic, false);
 
-    
-    
+    if (!StringUtils.isBlank(scope)) {
+      Hib3GroupDAO.assignScopeToQuery(scope, splitScope, sqlWhereClause, byHqlStatic, false, "theGroup", true);
+    }
+
     sql = sqlTables.append(sqlWhereClause);
     
     if (enabled != null && enabled) {
@@ -5437,14 +5437,15 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignmentsOnAssignmentByAttribute(java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignmentsOnAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean, String, Boolean)
    */
   public Set<Object[]> findGroupAttributeAssignmentsOnAssignmentsByAttribute(
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> actions, 
       Boolean enabled, 
-      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, QueryOptions queryOptions, boolean retrieveValues) {
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, String scope, Boolean splitScope) {
     
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     checkAttributeReadOnGroup = GrouperUtil.defaultIfNull(checkAttributeReadOnGroup, true);
@@ -5497,7 +5498,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         grouperSessionSubject, byHqlStatic, 
         sqlTables, "theGroup.id", AccessPrivilege.GROUP_ATTR_READ_PRIVILEGES);
     }
-    
+
+    if (!StringUtils.isBlank(scope)) {
+      Hib3GroupDAO.assignScopeToQuery(scope, splitScope, sqlWhereClause, byHqlStatic, false, "theGroup", true);
+    }
+
     StringBuilder sql;
     
     if (changedQuery && sqlTables.toString().contains(" where ")) {
@@ -5671,13 +5676,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findStemAttributeAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findStemAttributeAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean, boolean, String, Boolean)
    */
   public Set<Object[]> findStemAttributeAssignmentsByAttribute(Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<String> actions,
       Boolean enabled,
       Boolean checkAttributeReadOnStem, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments) {
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope) {
     
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     checkAttributeReadOnStem = GrouperUtil.defaultIfNull(checkAttributeReadOnStem, true);
@@ -5733,6 +5738,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sqlTables.append(" and ");
     } else {
       sqlTables.append(" where ");
+    }
+    
+    if (!StringUtils.isBlank(scope)) {
+      sqlWhereClause.append(" and ");
+      Hib3StemDAO.assignScopeToQuery(scope, splitScope, sqlWhereClause, byHqlStatic, false, "theStem");
     }
     
     sql = sqlTables.append(sqlWhereClause);
@@ -5848,14 +5858,15 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findStemAttributeAssignmentsOnAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findStemAttributeAssignmentsOnAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean, String, Boolean)
    */
   public Set<Object[]> findStemAttributeAssignmentsOnAssignmentsByAttribute(
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> actions, 
       Boolean enabled, 
-      Boolean checkAttributeReadOnStem, Boolean attributeCheckReadOnAttributeDef, QueryOptions queryOptions, boolean retrieveValues) {
+      Boolean checkAttributeReadOnStem, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, String scope, Boolean splitScope) {
     
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     checkAttributeReadOnStem = GrouperUtil.defaultIfNull(checkAttributeReadOnStem, true);
@@ -5917,6 +5928,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sqlTables.append(" where ");
     }
     
+    if (!StringUtils.isBlank(scope)) {
+      sqlWhereClause.append(" and ");
+      Hib3StemDAO.assignScopeToQuery(scope, splitScope, sqlWhereClause, byHqlStatic, false, "theStem");
+    }
+
     sql = sqlTables.append(sqlWhereClause);
     
     if (enabled != null && enabled) {
@@ -6042,13 +6058,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMemberAttributeAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, QueryOptions, boolean, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMemberAttributeAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, QueryOptions, boolean, boolean, String, Boolean)
    */
   public Set<Object[]> findMemberAttributeAssignmentsByAttribute(Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<String> actions,
       Boolean enabled,
       Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments) {
+      QueryOptions queryOptions, boolean retrieveValues, 
+      boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope) {
     
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     int actionsSize = GrouperUtil.length(actions);
@@ -6203,15 +6220,16 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMemberAttributeAssignmentsOnAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, QueryOptions, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMemberAttributeAssignmentsOnAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, QueryOptions, boolean, String, Boolean)
    */
   public Set<Object[]> findMemberAttributeAssignmentsOnAssignmentsByAttribute(
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> actions, 
       Boolean enabled, 
-      Boolean attributeCheckReadOnAttributeDef, QueryOptions queryOptions, boolean retrieveValues) {
-    
+      Boolean attributeCheckReadOnAttributeDef, QueryOptions queryOptions, boolean retrieveValues,
+      String scope, Boolean splitScope) {
+    // TODO add scope and split scope
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     int actionsSize = GrouperUtil.length(actions);
     int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
@@ -6381,14 +6399,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefAttributeAssignmentsByAttribute(java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefAttributeAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean, boolean, String, Boolean)
    */
   public Set<Object[]> findAttributeDefAttributeAssignmentsByAttribute(
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
       Collection<String> actions, Boolean enabled,
       Boolean checkAttributeReadOnOwnerAttributeDef,
       Boolean attributeCheckReadOnAttributeDef, QueryOptions queryOptions,
-      boolean retrieveValues, boolean includeAssignmentsOnAssignments) {
+      boolean retrieveValues, boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope) {
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     checkAttributeReadOnOwnerAttributeDef = GrouperUtil.defaultIfNull(checkAttributeReadOnOwnerAttributeDef, true);
     int actionsSize = GrouperUtil.length(actions);
@@ -6443,6 +6461,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sqlTables.append(" and ");
     } else {
       sqlTables.append(" where ");
+    }
+    
+    if (!StringUtils.isBlank(scope)) {
+      Hib3AttributeDefDAO.assignScopeToQuery(scope, splitScope, sqlWhereClause, byHqlStatic, false, "theAttributeDef");
     }
     
     sql = sqlTables.append(sqlWhereClause);
@@ -6559,14 +6581,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefAttributeAssignmentsOnAssignmentsByAttribute(java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefAttributeAssignmentsOnAssignmentsByAttribute(Collection, Collection, Collection, Boolean, Boolean, Boolean, QueryOptions, boolean, String, Boolean)
    */
   public Set<Object[]> findAttributeDefAttributeAssignmentsOnAssignmentsByAttribute(
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
       Collection<String> actions, Boolean enabled,
       Boolean checkAttributeReadOnOwnerAttributeDef,
       Boolean attributeCheckReadOnAttributeDef, QueryOptions queryOptions,
-      boolean retrieveValues) {
+      boolean retrieveValues, String scope, Boolean splitScope) {
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     checkAttributeReadOnOwnerAttributeDef = GrouperUtil.defaultIfNull(checkAttributeReadOnOwnerAttributeDef, true);
     int actionsSize = GrouperUtil.length(actions);
@@ -6627,6 +6649,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sqlTables.append(" where ");
     }
     
+    if (!StringUtils.isBlank(scope)) {
+      Hib3AttributeDefDAO.assignScopeToQuery(scope, splitScope, sqlWhereClause, byHqlStatic, false, "theAttributeDef");
+    }
+
     sql = sqlTables.append(sqlWhereClause);
     
     if (enabled != null && enabled) {

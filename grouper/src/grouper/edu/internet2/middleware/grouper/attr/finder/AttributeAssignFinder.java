@@ -51,6 +51,36 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class AttributeAssignFinder {
 
   /**
+   * scope for a subject if filtering by owner of member or membership
+   */
+  private String scopeSubject;
+
+  /**
+   * scope for a subject if filtering by owner of member or membership
+   * @param theScopeSubject
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignScopeSubject(String theScopeSubject) {
+    this.scopeSubject = theScopeSubject;
+    return this;
+  }
+  
+  /**
+   * if scope of subject should be split by whitespace, by default yes
+   */
+  private Boolean splitScopeSubject;
+  
+  /**
+   * if scope of subject should be split by whitespace, by default yes
+   * @param theSplitScopeSubject1
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignSplitScopeSubject(boolean theSplitScopeSubject1) {
+    this.splitScopeSubject = theSplitScopeSubject1;
+    return this;
+  }
+
+  /**
    * if filtering by owner, this is the filter
    */
   private String scope;
@@ -497,13 +527,13 @@ public class AttributeAssignFinder {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
 
     } else if (theAttributeAssignType == AttributeAssignType.attr_def) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
 
     } else if (theAttributeAssignType == AttributeAssignType.group) {
         
@@ -517,31 +547,31 @@ public class AttributeAssignFinder {
       return GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
         
     } else if (theAttributeAssignType == AttributeAssignType.group_asgn) {
         
       return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
               
     } else if (theAttributeAssignType == AttributeAssignType.stem_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
             
     } else if (theAttributeAssignType == AttributeAssignType.attr_def_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
             
     } else if (theAttributeAssignType == AttributeAssignType.mem_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-          null, true, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+          null, true, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
             
     }
     return new HashSet<Object[]>();
