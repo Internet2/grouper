@@ -1200,6 +1200,8 @@ public class UiV2Group {
         
         GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
             loggedInSubject, group);
+        
+        filterHelper(request, response, group);
       }
       
       
@@ -1245,6 +1247,8 @@ public class UiV2Group {
 
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
+      
+      filterHelper(request, response, group);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
