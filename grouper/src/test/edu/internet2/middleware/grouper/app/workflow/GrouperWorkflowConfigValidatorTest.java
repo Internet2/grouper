@@ -55,7 +55,7 @@ private GrouperSession grouperSession;
   
   private GrouperWorkflowConfig buildSampleGrouperWorfklowConfig(Group ownerGroup, String workflowId) {
     GrouperWorkflowConfig config = new GrouperWorkflowConfig();
-    String defaultApprovalStatesString = GrouperWorkflowApprovalStates.getDefaultApprovalStatesString();
+    String defaultApprovalStatesString = GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(ownerGroup.getId());
     config.setWorkflowConfigApprovalsString(defaultApprovalStatesString);
     config.setWorkflowApprovalStates(GrouperWorkflowApprovalStates.buildApprovalStatesFromJsonString(defaultApprovalStatesString));
     config.setOwnerGroup(ownerGroup);

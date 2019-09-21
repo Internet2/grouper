@@ -76,7 +76,7 @@ public class GrouperWorkflowApprovalStates {
     
   }
   
-  private static GrouperWorkflowApprovalStates getDefaultApprovalStates() {
+  private static GrouperWorkflowApprovalStates getDefaultApprovalStates(String groupId) {
 
     GrouperWorkflowApprovalStates states = new GrouperWorkflowApprovalStates();
 
@@ -88,7 +88,7 @@ public class GrouperWorkflowApprovalStates {
 
     GrouperWorkflowApprovalState groupManager = new GrouperWorkflowApprovalState();
     groupManager.setStateName("groupManager");
-    groupManager.setApproverManagersOfGroupId("sdgf76gdf87");
+    groupManager.setApproverManagersOfGroupId(groupId);
     listOfStates.add(groupManager);
 
     GrouperWorkflowApprovalState complete = new GrouperWorkflowApprovalState();
@@ -96,7 +96,7 @@ public class GrouperWorkflowApprovalStates {
 
     GrouperWorkflowApprovalAction action = new GrouperWorkflowApprovalAction();
     action.setActionName("assignToGroup");
-    action.setActionArg0("sgk234kh234");
+    action.setActionArg0(groupId);
 
     List<GrouperWorkflowApprovalAction> actions = new ArrayList<GrouperWorkflowApprovalAction>();
     actions.add(action);
@@ -111,11 +111,12 @@ public class GrouperWorkflowApprovalStates {
   }
   
   /**
-   * get default approval states
+   * get default approval states for a given groupId
+   * @param groupId
    * @return
    */
-  public static String getDefaultApprovalStatesString() {
-    GrouperWorkflowApprovalStates defaultApprovalStates = getDefaultApprovalStates();
+  public static String getDefaultApprovalStatesString(String groupId) {
+    GrouperWorkflowApprovalStates defaultApprovalStates = getDefaultApprovalStates(groupId);
     try {      
       return GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(defaultApprovalStates);
     } catch(Exception e) {
