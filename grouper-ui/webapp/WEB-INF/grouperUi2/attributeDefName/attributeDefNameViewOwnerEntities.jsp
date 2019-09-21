@@ -19,6 +19,27 @@
         ${textContainer.text['groupViewAttributeAssignsNoAssignedAttributes']}
       </c:when>
       <c:otherwise>
+      
+      <form class="form-inline form-small form-filter" id="attributeDefNameOwnersFilterFormId">
+      <div class="row-fluid">
+         <div class="span3" id="folderFilterForDiv">
+           <label id="folderFilterLabel" for="folder-filter">${textContainer.text['simpleAttributeUpdate.folderFilterLabel'] }</label>
+         </div>
+         <div class="span5">
+           <grouper:combobox2 idBase="folderCombo" style="width: 30em" 
+             filterOperation="../app/UiV2Stem.createAttributeDefParentFolderFilter"
+             value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.objectStemId)}"
+           />
+         </div>
+         
+         <div class="span3" id="groupFilterSubmitDiv"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
+             onclick="ajax('../app/UiV2AttributeDefName.viewAttributeDefNameAssignedOwners?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}', {formIds: 'attributeDefNameOwnersFilterFormId, groupPagingFormId'}); return false;"> 
+           <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#custom-composite-filter').val('nothing'); $('#enabled-disabled-filter').val('nothing'); $('#pit-filter').val('no'); $('#pit-filter').trigger('change'); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
+         </div>
+         
+       </div>
+       </form>
+      
         <table class="table table-hover table-bordered table-striped table-condensed data-table">
              <thead>        
                <tr>
@@ -123,6 +144,11 @@
            operation="UiV2AttributeDefName.assignmentValueMenu"
            structureOperation="UiV2AttributeDefName.assignmentValueMenuStructure" 
            contextZoneJqueryHandle=".assignmentValueButton" contextMenu="true" />
+         
+         <div class="data-table-bottom gradient-background">
+           <grouper:paging2 guiPaging="${grouperRequestContainer.attributeDefNameContainer.guiPaging}" formName="attributeDefNameOwnersPagingForm"
+             refreshOperation="../app/UiV2AttributeDefName.viewAttributeDefNameAssignedOwners?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}" />
+         </div>
       
       </c:otherwise>
     </c:choose>

@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssignFinderResults;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -23,6 +24,11 @@ public class AttributeDefNameContainer {
   private GuiAttributeDefName guiAttributeDefName;
   
   private GuiAttributeAssignFinderResults guiAttributeAssignFinderResults;
+  
+  /**
+   * keep track of the paging
+   */
+  private GuiPaging guiPaging = null;
   
 
   public GuiAttributeDefName getGuiAttributeDefName() {
@@ -73,8 +79,17 @@ public class AttributeDefNameContainer {
     this.guiAttributeAssignFinderResults = guiAttributeAssignFinderResults;
   }
 
-  
-  
+  public GuiPaging getGuiPaging() {
+    
+    if (this.guiPaging == null) {
+      this.guiPaging = new GuiPaging();
+    }
+    return this.guiPaging;
+  }
+
+  public void setGuiPaging(GuiPaging guiPaging) {
+    this.guiPaging = guiPaging;
+  }
 
 
 }

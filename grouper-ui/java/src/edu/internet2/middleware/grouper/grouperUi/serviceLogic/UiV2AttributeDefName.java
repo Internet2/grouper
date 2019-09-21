@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.attributeNameUpdate.Attr
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -57,6 +58,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenu;
 import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenuItem;
@@ -756,7 +758,7 @@ public class UiV2AttributeDefName {
         return;
       }
       
-      viewAttributeDefNameAssignedOwnersHelper(attributeDefName);
+      viewAttributeDefNameAssignedOwnersHelper(request, attributeDefName);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -765,7 +767,7 @@ public class UiV2AttributeDefName {
   } 
   
   
-  private void viewAttributeDefNameAssignedOwnersHelper(final AttributeDefName attributeDefName) {
+  private void viewAttributeDefNameAssignedOwnersHelper(final HttpServletRequest request, final AttributeDefName attributeDefName) {
     
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
@@ -774,6 +776,8 @@ public class UiV2AttributeDefName {
     final AttributeDefNameContainer attributeDefNameContainer = grouperRequestContainer.getAttributeDefNameContainer();
     attributeDefNameContainer.setGuiAttributeDefName(new GuiAttributeDefName(attributeDefName));
     
+    // final String folderId = request.getParameter("folderComboName");
+    
     
     //switch over to admin so attributes work
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -781,15 +785,25 @@ public class UiV2AttributeDefName {
       @Override
       public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
         
+        // Stem stem = StemFinder.findByUuid(rootGrouperSession, folderId, true);
+        
+        GuiPaging guiPaging = attributeDefNameContainer.getGuiPaging();
+        QueryOptions queryOptions = new QueryOptions();
+        
+        GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
+        
+        
         AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinder()
             .addAttributeDefNameId(attributeDefName.getId())
             .assignIncludeAssignmentsOnAssignments(true) //if first level
             .assignRetrieveValues(true) // get values
+            .assignQueryOptions(queryOptions)
             .findAttributeAssignFinderResults();
         
         GuiAttributeAssignFinderResults guiAttributeAssignFinderResults = new GuiAttributeAssignFinderResults(attributeAssignFinderResults);
         
         attributeDefNameContainer.setGuiAttributeAssignFinderResults(guiAttributeAssignFinderResults);
+        guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
         
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments",
             "/WEB-INF/grouperUi2/attributeDefName/attributeDefNameViewOwnerEntities.jsp"));
@@ -1008,7 +1022,7 @@ public class UiV2AttributeDefName {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignValueSuccessDelete");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      viewAttributeDefNameAssignedOwnersHelper(attributeDefName);
+      viewAttributeDefNameAssignedOwnersHelper(httpServletRequest, attributeDefName);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -1087,7 +1101,7 @@ public class UiV2AttributeDefName {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignEditValueSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      viewAttributeDefNameAssignedOwnersHelper(attributeDefName);
+      viewAttributeDefNameAssignedOwnersHelper(httpServletRequest, attributeDefName);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -1224,7 +1238,7 @@ public class UiV2AttributeDefName {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignAddValueSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      viewAttributeDefNameAssignedOwnersHelper(attributeDefName);
+      viewAttributeDefNameAssignedOwnersHelper(request, attributeDefName);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -1371,7 +1385,7 @@ public class UiV2AttributeDefName {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignMetadataAddSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      viewAttributeDefNameAssignedOwnersHelper(attributeDefNameOrig);
+      viewAttributeDefNameAssignedOwnersHelper(httpServletRequest, attributeDefNameOrig);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -1521,7 +1535,7 @@ public class UiV2AttributeDefName {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignEditSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
      
-      viewAttributeDefNameAssignedOwnersHelper(attributeDefName);
+      viewAttributeDefNameAssignedOwnersHelper(httpServletRequest, attributeDefName);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -1575,7 +1589,7 @@ public class UiV2AttributeDefName {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignSuccessDelete");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      viewAttributeDefNameAssignedOwnersHelper(attributeDefName);
+      viewAttributeDefNameAssignedOwnersHelper(request, attributeDefName);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
