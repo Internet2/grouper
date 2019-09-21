@@ -70,8 +70,7 @@
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignValueEdit'] }</label>
         <div class="controls">
-          <input type="text" name="valueToEdit"  id="valueToEditId" 
-              value="${grouper:escapeHtml(attributeUpdateRequestContainer.attributeAssignValue.valueFriendly)}" />
+          <textarea rows="5" cols="25" name="valueToEdit" id="valueToEditId" style="width: 85%">${grouper:escapeHtml(attributeUpdateRequestContainer.attributeAssignValue.valueFriendly)}</textarea>
         </div>
       </div>
       

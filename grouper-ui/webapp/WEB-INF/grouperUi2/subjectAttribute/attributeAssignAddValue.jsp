@@ -59,7 +59,7 @@
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignAddValue'] }</label>
         <div class="controls">
-          <input type="text" name="valueToAdd"  id="valueToAddId" />
+          <textarea rows="5" cols="25" name="valueToAdd" id="valueToAddId" style="width: 85%"></textarea>
         </div>
       </div>
       
