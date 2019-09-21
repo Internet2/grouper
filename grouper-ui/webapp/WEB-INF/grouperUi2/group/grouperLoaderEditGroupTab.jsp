@@ -664,10 +664,10 @@
 	                          </tr>
                           
 	                          <tr>
-	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapUpdatersId">${textContainer.text['grouperLoaderLdapAttrUpdaters']}</label></strong></td>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapAttrUpdatersId">${textContainer.text['grouperLoaderLdapAttrUpdaters']}</label></strong></td>
 	                            <td>
 	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttrUpdaters)}"
-	                                 name="grouperLoaderLdapUpdaters" id="grouperLoaderLdapUpdatersId" />
+	                                 name="grouperLoaderLdapAttrUpdatersName" id="grouperLoaderLdapAttrUpdatersId" />
 	                              <br />
 	                              <span class="description">
 	                              ${textContainer.text['grouperLoaderLdapAttrUpdatersDescription']}</span>

@@ -92,8 +92,8 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationSendEmailLabel']}</strong></td>
                             <td>
                               <c:choose>
-                                <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail == null 
-                                    || grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
+                                <c:when test="${grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationSendEmail == null 
+                                    || grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationSendEmail}">
                                   ${textContainer.textEscapeXml['grouperAttestationYesSendEmailLabel']}
                                 </c:when>
                                 <c:otherwise>
@@ -105,14 +105,14 @@
                             </td>
                           </tr>
                           <c:if
-                            test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail == null 
-                               || grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
+                            test="${grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationSendEmail == null 
+                               || grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationSendEmail}">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>
                                 ${textContainer.text['attestationEmailManagersLabel']}</strong></td>
                               <td>
                                 <c:choose>
-                                  <c:when test="${grouperRequestContainer.attestationContainer.emailGroupManagers}">
+                                  <c:when test="${grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationEmailAddresses == null}">
                                     ${textContainer.textEscapeXml['grouperAttestationEmailManagersLabel']}
                                   </c:when>
                                   <c:otherwise>
@@ -123,12 +123,12 @@
                                 <span class="description">${textContainer.text['grouperAttestationSendEmailDescription']}</span>
                               </td>
                             </tr>
-                            <c:if test="${!grouperRequestContainer.attestationContainer.emailGroupManagers}">
+                            <c:if test="${grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationEmailAddresses != null}">
                               <tr>
                                 <td style="vertical-align: top; white-space: nowrap;"><strong><label
                                     for="grouperAttestationEmailAddressesId">${textContainer.text['attestationEmailAddressesLabel']}</label></strong></td>
                                 <td>
-                                ${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailAddresses)}
+                                ${grouper:escapeHtml(grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationEmailAddresses)}
                                   <br /> <span class="description">${textContainer.text['grouperAttestationEmailAddressesDescription']}</span>
                                 </td>
                               </tr>
@@ -139,7 +139,7 @@
                               ${textContainer.text['attestationDefaultCertifyLabel']}</strong></td>
                             <td>
                               <c:choose>
-                                <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDaysUntilRecertify == null}">
+                                <c:when test="${grouperRequestContainer.attestationContainer.directOrParentAttestationDaysUntilRecertify == null}">
                                   ${textContainer.textEscapeXml['attestationDoDefaultCertifyLabel']}
                                 </c:when>
                                 <c:otherwise>
@@ -151,11 +151,11 @@
                             </td>
                           </tr>
                           <c:if
-                            test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDaysUntilRecertify != null}">
+                            test="${grouperRequestContainer.attestationContainer.directOrParentAttestationDaysUntilRecertify != null}">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDaysUntilRecertifyLabel']}</strong></td>
                               <td>
-                                ${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDaysUntilRecertify}
+                                ${grouperRequestContainer.attestationContainer.directOrParentAttestationDaysUntilRecertify}
                                 <br /> <span class="description">${textContainer.text['attestationDaysUntilRecertifyDescription']}</span>
                                 
                               </td>

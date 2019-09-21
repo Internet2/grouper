@@ -21,11 +21,13 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -34,6 +36,7 @@ import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
@@ -878,6 +881,10 @@ public abstract class Provisioner
               new Callable<Map<Subject, TSUserClass>>() {
                 @Override
                 public Map<Subject, TSUserClass> call() throws Exception {
+                  
+                  GrouperSession grouperSession = GrouperSession.startRootSession();
+                  GrouperContext grouperContext = GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
                   Provisioner.activeProvisioner.set(Provisioner.this);
                   Map<Subject, TSUserClass> fetchedData;
                   try {
@@ -896,6 +903,9 @@ public abstract class Provisioner
                         throw new RuntimeException("Problem fetching information on subject " + subject + ": " + e2.getMessage());
                       }
                     }
+                  } finally {
+                    GrouperSession.stopQuietly(grouperSession);
+                    GrouperContext.deleteDefaultContext();
                   }
                   return fetchedData;
                 }
