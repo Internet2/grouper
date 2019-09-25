@@ -65,7 +65,7 @@
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
         <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
         <maven-build-helper-plugin.version>1.9</maven-build-helper-plugin.version>
-        <maven-license-plugin.version>2.6</maven-license-plugin.version>
+        <!--<maven-license-plugin.version>2.6</maven-license-plugin.version>-->
         <maven-pmd-plugin.version>3.1</maven-pmd-plugin.version>
         <maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
         <maven-projectinfo-reports-plugin.version>3.0.0</maven-projectinfo-reports-plugin.version>
@@ -847,12 +847,13 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>${maven-license-plugin.version}</version>
                 <configuration>
-                    <!-- we don't need to run this every time; use `-Dlicense.skip=false` -->
+                    <!** we don't need to run this every time; use `-Dlicense.skip=false` **>
                     <skip>true</skip>
                     <header>https://raw.githubusercontent.com/Internet2/grouper/master/LICENSE.txt</header>
                     <failIfMissing>false</failIfMissing>
@@ -892,6 +893,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
