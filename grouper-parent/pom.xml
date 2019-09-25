@@ -901,7 +901,7 @@
                     <!-- see project properties for configLocation -->
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
-                    <failsOnError>false</failsOnError>
+                    <failOnViolation>false</failOnViolation>
                     <linkXRef>false</linkXRef>
                 </configuration>
                 <executions>
