@@ -54,6 +54,7 @@
         <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss Z</maven.build.timestamp.format>
 
         <!-- Plugin Versions -->
+        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
         <maven-source-plugin.version>2.3</maven-source-plugin.version>
@@ -887,6 +888,28 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <!-- the default checkstyle is more rigorous and has a lot of output during a full scan -->
+                    <!--<configLocation>src/checkstyle/checkstyle.xml</configLocation>-->
+                    <configLocation>src/checkstyle/checkstyle-legacy.xml</configLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
         <pluginManagement>
@@ -983,6 +1006,11 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven-site-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -1052,7 +1080,7 @@
 
     <reporting>
         <plugins>
-            <plugin>
+                <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
