@@ -12,11 +12,25 @@
               </div>
 
             </div>
+            <script language="javascript">
+              $(document).ready(function() {
+                $('#stemId').on('input',function(e){
+                  if ($('#originalExtension').val() == $('#stemId').val()) {
+                    $('#alternateNameDiv').show("slow");
+                    $('#setAlternateNameIfRenameDiv').hide("slow");
+                  } else {
+                    $('#alternateNameDiv').hide("slow");
+                    $('#setAlternateNameIfRenameDiv').show("slow");
+                  }
+                });
+              });
+            </script>
             <div class="row-fluid">
               <div class="span12">
                 <form id="editStemForm" class="form-horizontal">
 
                   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+                  <input type="hidden" id="originalExtension" value="${grouperRequestContainer.stemContainer.guiStem.stem.extension}" />
                   
                   <div class="control-group">
                     <label for="stemName" class="control-label">${textContainer.text['stemCreateNameLabel'] }</label>
@@ -32,6 +46,20 @@
                       <input type="text" id="stemId" name="extension"
                       value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.extension)}"
                        /><span class="help-block">${textContainer.text['stemCreateIdDescription'] }</span>
+                    </div>
+                  </div>
+                  <div id="alternateNameDiv" class="control-group">
+                    <label for="stemAlternateName" class="control-label">${textContainer.text['stemCreateAlternateNameLabel'] }</label>
+                    <div class="controls">
+                      <input type="text" id="stemAlternateName" name="alternateName"
+                        value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.alternateName)}" /><span
+                        class="help-block">${textContainer.text['stemCreateAlternateNameDescription'] }</span>
+                    </div>
+                  </div>
+                  <div id="setAlternateNameIfRenameDiv" class="control-group" style="display: none">
+                    <label for="stemRenameUpdateAlternateName" class="control-label">${textContainer.text['stemRenameUpdateAlternateNameLabel'] }</label>
+                    <div class="controls">
+                      <input type="checkbox" id="stemRenameUpdateAlternateName" name="setAlternateNameIfRename" checked="checked" value="true" /><span class="help-block">${textContainer.text['stemRenameUpdateAlternateNameDescription']}</span>
                     </div>
                   </div>
                   <div class="control-group">

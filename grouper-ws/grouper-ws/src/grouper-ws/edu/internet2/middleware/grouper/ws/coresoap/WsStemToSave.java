@@ -158,6 +158,11 @@ public class WsStemToSave {
     stemSave.assignUuid(this.getWsStem().getUuid()).assignName(this.getWsStem().getName());
     stemSave.assignDisplayExtension(this.getWsStem().getDisplayExtension());
     stemSave.assignDescription(this.getWsStem().getDescription());
+    
+    if (stemLookedup != null) {
+      stemSave.assignAlternateName(stemLookedup.getAlternateName()); // just keep it this same for now
+    }
+    
     stemSave.assignSaveMode(theSaveMode);
     stemSave.assignCreateParentStemsIfNotExist(GrouperUtil.booleanValue(this.getCreateParentStemsIfNotExist(), false));
     

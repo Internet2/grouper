@@ -12,11 +12,25 @@
               </div>
 
             </div>
+            <script language="javascript">
+              $(document).ready(function() {
+                $('#groupId').on('input',function(e){
+                  if ($('#originalExtension').val() == $('#groupId').val()) {
+                    $('#alternateNameDiv').show("slow");
+                    $('#setAlternateNameIfRenameDiv').hide("slow");
+                  } else {
+                    $('#alternateNameDiv').hide("slow");
+                    $('#setAlternateNameIfRenameDiv').show("slow");
+                  }
+                });
+              });
+            </script>
             <div class="row-fluid">
               <div class="span12">
                 <form id="editGroupForm" class="form-horizontal">
 
                   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
+                  <input type="hidden" id="originalExtension" value="${grouperRequestContainer.groupContainer.guiGroup.group.extension}" />
                   
                   <div class="control-group">
                     <label for="groupName" class="control-label">${textContainer.text['groupCreateNameLabel'] }</label>
@@ -32,6 +46,20 @@
                       <input type="text" id="groupId" name="extension"
                       value="${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.extension)}"
                        /><span class="help-block">${textContainer.text['groupCreateIdDescription'] }</span>
+                    </div>
+                  </div>
+                  <div id="alternateNameDiv" class="control-group">
+                    <label for="groupAlternateName" class="control-label">${textContainer.text['groupCreateAlternateNameLabel'] }</label>
+                    <div class="controls">
+                      <input type="text" id="groupAlternateName" name="alternateName"
+                        value="${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.alternateName)}" /><span
+                        class="help-block">${textContainer.text['groupCreateAlternateNameDescription'] }</span>
+                    </div>
+                  </div>
+                  <div id="setAlternateNameIfRenameDiv" class="control-group" style="display: none">
+                    <label for="groupRenameUpdateAlternateName" class="control-label">${textContainer.text['groupRenameUpdateAlternateNameLabel'] }</label>
+                    <div class="controls">
+                      <input type="checkbox" id="groupRenameUpdateAlternateName" name="setAlternateNameIfRename" checked="checked" value="true" /><span class="help-block">${textContainer.text['groupRenameUpdateAlternateNameDescription']}</span>
                     </div>
                   </div>
                   <div class="control-group">
