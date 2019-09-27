@@ -343,6 +343,7 @@ public class XmlExportMain {
       // Define reusable objects
       writer.write("StemSave stemSave = null;\n");
       writer.write("Stem stem = null;\n");
+      writer.write("Stem ownerStem = null;\n");
       writer.write("GroupSave groupSave = null;\n");
       writer.write("Group group = null;\n");
       writer.write("Group ownerGroup = null;\n");
@@ -353,6 +354,7 @@ public class XmlExportMain {
       writer.write("CompositeType compositeType = null;\n");
       writer.write("AttributeDefSave attributeDefSave = null;\n");
       writer.write("AttributeDef attributeDef = null;\n");
+      writer.write("AttributeDef ownerAttributeDef = null;\n");
       writer.write("Privilege privilege = null;\n");
       writer.write("Subject subject = null;\n");
       writer.write("Subject ownerSubject = null;\n");
