@@ -151,6 +151,7 @@ public class GrouperLoaderIncrementalJob implements Job {
       final String tableName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobProperty + ".tableName");
       int fullSyncThreshold = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + jobProperty + ".fullSyncThreshold", 100);
       boolean skipIfFullSyncDisabled = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobProperty + ".skipIfFullSyncDisabled", true);
+      final boolean caseInsensitiveSubjectLookupsInDataSource = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobProperty + ".caseInsensitiveSubjectLookupsInDataSource", false);
 
       boolean useThreads = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.incrementalThreads", true);
       int threadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.incrementalThreadPoolSize", 10);
@@ -316,7 +317,7 @@ public class GrouperLoaderIncrementalJob implements Job {
                 public Void callLogic() {
                   GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
                   processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, 
-                      GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderQuery, grouperLoaderDbName);
+                      GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderQuery, grouperLoaderDbName, caseInsensitiveSubjectLookupsInDataSource);
                   return null;
                 }
               };
@@ -600,6 +601,11 @@ public class GrouperLoaderIncrementalJob implements Job {
     }
   }
   
+  /**
+   * for testing purposes only
+   */
+  public static boolean testingWithCaseInSensitiveSubjectSource = false;
+  
   private static Subject resolveSubject(Row row) {
     String subjectId = row.getSubjectId();
     String subjectIdentifier = row.getSubjectIdentifier();
@@ -609,18 +615,27 @@ public class GrouperLoaderIncrementalJob implements Job {
     Subject subject = null;
     
     if (subjectId != null) {
+      if (testingWithCaseInSensitiveSubjectSource) {
+        subjectId = subjectId.toLowerCase();
+      }
       if (sourceId == null) {
         subject = SubjectFinder.findById(subjectId, false);
       } else {
         subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
       }
     } else if (subjectIdentifier != null) {
+      if (testingWithCaseInSensitiveSubjectSource) {
+        subjectIdentifier = subjectIdentifier.toLowerCase();
+      }
       if (sourceId == null) {
         subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
       } else {
         subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, false);
       }
     } else {
+      if (testingWithCaseInSensitiveSubjectSource) {
+        subjectIdOrIdentifier = subjectIdOrIdentifier.toLowerCase();
+      }
       if (sourceId == null) {
         subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
       } else {
@@ -702,7 +717,8 @@ public class GrouperLoaderIncrementalJob implements Job {
   private static void processOneSQLRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
       Group loaderGroup, String grouperLoaderType, 
       Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
-      String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderQuery, String grouperLoaderDbName) {
+      String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderQuery, String grouperLoaderDbName,
+      boolean caseInsensitiveSubjectLookupsInDataSource) {
     
     GrouperLoaderDb grouperLoaderDbForLoaderSource = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
 
@@ -730,7 +746,15 @@ public class GrouperLoaderIncrementalJob implements Job {
       }
       
       if (GrouperLoaderType.SQL_SIMPLE.name().equals(grouperLoaderType)) {
-        String loaderQueryForUser = "select 1 from (" + grouperLoaderQuery + ") innerQuery where " + subjectColumn + " = ?";
+        String loaderQueryForUser = "select 1 from (" + grouperLoaderQuery + ") innerQuery where ";
+        if (caseInsensitiveSubjectLookupsInDataSource) {
+          loaderQueryForUser += "lower(" + subjectColumn + ")";
+        } else {
+          loaderQueryForUser += subjectColumn;
+        }
+        
+        loaderQueryForUser += " = ?";
+        
         if (sourceId != null) {
           loaderQueryForUser += " and subject_source_id = ?";
         }
@@ -743,7 +767,12 @@ public class GrouperLoaderIncrementalJob implements Job {
         try {
           connectionForLoaderSource = grouperLoaderDbForLoaderSource.connection();
           statement2 = connectionForLoaderSource.prepareStatement(loaderQueryForUser);
-          statement2.setString(1, subjectValue);
+          if (caseInsensitiveSubjectLookupsInDataSource) {
+            statement2.setString(1, subjectValue.toLowerCase());
+          } else {
+            statement2.setString(1, subjectValue);  
+          }
+
           if (sourceId != null) {
             statement2.setString(2, sourceId);
           }
@@ -819,7 +848,16 @@ public class GrouperLoaderIncrementalJob implements Job {
           throw new RuntimeException("grouperLoaderGroupsLike is required for SQL_GROUP_LIST");
         }
   
-        String loaderQueryForUser = "select group_name from (" + grouperLoaderQuery + ") innerQuery where " + subjectColumn + " = ?";
+        String loaderQueryForUser = "select group_name from (" + grouperLoaderQuery + ") innerQuery where ";
+        
+        if (caseInsensitiveSubjectLookupsInDataSource) {
+          loaderQueryForUser += "lower(" + subjectColumn + ")";
+        } else {
+          loaderQueryForUser += subjectColumn;
+        }
+        
+        loaderQueryForUser += " = ?";
+        
         if (sourceId != null) {
           loaderQueryForUser += " and subject_source_id = ?";
         }
@@ -832,7 +870,13 @@ public class GrouperLoaderIncrementalJob implements Job {
         try {
           connectionForLoaderSource = grouperLoaderDbForLoaderSource.connection();
           statement = connectionForLoaderSource.prepareStatement(loaderQueryForUser);
-          statement.setString(1, subjectValue);
+          
+          if (caseInsensitiveSubjectLookupsInDataSource) {
+            statement.setString(1, subjectValue.toLowerCase());
+          } else {
+            statement.setString(1, subjectValue);
+          }
+          
           if (sourceId != null) {
             statement.setString(2, sourceId);
           }
