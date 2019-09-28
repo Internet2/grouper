@@ -2142,6 +2142,8 @@ public class UiV2Group {
       final String extension = request.getParameter("extension");
       final String displayExtension = request.getParameter("displayExtension");
       final String description = request.getParameter("description");
+      final String alternateName = request.getParameter("alternateName");
+      final boolean setAlternateNameIfRename = GrouperUtil.booleanValue(request.getParameter("setAlternateNameIfRename[]"), false);
       final boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admins[]"), false);
       final boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_updaters[]"), false);
       final boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_readers[]"), false);
@@ -2185,6 +2187,8 @@ public class UiV2Group {
         GroupSave groupSave = new GroupSave(GROUPER_SESSION).assignUuid(group.getId())
             .assignSaveMode(SaveMode.UPDATE)
             .assignName(group.getParentStemName() + ":" + extension)
+            .assignAlternateName(alternateName)
+            .assignSetAlternateNameIfRename(setAlternateNameIfRename)
             .assignDisplayExtension(displayExtension).assignDescription(description).assignTypeOfGroup(typeOfGroup)
             .assignPrivAllAdmin(adminChecked).assignPrivAllAttrRead(attrReadChecked)
             .assignPrivAllAttrUpdate(attrUpdateChecked).assignPrivAllOptin(optinChecked)

@@ -2704,7 +2704,8 @@ public class UiV2Stem {
       final String extension = request.getParameter("extension");
       final String displayExtension = request.getParameter("displayExtension");
       final String description = request.getParameter("description");
-      
+      final String alternateName = request.getParameter("alternateName");
+      final boolean setAlternateNameIfRename = GrouperUtil.booleanValue(request.getParameter("setAlternateNameIfRename[]"), false);
       
       if (StringUtils.isBlank(displayExtension)) {
         
@@ -2732,6 +2733,8 @@ public class UiV2Stem {
             .assignName(stem.getParentStem().isRootStem() ? extension : 
               (stem.getParentStemName() + ":" + extension))
             .assignDisplayExtension(displayExtension)
+            .assignAlternateName(alternateName)
+            .assignSetAlternateNameIfRename(setAlternateNameIfRename)
             .assignDescription(description);
         stem = stemSave.save();
         
