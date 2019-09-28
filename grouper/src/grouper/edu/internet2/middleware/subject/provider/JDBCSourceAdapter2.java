@@ -283,6 +283,13 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         }
       }
     }
+    
+    {
+      String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
+      if (!StringUtils.isBlank(errorOnMaxResultsString)) {
+        this.errorOnMaxResults = SubjectUtils.booleanValue(errorOnMaxResultsString, true);
+      }
+    }
   }
 
   /**
@@ -1002,6 +1009,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         }
 
         if (this.maxResults != null && results.size() > this.maxResults) {
+          if (!errorOnMaxResults) {
+            break;
+          }
+          
           throw new SubjectTooManyResults(
               "More results than allowed: " + this.maxResults 
               + " for search '" + query + "'");
