@@ -308,7 +308,7 @@ public class GrouperWorkflowConfigValidator {
             }
             if (assignToGroup == null) {
               String error = contentKeys.get("workflowApprovalsStateCompleteStateAssignToGroupIdNotFound");
-              error = error.replace("$$assignToGroupId$$", assignToGroupId);
+              error = error.replace("$$assignToGroupId$$", assignToGroupId == null ? "" : assignToGroupId);
               errors.add(error);
             }
           }
