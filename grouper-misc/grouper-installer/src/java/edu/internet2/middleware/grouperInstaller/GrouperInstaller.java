@@ -347,6 +347,11 @@ public class GrouperInstaller {
           if (!localFile.delete()) {
             throw new RuntimeException("Cant delete file: " + localFile.getAbsolutePath() + "!!!!!");
           }
+        } else {
+          if (!localFile.getParentFile().exists()) {
+            GrouperInstallerUtils.mkdirs(localFile.getParentFile());
+          }
+
         }
         
         try {
@@ -7704,7 +7709,7 @@ public class GrouperInstaller {
    * @param thisAppToUpgrade app to upgrade to check
    * @return if patches were installed
    */
-  private boolean downloadAndInstallPatches(AppToUpgrade thisAppToUpgrade) {
+  private boolean downloadAndInstallPatches(AppToUpgrade thisAppToUpgrade, AppToUpgrade originalAppToUpgrade) {
 
     if (thisAppToUpgrade == AppToUpgrade.CLIENT) {
       throw new RuntimeException("Cant install patches for " + thisAppToUpgrade);
@@ -7971,6 +7976,9 @@ public class GrouperInstaller {
             for (String oldFilePath : GrouperInstallerUtils.nonNull(oldFileRelativePaths)) {
               File oldFileInPatch = new File(oldDirFiles.getAbsolutePath() + File.separator + oldFilePath);
               File newFileInPatch = new File(newDirFiles.getAbsolutePath() + File.separator + oldFilePath);
+
+              oldFilePath = patchFixFilePath(applicationPath, patchDir, oldFilePath, originalAppToUpgrade);
+
               File oldFileInGrouper = new File(applicationPath + oldFilePath);
   
               if (!oldFileInPatch.exists() || !oldFileInPatch.isFile()) {
@@ -8021,6 +8029,9 @@ public class GrouperInstaller {
           for (String newFilePath : GrouperInstallerUtils.nonNull(newFileRelativePaths)) {
 
             File newFileInPatch = new File(newDirFiles.getAbsoluteFile() + File.separator + newFilePath);
+            
+            newFilePath = patchFixFilePath(applicationPath, patchDir, newFilePath, originalAppToUpgrade);
+
             File oldFileInGrouper = new File(applicationPath + newFilePath);
 
             if (!newFileInPatch.isFile()) {
@@ -8072,10 +8083,13 @@ public class GrouperInstaller {
           Set<String> newFileRelativePaths = GrouperInstallerUtils.fileDescendantRelativePaths(newDirFiles);
           
           for (String newFilePath : GrouperInstallerUtils.nonNull(newFileRelativePaths)) {
+            // adjust for jars in web apps
+            //patchDir (e.g. lib), newFilePath (e.g. something.jar or grouper/something.jar), originalAppToUpgrade (e.g. UI)
             File newFileInPatch = new File(newDirFiles.getAbsolutePath() + File.separator + newFilePath);
             if (!newFileInPatch.isFile()) {
               continue;
             }
+            newFilePath = patchFixFilePath(applicationPath, patchDir, newFilePath, originalAppToUpgrade);
             File oldFileInGrouper = new File(applicationPath + newFilePath);
             if (!oldFileInGrouper.exists() && !oldFileInGrouper.getParentFile().exists()) {
               GrouperInstallerUtils.mkdirs(oldFileInGrouper.getParentFile());
@@ -8122,6 +8136,61 @@ public class GrouperInstaller {
     return true;
   }
 
+  /**
+   * <pre>
+   * patch file extra grouper prefix pattern
+   * ^grouper[/\\][^/\\]+[/\\]([^/\\]+)$
+   * starts with grouper, then a slash, then capture a dir and jar filename
+   * </pre>
+   */
+  private static Pattern patchFileExtraGrouperPrefixPattern = Pattern.compile("^grouper[/\\\\]([^/\\\\]+[/\\\\][^/\\\\]+)$");
+  
+  /**
+   * applicationPath (e.g. lib), newFilePath (e.g. something.jar or grouper/something.jar), originalAppToUpgrade (e.g. UI)
+   * @param applicationPath
+   * @param patchDir
+   * @param newFilePath
+   * @param originalAppToUpgrade
+   * @return String of new newFilePath
+   */
+  public String patchFixFilePath(String applicationPath, String patchDir, String newFilePath, AppToUpgrade originalAppToUpgrade) {
+
+    if ("lib".equals(patchDir)) {
+      // if this is the api then there should be something between lib and the jar
+      String jarName = newFilePath;
+      {
+//        Matcher matcher = patchFileExtraGrouperPrefixPattern.matcher(newFilePath);
+//        if (matcher.matches()) {
+//          jarName = matcher.group(1);
+//        }
+        jarName = GrouperInstallerUtils.suffixAfterChar(newFilePath, '/');
+        jarName = GrouperInstallerUtils.suffixAfterChar(newFilePath, '\\');
+
+      }
+      
+
+      if (originalAppToUpgrade.isApiOrganized()) {
+        
+        String noSlashApplicationPath = GrouperInstallerUtils.stripLastSlashIfExists(applicationPath);
+        // if the application path has "grouper" already, then just put jarname on it
+        if (!noSlashApplicationPath.endsWith("lib")) {
+          newFilePath = jarName;
+        } else {
+          //if application is just lib, then make sure there is something in front of the jarname
+          if (GrouperInstallerUtils.equals(newFilePath, jarName)) {
+            newFilePath = "grouper/" + jarName;
+          }
+        }
+         
+      } else {
+        // if this is a UI or WS, then we only want the jar
+        newFilePath = jarName;
+      }
+    }
+    return newFilePath;
+  }
+
+  
   /**
    * @param keyBase
    * @return if should revert patch
@@ -8573,7 +8642,7 @@ public class GrouperInstaller {
    * patch the api
    */
   private void patchApi() {
-    this.downloadAndInstallPatches(AppToUpgrade.API);
+    this.downloadAndInstallPatches(AppToUpgrade.API, AppToUpgrade.API);
   }
 
   /**
@@ -8652,8 +8721,8 @@ public class GrouperInstaller {
    * patch the client
    */
   private void patchUi() {
-    this.downloadAndInstallPatches(AppToUpgrade.API);
-    boolean patchesApplied = this.downloadAndInstallPatches(AppToUpgrade.UI);
+    this.downloadAndInstallPatches(AppToUpgrade.API, AppToUpgrade.UI);
+    boolean patchesApplied = this.downloadAndInstallPatches(AppToUpgrade.UI, AppToUpgrade.UI);
     if (patchesApplied && (this.grouperInstallerMainFunction == GrouperInstallerMainFunction.patch 
         || this.grouperInstallerMainFunction == GrouperInstallerMainFunction.upgrade)) {
       System.out.print("Since patches were applied, you should delete files in your app server work directory,"
@@ -8666,8 +8735,8 @@ public class GrouperInstaller {
    * patch the client
    */
   private void patchWs() {
-    this.downloadAndInstallPatches(AppToUpgrade.API);
-    boolean patchesApplied = this.downloadAndInstallPatches(AppToUpgrade.WS);
+    this.downloadAndInstallPatches(AppToUpgrade.API, AppToUpgrade.WS);
+    boolean patchesApplied = this.downloadAndInstallPatches(AppToUpgrade.WS, AppToUpgrade.WS);
     if (patchesApplied && (this.grouperInstallerMainFunction == GrouperInstallerMainFunction.patch 
         || this.grouperInstallerMainFunction == GrouperInstallerMainFunction.upgrade)) {
       System.out.print("Since patches were applied, you should delete files in your app server work directory,"
@@ -8680,16 +8749,16 @@ public class GrouperInstaller {
    * patch the psp
    */
   private void patchPsp() {
-    this.downloadAndInstallPatches(AppToUpgrade.API);
-    this.downloadAndInstallPatches(AppToUpgrade.PSP);
+    this.downloadAndInstallPatches(AppToUpgrade.API, AppToUpgrade.PSP);
+    this.downloadAndInstallPatches(AppToUpgrade.PSP, AppToUpgrade.PSP);
   }
 
   /**
    * patch the pspng
    */
   private void patchPspng() {
-    this.downloadAndInstallPatches(AppToUpgrade.API);
-    this.downloadAndInstallPatches(AppToUpgrade.PSPNG);
+    this.downloadAndInstallPatches(AppToUpgrade.API, AppToUpgrade.PSPNG);
+    this.downloadAndInstallPatches(AppToUpgrade.PSPNG, AppToUpgrade.PSPNG);
   }
 
   /**
@@ -9258,7 +9327,7 @@ public class GrouperInstaller {
     this.upgradeExistingClassesDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
         + "conf" + File.separator;
     this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
-        + "lib" + File.separator + "grouper" + File.separator;
+        + "lib" + File.separator;
     this.upgradeExistingBinDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
             + "bin" + File.separator;
     patchApi();
@@ -9468,7 +9537,7 @@ public class GrouperInstaller {
       this.upgradeExistingClassesDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
           + "conf" + File.separator;
       this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
-          + "lib" + File.separator + "grouper" + File.separator;
+          + "lib" + File.separator;
       patchPspng();
             
     }
@@ -9488,7 +9557,7 @@ public class GrouperInstaller {
         this.upgradeExistingClassesDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
             + "conf" + File.separator;
         this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
-            + "lib" + File.separator + "grouper" + File.separator;
+            + "lib" + File.separator;
         patchPsp();
               
       }
