@@ -13,6 +13,10 @@
                         </th>
                         <th data-hide="phone" style="white-space: nowrap; text-align: left;">
                           <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                            data-original-title="${textContainer.textEscapeDouble['adminDaemonJobsColumnTooltipOverallStatus']}">${textContainer.text['adminDaemonJobsColumnHeaderOverallStatus'] }</span>
+                        </th>
+                        <th data-hide="phone" style="white-space: nowrap; text-align: left;">
+                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                             data-original-title="${textContainer.textEscapeDouble['adminDaemonJobsColumnTooltipLastRunStatus']}">${textContainer.text['adminDaemonJobsColumnHeaderLastRunStatus'] }</span>
                         </th>
                         <th data-hide="phone" style="white-space: nowrap; text-align: left;">
@@ -56,6 +60,13 @@
                         <tr>
                           <td class="expand foo-clicker" style="white-space: nowrap;"><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');">${guiDaemonJob.jobName}</a></td>
                           <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.state}</span></td>
+                          <td class="expand foo-clicker"
+                            style="color: White;
+                            background-color: ${guiDaemonJob.overallStatus == 'SUCCESS' ? 'green' : (guiDaemonJob.overallStatus == 'ERROR' ? 'red' : 'gray')};
+                            font-weight: bold;">
+                            <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" class="grouperTooltip" style="border-bottom-color: white;"
+                                data-original-title="${grouper:escapeHtml(guiDaemonJob.overallStatusDescription)}">${guiDaemonJob.overallStatus}</span>
+                          </td>
                           <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.lastRunStatus}</span></td>
                           <td class="expand foo-clicker">
                             <div class="btn-group btn-block">
@@ -72,6 +83,7 @@
                                 <c:if test="${guiDaemonJob.showMoreActionsDisable}" >
                                   <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=disable&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</a></li>
                                 </c:if>
+                                <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
                               </ul>
                             </div>
                           </td>
