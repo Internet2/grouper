@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
  * attestation daemon
@@ -886,7 +887,9 @@ public class GrouperAttestationJob extends OtherJobBase {
       if (sendEmail) {
         // grab the list of email addresses from the attribute
         String[] emailAddresses = getEmailAddresses(configurationAttributeAssign, groupAttributeAssign.getOwnerGroup());
-        addEmailObject(configurationAttributeAssign, emailAddresses, emails, groupAttributeAssign.getOwnerGroup());
+        if (emailAddresses != null && emailAddresses.length > 0) {          
+          addEmailObject(configurationAttributeAssign, emailAddresses, emails, groupAttributeAssign.getOwnerGroup());
+        }
       }
       
     }
@@ -948,7 +951,9 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (sendEmail) {
       // grab the list of email addresses from the attribute
       String[] emailAddresses = getEmailAddressesForStemReport(stemAttributeAssign);
-      addEmailObject(stemAttributeAssign, emailAddresses, emails, stemAttributeAssign.getOwnerStem());
+      if (emailAddresses != null && emailAddresses.length > 0) {          
+        addEmailObject(stemAttributeAssign, emailAddresses, emails, stemAttributeAssign.getOwnerStem());
+      }
     }
   
     return emails;
@@ -978,11 +983,13 @@ public class GrouperAttestationJob extends OtherJobBase {
         
         // go through each subject and find the email address.
         for (Member member: groupMembers) {
-          String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(member.getSubject().getSourceId());
-          if (!StringUtils.isBlank(emailAttributeName)) {
-            String emailAddress = member.getSubject().getAttributeValue(emailAttributeName);
-            if (!StringUtils.isBlank(emailAddress)) {
-              addresses.add(emailAddress);
+          if (StringUtils.equals(member.getSubject().getType().getName(), SubjectTypeEnum.PERSON.getName())) { 
+            String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(member.getSubject().getSourceId());
+            if (!StringUtils.isBlank(emailAttributeName)) {
+              String emailAddress = member.getSubject().getAttributeValue(emailAttributeName);
+              if (!StringUtils.isBlank(emailAddress)) {
+                addresses.add(emailAddress);
+              }
             }
           }
         }
@@ -1023,11 +1030,13 @@ public class GrouperAttestationJob extends OtherJobBase {
       
       // go through each subject and find the email address.
       for (Subject subject: groupMembers) {
-        String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
-        if (!StringUtils.isBlank(emailAttributeName)) {
-          String emailAddress = subject.getAttributeValue(emailAttributeName);
-          if (!StringUtils.isBlank(emailAddress)) {
-            addresses.add(emailAddress);
+        if (StringUtils.equals(subject.getType().getName(), SubjectTypeEnum.PERSON.getName())) {
+          String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
+          if (!StringUtils.isBlank(emailAttributeName)) {
+            String emailAddress = subject.getAttributeValue(emailAttributeName);
+            if (!StringUtils.isBlank(emailAddress)) {
+              addresses.add(emailAddress);
+            }
           }
         }
       }
@@ -1051,38 +1060,32 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   private static void addEmailObject(AttributeAssign attributeAssign, String[] emailAddresses, Map<String, Set<EmailObject>> emails, GrouperObject grouperObject) {
     
-    if (emailAddresses == null || emailAddresses.length == 0) {
-      LOG.error("Could not find any emails for attribute assign id "+attributeAssign.getId()+". Grouper object name is "+grouperObject.getDisplayName());
-    } else {
+    for (int i=0; i<emailAddresses.length; i++) {
       
-      for (int i=0; i<emailAddresses.length; i++) {
-        
-        String primaryEmailAddress = emailAddresses[i].trim();
-        
-        Set<String> ccEmailAddresses =  getElements(emailAddresses, i);
-        
-        EmailObject emailObject = null;
-        if (grouperObject instanceof Group) {
-          emailObject = new EmailObject(grouperObject.getId(), grouperObject.getDisplayName(), ccEmailAddresses);
-        } else if (grouperObject instanceof Stem) {
-          emailObject = new EmailObject(null, null, grouperObject.getId(), grouperObject.getDisplayName(), ccEmailAddresses);
-        } else {
-          throw new RuntimeException("Unexpected type " + grouperObject);
-        }
-        
-        
-        if (emails.containsKey(primaryEmailAddress)) {
-          Set<EmailObject> emailObjects = emails.get(primaryEmailAddress);
-          emailObjects.add(emailObject);
-        } else {
-          Set<EmailObject> emailObjects = new HashSet<EmailObject>();
-          emailObjects.add(emailObject);
-          emails.put(primaryEmailAddress, emailObjects);
-        }
+      String primaryEmailAddress = emailAddresses[i].trim();
+      
+      Set<String> ccEmailAddresses =  getElements(emailAddresses, i);
+      
+      EmailObject emailObject = null;
+      if (grouperObject instanceof Group) {
+        emailObject = new EmailObject(grouperObject.getId(), grouperObject.getDisplayName(), ccEmailAddresses);
+      } else if (grouperObject instanceof Stem) {
+        emailObject = new EmailObject(null, null, grouperObject.getId(), grouperObject.getDisplayName(), ccEmailAddresses);
+      } else {
+        throw new RuntimeException("Unexpected type " + grouperObject);
       }
       
+      
+      if (emails.containsKey(primaryEmailAddress)) {
+        Set<EmailObject> emailObjects = emails.get(primaryEmailAddress);
+        emailObjects.add(emailObject);
+      } else {
+        Set<EmailObject> emailObjects = new HashSet<EmailObject>();
+        emailObjects.add(emailObject);
+        emails.put(primaryEmailAddress, emailObjects);
+      }
     }
-    
+      
   }
   
   /**

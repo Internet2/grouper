@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -48,6 +50,66 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AttributeAssignFinder {
 
+  /**
+   * scope for a subject if filtering by owner of member or membership
+   */
+  private String scopeSubject;
+
+  /**
+   * scope for a subject if filtering by owner of member or membership
+   * @param theScopeSubject
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignScopeSubject(String theScopeSubject) {
+    this.scopeSubject = theScopeSubject;
+    return this;
+  }
+  
+  /**
+   * if scope of subject should be split by whitespace, by default yes
+   */
+  private Boolean splitScopeSubject;
+  
+  /**
+   * if scope of subject should be split by whitespace, by default yes
+   * @param theSplitScopeSubject1
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignSplitScopeSubject(boolean theSplitScopeSubject1) {
+    this.splitScopeSubject = theSplitScopeSubject1;
+    return this;
+  }
+
+  /**
+   * if filtering by owner, this is the filter
+   */
+  private String scope;
+  
+  /**
+   * filter by owner
+   * @param theScope
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignScope(String theScope) {
+    this.scope = theScope;
+    return this;
+  }
+  
+  /**
+   * if scope should be split by whitespace, by default yes
+   */
+  private Boolean splitScope = null;
+  
+  /**
+   * if scope should be split by whitespace, by default yes
+   * @param theSplitScope
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignSplitScope(boolean theSplitScope) {
+    this.splitScope = theSplitScope;
+    return this;
+  }
+  
   /**
    * if should retrieve values
    */
@@ -465,39 +527,51 @@ public class AttributeAssignFinder {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
-            
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
+
+    } else if (theAttributeAssignType == AttributeAssignType.attr_def) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
+
     } else if (theAttributeAssignType == AttributeAssignType.group) {
         
       return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
         
     } else if (theAttributeAssignType == AttributeAssignType.member) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
         
     } else if (theAttributeAssignType == AttributeAssignType.group_asgn) {
         
       return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
               
     } else if (theAttributeAssignType == AttributeAssignType.stem_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
+            
+    } else if (theAttributeAssignType == AttributeAssignType.attr_def_asgn) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
             
     } else if (theAttributeAssignType == AttributeAssignType.mem_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-          null, true, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues);
+          null, true, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
             
     }
     return new HashSet<Object[]>();
@@ -510,6 +584,10 @@ public class AttributeAssignFinder {
    */
   public Set<AttributeAssign> findAttributeAssigns() {
   
+    if (!StringUtils.isBlank(this.scope) ) {
+      throw new RuntimeException("scope not supported in this call");
+      
+    }
     if (this.retrieveValues) {
       throw new RuntimeException("retrieveValues not supported in this call");
     }

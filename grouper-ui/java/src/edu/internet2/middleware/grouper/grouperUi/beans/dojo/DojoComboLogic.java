@@ -126,7 +126,7 @@ public class DojoComboLogic {
           String groupIdOrName = query.endsWith("*") ? query.substring(0, query.length()-1) : query;
           if (!StringUtils.isBlank(groupIdOrName) && (allowAutocompleteById || !query.endsWith("*"))) {
 
-            T t = dojoComboQueryLogic.lookup(request, grouperSession, query);
+            T t = dojoComboQueryLogic.lookup(request, grouperSession, groupIdOrName);
             if (t != null) {
               objects.add(t);
             }

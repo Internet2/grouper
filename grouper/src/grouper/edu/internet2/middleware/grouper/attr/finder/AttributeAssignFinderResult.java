@@ -8,6 +8,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -143,6 +144,28 @@ public class AttributeAssignFinderResult {
    */
   private Stem ownerStem;
   
+  /**
+   * owner membership
+   */
+  private Membership ownerMembership;
+  
+  /**
+   * owner membership
+   * @return the ownerMembership
+   */
+  public Membership getOwnerMembership() {
+    return this.ownerMembership;
+  }
+  
+  /**
+   * owner membership
+   * @param ownerMembership1 the ownerMembership to set
+   */
+  public void setOwnerMembership(Membership ownerMembership1) {
+    this.ownerMembership = ownerMembership1;
+  }
+
+
   /**
    * member
    */

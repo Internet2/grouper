@@ -158,7 +158,7 @@
                                 ${textContainer.text[grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == 'report' ? 'attestationReportEmailManagersLabel' : 'attestationEmailManagersLabel']}</strong></td>
                               <td>
                                 <c:choose>
-                                  <c:when test="${grouperRequestContainer.attestationContainer.emailGroupManagers}">
+                                  <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailAddresses == null}">
                                     ${textContainer.textEscapeXml[grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == 'report' ? 'grouperAttestationReportEmailManagersLabel' : 'grouperAttestationEmailManagersLabel']}
                                   </c:when>
                                   <c:otherwise>
@@ -169,7 +169,7 @@
                                 <span class="description">${textContainer.text['grouperAttestationSendEmailDescription']}</span>
                               </td>
                             </tr>
-                            <c:if test="${!grouperRequestContainer.attestationContainer.emailGroupManagers}">
+                            <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailAddresses != null}">
                               <tr>
                                 <td style="vertical-align: top; white-space: nowrap;"><strong><label
                                     for="grouperAttestationEmailAddressesId">${textContainer.text['attestationEmailAddressesLabel']}</label></strong></td>

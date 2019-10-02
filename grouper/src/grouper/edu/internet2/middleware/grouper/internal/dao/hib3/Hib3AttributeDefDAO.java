@@ -590,39 +590,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       
       //see if there is a scope
       if (!StringUtils.isBlank(scope)) {
-        
-        String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
-        int index = 0;
-        boolean firstScope = true;
-        for (String theScope : scopes) {
-          if (whereClause.length() > 0) {
-            whereClause.append(" and ");
-          } 
-          if (firstScope) {
-            whereClause.append(" (( ");
-          }
-          firstScope = false;
-  
-          if (findByUuidOrName) {
-            whereClause.append(" theAttributeDef.nameDb = :scope" + index + " ");
-            byHqlStatic.setString("scope" + index, theScope);
-          } else {
-            whereClause.append(" ( lower(theAttributeDef.nameDb) like :scope" + index 
-                + " or lower(theAttributeDef.description) like :scope" + index + " ) ");
-            if (splitScope) {
-              theScope = "%" + theScope + "%";
-            } else if (!theScope.endsWith("%")) {
-              theScope += "%";
-            }
-            byHqlStatic.setString("scope" + index, theScope.toLowerCase());
-  
-          }        
-          
-          index++;
-        }
-  
-        whereClause.append(" ) or ( theAttributeDef.id = :attributeId  )) ");
-        byHqlStatic.setString("attributeId", scope);
+        scope = assignScopeToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "theAttributeDef");
       }
   
       if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
@@ -707,6 +675,66 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
 
   }
   
+  /**
+   * @param byHqlStatic
+   * @param scope
+   * @param splitScope default true
+   * @param whereClause
+   * @param findByUuidOrName generally this is false
+   * @param alias e.g. theGroup whatever alias in hql query
+   * @return scope lowercased
+   */
+  public static String assignScopeToQuery(String scope, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias) {
+
+    // default scplitScope to true
+    splitScope = GrouperUtil.booleanValue(splitScope, true);
+    scope = scope.toLowerCase();
+    
+    String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+
+    if (scopes.length > 1 && findByUuidOrName) {
+      throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+    }
+
+    if (whereClause.length() > 0) {
+      whereClause.append(" and ");
+    }
+    if (GrouperUtil.length(scopes) == 1) {
+      whereClause.append(" ( " + alias + ".id = :theAttributeDefIdScope or ( ");
+      byHqlStatic.setString("theAttributeDefIdScope", scope);
+    } else {
+      whereClause.append(" ( ( ");
+    }
+
+    int index = 0;
+    for (String theScope : scopes) {
+      if (index != 0) {
+        whereClause.append(" and ");
+      }
+      
+      if (findByUuidOrName) {
+        whereClause.append(" " + alias + ".nameDb = :scope" + index + " ");
+        byHqlStatic.setString("scope" + index, theScope);
+      } else {
+        whereClause.append(" ( lower(" + alias + ".nameDb) like :scope" + index 
+            + " or lower(" + alias + ".description) like :scope" + index + " ) ");
+        if (splitScope) {
+          theScope = "%" + theScope + "%";
+        } else if (!theScope.endsWith("%")) {
+          theScope += "%";
+        }
+        byHqlStatic.setString("scope" + index, theScope);
+
+      }        
+      
+      index++;
+    }
+    whereClause.append(" ) ) ");
+    return scope;
+    
+  }
+  
+
   /**
    * @param scope 
    * @param grouperSession 
@@ -1090,6 +1118,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         querySortField.setColumn(alias + ".extensionDb");
       }
       if (StringUtils.equals("name", querySortField.getColumn())) {
+        querySortField.setColumn(alias + ".nameDb");
+      }
+      if (StringUtils.equals("displayName", querySortField.getColumn())) {
         querySortField.setColumn(alias + ".nameDb");
       }
     }

@@ -41,6 +41,17 @@ public class GrouperDuoLog {
       LOG.debug(GrouperUtil.mapToString(messageMap));
     }
   }
-
+  
+  public static void logError(String message) {
+	  LOG.error(message);
+  }
+  
+  public static void logError(String message, Throwable throwable) {
+	  LOG.error(message, throwable);
+  }
+  
+  public static void logInfo(String message) {
+	  LOG.info(message);
+  }
   
 }

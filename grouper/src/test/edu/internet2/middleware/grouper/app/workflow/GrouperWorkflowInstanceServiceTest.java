@@ -243,7 +243,7 @@ private GrouperSession grouperSession;
     AttributeAssign attributeAssign = group.getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_APPROVALS, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), GrouperWorkflowApprovalStates.getDefaultApprovalStatesString());
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(group.getId()));
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_DESCRIPTION, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "test description");
