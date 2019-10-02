@@ -151,7 +151,7 @@ public class FullSyncProvisioner  {
           }
           finally {
               LOG.warn("{}: FullSync thread has exited", getName());
-              grouperSession.stop();
+              GrouperSession.stopQuietly(grouperSession);
           }
       }
     }, getName() + "-Thread");
@@ -194,7 +194,7 @@ public class FullSyncProvisioner  {
                 }
                 finally {
                     LOG.error("{}: Full-sync queue reader has exited ({})", getName(), queue_type);
-                    grouperSession.stop();
+                    GrouperSession.stopQuietly(grouperSession);
                 }
             }
         }, getName() + "-MessageReaderThread-" + queue_type.queueName_short);
