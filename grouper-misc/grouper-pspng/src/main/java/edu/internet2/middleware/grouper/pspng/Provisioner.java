@@ -898,7 +898,6 @@ public abstract class Provisioner
               new Callable<Map<Subject, TSUserClass>>() {
                 @Override
                 public Map<Subject, TSUserClass> call() throws Exception {
-
                   GrouperSession grouperSession = GrouperSession.startRootSession();
                   GrouperContext grouperContext = GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
 
