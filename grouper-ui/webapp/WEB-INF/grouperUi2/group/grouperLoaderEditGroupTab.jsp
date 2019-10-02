@@ -326,7 +326,7 @@
 	                            <span style="white-space: nowrap">
 		                          <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectAttributeName)}"
 		                              name="editLoaderLdapSubjectAttributeName" id="editLoaderLdapSubjectAttributeId" />
-	                                <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES'
+	                                <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUP_LIST'
 	                                    || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_SIMPLE'}">
 	                                  <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
 	                                    data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -664,10 +664,10 @@
 	                          </tr>
                           
 	                          <tr>
-	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapUpdatersId">${textContainer.text['grouperLoaderLdapAttrUpdaters']}</label></strong></td>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapAttrUpdatersId">${textContainer.text['grouperLoaderLdapAttrUpdaters']}</label></strong></td>
 	                            <td>
 	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttrUpdaters)}"
-	                                 name="grouperLoaderLdapUpdaters" id="grouperLoaderLdapUpdatersId" />
+	                                 name="grouperLoaderLdapAttrUpdatersName" id="grouperLoaderLdapAttrUpdatersId" />
 	                              <br />
 	                              <span class="description">
 	                              ${textContainer.text['grouperLoaderLdapAttrUpdatersDescription']}</span>

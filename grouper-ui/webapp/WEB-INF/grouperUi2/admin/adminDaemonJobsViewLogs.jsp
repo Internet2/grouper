@@ -4,7 +4,8 @@
               <ul class="breadcrumb">
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['adminDaemonJobsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li class="active">${textContainer.text['adminDaemonJobsBreadcrumb'] }</li>
+                <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobs');">${textContainer.text['adminDaemonJobsBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li class="active">${textContainer.text['adminDaemonLogsBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
                 <h1>${textContainer.text['daemonJobsViewLogsTitle'] }</h1>
@@ -18,8 +19,11 @@
                 <form class="form-inline form-small form-filter" id="logFilterFormId">
                 
                   <div class="row-fluid">
-                    <div class="span1">
+                    <div class="span2">
                       <label for="people-filter">${textContainer.text['grouperLoaderLogsFilterFor'] }</label>
+                    </div>
+                    <div class="span9" style="white-space: nowrap;">
+                      ${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}
                     </div>
                   </div>
 

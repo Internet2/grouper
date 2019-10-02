@@ -1499,48 +1499,15 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         
         StringBuilder whereClause = new StringBuilder();
         
-        String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
-  
-        if (scopes.length > 1 && findByUuidOrName) {
-          throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+        if (changedQuery && sql.toString().contains("where")) {
+          whereClause.append(" and ");
+        } else {
+          whereClause.append(" where ");
         }
+
+        scope = assignScopeToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "ns");
+  
         
-        int index = 0;
-        for (String theScope : scopes) {
-          if (whereClause.length() > 0) {
-            whereClause.append(" and ");
-          } else {
-            if (changedQuery && (whereClause.toString().contains(" where ") || sql.toString().contains("where"))) {
-              whereClause.append(" and ");
-            } else {
-              whereClause.append(" where ");
-            }
-            whereClause.append(" (( ");
-          }
-  
-          if (findByUuidOrName) {
-            whereClause.append(" ns.nameDb = :scope" + index + " or ns.alternateNameDb = :scope" + index 
-                + " or ns.displayNameDb = :scope" + index + " ");
-            byHqlStatic.setString("scope" + index, theScope);
-          } else {
-            whereClause.append(" ( lower(ns.nameDb) like :scope" + index 
-                + " or lower(ns.displayNameDb) like :scope" + index 
-                + " or lower(ns.descriptionDb) like :scope" + index + " ) ");
-            if (splitScope) {
-              theScope = "%" + theScope + "%";
-            } else if (!theScope.endsWith("%")) {
-              theScope += "%";
-            }
-            byHqlStatic.setString("scope" + index, theScope.toLowerCase());
-  
-          }        
-          
-          index++;
-        }
-  
-        whereClause.append(" ) or ( ns.uuid = :stemId  )) ");
-        byHqlStatic.setString("stemId", scope);
-  
         sql.append(whereClause);
         changedQuery = true;
       }
@@ -1840,6 +1807,66 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     return overallResults;
   }
 
+  /**
+   * @param byHqlStatic
+   * @param scope
+   * @param splitScope default true
+   * @param whereClause
+   * @param findByUuidOrName generally this is false
+   * @param alias e.g. theGroup whatever alias in hql query
+   * @return scope lowercased
+   */
+  public static String assignScopeToQuery(String scope, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias) {
+
+    // default scplitScope to true
+    splitScope = GrouperUtil.booleanValue(splitScope, true);
+    scope = scope.toLowerCase();
+    
+    String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+
+    if (scopes.length > 1 && findByUuidOrName) {
+      throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+    }
+
+    if (GrouperUtil.length(scopes) == 1) {
+      whereClause.append(" ( " + alias + ".uuid = :theStemIdScope or ( ");
+      byHqlStatic.setString("theStemIdScope", scope);
+    } else {
+      whereClause.append(" ( ( ");
+    }
+
+    int index = 0;
+    for (String theScope : scopes) {
+      if (index != 0) {
+        whereClause.append(" and ");
+      }
+      
+      if (findByUuidOrName) {
+        whereClause.append(" " + alias + ".nameDb = :scope" + index + " or " + alias + ".alternateNameDb = :scope" + index 
+            + " or " + alias + ".displayNameDb = :scope" + index + " ");
+        byHqlStatic.setString("scope" + index, theScope);
+      } else {
+        whereClause.append(" ( lower(" + alias + ".nameDb) like :scope" + index 
+            + " or lower(" + alias + ".alternateNameDb) like :scope" + index 
+            + " or lower(" + alias + ".displayNameDb) like :scope" + index 
+            + " or lower(" + alias + ".descriptionDb) like :scope" + index + " ) ");
+        if (splitScope) {
+          theScope = "%" + theScope + "%";
+        } else if (!theScope.endsWith("%")) {
+          theScope += "%";
+        }
+        byHqlStatic.setString("scope" + index, theScope);
+
+      }        
+      
+      index++;
+    }
+    whereClause.append(" ) ) ");
+    return scope;
+
+  }
+
+  
   /** 
    * people with true here will see all folders
    * TODO replace with ehcache

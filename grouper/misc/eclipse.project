@@ -24,7 +24,7 @@
 	<variableList>
 		<variable>
 			<name>GROUPER_CLIENT_SOURCE</name>
-			<value>file:/Users/mchyzer/git/grouper/grouper-misc/grouperClient/src/java</value>
+			<value>file:/c:/Users/mchyzer/documents/github/grouper/grouper-misc/grouperClient/src/java</value>
 		</variable>
 	</variableList>
 </projectDescription>

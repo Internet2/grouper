@@ -104,7 +104,7 @@ public class UiV2Attestation {
             return null;
           }
 
-          setupAttestation(GROUP);
+          setupAttestation(GROUP, true);
           
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
               "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
@@ -2583,8 +2583,9 @@ public class UiV2Attestation {
   /**
    * setup attestation stuff
    * @param attributeAssignable
+   * @param alsoSetupParentAttestation 
    */
-  public static void setupAttestation(final AttributeAssignable attributeAssignable) {
+  public static void setupAttestation(final AttributeAssignable attributeAssignable, boolean alsoSetupParentAttestation) {
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     AttestationContainer attestationContainer = grouperRequestContainer
         .getAttestationContainer();
@@ -2592,8 +2593,25 @@ public class UiV2Attestation {
     GuiAttestation attestation = retrieveGuiAttestation(attributeAssignable);
     if (attestation != null) {
       attestationContainer.setGuiAttestation(attestation);
+      
+      if (alsoSetupParentAttestation && attestationContainer.isHasAttestationConfigured() && !attestationContainer.isDirectGroupAttestationAssignment() && !attestationContainer.isDirectStemAttestationAssignment()) {
+        Stem parentStem = attestationContainer.getParentStemWithAttestation();
+        if (parentStem != null) {
+          GuiAttestation parentAttestation = retrieveGuiAttestation(parentStem);
+          if (parentAttestation != null) {
+            attestationContainer.setParentGuiAttestation(parentAttestation);
+          }
+        }
+      }
     }
   }
   
+  /**
+   * setup attestation stuff
+   * @param attributeAssignable
+   */
+  public static void setupAttestation(final AttributeAssignable attributeAssignable) {
+    setupAttestation(attributeAssignable, false);
+  }
 
 }

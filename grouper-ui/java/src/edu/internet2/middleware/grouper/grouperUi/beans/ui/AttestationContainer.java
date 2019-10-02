@@ -627,6 +627,24 @@ public class AttestationContainer {
     this.guiAttestation = guiAttestation1;
   }
   
+  private GuiAttestation parentGuiAttestation;
+  
+  /**
+   * fields for attestation
+   * @return parent gui attestation
+   */
+  public GuiAttestation getParentGuiAttestation() {
+    return this.parentGuiAttestation;
+  }
+
+  /**
+   * fields for attestation
+   * @param parentGuiAttestation1
+   */
+  public void setParentGuiAttestation(GuiAttestation parentGuiAttestation1) {
+    this.parentGuiAttestation = parentGuiAttestation1;
+  }
+  
 
   /**
    * 
@@ -1193,5 +1211,44 @@ public class AttestationContainer {
     });
     
     return grouperReportConfigsSecure;
+  }
+  
+  /**
+   * @return return direct if this is a direct assignment, otherwise look at the parent
+   */
+  public String getDirectOrParentAttestationDaysUntilRecertify() {
+    if (this.isDirectGroupAttestationAssignment()) {
+      return this.guiAttestation.getGrouperAttestationDaysUntilRecertify();
+    } else if (this.isAncestorStemAttestationAssignment() && this.parentGuiAttestation != null) {
+      return this.parentGuiAttestation.getGrouperAttestationDaysUntilRecertify();
+    } else {
+      return null;
+    }
+  }
+  
+  /**
+   * @return return direct if this is a direct assignment, otherwise look at the parent
+   */
+  public Boolean getDirectOrParentGrouperAttestationSendEmail() {
+    if (this.isDirectGroupAttestationAssignment()) {
+      return this.guiAttestation.getGrouperAttestationSendEmail();
+    } else if (this.isAncestorStemAttestationAssignment() && this.parentGuiAttestation != null) {
+      return this.parentGuiAttestation.getGrouperAttestationSendEmail();
+    } else {
+      return null;
+    }
+  }
+  
+  /**
+   * @return return direct if this is a direct assignment, otherwise look at the parent
+   */
+  public String getDirectOrParentGrouperAttestationEmailAddresses() {
+    if (this.isDirectGroupAttestationAssignment()) {
+      return this.guiAttestation.getGrouperAttestationEmailAddresses();
+    } else if (this.isAncestorStemAttestationAssignment() && this.parentGuiAttestation != null) {
+      return this.parentGuiAttestation.getGrouperAttestationEmailAddresses();
+    } else {
+      return null;
+    }
   }
 }

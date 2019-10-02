@@ -131,6 +131,31 @@ public class StemSave {
     this.description = theDescription;
     return this;
   }
+  
+  /** alternateName */
+  private String alternateName;
+  
+  /**
+   * assign alternateName
+   * @param theAlternateName
+   * @return this for chaining
+   */
+  public StemSave assignAlternateName(String theAlternateName) {
+    this.alternateName = theAlternateName;
+    return this;
+  }
+  
+  private boolean setAlternateNameIfRename = true;
+  
+  /**
+   * whether an alternate name should automatically be assigned if doing a rename
+   * @param theSetAlternateNameIfRename
+   * @return this for chaining
+   */
+  public StemSave assignSetAlternateNameIfRename(boolean theSetAlternateNameIfRename) {
+    this.setAlternateNameIfRename = theSetAlternateNameIfRename;
+    return this;
+  }
 
   /** save mode */
   private SaveMode saveMode;
@@ -343,6 +368,8 @@ public class StemSave {
                 StemSave.this.saveResultType = SaveResultType.NO_CHANGE;
                 boolean needsSave = false;
 
+                boolean isRename = false;
+
                 //if inserting
                 if (!isUpdate) {
                   StemSave.this.saveResultType = SaveResultType.INSERT;
@@ -360,8 +387,9 @@ public class StemSave {
                   //check if different so it doesnt make unneeded queries
                   if (!StringUtils.equals(theStem.getExtension(), extensionNew)) {
                     needsSave = true;
+                    isRename = true;
                     StemSave.this.saveResultType = SaveResultType.UPDATE;
-                    theStem.setExtension(extensionNew);
+                    theStem.setExtension(extensionNew, StemSave.this.setAlternateNameIfRename);
                   }
                   if (!StringUtils.equals(theStem.getDisplayExtension(), theDisplayExtension)) {
                     needsSave = true;
@@ -394,6 +422,22 @@ public class StemSave {
                   }
                   theStem.setDescription(StemSave.this.description);
                 }
+                
+                if (!isRename) {
+                  if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theStem.getAlternateName())), 
+                      StringUtils.defaultString(StringUtils.trim(StemSave.this.alternateName)))) {
+                    needsSave = true;
+                    if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      StemSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    if (StringUtils.isBlank(StemSave.this.alternateName)) {
+                      theStem.deleteAlternateName(theStem.getAlternateName());
+                    } else {
+                      theStem.addAlternateName(StringUtils.trim(StemSave.this.alternateName));
+                    }
+                  }
+                }
+
 
                 //only store once
                 if (needsSave) {

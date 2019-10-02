@@ -64,6 +64,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
@@ -87,6 +88,12 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
   private boolean throwErrorOnFindAllFailure;
 
+  /** if there is a limit to the number of results */
+  private Integer maxResults;
+  
+  /** if error if limit is reached */
+  private boolean errorOnMaxResults = true;
+  
   /** if there is a limit to the number of results */
   private Integer maxPage;
 
@@ -153,6 +160,23 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       }
     }
 
+    {
+      String maxResultsString = props.getProperty("maxResults");
+      if (!StringUtils.isBlank(maxResultsString)) {
+        try {
+          this.maxResults = Integer.parseInt(maxResultsString);
+        } catch (NumberFormatException nfe) {
+          throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+        }
+      }
+    }
+    
+    {
+      String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
+      if (!StringUtils.isBlank(errorOnMaxResultsString)) {
+        this.errorOnMaxResults = SubjectUtils.booleanValue(errorOnMaxResultsString, true);
+      }
+    }
   }
 
   /**
@@ -312,11 +336,22 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       if (ldapResults == null) {
         return new SearchPageResult(tooManyResults, result);
       }
-      while ( ldapResults.hasNext()) {
+      
+      while ( ldapResults.hasNext()) {        
         //if we are at the end of the page
         if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
           tooManyResults = true;
           break;
+        }
+        
+        if (this.maxResults != null && result.size() >= this.maxResults) {
+          if (!errorOnMaxResults) {
+            break;
+          }
+          
+          throw new SubjectTooManyResults(
+              "More results than allowed: " + this.maxResults
+              + " for search '" + searchValue + "'");
         }
 
         LdapEntry si = ldapResults.next();
@@ -339,6 +374,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
     } catch (Exception ex) {
 
+      if (ex instanceof SubjectTooManyResults) {
+        throw (SubjectTooManyResults)ex;
+      }
+      
       if (throwErrorOnFindAllFailure) {
         throw new SourceUnavailableException(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
       }
@@ -516,10 +555,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
     try  {
 
+      Integer resultSetLimit = resultSetLimit(firstPageOnly, this.getMaxPage(), this.maxResults);
       Long sizeLimit = null;
-      //if we are at the end of the page
-      if (firstPageOnly && this.maxPage != null) {
-        sizeLimit = this.maxPage + 1L;
+      if (resultSetLimit != null) {
+        sizeLimit = resultSetLimit.longValue() + 1;
       }
 
       // get params

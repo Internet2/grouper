@@ -131,7 +131,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderNoAuditsChangeLogForAttributes"));
+    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderListSubjectIdAndSourceIdCaseInsensitive"));
   }
 
   /**
@@ -3015,6 +3015,7 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3073,6 +3074,7 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3167,6 +3169,7 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3220,11 +3223,93 @@ public class GrouperLoaderTest extends GrouperTest {
    * test the loader
    * @throws Exception 
    */
+  public void testIncrementalLoaderSimpleSubjectIdAndSourceCaseInsensitive() throws Exception {
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.caseInsensitiveSubjectLookupsInDataSource", "true");
+
+    GrouperLoaderIncrementalJob.testingWithCaseInSensitiveSubjectSource = true;
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    testDataList.add(new TestgrouperLoader("loader:group1", "test.subject.0", "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1", "test.subject.1", "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1", "test.subject.2", "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1", "test.subject.3", "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1", "test.subject.4", "jdbc"));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader:group1", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col2 as SUBJECT_ID, col3 as SUBJECT_SOURCE_ID from testgrouper_loader");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col2='test.subject.0'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col2='test.subject.1'").executeUpdate();
+
+    testDataList = new ArrayList<TestgrouperLoader>();
+    testDataList.add(new TestgrouperLoader("loader:group1", "test.subject.5", "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1", "test.subject.6", "jdbc"));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+    
+    List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();    
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, "TEst.subject.0", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, "TEst.subject.1", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, "TEst.subject.5", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(4, "TEst.subject.6", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(5, "TEst.subject.2", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+    
+    GrouperLoaderIncrementalJob.runJob(this.grouperSession, "OTHER_JOB_incrementalLoader1");
+    
+    // verify
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    
+    // make sure subjects aren't removed
+    testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();    
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(6, "TEst.subject.0", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(7, "TEst.subject.1", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(8, "TEst.subject.5", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(9, "TEst.subject.6", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(10, "TEst.subject.2", null, null, "jdbc", "loader:group1", System.currentTimeMillis(), null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+    
+    GrouperLoaderIncrementalJob.runJob(this.grouperSession, "OTHER_JOB_incrementalLoader1");
+    
+    // verify
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+  }
+  
+  /**
+   * test the loader
+   * @throws Exception 
+   */
   public void testIncrementalLoaderSimpleSubjectIdentifier() throws Exception {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3283,6 +3368,7 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3341,6 +3427,7 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3420,11 +3507,128 @@ public class GrouperLoaderTest extends GrouperTest {
    * test the loader
    * @throws Exception 
    */
+  public void testIncrementalLoaderListSubjectIdAndSourceIdCaseInsensitive() throws Exception {
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.caseInsensitiveSubjectLookupsInDataSource", "true");
+
+    GrouperLoaderIncrementalJob.testingWithCaseInSensitiveSubjectSource = true;
+
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ0_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ1_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ2_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group2x", SubjectTestHelper.SUBJ2_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group2x", SubjectTestHelper.SUBJ3_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group3x", SubjectTestHelper.SUBJ3_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group3x", SubjectTestHelper.SUBJ4_ID, "jdbc"));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader:owner", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID, col3 as SUBJECT_SOURCE_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%x");
+    Group groupOther = Group.saveGroup(this.grouperSession, null, null, "loader:groupOther", null, null, null, true);
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    
+    Group group1x = GroupFinder.findByName(grouperSession, "loader:group1x", true);
+    Group group2x = GroupFinder.findByName(grouperSession, "loader:group2x", true);
+    Group group3x = GroupFinder.findByName(grouperSession, "loader:group3x", true);
+    
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group2x.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group2x.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(group3x.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(group3x.hasMember(SubjectTestHelper.SUBJ4));
+    
+    groupOther.addMember(SubjectTestHelper.SUBJ0);
+    groupOther.addMember(SubjectTestHelper.SUBJ1);
+    groupOther.addMember(SubjectTestHelper.SUBJ2);
+    groupOther.addMember(SubjectTestHelper.SUBJ3);
+
+
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col1='loader:group1x' and col2='test.subject.0'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col1='loader:group3x'").executeUpdate();
+
+    testDataList = new ArrayList<TestgrouperLoader>();
+    testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ5_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ6_ID, "jdbc"));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+    
+    List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();    
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, "TEst.subject.0", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, "TEst.subject.3", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, "TEst.subject.4", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(4, "TEst.subject.5", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(5, "TEst.subject.6", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+    
+    GrouperLoaderIncrementalJob.runJob(this.grouperSession, "OTHER_JOB_incrementalLoader1");
+    
+    // verify
+    assertFalse(group1x.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ5));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ6));
+    assertTrue(group2x.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group2x.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(group3x.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(group3x.hasMember(SubjectTestHelper.SUBJ4));
+    
+    // make sure we're not killing off other memberships
+    assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ3));
+    
+    // make sure nothing gets removed
+    testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();    
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(6, "TEst.subject.0", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(7, "TEst.subject.3", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(8, "TEst.subject.4", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(9, "TEst.subject.5", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(10, "TEst.subject.6", null, null, "jdbc", "loader:owner", System.currentTimeMillis(), null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+    
+    GrouperLoaderIncrementalJob.runJob(this.grouperSession, "OTHER_JOB_incrementalLoader1");
+    
+    // verify
+    assertFalse(group1x.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ5));
+    assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ6));
+    assertTrue(group2x.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group2x.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(group3x.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(group3x.hasMember(SubjectTestHelper.SUBJ4));
+    
+    // make sure we're not killing off other memberships
+    assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ3));
+  }
+  
+  
+  /**
+   * test the loader
+   * @throws Exception 
+   */
   public void testIncrementalLoaderListSubjectIdentifierWithAndGroups() throws Exception {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3530,6 +3734,7 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
     try {
       List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();

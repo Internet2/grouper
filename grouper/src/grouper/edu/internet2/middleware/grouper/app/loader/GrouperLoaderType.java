@@ -931,6 +931,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupTypesName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapReadersName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapViewersName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAdminsName(), attributeName)
@@ -1067,6 +1068,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupTypesName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapReadersName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapViewersName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAdminsName(), attributeName)
@@ -3022,6 +3024,8 @@ public enum GrouperLoaderType {
 
             final String OVERALL_LOGGER_ID = GrouperLoaderLogger.retrieveOverallId();
             final String SUBJOB_LOGGER_ID = GrouperLoaderLogger.retrieveSubjobId();
+            final Map<String, Object> OVERALL_LOG_MAP = GrouperLoaderLogger.retrieveMap("overallLog");
+            final Map<String, Object> SUBJOB_LOG_MAP = GrouperLoaderLogger.retrieveMap("subjobLog");
 
             {
               final int numberOfRows = membersToRemove.size();
@@ -3034,8 +3038,12 @@ public enum GrouperLoaderType {
                   @Override
                   public Void callLogic() {
                     
+                    
                     GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
                     GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
+                    
+                    GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
+                    GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
 
                     syncOneMemberDeleteMemberLogic(groupName, GrouperSession.staticGrouperSession(),
                         jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
@@ -3068,9 +3076,11 @@ public enum GrouperLoaderType {
                   public Void callLogic() {
 
                     GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
-
                     GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
                     
+                    GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
+                    GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
+                        
                     syncOneMemberAddMemberLogic(groupName, GrouperSession.staticGrouperSession(), jobMessage,
                         jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
                         count, subject);
@@ -4700,6 +4710,7 @@ public enum GrouperLoaderType {
         GrouperLoaderLogger.doTheLogging("membershipManagement");
       }
     }
+    
     count[0]++;
     
     if (TOTAL_COUNT[0] != 0 && TOTAL_COUNT[0] % 500 == 0) {

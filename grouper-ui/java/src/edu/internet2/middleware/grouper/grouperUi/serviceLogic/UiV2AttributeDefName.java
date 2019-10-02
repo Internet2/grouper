@@ -751,7 +751,10 @@ public class UiV2AttributeDefName {
               AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES, queryOptions, attributeAssignType, null);
           
           if (attributeDefNames.size() > 1) {
-            throw new RuntimeException("shouldn't have found more than one attribute def name.");
+            //throw new RuntimeException("shouldn't have found more than one attribute def name.");
+            // this can return multiple results so we don't want an exception, right?
+            LOG.debug("found more than one attribute def name for query: " + query);
+            return null;
           }
           if (attributeDefNames.size() == 1) {
             return attributeDefNames.iterator().next();
@@ -764,7 +767,10 @@ public class UiV2AttributeDefName {
               AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES, queryOptions, attributeAssignType, null);
           
           if (attributeDefNames.size() > 1) {
-            throw new RuntimeException("shouldn't have found more than one attribute def name: '" + query + "'");
+            //throw new RuntimeException("shouldn't have found more than one attribute def name: '" + query + "'");
+            // this can return multiple results so we don't want an exception, right?
+            LOG.debug("found more than one attribute def name for query: " + query);
+            return null;
           }
           if (attributeDefNames.size() == 1) {
             return attributeDefNames.iterator().next();

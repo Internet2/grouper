@@ -14,7 +14,7 @@ branches:
   - GROUPER_2_3_BRANCH
 jdk:
 - openjdk8
-- oraclejdk8
+- oraclejdk11
 before_script:
  - export JAVA_OPTS="-Xmx2048m"
 install:

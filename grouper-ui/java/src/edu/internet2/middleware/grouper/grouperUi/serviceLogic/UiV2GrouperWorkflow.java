@@ -126,7 +126,7 @@ public class UiV2GrouperWorkflow {
         return;
       }
       
-      Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
       if (group == null) {
         return;
@@ -161,7 +161,7 @@ public class UiV2GrouperWorkflow {
           }
           
           workflowConfig.setWorkflowConfigParamsString(GrouperWorkflowConfigParams.getDefaultConfigParamsString());
-          workflowConfig.setWorkflowConfigApprovalsString(GrouperWorkflowApprovalStates.getDefaultApprovalStatesString());
+          workflowConfig.setWorkflowConfigApprovalsString(GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(group.getId()));
           workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
           
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 

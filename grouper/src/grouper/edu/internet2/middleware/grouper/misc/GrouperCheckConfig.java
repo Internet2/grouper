@@ -576,6 +576,13 @@ public class GrouperCheckConfig {
         doneWithExtraConfig = false;
         try {
 
+          for (int i=0;i<200;i++) {
+            if (GrouperStartup.isFinishedStartupSuccessfully()) {
+              break;
+            }
+            //wait a sec for other things to get all initted
+            GrouperUtil.sleep(100);
+          }
           if (!testing) {
             //wait a sec for other things to get all initted
             GrouperUtil.sleep(5000);
@@ -1798,7 +1805,7 @@ public class GrouperCheckConfig {
     checkJar("ehcache-core-2.4.8.jar", 1030367, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph-1.0.6.jar", 86487, "net.sf.ezmorph.MorphException", "null");
     checkJar("groovy-all-2.5.0-beta-2.jar", 7715312, "groovy.beans.Bindable", "2.5.0-beta-2");
-    checkJar("grouperClient.jar", GrouperUtil.toSet(4468322L, 4397537L, 4422891L, 4423489L, 4423587L, 4423679L, 4475423L, 4469727L, 4470134L), "edu.internet2.middleware.grouperClient.ClientOperation", "2.4.0");
+    checkJar("grouperClient.jar", GrouperUtil.toSet(4468322L, 4397537L, 4422891L, 4423489L, 4423587L, 4423679L, 4475423L, 4469727L, 4470134L, 4471310L), "edu.internet2.middleware.grouperClient.ClientOperation", "2.4.0");
     checkJar("hibernate-c3p0-5.0.12.Final.jar", 11606, "org.hibernate.c3p0.internal.C3P0MessageLogger", "5.0.12.Final");
     checkJar("hibernate-commons-annotations-5.0.1.Final.jar", 75288, "org.hibernate.annotations.common.Version", "5.0.1.Final");
     checkJar("hibernate-core-5.0.12.Final.jar", 5619332, "org.hibernate.SessionException", "5.0.12.Final");
@@ -1815,6 +1822,7 @@ public class GrouperCheckConfig {
     checkJar("jline-2.14.5.jar", 268597, "jline.AnsiWindowsTerminal", "null");
     checkJar("joda-time-2.9.9.jar", 634048, "org.joda.time.base.AbstractDateTime", "2.9.9");
     checkJar("json-lib-2.4-jdk15.jar", 159123, "net.sf.json.JSON", "null");
+    checkJar("jsoup-1.12.1.jar", 397112, "org.jsoup.SerializationException", "null");
     checkJar("jta-1.1.jar", 15071, "javax.transaction.HeuristicCommitException", "null");
     checkJar("ldaptive-1.1.2.jar", 818299, "org.ldaptive.AbstractConfig", "null");
     checkJar("log4j-1.2.17.jar", 489884, "org.apache.log4j.Appender", "1.2.17");

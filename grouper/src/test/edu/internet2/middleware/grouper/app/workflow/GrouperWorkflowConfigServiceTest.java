@@ -48,7 +48,7 @@ public class GrouperWorkflowConfigServiceTest extends GrouperTest {
     GrouperWorkflowConfig workflowConfig = GrouperWorkflowConfigService.getWorkflowConfig(group, "testId");
     
     // then
-    assertEquals(GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(), workflowConfig.getWorkflowConfigApprovalsString());
+    assertEquals(GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(group.getId()), workflowConfig.getWorkflowConfigApprovalsString());
     assertEquals("test description", workflowConfig.getWorkflowConfigDescription());
     assertEquals("true", workflowConfig.getWorkflowConfigEnabled());
     assertEquals("<html></html>", workflowConfig.getWorkflowConfigForm());
@@ -73,7 +73,7 @@ public class GrouperWorkflowConfigServiceTest extends GrouperTest {
     GrouperWorkflowConfig workflowConfig = GrouperWorkflowConfigService.getWorkflowConfig(attributeAssign.getId());
     
     // then
-    assertEquals(GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(), workflowConfig.getWorkflowConfigApprovalsString());
+    assertEquals(GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(group.getId()), workflowConfig.getWorkflowConfigApprovalsString());
     assertEquals("test description", workflowConfig.getWorkflowConfigDescription());
     assertEquals("true", workflowConfig.getWorkflowConfigEnabled());
     assertEquals("<html></html>", workflowConfig.getWorkflowConfigForm());
@@ -225,7 +225,7 @@ public class GrouperWorkflowConfigServiceTest extends GrouperTest {
   
   private GrouperWorkflowConfig buildSampleGrouperWorfklowConfig(Group ownerGroup, String workflowId) {
     GrouperWorkflowConfig config = new GrouperWorkflowConfig();
-    String defaultApprovalStatesString = GrouperWorkflowApprovalStates.getDefaultApprovalStatesString();
+    String defaultApprovalStatesString = GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(ownerGroup.getId());
     config.setWorkflowConfigApprovalsString(defaultApprovalStatesString);
     config.setWorkflowApprovalStates(GrouperWorkflowApprovalStates.buildApprovalStatesFromJsonString(defaultApprovalStatesString));
     config.setOwnerGroup(ownerGroup);
@@ -248,7 +248,7 @@ public class GrouperWorkflowConfigServiceTest extends GrouperTest {
     AttributeAssign attributeAssign = group.getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_APPROVALS, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), GrouperWorkflowApprovalStates.getDefaultApprovalStatesString());
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(group.getId()));
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_DESCRIPTION, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "test description");

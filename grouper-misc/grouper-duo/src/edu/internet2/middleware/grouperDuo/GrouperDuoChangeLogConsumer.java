@@ -4,22 +4,18 @@
  */
 package edu.internet2.middleware.grouperDuo;
 
-import java.util.List;
-import java.util.Map;
+import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.changeLog.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -34,7 +30,7 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
     //schedule with job in grouper-loader.properties
     //otherJob.duo.class = edu.internet2.middleware.grouperDuo.GrouperDuoFullRefresh
     //otherJob.duo.quartzCron = 0 0 5 * * ?
-    //GrouperDuoDaemon.scheduleJobsOnce();
+//    GrouperDuoDaemon.scheduleJobsOnce();
   }
 
   /**
@@ -43,7 +39,7 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
   @Override
   public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
       ChangeLogProcessorMetadata changeLogProcessorMetadata) {
-    
+
     long currentId = -1;
 
     boolean startedGrouperSession = false;
@@ -54,11 +50,15 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
     } else {
       grouperSession = grouperSession.internal_getRootSession();
     }
+
+    HashMap<String, Object> debugMap = new HashMap<String, Object>();
+    long startTime = System.nanoTime();
     
     //try catch so we can track that we made some progress
     try {
       for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
         currentId = changeLogEntry.getSequenceNumber();
+        debugMap.put("currentEntryId", currentId);
  
         //if this is a group add action and category
         if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)) {
@@ -107,10 +107,28 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
         boolean isMembershipAdd = changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD);
         boolean isMembershipDelete = changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE);
         boolean isMembershipUpdate = changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_UPDATE);
-        if (isMembershipAdd || isMembershipDelete || isMembershipUpdate) {
-          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
 
-          if (GrouperDuoUtils.validDuoGroupName(groupName)) {
+        debugMap.put("isMembershipAdd", isMembershipAdd);
+        debugMap.put("isMembershipDelete", isMembershipDelete);
+        debugMap.put("isMembershipUpdate", isMembershipUpdate);
+
+        if (isMembershipAdd || isMembershipDelete || isMembershipUpdate) {
+          String groupName;
+          if (isMembershipAdd) {
+            groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
+          }else if (isMembershipDelete) {
+            groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
+          }else {
+            groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_UPDATE.groupName);
+          }
+
+          debugMap.put("groupName", groupName);
+          debugMap.put("isAdminSyncEnabled", GrouperDuoUtils.isDuoAdminSyncEnabled());
+          debugMap.put("isGroupSyncEnabled", GrouperDuoUtils.isDuoGroupSyncEnabled());
+          debugMap.put("isValidGroup", GrouperDuoUtils.validDuoGroupName(groupName));
+          debugMap.put("isValidAdminGroup", GrouperDuoUtils.isValidDuoAdminGroup(grouperSession, groupName));
+
+          if (GrouperDuoUtils.isDuoGroupSyncEnabled() && GrouperDuoUtils.validDuoGroupName(groupName)) {
             String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId);
 
             boolean inCorrectSubjectSource = GrouperDuoUtils.configSourcesForSubjects().contains(sourceId);
@@ -165,6 +183,62 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
               }
             }
           }
+          else if (GrouperDuoUtils.isDuoAdminSyncEnabled() && GrouperDuoUtils.isValidDuoAdminGroup(grouperSession, groupName)) {
+            debugMap.put("method", "processChangeLogEntries - duoAdminSync");
+
+            String sourceId;
+            String subjectId;
+
+            if (isMembershipAdd) {
+              sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId);
+              subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId);
+            }else if (isMembershipDelete) {
+              sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId);
+              subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId);
+            }else { // isMembershipUpdate
+              sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId);
+              subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_UPDATE.subjectId);
+            }
+
+            debugMap.put("subjectId", subjectId);
+            debugMap.put("sourceId", sourceId);
+
+            if (!GrouperDuoUtils.configSourcesForSubjects().contains(sourceId))
+              continue;
+
+        	Subject subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
+            
+            Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+            debugMap.put("memberId", member.getId());
+
+            GrouperDuoAdministrator administrator = null;
+            try {
+	            administrator = GrouperDuoUtils.fetchOrCreateGrouperDuoAdministrator(
+	                    member,
+	                    !isMembershipDelete,
+	                    GrouperDuoCommands.retrieveAdminAccounts()
+	            );
+            }catch (Exception e) {
+            	GrouperDuoLog.logError(String.format("Failed to create administrator for subject: %s (%s) from %s, removing member from group.", subject.getName(), subject.getId(), subject.getSource()));
+            	GrouperDuoUtils.removeSubjectFromDuoAdminGroups(grouperSession, subject);
+            	
+            	if (GrouperDuoUtils.configEmailRecipientsGroupName().length() > 0) {
+                	GrouperDuoUtils.sendEmailToGroupMembers(
+            			GroupFinder.findByName(grouperSession, GrouperDuoUtils.configEmailRecipientsGroupName(), false), 
+            			"Failed to add member to Administrator Group.", 
+            			String.format(
+        					"There was an error while adding a member to an Administrative role. -- %s. Check the logs for more details.\n\nSubject Information:\nSubject Id: %s\nSubject Source: %s", 	
+        					e.getMessage(),
+        					subject.getId(),
+        					subject.getSource()
+    					)
+        			);
+            	}
+            }
+
+            if (administrator != null)
+            	GrouperDuoUtils.synchronizeMemberAndDuoAdministrator(grouperSession, member, administrator);
+          }
         }
  
         //we successfully processed this record
@@ -177,9 +251,11 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
       if (startedGrouperSession) {
         GrouperSession.stopQuietly(grouperSession);
       }
+
+      GrouperDuoLog.duoLog(debugMap, startTime);
     }
     if (currentId == -1) {
-      throw new RuntimeException("Couldnt process any records");
+      throw new RuntimeException("Couldn't process any records");
     }
  
     return currentId;

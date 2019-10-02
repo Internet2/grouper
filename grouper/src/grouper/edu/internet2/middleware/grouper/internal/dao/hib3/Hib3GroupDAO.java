@@ -3237,51 +3237,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         
         //see if there is a scope
         if (!StringUtils.isBlank(scope)) {
-          scope = scope.toLowerCase();
-    
-          String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
-    
-          if (scopes.length > 1 && findByUuidOrName) {
-            throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
-          }
-    
-          if (whereClause.length() > 0) {
-            whereClause.append(" and ");
-          }
-          if (GrouperUtil.length(scopes) == 1) {
-            whereClause.append(" ( theGroup.id = :theGroupIdScope or ( ");
-            byHqlStatic.setString("theGroupIdScope", scope);
-          } else {
-            whereClause.append(" ( ( ");
-          }
-    
-          int index = 0;
-          for (String theScope : scopes) {
-            if (index != 0) {
-              whereClause.append(" and ");
-            }
-            
-            if (findByUuidOrName) {
-              whereClause.append(" theGroup.nameDb = :scope" + index + " or theGroup.alternateNameDb = :scope" + index 
-                  + " or theGroup.displayNameDb = :scope" + index + " ");
-              byHqlStatic.setString("scope" + index, theScope);
-            } else {
-              whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
-                  + " or lower(theGroup.alternateNameDb) like :scope" + index 
-                  + " or lower(theGroup.displayNameDb) like :scope" + index 
-                  + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
-              if (splitScope) {
-                theScope = "%" + theScope + "%";
-              } else if (!theScope.endsWith("%")) {
-                theScope += "%";
-              }
-              byHqlStatic.setString("scope" + index, theScope.toLowerCase());
-    
-            }        
-            
-            index++;
-          }
-          whereClause.append(" ) ");
+          scope = assignScopeToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "theGroup", false);
           
           //if entities, then also allow entity identifier
           if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
@@ -3297,7 +3253,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   
             whereClause.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
             
-            index = 0;
+            int index = 0;
+            String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+
             for (@SuppressWarnings("unused") String theScope : scopes) {
               
               if (findByUuidOrName) {
@@ -3405,6 +3363,71 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   
   }
 
+  /**
+   * @param byHqlStatic
+   * @param scope
+   * @param splitScope default true
+   * @param whereClause
+   * @param findByUuidOrName generally this is false
+   * @param alias e.g. theGroup whatever alias in hql query
+   * @param addFinalParen
+   * @return scope lowercased
+   */
+  public static String assignScopeToQuery(String scope, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias, boolean addFinalParen) {
+
+    // default scplitScope to true
+    splitScope = GrouperUtil.booleanValue(splitScope, true);
+    scope = scope.toLowerCase();
+    
+    String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+
+    if (scopes.length > 1 && findByUuidOrName) {
+      throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+    }
+
+    if (whereClause.length() > 0) {
+      whereClause.append(" and ");
+    }
+    if (GrouperUtil.length(scopes) == 1) {
+      whereClause.append(" ( " + alias + ".id = :theGroupIdScope or ( ");
+      byHqlStatic.setString("theGroupIdScope", scope);
+    } else {
+      whereClause.append(" ( ( ");
+    }
+
+    int index = 0;
+    for (String theScope : scopes) {
+      if (index != 0) {
+        whereClause.append(" and ");
+      }
+      
+      if (findByUuidOrName) {
+        whereClause.append(" " + alias + ".nameDb = :scope" + index + " or " + alias + ".alternateNameDb = :scope" + index 
+            + " or " + alias + ".displayNameDb = :scope" + index + " ");
+        byHqlStatic.setString("scope" + index, theScope);
+      } else {
+        whereClause.append(" ( lower(" + alias + ".nameDb) like :scope" + index 
+            + " or lower(" + alias + ".alternateNameDb) like :scope" + index 
+            + " or lower(" + alias + ".displayNameDb) like :scope" + index 
+            + " or lower(" + alias + ".descriptionDb) like :scope" + index + " ) ");
+        if (splitScope) {
+          theScope = "%" + theScope + "%";
+        } else if (!theScope.endsWith("%")) {
+          theScope += "%";
+        }
+        byHqlStatic.setString("scope" + index, theScope);
+
+      }        
+      
+      index++;
+    }
+    whereClause.append(" ) ");
+    if (addFinalParen) {
+      whereClause.append(" ) ");
+    }
+    return scope;
+  }
+  
   /**
    * Helper for find by approximate name queries
    * @param name
