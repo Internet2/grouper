@@ -11,6 +11,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -56,6 +57,10 @@ public class AttributeAssignFinderResults {
    */
   private Map<String, Member> idToMemberMap = new HashMap<String, Member>();
 
+  /**
+   * id to membership map
+   */
+  private Map<String, Membership> idToMembershipMap = new HashMap<String, Membership>();
   
   /**
    * id to stem map
@@ -170,6 +175,22 @@ public class AttributeAssignFinderResults {
         Member member = (Member) result[2];
         idToMemberMap.put(member.getId(), member);
         attributeAssignFinderResult.setOwnerMember(member);
+      } else if (result[2] instanceof Object[]) {
+        Object[] groupMemberMembership = (Object[])result[2];
+        Group group = (Group)groupMemberMembership[0];
+        idToGroupMap.put(group.getId(), group);
+        attributeAssignFinderResult.setOwnerGroup(group);
+        Member member = (Member)groupMemberMembership[1];
+        idToMemberMap.put(member.getId(), member);
+        attributeAssignFinderResult.setOwnerMember(member);
+        if (groupMemberMembership.length > 2) {
+          Membership membership = (Membership)groupMemberMembership[2];
+          idToMembershipMap.put(membership.getImmediateMembershipId(), membership);
+          attributeAssignFinderResult.setOwnerMembership(membership);
+        } else {
+          // add tuple in there
+          
+        }
       } else if (result[2] instanceof AttributeAssign) {
         AttributeAssign attributeAssign = (AttributeAssign) result[2];
         idToAttributeAssignMap.put(attributeAssign.getId(), attributeAssign);

@@ -51,62 +51,32 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class AttributeAssignFinder {
 
   /**
-   * scope for a subject if filtering by owner of member or membership
-   */
-  private String scopeSubject;
-
-  /**
-   * scope for a subject if filtering by owner of member or membership
-   * @param theScopeSubject
-   * @return this for chaining
-   */
-  public AttributeAssignFinder assignScopeSubject(String theScopeSubject) {
-    this.scopeSubject = theScopeSubject;
-    return this;
-  }
-  
-  /**
-   * if scope of subject should be split by whitespace, by default yes
-   */
-  private Boolean splitScopeSubject;
-  
-  /**
-   * if scope of subject should be split by whitespace, by default yes
-   * @param theSplitScopeSubject1
-   * @return this for chaining
-   */
-  public AttributeAssignFinder assignSplitScopeSubject(boolean theSplitScopeSubject1) {
-    this.splitScopeSubject = theSplitScopeSubject1;
-    return this;
-  }
-
-  /**
    * if filtering by owner, this is the filter
    */
-  private String scope;
+  private String filter;
   
   /**
-   * filter by owner
-   * @param theScope
+   * filter text for groups, folders, attributes of owner
+   * @param theFilter
    * @return this for chaining
    */
-  public AttributeAssignFinder assignScope(String theScope) {
-    this.scope = theScope;
+  public AttributeAssignFinder assignFilter(String theFilter) {
+    this.filter = theFilter;
     return this;
   }
   
   /**
-   * if scope should be split by whitespace, by default yes
+   * if filter should be split by whitespace, by default yes
    */
-  private Boolean splitScope = null;
+  private Boolean splitFilter = null;
   
   /**
-   * if scope should be split by whitespace, by default yes
-   * @param theSplitScope
+   * if filter should be split by whitespace, by default yes
+   * @param theSplitFilter
    * @return this for chaining
    */
-  public AttributeAssignFinder assignSplitScope(boolean theSplitScope) {
-    this.splitScope = theSplitScope;
+  public AttributeAssignFinder assignSplitFilter(boolean theSplitFilter) {
+    this.splitFilter = theSplitFilter;
     return this;
   }
   
@@ -527,51 +497,63 @@ public class AttributeAssignFinder {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.filter, this.splitFilter);
 
     } else if (theAttributeAssignType == AttributeAssignType.attr_def) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.filter, this.splitFilter);
+
+    } else if (theAttributeAssignType == AttributeAssignType.imm_mem) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findImmediateMembershipAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.filter, this.splitFilter);
 
     } else if (theAttributeAssignType == AttributeAssignType.group) {
         
       return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.filter, this.splitFilter);
         
     } else if (theAttributeAssignType == AttributeAssignType.member) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
           null, true, this.attributeCheckReadOnAttributeDef, 
-          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.scope, this.splitScope);
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.filter, this.splitFilter);
         
     } else if (theAttributeAssignType == AttributeAssignType.group_asgn) {
         
       return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
+            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.filter, this.splitFilter);
+              
+    } else if (theAttributeAssignType == AttributeAssignType.imm_mem_asgn) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findImmediateMembershipAttributeAssignmentsOnAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
+            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.filter, this.splitFilter);
               
     } else if (theAttributeAssignType == AttributeAssignType.stem_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.filter, this.splitFilter);
             
     } else if (theAttributeAssignType == AttributeAssignType.attr_def_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.filter, this.splitFilter);
             
     } else if (theAttributeAssignType == AttributeAssignType.mem_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsOnAssignmentsByAttribute(
           theAttributeDefIds, theAttributeDefNameIds, 
-          null, true, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.scope, this.splitScope);
+          null, true, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.filter, this.splitFilter);
             
     }
     return new HashSet<Object[]>();
@@ -584,8 +566,8 @@ public class AttributeAssignFinder {
    */
   public Set<AttributeAssign> findAttributeAssigns() {
   
-    if (!StringUtils.isBlank(this.scope) ) {
-      throw new RuntimeException("scope not supported in this call");
+    if (!StringUtils.isBlank(this.filter) ) {
+      throw new RuntimeException("filter not supported in this call");
       
     }
     if (this.retrieveValues) {

@@ -3237,7 +3237,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         
         //see if there is a scope
         if (!StringUtils.isBlank(scope)) {
-          scope = assignScopeToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "theGroup", false);
+          scope = assignFilterToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "theGroup", false);
           
           //if entities, then also allow entity identifier
           if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
@@ -3365,7 +3365,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * @param byHqlStatic
-   * @param scope
+   * @param filter
    * @param splitScope default true
    * @param whereClause
    * @param findByUuidOrName generally this is false
@@ -3373,16 +3373,16 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param addFinalParen
    * @return scope lowercased
    */
-  public static String assignScopeToQuery(String scope, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias, boolean addFinalParen) {
+  public static String assignFilterToQuery(String filter, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias, boolean addFinalParen) {
 
     // default scplitScope to true
     splitScope = GrouperUtil.booleanValue(splitScope, true);
-    scope = scope.toLowerCase();
+    filter = filter.toLowerCase();
     
-    String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+    String[] scopes = splitScope ? GrouperUtil.splitTrim(filter, " ") : new String[]{filter};
 
     if (scopes.length > 1 && findByUuidOrName) {
-      throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+      throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + filter);
     }
 
     if (whereClause.length() > 0) {
@@ -3390,7 +3390,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     if (GrouperUtil.length(scopes) == 1) {
       whereClause.append(" ( " + alias + ".id = :theGroupIdScope or ( ");
-      byHqlStatic.setString("theGroupIdScope", scope);
+      byHqlStatic.setString("theGroupIdScope", filter);
     } else {
       whereClause.append(" ( ( ");
     }
@@ -3425,7 +3425,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     if (addFinalParen) {
       whereClause.append(" ) ");
     }
-    return scope;
+    return filter;
   }
   
   /**
