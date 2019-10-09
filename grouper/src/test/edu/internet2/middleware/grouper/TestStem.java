@@ -234,6 +234,7 @@ public class TestStem extends GrouperTest {
     stemSave = new StemSave(grouperSession).assignName("test:anotherFolder4")
         .assignCreateParentStemsIfNotExist(true);
     stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
 
     stemSave = new StemSave(grouperSession).assignName("test:anotherFolder3:someFolder5")
         .assignCreateParentStemsIfNotExist(true);
@@ -243,6 +244,7 @@ public class TestStem extends GrouperTest {
     stemSave = new StemSave(grouperSession).assignName("test:anotherFolder3:someFolder6")
         .assignCreateParentStemsIfNotExist(true);
     stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
     
     stemSave = new StemSave(grouperSession).assignName("test:anotherFolder7")
         .assignCreateParentStemsIfNotExist(true);
@@ -3165,7 +3167,7 @@ public class TestStem extends GrouperTest {
     Stem testStem = StemFinder.findByName(grouperSession, "test", true);
 
     int count = testStem.deleteEmptyStems(false, false, Scope.ONE).size();
-    assertEquals(1, count);
+    assertEquals(2, count); // testAnotherFolder2 and testAnotherFolder4
 
     GrouperSession.stopQuietly(grouperSession);
     
@@ -3184,7 +3186,7 @@ public class TestStem extends GrouperTest {
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder6", false);
     assertNotNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder4", false);
-    assertNotNull(stem);
+    assertNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder7", false);
     assertNotNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder7:someFolder8", false);
@@ -3246,7 +3248,7 @@ public class TestStem extends GrouperTest {
     Stem testStem = StemFinder.findByName(grouperSession, "test", true);
 
     int count = testStem.deleteEmptyStems(false, false, Scope.SUB).size();
-    assertEquals(4, count);
+    assertEquals(7, count); 
 
     GrouperSession.stopQuietly(grouperSession);
     
@@ -3259,13 +3261,13 @@ public class TestStem extends GrouperTest {
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder2", false);
     assertNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder3", false);
-    assertNotNull(stem);
+    assertNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder5", false);
     assertNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder6", false);
-    assertNotNull(stem);
+    assertNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder4", false);
-    assertNotNull(stem);
+    assertNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder7", false);
     assertNull(stem);
     stem = StemFinder.findByName(grouperSession, "test:anotherFolder7:someFolder8", false);
