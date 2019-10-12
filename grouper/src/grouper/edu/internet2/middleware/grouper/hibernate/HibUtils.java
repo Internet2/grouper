@@ -296,6 +296,10 @@ public class HibUtils {
     if (selectAndFromMatcher.matches()) {
       String selectPart = selectAndFromMatcher.group(1);
       String endOfQuery = selectAndFromMatcher.group(2);
+      // Caused by: org.hibernate.hql.internal.ast.QuerySyntaxException: expecting CLOSE, found ',' near line 1, column 16 [select count(aa,theGroup)
+      if (selectPart != null && selectPart.contains(",")) {
+        return "select count(*) " + endOfQuery;
+      }
       return "select count( " + selectPart + " ) " + endOfQuery;
     }
     throw new RuntimeException("Cant convert query to count query: " + hql);

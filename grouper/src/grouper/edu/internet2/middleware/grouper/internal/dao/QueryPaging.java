@@ -457,7 +457,7 @@ public class QueryPaging {
    * @see java.lang.Object#toString()
    */
   public String toString() {
-    return "pageSize: " + this.pageSize + ", pageNumberOnIndexed: " + this.pageNumber;
+    return "pageSize: " + this.pageSize + ", pageNumberOneIndexed: " + this.pageNumber;
   }
 
   /**

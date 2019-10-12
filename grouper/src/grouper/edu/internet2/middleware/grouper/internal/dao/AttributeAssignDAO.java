@@ -1508,4 +1508,51 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
       QueryOptions queryOptions, boolean retrieveValues, String filter, Boolean splitFilter);
 
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
+   * @return attr defs, attr def names, groups/members array, and assignments and optionally set of values
+   */
+  public Set<Object[]> findAnyMembershipAttributeAssignmentsOnAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, String filter, Boolean splitFilter);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @param includeAssignmentsOnAssignments if include assignments on assignments
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
+   * @return attrdefs, attrdefnames, groups/members array, assignments and optionally set of values
+   */
+  public Set<Object[]> findAnyMembershipAttributeAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String filter, Boolean splitFilter);
+
 }

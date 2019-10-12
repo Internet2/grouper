@@ -187,9 +187,6 @@ public class AttributeAssignFinderResults {
           Membership membership = (Membership)groupMemberMembership[2];
           idToMembershipMap.put(membership.getImmediateMembershipId(), membership);
           attributeAssignFinderResult.setOwnerMembership(membership);
-        } else {
-          // add tuple in there
-          
         }
       } else if (result[2] instanceof AttributeAssign) {
         AttributeAssign attributeAssign = (AttributeAssign) result[2];

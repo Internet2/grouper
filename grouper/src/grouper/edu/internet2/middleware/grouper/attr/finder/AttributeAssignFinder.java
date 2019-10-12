@@ -23,12 +23,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -40,6 +42,7 @@ import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundExcepti
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -363,6 +366,9 @@ public class AttributeAssignFinder {
    * 
    */
   private Collection<String> ownerAttributeDefIds;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(AttributeAssignFinder.class);
   
   /**
    * if assignments on assignments should also be included
@@ -380,27 +386,27 @@ public class AttributeAssignFinder {
    */
   public AttributeAssignFinderResults findAttributeAssignFinderResults() {
 
-    if (GrouperUtil.length(this.ownerGroupIds) > 0 || GrouperUtil.length(this.ownerStemIds) > 0
-      || GrouperUtil.length(this.ownerAttributeDefIds) > 0 
-      || GrouperUtil.length(this.ownerAttributeAssignIds) > 0) {
-      throw new RuntimeException("Invalid Query");
-    }
-    
-    Set<Object[]> results = null;
-    AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinderResults();
-    
-    if (this.attributeAssignType != null) {
-      results = findAttributeAssignFinderResultsHelper(this.attributeDefIds, this.attributeDefNameIds, 
-          this.attributeAssignType);
-    } else {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long startOverallNanos = System.nanoTime();
 
+    AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinderResults();
+
+    try {
+      if (GrouperUtil.length(this.ownerGroupIds) > 0 || GrouperUtil.length(this.ownerStemIds) > 0
+        || GrouperUtil.length(this.ownerAttributeDefIds) > 0 
+        || GrouperUtil.length(this.ownerAttributeAssignIds) > 0) {
+        throw new RuntimeException("Invalid Query");
+      }
+      
+      Set<Object[]> results = null;
+      
       // lets get all the attribute defs for each attributeDefId and attributeDefNameId
       // note, this is not a secure query, that will come later
       final Map<String, AttributeDef> attributeDefIdToAttributeDefMap = new HashMap<String, AttributeDef>();
       final Map<String, AttributeDef> attributeDefNameIdToAttributeDefMap = new HashMap<String, AttributeDef>();
-
+  
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-
+  
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           
@@ -461,27 +467,133 @@ public class AttributeAssignFinder {
       }
       
       results = new LinkedHashSet();
-      AttributeAssignType[] attributeAssignTypes = AttributeAssignType.values();
-      Arrays.sort(attributeAssignTypes);
+      AttributeAssignType[] attributeAssignTypes = null;
       
-      // do the specific query for each type
+      if (this.attributeAssignType != null) {
+        attributeAssignTypes = new AttributeAssignType[] {this.attributeAssignType};
+      } else {
+        attributeAssignTypes = AttributeAssignType.values();
+      }
+      Arrays.sort(attributeAssignTypes);
+        
+      // if we are paging
+      boolean paging = this.queryOptions != null && this.queryOptions.getQueryPaging() != null;
+  
+      //lets get the size of all objects
+      int size = 0;
+      int firstIndexOnPage = -1;
+      int lastIndexOnPage = -1;
+
+      Map<AttributeAssignType, Integer> attributeAssignTypeToSize = null;
+      
+      if ((this.queryOptions != null && this.queryOptions.isRetrieveCount()) || paging) {
+  
+        attributeAssignTypeToSize = new LinkedHashMap<AttributeAssignType, Integer>();
+        
+        // do the specific query for each type to get size
+        for (AttributeAssignType attributeAssignType : attributeAssignTypes) {
+          Set<String> attributeDefIdsToQuery = attributeAssignTypeToAttributeDefIds.get(attributeAssignType);
+          Set<String> attributeDefIdNamesToQuery = attributeAssignTypeToAttributeDefNameIds.get(attributeAssignType);
+          
+          if (GrouperUtil.length(attributeDefIdsToQuery) > 0 || GrouperUtil.length(attributeDefIdNamesToQuery) > 0) {
+            
+            long nanoStart = System.nanoTime();
+            QueryOptions thisQueryOptions = this.queryOptions;
+            this.queryOptions = new QueryOptions().retrieveResults(false).retrieveCount(true);
+            findAttributeAssignFinderResultsHelper(attributeDefIdsToQuery, attributeDefIdNamesToQuery, attributeAssignType);
+
+            debugMap.put(attributeAssignType + "_countTook", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+              
+            int thisSize = this.queryOptions.getCount().intValue();
+            debugMap.put(attributeAssignType + "_count", thisSize);
+            size += thisSize;
+            attributeAssignTypeToSize.put(attributeAssignType, thisSize);
+            this.queryOptions = thisQueryOptions;
+          }
+        }
+        
+        //total number of records
+        if (this.queryOptions.getQueryPaging() != null) {
+          this.queryOptions.getQueryPaging().setTotalRecordCount(size);
+        }
+        this.queryOptions.setCount(new Long(size));
+        
+        //if we are only here to get the count, get the count
+        if (this.queryOptions.isRetrieveCount() && !this.queryOptions.isRetrieveResults()) {
+          attributeAssignFinderResults.setResultObjects(results);
+
+          return attributeAssignFinderResults;
+        }
+        { 
+          int pageNumberOneIndexed = this.queryOptions.getQueryPaging().getPageNumber();
+          this.queryOptions.getQueryPaging().calculateIndexes();
+          // if this changes then we dont have space
+          if (pageNumberOneIndexed != this.queryOptions.getQueryPaging().getPageNumber()) {
+            // set these at end because it as side effects
+            attributeAssignFinderResults.setResultObjects(results);
+            return attributeAssignFinderResults;
+          }
+        }
+        
+        firstIndexOnPage = queryOptions.getQueryPaging().getFirstIndexOnPage();
+        lastIndexOnPage = queryOptions.getQueryPaging().getLastIndexOnPage();
+      }
+      
+      // get results
+      int firstIndex = 0;
+
+      // do the specific query for each type to get results
       for (AttributeAssignType attributeAssignType : attributeAssignTypes) {
         Set<String> attributeDefIdsToQuery = attributeAssignTypeToAttributeDefIds.get(attributeAssignType);
         Set<String> attributeDefIdNamesToQuery = attributeAssignTypeToAttributeDefNameIds.get(attributeAssignType);
         
-        if (GrouperUtil.length(attributeDefIdsToQuery) > 0 || GrouperUtil.length(attributeDefIdNamesToQuery) > 0) {
+        if (GrouperUtil.length(attributeDefIdsToQuery) == 0 && GrouperUtil.length(attributeDefIdNamesToQuery) == 0) {
+          continue;
+        }
+        
+        // if there arent any there, dont fetch them
+        Integer attributeAssignTypeSize = attributeAssignTypeToSize != null ? attributeAssignTypeToSize.get(attributeAssignType) : null;
+        if (attributeAssignTypeSize != null && attributeAssignTypeSize == 0) {
+          continue;
+        }
+
+        int lastIndex = GrouperUtil.intValue(attributeAssignTypeSize, 0)-1;
+        QueryOptions thisQueryOptions = this.queryOptions;
+        if (paging) {
+            
+          lastIndex = firstIndex + attributeAssignTypeSize-1;
+          
+          this.queryOptions = new QueryOptions().retrieveResults(true).retrieveCount(false).retrieveResults(true);
+
+          if (thisQueryOptions.getQuerySort() != null) {
+            this.queryOptions.sort(thisQueryOptions.getQuerySort().clone());
+          }
+        }
+        if (!paging || GrouperObjectFinder.decoratePaging(this.queryOptions, firstIndexOnPage, lastIndexOnPage, firstIndex, lastIndex)) {
+
+          long nanoStart = System.nanoTime();
           Set<Object[]> tempResults = findAttributeAssignFinderResultsHelper(attributeDefIdsToQuery, attributeDefIdNamesToQuery, 
               attributeAssignType);
           results.addAll(tempResults);
-        }
-        
+          debugMap.put(attributeAssignType + "_resultsTook", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+          debugMap.put(attributeAssignType + "_count2", GrouperUtil.length(tempResults));
+              
+        }            
+        firstIndex += attributeAssignTypeSize == null ? 0 : attributeAssignTypeSize;
+        this.queryOptions = thisQueryOptions;
       }
+      // set these at end because it as side effects
+      attributeAssignFinderResults.setResultObjects(results);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("overallTime", ((System.nanoTime() - startOverallNanos) / 1000000L ) + "ms");
+        debugMap.put("overallCount", GrouperUtil.length(attributeAssignFinderResults.getAttributeAssignFinderResults()));
+
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+
     }
-
-    attributeAssignFinderResults.setResultObjects(results);
-    
     return attributeAssignFinderResults;
-
   }
 
   /**
@@ -511,6 +623,12 @@ public class AttributeAssignFinder {
           null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
           this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.filter, this.splitFilter);
 
+    } else if (theAttributeAssignType == AttributeAssignType.any_mem) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findAnyMembershipAttributeAssignmentsByAttribute(theAttributeDefIds, theAttributeDefNameIds, 
+          null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, 
+          this.queryOptions, this.retrieveValues, this.includeAssignmentsOnAssignments, this.filter, this.splitFilter);
+
     } else if (theAttributeAssignType == AttributeAssignType.group) {
         
       return GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsByAttribute(
@@ -537,6 +655,12 @@ public class AttributeAssignFinder {
           theAttributeDefIds, theAttributeDefNameIds, 
             null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.filter, this.splitFilter);
               
+    } else if (theAttributeAssignType == AttributeAssignType.any_mem_asgn) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign().findAnyMembershipAttributeAssignmentsOnAssignmentsByAttribute(
+          theAttributeDefIds, theAttributeDefNameIds, 
+            null, true, this.checkAttributeReadOnOwner, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.filter, this.splitFilter);
+              
     } else if (theAttributeAssignType == AttributeAssignType.stem_asgn) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignmentsByAttribute(
@@ -556,8 +680,7 @@ public class AttributeAssignFinder {
           null, true, this.attributeCheckReadOnAttributeDef, this.queryOptions, this.retrieveValues, this.filter, this.splitFilter);
             
     }
-    return new HashSet<Object[]>();
-    //throw new RuntimeException("Not support type: " + theAttributeAssignType);
+    throw new RuntimeException("Not support type: " + theAttributeAssignType);
   }
   
   /**
