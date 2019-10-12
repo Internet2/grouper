@@ -590,7 +590,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       
       //see if there is a scope
       if (!StringUtils.isBlank(scope)) {
-        scope = assignScopeToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "theAttributeDef");
+        scope = assignFilterToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "theAttributeDef");
       }
   
       if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
@@ -677,23 +677,23 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   
   /**
    * @param byHqlStatic
-   * @param scope
+   * @param filter
    * @param splitScope default true
    * @param whereClause
    * @param findByUuidOrName generally this is false
    * @param alias e.g. theGroup whatever alias in hql query
    * @return scope lowercased
    */
-  public static String assignScopeToQuery(String scope, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias) {
+  public static String assignFilterToQuery(String filter, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias) {
 
     // default scplitScope to true
     splitScope = GrouperUtil.booleanValue(splitScope, true);
-    scope = scope.toLowerCase();
+    filter = filter.toLowerCase();
     
-    String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+    String[] scopes = splitScope ? GrouperUtil.splitTrim(filter, " ") : new String[]{filter};
 
     if (scopes.length > 1 && findByUuidOrName) {
-      throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+      throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + filter);
     }
 
     if (whereClause.length() > 0) {
@@ -701,7 +701,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     }
     if (GrouperUtil.length(scopes) == 1) {
       whereClause.append(" ( " + alias + ".id = :theAttributeDefIdScope or ( ");
-      byHqlStatic.setString("theAttributeDefIdScope", scope);
+      byHqlStatic.setString("theAttributeDefIdScope", filter);
     } else {
       whereClause.append(" ( ( ");
     }
@@ -730,7 +730,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       index++;
     }
     whereClause.append(" ) ) ");
-    return scope;
+    return filter;
     
   }
   

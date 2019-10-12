@@ -235,9 +235,9 @@ public class RegistrySubjectAttribute implements Serializable {
     }
     RegistrySubjectAttribute existing = find(this.subjectId, this.name, false);
     if (existing == null) {
-      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().create(existing);
+      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().create(this);
     } else {
-      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().update(existing);
+      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().update(this);
     }
   }
 

@@ -227,7 +227,7 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
     registrySubject.setId(subjX.getId());
     registrySubject.setName(subjX.getName());
     registrySubject.setTypeString(subjX.getType().getName());
-    GrouperDAOFactory.getFactory().getRegistrySubject().delete(registrySubject);
+    registrySubject.delete(GrouperSession.staticGrouperSession());
 
     Member memberX = MemberFinder.findBySubject(s, subjX, true);
     

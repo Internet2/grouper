@@ -54,6 +54,7 @@
         <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss Z</maven.build.timestamp.format>
 
         <!-- Plugin Versions -->
+        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
         <maven-source-plugin.version>2.3</maven-source-plugin.version>
@@ -64,13 +65,17 @@
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
         <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
         <maven-build-helper-plugin.version>1.9</maven-build-helper-plugin.version>
-        <maven-license-plugin.version>2.6</maven-license-plugin.version>
+        <!--<maven-license-plugin.version>2.6</maven-license-plugin.version>-->
         <maven-pmd-plugin.version>3.1</maven-pmd-plugin.version>
         <maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
         <maven-projectinfo-reports-plugin.version>3.0.0</maven-projectinfo-reports-plugin.version>
         <maven-taglist-plugin.version>2.4</maven-taglist-plugin.version>
         <maven-versions-plugin.version>2.7</maven-versions-plugin.version>
         <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
+
+        <!-- the default checkstyle is more rigorous and has a lot of output during a full scan -->
+        <!--<checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>-->
+        <checkstyle.config.location>src/checkstyle/checkstyle-legacy.xml</checkstyle.config.location>
 
         <!-- Dependency Versions -->
         <json.version>20140107</json.version>
@@ -842,12 +847,13 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>${maven-license-plugin.version}</version>
                 <configuration>
-                    <!-- we don't need to run this every time; use `-Dlicense.skip=false` -->
+                    <!** we don't need to run this every time; use `-Dlicense.skip=false` **>
                     <skip>true</skip>
                     <header>https://raw.githubusercontent.com/Internet2/grouper/master/LICENSE.txt</header>
                     <failIfMissing>false</failIfMissing>
@@ -881,6 +887,27 @@
                 <executions>
                     <execution>
                         <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <!-- see project properties for configLocation -->
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failOnViolation>false</failOnViolation>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>verify</id>
+                        <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
@@ -983,6 +1010,11 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven-site-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -1052,7 +1084,7 @@
 
     <reporting>
         <plugins>
-            <plugin>
+                <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>

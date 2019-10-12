@@ -306,7 +306,7 @@ public class GrouperObjectFinder {
    * @param lastSetIndex
    * @return true if should run query, false if not
    */
-  private static boolean decoratePaging(QueryOptions queryOptions, 
+  public static boolean decoratePaging(QueryOptions queryOptions, 
       int firstIndexOnPage, int lastIndexOnPage, int firstSetIndex, int lastSetIndex) {
 
     //  |---------------|

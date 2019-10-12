@@ -134,7 +134,31 @@ public class GrouperLoaderLogger {
     }
     return uberMap;
   }
-  
+
+  /**
+   * when loader thing starts
+   * @param label 
+   * @param existingMap
+   * @return false if already initted
+   */
+  public static boolean initializeThreadLocalMap(String label, Map<String, Object> existingMap) {
+
+    if (!GrouperLoaderLog.isDebugEnabled() || existingMap == null) {
+      return false;
+    }
+
+    Map<String, Object> theLogMap = retrieveMap(label);
+    
+    if (theLogMap != null && theLogMap == existingMap) {
+      return false;
+    }
+    
+    retrieveUberMap().put(label, existingMap);
+
+    //everything else should be initted
+    return true;
+
+  }
   /**
    * when loader thing starts
    * @param label 
@@ -198,7 +222,7 @@ public class GrouperLoaderLogger {
    * @param label 
    * @return the map
    */
-  private static Map<String, Object> retrieveMap(String label) {
+  public static Map<String, Object> retrieveMap(String label) {
 
     if (!GrouperLoaderLog.isDebugEnabled()) {
       return null;

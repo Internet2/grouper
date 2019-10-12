@@ -1505,7 +1505,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           whereClause.append(" where ");
         }
 
-        scope = assignScopeToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "ns");
+        scope = assignFilterToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, "ns");
   
         
         sql.append(whereClause);
@@ -1816,7 +1816,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param alias e.g. theGroup whatever alias in hql query
    * @return scope lowercased
    */
-  public static String assignScopeToQuery(String scope, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias) {
+  public static String assignFilterToQuery(String scope, Boolean splitScope, StringBuilder whereClause, ByHqlStatic byHqlStatic, boolean findByUuidOrName, String alias) {
 
     // default scplitScope to true
     splitScope = GrouperUtil.booleanValue(splitScope, true);

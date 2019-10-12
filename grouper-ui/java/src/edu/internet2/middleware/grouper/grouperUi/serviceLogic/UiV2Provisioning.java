@@ -505,19 +505,61 @@ public class UiV2Provisioning {
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
           if (isDirect) {
-            GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, STEM);
+            
+            final boolean[] FINISHED = new boolean[]{false};
+            final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
+            Thread thread = new Thread(new Runnable() {
+      
+              public void run() {
+      
+                try {
+                  
+                  GrouperSession.startRootSession();      
+                  GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, STEM);
+                  FINISHED[0] = true;
+                  
+                } catch (RuntimeException re) {
+                  //log incase thread didnt finish when screen was drawing
+                  LOG.error("Error updating provisioning stem parts", re);
+                  RUNTIME_EXCEPTION[0] = re;
+                }
+                
+              }
+              
+            });
+      
+            thread.start();
+            
+            try {
+              thread.join(30000);
+            } catch (InterruptedException ie) {
+              throw new RuntimeException(ie);
+            }
+      
+            if (RUNTIME_EXCEPTION[0] != null) {
+              throw RUNTIME_EXCEPTION[0];
+            }
+            
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=" + STEM.getId() + "')"));
+            
+            if (FINISHED[0]) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+                  TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
+            } else {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                  TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccessNotFinished")));
+            }
+            
           } else {
             GrouperProvisioningService.copyConfigFromParent(STEM, targetName);
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=" + STEM.getId() + "')"));
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+                TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
           }
           
           return null;
         }
       });
-      
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=" + stem.getId() + "')"));
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
-          TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
-      
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

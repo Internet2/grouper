@@ -5005,7 +5005,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 if (parentStemName == null || !parentStemName.equals(Group.this.getParentStem().getName())) {
                   Stem stem = GrouperUtil.getFirstParentStemOfName(Group.this.getAlternateNameDb());
 
-                  if (!stem.hasCreate(subject)) {
+                  if (!stem.hasCreate(subject) && !stem.hasStemAdmin(subject)) {
                     throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
                         + " cannot create in stem: " + stem.getName());
                   }

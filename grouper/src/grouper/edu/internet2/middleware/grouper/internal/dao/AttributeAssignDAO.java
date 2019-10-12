@@ -976,8 +976,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param queryOptions 
    * @param retrieveValues
    * @param includeAssignmentsOnAssignments if include assignments on assignments
-   * @param scope filter if filtering by group info
-   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
    * @return attrdefs, attrdefnames, groups, assignments and optionally set of values
    */
   public Set<Object[]> findGroupAttributeAssignmentsByAttribute(
@@ -986,7 +986,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope);
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String filter, Boolean splitFilter);
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
@@ -999,8 +999,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeCheckReadOnAttributeDef
    * @param queryOptions 
    * @param retrieveValues
-   * @param scope filter if filtering by group info
-   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
    * @return attr defs, attr def names, groups and assignments and optionally set of values
    */
   public Set<Object[]> findGroupAttributeAssignmentsOnAssignmentsByAttribute(
@@ -1009,7 +1009,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, String scope, Boolean splitScope);
+      QueryOptions queryOptions, boolean retrieveValues, String filter, Boolean splitFilter);
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids
@@ -1022,8 +1022,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeCheckReadOnAttributeDef
    * @param queryOptions 
    * @param retrieveValues
-   * @param scope filter if filtering by group info
-   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
    * @return attr defs, attr def names, stems and assignments and optionally set of values
    */
   public Set<Object[]> findStemAttributeAssignmentsOnAssignmentsByAttribute(
@@ -1032,7 +1032,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, String scope, Boolean splitScope);
+      QueryOptions queryOptions, boolean retrieveValues, String filter, Boolean splitFilter);
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids
@@ -1045,8 +1045,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeCheckReadOnAttributeDef
    * @param queryOptions 
    * @param retrieveValues
-   * @param scope filter if filtering by group info
-   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
    * @return attr defs, attr def names, stems and assignments and optionally set of values
    */
   public Set<Object[]> findAttributeDefAttributeAssignmentsOnAssignmentsByAttribute(
@@ -1055,7 +1055,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean checkAttributeReadOnOwnerAttributeDef, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, String scope, Boolean splitScope);
+      QueryOptions queryOptions, boolean retrieveValues, String filter, Boolean splitFilter);
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids
@@ -1379,8 +1379,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param queryOptions 
    * @param retrieveValues
    * @param includeAssignmentsOnAssignments 
-   * @param scope filter if filtering by group info
-   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
    * @return attrdefs, attrdefnames, stems, assignments and optionally set of values
    */
   public Set<Object[]> findStemAttributeAssignmentsByAttribute(
@@ -1389,7 +1389,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean checkAttributeReadOnStem, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope);
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String filter, Boolean splitFilter);
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids
@@ -1403,8 +1403,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param queryOptions 
    * @param retrieveValues
    * @param includeAssignmentsOnAssignments 
-   * @param scope filter if filtering by group info
-   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
    * @return attrdefs, attrdefnames, stems, assignments and optionally set of values
    */
   public Set<Object[]> findAttributeDefAttributeAssignmentsByAttribute(
@@ -1413,7 +1413,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean checkAttributeReadOnOwnerAttributeDef, Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope);
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String filter, Boolean splitFilter);
   
   
   /**
@@ -1427,8 +1427,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param queryOptions 
    * @param retrieveValues
    * @param includeAssignmentsOnAssignments 
-   * @param scope filter if filtering by group info
-   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
    * @return attrdefs, attrdefnames, members, assignments and optionally set of values
    */
   public Set<Object[]> findMemberAttributeAssignmentsByAttribute(
@@ -1437,7 +1437,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String scope, Boolean splitScope);
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String filter, Boolean splitFilter);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
@@ -1449,8 +1449,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeCheckReadOnAttributeDef
    * @param queryOptions 
    * @param retrieveValues
-   * @param scope filter if filtering by group info
-   * @param splitScope true (default) if scope has spaces, split and look for all anywhere
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
    * @return attr defs, attr def names, stems and assignments and optionally set of values
    */
   public Set<Object[]> findMemberAttributeAssignmentsOnAssignmentsByAttribute(
@@ -1459,6 +1459,100 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled, 
       Boolean attributeCheckReadOnAttributeDef, 
-      QueryOptions queryOptions, boolean retrieveValues, String scope, Boolean splitScope);
+      QueryOptions queryOptions, boolean retrieveValues, String filter, Boolean splitFilter);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @param includeAssignmentsOnAssignments if include assignments on assignments
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
+   * @return attrdefs, attrdefnames, groups/members/memberships array, assignments and optionally set of values
+   */
+  public Set<Object[]> findImmediateMembershipAttributeAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String filter, Boolean splitFilter);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
+   * @return attr defs, attr def names, groups/members/memberships array, and assignments and optionally set of values
+   */
+  public Set<Object[]> findImmediateMembershipAttributeAssignmentsOnAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, String filter, Boolean splitFilter);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
+   * @return attr defs, attr def names, groups/members array, and assignments and optionally set of values
+   */
+  public Set<Object[]> findAnyMembershipAttributeAssignmentsOnAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, String filter, Boolean splitFilter);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param checkAttributeReadOnGroup 
+   * @param attributeCheckReadOnAttributeDef
+   * @param queryOptions 
+   * @param retrieveValues
+   * @param includeAssignmentsOnAssignments if include assignments on assignments
+   * @param filter filter if filtering by group info
+   * @param splitFilter true (default) if filter has spaces, split and look for all anywhere
+   * @return attrdefs, attrdefnames, groups/members array, assignments and optionally set of values
+   */
+  public Set<Object[]> findAnyMembershipAttributeAssignmentsByAttribute(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> actions, 
+      Boolean enabled, 
+      Boolean checkAttributeReadOnGroup, Boolean attributeCheckReadOnAttributeDef, 
+      QueryOptions queryOptions, boolean retrieveValues, boolean includeAssignmentsOnAssignments, String filter, Boolean splitFilter);
 
 }

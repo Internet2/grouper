@@ -215,11 +215,8 @@ public class GrouperEmail {
       
       boolean useSsl = GrouperConfig.retrieveConfig().propertyValueBoolean("mail.smtp.ssl", false);
       if (useSsl) {
-        
-        properties.put("mail." + propertyProtocol + ".starttls.enable","true");
         properties.put("mail." + propertyProtocol + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         properties.put("mail." + propertyProtocol + ".socketFactory.fallback", "false");
-        
       }
         
       {
@@ -256,7 +253,13 @@ public class GrouperEmail {
           properties.put("mail." + propertyProtocol + ".ssl.trust", mailSmtpSslTrust);
         }
       }
-      
+
+      // setting both mail.smtp.ssl and mail.smtp.starttls.enable probably isn't what the user wants;
+      // the ssl will override, as seen in the java client debug message "STARTTLS requested but already using SSL"
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("mail.smtp.ssl", false)
+        && GrouperConfig.retrieveConfig().propertyValueBoolean("mail.smtp.starttls.enable", false)) {
+        LOG.warn("Grouper properties mail.smtp.ssl and mail.smtp.starttls.enable are both true; the starttls option will likely not work since the ssl session is established first");
+      }
       
       if (GrouperConfig.retrieveConfig().propertyValueBoolean("mail.debug", false) || LOG.isDebugEnabled()) {
         properties.put("mail." + propertyProtocol + ".debug", "true");

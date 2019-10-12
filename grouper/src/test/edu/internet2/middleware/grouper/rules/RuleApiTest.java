@@ -92,7 +92,7 @@ public class RuleApiTest extends GrouperTest {
 //    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
 //    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
 //    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
-    TestRunner.run(new RuleApiTest("testReassignAttributeDefPrivilegesIfFromGroup"));
+    TestRunner.run(new RuleApiTest("testRuleVetoSubjectAssignInFolderIfNotInGroupDaemon"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
@@ -1350,6 +1350,214 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
     
   }
+  
+  
+  /**
+   * 
+   */
+  public void testRuleVetoSubjectAssignInFolderIfNotInGroupChangeLogConsumer() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group allowedGroup = new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeSubGroup = new GroupSave(grouperSession).assignName("etc:subEmployee").assignCreateParentStemsIfNotExist(true).save();
+    
+    //Stem rootStem = StemFinder.findRootStem(grouperSession);
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+
+    
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), restrictedStem, employeeGroup, false, "jdbc", Stem.Scope.SUB, "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    try {
+      restrictedGroup.addMember(subject0);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    allowedGroup.addMember(subject0);
+
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    employeeGroup.addMember(subject0);
+    restrictedGroup.addMember(subject0);
+    
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+
+//    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+    Group groupC = new GroupSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+    Group groupD = new GroupSave(grouperSession).assignName("stem3:subgroup").assignCreateParentStemsIfNotExist(true).save();
+    groupC.addMember(groupD.toSubject());
+    
+    Stem stem = StemFinder.findByName(grouperSession, "stem2", true);
+    
+    RuleApi.groupIntersectionWithFolder(SubjectFinder.findRootSubject(), groupA, stem, Scope.SUB);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+    
+//    long initialFirings = RuleEngine.ruleFirings;
+//    
+//    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    groupB.addMember(subject0);
+  
+    //count rule firings
+    
+    //doesnt do anything
+    groupB.deleteMember(subject0);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+    
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    groupB.addMember(subject0);
+    groupA.addMember(subject0);
+    
+    //count rule firings
+    
+    groupB.deleteMember(subject0);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+    
+    //should come out of groupA
+    assertFalse(groupA.hasMember(subject0));
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    
+    groupC.addMember(subject0);
+    
+    //doesnt do anything
+    groupC.deleteMember(subject0);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+    
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    groupC.addMember(subject0);
+    groupA.addMember(subject0);
+  
+    groupC.deleteMember(subject0);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+    
+    //should fire from ancestor
+    assertFalse(groupA.hasMember(subject0));
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    
+    // effective test
+    
+    groupD.addMember(subject0);
+    
+    //doesnt do anything
+    groupD.deleteMember(subject0);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+    
+    //count rule firings
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    groupD.addMember(subject0);
+    groupA.addMember(subject0);
+  
+    groupD.deleteMember(subject0);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+    
+    //should fire from ancestor
+    assertFalse(groupA.hasMember(subject0));
+  
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+    
+    groupD.addMember(subject0);
+    groupC.addMember(subject0);
+    groupA.addMember(subject0);
+  
+    groupD.deleteMember(subject0);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+
+    // doesn't do anything
+    assertTrue(groupA.hasMember(subject0));
+  
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+    
+    groupD.addMember(subject0);
+  
+    groupC.deleteMember(subject0);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+
+    // doesn't do anything
+    assertTrue(groupA.hasMember(subject0));
+  
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+  }
+
+
+  
+//  /**
+//   * disallow a source at root, but then allow in subfolder
+//   */
+//  public void testRuleVetoSubjectAssignInFolderIfNotInGroupDaemon() {
+//
+//    GrouperSession grouperSession = GrouperSession.startRootSession();
+//    
+//    Group allowedGroup = new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+//    
+//    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+//
+//    // add member before daemon
+//    allowedGroup.addMember(subject0);
+//    
+//    Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+//
+//    // add member before daemon
+//    restrictedGroup.addMember(subject0);
+//
+//    Stem rootStem = StemFinder.findRootStem(grouperSession);
+//    Stem allowedStem = StemFinder.findByName(grouperSession, "stem", true);
+//
+//    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), rootStem, null, false, "jdbc", Scope.SUB,
+//        "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of root");
+//    
+//    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), allowedStem, null, true, "jdbc", Scope.SUB,
+//        "rule.entity.must.be.a.member.of.etc.employee", "Entity allowed if not a member of etc:employee");
+//
+//    //count rule firings
+//    long initialFirings = RuleEngine.ruleFirings;
+//
+//    //run the daemon
+//    String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+//    
+//    assertTrue(status.toLowerCase().contains("success"));
+//    
+//    assertEquals(initialFirings + 1, RuleEngine.ruleFirings);
+//    
+//    // add member before daemon
+//    assertTrue(allowedGroup.hasMember(subject0));
+//    
+//    // add member before daemon
+//    assertFalse(restrictedGroup.hasMember(subject0));
+//
+//  }
   
   /**
    * <pre>

@@ -37,12 +37,14 @@ import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
@@ -686,18 +688,23 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    */
   public boolean isHasAttrDefNameGrouperLoaderLdap() {
 
-    boolean hasAttrLdap = false;
-    
-    //first, get the attribute def name
-    AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
-    
-    //check if the attribute def name is assigned to this group
-    if (grouperLoaderLdapName != null) {
-      hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoaderLdapName);
-    }
-    
-    return hasAttrLdap;
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        boolean hasAttrLdap = false;
+        
+        //first, get the attribute def name
+        AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
+            .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+        
+        //check if the attribute def name is assigned to this group
+        if (grouperLoaderLdapName != null) {
+          hasAttrLdap = GuiGroup.this.group.getAttributeDelegate().hasAttribute(grouperLoaderLdapName);
+        }
+        
+        return hasAttrLdap;
+      }
+    });
   }
 
   /**
@@ -706,18 +713,23 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * return false if not
    */
   public boolean isHasAttrDefNameGrouperLoader() {
-    boolean hasAttrLdap = false;
-
-    //first, get the attribute def name
-    AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        boolean hasAttrLdap = false;
     
-    //check if the attribute def name is assigned to this group
-    if (grouperLoader != null) {
-      hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoader);
-    }
-    
-    return hasAttrLdap;
+        //first, get the attribute def name
+        AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
+            .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
+        
+        //check if the attribute def name is assigned to this group
+        if (grouperLoader != null) {
+          hasAttrLdap = GuiGroup.this.group.getAttributeDelegate().hasAttribute(grouperLoader);
+        }
+        
+        return hasAttrLdap;
+      }
+    });
   }
   
   public boolean isTypeRole() {

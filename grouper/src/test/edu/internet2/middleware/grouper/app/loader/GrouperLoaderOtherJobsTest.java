@@ -54,7 +54,7 @@ public class GrouperLoaderOtherJobsTest extends GrouperTest {
       /** Verify jobs **/
       {
         JobDetail job1Detail = scheduler.getJobDetail(new JobKey("OTHER_JOB_test1"));
-        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperLoaderOtherJobsTestJob1", job1Detail.getJobClass().getName());
+        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperDaemonJob", job1Detail.getJobClass().getName());
 
         assertEquals(1, scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test1")).size());
         CronTrigger job1Trigger = (CronTrigger)scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test1")).iterator().next();
@@ -65,7 +65,7 @@ public class GrouperLoaderOtherJobsTest extends GrouperTest {
       
       {
         JobDetail job2Detail = scheduler.getJobDetail(new JobKey("OTHER_JOB_test2"));
-        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperLoaderOtherJobsTestJob2", job2Detail.getJobClass().getName());
+        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperDaemonJob", job2Detail.getJobClass().getName());
   
         assertEquals(1, scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test2")).size());
         CronTrigger job2Trigger = (CronTrigger)scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test2")).iterator().next();
@@ -81,7 +81,7 @@ public class GrouperLoaderOtherJobsTest extends GrouperTest {
 
       {
         JobDetail job1Detail = scheduler.getJobDetail(new JobKey("OTHER_JOB_test1"));
-        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperLoaderOtherJobsTestJob1", job1Detail.getJobClass().getName());
+        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperDaemonJob", job1Detail.getJobClass().getName());
   
         assertEquals(1, scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test1")).size());
         CronTrigger job1Trigger = (CronTrigger)scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test1")).iterator().next();
@@ -92,7 +92,7 @@ public class GrouperLoaderOtherJobsTest extends GrouperTest {
       
       {
         JobDetail job2Detail = scheduler.getJobDetail(new JobKey("OTHER_JOB_test2"));
-        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperLoaderOtherJobsTestJob2", job2Detail.getJobClass().getName());
+        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperDaemonJob", job2Detail.getJobClass().getName());
   
         assertEquals(1, scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test2")).size());
         CronTrigger job2Trigger = (CronTrigger)scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test2")).iterator().next();
@@ -109,7 +109,7 @@ public class GrouperLoaderOtherJobsTest extends GrouperTest {
 
       {
         JobDetail job1Detail = scheduler.getJobDetail(new JobKey("OTHER_JOB_test1"));
-        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperLoaderOtherJobsTestJob1", job1Detail.getJobClass().getName());
+        assertEquals("edu.internet2.middleware.grouper.app.loader.GrouperDaemonJob", job1Detail.getJobClass().getName());
   
         assertEquals(1, scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test1")).size());
         CronTrigger job1Trigger = (CronTrigger)scheduler.getTriggersOfJob(new JobKey("OTHER_JOB_test1")).iterator().next();
