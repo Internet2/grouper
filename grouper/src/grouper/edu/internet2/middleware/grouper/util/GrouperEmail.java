@@ -62,7 +62,16 @@ public class GrouperEmail {
   
   /** who this email is going to (comma separated) */
   private String to;
-  
+
+  /** optional Cc addresses */
+  private String cc;
+
+  /** optional Bcc addresses */
+  private String bcc;
+
+  /** optional Reply-To addresses */
+  private String replyTo;
+
   /** subject of email */
   private String subject;
   
@@ -78,6 +87,29 @@ public class GrouperEmail {
    */
   public String getTo() {
     return this.to;
+  }
+
+  /**
+   * users to be sent a Cc (comma separated)
+   * @return
+   */
+  public String getCc() {
+    return this.cc;
+  }
+
+  /**
+   * users to be sent via Bcc (blind carbon copy), comma separated
+   * @return
+   */
+  public String getBcc() {
+    return this.bcc;
+  }
+
+  /**
+   * optional comma-separated list of addresses for Reply-To header
+   * @return
+   */  public String getReplyTo() {
+    return replyTo;
   }
 
   /**
@@ -120,7 +152,34 @@ public class GrouperEmail {
     this.to = theToAddress;
     return this;
   }
-  
+
+  /**
+   * optional comma-separated list of Cc addresses to send to
+   * @param theCc
+   */
+  public GrouperEmail setCc(String theCc) {
+    this.cc = theCc;
+    return this;
+  }
+
+  /**
+   * optional comma-separated list of Bcc (blind carbon copy) addresses to send to
+   * @param theBcc
+   */
+  public GrouperEmail setBcc(String theBcc) {
+    this.bcc = theBcc;
+    return this;
+  }
+
+  /**
+   * optional comma-separated list of addresses for Reply-To header
+   * @param theReplyTo
+   */
+  public GrouperEmail setReplyTo(String theReplyTo) {
+    this.replyTo = theReplyTo;
+    return this;
+  }
+
   /**
    * set subject
    * @param theSubject
@@ -297,14 +356,48 @@ public class GrouperEmail {
             message.addRecipient(RecipientType.TO, new InternetAddress(aTo));
           }
         }
-        
       }
-      
+
       if (!hasRecipient) {
-        LOG.debug("Cant find recipient for email");
+        LOG.error("Cant find recipient for email");
         return;
       }
-      
+
+      // add CC addresses if any
+      if (!StringUtils.isBlank(this.cc)) {
+        String theCc = StringUtils.replace(this.cc, ";", ",");
+        for (String address : GrouperUtil.splitTrim(theCc, ",")) {
+          if (!StringUtils.isBlank(address)) {
+            message.addRecipient(RecipientType.CC, new InternetAddress(address));
+          }
+        }
+      }
+
+      // add BCC addresses if any
+      if (!StringUtils.isBlank(this.bcc)) {
+        String theBcc = StringUtils.replace(this.bcc, ";", ",");
+        for (String address : GrouperUtil.splitTrim(theBcc, ",")) {
+          if (!StringUtils.isBlank(address)) {
+            message.addRecipient(RecipientType.BCC, new InternetAddress(address));
+          }
+        }
+      }
+
+      // add Reply-To addresses if any
+      if (!StringUtils.isBlank(this.replyTo)) {
+        String theReplyTo = StringUtils.replace(this.replyTo, ";", ",");
+        List<InternetAddress> replyToList = new ArrayList<>();
+        for (String address : GrouperUtil.splitTrim(theReplyTo, ",")) {
+          if (!StringUtils.isBlank(address)) {
+            replyToList.add(new InternetAddress(address));
+          }
+        }
+
+        if (replyToList.size() > 0) {
+          message.setReplyTo(GrouperUtil.toArray(replyToList, InternetAddress.class));
+        }
+      }
+
       if (!StringUtils.isBlank(theFrom)) {
         message.addFrom(new InternetAddress[] { new InternetAddress(theFrom) });
       }
