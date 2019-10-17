@@ -924,12 +924,13 @@ function ajax(theUrl, options) {
       }
       
     },
-    //TODO process the response object
     success: function(json){
       guiProcessJsonResponse(json);
       $.unblockUI();  
     }
   });
+  
+  return false;
 }
 
 /**
