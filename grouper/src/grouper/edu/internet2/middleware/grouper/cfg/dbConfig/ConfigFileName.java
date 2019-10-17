@@ -143,15 +143,31 @@ public enum ConfigFileName {
     }
     for (ConfigFileName configFileName : ConfigFileName.values()) {
       
-      ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
-      for (ConfigSectionMetadata configSectionMetadata : configFileMetadata.getConfigSectionMetadataList()) {
-        for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
+      ConfigItemMetadata configItemMetadata = configFileName.findConfigItemMetdataFromConfig(key);
+      if (configItemMetadata != null) {
+        return configItemMetadata;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * 
+   * @param key
+   * @return config item metadata related to this key
+   */
+  public ConfigItemMetadata findConfigItemMetdataFromConfig(String key) {
+    if (key == null) {
+      return null;
+    }
+    ConfigFileMetadata configFileMetadata = this.configFileMetadata();
+    for (ConfigSectionMetadata configSectionMetadata : configFileMetadata.getConfigSectionMetadataList()) {
+      for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
+        
+        if (StringUtils.equals(key, configItemMetadata.getKey())) {
           
-          if (StringUtils.equals(key, configItemMetadata.getKey())) {
-            
-            return configItemMetadata;
-            
-          }
+          return configItemMetadata;
+          
         }
       }
     }

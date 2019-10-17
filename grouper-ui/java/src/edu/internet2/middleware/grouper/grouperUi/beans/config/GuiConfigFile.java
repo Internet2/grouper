@@ -3,7 +3,11 @@ package edu.internet2.middleware.grouper.grouperUi.beans.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
@@ -24,6 +28,28 @@ public class GuiConfigFile {
     this.configPropertiesCascadeBase = configPropertiesCascadeBase;
   }
 
+  /**
+   * find gui property 
+   * @return gui config property
+   */
+  public GuiConfigProperty findGuiConfigProperty(String propertyName, boolean exceptionIfNotFound) {
+    for (GuiConfigSection guiConfigSection : GrouperUtil.nonNull(this.guiConfigSections)) {
+      for (GuiConfigProperty guiConfigProperty : GrouperUtil.nonNull(guiConfigSection.getGuiConfigProperties())) {
+        if (StringUtils.equals(GrouperUtil.stripEnd(guiConfigProperty.getConfigItemMetadata().getKey(), ".elConfig"), 
+            GrouperUtil.stripEnd(propertyName, ".elConfig"))) {
+          return guiConfigProperty;
+        }
+      }
+    }
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Cant find property: '" + propertyName + "'");
+    }
+    return null;
+  }
+  
+  /**
+   * 
+   */
   public GuiConfigFile() {
     
   }

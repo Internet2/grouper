@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 
 /**
  * utils for config stuff
@@ -61,6 +62,20 @@ public class ConfigUtils {
   private static boolean isPasswordHelper(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, 
       String key, String value, boolean hasValue, Boolean userSelectedPassword) {
 
+    if (key != null && key.endsWith(".elConfig")) {
+      // this is a script, not a password
+      return false;
+    }
+    
+    if (hasValue && !StringUtils.isBlank(value)) {
+      try {
+        Morph.decrypt(value);
+        return true;
+      } catch (Exception e) {
+        // ignore
+      }
+    }
+    
     // if there is a value, and it is a file, then its not a password
     if (hasValue && !StringUtils.isBlank(value)) {
       File theFile = new File(value);
@@ -76,9 +91,9 @@ public class ConfigUtils {
     
     // look for a key with certain words inside
     if (key != null) {
-      key = key.toLowerCase();
+      String lowerKey = key.toLowerCase();
 
-      if (key != null && (key.contains("pass") || key.contains("secret"))) {
+      if (lowerKey.contains("pass") || lowerKey.contains("secret")) {
         return true;
       }
     
@@ -166,6 +181,7 @@ public class ConfigUtils {
       grouperConfigHibernateEl = null;
     }
 
+    grouperConfigHibernateToReturn[0] = grouperConfigHibernate;
     
     for (ConfigFileName current : ConfigFileName.values()) {
       
