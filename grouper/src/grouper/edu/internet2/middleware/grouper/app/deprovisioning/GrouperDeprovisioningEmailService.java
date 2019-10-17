@@ -43,7 +43,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
@@ -199,7 +198,7 @@ public class GrouperDeprovisioningEmailService {
       try {
         Stem configurationStem = StemFinder.findByUuid(grouperSession, deprovisioningInheritedFromFolderId, true);
         attributeValue = getDeprovisioningAttributeValue(configurationStem, affiliation.getLabel());
-        if (attributeValue != null) {
+        if (attributeValue != null && attributeValue.isDirectAssignment() && attributeValue.isSendEmail()) {
           populateEmailObjectsHelper(grouperSession, grouperObject, subject, attributeValue, userEmailObjects);
         }
         
