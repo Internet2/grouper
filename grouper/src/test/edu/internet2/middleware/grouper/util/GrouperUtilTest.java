@@ -150,11 +150,19 @@ public class GrouperUtilTest extends GrouperTest {
    * 
    */
   public void testMail() {
-    
-    String testEmailAddress = GrouperConfig.getProperty("mail.test.address");
-    
-    new GrouperEmail().setBody("test body").setSubject("test subject").setTo(testEmailAddress).send();
-    
+
+    //this property has been commented out since 2010
+    //String testEmailAddress = GrouperConfig.getProperty("mail.test.address");
+    String testEmailAddress = "a@b.c";
+
+    new GrouperEmail()
+      .setBody("test body")
+      .setSubject("test subject")
+      .setTo(testEmailAddress)
+      .setCc(testEmailAddress)
+      .setBcc(testEmailAddress)
+      .setReplyTo(testEmailAddress)
+      .send();
   }
 
   /**
