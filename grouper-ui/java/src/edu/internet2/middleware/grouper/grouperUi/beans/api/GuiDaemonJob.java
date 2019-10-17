@@ -42,8 +42,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.j2ee.status.DaemonJobStatus;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import net.redhogs.cronparser.CronExpressionDescriptor;
 
 /**
@@ -128,6 +130,16 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
    * additional information about change log jobs
    */
   private String changeLogInfo;
+  
+  /**
+   * overall status description
+   */
+  private String overallStatusDescription;
+  
+  /**
+   * overall status
+   */
+  private String overallStatus;
   
   /**
    * @param jobName
@@ -279,6 +291,31 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
           }
           
           this.setLastRunSummary(firstLoaderLog.getTotalCount() + " total records, " + firstLoaderLog.getInsertCount() + " inserts, " + firstLoaderLog.getDeleteCount() + " deletes, " + firstLoaderLog.getUpdateCount() + " updates");
+        }
+      }
+      
+      {
+        GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
+        int minutesSinceLastSuccess = DaemonJobStatus.getMinutesSinceLastSuccess(jobName, grouperLoaderType);
+        DaemonJobStatus daemonJobStatus = new DaemonJobStatus(jobName, minutesSinceLastSuccess);
+        boolean isSuccess = daemonJobStatus.isSuccess();
+        Long lastSuccess = daemonJobStatus.getLastSuccess();
+        
+        if (isSuccess) {
+          this.setOverallStatus("SUCCESS");
+          this.setOverallStatusDescription("Found a success on " + GrouperUtil.dateStringValue(lastSuccess)  + " in grouper_loader_log for job name: " + jobName + " which is within the threshold of " + minutesSinceLastSuccess + " minutes");
+        } else {
+          if (isEnabled) {
+            this.setOverallStatus("ERROR");
+          } else {
+            this.setOverallStatus("DISABLED");
+          }
+
+          if (lastSuccess == null) {
+            this.setOverallStatusDescription("Can't find a success in grouper_loader_log for job name: " + jobName);
+          } else {
+            this.setOverallStatusDescription("Found most recent success on " + GrouperUtil.dateStringValue(lastSuccess) + " in grouper_loader_log for job name: " + jobName + " which is NOT within the threshold of " + minutesSinceLastSuccess + " minutes");
+          }
         }
       }
       
@@ -574,5 +611,37 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
    */
   public void setChangeLogInfo(String changeLogInfo) {
     this.changeLogInfo = changeLogInfo;
+  }
+
+  
+  /**
+   * @return the overallStatusDescription
+   */
+  public String getOverallStatusDescription() {
+    return overallStatusDescription;
+  }
+
+  
+  /**
+   * @param overallStatusDescription the overallStatusDescription to set
+   */
+  public void setOverallStatusDescription(String overallStatusDescription) {
+    this.overallStatusDescription = overallStatusDescription;
+  }
+
+  
+  /**
+   * @return the overallStatus
+   */
+  public String getOverallStatus() {
+    return overallStatus;
+  }
+
+  
+  /**
+   * @param overallStatus the overallStatus to set
+   */
+  public void setOverallStatus(String overallStatus) {
+    this.overallStatus = overallStatus;
   }
 }
