@@ -99,7 +99,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * InternalSourceAdapter msa = new InternalSourceAdapter();
    * </pre>
    */
-  private InternalSourceAdapter() {
+  public InternalSourceAdapter() {
     super(InternalSourceAdapter.ID, InternalSourceAdapter.NAME);
   } // public InternalSourceAdapter()
 

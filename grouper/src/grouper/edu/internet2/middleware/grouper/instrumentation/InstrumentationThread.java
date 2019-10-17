@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -66,6 +67,9 @@ public class InstrumentationThread {
     
     executorService.execute(new Runnable() {
       public void run() {
+
+        GrouperStartup.waitForGrouperStartup();
+        
         GrouperSession rootSession = GrouperSession.startRootSession(true);
 
         try {
