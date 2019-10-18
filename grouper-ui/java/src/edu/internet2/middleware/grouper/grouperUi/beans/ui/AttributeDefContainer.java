@@ -529,13 +529,23 @@ public class AttributeDefContainer {
     this.guiAttributeAssigns = guiAttributeAssigns;
   }
   
-  
+  /**
+   * owners of this attribute def
+   */
   private GuiAttributeAssignFinderResults guiAttributeAssignFinderResults;
 
+  /**
+   * owners of this attribute def
+   * @return
+   */
   public GuiAttributeAssignFinderResults getGuiAttributeAssignFinderResults() {
     return guiAttributeAssignFinderResults;
   }
 
+  /**
+   * owners of this attribute def
+   * @param guiAttributeAssignFinderResults
+   */
   public void setGuiAttributeAssignFinderResults(GuiAttributeAssignFinderResults guiAttributeAssignFinderResults) {
     this.guiAttributeAssignFinderResults = guiAttributeAssignFinderResults;
   }

@@ -21,25 +21,26 @@
       <c:otherwise>
       
       <form class="form-inline form-small form-filter" id="attributeDefNameOwnersFilterFormId">
-      <div class="row-fluid">
-         <div class="span3" id="folderFilterForDiv">
-           <label id="folderFilterLabel" for="folder-filter">${textContainer.text['simpleAttributeUpdate.folderFilterLabel'] }</label>
+       <div class="row-fluid">
+         <div class="span2" id="filterDivId">
+           <label id="filterLabelId" for="filterId">${textContainer.text['simpleAttributeUpdate.filterLabel'] }</label>
          </div>
-         <div class="span5">
-           <grouper:combobox2 idBase="folderCombo" style="width: 30em" 
-             filterOperation="../app/UiV2Stem.createAttributeDefParentFolderFilter"
-             value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.objectStemId)}"
-           />
+         <div class="span4">
+           <input type="text" name="filter" id="filterId" class="span12" />
          </div>
          
-         <div class="span3" id="groupFilterSubmitDiv"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
-             onclick="ajax('../app/UiV2AttributeDefName.viewAttributeDefNameAssignedOwners?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}', {formIds: 'attributeDefNameOwnersFilterFormId, groupPagingFormId'}); return false;"> 
-           <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#custom-composite-filter').val('nothing'); $('#enabled-disabled-filter').val('nothing'); $('#pit-filter').val('no'); $('#pit-filter').trigger('change'); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
+         <div class="span3" id="groupFilterSubmitDiv">
+          <input type="submit" class="btn" id="filterSubmitId" aria-controls="attributeDefNameOwnersResultId"
+            value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
+             onclick="ajax('../app/UiV2AttributeDefName.viewAttributeDefNameAssignedOwners?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}', {formIds: 'attributeDefNameOwnersFilterFormId, attributeDefNameOwnersPagingFormId'}); return false;"> 
+           <a class="btn" role="button" onclick="$('#filterId').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
          </div>
          
        </div>
+       
        </form>
-      
+        
+        <div id="attributeDefNameOwnersResultId" role="region" aria-live="polite">
         <table class="table table-hover table-bordered table-striped table-condensed data-table">
              <thead>        
                <tr>
@@ -72,6 +73,9 @@
                      </c:when>
                      <c:when test="${not empty guiAttributeAssignFinderResult.ownerGuiMember}">
                        <td>${guiAttributeAssignFinderResult.ownerGuiMember.shortLinkWithIcon}</td>
+                     </c:when>
+                     <c:when test="${not empty guiAttributeAssignFinderResult.ownerGuiMembership}">
+                       <td>${guiAttributeAssignFinderResult.ownerGuiMembership.memebrship.ownerName}</td>
                      </c:when>
                      <c:otherwise>
                       <td></td>
@@ -138,6 +142,7 @@
                </c:forEach>
              </tbody>
            </table>
+           </div>
          
          <%-- attach a menu for each limit value --%>
          <grouper:menu menuId="assignmentValueMenu"

@@ -19,6 +19,30 @@
         ${textContainer.text['groupViewAttributeAssignsNoAssignedAttributes']}
       </c:when>
       <c:otherwise>
+
+      <form class="form-inline form-small form-filter" id="attributeDefOwnersFilterFormId">
+       
+       <div class="row-fluid">
+         <div class="span2" id="filterDivId">
+           <label id="filterLabelId" for="filterId">${textContainer.text['simpleAttributeUpdate.filterLabel'] }</label>
+         </div>
+         <div class="span4">
+           <input type="text" name="filter" id="filterId" class="span12" />
+         </div>
+         
+         <div class="span3" id="groupFilterSubmitDiv">
+          <input type="submit" class="btn" id="filterSubmitId" aria-controls="attributeDefOwnersResultId"
+            value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
+             onclick="ajax('../app/UiV2AttributeDef.viewAttributeDefAssignedOwners?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefOwnersFilterFormId, attributeDefOwnersPagingFormId'}); return false;">
+             <!-- onclick="ajax('../app/UiV2AttributeDef.viewAttributeDefAssignedOwners&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefOwnersFilterFormId, attributeDefOwnersPagingFormId'}); return false;"> --> 
+           <a class="btn" role="button" onclick="$('#filterId').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
+         </div>
+         
+       </div>
+       
+       </form>
+        
+      <div id="attributeDefOwnersResultId" role="region" aria-live="polite">
         <table class="table table-hover table-bordered table-striped table-condensed data-table">
              <thead>        
                <tr>
@@ -51,6 +75,9 @@
                      </c:when>
                      <c:when test="${not empty guiAttributeAssignFinderResult.ownerGuiMember}">
                        <td>${guiAttributeAssignFinderResult.ownerGuiMember.shortLinkWithIcon}</td>
+                     </c:when>
+                     <c:when test="${not empty guiAttributeAssignFinderResult.ownerGuiMembership}">
+                       <td>${guiAttributeAssignFinderResult.ownerGuiMembership.memebrship.ownerName}</td>
                      </c:when>
                      <c:otherwise>
                       <td></td>
@@ -117,12 +144,17 @@
                </c:forEach>
              </tbody>
            </table>
-         
+         </div>
          <%-- attach a menu for each limit value --%>
          <grouper:menu menuId="assignmentValueMenu"
            operation="UiV2AttributeDef.assignmentValueMenu"
            structureOperation="UiV2AttributeDef.assignmentValueMenuStructure" 
            contextZoneJqueryHandle=".assignmentValueButton" contextMenu="true" />
+         
+         <div class="data-table-bottom gradient-background">
+           <grouper:paging2 guiPaging="${grouperRequestContainer.attributeDefContainer.guiPaging}" formName="attributeDefOwnersPagingForm"
+             refreshOperation="../app/UiV2AttributeDef.viewAttributeDefAssignedOwners?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" />
+         </div>
       
       </c:otherwise>
     </c:choose>

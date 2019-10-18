@@ -21,8 +21,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class AttributeDefNameContainer {
   
+  /**
+   * gui version of attribute def name user is working on
+   */
   private GuiAttributeDefName guiAttributeDefName;
   
+  /**
+   * owners of this attribute def name
+   */
   private GuiAttributeAssignFinderResults guiAttributeAssignFinderResults;
   
   /**
@@ -31,10 +37,18 @@ public class AttributeDefNameContainer {
   private GuiPaging guiPaging = null;
   
 
+  /**
+   * gui version of attribute def name user is working on
+   * @return
+   */
   public GuiAttributeDefName getGuiAttributeDefName() {
     return guiAttributeDefName;
   }
 
+  /**
+   * gui version of attribute def name user is working on
+   * @param guiAttributeDefName
+   */
   public void setGuiAttributeDefName(GuiAttributeDefName guiAttributeDefName) {
     this.guiAttributeDefName = guiAttributeDefName;
   }
@@ -71,14 +85,26 @@ public class AttributeDefNameContainer {
     return this.favorite;
   }
 
+  /**
+   * owners of this attribute def name
+   * @return
+   */
   public GuiAttributeAssignFinderResults getGuiAttributeAssignFinderResults() {
     return guiAttributeAssignFinderResults;
   }
 
+  /**
+   * owners of this attribute def name
+   * @param guiAttributeAssignFinderResults
+   */
   public void setGuiAttributeAssignFinderResults(GuiAttributeAssignFinderResults guiAttributeAssignFinderResults) {
     this.guiAttributeAssignFinderResults = guiAttributeAssignFinderResults;
   }
 
+  /**
+   * keep track of the paging
+   * @return
+   */
   public GuiPaging getGuiPaging() {
     
     if (this.guiPaging == null) {
@@ -87,6 +113,10 @@ public class AttributeDefNameContainer {
     return this.guiPaging;
   }
 
+  /**
+   * keep track of the paging
+   * @param guiPaging
+   */
   public void setGuiPaging(GuiPaging guiPaging) {
     this.guiPaging = guiPaging;
   }

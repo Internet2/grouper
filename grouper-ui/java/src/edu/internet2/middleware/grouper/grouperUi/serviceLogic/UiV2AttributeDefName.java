@@ -776,8 +776,7 @@ public class UiV2AttributeDefName {
     final AttributeDefNameContainer attributeDefNameContainer = grouperRequestContainer.getAttributeDefNameContainer();
     attributeDefNameContainer.setGuiAttributeDefName(new GuiAttributeDefName(attributeDefName));
     
-    // final String folderId = request.getParameter("folderComboName");
-    
+    final String filter = request.getParameter("filter");
     
     //switch over to admin so attributes work
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -785,19 +784,17 @@ public class UiV2AttributeDefName {
       @Override
       public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
         
-        // Stem stem = StemFinder.findByUuid(rootGrouperSession, folderId, true);
-        
         GuiPaging guiPaging = attributeDefNameContainer.getGuiPaging();
         QueryOptions queryOptions = new QueryOptions();
         
         GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
-        
         
         AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinder()
             .addAttributeDefNameId(attributeDefName.getId())
             .assignIncludeAssignmentsOnAssignments(true) //if first level
             .assignRetrieveValues(true) // get values
             .assignQueryOptions(queryOptions)
+            .assignFilter(filter)
             .findAttributeAssignFinderResults();
         
         GuiAttributeAssignFinderResults guiAttributeAssignFinderResults = new GuiAttributeAssignFinderResults(attributeAssignFinderResults);
