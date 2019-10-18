@@ -2033,7 +2033,7 @@ public class UiV2AttributeDef {
       public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
         
         GuiPaging guiPaging = attributeDefContainer.getGuiPaging();
-        QueryOptions queryOptions = new QueryOptions();
+        QueryOptions queryOptions = new QueryOptions().sortAsc("displayExtension");
         
         GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
         
