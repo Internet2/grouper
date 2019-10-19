@@ -71,6 +71,24 @@ public class GrouperStartup {
 
   /**
    * 
+   */
+  public static void waitForGrouperStartup() {
+    int i=0;
+    for (i=0;i<100000;i++) {
+      if (GrouperStartup.isFinishedStartupSuccessfully()) {
+        return;
+      }
+      GrouperUtil.sleep(1000);
+      if (i>300) {
+        LOG.error("Why is grouper not started up yet? " + i);
+      }
+    }
+    LOG.error("Grouper never started up successfully!!!! " + i );
+    throw new RuntimeException("Grouper never started up successfully!!!! " + i);
+  }
+  
+  /**
+   * 
    * @param args
    */
   public static void main(String[] args) {
@@ -293,9 +311,9 @@ public class GrouperStartup {
 //          }
 //        }
 
-        //add in custom sources
-        SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
-        SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
+//        //add in custom sources.  
+//        SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
+//        SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
         
         if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
           

@@ -79,6 +79,14 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   /** if this is a multipart form which accesses parameters differently */
   boolean multipart;
   
+  /**
+   * if is multipart request
+   * @return
+   */
+  public boolean isMultipart() {
+    return this.multipart;
+  }
+  
     /**
    * @see javax.servlet.ServletRequestWrapper#getAttribute(java.lang.String)
    */

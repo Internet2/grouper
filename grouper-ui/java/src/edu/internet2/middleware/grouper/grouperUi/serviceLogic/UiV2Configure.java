@@ -1,10 +1,14 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +16,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
@@ -42,6 +47,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
+import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -183,6 +189,26 @@ public class UiV2Configure {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+  
+  /**
+   * edit config submit
+   * @param request
+   * @param response
+   */
+  public void configurationFileItemEditSubmit(final HttpServletRequest request, HttpServletResponse response) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    boolean success = configurationFileAddEditHelper(request, response);
+        
+    if (success) {
+      buildConfigFileAndMetadata();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/configure/configure.jsp"));
+
+    }
+
+  }
 
   /**
    * add config submit
@@ -190,6 +216,25 @@ public class UiV2Configure {
    * @param response
    */
   public void configurationFileAddConfigSubmit(final HttpServletRequest request, HttpServletResponse response) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    boolean success = configurationFileAddEditHelper(request, response);
+        
+    if (success) {
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+        "/WEB-INF/grouperUi2/configure/configurationFileAddEntry.jsp"));
+    }
+
+  }
+
+  /**
+   * 
+   * @param request
+   * @param response
+   * @return true if success
+   */
+  private boolean configurationFileAddEditHelper(final HttpServletRequest request, HttpServletResponse response) {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -199,7 +244,7 @@ public class UiV2Configure {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       if (!allowedToViewConfiguration()) {
-        return;
+        return false;
       }
       
       boolean success = (Boolean)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
@@ -208,42 +253,9 @@ public class UiV2Configure {
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
 
-          GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
-          ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
-
           String configFileString = request.getParameter("configFile");
-          ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
-          configurationContainer.setConfigFileName(configFileName);
-          
-          // if not sent, thats a problem
-          if (StringUtils.isBlank(configFileString)) {
-            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#configFileSelect", 
-                TextContainer.retrieveFromRequest().getText().get("configurationFileRequired")));
-            return false;
-          }
-          
           String propertyNameString = StringUtils.trim(request.getParameter("propertyNameName"));
-          if (StringUtils.isBlank(propertyNameString)) {
-            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#propertyNameId", 
-                TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyNameRequired")));
-            return false;
-          }
-          
-          if (propertyNameString.endsWith(".elConfig")) {
-            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#propertyNameId", 
-                TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyNameElConfig")));
-            return false;
-          }
-          
           String expressionLanguageString = request.getParameter("expressionLanguageName");
-          if (StringUtils.isBlank(expressionLanguageString)) {
-            throw new RuntimeException("Expression language should never be null!");
-          }
-          boolean isExpressionLanguage = GrouperUtil.booleanValue(expressionLanguageString);
-
-          String propertyNameToUse = isExpressionLanguage ? (propertyNameString + ".elConfig") : propertyNameString;
-          
           String valueString = request.getParameter("valueName");
           // this could be blank I guess
 //          if (StringUtils.isBlank(valueString)) {
@@ -251,7 +263,6 @@ public class UiV2Configure {
 //                TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyValueRequired")));
 //            return false;
 //          }
-
           String passwordString = request.getParameter("passwordName");
           
           // if not sent, thats a problem
@@ -265,78 +276,29 @@ public class UiV2Configure {
           if (isPassword) {
             valueString = request.getParameter("passwordValueName");
           }
-          
+
           StringBuilder message = new StringBuilder();
           
-          GrouperConfigHibernate[] grouperConfigHibernateToReturn = new GrouperConfigHibernate[1];
-
-          // standard validation
-          if (!ConfigUtils.validateConfigEdit(configurationContainer, configFileName, propertyNameString, 
-              valueString, isExpressionLanguage, message, grouperConfigHibernateToReturn)) {
-            
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message.toString()));
-
-            return false;
-          }
+          Boolean[] added = new Boolean[1];
+          Boolean[] error = new Boolean[1];
           
-          GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateToReturn[0];
+          boolean result = configurationFileAddEditHelper2(configFileString, propertyNameString,
+              expressionLanguageString, valueString, isPassword, message, added, error);
 
-          // see if we are creating a new one
-          if (grouperConfigHibernate == null) {
-            grouperConfigHibernate = new GrouperConfigHibernate();
-          }
+          GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-          grouperConfigHibernate.setConfigEncrypted(false);
-          grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
-          grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
-          // this will switch to or from .elConfig
-          grouperConfigHibernate.setConfigKey(propertyNameToUse);
-          
-          boolean isValueEncrypted = ConfigUtils.isPassword(configFileName, null, propertyNameString, valueString, true, isPassword);
-          
-          if (isValueEncrypted) {
-            grouperConfigHibernate.setConfigEncrypted(true);
-            valueString = Morph.encrypt(valueString);
-          }
-          grouperConfigHibernate.setConfigValue(valueString);
-          grouperConfigHibernate.saveOrUpdate();
+          guiResponseJs.addAction(GuiScreenAction.newMessage((added[0] != null && error[0] == null) ? GuiMessageType.success : ((error[0] == null || !error[0]) ? GuiMessageType.info : GuiMessageType.error), message.toString()));
+          ConfigPropertiesCascadeBase.clearCache();
 
-          message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesAdded")).append("<br />");
-
-//          # when property is in another file
-//          configurationFilesEdited = Success: the property existed and was changed and saved
-//
-//          # when property is in another file
-//          configurationFilesEditedNotChanged = Note: the property existed and the value was not changed
-
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, message.toString()));
-          
-          String valueForAudit = isValueEncrypted ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
-          
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CONFIGURATION_ADD, "id", 
-              grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
-              "key", grouperConfigHibernate.getConfigKey(), "value", 
-              valueForAudit, "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
-          auditEntry.setDescription("Add config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
-            + ", " + grouperConfigHibernate.getConfigKey() + " = " + valueForAudit);
-          auditEntry.saveOrUpdate(true);
-
-          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-              "/WEB-INF/grouperUi2/configure/configurationFileAddEntry.jsp"));
-
-          return true;
+          return result;
         }
       });
-      
-      if (success) {
-        ConfigPropertiesCascadeBase.clearCache();
-      }
-
+      return success;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
-
+  
   /**
    * add config
    * @param request
@@ -366,6 +328,35 @@ public class UiV2Configure {
   
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/configure/configurationFileAddEntry.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
+   * import config
+   * @param request
+   * @param response
+   */
+  public void configurationFileImport(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/configure/configurationFileImport.jsp"));
     
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -464,14 +455,21 @@ public class UiV2Configure {
               grouperConfigHibernateEl = current;
             }
           }
-
+          boolean deleted = false;
           if (grouperConfigHibernate != null) {
+            configurationContainer.setCurrentConfigPropertyName(grouperConfigHibernate.getConfigKey());
             configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName);
+            deleted = true;
           }
           if (grouperConfigHibernateEl != null) {
+            configurationContainer.setCurrentConfigPropertyName(grouperConfigHibernateEl.getConfigKey());
             configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName);
+            deleted = true;
           }
-
+          if (!deleted) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+                TextContainer.retrieveFromRequest().getText().get("configurationFilesDeletedNotChanged")));
+          }
           return true;
         }
       });
@@ -695,13 +693,22 @@ public class UiV2Configure {
       if (StringUtils.isBlank(propertyNameString)) {
         throw new RuntimeException("Property name does not exist");
       }
-          
+      configurationContainer.setCurrentConfigPropertyName(propertyNameString);
+
+      buildConfigFileAndMetadata();
+      
+      GuiConfigFile guiConfigFile = configurationContainer.getGuiConfigFile();
+      
+      GuiConfigProperty guiConfigProperty = guiConfigFile.findGuiConfigProperty(propertyNameString, true);
+
+      configurationContainer.setCurrentGuiConfigProperty(guiConfigProperty);
+      
       Integer index = GrouperUtil.intObjectValue(request.getParameter("index"), true);
       if (StringUtils.isBlank(propertyNameString)) {
         throw new RuntimeException("Index does not exist");
       }
       // hide existing edit forms
-      guiResponseJs.addAction(GuiScreenAction.newScript("$('.configFormRow').hide('slow');"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('.configFormRow').hide('slow');$('.configFormRow').remove()"));
       
       // add a row
       guiResponseJs.addAction(GuiScreenAction.newScript("$('#row_" + index + "').after(\"<tr class='configFormRow' id='configFormRowId_" + index + "'></tr>\");"));
@@ -709,10 +716,304 @@ public class UiV2Configure {
       // replace the inner html of the row with this jsp
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#configFormRowId_" + index , "/WEB-INF/grouperUi2/configure/configurationFileEditEntry.jsp"));
     
+      //guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#row_" + index + "');"));
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+
+  /**
+   * import config submit
+   * @param request
+   * @param response
+   */
+  public void configurationFileImportSubmit(final HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    StringBuilder message = new StringBuilder();
+
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+      
+      if (!grouperRequestWrapper.isMultipart()) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupImportUploadFile",
+            TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileRequired")));
+        return;
+      }
+      
+      FileItem importConfigFile = grouperRequestWrapper.getParameterFileItem("importConfigFile");
+
+      if (importConfigFile == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupImportUploadFile",
+            TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileRequired")));
+        return;
+      }
+      
+      Reader reader = null;
+      Properties propertiesToImport = new Properties();
+      
+      String fileName = StringUtils.defaultString(importConfigFile == null ? "" : importConfigFile.getName());
+
+      // load properties from file
+      try {
+        reader = new InputStreamReader(importConfigFile.getInputStream());
+        
+        
+        propertiesToImport.load(reader);
+
+      } catch (Exception e) {
+        throw new RuntimeException("Cant process config import: '" + fileName + "'", e);
+      } finally {
+        GrouperUtil.closeQuietly(reader);
+      }
+      
+      ConfigFileName configFileName = null;
+      
+      try {
+        configFileName = ConfigFileName.valueOfIgnoreCase(fileName, false);
+      } catch (Exception e) {
+        // ignore
+      }
+      
+      if (configFileName == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupImportUploadFile",
+            TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileNotValid")));
+        return;
+      }
+      
+      configurationContainer.setConfigFileName(configFileName);
+      
+      int countAdded = 0;
+      int countUpdated = 0;
+      int countProperties = 0;
+      int countSuccess = 0;
+      int countUnchanged = 0;
+      int countError = 0;
+      int countWarning = 0;
+
+      Boolean[] added = new Boolean[1];
+      Boolean[] error = new Boolean[1];
+      try {
+        for (Object keyObject : propertiesToImport.keySet()) {
+          
+          countProperties++;
+          String key = (String)keyObject;
+          String value = propertiesToImport.getProperty(key);
+
+          configurationFileAddEditHelper2(configFileName.name(), key, Boolean.toString(key.endsWith(".elConfig")), value, null, message, added, error);
+          
+          // added (first index) will be true if added, false if updated, and null if no change
+          if (added[0] == null) {
+            countUnchanged++;
+          } else if (added[0]) {
+            countAdded++;
+          } else {
+            countUpdated++;
+          }
+          
+          //fatalError true if fatal error, false if non fatal error, null if no error
+          if (error[0] == null) {
+            if (added[0] != null) {
+              countSuccess++;
+            }
+          } else if (error[0]) {
+            countError++;
+          } else {
+            countWarning++;
+          }
+          
+        }
+      } catch (Exception e) {
+        LOG.error("Error in import: " + fileName, e);
+        message.append(ExceptionUtils.getFullStackTrace(e));
+      }
+
+      configurationContainer.setCountAdded(countAdded);
+      configurationContainer.setCountUpdated(countUpdated);
+      configurationContainer.setCountProperties(countProperties);
+      configurationContainer.setCountSuccess(countSuccess);
+      configurationContainer.setCountUnchanged(countUnchanged);
+      configurationContainer.setCountError(countError);
+      configurationContainer.setCountWarning(countWarning);
+
+      // put this at the beginning
+      message.insert(0, TextContainer.retrieveFromRequest().getText().get("configurationFilesImportSummary") + "<br />");
+
+      ConfigPropertiesCascadeBase.clearCache();
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+    buildConfigFileAndMetadata();
+
+    guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Configure.configure&configFile=" + configurationContainer.getConfigFileName().name() + "')"));
+
+    boolean success = configurationContainer.getCountSuccess() > 0 && configurationContainer.getCountWarning() == 0 && configurationContainer.getCountError() == 0;
+    boolean error = configurationContainer.getCountWarning() > 0 || configurationContainer.getCountError() > 0;
+
+    guiResponseJs.addAction(GuiScreenAction.newMessage(success ? GuiMessageType.success : (error ? GuiMessageType.error : GuiMessageType.info), message.toString()));
+
+  }
+
+  /**
+   * 
+   * @param configFileString
+   * @param propertyNameString
+   * @param expressionLanguageString
+   * @param valueString
+   * @param userSelectedPassword
+   * @param message
+   * @param added (first index) will be true if added, false if updated, and null if no change
+   * @param error true if fatal error, false if warning, null if no error
+   * @return true if ok, false if not
+   */
+  private static boolean configurationFileAddEditHelper2(String configFileString, String propertyNameString,
+      String expressionLanguageString, String valueString, Boolean userSelectedPassword,
+      StringBuilder message, Boolean[] added, Boolean[] error) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+    ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+    configurationContainer.setConfigFileName(configFileName);
+    
+    // if not sent, thats a problem
+    if (StringUtils.isBlank(configFileString)) {
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#configFileSelect", 
+          TextContainer.retrieveFromRequest().getText().get("configurationFileRequired")));
+      return false;
+    }
+    
+    if (StringUtils.isBlank(propertyNameString)) {
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#propertyNameId", 
+          TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyNameRequired")));
+      return false;
+    }
+    
+    if (StringUtils.isBlank(expressionLanguageString)) {
+      throw new RuntimeException("Expression language should never be null!");
+    }
+    boolean isExpressionLanguage = GrouperUtil.booleanValue(expressionLanguageString);
+
+    if (propertyNameString.endsWith(".elConfig") && !isExpressionLanguage) {
+      
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#propertyNameId", 
+          TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyNameElConfig")));
+      return false;
+    }
+    
+    valueString = valueString == null ? null : StringUtils.trim(valueString);
+
+    String propertyNameToUse = (isExpressionLanguage && !propertyNameString.endsWith(".elConfig")) ? (propertyNameString + ".elConfig") : propertyNameString;
+    
+    configurationContainer.setCurrentConfigPropertyName(propertyNameToUse);
+    
+    GrouperConfigHibernate[] grouperConfigHibernateToReturn = new GrouperConfigHibernate[1];
+
+    // standard validation
+    if (!ConfigUtils.validateConfigEdit(configurationContainer, configFileName, propertyNameString, 
+        valueString, isExpressionLanguage, message, grouperConfigHibernateToReturn)) {
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message.toString()));
+      
+      error[0] = true;
+      
+      return false;
+    }
+    
+    GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateToReturn[0];
+
+    boolean isPassword = ConfigUtils.isPassword(configFileName, null, propertyNameString, valueString, true, userSelectedPassword);
+    
+    boolean isAlreadyEncrypted = false;
+    if (!StringUtils.isBlank(valueString)) {
+      try {
+        Morph.decrypt(valueString);
+        isAlreadyEncrypted = true;
+      } catch (Exception e) {
+        // ignore
+      }
+    }
+
+    if (isPassword || isAlreadyEncrypted) {
+      
+      grouperConfigHibernate.setConfigEncrypted(true);
+      if (!isAlreadyEncrypted) {
+        valueString = Morph.encrypt(valueString);
+      }
+    }
+    
+    // see if we are creating a new one
+    if (grouperConfigHibernate == null) {
+      grouperConfigHibernate = new GrouperConfigHibernate();
+      added[0] = true;
+    } else {
+      
+      if (StringUtils.equals(valueString, grouperConfigHibernate.getConfigValueDb())) {
+        added[0] = null;
+      } else {
+        added[0] = false;
+      }
+    }
+
+    grouperConfigHibernate.setConfigEncrypted(isPassword || isAlreadyEncrypted);
+    grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
+    grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
+    // this will switch to or from .elConfig
+    grouperConfigHibernate.setConfigKey(propertyNameToUse);
+    
+    grouperConfigHibernate.setConfigValue(valueString);
+    if (added[0] != null) {
+      grouperConfigHibernate.saveOrUpdate();
+    }
+    
+    if (added[0] == null) {
+      message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesEditedNotChanged")).append("<br />");
+    } else if (added[0]) {
+      message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesAdded")).append("<br />");
+    } else {
+      message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesEdited")).append("<br />");
+    }
+
+    String valueForAudit = grouperConfigHibernate.isConfigEncrypted() ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
+    if (added[0] != null) {
+
+      AuditTypeBuiltin auditTypeBuiltin = added[0] ? AuditTypeBuiltin.CONFIGURATION_ADD : AuditTypeBuiltin.CONFIGURATION_UPDATE;
+      
+      AuditEntry auditEntry = new AuditEntry(auditTypeBuiltin, "id", 
+          grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
+          "key", grouperConfigHibernate.getConfigKey(), "value", 
+          valueForAudit, "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
+      
+      auditEntry.setDescription((added[0] ? "Add" : "Update") + " config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
+        + ", " + grouperConfigHibernate.getConfigKey() + " = " + valueForAudit);
+      auditEntry.saveOrUpdate(true);
+    }
+    
+    return true;
+
   }
 
   /**

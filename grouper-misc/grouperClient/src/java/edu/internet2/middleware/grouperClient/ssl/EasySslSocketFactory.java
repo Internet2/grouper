@@ -29,10 +29,10 @@ import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import com.sun.net.ssl.SSLContext;
-import com.sun.net.ssl.TrustManager;
-import com.sun.net.ssl.TrustManagerFactory;
-import com.sun.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.ConnectTimeoutException;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.HttpConnectionParams;
@@ -141,43 +141,46 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.p
       }
 
       /**
-       * @see com.sun.net.ssl.X509TrustManager#isClientTrusted(X509Certificate[])
+     * @see javax.net.ssl.X509TrustManager#getAcceptedIssuers()
+     */
+    @Override
+    public X509Certificate[] getAcceptedIssuers() {
+      return this.standardTrustManager.getAcceptedIssuers();
+    }
+
+    /**
+     * @see javax.net.ssl.X509TrustManager#checkClientTrusted(java.security.cert.X509Certificate[], java.lang.String)
        */
-      public boolean isClientTrusted(X509Certificate[] certificates) {
-        return this.standardTrustManager.isClientTrusted(certificates);
+    @Override
+    public void checkClientTrusted(X509Certificate[] chain, String authType)
+        throws CertificateException {
+      this.standardTrustManager.checkClientTrusted(chain, authType);
       }
 
       /**
-       * @see com.sun.net.ssl.X509TrustManager#isServerTrusted(X509Certificate[])
+     * @see javax.net.ssl.X509TrustManager#checkServerTrusted(java.security.cert.X509Certificate[], java.lang.String)
        */
-      public boolean isServerTrusted(X509Certificate[] certificates) {
-        if ((certificates != null) && (certificates.length == 1)) {
-          X509Certificate certificate = certificates[0];
+    @Override
+    public void checkServerTrusted(X509Certificate[] chain, String authType)
+        throws CertificateException {
+      if ((chain != null) && (chain.length == 1)) {
+        X509Certificate certificate = chain[0];
 
-          try {
             certificate.checkValidity();
-          } catch (CertificateException e) {
-            return false;
           }
 
-          return true;
-        }
-        return this.standardTrustManager.isServerTrusted(certificates);
-      }
-
-      /**
-       * @see com.sun.net.ssl.X509TrustManager#getAcceptedIssuers()
-       */
-      public X509Certificate[] getAcceptedIssuers() {
-        return this.standardTrustManager.getAcceptedIssuers();
+      this.standardTrustManager.checkClientTrusted(chain, authType);
       }
     }
 
     /**
      * @see org.apache.commons.httpclient.protocol.ProtocolSocketFactory#createSocket(java.lang.String, int, java.net.InetAddress, int, org.apache.commons.httpclient.params.HttpConnectionParams)
      */
-    public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort, HttpConnectionParams arg4) throws IOException, UnknownHostException, ConnectTimeoutException {
-      Socket socket = getEasySSLSocketFactory().createSocket(host, port, clientHost, clientPort);
+  public Socket createSocket(String host, int port, InetAddress clientHost,
+      int clientPort, HttpConnectionParams arg4)
+      throws IOException, UnknownHostException, ConnectTimeoutException {
+    Socket socket = getEasySSLSocketFactory().createSocket(host, port, clientHost,
+        clientPort);
 
       return socket;
     }

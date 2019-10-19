@@ -1,45 +1,21 @@
+  <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+  
   <td colspan="4" style="vertical-align: top">
-            <div class="row-fluid" id="configurationMainDivId">
+            <div class="row-fluid">
             
               <div id="configuration-select-container">
-               <form id="configurationSelectForm" class="form-horizontal" method="post" action="UiV2Configure.configure" >
-                 <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationSelectConfigFile'] }</label>
-                   <div class="controls">
-                     <%-- --%>
-                     <select id="configFileSelect" class="span4" name="configFile" 
-                            >
-                        <option value=""></option>
-                        <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_CACHE_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_CACHE_PROPERTIES">grouper.cache.properties</option>
-                        <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_CLIENT_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_CLIENT_PROPERTIES">grouper.client.properties</option>
-                        <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_LOADER_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_LOADER_PROPERTIES">grouper-loader.properties</option>
-                        <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_PROPERTIES">grouper.properties</option>
-                        <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_UI_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_UI_PROPERTIES">grouper-ui.properties</option>
-                        <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_WS_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_WS_PROPERTIES">grouper-ws.properties</option>
-                        <option ${grouperRequestContainer.configurationContainer.configFileName == 'SUBJECT_PROPERTIES' ? 'selected="selected"' : '' } value="SUBJECT_PROPERTIES">subject.properties</option>
-                     </select>
-                     
-                     <span class="help-block">${textContainer.text['configurationFilesAddEntrySelectConfigFileDescription'] }</span>
-                   
-                   </div>
-                 </div>
-                 
-                 <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryPropertyName'] }</label>
-                   <div class="controls">
-                     <input type="text" id="propertyNameId" class="span6" name="propertyNameName" />
-                     
-                     <span class="help-block">${textContainer.text['configurationFilesAddEntryPropertyNameDescription'] }</span>
-                   
-                   </div>
-                 </div>
+               <form id="configurationEditForm" class="form-horizontal" method="post" action="UiV2Configure.configure" >
+                 <input type="hidden" name="configFile" value="${grouperRequestContainer.configurationContainer.configFileName}" />
+                 <input type="hidden" name="propertyNameName" value="${grouperRequestContainer.configurationContainer.currentConfigPropertyName}" />
 
                  <div class="control-group">
                    <label class="control-label">${textContainer.text['configurationFilesAddEntryExpressionLanguage'] }</label>
                    <div class="controls">
                      <select id="expressionLanguageId" class="span6" name="expressionLanguageName">
-                       <option value="false">${textContainer.text['configurationFilesAddEntryExpressionLanguageFalse'] }</option>
-                       <option value="true">${textContainer.text['configurationFilesAddEntryExpressionLanguageTrue'] }</option>
+                       <option value="false" ${!grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptlet ? 'selected="selected"' : '' } 
+                          >${textContainer.text['configurationFilesAddEntryExpressionLanguageFalse'] }</option>
+                       <option value="true"  ${grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptlet ? 'selected="selected"' : '' }
+                          >${textContainer.text['configurationFilesAddEntryExpressionLanguageTrue'] }</option>
                      
                      </select>
                      
@@ -47,19 +23,46 @@
                    
                    </div>
                  </div>
-
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
+                   <label class="control-label">${textContainer.text['configurationFilesAddEntryPasswordLabel'] }</label>
                    <div class="controls">
-                     <input type="text" id="valueId" class="span6" name="valueName" />
+                     <select id="passwordId" class="span6" name="passwordName" onchange="return ajax('../app/UiV2Configure.configurationFileSelectPassword', {formIds: 'configurationEditForm'}); return false;">
+                       <option value="false" ${!grouperRequestContainer.configurationContainer.currentGuiConfigProperty.encryptedInDatabase ? 'selected="selected"' : '' }
+                         >${textContainer.text['configurationFilesAddEntryPasswordFalse'] }</option>
+                       <option value="true" ${grouperRequestContainer.configurationContainer.currentGuiConfigProperty.encryptedInDatabase ? 'selected="selected"' : '' }
+                         >${textContainer.text['configurationFilesAddEntryPasswordTrue'] }</option>
                      
-                     <span class="help-block">${textContainer.text['configurationFilesAddEntryValueDescription'] }</span>
+                     </select>
+                     
+                     <span class="help-block">${textContainer.text['configurationFilesAddEntryPasswordDescription'] }</span>
                    
                    </div>
                  </div>
+                <div class="control-group" id="passwordValueDivId" 
+                   style="display: ${grouperRequestContainer.configurationContainer.currentGuiConfigProperty.encryptedInDatabase ? 'block' : 'none'}">
+                 <label class="control-label">${textContainer.text['configurationFilesAddEntryPasswordFieldLabel'] }</label>
+                 <div class="controls">
+                   <input type="password" id="passwordValueId" class="span6" name="passwordValueName" />
+                   
+                   <span class="help-block">${textContainer.text['configurationFilesAddEntryPasswordFieldDescription'] }</span>
+                 
+                 </div>
+               </div>
+               <div class="control-group" id="valueDivId" 
+                   style="display: ${!grouperRequestContainer.configurationContainer.currentGuiConfigProperty.encryptedInDatabase ? 'block' : 'none'}">
+                 <label class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
+                 <div class="controls">
+                   <input type="text" id="valueId" class="span6" name="valueName" 
+                     value="${grouper:escapeJavascript(grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptlet ?
+                         grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptletForUi : 
+                         grouperRequestContainer.configurationContainer.currentGuiConfigProperty.propertyValue)}" />
+                   <span class="help-block">${textContainer.text['configurationFilesAddEntryValueDescription'] }</span>
+                 
+                 </div>
+               </div>
 
-                 <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Configure.configurationFileAddConfigSubmit', {formIds: 'configurationSelectForm'}); return false;">${textContainer.text['configurationFilesAddEntrySubmit'] }</a> 
-                 <a href="#" onclick="return guiV2link('operation=UiV2Configure.configure&configFile=${grouperRequestContainer.configurationContainer.configFileName}');" class="btn btn-cancel">${textContainer.text['configurationFilesAddEntryCancel'] }</a></div>
+                 <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Configure.configurationFileItemEditSubmit', {formIds: 'configurationEditForm'}); return false;">${textContainer.text['configurationFilesAddEntrySubmit'] }</a> 
+                 <a href="#" onclick="$('.configFormRow').hide('slow');$('.configFormRow').remove();return false;" class="btn btn-cancel">${textContainer.text['configurationFilesAddEntryCancel'] }</a></div>
 
                 </form>
              

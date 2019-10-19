@@ -165,7 +165,8 @@ public class GrouperContext {
     
     GrouperContext grouperInnerContext = currentInnerContext.get();
     if (grouperInnerContext == null) {
-      throw new NullPointerException("grouperInnerContext is null, was it not started?");
+      LOG.debug("grouperInnerContext is null, was it not started?");
+      return;
     }
     auditEntry.setContextId(grouperInnerContext.getContextId());
     //divide nanos by 1000 to get micros

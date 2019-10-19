@@ -152,7 +152,7 @@ public class GuiConfigProperty {
   }
   
   /**
-   * config type
+   * config type, text, group, etc.  ConfigItemMetadataType
    * @return if has type
    */
   public String getType() {
@@ -341,6 +341,14 @@ public class GuiConfigProperty {
     return this.encryptedInDatabase;
   }
 
+  /**
+   * if this is in the database
+   * @return true if from database
+   */
+  public boolean isFromDatabase() {
+    return "database".equals(this.getValueFromWhere());
+  }
+  
   /**
    * if encrypted in database dont show it
    * @param encryptedInDatabase1 the encryptedInDatabase to set

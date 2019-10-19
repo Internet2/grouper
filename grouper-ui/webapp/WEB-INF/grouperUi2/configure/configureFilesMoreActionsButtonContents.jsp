@@ -16,6 +16,10 @@
                             <li><a href="#" 
                             onclick="return guiV2link('operation=UiV2Configure.configurationFileAddConfig', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
                             >${textContainer.text['configurationFilesMenuAddConfig'] }</a></li>
+                            <li><a href="#" 
+                            onclick="return guiV2link('operation=UiV2Configure.configurationFileImport', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
+                            >${textContainer.text['configurationFilesMenuImport'] }</a></li>
+
                       </ul>
                     </div>
 

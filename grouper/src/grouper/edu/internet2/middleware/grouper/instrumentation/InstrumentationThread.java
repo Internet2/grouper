@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -66,9 +67,14 @@ public class InstrumentationThread {
     
     executorService.execute(new Runnable() {
       public void run() {
-        GrouperSession rootSession = GrouperSession.startRootSession(true);
+
+        GrouperSession rootSession = null;
 
         try {
+          GrouperStartup.waitForGrouperStartup();
+          
+          rootSession = GrouperSession.startRootSession(true);
+          
           File instanceFile = getInstanceFile(grouperEngineIdentifier);
           
           if (instanceFile == null) {
@@ -164,6 +170,9 @@ public class InstrumentationThread {
               LOG.warn("Non fatal error while touching file " + instanceFile.getAbsolutePath() + " for the purposes of making sure the file doesn't get cleaned up by the system.");
             }
           }
+        } catch (RuntimeException re) {
+          LOG.error("error in thread", re);
+          throw re;
         } finally {
           GrouperSession.stopQuietly(rootSession);
         }
