@@ -85,9 +85,6 @@ public class MessageConsumerDaemonTest extends GrouperTest {
   
   public void testProcessMessagesHappyPath() throws Exception {
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.ws.url", 
-        "http://localhost:8085/grouper-ws");
-    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.ws.username", 
         "GrouperSystem");
 
@@ -110,7 +107,10 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     FakeHttpServer httpServer = new FakeHttpServer();
     httpServer.launchHttpServer();
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.fake-config-name.ws.url", "http://localhost:8085");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.ws.url", 
+        "http://localhost:"+httpServer.port+"/grouper-ws");
+        
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.fake-config-name.ws.url", "http://localhost:"+httpServer.port);
     
     daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, "queue", "test-queue-name", grouperMessages, "fake-config-name");
     
@@ -149,12 +149,13 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     
     Server httpServer = null;
     
+    public int port;
+    
     void launchHttpServer() throws Exception {
-      httpServer = new Server(8085);
+      httpServer = new Server(0);
       
       SelectChannelConnector connector = new SelectChannelConnector();
       connector.setReuseAddress(true);
-      connector.setPort(8085);
       connector.setHost("localhost");
       
       httpServer.setConnectors(new Connector[] {connector});
@@ -231,7 +232,8 @@ public class MessageConsumerDaemonTest extends GrouperTest {
 
       // Start Server
       httpServer.start() ;
-      httpServer.join();
+      
+      port = httpServer.getConnectors()[0].getLocalPort();
       
     }
     
