@@ -31,6 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -598,7 +600,7 @@ public class SubjectFinder {
   /**
    * find subjects by idsOrIdentifiers
    * @param idsOrIdentifiers
-   * @param sourcess
+   * @param sources
    * @return the map of id or identifier to subject.  If a subject is not found, it will
    * not be in the result
    */
@@ -1584,7 +1586,7 @@ public class SubjectFinder {
   public static Map<String, Subject> findByIdentifiers(Collection<String> identifiers, String source) {
     return getResolver().findByIdentifiers(identifiers, source);
   }
-
+  
   /**
    * find subjects by ids
    * @param ids
@@ -1593,7 +1595,48 @@ public class SubjectFinder {
    * not be in the result
    */
   public static Map<String, Subject> findByIds(Collection<String> ids, String source) {
-    return getResolver().findByIds(ids, source);
+    return findByIds(ids, source, false);
+  }
+
+  /**
+   * find subjects by ids
+   * @param ids
+   * @param source
+   * @param resolveAsLazySubjects
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIds(Collection<String> ids, String source, boolean resolveAsLazySubjects) {
+    
+    if (!resolveAsLazySubjects) {
+      return getResolver().findByIds(ids, source);
+    }
+    
+    // Fetch members directly from the database
+    Collection<Member> matchingMembers = GrouperDAOFactory.getFactory().getMember().findBySubjectIds(ids, source);
+
+    Map<String, Subject> result = new LinkedHashMap<String, Subject>();
+
+    // Grab the subjects from the members found in database
+    for ( Member matchingMember : matchingMembers ) {
+      Subject matchingSubject = matchingMember.getSubject();
+
+      result.put(matchingSubject.getId(), matchingSubject);
+    }
+
+    // See what Subjects were not found in database
+    Collection<String> subjectIdsNotFoundInMembersTable = new ArrayList<String>();
+    for ( String requestedSubjectId : ids ) {
+      if ( !result.containsKey(requestedSubjectId) ) {
+        subjectIdsNotFoundInMembersTable.add(requestedSubjectId);
+      }
+    }
+
+    Map<String, Subject> subjectsFromResolver = getResolver().findByIds(subjectIdsNotFoundInMembersTable, source);
+
+    result.putAll(subjectsFromResolver);
+
+    return result;
   }
 
   /**
@@ -1649,7 +1692,6 @@ public class SubjectFinder {
    * @param grouperSession
    * @param subjectMap is map os subject id to subject
    * @param filterSubjectsInStemName 
-   * @param attributeNamesRequested 
    * @return subject map
    */
   public static Map<String,Subject> filterSubjects(GrouperSession grouperSession, Map<String,Subject> subjectMap, String filterSubjectsInStemName) {
@@ -1682,7 +1724,6 @@ public class SubjectFinder {
    * @param grouperSession
    * @param subjects
    * @param filterSubjectsInStemName 
-   * @param attributeNamesRequested 
    * @return subjects
    */
   public static Set<Subject> filterSubjects(GrouperSession grouperSession, Set<Subject> subjects, String filterSubjectsInStemName) {
@@ -1704,7 +1745,6 @@ public class SubjectFinder {
    * @param grouperSession
    * @param subject
    * @param filterSubjectsInStemName 
-   * @param attributeNamesRequested 
    * @return subjects
    */
   public static Subject filterSubject(GrouperSession grouperSession, Subject subject, String filterSubjectsInStemName) {

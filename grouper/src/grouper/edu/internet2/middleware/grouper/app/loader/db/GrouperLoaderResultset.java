@@ -74,7 +74,7 @@ public class GrouperLoaderResultset {
     if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.bulkLookupSubjects", true)) {
       return;
     }
-
+    
     //dont do this twice if has already done on the outer list
     if (this.hasBulkLookupedSubjects) {
       return;
@@ -86,6 +86,8 @@ public class GrouperLoaderResultset {
     if (GrouperUtil.length(this.data) == 0) {
       return;
     }
+
+    boolean bulkLookupSubjectsAsLazySubjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.bulkLookupSubjectsAsLazySubjects", true);
 
     //if we are looking by subject id or identifier and dont have the source
     Set<String> subjectIdsOrIdentifiers = new HashSet<String>();
@@ -169,7 +171,7 @@ public class GrouperLoaderResultset {
         //what are they?
         if (StringUtils.equals(subjectIdCol, GrouperLoaderResultset.SUBJECT_ID_COL)) {
 
-          localSubjectIdOrIdentifierToSubject = SubjectFinder.findByIds(subjectIdsOrIdentifiersForSource, sourceId);
+          localSubjectIdOrIdentifierToSubject = SubjectFinder.findByIds(subjectIdsOrIdentifiersForSource, sourceId, bulkLookupSubjectsAsLazySubjects);
         
         } else if (StringUtils.equals(subjectIdCol, GrouperLoaderResultset.SUBJECT_IDENTIFIER_COL)) {
         

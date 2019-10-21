@@ -289,15 +289,26 @@ public interface MemberDAO extends GrouperDAO {
    */
   public Set<Member> findBySubjects(
       Collection<Subject> subjects, boolean createIfNotExists);
-  
+
+
   /**
-   * find a member by uuid or subject id
-   * @param uuid
-   * @param subjectId
-   * @param source
-   * @param exceptionIfNull
-   * @return the member
+   * Retrieve Member objects based on a list of SubjectIds within a single SubjectSource
+   *
+   * @param subjectIds
+   * @param subjectSourceId
+   * @return
    */
+  public Set<Member> findBySubjectIds(
+          Collection<String> subjectIds, String subjectSourceId);
+
+    /**
+     * find a member by uuid or subject id
+     * @param uuid
+     * @param subjectId
+     * @param source
+     * @param exceptionIfNull
+     * @return the member
+     */
   public abstract Member findByUuidOrSubject(String uuid, String subjectId, String source, boolean exceptionIfNull);
   
   /**
