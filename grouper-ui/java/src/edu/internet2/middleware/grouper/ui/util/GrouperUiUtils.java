@@ -1830,8 +1830,8 @@ public class GrouperUiUtils {
       String jspNameforLog = GrouperUtil.suffixAfterChar(jspName, '/');
       jspNameforLog = GrouperUtil.suffixAfterChar(jspNameforLog, '\\');
       
-      logDir = GrouperUtil.stripEnd(logDir, "/");
-      logDir = GrouperUtil.stripEnd(logDir, "\\");
+      logDir = GrouperUtil.stripSuffix(logDir, "/");
+      logDir = GrouperUtil.stripSuffix(logDir, "\\");
       Date date = new Date();
       String logName = logDir  + File.separator + "htmlLog_" 
         + new SimpleDateFormat("yyyy_MM").format(date)

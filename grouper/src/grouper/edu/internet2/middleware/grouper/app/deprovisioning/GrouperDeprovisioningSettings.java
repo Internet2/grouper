@@ -52,7 +52,7 @@ public class GrouperDeprovisioningSettings {
    * @return the stem name with no last colon
    */
   public static String deprovisioningStemName() {
-    return GrouperUtil.stripEnd(GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.systemFolder", 
+    return GrouperUtil.stripSuffix(GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.systemFolder", 
         GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":deprovisioning"), ":");
   }
 

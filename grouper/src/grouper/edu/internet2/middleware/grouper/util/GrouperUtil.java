@@ -10098,8 +10098,10 @@ public class GrouperUtil {
    *
    * @param str  the String to remove characters from, may be null
    * @param stripChars  the characters to remove, null treated as whitespace
+   * @deprecated use stripSuffix instead
    * @return the stripped String, <code>null</code> if null String input
    */
+  @Deprecated
   public static String stripEnd(String str, String stripChars) {
     int end;
     if (str == null || (end = str.length()) == 0) {

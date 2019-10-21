@@ -64,7 +64,7 @@ public class GrouperProvisioningSettings {
    * @return the stem name with no last colon
    */
   public static String provisioningConfigStemName() {
-    return GrouperUtil.stripEnd(GrouperConfig.retrieveConfig().propertyValueString("provisioningInUi.systemFolder", 
+    return GrouperUtil.stripSuffix(GrouperConfig.retrieveConfig().propertyValueString("provisioningInUi.systemFolder", 
         GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":provisioning"), ":");
   }
   

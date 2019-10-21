@@ -6445,7 +6445,7 @@ public class GrouperUtilElSafe {
         }
         
         entry = GrouperUtil.stripStart(entry, "{");
-        entry = GrouperUtil.stripEnd(entry, "}");
+        entry = GrouperUtil.stripSuffix(entry, "}");
         
         String name = GrouperUtil.prefixOrSuffix(entry, "=", true);
         

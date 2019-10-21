@@ -423,7 +423,7 @@ public class UiV2Configure {
             throw new RuntimeException("Property name does not exist");
           }
           
-          propertyNameString = GrouperUtil.stripEnd(propertyNameString, ".elConfig");
+          propertyNameString = GrouperUtil.stripSuffix(propertyNameString, ".elConfig");
           
           Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(configFileName, null, propertyNameString);
           Set<GrouperConfigHibernate> grouperConfigHibernatesEl = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString + ".elConfig");
@@ -456,13 +456,12 @@ public class UiV2Configure {
             }
           }
           boolean deleted = false;
+          configurationContainer.setCurrentConfigPropertyName(grouperConfigHibernate.getConfigKey());
           if (grouperConfigHibernate != null) {
-            configurationContainer.setCurrentConfigPropertyName(grouperConfigHibernate.getConfigKey());
             configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName);
             deleted = true;
           }
           if (grouperConfigHibernateEl != null) {
-            configurationContainer.setCurrentConfigPropertyName(grouperConfigHibernateEl.getConfigKey());
             configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName);
             deleted = true;
           }

@@ -39,7 +39,7 @@ public class GrouperObjectTypesSettings {
    * @return the stem name with no last colon
    */
   public static String objectTypesStemName() {
-    return GrouperUtil.stripEnd(GrouperConfig.retrieveConfig().propertyValueString("objectTypes.systemFolder", 
+    return GrouperUtil.stripSuffix(GrouperConfig.retrieveConfig().propertyValueString("objectTypes.systemFolder", 
         GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":objectTypes"), ":");
   }
   

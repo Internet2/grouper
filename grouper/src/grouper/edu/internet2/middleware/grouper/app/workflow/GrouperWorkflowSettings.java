@@ -23,7 +23,7 @@ public class GrouperWorkflowSettings {
    * @return the stem name with no last colon
    */
   public static String workflowStemName() {
-    return GrouperUtil.stripEnd(GrouperConfig.retrieveConfig().propertyValueString("workflow.systemFolder", 
+    return GrouperUtil.stripSuffix(GrouperConfig.retrieveConfig().propertyValueString("workflow.systemFolder", 
         GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":workflow"), ":");
   }
   
@@ -32,7 +32,7 @@ public class GrouperWorkflowSettings {
    * @return group name where membership means a subject can edit/add workflow
    */
   public static String workflowEditorsGroup() {
-    return GrouperUtil.stripEnd(GrouperConfig.retrieveConfig().propertyValueString("workflow.editorsGroup",
+    return GrouperUtil.stripSuffix(GrouperConfig.retrieveConfig().propertyValueString("workflow.editorsGroup",
         GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":workflowEditors"), ":");
   }
   

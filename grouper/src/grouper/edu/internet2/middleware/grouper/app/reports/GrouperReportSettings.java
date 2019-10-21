@@ -18,7 +18,7 @@ public class GrouperReportSettings {
    * @return the stem name with no last colon
    */
   public static String reportConfigStemName() {
-    return GrouperUtil.stripEnd(GrouperConfig.retrieveConfig().propertyValueString("reportConfig.systemFolder", 
+    return GrouperUtil.stripSuffix(GrouperConfig.retrieveConfig().propertyValueString("reportConfig.systemFolder", 
         GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":reportConfig"), ":");
   }
 
