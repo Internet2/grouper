@@ -126,7 +126,11 @@
                                       
                   </div>
                 </div> <%-- row fluid --%>
-  
+                
+              </div>
+              
+              <div id="attributeAssignments">
+                  
               </div>
             </div> <%-- bread header --%>
               

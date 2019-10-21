@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssignFinderResults;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -528,6 +529,25 @@ public class AttributeDefContainer {
     this.guiAttributeAssigns = guiAttributeAssigns;
   }
   
-  
+  /**
+   * owners of this attribute def
+   */
+  private GuiAttributeAssignFinderResults guiAttributeAssignFinderResults;
+
+  /**
+   * owners of this attribute def
+   * @return
+   */
+  public GuiAttributeAssignFinderResults getGuiAttributeAssignFinderResults() {
+    return guiAttributeAssignFinderResults;
+  }
+
+  /**
+   * owners of this attribute def
+   * @param guiAttributeAssignFinderResults
+   */
+  public void setGuiAttributeAssignFinderResults(GuiAttributeAssignFinderResults guiAttributeAssignFinderResults) {
+    this.guiAttributeAssignFinderResults = guiAttributeAssignFinderResults;
+  }
   
 }

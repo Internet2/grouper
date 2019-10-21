@@ -36,6 +36,10 @@
                             onclick="return guiV2link('operation=UiV2AttributeDefName.deleteAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">
                             ${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
                         </c:if>
+                        <li><a href="#"
+                              onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefNameAssignedOwners&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">
+                            ${textContainer.text['attributeDefViewAssignedEntitiesAttributeDefNameButton'] }</a>
+                        </li>   
                       </ul>
                     </div>
 

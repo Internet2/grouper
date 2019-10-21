@@ -410,7 +410,7 @@ public class AttributeAssignFinder {
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           
-          Set<AttributeDefName> attributeDefNamesFound = null;
+          Set<AttributeDefName> attributeDefNamesFound = new HashSet<AttributeDefName>();
           Set<String> attributeDefIdsToQuery = new HashSet<String>();
           if (AttributeAssignFinder.this.attributeDefIds != null) {
             attributeDefIdsToQuery.addAll(AttributeAssignFinder.this.attributeDefIds);
