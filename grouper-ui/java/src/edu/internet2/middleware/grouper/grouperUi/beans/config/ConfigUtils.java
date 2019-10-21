@@ -98,7 +98,9 @@ public class ConfigUtils {
       }
     
       //lets try to find the config item metadata by key to be sure
-      configItemMetadata = ConfigFileName.findConfigItemMetdata(key);
+      if (configItemMetadata == null) {
+        configItemMetadata = ConfigFileName.findConfigItemMetdata(key);
+      }
       if (isPasswordHelper(configItemMetadata)) {
         return true;
       }
