@@ -5289,14 +5289,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
       sql.append(") ");
     }
-    
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
+  
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -5319,6 +5312,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
     }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
+      }
+      byHqlStatic.options(queryOptions);
+    }
+    
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
         : byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
@@ -5544,13 +5545,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -5573,6 +5567,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -5777,13 +5778,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3StemDAO.massageSortFields(queryOptions.getQuerySort(), "theStem");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -5806,6 +5800,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3StemDAO.massageSortFields(queryOptions.getQuerySort(), "theStem");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -5974,13 +5975,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3StemDAO.massageSortFields(queryOptions.getQuerySort(), "theStem");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -6003,6 +5997,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3StemDAO.massageSortFields(queryOptions.getQuerySort(), "theStem");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -6157,15 +6158,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        // uh, do default?
-        queryOptions.getQuerySort().assignSort(SortStringEnum.getDefaultSortString().getFieldName(), true);
-        Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort(), "theMember");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -6188,6 +6180,15 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        // uh, do default?
+        queryOptions.getQuerySort().assignSort(SortStringEnum.getDefaultSortString().getFieldName(), true);
+        Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort(), "theMember");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -6332,15 +6333,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
       sql.append(") ");
     }
-    
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        // uh, do default?
-        queryOptions.getQuerySort().assignSort(SortStringEnum.getDefaultSortString().getFieldName(), true);
-        Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort(), "theMember");
-      }
-      byHqlStatic.options(queryOptions);
-    }
+
     
     byHqlStatic
       .setCacheable(false)
@@ -6364,6 +6357,15 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        // uh, do default?
+        queryOptions.getQuerySort().assignSort(SortStringEnum.getDefaultSortString().getFieldName(), true);
+        Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort(), "theMember");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -6515,13 +6517,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3AttributeDefDAO.massageSortFields(queryOptions.getQuerySort(), "theAttributeDef");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -6544,6 +6539,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3AttributeDefDAO.massageSortFields(queryOptions.getQuerySort(), "theAttributeDef");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -6709,13 +6711,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
       sql.append(") ");
     }
-    
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3AttributeDefDAO.massageSortFields(queryOptions.getQuerySort(), "theAttributeDef");
-      }
-      byHqlStatic.options(queryOptions);
-    }
+
     
     byHqlStatic
       .setCacheable(false)
@@ -6739,6 +6735,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3AttributeDefDAO.massageSortFields(queryOptions.getQuerySort(), "theAttributeDef");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -6905,13 +6908,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -6934,6 +6930,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -7122,13 +7125,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -7151,6 +7147,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -7337,13 +7340,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -7366,6 +7362,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
@@ -7550,13 +7553,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(") ");
     }
     
-    if (queryOptions != null) {
-      if (queryOptions.getQuerySort() != null) {
-        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
-      }
-      byHqlStatic.options(queryOptions);
-    }
-    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignmentsFromDef");
@@ -7579,6 +7575,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         queryOptions.setCount(size);
       }
 
+    }
+    
+    if (queryOptions != null) {
+      if (queryOptions.getQuerySort() != null) {
+        Hib3GroupDAO.massageSortFields(queryOptions.getQuerySort(), "theGroup");
+      }
+      byHqlStatic.options(queryOptions);
     }
     
     Set<Object[]> results = size == 0 ? new LinkedHashSet<Object[]>() 
