@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.axis2.context.MessageContext;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -73,7 +74,6 @@ import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLongRunningLog;
-import edu.internet2.middleware.morphString.apache.codec.binary.Base64;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 

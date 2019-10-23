@@ -8,7 +8,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.morphString.Morph;
-import edu.internet2.middleware.morphString.MorphPropertyFileUtils;
+import edu.internet2.middleware.morphString.MorphStringConfig;
 
 
 /**
@@ -47,7 +47,7 @@ public class GrouperThreadLocalStateTest extends GrouperTest {
       return;
     }
     
-    if (GrouperUtil.isBlank(MorphPropertyFileUtils.retrievePropertyString(Morph.ENCRYPT_KEY))) {
+    if (GrouperUtil.isBlank(MorphStringConfig.retrieveConfig().propertyValueString(Morph.ENCRYPT_KEY))) {
       Morph.testMorphKey = "fh43IRJ4Nf5";
     }
     

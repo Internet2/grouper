@@ -29,7 +29,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>../grouper-misc/morphString</module>
         <module>../grouper-misc/grouperClient</module>
         <!--<module>../subject</module>-->
         <module>../grouper</module>

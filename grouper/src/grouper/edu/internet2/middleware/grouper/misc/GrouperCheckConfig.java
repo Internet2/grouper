@@ -133,6 +133,7 @@ import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.morphString.MorphStringConfig;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -1320,8 +1321,12 @@ public class GrouperCheckConfig {
 
     //checkConfigProperties(GROUPER_PROPERTIES_NAME, "grouper.example.properties");
     //checkConfigProperties("grouper.hibernate.properties", "grouper.hibernate.example.properties");
-    checkConfigProperties("morphString.properties", "morphString.example.properties");
-    
+    //checkConfigProperties("morphString.properties", "morphString.example.properties");
+    if (GrouperUtil.isBlank(MorphStringConfig.retrieveConfig().propertyValueString("encrypt.key"))) {
+      String error = "Error: Grouper expects an encrpyt key (generally a long random alphanumeric string) \"encrypt.key\" in properties file morphString.properties";
+      System.err.println(error);
+      LOG.error(error);
+    }
     checkGrouperConfigDbChange();
     checkGrouperConfigGroupNameValidators();
     checkGrouperConfigIncludeExcludeAndGroups();
@@ -1828,7 +1833,6 @@ public class GrouperCheckConfig {
     checkJar("log4j-1.2.17.jar", 489884, "org.apache.log4j.Appender", "1.2.17");
     checkJar("mail-1.4.7.jar", 521157, "javax.mail.NoSuchProviderException", "1.4.7");
     checkJar("mchange-commons-java-0.2.14.jar", 623971, "com.mchange.v1.identicator.StrongIdentityIdenticator", "0.2.14");
-    checkJar("morphString.jar", 78679, "edu.internet2.middleware.morphString.Crypto", "1.2");
     checkJar("oro-2.0.8.jar", 65261, "org.apache.oro.io.AwkFilenameFilter", "2.0.8 2003-12-28 11:00:13");
     checkJar("p6spy-3.6.0.jar", 123220, "com.p6spy.engine.logging.P6LogOptionsMBean", "null");
     checkJar("quartz-2.3.0.jar", 690992, "org.quartz.Calendar", "null");

@@ -14,6 +14,8 @@
     limitations under the License.
 ====
 
+TODO delete this project
+
 - checkout morphString: cvs -d:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper-misc/morphString
 - copy conf/morphString.example.properties to conf/morphString.properties
 - put in an encrypt.key in conf/morphString.properties
