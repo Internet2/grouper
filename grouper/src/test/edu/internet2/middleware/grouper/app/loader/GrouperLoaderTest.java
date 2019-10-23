@@ -380,7 +380,8 @@ public class GrouperLoaderTest extends GrouperTest {
 
     assertEquals("The loader:group 2", overallGroup2.getDisplayName());
     Group systemOfRecordGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2_systemOfRecord", true);
-    assertTrue(systemOfRecordGroup2.getDescription().length() > 0);
+    // since GRP-1909, description no longer defaulting to "auto-created by grouperLoader"
+    assertEquals("", systemOfRecordGroup2.getDescription());
     assertEquals("The loader:group 2 system of record", systemOfRecordGroup2.getDisplayName());
 
     assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ0));
