@@ -116,7 +116,8 @@ public class GrouperThreadLocalState {
     HibUtils.clearDisallowCacheThreadLocal();
     NDC.remove();
 
-    for (Class theClass : new Class[]{edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto.class, Crypto.class}) {
+    // edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto.class, 
+    for (Class theClass : new Class[]{Crypto.class}) {
 
       //try to get the Crypto one
       try {
