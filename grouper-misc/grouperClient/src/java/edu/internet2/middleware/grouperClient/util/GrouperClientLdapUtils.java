@@ -42,8 +42,8 @@ import edu.internet2.middleware.grouperClient.failover.FailoverClient;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.morphString.Crypto;
 
 /**
  * @author mchyzer

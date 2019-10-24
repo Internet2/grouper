@@ -36,9 +36,9 @@ import edu.internet2.middleware.grouperClient.GrouperClientWsException;
 import edu.internet2.middleware.grouperClient.discovery.DiscoveryClient;
 import edu.internet2.middleware.grouperClient.failover.FailoverClient;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig;
+import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogic;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogicBean;
-import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -48,7 +48,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsRestResultProblem;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.CompactWriter;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Credentials;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -66,6 +65,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.p
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.morphString.Crypto;
 
 
 /**

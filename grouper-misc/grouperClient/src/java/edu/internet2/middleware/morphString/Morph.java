@@ -21,8 +21,6 @@
 package edu.internet2.middleware.morphString;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.MorphPropertyFileUtils;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.MorphStringUtils;
 
 /**
  * @author Chris Hyzer
@@ -41,7 +39,7 @@ public class Morph {
    * @return String
    */
   public static String encrypt(String in) {
-    in = MorphStringUtils.trimToEmpty(in);
+    in = GrouperClientUtils.trimToEmpty(in);
 
     return Crypto.getThreadLocalCrypto().encrypt(in);
   }
@@ -54,7 +52,7 @@ public class Morph {
    */
   public static String decrypt(String in) {
     //make sure no extraneous spaces
-    in = MorphStringUtils.trim(in);
+    in = GrouperClientUtils.trim(in);
     
     String result = null;
     //add something on end so it is more than just the key and rijndael
@@ -75,9 +73,9 @@ public class Morph {
    */
   public static String decryptIfFile(String in) {
 
-    in = MorphStringUtils.trimToEmpty(in);
-    String newIn = MorphStringUtils.readFromFileIfFile(in);
-    if (!MorphStringUtils.equals(in, newIn)) {
+    in = GrouperClientUtils.trimToEmpty(in);
+    String newIn = GrouperClientUtils.readFromFileIfFile(in, false);
+    if (!GrouperClientUtils.equals(in, newIn)) {
       String unencrypted = decrypt(newIn);
       return unencrypted;
     }
