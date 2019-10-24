@@ -51,7 +51,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testVirtualAttributeInDescription"));
+    TestRunner.run(new TestMemberAttributes("testInternalMembersNonDefaultAttributes"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -310,8 +310,11 @@ public class TestMemberAttributes extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute2.el", "test6");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute3.el", "test7");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute4.el", "test8");
-    InternalSourceAdapter.instance().init();
+    // looks like we're not using this singleton anymore???
+    // InternalSourceAdapter.instance().init();
+    SubjectFinder.findById("GrouperAll", true).getSource().init();
     ExpirableCache.clearAll();
+    SubjectFinder.flushCache();
 
     edu.grantPriv(SubjectFinder.findById("GrouperAll", true), NamingPrivilege.CREATE);
     try {
