@@ -2195,7 +2195,7 @@ public class UiV2AttributeDef {
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments", 
-          "/WEB-INF/grouperUi2/attributeDef/attributeAssignValueEdit.jsp"));
+          "/WEB-INF/grouperUi2/attributeDef/attributeDefAssignValueEdit.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
@@ -2416,7 +2416,7 @@ public class UiV2AttributeDef {
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments", 
-          "/WEB-INF/grouperUi2/attributeDef/attributeAssignAddValue.jsp"));
+          "/WEB-INF/grouperUi2/attributeDef/attributeDefAssignAddValue.jsp"));
       
     } catch (Exception e) {
       throw new RuntimeException("Error addValue: " + e.getMessage(), e);
@@ -2539,7 +2539,7 @@ public class UiV2AttributeDef {
       attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments", 
-          "/WEB-INF/grouperUi2/attributeDef/attributeAssignAddMetadataAssignment.jsp"));
+          "/WEB-INF/grouperUi2/attributeDef/attributeDefAssignAddMetadataAssignment.jsp"));
       
     } catch (Exception e) {
       throw new RuntimeException("Error addMetadataAssignment: " + e.getMessage(), e);
@@ -2702,7 +2702,7 @@ public class UiV2AttributeDef {
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments", 
-          "/WEB-INF/grouperUi2/attributeDef/attributeAssignEdit.jsp"));
+          "/WEB-INF/grouperUi2/attributeDef/attributeDefAssignEdit.jsp"));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
