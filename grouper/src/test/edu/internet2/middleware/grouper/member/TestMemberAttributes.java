@@ -31,10 +31,10 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -302,49 +302,60 @@ public class TestMemberAttributes extends GrouperTest {
    * 
    */
   public void testInternalMembersNonDefaultAttributes() {
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute1.el", "test1");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute2.el", "test2");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute3.el", "test3");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute4.el", "test4");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute1.el", "test5");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute2.el", "test6");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute3.el", "test7");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute4.el", "test8");
-    // looks like we're not using this singleton anymore???
-    // InternalSourceAdapter.instance().init();
-    SubjectFinder.findById("GrouperAll", true).getSource().init();
-    ExpirableCache.clearAll();
-    SubjectFinder.flushCache();
-
-    edu.grantPriv(SubjectFinder.findById("GrouperAll", true), NamingPrivilege.CREATE);
     try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-      // ignore
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute1.el", "test1");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute2.el", "test2");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute3.el", "test3");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute4.el", "test4");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute1.el", "test5");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute2.el", "test6");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute3.el", "test7");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute4.el", "test8");
+      // looks like we're not using this singleton anymore???
+      // InternalSourceAdapter.instance().init();
+      SubjectFinder.findById("GrouperAll", true).getSource().init();
+      ExpirableCache.clearAll();
+      SubjectFinder.flushCache();
+      Hib3MemberDAO.membersCacheClear();
+  
+      edu.grantPriv(SubjectFinder.findById("GrouperAll", true), NamingPrivilege.CREATE);
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        // ignore
+      }
+  
+      Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(GrouperConfig.ALL, true);
+  
+      assertEquals(GrouperConfig.ALL_NAME, member.getName());
+      assertEquals(GrouperConfig.ALL_NAME, member.getDescription());
+      
+      assertEquals(GrouperConfig.ALL_NAME, member.getSortString0());
+      assertEquals("test1", member.getSortString1());
+      assertEquals("test2", member.getSortString2());
+      assertEquals("test3", member.getSortString3());
+      assertEquals("test4", member.getSortString4());
+      assertEquals(GrouperConfig.ALL_NAME.toLowerCase() + "," + GrouperConfig.ALL.toLowerCase(), member.getSearchString0());
+      assertEquals("test5", member.getSearchString1());
+      assertEquals("test6", member.getSearchString2());
+      assertEquals("test7", member.getSearchString3());
+      assertEquals("test8", member.getSearchString4());
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
+      
+      SubjectFinder.findById("GrouperAll", true).getSource().init();
+      ExpirableCache.clearAll();
+      SubjectFinder.flushCache();
+      Hib3MemberDAO.membersCacheClear();
+      GrouperCacheUtils.clearAllCaches();
+      edu.revokePriv(SubjectFinder.findById("GrouperAll", true), NamingPrivilege.CREATE);
+
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        // ignore
+      }
     }
-
-    Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(GrouperConfig.ALL, true);
-
-    assertEquals(GrouperConfig.ALL_NAME, member.getName());
-    assertEquals(GrouperConfig.ALL_NAME, member.getDescription());
-    
-    assertEquals(GrouperConfig.ALL_NAME, member.getSortString0());
-    assertEquals("test1", member.getSortString1());
-    assertEquals("test2", member.getSortString2());
-    assertEquals("test3", member.getSortString3());
-    assertEquals("test4", member.getSortString4());
-    assertEquals(GrouperConfig.ALL_NAME.toLowerCase() + "," + GrouperConfig.ALL.toLowerCase(), member.getSearchString0());
-    assertEquals("test5", member.getSearchString1());
-    assertEquals("test6", member.getSearchString2());
-    assertEquals("test7", member.getSearchString3());
-    assertEquals("test8", member.getSearchString4());
-    
-    // reset the state
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
-    InternalSourceAdapter.instance().init();
-    ExpirableCache.clearAll();
-    GrouperCacheUtils.clearAllCaches();
-    edu.revokePriv(SubjectFinder.findById("GrouperAll", true), NamingPrivilege.CREATE);
   }
   
   /**
