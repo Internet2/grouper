@@ -32,8 +32,8 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Message.Type;
+import org.jivesoftware.smack.packet.Packet;
 
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.XppDriver;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
+import edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.poc_secureUserData.util.GcDbUtils;
 import edu.internet2.middleware.poc_secureUserData.util.GcDbUtils.DbType;
 
