@@ -455,12 +455,15 @@ public class UiV2Configure {
             }
           }
           boolean deleted = false;
-          configurationContainer.setCurrentConfigPropertyName(grouperConfigHibernate.getConfigKey());
           if (grouperConfigHibernate != null) {
+            configurationContainer.setCurrentConfigPropertyName(grouperConfigHibernate.getConfigKey());
             configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName);
             deleted = true;
           }
           if (grouperConfigHibernateEl != null) {
+            if (StringUtils.isBlank(configurationContainer.getCurrentConfigPropertyName())) {
+              configurationContainer.setCurrentConfigPropertyName(GrouperUtil.stripSuffix(grouperConfigHibernateEl.getConfigKey(), ".elConfig"));
+            }
             configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName);
             deleted = true;
           }
@@ -811,13 +814,13 @@ public class UiV2Configure {
 
       Boolean[] added = new Boolean[1];
       Boolean[] error = new Boolean[1];
-      try {
-        for (Object keyObject : propertiesToImport.keySet()) {
-          
+      for (Object keyObject : propertiesToImport.keySet()) {
+        try {
+        
           countProperties++;
           String key = (String)keyObject;
           String value = propertiesToImport.getProperty(key);
-
+  
           configurationFileAddEditHelper2(configFileName.name(), key, Boolean.toString(key.endsWith(".elConfig")), value, null, message, added, error);
           
           // added (first index) will be true if added, false if updated, and null if no change
@@ -839,11 +842,13 @@ public class UiV2Configure {
           } else {
             countWarning++;
           }
-          
+        } catch (Exception e) {
+          final String errorHeader = "Error in import for key '" + keyObject + "': " + fileName;
+          LOG.error(errorHeader, e);
+          message.append(errorHeader + "\n" + ExceptionUtils.getFullStackTrace(e));
+          countError++;
         }
-      } catch (Exception e) {
-        LOG.error("Error in import: " + fileName, e);
-        message.append(ExceptionUtils.getFullStackTrace(e));
+        
       }
 
       configurationContainer.setCountAdded(countAdded);
@@ -954,15 +959,13 @@ public class UiV2Configure {
         // ignore
       }
     }
-
+    
     if (isPassword || isAlreadyEncrypted) {
-      
-      grouperConfigHibernate.setConfigEncrypted(true);
       if (!isAlreadyEncrypted) {
         valueString = Morph.encrypt(valueString);
       }
     }
-    
+
     // see if we are creating a new one
     if (grouperConfigHibernate == null) {
       grouperConfigHibernate = new GrouperConfigHibernate();

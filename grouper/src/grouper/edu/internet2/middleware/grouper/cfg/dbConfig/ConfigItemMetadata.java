@@ -33,6 +33,14 @@ public class ConfigItemMetadata {
   }
   
   /**
+   * if sample property
+   * @return key or sample key
+   */
+  public boolean isSampleProperty() {
+    return StringUtils.isBlank(this.key);
+  }
+  
+  /**
    * if commented out property, this is the sample key
    */
   private String sampleKey;

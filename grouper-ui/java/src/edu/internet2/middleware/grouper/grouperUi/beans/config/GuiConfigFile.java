@@ -35,8 +35,8 @@ public class GuiConfigFile {
   public GuiConfigProperty findGuiConfigProperty(String propertyName, boolean exceptionIfNotFound) {
     for (GuiConfigSection guiConfigSection : GrouperUtil.nonNull(this.guiConfigSections)) {
       for (GuiConfigProperty guiConfigProperty : GrouperUtil.nonNull(guiConfigSection.getGuiConfigProperties())) {
-        if (StringUtils.equals(GrouperUtil.stripSuffix(guiConfigProperty.getConfigItemMetadata().getKey(), ".elConfig"), 
-            GrouperUtil.stripSuffix(propertyName, ".elConfig"))) {
+        if (StringUtils.equals(GrouperUtil.stripSuffix(guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey(), ".elConfig"), 
+            GrouperUtil.stripSuffix(propertyName, ".elConfig"))  ) {
           return guiConfigProperty;
         }
       }
