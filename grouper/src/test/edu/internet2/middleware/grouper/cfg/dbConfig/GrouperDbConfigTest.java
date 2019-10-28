@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import junit.textui.TestRunner;
+
 import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
@@ -10,7 +12,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
-import junit.textui.TestRunner;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 
 
 /**
@@ -118,11 +120,11 @@ public class GrouperDbConfigTest extends GrouperTest {
     //
     //  # property7.in.database
 
-    int databaseConfigCount = ConfigPropertiesCascadeBase.databaseConfigRefreshCount;
+    int databaseConfigCount = ConfigDatabaseLogic.databaseConfigRefreshCount;
     
     assertEquals("value1.in.base", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property1.in.base.only"));
     
-    assertEquals(databaseConfigCount +1, ConfigPropertiesCascadeBase.databaseConfigRefreshCount);
+    assertEquals(databaseConfigCount +1, ConfigDatabaseLogic.databaseConfigRefreshCount);
     
     assertEquals("value2.in.override", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property2.in.base.and.override"));
     assertEquals("value3.in.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property3.in.base.and.database"));
@@ -131,7 +133,7 @@ public class GrouperDbConfigTest extends GrouperTest {
     assertEquals("value6.in.override", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property6.in.override"));
     assertEquals("value7.in.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property7.in.database"));
 
-    assertEquals(databaseConfigCount +1, ConfigPropertiesCascadeBase.databaseConfigRefreshCount);
+    assertEquals(databaseConfigCount +1, ConfigDatabaseLogic.databaseConfigRefreshCount);
   }
   
 }

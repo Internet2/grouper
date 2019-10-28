@@ -15,17 +15,21 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Set;
+
+import jline.internal.Log;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.hibernate.type.BigDecimalType;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
-import edu.internet2.middleware.grouper.exception.GroupDeleteException;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -464,6 +468,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   public void saveOrUpdate() {
     
     GrouperDAOFactory.getFactory().getConfig().saveOrUpdate(this);
+    updateLastUpdated();
   }
 
   /**
@@ -471,8 +476,27 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getConfig().delete(this);
+    updateLastUpdated();
   }
 
+  /**
+   * update last updated if something changed
+   */
+  public static void updateLastUpdated() {
+
+    long now = System.currentTimeMillis();
+    
+    // simple update statement, dont worry about other people editing, dont worry about hibernate
+    int rows = HibernateSession.bySqlStatic().executeSql(
+        "update grouper_config set config_value = ?, last_updated = ?  where config_file_name = ? and config_key = ? and config_file_hierarchy = ?",
+        GrouperUtil.toListObject(Long.toString(now), new BigDecimal(now), "grouper.properties", "grouper.config.millisSinceLastDbConfigChanged", "INSTITUTION"), 
+        HibUtils.listType(StringType.INSTANCE, BigDecimalType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE));
+    
+    if (rows != 1) {
+      Log.error("Tried to update grouper.config.millisSinceLastDbConfigChanged but rows updated was " + rows);
+    }
+  }
+  
   /**
    * make sure this object will fit in the DB
    */

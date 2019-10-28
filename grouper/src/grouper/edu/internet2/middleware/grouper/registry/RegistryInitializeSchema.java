@@ -163,8 +163,6 @@ public class RegistryInitializeSchema {
           GrouperStartup.startup();
         } catch (Exception e) {
           
-          // problem initting
-          ConfigPropertiesCascadeBase.assignNotInitted();
           //ignore
           LOG.debug(e);
         } finally {

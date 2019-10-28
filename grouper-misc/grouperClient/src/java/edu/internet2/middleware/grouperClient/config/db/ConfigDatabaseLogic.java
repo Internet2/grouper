@@ -1,0 +1,1201 @@
+/**
+ * @author mchyzer
+ * $Id$
+ */
+package edu.internet2.middleware.grouperClient.config.db;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
+import java.util.UUID;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import edu.internet2.middleware.morphString.Morph;
+
+
+/**
+ * logic to cache and retrieve the grouper config from the DB
+ * note: do not use any Grouper classes in this class.  Cant use anything that
+ * could use anything configurable.
+ * This class has some config which will be injected from the outside
+ * there should be no imports here
+ */
+public class ConfigDatabaseLogic {
+
+  /**
+   * cache database configs, key is e.g. grouper.properties
+   */
+  private static Map<String, Map<String, String>> databaseConfigCache = new HashMap<String, Map<String, String>>();
+  /**
+   * millis since 1970 that the database configs were last retrieved
+   * will cache for grouper.cache.database.configs.seconds in grouper.hibernate.properties
+   */
+  private static long databaseConfigCacheLastRetrieved = -1;
+  
+  /**
+   * millis since 1970 since the last update time has been checked
+   */
+  private static long updateCheckLastRetrieved = -1;
+  
+  /**
+   * keep this for testing
+   */
+  public static int databaseConfigRefreshCount = 0;
+
+  /**
+   *  
+   */
+  private static final Log LOG = LogFactory.getLog(ConfigDatabaseLogic.class);
+      
+  /**
+   * 
+   */
+  public ConfigDatabaseLogic() {
+  }
+
+  /**
+   * true if table exists
+   */
+  private static boolean tableExists = false;
+  
+  /**
+   * 
+   */
+  public static void clearCache() {
+    LOG.debug("ConfigDatabaseLogic.clearCache()");
+    updateCheckLastRetrieved = -1;
+    databaseConfigCacheLastRetrieved = -1;
+    databaseConfigCache = null;
+    tableExists = false;
+  }
+  
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+
+  }
+
+  /**
+   * seconds between checking to see if the config files are updated in the database.  If anything edited, then refresh all. 
+   * Note that the last edited is stored in a config property for deletes.  -1 means dont check for incrementals.
+   * Note if *.config.secondsBetweenUpdateChecks is greater than this number
+   * for this config, then it wont update until that amount has passed.
+   * grouper.config.secondsBetweenUpdateChecksToDb = 60
+   */
+  private static int secondsBetweenUpdateChecksToDb = 60;
+  
+  /**
+   * seconds between checking to see if the config files are updated in the database.  If anything edited, then refresh all. 
+   * Note that the last edited is stored in a config property for deletes.  -1 means dont check for incrementals.
+   * Note if *.config.secondsBetweenUpdateChecks is greater than this number
+   * for this config, then it wont update until that amount has passed.
+   * grouper.config.secondsBetweenUpdateChecksToDb = 60
+   * @param theSeconds
+   */
+  public static void assignSecondsBetweenUpdateChecksToDb (int theSeconds) {
+    secondsBetweenUpdateChecksToDb = theSeconds;
+  }
+  
+  /**
+   * readonly database, start as true until we know for sure
+   */
+  private static boolean readonly = true;
+  
+  /**
+   * set the API as readonly (e.g. during upgrades).  Any updates will throw an exception
+   * grouper.api.readonly = false
+   *
+   * @param theReadonly
+   */
+  public static void assignReadonly (boolean theReadonly) {
+    readonly = theReadonly;
+  }
+  
+  /**
+   * seconds between full refreshes of the database config
+   * grouper.config.secondsBetweenFullRefresh
+   */
+  private static int secondsBetweenFullRefresh = 3600;
+
+  /**
+   * 
+   * @param theSeconds
+   */
+  public static void assignSecondsBetweenFullRefresh(int theSeconds) {
+    secondsBetweenFullRefresh = theSeconds;
+  }
+  
+  /**
+   * 
+   * @param mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
+   * @param dbUrl 
+   * @param dbUser 
+   * @param dbPass 
+   * @param driver 
+   * @param readonly 
+   * @return the inputStream for this config's properties
+   */
+  public static InputStream retrieveConfigInputStream(String mainConfigFileName, String dbUrl, String dbUser, String dbPass, String driver) {
+
+    driver = convertUrlToDriverClassIfNeeded(dbUrl, driver);
+
+    Map<String, String> configMap = retrieveConfigMap(mainConfigFileName, dbUrl, dbUser, dbPass, driver);
+    if (configMap == null) {
+      configMap = new HashMap<String, String>();
+    }
+    Properties properties = new Properties();
+    
+    // this is never null
+    for (String key : configMap.keySet()) {
+      properties.put(key, configMap.get(key));
+      
+    }
+    
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    try {
+      properties.store(byteArrayOutputStream, "");
+    } catch (IOException e) {
+      throw new RuntimeException("Error in " + mainConfigFileName, e);
+    }
+    
+    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+    return byteArrayInputStream;
+
+  }
+  
+  /**
+   * 
+   * @param mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
+   * @param dbUrl 
+   * @param dbUser 
+   * @param dbPass 
+   * @param driver 
+   * @return the inputStream for this config's properties
+   */
+  private static Map<String, String> retrieveConfigMap(String mainConfigFileName, String dbUrl, String dbUser, String dbPass, String driver) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("operation", "retrieveConfigMap");
+    debugMap.put("readonly", readonly);
+    debugMap.put("mainConfigFileName", mainConfigFileName);
+    long now = System.nanoTime();
+
+    long currentDatabaseConfigCache = databaseConfigCacheLastRetrieved;
+    Map<String, Map<String, String>> theDatabaseConfigCache = databaseConfigCache;
+    
+    try {
+      //  Technical design of retrieving the configuration from the database
+      //  In the grouper client (since that is where the hierarchical config code is), have the logic to retrieve the configuration from the database.
+      //
+      //  It should use pooling so that it is efficient.
+      //
+      //  If should NOT use anything from the grouper API or anything that uses grouper client config.  
+      // This is because the database framework in the API uses configuration.  So the configuration cannot 
+      // use the API or there is a circular logic problem in looping and bootstrapping.
+      //
+      // There are some configs for this, but these are set after the first grouper.properties is retrieved.  
+      // These are not in the grouper-hibernate.properties so they can be edited at runtime (grouper-hibernate.properties is not stored in the database of course).
+      //
+      //  Algorithm
+      //
+      //  A configuration is retrieved from the API (from any of the config files)
+      //
+      //  e.g.GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc")
+      //  If it has not been longer than the *.config.secondsBetweenUpdateChecks for that config 
+      // (e.g. grouper.config.secondsBetweenUpdateChecks), then just return the cached (in memory) config
+      
+      // (done higher up)
+      
+
+      //if there is no table there, dont fail
+      boolean tableExistsTemp = tableExists;
+      
+      if (tableExistsTemp || configTableExists(dbUrl, dbUser, dbPass, driver)) {
+        
+        // try to avoid a race condition here
+        if (!tableExistsTemp) {
+          tableExists = true;
+        }
+      
+        // we need the last updated value created while Grouper starts up
+        Long lastUpdated = null;
+        if (updateCheckLastRetrieved == -1) {
+          lastUpdated = retrieveOrCreateLastUpdatedRecord(dbUrl, dbUser, dbPass, driver);
+        }
+        
+        boolean needsRefresh = false;
+        
+        final boolean databaseConfigCacheIsNull = theDatabaseConfigCache == null;
+        debugMap.put("databaseConfigCacheIsNull", databaseConfigCacheIsNull);
+        if (databaseConfigCacheIsNull) {
+          needsRefresh = true;
+        }
+  
+        if (!needsRefresh) {
+          //  If it has been longer, then see if the last full refresh has been longer than grouper.config.secondsBetweenFullRefresh.  
+          // If so, then do a full refresh of all configs in DB
+          debugMap.put("secondsBetweenFullRefresh", secondsBetweenFullRefresh);
+          
+          int secondsSinceLastRefresh = (int)(System.currentTimeMillis() - currentDatabaseConfigCache) / 1000;
+          debugMap.put("secondsSinceLastRefresh", secondsSinceLastRefresh);
+          
+          final boolean needsFullRefresh = secondsSinceLastRefresh > secondsBetweenFullRefresh;
+          debugMap.put("needsFullRefresh", needsFullRefresh);
+          if (needsFullRefresh) {
+            
+            needsRefresh = true;
+          }
+          
+        }
+          
+        if (!needsRefresh) {
+          //  If it has been longer, then see if has not been longer than grouper.config.secondsBetweenUpdateChecksToDb.  
+          // If it has not, then get the DB config for that config file from memory cache
+          debugMap.put("databaseConfigCacheLastRetrieved", databaseConfigCacheLastRetrieved);
+          debugMap.put("secondsBetweenUpdateChecksToDb", secondsBetweenUpdateChecksToDb);
+          int secondsSinceLastUpdateCheck = (int)(System.currentTimeMillis() - updateCheckLastRetrieved) / 1000;
+          debugMap.put("secondsSinceLastUpdateCheck", secondsSinceLastUpdateCheck);
+          
+          //  If it has been longer, then query the millis since last refresh (from config table, get this value): grouper.config.millisSinceLastDbConfigChanged   If the last refresh is before that value, then do a full refresh
+          boolean needsCheckLastUpdate = secondsSinceLastUpdateCheck > secondsBetweenUpdateChecksToDb;
+          debugMap.put("needsCheckLastUpdate", needsCheckLastUpdate);
+          if (needsCheckLastUpdate) {
+            if (lastUpdated == null) {
+              synchronized (ConfigDatabaseLogic.class) {
+                
+                secondsSinceLastUpdateCheck = (int)(System.currentTimeMillis() - updateCheckLastRetrieved) / 1000;
+                //  If it has been longer, then query the millis since last refresh (from config table, get this value): grouper.config.millisSinceLastDbConfigChanged   If the last refresh is before that value, then do a full refresh
+                needsCheckLastUpdate = secondsSinceLastUpdateCheck > secondsBetweenUpdateChecksToDb;
+                
+                debugMap.put("needsCheckLastUpdate2", needsCheckLastUpdate);
+                if (needsCheckLastUpdate) {
+                  lastUpdated = retrieveOrCreateLastUpdatedRecord(dbUrl, dbUser, dbPass, driver);
+                }
+              }
+            }
+            if (lastUpdated != null) {
+              debugMap.put("lastUpdatedInDatabase", lastUpdated);
+
+              final boolean needsIncrementalRefresh = lastUpdated > databaseConfigCacheLastRetrieved;
+              debugMap.put("needsIncrementalRefresh", needsIncrementalRefresh);
+  
+              if (needsIncrementalRefresh) {
+                needsRefresh = true;
+              }
+            } else {
+              // if null then ignore
+              debugMap.put("lastUpdateNull", true);
+            }
+  
+          }
+        }
+        
+        //  Note, Grouper can clear the cache when any property (besides grouper.config.millisSinceLastDbConfigChanged)  is changed
+        //  Note: grouper.config.millisSinceLastDbConfigChanged is updated by grouper (and not audited), when there is any insert/update/delete to config
+        debugMap.put("needsRefresh", needsRefresh);
+        if (needsRefresh) {
+          synchronized (ConfigDatabaseLogic.class) {
+            theDatabaseConfigCache = databaseConfigCache;
+            // maybe another thread did this
+            if (theDatabaseConfigCache == null || databaseConfigCacheLastRetrieved == currentDatabaseConfigCache) {
+              debugMap.put("updatingConfig", true);
+              theDatabaseConfigCache = retrieveDatabaseConfigFromDatabase(dbUrl, dbUser, dbPass, driver);
+              databaseConfigCache = theDatabaseConfigCache;
+              databaseConfigRefreshCount++;
+              databaseConfigCacheLastRetrieved = System.currentTimeMillis();
+              //dont check incrementals for a while
+              updateCheckLastRetrieved = databaseConfigCacheLastRetrieved;
+            } else {
+              debugMap.put("configUpdatedInAnotherThread", true);
+            }
+          }
+        }
+        if (theDatabaseConfigCache != null) {
+          Map<String, String> configCache = theDatabaseConfigCache.get(mainConfigFileName);
+          if (configCache != null) {
+            debugMap.put("configCount", configCache.size());
+            return configCache;
+          }
+        }
+      }
+      debugMap.put("cantFindConfigMap", true);
+    } catch (Exception e) {
+      debugMap.put("exception", e.getMessage());
+
+      throw new RuntimeException("error", e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("ms", (System.nanoTime() - now)/1000000);
+
+        LOG.debug(mapToString(debugMap));
+      }
+    }
+    // not null
+    return new HashMap<String, String>();
+  }
+
+  /**
+   * @param dbUrl
+   * @param dbUser
+   * @param dbPass
+   * @param driver
+   * @return the last changed long millis since 1970 or null if cant find
+   */
+  private static Long retrieveOrCreateLastUpdatedRecord(String dbUrl, String dbUser, String dbPass,
+      String driver) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("operation", "retrieveOrCreateLastUpdatedRecord");
+    debugMap.put("readonly", readonly);
+    long now = System.nanoTime();
+
+    Long lastUpdated = null;
+    
+    Exception exception = null;
+    try {
+      for (int i=0; i<10;i++) {
+        lastUpdated = retrieveConfigLastUpdatedFromDatabase(dbUrl, dbUser, dbPass, driver);
+        debugMap.put("lastUpdated_" + i, lastUpdated);
+        
+        // should only happen during startup
+        if (lastUpdated == null) {
+  
+          // wait un to a second if other JVMs are doing something
+          sleep(new Random().nextInt(1000));
+          
+          lastUpdated = retrieveConfigLastUpdatedFromDatabase(dbUrl, dbUser, dbPass, driver);
+          if (lastUpdated == null) {
+            if (!readonly) {
+              debugMap.put("creatingLastUpdated_" + i, lastUpdated);
+              try {
+                createLastUpdatedRecordInDatabase(dbUrl, dbUser, dbPass, driver);
+                exception = null;
+              } catch (Exception e) {
+                exception = e;
+                debugMap.put("cantCreateLastUpdated_" + i, e.getMessage());
+                // this is probably existing from another JVM
+                LOG.warn("Probably ok, cant create last updated config record", e);
+              }
+            }
+          }
+          
+        } else {
+          break;
+        }
+      }
+      if (!readonly && exception != null) {
+        LOG.error("Cant create config last updated record!!!!", exception);
+      }
+      if (lastUpdated != null) {
+        debugMap.put("lastUpdated", lastUpdated);
+        updateCheckLastRetrieved = System.currentTimeMillis();
+      }
+      return lastUpdated;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("ms", (System.nanoTime() - now)/1000000);
+        LOG.debug(mapToString(debugMap));
+      }
+    }
+  }
+  
+  /**
+   * get hash for db creds
+   * @param input
+   * @return bytes
+   */
+  public static String sha256(String input) {  
+    final String algorithm = "SHA-256";
+    try {
+      // Static getInstance method is called with hashing SHA  
+      MessageDigest md = MessageDigest.getInstance(algorithm);  
+
+      // digest() method called  
+      // to calculate message digest of an input  
+      // and return array of byte 
+      return toHexString(md.digest(input.getBytes(StandardCharsets.UTF_8)));  
+    } catch (NoSuchAlgorithmException nsae) {
+      throw new RuntimeException("Error in algorith: '" + algorithm + "'", nsae);
+    }
+  } 
+  
+  /**
+   * 
+   * @param hash
+   * @return string
+   */
+  public static String toHexString(byte[] hash) { 
+      // Convert byte array into signum representation  
+      BigInteger number = new BigInteger(1, hash);  
+
+      // Convert message digest into hex value  
+      StringBuilder hexString = new StringBuilder(number.toString(16));  
+
+      // Pad with leading zeros 
+      while (hexString.length() < 32) {  
+          hexString.insert(0, '0');  
+      }  
+
+      return hexString.toString();  
+  } 
+
+  /**
+   * keep creds cached so we know if we need to replace them
+   */
+  private static String dbCredsSha1 = null;
+  
+  /** save the source */
+  private static ComboPooledDataSource comboPooledDataSource = null;
+  
+  /**
+   * @param debugMap
+   * @param dbUrl
+   * @param dbUser
+   * @param dbPass
+   * @param driver
+   * @return the data source
+   */
+  private static synchronized ComboPooledDataSource dataSource(Map<String, Object> debugMap, String dbUrl, String dbUser, String dbPass, String driver) {
+    
+    debugMap.put("dbUrl", dbUrl);
+    debugMap.put("dbUser", dbUser);
+    debugMap.put("dbPass", (dbPass == null || dbPass.length() == 0) ? "empty" : "******");
+    debugMap.put("dbDriver", driver);
+
+    String theHash = sha256(dbUrl + dbUser + dbPass + driver);
+    
+    boolean poolExists = comboPooledDataSource != null;
+    debugMap.put("poolExists", poolExists);
+    
+    boolean credHashMatches = dbCredsSha1 != null || theHash.equals(dbCredsSha1);
+    debugMap.put("credHashMatches", credHashMatches);
+    
+    if (poolExists) {
+      
+      // if there is a password change or whatever
+      if (!credHashMatches) {
+        comboPooledDataSource.close();
+        comboPooledDataSource = null;
+      } else {
+        // all good use the pool
+        return comboPooledDataSource;
+      }
+    }
+    
+    dbCredsSha1 = theHash;
+
+    debugMap.put("makingNewPool", true);
+
+    ComboPooledDataSource comboPooledDataSourceTemp = new ComboPooledDataSource();
+      
+    try {
+      Class.forName(driver);
+    } catch (Exception e) {
+      throw new RuntimeException("Cant find class for db driver from grouper-hibernate.properties: " + driver, e);
+    }
+
+    try {
+      comboPooledDataSourceTemp.setDriverClass(driver);
+    } catch (Exception e) {
+      throw new RuntimeException("Error with driver: " + driver, e);
+    }
+    comboPooledDataSourceTemp.setJdbcUrl(dbUrl);
+    comboPooledDataSourceTemp.setUser(dbUser);
+    comboPooledDataSourceTemp.setPassword(dbPass);
+    
+
+    // Optional Settings
+    comboPooledDataSourceTemp.setInitialPoolSize(1);
+    comboPooledDataSourceTemp.setMinPoolSize(1);
+    comboPooledDataSourceTemp.setAcquireIncrement(1);
+    comboPooledDataSourceTemp.setMaxPoolSize(5);
+    comboPooledDataSourceTemp.setMaxStatements(100);
+
+    comboPooledDataSource = comboPooledDataSourceTemp;
+
+    return comboPooledDataSource;
+  }
+
+  
+  /**
+   * get configs from database
+   * @param dbUrl GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+   * @param dbUser GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+   * @param dbPass String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+   * dbPass = Morph.decryptIfFile(dbPass);
+   * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+   * @return the list of maps by config name
+   */
+  private synchronized static Map<String, Map<String, String>> retrieveDatabaseConfigFromDatabase(
+      String dbUrl, String dbUser, String dbPass, String driver) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("operation", "retrieveDatabaseConfigFromDatabase");
+    long now = System.nanoTime();
+
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+
+    Map<String, Map<String, String>> databaseConfigCacheTemp = new HashMap<String, Map<String, String>>();
+    try {
+      // select from the database
+      connection = dataSource(debugMap, dbUrl, dbUser, dbPass, driver).getConnection();
+      debugMap.put("gotConnection", true);
+    
+      preparedStatement = connection.prepareStatement("select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?");
+      preparedStatement.setString(1, "INSTITUTION");
+  
+      resultSet = preparedStatement.executeQuery();
+                        
+      while (resultSet.next()) {
+        String configFileName = resultSet.getString("config_file_name");
+        String configKey = resultSet.getString("config_key");
+        String configValue = resultSet.getString("config_value");
+        String configEncrypted = resultSet.getString("config_encrypted");
+        
+        Map<String, String> configPropertiesForFile = databaseConfigCacheTemp.get(configFileName);
+        
+        if (configPropertiesForFile == null) {
+          configPropertiesForFile = new HashMap<String, String>();
+          databaseConfigCacheTemp.put(configFileName, configPropertiesForFile);
+        }
+        
+        // decrypt if encrypted
+        if (booleanValue(configEncrypted, false)) {
+          // TODO dont decrypt this in memory?
+          configValue = Morph.decrypt(configValue);
+        }
+        
+        configPropertiesForFile.put(configKey, configValue);
+      }
+      debugMap.put("configFilesFound", databaseConfigCacheTemp.size());
+      for (String configFileName : databaseConfigCacheTemp.keySet()) {
+        debugMap.put("configFile_" + configFileName + "_propertiesFound", databaseConfigCacheTemp.get(configFileName).size());
+      }
+      
+    } catch (Exception e) {
+      debugMap.put("exception", e.getMessage());
+
+      throw new RuntimeException("error", e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("ms", (System.nanoTime() - now)/1000000);
+
+        LOG.debug(mapToString(debugMap));
+      }
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(connection);
+    }
+    return databaseConfigCacheTemp;
+  }  
+    
+
+  /**
+   * is an object null or blank
+   * 
+   * @param object
+   * @return true if null or blank
+   */
+  public static boolean nullOrBlank(Object object) {
+    // first handle blanks and nulls
+    if (object == null) {
+      return true;
+    }
+    if (object instanceof String && isBlank(((String) object))) {
+      return true;
+    }
+    return false;
+  
+  }
+
+  /**
+   * get the boolean value for an object, cant be null or blank
+   * 
+   * @param object
+   * @return the boolean
+   */
+  public static boolean booleanValue(Object object) {
+    // first handle blanks
+    if (nullOrBlank(object)) {
+      throw new RuntimeException(
+          "Expecting something which can be converted to boolean, but is null or blank: '"
+              + object + "'");
+    }
+    // its not blank, just convert
+    if (object instanceof Boolean) {
+      return (Boolean) object;
+    }
+    if (object instanceof String) {
+      String string = (String) object;
+      if (equalsIgnoreCase(string, "true")
+          || equalsIgnoreCase(string, "t")
+          || equalsIgnoreCase(string, "yes")
+          || equalsIgnoreCase(string, "y")) {
+        return true;
+      }
+      if (equalsIgnoreCase(string, "false")
+          || equalsIgnoreCase(string, "f")
+          || equalsIgnoreCase(string, "no")
+          || equalsIgnoreCase(string, "n")) {
+        return false;
+      }
+      throw new RuntimeException(
+          "Invalid string to boolean conversion: '" + string
+              + "' expecting true|false or t|f or yes|no or y|n case insensitive");
+  
+    }
+    throw new RuntimeException("Cant convert object to boolean: "
+        + object.getClass());
+  
+  }
+
+    
+  /**
+   * convert a set to a string (comma separate)
+   * @param map
+   * @return the String
+   */
+  public static String mapToString(Map map) {
+    if (map == null) {
+      return "null";
+    }
+    if (map.size() == 0) {
+      return "empty";
+    }
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (Object object : map.keySet()) {
+      if (!first) {
+        result.append(", ");
+      }
+      first = false;
+      result.append(object).append(": ").append(map.get(object));
+    }
+    return result.toString();
+  }
+
+  /**
+   * close a connection null safe and dont throw exception
+   * @param connection
+   */
+  public static void closeQuietly(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (Exception e) {
+        throw new RuntimeException("Cant close connection!");
+      }
+    }
+  }
+
+  /**
+   * Unconditionally close an <code>InputStream</code>.
+   * Equivalent to {@link InputStream#close()}, except any exceptions will be ignored.
+   * @param input A (possibly null) InputStream
+   */
+  public static void closeQuietly(InputStream input) {
+    if (input == null) {
+      return;
+    }
+  
+    try {
+      input.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
+   * Unconditionally close an <code>InputStream</code>.
+   * Equivalent to {@link InputStream#close()}, except any exceptions will be ignored.
+   * @param input A (possibly null) InputStream
+   */
+  public static void closeQuietly(Statement input) {
+    if (input == null) {
+      return;
+    }
+  
+    try {
+      input.close();
+    } catch (Exception ioe) {
+    }
+  }
+
+  /**
+   * close a resultSet null safe and dont throw exception
+   * @param resultSet
+   */
+  public static void closeQuietly(ResultSet resultSet) {
+    if (resultSet != null) {
+      try {
+        resultSet.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * See if the input is null or if string, if it is empty or blank (whitespace)
+   * @param input
+   * @return true if blank
+   */
+  public static boolean isBlank(Object input) {
+    if (null == input) {
+      return true;
+    }
+    return (input instanceof String && isBlank((String)input));
+  }
+
+  /**
+   * <p>Checks if a String is whitespace, empty ("") or null.</p>
+   *
+   * <pre>
+   * isBlank(null)      = true
+   * isBlank("")        = true
+   * isBlank(" ")       = true
+   * isBlank("bob")     = false
+   * isBlank("  bob  ") = false
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @return <code>true</code> if the String is null, empty or whitespace
+   * @since 2.0
+   */
+  public static boolean isBlank(String str) {
+    int strLen;
+    if (str == null || (strLen = str.length()) == 0) {
+      return true;
+    }
+    for (int i = 0; i < strLen; i++) {
+      if ((Character.isWhitespace(str.charAt(i)) == false)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * equalsignorecase
+   * @param str1
+   * @param str2
+   * @return true if the strings are equal ignore case
+   */
+  public static boolean equalsIgnoreCase(String str1, String str2) {
+    return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
+  }
+
+  /**
+   * get the boolean value for an object
+   * 
+   * @param object
+   * @param defaultBoolean
+   *            if object is null or empty
+   * @return the boolean
+   */
+  public static boolean booleanValue(Object object, boolean defaultBoolean) {
+    if (nullOrBlank(object)) {
+      return defaultBoolean;
+    }
+    return booleanValue(object);
+  }
+
+  /**
+   * get configs from database
+   * @param dbUrl GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+   * @param dbUser GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+   * @param dbPass String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+   * dbPass = Morph.decryptIfFile(dbPass);
+   * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+   * mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
+   */
+  private synchronized static void createLastUpdatedRecordInDatabase(
+      String dbUrl, String dbUser, String dbPass, String driver) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long now = System.nanoTime();
+    debugMap.put("operation", "createLastUpdatedRecordInDatabase");
+    debugMap.put("readonly", readonly);
+  
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+  
+    try {
+      
+      if (readonly) {
+        // nothing to do
+        return;
+      }
+      
+      // select from the database
+      connection = dataSource(debugMap, dbUrl, dbUser, dbPass, driver).getConnection();
+      connection.setAutoCommit(false);
+      debugMap.put("gotConnection", true);
+
+      preparedStatement = connection.prepareStatement("insert into grouper_config (id, config_file_name, config_key, config_value, "
+          + "config_comment, config_file_hierarchy, config_encrypted, config_sequence, config_version_index, last_updated, hibernate_version_number) "
+          + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+      
+      // id
+      preparedStatement.setString(1, uuid());
+      
+      // config_file_name
+      preparedStatement.setString(2, "grouper.properties");
+      
+      // config_key
+      preparedStatement.setString(3, "grouper.config.millisSinceLastDbConfigChanged");
+      
+      // config_value
+      preparedStatement.setString(4, "0");
+      
+      // config_comment
+      preparedStatement.setString(5, "This is internal for Grouper, dont edit this manually!");
+      
+      // config_file_hierarchy
+      preparedStatement.setString(6, "INSTITUTION");
+
+      // config_encrypted
+      preparedStatement.setString(7, "F");
+
+      // config_sequence
+      preparedStatement.setInt(8, 0);
+
+      // config_version_index
+      preparedStatement.setInt(9, 0);
+  
+      // last_updated
+      preparedStatement.setBigDecimal(10, new BigDecimal(System.currentTimeMillis()));
+      
+      // hibernate_version_number
+      preparedStatement.setInt(11, 0);
+      
+      int rows = preparedStatement.executeUpdate();
+      debugMap.put("rows", rows);
+      
+      connection.commit();
+                              
+    } catch (Exception e) {
+      try {
+        connection.rollback();
+      } catch (Exception e2) {
+        LOG.debug("Cant rollback", e2);
+        // ignore
+      }
+      debugMap.put("exception", e.getMessage());
+  
+      throw new RuntimeException("error", e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("ms", (System.nanoTime() - now)/1000000);
+
+        LOG.debug(mapToString(debugMap));
+      }
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(connection);
+    }
+  
+  }
+
+  /**
+   * sleep, if interrupted, throw runtime
+   * @param millis
+   */
+  public static void sleep(long millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException ie) {
+      throw new RuntimeException(ie);
+    }
+  }
+
+  /**
+   * generate a uuid
+   * @return uuid
+   */
+  public static String uuid() {
+    String uuid = UUID.randomUUID().toString();
+    
+    char[] result = new char[32];
+    int resultIndex = 0;
+    for (int i=0;i<uuid.length();i++) {
+      char theChar = uuid.charAt(i);
+      if (theChar != '-') {
+        if (resultIndex >= result.length) {
+          throw new RuntimeException("Why is resultIndex greater than result.length ???? " 
+              + resultIndex + " , " + result.length + ", " + uuid);
+        }
+        result[resultIndex++] = theChar;
+      }
+    }
+    return new String(result);
+
+  }
+
+  /**
+   * null safe classname method, gets the unenhanced name
+   * 
+   * @param object
+   * @return the classname
+   */
+  public static String className(Object object) {
+    return object == null ? null : object.getClass().getName();
+  }
+
+  /**
+   * convert an object to a long
+   * @param input
+   * @return the number
+   */
+  public static long longValue(Object input) {
+    if (input instanceof String) {
+      String string = (String)input;
+      return Long.parseLong(string);
+    }
+    if (input instanceof Number) {
+      return ((Number)input).longValue();
+    }
+    throw new RuntimeException("Cannot convert to long: " + className(input));
+  }
+
+  /**
+   * get config last updated from database
+   * @param dbUrl GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+   * @param dbUser GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+   * @param dbPass String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+   * dbPass = Morph.decryptIfFile(dbPass);
+   * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+   * @return when was config last changed in database or null if not found (row needs insert)
+   */
+  private synchronized static Long retrieveConfigLastUpdatedFromDatabase(
+      String dbUrl, String dbUser, String dbPass, String driver) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+    debugMap.put("operation", "retrieveConfigLastUpdatedFromDatabase");
+    long now = System.nanoTime();
+
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+  
+    try {
+      
+      // select from the database
+      connection = dataSource(debugMap, dbUrl, dbUser, dbPass, driver).getConnection();
+      debugMap.put("gotConnection", true);
+    
+      // TODO cache the uuid, and try to get by that, if not then do columns.  might be faster
+      preparedStatement = connection.prepareStatement("select config_value from grouper_config where config_file_name = ? and config_key = ? and config_file_hierarchy = ? and config_sequence = ?");
+      preparedStatement.setString(1, "grouper.properties");
+      preparedStatement.setString(2, "grouper.config.millisSinceLastDbConfigChanged");
+      preparedStatement.setString(3, "INSTITUTION");
+      preparedStatement.setBigDecimal(4, new BigDecimal(0));
+  
+      resultSet = preparedStatement.executeQuery();
+                        
+      if (resultSet.next()) {
+        debugMap.put("gotResult", true);
+        String configValue = resultSet.getString("config_value");
+        debugMap.put("configValue", configValue);
+        final long longValue = longValue(configValue);
+        debugMap.put("longValue", longValue);
+        return longValue;
+      }
+      debugMap.put("gotResult", false);
+      return null;
+    } catch (Exception e) {
+      debugMap.put("exception", e.getMessage());
+  
+      throw new RuntimeException(e.getMessage(), e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("ms", (System.nanoTime() - now)/1000000);
+
+        LOG.debug(mapToString(debugMap));
+      }
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(connection);
+    }
+  
+  }
+
+  /**
+   * see if config table exists
+   * @param dbUrl GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+   * @param dbUser GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+   * @param dbPass String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+   * dbPass = Morph.decryptIfFile(dbPass);
+   * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+   * @return if the config table exists
+   */
+  private synchronized static boolean configTableExists(
+      String dbUrl, String dbUser, String dbPass, String driver) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long now = System.nanoTime();
+
+    debugMap.put("operation", "configTableExists");
+  
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+  
+    try {
+      
+      // select from the database
+      connection = dataSource(debugMap, dbUrl, dbUser, dbPass, driver).getConnection();
+      debugMap.put("gotConnection", true);
+    
+      preparedStatement = connection.prepareStatement("select count(*) from grouper_config");
+
+      resultSet = preparedStatement.executeQuery();
+                        
+      if (resultSet.next()) {
+        debugMap.put("gotResult", true);
+        resultSet.getBigDecimal(1);
+        debugMap.put("foundTable", true);
+        return true;
+      }
+    } catch (Exception e) {
+      debugMap.put("exception", e.getMessage());
+  
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("ms", (System.nanoTime() - now)/1000000);
+
+        LOG.debug(mapToString(debugMap));
+      }
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(connection);
+    }
+    return false;
+  }
+
+  /**
+   * if there is no driver class specified, then try to derive it from the URL
+   * @param connectionUrl
+   * @param driverClassName
+   * @return the driver class
+   */
+  public static String convertUrlToDriverClassIfNeeded(String connectionUrl, String driverClassName) {
+    //default some of the stuff
+    if (isBlank(driverClassName)) {
+      
+      if (isHsql(connectionUrl)) {
+        driverClassName = "org.hsqldb.jdbcDriver";
+      } else if (isMysql(connectionUrl)) {
+        driverClassName = "com.mysql.jdbc.Driver";
+      } else if (isOracle(connectionUrl)) {
+        driverClassName = "oracle.jdbc.driver.OracleDriver";
+      } else if (isPostgres(connectionUrl)) { 
+        driverClassName = "org.postgresql.Driver";
+      } else if (isSQLServer(connectionUrl)) {
+        driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+      } else {
+        
+        //if this is blank we will figure it out later
+        if (!isBlank(connectionUrl)) {
+        
+          String error = "Cannot determine the driver class from database URL: " + connectionUrl;
+          System.err.println(error);
+          LOG.error(error);
+          return null;
+        }
+      }
+    }
+    return driverClassName;
+  
+  }
+
+  /**
+   * see if the config file seems to be hsql
+   * @param connectionUrl url to check against
+   * @return see if hsql
+   */
+  public static boolean isHsql(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":hsqldb:");
+  }
+
+  /**
+   * see if the config file seems to be mysql
+   * @param connectionUrl
+   * @return see if mysql
+   */
+  public static boolean isMysql(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":mysql:");
+  }
+
+  /**
+   * see if the config file seems to be oracle
+   * @param connectionUrl
+   * @return see if oracle
+   */
+  public static boolean isOracle(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":oracle:");
+  }
+
+  /**
+   * see if the config file seems to be postgres
+   * @param connectionUrl
+   * @return see if postgres
+   */
+  public static boolean isPostgres(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":postgresql:");
+  }
+
+  /**
+   * see if the config file seems to be sql server
+   * @param connectionUrl
+   * @return see if sql server
+   */
+  public static boolean isSQLServer(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":sqlserver:");
+  }
+
+  /**
+   * <p>Returns either the passed in String,
+   * or if the String is <code>null</code>, an empty String ("").</p>
+   *
+   * <pre>
+   * StringUtils.defaultString(null)  = ""
+   * StringUtils.defaultString("")    = ""
+   * StringUtils.defaultString("bat") = "bat"
+   * </pre>
+   *
+   * @see String#valueOf(Object)
+   * @param str  the String to check, may be null
+   * @return the passed in String, or the empty String if it
+   *  was <code>null</code>
+   */
+  public static String defaultString(String str) {
+    return str == null ? "" : str;
+  }
+
+}
