@@ -19,6 +19,7 @@ import static edu.internet2.middleware.grouper.app.reports.GrouperReportSettings
 import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,7 +39,6 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
-import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinderResults;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
@@ -348,8 +348,19 @@ public class GrouperReportConfigService {
   /**
    * @return set of assignments
    */
-  public static Set<AttributeAssign> getAllAttributeAssignsForReports() {
-    return GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameId(retrieveAttributeDefNameBase().getId());
+  public static Set<AttributeAssign> getAllAttributeAssignsForEnabledReports() {
+    Set<AttributeAssign> enabledAssigns = new LinkedHashSet<AttributeAssign>();
+    Set<AttributeAssign> assigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameId(retrieveAttributeDefNameBase().getId());
+    
+    for (AttributeAssign assign : assigns) {
+      AttributeValueDelegate attributeValueDelegate = assign.getAttributeValueDelegate();
+      AttributeAssignValue assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName() + ":" + GROUPER_REPORT_CONFIG_ENABLED);
+      if (assignValue == null || BooleanUtils.toBoolean(assignValue.getValueString())) {
+        enabledAssigns.add(assign);
+      }
+    }
+    
+    return enabledAssigns;
   }
   
   /**
