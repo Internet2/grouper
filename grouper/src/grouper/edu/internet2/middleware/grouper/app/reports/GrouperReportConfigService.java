@@ -38,9 +38,11 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinderResults;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -341,6 +343,13 @@ public class GrouperReportConfigService {
     Stem stem = (Stem)grouperObject;
     return stem.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
     
+  }
+  
+  /**
+   * @return set of assignments
+   */
+  public static Set<AttributeAssign> getAllAttributeAssignsForReports() {
+    return GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameId(retrieveAttributeDefNameBase().getId());
   }
   
   /**
