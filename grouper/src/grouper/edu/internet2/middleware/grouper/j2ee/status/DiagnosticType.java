@@ -180,7 +180,7 @@ public enum DiagnosticType {
         if (GrouperReportSettings.grouperReportsEnabled()) {
           Set<AttributeAssign> assigns = sourceCache.get(GrouperLoaderType.grouper_report);
           if (assigns == null) {
-            assigns = GrouperReportConfigService.getAllAttributeAssignsForReports();
+            assigns = GrouperReportConfigService.getAllAttributeAssignsForEnabledReports();
             sourceCache.put(GrouperLoaderType.grouper_report, assigns);
           }
 
