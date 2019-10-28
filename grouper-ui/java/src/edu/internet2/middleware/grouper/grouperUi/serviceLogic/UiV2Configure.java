@@ -1022,6 +1022,9 @@ public class UiV2Configure {
    */
   private static void buildConfigFileAndMetadata() {
     
+    // get the latest and greatest
+    ConfigPropertiesCascadeBase.clearCache();
+    
     ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
     
     ConfigFileName configFileName = configurationContainer.getConfigFileName();
