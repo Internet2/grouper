@@ -601,14 +601,14 @@ public class ConfigDatabaseLogic {
 
       throw new RuntimeException("error", e);
     } finally {
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(connection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
         LOG.debug(mapToString(debugMap));
       }
-      closeQuietly(resultSet);
-      closeQuietly(preparedStatement);
-      closeQuietly(connection);
     }
     return databaseConfigCacheTemp;
   }  
@@ -909,14 +909,14 @@ public class ConfigDatabaseLogic {
   
       throw new RuntimeException("error", e);
     } finally {
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(connection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
         LOG.debug(mapToString(debugMap));
       }
-      closeQuietly(resultSet);
-      closeQuietly(preparedStatement);
-      closeQuietly(connection);
     }
   
   }
@@ -1033,14 +1033,14 @@ public class ConfigDatabaseLogic {
   
       throw new RuntimeException(e.getMessage(), e);
     } finally {
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(connection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
         LOG.debug(mapToString(debugMap));
       }
-      closeQuietly(resultSet);
-      closeQuietly(preparedStatement);
-      closeQuietly(connection);
     }
   
   }
@@ -1068,6 +1068,11 @@ public class ConfigDatabaseLogic {
   
     try {
       
+      // if another thread did this
+      if (tableExists) {
+        return true;
+      }
+      
       // select from the database
       connection = dataSource(debugMap, dbUrl, dbUser, dbPass, driver).getConnection();
       debugMap.put("gotConnection", true);
@@ -1086,14 +1091,14 @@ public class ConfigDatabaseLogic {
       debugMap.put("exception", e.getMessage());
   
     } finally {
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(connection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
         LOG.debug(mapToString(debugMap));
       }
-      closeQuietly(resultSet);
-      closeQuietly(preparedStatement);
-      closeQuietly(connection);
     }
     return false;
   }
