@@ -35,9 +35,12 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -170,6 +173,32 @@ public enum DiagnosticType {
           String jobName = matcher.group(1);
 
           diagnosticsTasks.add(new DiagnosticLoaderJobTest("OTHER_JOB_" + jobName, GrouperLoaderType.MAINTENANCE));
+        }
+      }
+      
+      {
+        if (GrouperReportSettings.grouperReportsEnabled()) {
+          Set<AttributeAssign> assigns = sourceCache.get(GrouperLoaderType.grouper_report);
+          if (assigns == null) {
+            assigns = GrouperReportConfigService.getAllAttributeAssignsForReports();
+            sourceCache.put(GrouperLoaderType.grouper_report, assigns);
+          }
+
+          for (AttributeAssign assign : assigns) {
+            String jobName = "grouper_report_";
+            
+            if (assign.getAttributeAssignType() == AttributeAssignType.group) {
+              jobName += assign.getOwnerGroupId();
+            } else if (assign.getAttributeAssignType() == AttributeAssignType.stem) {
+              jobName += assign.getOwnerStemId();
+            } else {
+              throw new RuntimeException("Unexpected attribute assign type " + assign.getAttributeAssignType() + " for assignment " + assign.getId());
+            }
+            
+            jobName += "_" + assign.getId();
+            
+            diagnosticsTasks.add(new DiagnosticLoaderJobTest(jobName, GrouperLoaderType.grouper_report));
+          }
         }
       }
 
