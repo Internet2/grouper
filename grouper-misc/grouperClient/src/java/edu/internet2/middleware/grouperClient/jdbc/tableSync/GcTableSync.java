@@ -1557,9 +1557,6 @@ public class GcTableSync {
    * @param args
    */
   public static void main(String[] args) {
-    GcTableSync gcTableSync = new GcTableSync();
-    gcTableSync.setKey("personSource");
-    gcTableSync.fullSync();
 
     
 //    GcTableSync gcTableSync = new GcTableSync();

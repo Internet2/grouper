@@ -92,7 +92,7 @@ public class RuleApiTest extends GrouperTest {
 //    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
 //    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
 //    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
-    TestRunner.run(new RuleApiTest("testRuleVetoSubjectAssignInFolderIfNotInGroupDaemon"));
+    TestRunner.run(new RuleApiTest("testRuleVetoSubjectAssignInFolderIfNotInGroupChangeLogConsumer"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
@@ -1395,6 +1395,8 @@ public class RuleApiTest extends GrouperTest {
     restrictedGroup.addMember(subject0);
     
     assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+    
+    restrictedGroup.deleteMember(subject0);
 
 //    GrouperSession grouperSession = GrouperSession.startRootSession();
     Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
@@ -1409,7 +1411,7 @@ public class RuleApiTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
     GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
     
-//    long initialFirings = RuleEngine.ruleFirings;
+    initialFirings = RuleEngine.ruleFirings;
 //    
 //    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
 

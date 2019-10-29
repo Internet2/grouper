@@ -81,6 +81,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -9598,33 +9599,7 @@ public class GrouperClientCommonUtils  {
    * @return the driver class
    */
   public static String convertUrlToDriverClassIfNeeded(String connectionUrl, String driverClassName) {
-    //default some of the stuff
-    if (isBlank(driverClassName)) {
-      
-      if (isHsql(connectionUrl)) {
-        driverClassName = "org.hsqldb.jdbcDriver";
-      } else if (isMysql(connectionUrl)) {
-        driverClassName = "com.mysql.jdbc.Driver";
-      } else if (isOracle(connectionUrl)) {
-        driverClassName = "oracle.jdbc.driver.OracleDriver";
-      } else if (isPostgres(connectionUrl)) { 
-        driverClassName = "org.postgresql.Driver";
-      } else if (isSQLServer(connectionUrl)) {
-        driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-      } else {
-        
-        //if this is blank we will figure it out later
-        if (!isBlank(connectionUrl)) {
-        
-          String error = "Cannot determine the driver class from database URL: " + connectionUrl;
-          System.err.println(error);
-          LOG.error(error);
-          return null;
-        }
-      }
-    }
-    return driverClassName;
-  
+    return ConfigDatabaseLogic.convertUrlToDriverClassIfNeeded(connectionUrl, driverClassName);
   }
 
   /**
@@ -9633,7 +9608,7 @@ public class GrouperClientCommonUtils  {
    * @return see if hsql
    */
   public static boolean isHsql(String connectionUrl) {
-    return defaultString(connectionUrl).toLowerCase().contains(":hsqldb:");
+    return ConfigDatabaseLogic.isHsql(connectionUrl);
   }
 
   /**
@@ -9642,7 +9617,7 @@ public class GrouperClientCommonUtils  {
    * @return see if mysql
    */
   public static boolean isMysql(String connectionUrl) {
-    return defaultString(connectionUrl).toLowerCase().contains(":mysql:");
+    return ConfigDatabaseLogic.isMysql(connectionUrl);
   }
 
   /**
@@ -9651,7 +9626,7 @@ public class GrouperClientCommonUtils  {
    * @return see if oracle
    */
   public static boolean isOracle(String connectionUrl) {
-    return defaultString(connectionUrl).toLowerCase().contains(":oracle:");
+    return ConfigDatabaseLogic.isOracle(connectionUrl);
   }
 
   /**
@@ -9660,7 +9635,7 @@ public class GrouperClientCommonUtils  {
    * @return see if postgres
    */
   public static boolean isPostgres(String connectionUrl) {
-    return defaultString(connectionUrl).toLowerCase().contains(":postgresql:");
+    return ConfigDatabaseLogic.isPostgres(connectionUrl);
   }
 
   /**
@@ -9669,7 +9644,7 @@ public class GrouperClientCommonUtils  {
    * @return see if sql server
    */
   public static boolean isSQLServer(String connectionUrl) {
-    return defaultString(connectionUrl).toLowerCase().contains(":sqlserver:");
+    return ConfigDatabaseLogic.isSQLServer(connectionUrl);
   }
 
 }

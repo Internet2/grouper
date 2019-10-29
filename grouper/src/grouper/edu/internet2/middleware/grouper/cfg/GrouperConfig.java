@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 
@@ -323,12 +324,29 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
     
   }
 
+  /** when was last config set to db config settings */
+  private static long lastDatabaseLogicConfigSet = -1L;
+  
   /**
    * retrieve a config from the config file or from cache
    * @return the config object
    */
   public static GrouperConfig retrieveConfig() {
-    return retrieveConfig(GrouperConfig.class);
+    GrouperConfig grouperConfig = retrieveConfig(GrouperConfig.class);
+    
+    // every 10 seconds set properties to db config
+    long currentTime = System.currentTimeMillis();
+    if ((currentTime - lastDatabaseLogicConfigSet) / 1000 > 10) {
+      lastDatabaseLogicConfigSet = currentTime;
+      // set some things for db configuration
+      boolean readonly = grouperConfig.propertyValueBoolean("grouper.api.readonly", true);
+      ConfigDatabaseLogic.assignReadonly(readonly);
+      int secondsBetweenUpdateChecksToDb = grouperConfig.propertyValueInt("grouper.config.secondsBetweenUpdateChecksToDb", 60);
+      ConfigDatabaseLogic.assignSecondsBetweenUpdateChecksToDb(secondsBetweenUpdateChecksToDb);
+      int secondsBetweenFullRefresh = grouperConfig.propertyValueInt("grouper.config.secondsBetweenFullRefresh", 60);
+      ConfigDatabaseLogic.assignSecondsBetweenFullRefresh(secondsBetweenFullRefresh);
+    }
+    return grouperConfig;
   }
 
 

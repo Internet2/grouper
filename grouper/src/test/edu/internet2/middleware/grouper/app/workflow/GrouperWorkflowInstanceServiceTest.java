@@ -20,11 +20,33 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.subject.Subject;
+import junit.textui.TestRunner;
 
 public class GrouperWorkflowInstanceServiceTest extends GrouperTest {
   
 private GrouperSession grouperSession;
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new GrouperWorkflowInstanceServiceTest("testSaveOrUpdateWorkflowInstance"));
+  }
   
+  /**
+   * 
+   */
+  public GrouperWorkflowInstanceServiceTest() {
+  }
+
+  /**
+   * @param name
+   */
+  public GrouperWorkflowInstanceServiceTest(String name) {
+    super(name);
+  }
+
   @Override
   protected void setUp() {
     super.setUp();
@@ -182,6 +204,16 @@ private GrouperSession grouperSession;
     instance.setWorkflowInstanceLogEntriesString("{}");
     instance.setWorkflowInstanceInitiatedMillisSince1970(11111L);
     instance.setWorkflowInstanceLastUpdatedMillisSince1970(11111L);
+
+    GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
+    logEntry.setAction("initiate");
+    logEntry.setSubjectId(SubjectTestHelper.SUBJ0_ID);
+    logEntry.setState("initiate");
+    
+    GrouperWorkflowInstanceLogEntries logEntries = new GrouperWorkflowInstanceLogEntries();
+    logEntries.getLogEntries().add(logEntry);
+    
+    instance.setGrouperWorkflowInstanceLogEntries(logEntries);
     return instance;
   }
   

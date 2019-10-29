@@ -13,12 +13,11 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ConfigurationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Configure;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.morphString.Morph;
 
 /**
  * utils for config stuff

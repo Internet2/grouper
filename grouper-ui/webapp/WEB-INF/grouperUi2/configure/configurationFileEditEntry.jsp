@@ -53,11 +53,11 @@
                  <label class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
                  <div class="controls">
                    <input type="text" id="valueId" class="span6" name="valueName" 
-                     value="${grouper:escapeJavascript(grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptlet ?
+                     value="${grouper:escapeHtml(grouperRequestContainer.configurationContainer.currentGuiConfigProperty.configItemMetadata.sampleProperty ? '' : 
+                         (grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptlet ?
                          grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptletForUi : 
-                         grouperRequestContainer.configurationContainer.currentGuiConfigProperty.propertyValue)}" />
+                         grouperRequestContainer.configurationContainer.currentGuiConfigProperty.propertyValue))}" />
                    <span class="help-block">${textContainer.text['configurationFilesAddEntryValueDescription'] }</span>
-                 
                  </div>
                </div>
 

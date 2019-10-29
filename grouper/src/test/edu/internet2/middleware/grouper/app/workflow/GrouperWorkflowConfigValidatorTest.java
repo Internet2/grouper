@@ -46,7 +46,7 @@ private GrouperSession grouperSession;
         "Workflow config id is not valid. It can only be alphanumeric with underscores and hyphens.",
         "Workflow config description is required", 
         "Approver group id sdgf76gdf87 not found for workflow state groupManager",
-        "Group not found for assignToGroup group id sgk234kh234",
+        "Group not found for assignToGroup group id sdgf76gdf87",
         "Workflow viewers group id not found",
         "Workflow enabled can only have \"true\", \"false\" and \"noNewSubmissions\" values");
     assertEquals(expected, errors);
@@ -55,7 +55,8 @@ private GrouperSession grouperSession;
   
   private GrouperWorkflowConfig buildSampleGrouperWorfklowConfig(Group ownerGroup, String workflowId) {
     GrouperWorkflowConfig config = new GrouperWorkflowConfig();
-    String defaultApprovalStatesString = GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(ownerGroup.getId());
+    //String defaultApprovalStatesString = GrouperWorkflowApprovalStates.getDefaultApprovalStatesString(ownerGroup.getId());
+    String defaultApprovalStatesString = GrouperWorkflowApprovalStates.getDefaultApprovalStatesString("sdgf76gdf87");
     config.setWorkflowConfigApprovalsString(defaultApprovalStatesString);
     config.setWorkflowApprovalStates(GrouperWorkflowApprovalStates.buildApprovalStatesFromJsonString(defaultApprovalStatesString));
     config.setOwnerGroup(ownerGroup);
