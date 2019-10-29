@@ -183,7 +183,6 @@ public class RegistryReset {
     for (int i=start; i<end; i++) {
       String id   = "test.subject." + i;
       
-      Subject subject = null;
       boolean createdSession = false;
       GrouperSession grouperSession = null;
       try {
@@ -192,14 +191,10 @@ public class RegistryReset {
           grouperSession = GrouperSession.startRootSession();
           createdSession = true;
         }
-        subject = SubjectFinder.findById(id, false);
-        if (subject != null) {
-          continue;
-        }
-  
+        
         String name = "my name is " + id;
-  
         RegistrySubject.add(grouperSession, id, SUBJ_TYPE, name);
+        
       } finally {
         if (createdSession) {
           GrouperSession.stopQuietly(grouperSession);
