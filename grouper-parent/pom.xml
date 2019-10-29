@@ -86,7 +86,7 @@
         <antlr.version>2.7.7</antlr.version>
         <asm.version>3.3.1</asm.version>
         <backport.util.version>3.1</backport.util.version>
-        <c3p0.version>0.9.5.2</c3p0.version>
+        <c3p0.version>0.9.5.4</c3p0.version>
         <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
         <mchange.commons.version>0.2.14</mchange.commons.version>
         <cglib.version>3.1</cglib.version>
