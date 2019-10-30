@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 
 
 /**
@@ -62,7 +63,7 @@ public class GrouperLoaderDbTest extends GrouperTest {
 
     GrouperStartup.startup();
     
-    DataSource dataSource = GrouperLoaderDb.retrieveDataSourceFromC3P0(url, user);
+    DataSource dataSource = ConfigDatabaseLogic.retrieveDataSourceFromC3P0(url, user);
     assertNotNull(dataSource);
 
   }

@@ -29,18 +29,13 @@ import javax.sql.DataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import com.mchange.v2.c3p0.C3P0Registry;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.mchange.v2.c3p0.DriverManagerDataSource;
-import com.mchange.v2.c3p0.PoolBackedDataSource;
-import com.mchange.v2.c3p0.WrapperConnectionPoolDataSource;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 
 
 /**
@@ -65,34 +60,6 @@ public class GrouperLoaderDb {
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderDb.class);
 
-  /**
-   * get a pooled data source by url and user
-   * @param url
-   * @param user
-   * @return the data source or null if not found
-   */
-  static DataSource retrieveDataSourceFromC3P0(String url, String user) {
-    for (Object dataSourceObject : C3P0Registry.getPooledDataSources()) {
-      WrapperConnectionPoolDataSource wrapperConnectionPoolDataSource = null;
-      if (dataSourceObject instanceof ComboPooledDataSource) {
-        ComboPooledDataSource comboPooledDataSource = (ComboPooledDataSource)dataSourceObject;
-        wrapperConnectionPoolDataSource = (WrapperConnectionPoolDataSource)comboPooledDataSource.getConnectionPoolDataSource();
-      } else {
-        PoolBackedDataSource poolBackedDataSource = (PoolBackedDataSource)dataSourceObject;
-        wrapperConnectionPoolDataSource = (WrapperConnectionPoolDataSource)poolBackedDataSource.getConnectionPoolDataSource();
-      }
-      DriverManagerDataSource driverManagerDataSource = (DriverManagerDataSource)wrapperConnectionPoolDataSource.getNestedDataSource();
-      String c3p0jdbcUrl = driverManagerDataSource.getJdbcUrl();
-      String c3p0user = driverManagerDataSource.getUser();
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("c3p0 pool user@url: " + c3p0user + "@" + c3p0jdbcUrl);
-      }
-      if (StringUtils.equals(url, c3p0jdbcUrl) && StringUtils.equals(user, c3p0user)) {
-        return (DataSource)dataSourceObject;
-      }
-    }
-    return null;
-  }
   
   /**
    * retrieve the config name for a url and user
@@ -142,7 +109,7 @@ public class GrouperLoaderDb {
       //pooling
   
       //see if there is a pool
-      DataSource dataSource = retrieveDataSourceFromC3P0(this.url, this.user);
+      DataSource dataSource = ConfigDatabaseLogic.retrieveDataSourceFromC3P0(this.url, this.user);
       
       //if so, we are good, this will cover the grouper built in database case with hibernate
       if (dataSource != null) {
@@ -246,7 +213,7 @@ public class GrouperLoaderDb {
       }
 
       //is it there now????
-      dataSource = retrieveDataSourceFromC3P0(this.url, this.user);
+      dataSource = ConfigDatabaseLogic.retrieveDataSourceFromC3P0(this.url, this.user);
       
       return dataSource.getConnection();
       
