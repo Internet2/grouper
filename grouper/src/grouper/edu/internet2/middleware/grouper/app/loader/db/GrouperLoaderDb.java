@@ -134,7 +134,9 @@ public class GrouperLoaderDb {
       Integer idleTestPeriod = null;
       Integer acquireIncrement = null;
       Boolean validate = null;
-
+      Boolean debugUnreturnedConnectionStackTraces = null;
+      Integer unreturnedConnectionTimeout = null;
+      
       //lets see whats in the loader config
       //  ##optional pooling params, these will default to the grouper.hibernate(.base).properties pooling settings
       //  #db.warehouse.c3p0.max_size = 100
@@ -146,6 +148,8 @@ public class GrouperLoaderDb {
       //  #db.warehouse.c3p0.acquire_increment = 1
       //  #db.warehouse.c3p0.validate = false
       if (!StringUtils.isBlank(configName)) {
+        debugUnreturnedConnectionStackTraces = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("db." + configName + ".c3p0.debugUnreturnedConnectionStackTraces");
+        unreturnedConnectionTimeout = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.unreturnedConnectionTimeout");
         minSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.min_size");
         maxSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.max_size");
         timeout = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.timeout");
@@ -166,6 +170,12 @@ public class GrouperLoaderDb {
       //  hibernate.c3p0.idle_test_period = 100
       //  hibernate.c3p0.acquire_increment = 1
       //  hibernate.c3p0.validate = false
+      if (debugUnreturnedConnectionStackTraces == null) {
+        debugUnreturnedConnectionStackTraces = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("hibernate.c3p0.debugUnreturnedConnectionStackTraces");
+      }
+      if (unreturnedConnectionTimeout == null) {
+        unreturnedConnectionTimeout = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.unreturnedConnectionTimeout");
+      }
       if (minSize == null) {
         minSize = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.min_size");
       }
@@ -189,6 +199,12 @@ public class GrouperLoaderDb {
       }
 
       //if set, set them, otherwise defaults
+      if (debugUnreturnedConnectionStackTraces == null) {
+        comboPooledDataSource.setDebugUnreturnedConnectionStackTraces(debugUnreturnedConnectionStackTraces);
+      }
+      if (unreturnedConnectionTimeout == null) {
+        comboPooledDataSource.setUnreturnedConnectionTimeout(unreturnedConnectionTimeout);
+      }
       if (minSize != null) {
         comboPooledDataSource.setMinPoolSize(minSize);
       }

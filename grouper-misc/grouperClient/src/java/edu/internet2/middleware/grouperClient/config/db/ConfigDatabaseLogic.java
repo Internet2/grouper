@@ -14,8 +14,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,18 +160,11 @@ public class ConfigDatabaseLogic {
   /**
    * 
    * @param mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
-   * @param dbUrl 
-   * @param dbUser 
-   * @param dbPass 
-   * @param driver 
-   * @param readonly 
    * @return the inputStream for this config's properties
    */
-  public static InputStream retrieveConfigInputStream(String mainConfigFileName, String dbUrl, String dbUser, String dbPass, String driver) {
+  public static InputStream retrieveConfigInputStream(String mainConfigFileName) {
 
-    driver = convertUrlToDriverClassIfNeeded(dbUrl, driver);
-
-    Map<String, String> configMap = retrieveConfigMap(mainConfigFileName, dbUrl, dbUser, dbPass, driver);
+    Map<String, String> configMap = retrieveConfigMap(mainConfigFileName);
     if (configMap == null) {
       configMap = new HashMap<String, String>();
     }
@@ -196,13 +191,9 @@ public class ConfigDatabaseLogic {
   /**
    * 
    * @param mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
-   * @param dbUrl 
-   * @param dbUser 
-   * @param dbPass 
-   * @param driver 
    * @return the inputStream for this config's properties
    */
-  private static Map<String, String> retrieveConfigMap(String mainConfigFileName, String dbUrl, String dbUser, String dbPass, String driver) {
+  private static Map<String, String> retrieveConfigMap(String mainConfigFileName) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -241,7 +232,7 @@ public class ConfigDatabaseLogic {
       //if there is no table there, dont fail
       boolean tableExistsTemp = tableExists;
       
-      if (tableExistsTemp || configTableExists(dbUrl, dbUser, dbPass, driver)) {
+      if (tableExistsTemp || configTableExists()) {
         
         // try to avoid a race condition here
         if (!tableExistsTemp) {
@@ -251,7 +242,7 @@ public class ConfigDatabaseLogic {
         // we need the last updated value created while Grouper starts up
         Long lastUpdated = null;
         if (updateCheckLastRetrieved == -1) {
-          lastUpdated = retrieveOrCreateLastUpdatedRecord(dbUrl, dbUser, dbPass, driver);
+          lastUpdated = retrieveOrCreateLastUpdatedRecord();
         }
         
         boolean needsRefresh = false;
@@ -300,7 +291,7 @@ public class ConfigDatabaseLogic {
                 
                 debugMap.put("needsCheckLastUpdate2", needsCheckLastUpdate);
                 if (needsCheckLastUpdate) {
-                  lastUpdated = retrieveOrCreateLastUpdatedRecord(dbUrl, dbUser, dbPass, driver);
+                  lastUpdated = retrieveOrCreateLastUpdatedRecord();
                 }
               }
             }
@@ -330,7 +321,7 @@ public class ConfigDatabaseLogic {
             // maybe another thread did this
             if (theDatabaseConfigCache == null || databaseConfigCacheLastRetrieved == currentDatabaseConfigCache) {
               debugMap.put("updatingConfig", true);
-              theDatabaseConfigCache = retrieveDatabaseConfigFromDatabase(dbUrl, dbUser, dbPass, driver);
+              theDatabaseConfigCache = retrieveDatabaseConfigFromDatabase();
               databaseConfigCache = theDatabaseConfigCache;
               databaseConfigRefreshCount++;
               databaseConfigCacheLastRetrieved = System.currentTimeMillis();
@@ -366,14 +357,9 @@ public class ConfigDatabaseLogic {
   }
 
   /**
-   * @param dbUrl
-   * @param dbUser
-   * @param dbPass
-   * @param driver
    * @return the last changed long millis since 1970 or null if cant find
    */
-  private static Long retrieveOrCreateLastUpdatedRecord(String dbUrl, String dbUser, String dbPass,
-      String driver) {
+  private static Long retrieveOrCreateLastUpdatedRecord() {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -386,7 +372,7 @@ public class ConfigDatabaseLogic {
     Exception exception = null;
     try {
       for (int i=0; i<10;i++) {
-        lastUpdated = retrieveConfigLastUpdatedFromDatabase(dbUrl, dbUser, dbPass, driver);
+        lastUpdated = retrieveConfigLastUpdatedFromDatabase();
         debugMap.put("lastUpdated_" + i, lastUpdated);
         
         // should only happen during startup
@@ -395,12 +381,12 @@ public class ConfigDatabaseLogic {
           // wait un to a second if other JVMs are doing something
           sleep(new Random().nextInt(1000));
           
-          lastUpdated = retrieveConfigLastUpdatedFromDatabase(dbUrl, dbUser, dbPass, driver);
+          lastUpdated = retrieveConfigLastUpdatedFromDatabase();
           if (lastUpdated == null) {
             if (!readonly) {
               debugMap.put("creatingLastUpdated_" + i, lastUpdated);
               try {
-                createLastUpdatedRecordInDatabase(dbUrl, dbUser, dbPass, driver);
+                createLastUpdatedRecordInDatabase();
                 exception = null;
               } catch (Exception e) {
                 exception = e;
@@ -472,14 +458,6 @@ public class ConfigDatabaseLogic {
   } 
 
   /**
-   * keep creds cached so we know if we need to replace them
-   */
-  private static String dbCredsSha1 = null;
-  
-  /** save the source */
-  private static AbstractPoolBackedDataSource dataSource = null;
-  
-  /**
    * null safe string compare
    * @param first
    * @param second
@@ -496,28 +474,12 @@ public class ConfigDatabaseLogic {
   }
 
   /**
-   * keep track of how many closed due to dupes
-   */
-  private static int datasourcesClosedDueToDupes = 0;
-
-  /**
    * get a pooled data source by url and user
    * @param url
    * @param user
    * @return the data source or null if not found
    */
   public static DataSource retrieveDataSourceFromC3P0(String url, String user) {
-    return retrieveDataSourceFromC3P0(url, user, null);
-  }
-  
-  /**
-   * get a pooled data source by url and user
-   * @param url
-   * @param user
-   * @param dataSourceExpectedButCloseIfMultiple if data source is expected but use another if this one exists
-   * @return the data source or null if not found
-   */
-  public static DataSource retrieveDataSourceFromC3P0(String url, String user, AbstractPoolBackedDataSource dataSourceExpectedButCloseIfMultiple) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -530,11 +492,10 @@ public class ConfigDatabaseLogic {
       // list of data source which match this url and user
       List<DataSource> dataSourcesMatch = new ArrayList<DataSource>();
   
-      // index of the config db source
-      int thisDataSourceIndex = -1;
-      
       // loop through all pooled sources
       final Set pooledDataSources = C3P0Registry.getPooledDataSources();
+      
+      DataSource result = null;
       
       debugMap.put("user", user);
       debugMap.put("url", url);
@@ -542,16 +503,8 @@ public class ConfigDatabaseLogic {
       
       for (Object dataSourceObject : pooledDataSources) {
   
-        // if its the same one as passed in
-        boolean dataSourceMatchesThis = false;
-  
         WrapperConnectionPoolDataSource wrapperConnectionPoolDataSource = null;
         
-        if (dataSourceExpectedButCloseIfMultiple != null && dataSourceExpectedButCloseIfMultiple == dataSourceObject) {
-          // this data source matches this one
-          dataSourceMatchesThis = true;
-          
-        }
         if (dataSourceObject instanceof ComboPooledDataSource) {
           ComboPooledDataSource theComboPooledDataSource = (ComboPooledDataSource)dataSourceObject;
   
@@ -560,14 +513,11 @@ public class ConfigDatabaseLogic {
           PoolBackedDataSource poolBackedDataSource = (PoolBackedDataSource)dataSourceObject;
           wrapperConnectionPoolDataSource = (WrapperConnectionPoolDataSource)poolBackedDataSource.getConnectionPoolDataSource();
         }
+
         DriverManagerDataSource driverManagerDataSource = (DriverManagerDataSource)wrapperConnectionPoolDataSource.getNestedDataSource();
         String c3p0jdbcUrl = driverManagerDataSource.getJdbcUrl();
         String c3p0user = driverManagerDataSource.getUser();
         if (equals(url, c3p0jdbcUrl) && equals(user, c3p0user)) {
-          if (dataSourceMatchesThis) {
-            debugMap.put("dataSourceMatchesPassedIn", true);
-            thisDataSourceIndex = dataSourcesMatch.size();
-          }
           dataSourcesMatch.add((DataSource)dataSourceObject);
         }
       }
@@ -581,33 +531,45 @@ public class ConfigDatabaseLogic {
       // this should be the usual situation
       if (dataSourcesMatch.size() == 1) {
         // return the same one so the caller knows to keep it cached
-        if (thisDataSourceIndex >=0) {
-          return dataSourceExpectedButCloseIfMultiple;
-        }
-        return dataSourcesMatch.get(0);
+        result = dataSourcesMatch.get(0);
       }
-      
-      // close this data source if another one is there
-      if (thisDataSourceIndex >= 0) {
-        // this is a redundant source
-        datasourcesClosedDueToDupes++;
-        if (datasourcesClosedDueToDupes > 5) {
-          LOG.error("Closed " + datasourcesClosedDueToDupes + " dataSources due to dupes, but should only be closing 1!  Note this is a non fatal error but should be looked at.");
-        }
-        
-        dataSourcesMatch.remove(thisDataSourceIndex);
-        debugMap.put("closingDupeSource", true);
 
-        dataSourceExpectedButCloseIfMultiple.close();
-  
-      }
-      if (dataSourcesMatch.size() > 1) {
-        LOG.info("There are " + dataSourcesMatch.size() + " data sources for " + user + "@" + url );
-      }
       if (dataSourcesMatch.size() > 10) {
         LOG.error("There are " + dataSourcesMatch.size() + " data sources for " + user + "@" + url );
       }
-      return dataSourcesMatch.get(0);
+
+      if (result == null) {
+        
+        // get the one with most connections?
+        int mostConnections = -1;
+        int index = -1;
+        try {
+          for (int i=0;i<dataSourcesMatch.size();i++) {
+            AbstractPoolBackedDataSource abstractPoolBackedDataSource = (AbstractPoolBackedDataSource)dataSourcesMatch.get(0);
+            if (mostConnections == -1 || abstractPoolBackedDataSource.getNumConnections() > mostConnections) {
+              index = i;
+              mostConnections = abstractPoolBackedDataSource.getNumConnections();
+            }
+            
+          }
+        } catch (SQLException sqle) {
+          throw new RuntimeException("Cant get num of connections");
+        }
+        
+        result = dataSourcesMatch.get(index);
+      }
+      if (LOG.isDebugEnabled() && result instanceof AbstractPoolBackedDataSource) {
+        try {
+          AbstractPoolBackedDataSource abstractPoolBackedDataSource = (AbstractPoolBackedDataSource)result;
+          debugMap.put("conn", abstractPoolBackedDataSource.getNumConnections());
+          debugMap.put("busy", abstractPoolBackedDataSource.getNumBusyConnections());
+          debugMap.put("idle", abstractPoolBackedDataSource.getNumIdleConnections());
+        } catch (SQLException sqle) {
+          throw new RuntimeException("error", sqle);
+        }
+      }
+      return result;
+
     } catch (RuntimeException e) {
       debugMap.put("exception", e.getMessage());
 
@@ -623,9 +585,9 @@ public class ConfigDatabaseLogic {
 
   /**
    * @param debugMap
-   * @return the data source
+   * @return the sql connectino either from pool or just from itself
    */
-  private static synchronized AbstractPoolBackedDataSource dataSource(Map<String, Object> debugMap) {
+  private static synchronized Connection connection(Map<String, Object> debugMap) throws SQLException, ClassNotFoundException {
 
     GrouperHibernateConfigClient grouperHibernateConfig = GrouperHibernateConfigClient.retrieveConfig();
 
@@ -635,143 +597,119 @@ public class ConfigDatabaseLogic {
     dbPass = Morph.decryptIfFile(dbPass);
     String driver = grouperHibernateConfig.propertyValueString("hibernate.connection.driver_class");
     driver = ConfigDatabaseLogic.convertUrlToDriverClassIfNeeded(dbUrl, driver);
-     
-    String theHash = sha256(dbUrl + dbUser + dbPass + driver);
+
     
-    boolean poolExists = dataSource != null;
-    debugMap.put("poolExists", poolExists);
+    DataSource theDataSource = retrieveDataSourceFromC3P0(dbUrl, dbUser);
     
-    boolean credHashMatches = dbCredsSha1 != null || theHash.equals(dbCredsSha1);
-    debugMap.put("credHashMatches", credHashMatches);
-    
-    if (poolExists) {
+    if (theDataSource != null) {
       
-      // if there is a password change or whatever
-      if (!credHashMatches) {
-        dataSource.close();
-        dataSource = null;
-      } else {
-        
-        DataSource theDataSource = retrieveDataSourceFromC3P0(dbUrl, dbUser, dataSource);
-        if (theDataSource != null) {
-          
-          debugMap.put("foundDataSource", true);
-          //did we get another one?
-          if (theDataSource != dataSource ) {
-            debugMap.put("switchingDataSource", true);
-            dataSource = (AbstractPoolBackedDataSource)theDataSource;
-          } else {
-            debugMap.put("samDataSource", true);
-          }
-          
-          // all good use the pool
-          return dataSource;
-        }
-        
-      }
-    }
-    
-    dbCredsSha1 = theHash;
-
-    debugMap.put("makingNewPool", true);
-
-    debugMap.put("dbUrl", dbUrl);
-    debugMap.put("dbUser", dbUser);
-    debugMap.put("dbPass", (dbPass == null || dbPass.length() == 0) ? "empty" : "******");
-    debugMap.put("dbDriver", driver);
-
-    ComboPooledDataSource comboPooledDataSourceTemp = new ComboPooledDataSource();
+      debugMap.put("foundDataSource", true);
       
-    try {
-      Class.forName(driver);
-    } catch (Exception e) {
-      throw new RuntimeException("Cant find class for db driver from grouper-hibernate.properties: " + driver, e);
+      // all good use the pool
+      return theDataSource.getConnection();
     }
-
-    try {
-      comboPooledDataSourceTemp.setDriverClass(driver);
-    } catch (Exception e) {
-      throw new RuntimeException("Error with driver: " + driver, e);
-    }
-    comboPooledDataSourceTemp.setJdbcUrl(dbUrl);
-    comboPooledDataSourceTemp.setUser(dbUser);
-    comboPooledDataSourceTemp.setPassword(dbPass);
-    
-
-    // Optional Settings
-    comboPooledDataSourceTemp.setMaxPoolSize(5);
+    debugMap.put("makingUnpooledConnection", true);
+      
+    Class.forName(driver);
 
 
-    
-    // select from the database
-    {
-      Integer acquireRetryAttempts = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.acquireRetryAttempts");
-      if (acquireRetryAttempts != null) {
-        comboPooledDataSourceTemp.setAcquireRetryAttempts(acquireRetryAttempts);
-      }
-    }
-    {
-      Integer acquireRetryDelay = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.acquireRetryDelay");
-      if (acquireRetryDelay != null) {
-        comboPooledDataSourceTemp.setAcquireRetryDelay(acquireRetryDelay);
-      }
-    }
-    {
-      Integer timeout = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.timeout");
-      if (timeout != null) {
-        comboPooledDataSourceTemp.setMaxIdleTime(timeout);
-      }
-    }
-    {
-      Integer idleTestPeriod = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.idle_test_period");
-      if (idleTestPeriod != null) {
-        comboPooledDataSourceTemp.setIdleConnectionTestPeriod(idleTestPeriod);
-      }
-    }
-    {
-      int maxSize = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.max_size", 100);
-      comboPooledDataSourceTemp.setMaxPoolSize(maxSize);
-    }
-    {
-      Integer maxStatements = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.max_statements");
-      if (maxStatements != null) {
-        comboPooledDataSourceTemp.setMaxStatements(maxStatements);
-      }
-    }
-    {
-      int minSize = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.min_size", 0);
-      comboPooledDataSourceTemp.setMinPoolSize(minSize);
-    }
-    {
-      Boolean validate = grouperHibernateConfig.propertyValueBoolean("hibernate.c3p0.validate");
-      if (validate != null) {
-        comboPooledDataSourceTemp.setTestConnectionOnCheckout(validate);
-      }
-    }
-    {
-      Integer acquireIncrement = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.acquire_increment");
-      if (acquireIncrement != null) {
-        comboPooledDataSourceTemp.setAcquireIncrement(acquireIncrement);
-      }
-    }
-    
-    dataSource = comboPooledDataSourceTemp;
+    return DriverManager.getConnection(dbUrl, dbUser, dbPass);
 
-    return comboPooledDataSourceTemp;
+    //    debugMap.put("makingNewPool", true);
+//
+//    debugMap.put("dbUrl", dbUrl);
+//    debugMap.put("dbUser", dbUser);
+//    debugMap.put("dbPass", (dbPass == null || dbPass.length() == 0) ? "empty" : "******");
+//    debugMap.put("dbDriver", driver);
+//
+//    ComboPooledDataSource comboPooledDataSourceTemp = new ComboPooledDataSource();
+//      
+//    try {
+//      Class.forName(driver);
+//    } catch (Exception e) {
+//      throw new RuntimeException("Cant find class for db driver from grouper-hibernate.properties: " + driver, e);
+//    }
+//
+//    try {
+//      comboPooledDataSourceTemp.setDriverClass(driver);
+//    } catch (Exception e) {
+//      throw new RuntimeException("Error with driver: " + driver, e);
+//    }
+//    comboPooledDataSourceTemp.setJdbcUrl(dbUrl);
+//    comboPooledDataSourceTemp.setUser(dbUser);
+//    comboPooledDataSourceTemp.setPassword(dbPass);
+//    
+//
+//    // select from the database
+//    {
+//      Boolean debugUnreturnedConnectionStackTraces = grouperHibernateConfig.propertyValueBoolean("hibernate.c3p0.debugUnreturnedConnectionStackTraces");
+//      if (debugUnreturnedConnectionStackTraces != null) {
+//        comboPooledDataSourceTemp.setDebugUnreturnedConnectionStackTraces(debugUnreturnedConnectionStackTraces);
+//      }
+//    }
+//    {
+//      Integer unreturnedConnectionTimeout = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.unreturnedConnectionTimeout");
+//      if (unreturnedConnectionTimeout != null) {
+//        comboPooledDataSourceTemp.setUnreturnedConnectionTimeout(unreturnedConnectionTimeout);
+//      }
+//    }
+//    {
+//      Integer acquireRetryDelay = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.acquireRetryDelay");
+//      if (acquireRetryDelay != null) {
+//        comboPooledDataSourceTemp.setAcquireRetryDelay(acquireRetryDelay);
+//      }
+//    }
+//    {
+//      Integer timeout = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.timeout");
+//      if (timeout != null) {
+//        comboPooledDataSourceTemp.setMaxIdleTime(timeout);
+//      }
+//    }
+//    {
+//      Integer idleTestPeriod = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.idle_test_period");
+//      if (idleTestPeriod != null) {
+//        comboPooledDataSourceTemp.setIdleConnectionTestPeriod(idleTestPeriod);
+//      }
+//    }
+//    {
+//      int maxSize = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.max_size", 100);
+//      comboPooledDataSourceTemp.setMaxPoolSize(maxSize);
+//    }
+//    {
+//      Integer maxStatements = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.max_statements");
+//      if (maxStatements != null) {
+//        comboPooledDataSourceTemp.setMaxStatements(maxStatements);
+//      }
+//    }
+//    {
+//      // just keep this as zero since this data source is not really going to be used
+//      int minSize = 0; //grouperHibernateConfig.propertyValueInt("hibernate.c3p0.min_size", 0);
+//      comboPooledDataSourceTemp.setMinPoolSize(minSize);
+//    }
+//    {
+//      Boolean validate = grouperHibernateConfig.propertyValueBoolean("hibernate.c3p0.validate");
+//      if (validate != null) {
+//        comboPooledDataSourceTemp.setTestConnectionOnCheckout(validate);
+//      }
+//    }
+//    {
+//      Integer acquireIncrement = grouperHibernateConfig.propertyValueInt("hibernate.c3p0.acquire_increment");
+//      if (acquireIncrement != null) {
+//        comboPooledDataSourceTemp.setAcquireIncrement(acquireIncrement);
+//      }
+//    }
+//    
+//    dataSourcePreferredNotToUseStatic = comboPooledDataSourceTemp;
+//
+//    return comboPooledDataSourceTemp;
   }
 
   
   /**
    * get configs from database
-   * @param dbUrl GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-   * @param dbUser GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-   * @param dbPass String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-   * dbPass = Morph.decryptIfFile(dbPass);
-   * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
    * @return the list of maps by config name
    */
-  private synchronized static Map<String, Map<String, String>> retrieveDatabaseConfigFromDatabase(
-      String dbUrl, String dbUser, String dbPass, String driver) {
+  private synchronized static Map<String, Map<String, String>> retrieveDatabaseConfigFromDatabase() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -785,7 +723,7 @@ public class ConfigDatabaseLogic {
     Map<String, Map<String, String>> databaseConfigCacheTemp = new HashMap<String, Map<String, String>>();
     try {
       // select from the database
-      connection = dataSource(debugMap).getConnection();
+      connection = connection(debugMap);
       debugMap.put("gotConnection", true);
     
       preparedStatement = connection.prepareStatement("select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?");
@@ -1055,8 +993,7 @@ public class ConfigDatabaseLogic {
    * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
    * mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
    */
-  private synchronized static void createLastUpdatedRecordInDatabase(
-      String dbUrl, String dbUser, String dbPass, String driver) {
+  private synchronized static void createLastUpdatedRecordInDatabase() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     long now = System.nanoTime();
@@ -1075,7 +1012,7 @@ public class ConfigDatabaseLogic {
       }
       
       // select from the database
-      connection = dataSource(debugMap).getConnection();
+      connection = connection(debugMap);
       connection.setAutoCommit(false);
       debugMap.put("gotConnection", true);
 
@@ -1214,8 +1151,7 @@ public class ConfigDatabaseLogic {
    * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
    * @return when was config last changed in database or null if not found (row needs insert)
    */
-  private synchronized static Long retrieveConfigLastUpdatedFromDatabase(
-      String dbUrl, String dbUser, String dbPass, String driver) {
+  private synchronized static Long retrieveConfigLastUpdatedFromDatabase() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -1229,7 +1165,8 @@ public class ConfigDatabaseLogic {
     try {
       
       // select from the database
-      connection = dataSource(debugMap).getConnection();
+      connection = connection(debugMap);
+
       debugMap.put("gotConnection", true);
     
       // TODO cache the uuid, and try to get by that, if not then do columns.  might be faster
@@ -1277,8 +1214,7 @@ public class ConfigDatabaseLogic {
    * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
    * @return if the config table exists
    */
-  private synchronized static boolean configTableExists(
-      String dbUrl, String dbUser, String dbPass, String driver) {
+  private synchronized static boolean configTableExists() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     long now = System.nanoTime();
@@ -1297,7 +1233,7 @@ public class ConfigDatabaseLogic {
       }
       
       // select from the database
-      connection = dataSource(debugMap).getConnection();
+      connection = connection(debugMap);
       debugMap.put("gotConnection", true);
     
       preparedStatement = connection.prepareStatement("select count(*) from grouper_config");

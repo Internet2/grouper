@@ -584,13 +584,7 @@ public abstract class ConfigPropertiesCascadeBase {
         
         String mainConfigFileName = configPropertiesCascadeBase.getMainConfigFileName();
         
-        // select from the database
-        String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-        String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-        String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-        dbPass = Morph.decryptIfFile(dbPass);
-        String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
-        return ConfigDatabaseLogic.retrieveConfigInputStream(mainConfigFileName, dbUrl, dbUser, dbPass, driver);
+        return ConfigDatabaseLogic.retrieveConfigInputStream(mainConfigFileName);
       }
     },
     
