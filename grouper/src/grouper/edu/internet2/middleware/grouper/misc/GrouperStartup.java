@@ -79,6 +79,9 @@ public class GrouperStartup {
         return;
       }
       GrouperUtil.sleep(1000);
+      if (GrouperStartup.isFinishedStartupSuccessfully()) {
+        return;
+      }
       if (i>300) {
         LOG.error("Why is grouper not started up yet? " + i);
       }
