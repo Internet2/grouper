@@ -574,12 +574,12 @@ public class ConfigDatabaseLogic {
   /**
    * one connection pool of one
    */
-  private static Connection connection;
+  //private static Connection connection;
   
   /**
    * when was connection opened
    */
-  private static long connectionOpenedMillis1970 = -1;
+  //private static long connectionOpenedMillis1970 = -1;
   
   /**
    * @param debugMap
@@ -589,21 +589,21 @@ public class ConfigDatabaseLogic {
    */
   private static synchronized Connection connection(Map<String, Object> debugMap) throws SQLException, ClassNotFoundException {
 
-    // give it ten minutes
-    if ((System.currentTimeMillis() - connectionOpenedMillis1970) / 1000 > 10 * 60) {
-      debugMap.put("connectionClosedAfterTenMinutes", true);
-      closeQuietly(connection);
-      connection = null;
-    }
-    
-    if (connection != null) {
-      if (connection.isClosed()) {
-        debugMap.put("connectionClosedNeedAnother", true);
-      } else {
-        debugMap.put("reUsingConnection", true);
-        return connection;
-      }
-    }
+//    // give it ten minutes
+//    if ((System.currentTimeMillis() - connectionOpenedMillis1970) / 1000 > 10 * 60) {
+//      debugMap.put("connectionClosedAfterTenMinutes", true);
+//      closeQuietly(connection);
+//      connection = null;
+//    }
+//    
+//    if (connection != null) {
+//      if (connection.isClosed()) {
+//        debugMap.put("connectionClosedNeedAnother", true);
+//      } else {
+//        debugMap.put("reUsingConnection", true);
+//        return connection;
+//      }
+//    }
     
     GrouperHibernateConfigClient grouperHibernateConfig = GrouperHibernateConfigClient.retrieveConfig();
 
@@ -629,8 +629,8 @@ public class ConfigDatabaseLogic {
     Class.forName(driver);
 
 
-    connection = DriverManager.getConnection(dbUrl, dbUser, dbPass);
-    connectionOpenedMillis1970 = System.currentTimeMillis();
+    Connection connection = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+    //connectionOpenedMillis1970 = System.currentTimeMillis();
     
     return connection;
     
@@ -730,13 +730,13 @@ public class ConfigDatabaseLogic {
    */
   private synchronized static Map<String, Map<String, String>> retrieveDatabaseConfigFromDatabase() {
     
-    try {
+//    try {
       return retrieveDatabaseConfigFromDatabaseHelper();
-    } catch (Exception e) {
-      closeQuietly(connection);
-      connection = null;
-    }
-    return retrieveDatabaseConfigFromDatabaseHelper();
+//    } catch (Exception e) {
+//      closeQuietly(connection);
+//      connection = null;
+//    }
+//    return retrieveDatabaseConfigFromDatabaseHelper();
   }
 
   /**
@@ -798,7 +798,7 @@ public class ConfigDatabaseLogic {
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
-      //closeQuietly(connection);
+      closeQuietly(theConnection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
@@ -1023,13 +1023,13 @@ public class ConfigDatabaseLogic {
    */
   private synchronized static void createLastUpdatedRecordInDatabase() {
     
-    try {
+//    try {
       createLastUpdatedRecordInDatabaseHelper();
-    } catch (Exception e) {
-      closeQuietly(connection);
-      connection = null;
-    }
-    createLastUpdatedRecordInDatabaseHelper();
+//    } catch (Exception e) {
+//      closeQuietly(connection);
+//      connection = null;
+//    }
+//    createLastUpdatedRecordInDatabaseHelper();
   }
 
   /**
@@ -1114,7 +1114,7 @@ public class ConfigDatabaseLogic {
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
-      //closeQuietly(connection);
+      closeQuietly(theConnection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
@@ -1191,13 +1191,13 @@ public class ConfigDatabaseLogic {
    */
   private synchronized static Long retrieveConfigLastUpdatedFromDatabase() {
     
-    try {
+//    try {
       return retrieveConfigLastUpdatedFromDatabaseHelper();
-    } catch (Exception e) {
-      closeQuietly(connection);
-      connection = null;
-    }
-    return retrieveConfigLastUpdatedFromDatabaseHelper();
+//    } catch (Exception e) {
+//      closeQuietly(connection);
+//      connection = null;
+//    }
+//    return retrieveConfigLastUpdatedFromDatabaseHelper();
   }
 
   /**
@@ -1248,7 +1248,7 @@ public class ConfigDatabaseLogic {
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
-      //closeQuietly(connection);
+      closeQuietly(theConnection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
@@ -1264,13 +1264,13 @@ public class ConfigDatabaseLogic {
    */
   private synchronized static boolean configTableExists() {
     
-    try {
+//    try {
       return configTableExistsHelper();
-    } catch (Exception e) {
-      closeQuietly(connection);
-      connection = null;
-    }
-    return configTableExistsHelper();
+//    } catch (Exception e) {
+//      closeQuietly(connection);
+//      connection = null;
+//    }
+//    return configTableExistsHelper();
   }
   
   
@@ -1316,7 +1316,7 @@ public class ConfigDatabaseLogic {
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
-      //closeQuietly(theConnection);
+      closeQuietly(theConnection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
