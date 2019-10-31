@@ -233,10 +233,10 @@ public class GrouperLoaderDb {
       }
 
       //if set, set them, otherwise defaults
-      if (debugUnreturnedConnectionStackTraces == null) {
+      if (debugUnreturnedConnectionStackTraces != null) {
         comboPooledDataSource.setDebugUnreturnedConnectionStackTraces(debugUnreturnedConnectionStackTraces);
       }
-      if (unreturnedConnectionTimeout == null) {
+      if (unreturnedConnectionTimeout != null) {
         comboPooledDataSource.setUnreturnedConnectionTimeout(unreturnedConnectionTimeout);
       }
       if (minSize != null) {

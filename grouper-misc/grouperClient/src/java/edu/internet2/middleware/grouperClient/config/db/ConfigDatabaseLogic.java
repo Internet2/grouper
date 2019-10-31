@@ -19,24 +19,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
-
-import javax.sql.DataSource;
-
-import com.mchange.v2.c3p0.C3P0Registry;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.mchange.v2.c3p0.DriverManagerDataSource;
-import com.mchange.v2.c3p0.PoolBackedDataSource;
-import com.mchange.v2.c3p0.WrapperConnectionPoolDataSource;
-import com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource;
 
 import edu.internet2.middleware.grouperClient.config.GrouperHibernateConfigClient;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -473,115 +461,115 @@ public class ConfigDatabaseLogic {
     return first.equals(second);
   }
 
-  /**
-   * get a pooled data source by url and user
-   * @param url
-   * @param user
-   * @return the data source or null if not found
-   */
-  private static DataSource retrieveDataSourceFromC3P0(String url, String user) {
-    
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("operation", "retrieveDataSourceFromC3P0");
-    long now = System.nanoTime();
-
-
-    try {
-
-      // list of data source which match this url and user
-      List<DataSource> dataSourcesMatch = new ArrayList<DataSource>();
-  
-      // loop through all pooled sources
-      final Set pooledDataSources = C3P0Registry.getPooledDataSources();
-      
-      DataSource result = null;
-      
-      debugMap.put("user", user);
-      debugMap.put("url", url);
-      debugMap.put("dataSourcesSize", pooledDataSources.size());
-      
-      for (Object dataSourceObject : pooledDataSources) {
-  
-        WrapperConnectionPoolDataSource wrapperConnectionPoolDataSource = null;
-        
-        if (dataSourceObject instanceof ComboPooledDataSource) {
-          ComboPooledDataSource theComboPooledDataSource = (ComboPooledDataSource)dataSourceObject;
-  
-          wrapperConnectionPoolDataSource = (WrapperConnectionPoolDataSource)theComboPooledDataSource.getConnectionPoolDataSource();
-        } else {
-          PoolBackedDataSource poolBackedDataSource = (PoolBackedDataSource)dataSourceObject;
-          wrapperConnectionPoolDataSource = (WrapperConnectionPoolDataSource)poolBackedDataSource.getConnectionPoolDataSource();
-        }
-
-        DriverManagerDataSource driverManagerDataSource = (DriverManagerDataSource)wrapperConnectionPoolDataSource.getNestedDataSource();
-        String c3p0jdbcUrl = driverManagerDataSource.getJdbcUrl();
-        String c3p0user = driverManagerDataSource.getUser();
-        if (equals(url, c3p0jdbcUrl) && equals(user, c3p0user)) {
-          dataSourcesMatch.add((DataSource)dataSourceObject);
-        }
-      }
-      
-      debugMap.put("dataSourcesMatch", dataSourcesMatch.size());
-
-      if (dataSourcesMatch.size() == 0) {
-        return null;
-      }
-      
-      // this should be the usual situation
-      if (dataSourcesMatch.size() == 1) {
-        // return the same one so the caller knows to keep it cached
-        result = dataSourcesMatch.get(0);
-      }
-
-      if (dataSourcesMatch.size() > 10) {
-        LOG.error("There are " + dataSourcesMatch.size() + " data sources for " + user + "@" + url );
-      }
-
-      if (result == null) {
-        
-        // get the one with most connections?
-        int mostConnections = -1;
-        int index = -1;
-        try {
-          for (int i=0;i<dataSourcesMatch.size();i++) {
-            AbstractPoolBackedDataSource abstractPoolBackedDataSource = (AbstractPoolBackedDataSource)dataSourcesMatch.get(0);
-            if (mostConnections == -1 || abstractPoolBackedDataSource.getNumConnections() > mostConnections) {
-              index = i;
-              mostConnections = abstractPoolBackedDataSource.getNumConnections();
-            }
-            
-          }
-        } catch (SQLException sqle) {
-          throw new RuntimeException("Cant get num of connections");
-        }
-        
-        result = dataSourcesMatch.get(index);
-      }
-      if (LOG.isDebugEnabled() && result instanceof AbstractPoolBackedDataSource) {
-        try {
-          AbstractPoolBackedDataSource abstractPoolBackedDataSource = (AbstractPoolBackedDataSource)result;
-          debugMap.put("conn", abstractPoolBackedDataSource.getNumConnections());
-          debugMap.put("busy", abstractPoolBackedDataSource.getNumBusyConnections());
-          debugMap.put("idle", abstractPoolBackedDataSource.getNumIdleConnections());
-        } catch (SQLException sqle) {
-          throw new RuntimeException("error", sqle);
-        }
-      }
-      return result;
-
-    } catch (RuntimeException e) {
-      debugMap.put("exception", e.getMessage());
-
-      throw e;
-    } finally {
-      if (LOG.isDebugEnabled()) {
-        debugMap.put("ms", (System.nanoTime() - now)/1000000);
-
-        LOG.debug(mapToString(debugMap));
-      }
-    }
-  }
+//  /**
+//   * get a pooled data source by url and user
+//   * @param url
+//   * @param user
+//   * @return the data source or null if not found
+//   */
+//  private static DataSource retrieveDataSourceFromC3P0(String url, String user) {
+//    
+//    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+//
+//    debugMap.put("operation", "retrieveDataSourceFromC3P0");
+//    long now = System.nanoTime();
+//
+//
+//    try {
+//
+//      // list of data source which match this url and user
+//      List<DataSource> dataSourcesMatch = new ArrayList<DataSource>();
+//  
+//      // loop through all pooled sources
+//      final Set pooledDataSources = C3P0Registry.getPooledDataSources();
+//      
+//      DataSource result = null;
+//      
+//      debugMap.put("user", user);
+//      debugMap.put("url", url);
+//      debugMap.put("dataSourcesSize", pooledDataSources.size());
+//      
+//      for (Object dataSourceObject : pooledDataSources) {
+//  
+//        WrapperConnectionPoolDataSource wrapperConnectionPoolDataSource = null;
+//        
+//        if (dataSourceObject instanceof ComboPooledDataSource) {
+//          ComboPooledDataSource theComboPooledDataSource = (ComboPooledDataSource)dataSourceObject;
+//  
+//          wrapperConnectionPoolDataSource = (WrapperConnectionPoolDataSource)theComboPooledDataSource.getConnectionPoolDataSource();
+//        } else {
+//          PoolBackedDataSource poolBackedDataSource = (PoolBackedDataSource)dataSourceObject;
+//          wrapperConnectionPoolDataSource = (WrapperConnectionPoolDataSource)poolBackedDataSource.getConnectionPoolDataSource();
+//        }
+//
+//        DriverManagerDataSource driverManagerDataSource = (DriverManagerDataSource)wrapperConnectionPoolDataSource.getNestedDataSource();
+//        String c3p0jdbcUrl = driverManagerDataSource.getJdbcUrl();
+//        String c3p0user = driverManagerDataSource.getUser();
+//        if (equals(url, c3p0jdbcUrl) && equals(user, c3p0user)) {
+//          dataSourcesMatch.add((DataSource)dataSourceObject);
+//        }
+//      }
+//      
+//      debugMap.put("dataSourcesMatch", dataSourcesMatch.size());
+//
+//      if (dataSourcesMatch.size() == 0) {
+//        return null;
+//      }
+//      
+//      // this should be the usual situation
+//      if (dataSourcesMatch.size() == 1) {
+//        // return the same one so the caller knows to keep it cached
+//        result = dataSourcesMatch.get(0);
+//      }
+//
+//      if (dataSourcesMatch.size() > 10) {
+//        LOG.error("There are " + dataSourcesMatch.size() + " data sources for " + user + "@" + url );
+//      }
+//
+//      if (result == null) {
+//        
+//        // get the one with most connections?
+//        int mostConnections = -1;
+//        int index = -1;
+//        try {
+//          for (int i=0;i<dataSourcesMatch.size();i++) {
+//            AbstractPoolBackedDataSource abstractPoolBackedDataSource = (AbstractPoolBackedDataSource)dataSourcesMatch.get(0);
+//            if (mostConnections == -1 || abstractPoolBackedDataSource.getNumConnections() > mostConnections) {
+//              index = i;
+//              mostConnections = abstractPoolBackedDataSource.getNumConnections();
+//            }
+//            
+//          }
+//        } catch (SQLException sqle) {
+//          throw new RuntimeException("Cant get num of connections");
+//        }
+//        
+//        result = dataSourcesMatch.get(index);
+//      }
+//      if (LOG.isDebugEnabled() && result instanceof AbstractPoolBackedDataSource) {
+//        try {
+//          AbstractPoolBackedDataSource abstractPoolBackedDataSource = (AbstractPoolBackedDataSource)result;
+//          debugMap.put("conn", abstractPoolBackedDataSource.getNumConnections());
+//          debugMap.put("busy", abstractPoolBackedDataSource.getNumBusyConnections());
+//          debugMap.put("idle", abstractPoolBackedDataSource.getNumIdleConnections());
+//        } catch (SQLException sqle) {
+//          throw new RuntimeException("error", sqle);
+//        }
+//      }
+//      return result;
+//
+//    } catch (RuntimeException e) {
+//      debugMap.put("exception", e.getMessage());
+//
+//      throw e;
+//    } finally {
+//      if (LOG.isDebugEnabled()) {
+//        debugMap.put("ms", (System.nanoTime() - now)/1000000);
+//
+//        LOG.debug(mapToString(debugMap));
+//      }
+//    }
+//  }
 
   /**
    * one connection pool of one
