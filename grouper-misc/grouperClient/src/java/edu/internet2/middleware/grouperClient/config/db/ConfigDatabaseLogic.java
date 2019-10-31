@@ -479,7 +479,7 @@ public class ConfigDatabaseLogic {
    * @param user
    * @return the data source or null if not found
    */
-  public static DataSource retrieveDataSourceFromC3P0(String url, String user) {
+  private static DataSource retrieveDataSourceFromC3P0(String url, String user) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -584,11 +584,39 @@ public class ConfigDatabaseLogic {
   }
 
   /**
+   * one connection pool of one
+   */
+  private static Connection connection;
+  
+  /**
+   * when was connection opened
+   */
+  private static long connectionOpenedMillis1970 = -1;
+  
+  /**
    * @param debugMap
    * @return the sql connectino either from pool or just from itself
+   * @throws SQLException 
+   * @throws ClassNotFoundException 
    */
   private static synchronized Connection connection(Map<String, Object> debugMap) throws SQLException, ClassNotFoundException {
 
+    // give it ten minutes
+    if ((System.currentTimeMillis() - connectionOpenedMillis1970) / 1000 > 10 * 60) {
+      debugMap.put("connectionClosedAfterTenMinutes", true);
+      closeQuietly(connection);
+      connection = null;
+    }
+    
+    if (connection != null) {
+      if (connection.isClosed()) {
+        debugMap.put("connectionClosedNeedAnother", true);
+      } else {
+        debugMap.put("reUsingConnection", true);
+        return connection;
+      }
+    }
+    
     GrouperHibernateConfigClient grouperHibernateConfig = GrouperHibernateConfigClient.retrieveConfig();
 
     String dbUrl = grouperHibernateConfig.propertyValueStringRequired("hibernate.connection.url");;
@@ -599,22 +627,25 @@ public class ConfigDatabaseLogic {
     driver = ConfigDatabaseLogic.convertUrlToDriverClassIfNeeded(dbUrl, driver);
 
     
-    DataSource theDataSource = retrieveDataSourceFromC3P0(dbUrl, dbUser);
+    // DataSource theDataSource = retrieveDataSourceFromC3P0(dbUrl, dbUser);
     
-    if (theDataSource != null) {
-      
-      debugMap.put("foundDataSource", true);
-      
-      // all good use the pool
-      return theDataSource.getConnection();
-    }
+    //    if (theDataSource != null) {
+    //      
+    //      debugMap.put("foundDataSource", true);
+    //      
+    //      // all good use the pool
+    //      return theDataSource.getConnection();
+    //    }
     debugMap.put("makingUnpooledConnection", true);
       
     Class.forName(driver);
 
 
-    return DriverManager.getConnection(dbUrl, dbUser, dbPass);
-
+    connection = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+    connectionOpenedMillis1970 = System.currentTimeMillis();
+    
+    return connection;
+    
     //    debugMap.put("makingNewPool", true);
 //
 //    debugMap.put("dbUrl", dbUrl);
@@ -711,22 +742,37 @@ public class ConfigDatabaseLogic {
    */
   private synchronized static Map<String, Map<String, String>> retrieveDatabaseConfigFromDatabase() {
     
+    try {
+      return retrieveDatabaseConfigFromDatabaseHelper();
+    } catch (Exception e) {
+      closeQuietly(connection);
+      connection = null;
+    }
+    return retrieveDatabaseConfigFromDatabaseHelper();
+  }
+
+  /**
+   * get configs from database
+   * @return the list of maps by config name
+   */
+  private synchronized static Map<String, Map<String, String>> retrieveDatabaseConfigFromDatabaseHelper() {
+    
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("operation", "retrieveDatabaseConfigFromDatabase");
     long now = System.nanoTime();
 
-    Connection connection = null;
+    Connection theConnection = null;
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
 
     Map<String, Map<String, String>> databaseConfigCacheTemp = new HashMap<String, Map<String, String>>();
     try {
       // select from the database
-      connection = connection(debugMap);
+      theConnection = connection(debugMap);
       debugMap.put("gotConnection", true);
     
-      preparedStatement = connection.prepareStatement("select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?");
+      preparedStatement = theConnection.prepareStatement("select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?");
       preparedStatement.setString(1, "INSTITUTION");
   
       resultSet = preparedStatement.executeQuery();
@@ -764,7 +810,7 @@ public class ConfigDatabaseLogic {
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
-      closeQuietly(connection);
+      //closeQuietly(connection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
@@ -861,12 +907,12 @@ public class ConfigDatabaseLogic {
 
   /**
    * close a connection null safe and dont throw exception
-   * @param connection
+   * @param theConnection
    */
-  public static void closeQuietly(Connection connection) {
-    if (connection != null) {
+  public static void closeQuietly(Connection theConnection) {
+    if (theConnection != null) {
       try {
-        connection.close();
+        theConnection.close();
       } catch (Exception e) {
         throw new RuntimeException("Cant close connection!");
       }
@@ -985,22 +1031,31 @@ public class ConfigDatabaseLogic {
   }
 
   /**
-   * get configs from database
-   * @param dbUrl GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-   * @param dbUser GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-   * @param dbPass String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-   * dbPass = Morph.decryptIfFile(dbPass);
-   * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
-   * mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
+   * create last updated record
    */
   private synchronized static void createLastUpdatedRecordInDatabase() {
+    
+    try {
+      createLastUpdatedRecordInDatabaseHelper();
+    } catch (Exception e) {
+      closeQuietly(connection);
+      connection = null;
+    }
+    createLastUpdatedRecordInDatabaseHelper();
+  }
+
+  /**
+   * get configs from database
+   * mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
+   */
+  private synchronized static void createLastUpdatedRecordInDatabaseHelper() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     long now = System.nanoTime();
     debugMap.put("operation", "createLastUpdatedRecordInDatabase");
     debugMap.put("readonly", readonly);
   
-    Connection connection = null;
+    Connection theConnection = null;
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
   
@@ -1012,11 +1067,11 @@ public class ConfigDatabaseLogic {
       }
       
       // select from the database
-      connection = connection(debugMap);
-      connection.setAutoCommit(false);
+      theConnection = connection(debugMap);
+      theConnection.setAutoCommit(false);
       debugMap.put("gotConnection", true);
 
-      preparedStatement = connection.prepareStatement("insert into grouper_config (id, config_file_name, config_key, config_value, "
+      preparedStatement = theConnection.prepareStatement("insert into grouper_config (id, config_file_name, config_key, config_value, "
           + "config_comment, config_file_hierarchy, config_encrypted, config_sequence, config_version_index, last_updated, hibernate_version_number) "
           + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
       
@@ -1056,11 +1111,11 @@ public class ConfigDatabaseLogic {
       int rows = preparedStatement.executeUpdate();
       debugMap.put("rows", rows);
       
-      connection.commit();
+      theConnection.commit();
                               
     } catch (Exception e) {
       try {
-        connection.rollback();
+        theConnection.rollback();
       } catch (Exception e2) {
         LOG.debug("Cant rollback", e2);
         // ignore
@@ -1071,7 +1126,7 @@ public class ConfigDatabaseLogic {
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
-      closeQuietly(connection);
+      //closeQuietly(connection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
@@ -1144,33 +1199,43 @@ public class ConfigDatabaseLogic {
 
   /**
    * get config last updated from database
-   * @param dbUrl GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-   * @param dbUser GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-   * @param dbPass String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-   * dbPass = Morph.decryptIfFile(dbPass);
-   * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
    * @return when was config last changed in database or null if not found (row needs insert)
    */
   private synchronized static Long retrieveConfigLastUpdatedFromDatabase() {
+    
+    try {
+      return retrieveConfigLastUpdatedFromDatabaseHelper();
+    } catch (Exception e) {
+      closeQuietly(connection);
+      connection = null;
+    }
+    return retrieveConfigLastUpdatedFromDatabaseHelper();
+  }
+
+  /**
+   * get config last updated from database
+   * @return when was config last changed in database or null if not found (row needs insert)
+   */
+  private synchronized static Long retrieveConfigLastUpdatedFromDatabaseHelper() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("operation", "retrieveConfigLastUpdatedFromDatabase");
     long now = System.nanoTime();
 
-    Connection connection = null;
+    Connection theConnection = null;
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
   
     try {
       
       // select from the database
-      connection = connection(debugMap);
+      theConnection = connection(debugMap);
 
       debugMap.put("gotConnection", true);
     
       // TODO cache the uuid, and try to get by that, if not then do columns.  might be faster
-      preparedStatement = connection.prepareStatement("select config_value from grouper_config where config_file_name = ? and config_key = ? and config_file_hierarchy = ? and config_sequence = ?");
+      preparedStatement = theConnection.prepareStatement("select config_value from grouper_config where config_file_name = ? and config_key = ? and config_file_hierarchy = ? and config_sequence = ?");
       preparedStatement.setString(1, "grouper.properties");
       preparedStatement.setString(2, "grouper.config.millisSinceLastDbConfigChanged");
       preparedStatement.setString(3, "INSTITUTION");
@@ -1195,7 +1260,7 @@ public class ConfigDatabaseLogic {
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
-      closeQuietly(connection);
+      //closeQuietly(connection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
@@ -1207,21 +1272,32 @@ public class ConfigDatabaseLogic {
 
   /**
    * see if config table exists
-   * @param dbUrl GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-   * @param dbUser GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-   * @param dbPass String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-   * dbPass = Morph.decryptIfFile(dbPass);
-   * @param driver GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
    * @return if the config table exists
    */
   private synchronized static boolean configTableExists() {
+    
+    try {
+      return configTableExistsHelper();
+    } catch (Exception e) {
+      closeQuietly(connection);
+      connection = null;
+    }
+    return configTableExistsHelper();
+  }
+  
+  
+  /**
+   * see if config table exists
+   * @return if the config table exists
+   */
+  private synchronized static boolean configTableExistsHelper() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     long now = System.nanoTime();
 
     debugMap.put("operation", "configTableExists");
   
-    Connection connection = null;
+    Connection theConnection = null;
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
   
@@ -1233,10 +1309,10 @@ public class ConfigDatabaseLogic {
       }
       
       // select from the database
-      connection = connection(debugMap);
+      theConnection = connection(debugMap);
       debugMap.put("gotConnection", true);
     
-      preparedStatement = connection.prepareStatement("select count(*) from grouper_config");
+      preparedStatement = theConnection.prepareStatement("select count(*) from grouper_config");
 
       resultSet = preparedStatement.executeQuery();
                         
@@ -1252,7 +1328,7 @@ public class ConfigDatabaseLogic {
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
-      closeQuietly(connection);
+      //closeQuietly(theConnection);
       if (LOG.isDebugEnabled()) {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
