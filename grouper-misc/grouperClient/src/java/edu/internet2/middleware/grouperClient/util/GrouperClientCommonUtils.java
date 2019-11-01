@@ -84,6 +84,7 @@ import java.util.regex.Pattern;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 
 
@@ -5425,7 +5426,7 @@ public class GrouperClientCommonUtils  {
   /**
    * logger
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperClientCommonUtils.class);
+  private static Log LOG = LogFactory.getLog(GrouperClientCommonUtils.class);
 
   /**
    * clear properties cache (e.g. for testing)

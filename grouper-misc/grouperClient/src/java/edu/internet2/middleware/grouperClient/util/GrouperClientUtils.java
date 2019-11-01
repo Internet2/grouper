@@ -33,6 +33,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.digest.DigestUtils;
@@ -244,7 +245,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
   /**
    * logger
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperClientUtils.class);
+  private static Log LOG = LogFactory.getLog(GrouperClientUtils.class);
 
   /** class object for this string */
   private static Map<String, Class<?>> jexlClass = new HashMap<String, Class<?>>();
