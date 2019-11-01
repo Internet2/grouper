@@ -59,6 +59,10 @@
     <then><copy file="misc/grouper.example.properties" 
       tofile="${conf.dir}/grouper.properties" /></then>
   </if> 
+  <if><not><available file="${conf.dir}/morphString.properties" /></not>
+    <then><copy file="misc/morphString.example.properties" 
+      tofile="${conf.dir}/morphString.properties" /></then>
+  </if> 
   <if><not><available file="${conf.dir}/grouper.client.properties" /></not>
     <then><copy file="misc/grouper.client.example.properties" 
       tofile="${conf.dir}/grouper.client.properties" /></then>
