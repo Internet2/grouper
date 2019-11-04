@@ -421,7 +421,7 @@ public class GcDbAccess {
 
         String query = "select count(*) from " + GcPersistableHelper.tableName(o.getClass()) + " where " +  GcPersistableHelper.columnName(field) + " =  ?";
 
-        int count = new GcDbAccess()
+        int count = new GcDbAccess().connectionName(this.connectionName)
             .sql(query)
             .bindVars(fieldValue)
             .select(int.class);
