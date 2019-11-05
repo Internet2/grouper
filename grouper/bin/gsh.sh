@@ -110,6 +110,7 @@ GROUPER_CP=${GROUPER_CONF}
 
 
 if [ $_grouperHomeType = api ]; then
+  echo "inside the if block"
 	# Append Grouper .jar
 	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/grouper.jar
 
@@ -119,6 +120,7 @@ if [ $_grouperHomeType = api ]; then
 	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/jdbcSamples/*
 	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/ant/*
 	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/test/*
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/jetty/*
 	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/test/*
 
 	# Append resources

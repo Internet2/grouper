@@ -96,6 +96,7 @@ if %_grouperHomeType% == api (
 	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\jdbcSamples\*
 	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\ant\*
 	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\test\*
+	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\jetty\*
 	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\dist\lib\test\*
 
 	rem Append resources
