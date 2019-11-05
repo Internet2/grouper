@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: json, for version: 2.4.0
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: json, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignAttributeDefNameInheritance, WsSamp
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -52,7 +52,7 @@ Connection: close
       "resultMessage":"Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist."
     },
     "responseMetadata":{
-      "serverVersion":"2.4.0",
+      "serverVersion":"2.5.0",
       "millis":"18"
     }
   }
@@ -233,4 +233,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.5.0, result code: SUCCESS, result message: Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

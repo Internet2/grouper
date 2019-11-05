@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/xhtml/v2_4_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/xhtml/v2_5_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -89,7 +89,7 @@ fb6
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="millis">38</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.4.0</p>
+        <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
@@ -364,4 +364,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.5.0, result code: SUCCESS, result message: , Found 1 results.

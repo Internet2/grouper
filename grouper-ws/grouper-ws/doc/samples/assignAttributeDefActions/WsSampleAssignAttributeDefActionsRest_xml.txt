@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefActions, WsSampleAssignAttributeDefActionsRest, manually written lite/rest, format: xml, for version: 2.4.0
+Grouper web service sample of service: assignAttributeDefActions, WsSampleAssignAttributeDefActionsRest, manually written lite/rest, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignAttributeDefActions, WsSampleAssign
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/attributeDefActions HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/attributeDefActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -103,7 +103,7 @@ Connection: close
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>378</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefAssignActionResults>
 0
@@ -289,4 +289,4 @@ public class WsSampleAssignAttributeDefActionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: null
+Server version: 2.5.0, result code: SUCCESS, result message: null

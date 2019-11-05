@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
+Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSav
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -92,12 +92,12 @@ Connection: close
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="millis">141</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.4.0</p>
+        <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_INSERTED</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
 wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[]],
 wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:testAtt...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -309,7 +309,7 @@ public class WsSampleAttributeDefSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
+Server version: 2.5.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
   wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[]],
   wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:testAtt...
 , actAsSubject: null, txType: NONE, paramNames: 

@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsLite, code generated classes, type: _admins, format: soap, for version: 2.4.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsLite, code generated classes, type: _admins, format: soap, for version: 2.5.0
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:getGroupsLite xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:subjectId>GrouperSystem</ns1:subjectId>
       <ns1:subjectSourceId></ns1:subjectSourceId>
       <ns1:subjectIdentifier></ns1:subjectIdentifier>
@@ -66,13 +66,13 @@ Date: Mon, 06 Aug 2018 16:40:32 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=]
+          <ns:resultMessage>Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]

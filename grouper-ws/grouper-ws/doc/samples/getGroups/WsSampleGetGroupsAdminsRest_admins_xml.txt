@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: xml, for version: 2.4.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -94,7 +94,7 @@ Connection: close
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.4.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: 2.5.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
@@ -114,7 +114,7 @@ fieldName1: null
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>12</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetGroupsResults>
 0
@@ -301,7 +301,7 @@ public class WsSampleGetGroupsAdminsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null

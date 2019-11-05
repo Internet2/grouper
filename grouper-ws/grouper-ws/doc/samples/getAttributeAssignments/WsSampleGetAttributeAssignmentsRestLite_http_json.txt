@@ -1,4 +1,4 @@
-Grouper web service sample of service: getAttributeAssignments, WsSampleGetAttributeAssignmentsRestLite, manually written lite/rest, format: http_json, for version: 2.4.0
+Grouper web service sample of service: getAttributeAssignments, WsSampleGetAttributeAssignmentsRestLite, manually written lite/rest, format: http_json, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getAttributeAssignments, WsSampleGetAttri
 #########################################
 
 
-POST /grouper-ws/servicesRest/json/v2_4_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/json/v2_5_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -2164,7 +2164,7 @@ dcd3e41e8bef470e9368e6158",
     ]
     ,
     "responseMetadata":{
-      "serverVersion":"2.4.0",
+      "serverVersion":"2.5.0",
       "millis":"67"
     },
     "wsGroups":[
@@ -2379,4 +2379,4 @@ public class WsSampleGetAttributeAssignmentsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: , Found 2 results.
+Server version: 2.5.0, result code: SUCCESS, result message: , Found 2 results.

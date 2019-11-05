@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteLite, code generated classes, format: soap, for version: 2.4.0
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteLite, code generated classes, format: soap, for version: 2.5.0
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:stemDeleteLite xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:stemName>aStem:stemNotExist</ns1:stemName>
       <ns1:stemUuid></ns1:stemUuid>
       <ns1:actAsSubjectId>GrouperSystem</ns1:actAsSubjectId>
@@ -58,13 +58,13 @@ Date: Mon, 06 Aug 2018 16:43:39 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS_STEM_NOT_FOUND</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[uuid=,stemName=aStem:stemNotExist]
+          <ns:resultMessage>Success for: clientVersion: 2.5.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[uuid=,stemName=aStem:stemNotExist]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=], txType: NONE, paramNames:
 , params: nullCant find stem: 'WsStemLookup[uuid=,stemName=aStem:stemNotExist,

@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttributesBatch, code generated classes, format: soap, for version: 2.4.0
+Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttributesBatch, code generated classes, format: soap, for version: 2.5.0
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:assignAttributesBatch xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:wsAssignAttributeBatchEntries>
         <ns1:attributeAssignOperation>assign_attr</ns1:attributeAssignOperation>
         <ns1:attributeAssignType>group</ns1:attributeAssignType>
@@ -74,13 +74,13 @@ Date: Mon, 06 Aug 2018 16:35:27 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.4.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: Empty array
+          <ns:resultMessage>Success for: clientVersion: 2.5.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: Empty array
 , paramNames:
 , params: Empty array
 , wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:groupTestAttrAssign],</ns:resultMessage>

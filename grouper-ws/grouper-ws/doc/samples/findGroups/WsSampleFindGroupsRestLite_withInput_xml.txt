@@ -1,4 +1,4 @@
-Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, manually written lite/rest, type: _withInput, format: xml, for version: 2.4.0
+Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, manually written lite/rest, type: _withInput, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -68,7 +68,7 @@ Connection: close
   </groupResults>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.4.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+    <resultMessage>Success for: clientVersion: 2.5.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
 , includeGroupDetail: false, actAsSubject: null, paramNames:
 , params: null
 , wsGroupLookups: null</resultMessage>
@@ -79,7 +79,7 @@ Connection: close
 responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>28</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsFindGroupsResults>
 0
@@ -256,7 +256,7 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
 , includeGroupDetail: false, actAsSubject: null, paramNames: 
 , params: null
 , wsGroupLookups: null

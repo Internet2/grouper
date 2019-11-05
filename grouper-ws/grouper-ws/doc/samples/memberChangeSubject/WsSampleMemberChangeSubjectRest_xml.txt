@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: 2.4.0
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/members HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -109,7 +109,7 @@ WsMemberChangeSubjectResult>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+    <resultMessage>Success for: clientVersion: 2.5.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
@@ -123,7 +123,7 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>272</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsMemberChangeSubjectResults>
 0
@@ -345,7 +345,7 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
   oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[

@@ -1,4 +1,4 @@
-Grouper web service sample of service: sendMessage, WsSampleSendMessage, code generated classes, format: soap, for version: 2.4.0
+Grouper web service sample of service: sendMessage, WsSampleSendMessage, code generated classes, format: soap, for version: 2.5.0
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:sendMessage xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:queueType>queue</ns1:queueType>
       <ns1:queueOrTopicName>def</ns1:queueOrTopicName>
       <ns1:messageSystemName></ns1:messageSystemName>
@@ -81,7 +81,7 @@ Date: Tue, 07 Aug 2018 17:36:09 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />

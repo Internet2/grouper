@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
+Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: xhtml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, m
 #########################################
 
 
-GET /grouper-ws/servicesRest/xhtml/v2_4_000/groups/aStem%3AaGroup/members HTTP/1.1
+GET /grouper-ws/servicesRest/xhtml/v2_5_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -48,12 +48,12 @@ Connection: close
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="millis">33</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.4.0</p>
+        <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+        <p class="resultMessage">Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: null
 , paramNames:
@@ -259,7 +259,7 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: null
 , paramNames: 

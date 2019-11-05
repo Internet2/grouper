@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefActions, WsSampleAssignAttributeDefActions, code generated classes, format: soap, for version: 2.4.0
+Grouper web service sample of service: assignAttributeDefActions, WsSampleAssignAttributeDefActions, code generated classes, format: soap, for version: 2.5.0
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:assignAttributeDefActions xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:wsAttributeDefLookup>
         <ns1:name>test:testAttributeAssignDefNameDef</ns1:name>
         <ns1:uuid></ns1:uuid>
@@ -74,7 +74,7 @@ Date: Mon, 06 Aug 2018 16:34:55 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />

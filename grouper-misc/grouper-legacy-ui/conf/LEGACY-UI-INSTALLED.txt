@@ -17,6 +17,6 @@ limitations under the License.
 
 The presence of this file indicates that the software required for Admin UI and
 Lite UI functionality were added to a Grouper 2.4+ installation, by unpacking
-the legacy distribution (https://software.internet2.edu/grouper/release/2.4.0/grouper-legacy-ui.tar.gz)
+the legacy distribution (https://software.internet2.edu/grouper/release/2.5.0/grouper-legacy-ui.tar.gz)
 into the UI war directory. For details on this custom add-on, please see the
 documentation at https://github.com/Internet2/grouper/blob/master/grouper-misc/grouper-legacy-ui/README.txt.

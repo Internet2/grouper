@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeDefsRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
+Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeDefsRestLite, manually written lite/rest, format: xhtml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeD
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -84,12 +84,12 @@ Connection: close
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="millis">129</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.4.0</p>
+        <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.4.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
+        <p class="resultMessage">Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
 , params: null</p>
         <p class="success">T</p>
@@ -269,6 +269,6 @@ public class WsSampleFindAttributeDefsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames: 
 , params: null

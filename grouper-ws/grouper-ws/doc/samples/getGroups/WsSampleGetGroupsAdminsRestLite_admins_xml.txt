@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: xml, for version: 2.4.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLit
 #########################################
 
 
-POST /grouper-ws/servicesRest/xml/v2_4_000/subjects/10021368/groups HTTP/1.1
+POST /grouper-ws/servicesRest/xml/v2_5_000/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -48,7 +48,7 @@ Connection: close
 <WsGetGroupsLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
@@ -66,7 +66,7 @@ fieldName1: null
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>65</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -260,7 +260,7 @@ public class WsSampleGetGroupsAdminsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
