@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.4.0
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite2, 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/stems/aStem%3AaStemToDelete HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/stems/aStem%3AaStemToDelete HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -44,7 +44,7 @@ Connection: close
 <WsStemDeleteLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_STEM_NOT_FOUND</resultCode>
-    <resultMessage>Success for: clientVersion: 2.4.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
+    <resultMessage>Success for: clientVersion: 2.5.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: nullCant find stem: &apos;WsStemLookup[stemName=aStem:aStemToDelete,
@@ -54,7 +54,7 @@ stemFindResult=STEM_NOT_FOUND]&apos;.</resultMessage>
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>9</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsStem>
     <extension>aStemToDelete</extension>
@@ -233,7 +233,7 @@ public class WsSampleStemDeleteRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: 2.4.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
+Server version: 2.5.0, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: 2.5.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,

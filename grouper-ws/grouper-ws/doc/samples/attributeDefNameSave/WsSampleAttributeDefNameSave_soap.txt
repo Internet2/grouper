@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSave, code generated classes, format: soap, for version: 2.4.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSave, code generated classes, format: soap, for version: 2.5.0
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:attributeDefNameSave xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:wsAttributeDefNameToSaves>
         <ns1:wsAttributeDefName>
           <ns1:attributeDefName>test:testAttributeAssignDefNameDef</ns1:attributeDefName>
@@ -70,13 +70,13 @@ c09
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+          <ns:resultMessage>Success for: clientVersion: 2.5.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 soap,description=This is a description 1 soap,name=test:te...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: Empty array</ns:resultMessage>

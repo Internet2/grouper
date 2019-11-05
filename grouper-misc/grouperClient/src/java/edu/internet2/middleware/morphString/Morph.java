@@ -75,11 +75,15 @@ public class Morph {
 
     in = GrouperClientUtils.trimToEmpty(in);
     String newIn = GrouperClientUtils.readFromFileIfFile(in, false);
-    if (!GrouperClientUtils.equals(in, newIn)) {
-      String unencrypted = decrypt(newIn);
-      return unencrypted;
+
+    //lets see if encrypted
+    try {
+      return decrypt(newIn);
+    } catch (Exception e) {
+      //swallow
     }
-    return in; 
+    
+    return newIn; 
   }
   
   /** if testing, and not relying on morph key being there, use this */

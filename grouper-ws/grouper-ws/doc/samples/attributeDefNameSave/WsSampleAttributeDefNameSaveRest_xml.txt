@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRest, manually written lite/rest, format: xml, for version: 2.4.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRest, manually written lite/rest, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -102,7 +102,7 @@ escription 2 rest xml</description>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+    <resultMessage>Success for: clientVersion: 2.5.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest xml,description=This is a description 1 rest xml,name...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</resultMessage>
@@ -114,7 +114,7 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name
 7a
 resultWarnings>
     <millis>213</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefNameSaveResults>
 0
@@ -320,7 +320,7 @@ public class WsSampleAttributeDefNameSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest xml,description=This is a description 1 rest xml,name...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

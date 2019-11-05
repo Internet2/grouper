@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveLite, code generated classes, format: soap, for version: 2.4.0
+Grouper web service sample of service: groupSave, WsSampleGroupSaveLite, code generated classes, format: soap, for version: 2.5.0
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:groupSaveLite xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:groupLookupUuid></ns1:groupLookupUuid>
       <ns1:groupLookupName>aGroup:test</ns1:groupLookupName>
       <ns1:groupUuid></ns1:groupUuid>
@@ -65,13 +65,13 @@ Date: Mon, 06 Aug 2018 15:21:23 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS_NO_CHANGES_NEEDED</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+          <ns:resultMessage>Success for: clientVersion: 2.5.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[pitGroups=[],uuid=,groupName=aGroup:test],
 wsGroup=WsGroup[displayExtension=the test group,description=test group,name=aStem:test,...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: NONE, paramNames:

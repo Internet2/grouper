@@ -84,6 +84,8 @@ import java.util.regex.Pattern;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import edu.internet2.middleware.morphString.Morph;
 
 
 
@@ -5425,7 +5427,7 @@ public class GrouperClientCommonUtils  {
   /**
    * logger
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperClientCommonUtils.class);
+  private static Log LOG = LogFactory.getLog(GrouperClientCommonUtils.class);
 
   /**
    * clear properties cache (e.g. for testing)
@@ -5999,22 +6001,50 @@ public class GrouperClientCommonUtils  {
    */
   public static String readFromFileIfFile(String in, boolean disableExternalFileLookup) {
     
-    String theIn = in;
-    //convert both slashes to file slashes
-    if (File.separatorChar == '/') {
-      theIn = replace(theIn, "\\", "/");
+    if (in == null || "".equals(in)) {
+      return in;
+    }
+    
+    boolean isFile = false;
+    if (in.startsWith("file:")) {
+      isFile = true;
+      in = stripPrefix(in, "file:");
+      File file = new File(in);
+      if (!file.exists() || !file.isFile()) {
+        throw new RuntimeException("Cant find or read file: '" + in + "'");
+      }
     } else {
-      theIn = replace(theIn, "/", "\\");
+      if (!disableExternalFileLookup) {
+        File file = new File(in);
+        if (file.exists() && file.isFile()) {
+          isFile = true;
+        }
+      }
     }
     
     //see if it is a file reference
-    if (theIn.indexOf(File.separatorChar) != -1 && !disableExternalFileLookup) {
+    if (isFile) {
       //read the contents of the file into a string
-      theIn = readFileIntoString(new File(theIn));
-      return theIn;
+      return readFileIntoString(new File(in));
     }
     return in;
   
+  }
+
+  /**
+   * strip the prefix off
+   * @param string
+   * @param prefix
+   * @return the string without the prefix
+   */
+  public static String stripPrefix(String string, String prefix) {
+    if (string == null || prefix == null) {
+      return string;
+    }
+    if (string.startsWith(prefix)) {
+      return string.substring(prefix.length(), string.length());
+    }
+    return string;
   }
 
   /**
@@ -6026,26 +6056,18 @@ public class GrouperClientCommonUtils  {
    */
   public static String readFromFileIfFileExists(String in, boolean disableExternalFileLookup) {
     
-    String theIn = in;
-    //convert both slashes to file slashes
-    if (File.separatorChar == '/') {
-      theIn = replace(theIn, "\\", "/");
-    } else {
-      theIn = replace(theIn, "/", "\\");
-    }
-    
-    //see if it is a file reference
-    if (theIn.indexOf(File.separatorChar) != -1 && !disableExternalFileLookup) {
-      if (new File(theIn).exists()) {
-        //read the contents of the file into a string
-        theIn = readFileIntoString(new File(theIn));
-        return theIn;
-      }
-    }
-    return in;
-  
+    return readFromFileIfFile(in, disableExternalFileLookup);
   }
 
+  public static void main(String[] args) {
+    System.out.println(Morph.encrypt("abc"));
+    System.out.println(Morph.decryptIfFile("AAARL8cd/rh9CJ+UFqVyrQ=="));
+    System.out.println(Morph.decryptIfFile("file:c:/temp/pass.txt"));
+    System.out.println(Morph.decryptIfFile("c:/temp/pass.txt"));
+    System.out.println(Morph.decryptIfFile("c:/whatever"));
+    
+  }
+  
   /**
    * Create directories, throw exception if not possible.
    * This is will be ok if the directory already exists (will not delete it)

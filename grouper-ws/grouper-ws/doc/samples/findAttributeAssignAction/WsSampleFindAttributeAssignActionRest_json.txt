@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAttributeAssignActionRest, manually written lite/rest, format: json, for version: 2.4.0
+Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAttributeAssignActionRest, manually written lite/rest, format: json, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAt
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/attributeAssignActions HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/attributeAssignActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -97,7 +97,7 @@ Connection: close
     ]
     ,
     "responseMetadata":{
-      "serverVersion":"2.4.0",
+      "serverVersion":"2.5.0",
       "millis":"6"
     }
   }
@@ -275,5 +275,5 @@ public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
 #########################################
 
 
-{"WsGetAttributeAssignActionsResults":{"resultMetadata":{"success":"T","resultCode":"SUCCESS","resultMessage":", Found 3 results."},"wsAttributeAssignActionTuples":[{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"view","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"},{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"read","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"},{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"assign","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"}],"wsAttributeDefs":[{"attributeDefType":"attr","assignToAttributeDef":"F","assignToStemAssignment":"F","extension":"testAttributeAssignDefNameDef","assignToMemberAssignment":"F","assignToEffectiveMembership":"F","uuid":"431a9914cdba4564ad5943c7ec7de988","assignToImmediateMembershipAssignment":"F","assignToEffectiveMembershipAssignment":"F","assignToStem":"F","assignToGroupAssignment":"F","assignToMember":"F","multiAssignable":"F","valueType":"integer","name":"test:testAttributeAssignDefNameDef","assignToAttributeDefAssignment":"F","idIndex":"10044","multiValued":"T","assignToGroup":"F","assignToImmediateMembership":"F"}],"responseMetadata":{"serverVersion":"2.4.0","millis":"6"}}}
-Server version: 2.4.0, result code: SUCCESS, result message: , Found 3 results.
+{"WsGetAttributeAssignActionsResults":{"resultMetadata":{"success":"T","resultCode":"SUCCESS","resultMessage":", Found 3 results."},"wsAttributeAssignActionTuples":[{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"view","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"},{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"read","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"},{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"assign","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"}],"wsAttributeDefs":[{"attributeDefType":"attr","assignToAttributeDef":"F","assignToStemAssignment":"F","extension":"testAttributeAssignDefNameDef","assignToMemberAssignment":"F","assignToEffectiveMembership":"F","uuid":"431a9914cdba4564ad5943c7ec7de988","assignToImmediateMembershipAssignment":"F","assignToEffectiveMembershipAssignment":"F","assignToStem":"F","assignToGroupAssignment":"F","assignToMember":"F","multiAssignable":"F","valueType":"integer","name":"test:testAttributeAssignDefNameDef","assignToAttributeDefAssignment":"F","idIndex":"10044","multiValued":"T","assignToGroup":"F","assignToImmediateMembership":"F"}],"responseMetadata":{"serverVersion":"2.5.0","millis":"6"}}}
+Server version: 2.5.0, result code: SUCCESS, result message: , Found 3 results.

@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.4.0
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-GET /grouper-ws/servicesRest/xml/v2_4_000/subjects/10021368/memberships HTTP/1.1
+GET /grouper-ws/servicesRest/xml/v2_5_000/subjects/10021368/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -160,7 +160,7 @@ membershipType>
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>44</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetMembershipsResults>
 0
@@ -311,4 +311,4 @@ public class WsSampleGetMembershipsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Found 4 results involving 4 groups and 1 subjects
+Server version: 2.5.0, result code: SUCCESS, result message: Found 4 results involving 4 groups and 1 subjects

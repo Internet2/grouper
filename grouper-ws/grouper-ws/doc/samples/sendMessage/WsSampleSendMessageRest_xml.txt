@@ -1,4 +1,4 @@
-Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, manually written lite/rest, format: xml, for version: 2.4.0
+Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, manually written lite/rest, format: xml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/messaging HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/messaging HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -71,7 +71,7 @@ Connection: close
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>242</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsMessageResults>
 0
@@ -273,4 +273,4 @@ public class WsSampleSendMessageRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: 2 messages were sent to def
+Server version: 2.5.0, result code: SUCCESS, result message: 2 messages were sent to def

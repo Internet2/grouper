@@ -578,7 +578,7 @@ public class GrouperInstaller {
     
 //    grouperInstaller.upgradeJars(new File("D:\\temp\\temp\\grouperJarCopySource"), new File("D:\\temp\\temp\\grouperJarCopyDest"));
     
-//    grouperInstaller.version = "2.4.0";
+//    grouperInstaller.version = "2.5.0";
 //    
 //    grouperInstaller.grouperTarballDirectoryString = "D:\\temp\\temp\\grouperInstaller\\";
 //    

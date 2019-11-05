@@ -19,7 +19,7 @@ INTRODUCTION
 ------------
 
 This module contains source code and configuration files for the legacy "Admin UI" and "Lite UI"
-interfaces that were removed in Grouper release 2.4.0. While the classes and supporting files have
+interfaces that were removed in Grouper release 2.5.0. While the classes and supporting files have
 been removed from the main UI module, they exist in this legacy module in case your installation
 still needs the functionality.
 
@@ -29,7 +29,7 @@ INSTALLING
 
 There are a few steps to restoring the previous Admin UI and Lite UI functionality into your web application.
 
-1) Back up your existing grouper webapp folder! While this process works at the point in time of the 2.4.0
+1) Back up your existing grouper webapp folder! While this process works at the point in time of the 2.5.0
 release, future changes to the UI module may adversely affect this legacy code
 
 

@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRest, manually written lite/rest, format: xhtml, for version: 2.4.0
+Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRest, manually written lite/rest, format: xhtml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -31,7 +31,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <p class="subjectSourceId" />
       </div>
       <p class="allowed">T</p>
-      <p class="clientVersion">v2_4_000</p>
+      <p class="clientVersion">v2_5_000</p>
       <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
       <ul class="privilegeNames">
@@ -94,12 +94,12 @@ ef2
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="millis">64</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.4.0</p>
+        <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+        <p class="resultMessage">Success for: clientVersion: 2.5.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 [1]: WsSubject..., group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 2: [0]: update
 [1]: read
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
@@ -433,13 +433,13 @@ public class WsSampleAssignGrouperPrivilegesRest implements WsSampleRest {
 
 
 edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults@26864747[
-  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=Success for: clientVersion: 2.4.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=Success for: clientVersion: 2.5.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 [1]: WsSubject..., group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 2: [0]: update
 [1]: read
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
 , params: null,success=T,httpStatusCode=500]
   subjectAttributeNames=<null>
-  responseMetadata=WsResponseMeta[millis=64,millisStart=0,serverVersion=2.4.0]
+  responseMetadata=WsResponseMeta[millis=64,millisStart=0,serverVersion=2.5.0]
   wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=03aae7141082467eaaa866e6c6edfda5,idIndex=10005]
   wsStem=<null>
   results={WsAssignGrouperPrivilegesResult[
@@ -456,7 +456,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@9e150d8[
   params=<null>
   resultCode=SUCCESS
   resultCode2=<null>
-  resultMessage=Success for: clientVersion: 2.4.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+  resultMessage=Success for: clientVersion: 2.5.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 [1]: WsSubject..., group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 2: [0]: update
 [1]: read
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
@@ -528,7 +528,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@1bb03622[
   success=T
   httpStatusCode=500
 ]
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 [1]: WsSubject..., group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 2: [0]: update
 [1]: read
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false

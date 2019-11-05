@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: http_json, for version: 2.4.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: http_json, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -44,7 +44,7 @@ Connection: close
       "resultCode":"SUCCESS"
     },
     "responseMetadata":{
-      "serverVersion":"2.4.0",
+      "serverVersion":"2.5.0",
       "millis":"47"
     },
     "privilegeResults":[
@@ -286,8 +286,8 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: null
+Server version: 2.5.0, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=500],
   privilegeResults={subject: jdbc - test.subject.9, ownerSubject: jdbc - test.subject.9, admin, group: aStem:aGroup, },
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=47,millisStart=0,serverVersion=2.4.0]]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=47,millisStart=0,serverVersion=2.5.0]]

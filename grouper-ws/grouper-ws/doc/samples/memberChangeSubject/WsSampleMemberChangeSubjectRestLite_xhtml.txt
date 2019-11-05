@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRestLite, manually written lite/rest, format: xhtml, for version: 2.5.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_4_000/members HTTP/1.1
+POST /grouper-ws/servicesRest/v2_5_000/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -78,12 +78,12 @@ Connection: close
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="millis">68</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.4.0</p>
+        <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+        <p class="resultMessage">Success for: clientVersion: 2.5.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 
@@ -308,7 +308,7 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
   oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 

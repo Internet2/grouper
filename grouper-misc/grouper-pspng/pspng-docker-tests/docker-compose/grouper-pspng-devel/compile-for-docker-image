@@ -45,7 +45,7 @@ log_always "Compiling API"
 (
    cd "$PSPNG_DIR"/../../grouper 
    mvn -Dlicense.skip=true -Dmaven.test.skip=true install
-   cp target/grouper-2.4.0-SNAPSHOT.jar $D/dependent-jars
+   cp target/grouper-2.5.0-SNAPSHOT.jar $D/dependent-jars
 )
 
 # Compile pspng
