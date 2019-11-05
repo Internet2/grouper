@@ -83,6 +83,27 @@ public class GcTableSyncColumnMetadata {
   }
 
   /**
+   * if this column is in use in this sync job
+   */
+  private boolean inUse = false;
+  
+  /**
+   * if this column is in use in this sync job
+   * @return the inUse
+   */
+  public boolean isInUse() {
+    return this.inUse;
+  }
+  
+  /**
+   * if this column is in use in this sync job
+   * @param inUse1 the inUse to set
+   */
+  public void setInUse(boolean inUse1) {
+    this.inUse = inUse1;
+  }
+
+  /**
    * type of column
    */
   private ColumnType columnType;

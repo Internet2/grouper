@@ -115,7 +115,8 @@ public class GcTableSyncTableMetadata {
         return theColumnMetadata;
       }
     }
-    throw new RuntimeException("Cant find grouping column! " + this.tableNameFrom);
+    //throw new RuntimeException("Cant find grouping column! " + this.tableNameFrom);
+    return null;
   }
   
   /**

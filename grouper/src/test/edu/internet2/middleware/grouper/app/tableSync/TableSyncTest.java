@@ -14,6 +14,7 @@ import java.util.List;
 
 import junit.textui.TestRunner;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 import org.hibernate.ObjectNotFoundException;
@@ -30,6 +31,8 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
@@ -40,7 +43,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 public class TableSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
+    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
   }
   
   /**
@@ -56,6 +59,21 @@ public class TableSyncTest extends GrouperTest {
    */
   private GrouperSession grouperSession = null;
 
+  /**
+   * 
+   */
+  public void testTableSyncMetadata() {
+    boolean foundName = false;;
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GcTableSync.processDatabaseColumnMetadata("grouper", null, "grouper_groups")) {
+      if (StringUtils.equalsIgnoreCase(gcTableSyncColumnMetadata.getColumnName(), "name")) {
+        assertEquals(ColumnType.STRING, gcTableSyncColumnMetadata.getColumnType());
+        //System.out.println(gcTableSyncColumnMetadata.getColumnName());
+        foundName = true;
+      }
+    }
+    assertTrue(foundName);
+  }
+  
   /**
    * @param name
    */
@@ -74,6 +92,8 @@ public class TableSyncTest extends GrouperTest {
 
       this.grouperSession = GrouperSession.startRootSession();
       
+      dropTableSyncTables();
+
       ensureTableSyncTables();
   
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectFrom").executeUpdate();
@@ -100,7 +120,7 @@ public class TableSyncTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     
-    //TODO uncomment: dropTableSyncTables();
+    dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
 
   }
@@ -157,11 +177,46 @@ public class TableSyncTest extends GrouperTest {
     //  # if doing real time and nightly full sync, this is the hour where full sync should have already started
     //  # {valueType: "integer"}
     //  grouperClient.syncTable.personSourceTest.fullSyncHourEnd = 4
-
-
-  
   
   }
+
+  /**
+   * @param ddlVersionBean
+   * @param database
+   * @param tableName
+   */
+  public void createTable(DdlVersionBean ddlVersionBean, Database database, String tableName) {
+
+    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "person_id", 
+        Types.VARCHAR, "8", true, true);
+ 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "hibernate_version_number", 
+        Types.INTEGER, "10", true, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "net_id", 
+        Types.VARCHAR, "30", false, true);
+ 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_int", 
+        Types.INTEGER, "10", false, false);
+   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_float", 
+        Types.DOUBLE, null, false, false);
+   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_date", 
+        Types.DATE, null, false, false);
+   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_timestamp", 
+        Types.TIMESTAMP, null, false, false);
+   
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+        tableName, tableName);
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "person_id", "person_id");
+    
+  }
+
 
   /**
    * 
@@ -175,62 +230,10 @@ public class TableSyncTest extends GrouperTest {
         
         Database database = ddlVersionBean.getDatabase();
   
-        {
-          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"testgrouper_sync_subject_from");
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "person_id", 
-              Types.VARCHAR, "8", true, true);
-  
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "hibernate_version_number", 
-              Types.INTEGER, "10", true, true);
+        createTable(ddlVersionBean, database, "testgrouper_sync_subject_from");
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "net_id", 
-              Types.VARCHAR, "30", false, true);
-  
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_int", 
-              Types.INTEGER, "10", false, false);
-      
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_float", 
-              Types.DOUBLE, null, false, false);
-      
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_date", 
-              Types.DATE, null, false, false);
-      
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_timestamp", 
-              Types.TIMESTAMP, null, false, false);
-      
-          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
-              "testgrouper_sync_subject_from", "sample table to SQL sync to another table");
-      
-        }
-        {
-          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"testgrouper_sync_subject_to");
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "person_id", 
-              Types.VARCHAR, "8", true, true);
-  
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "hibernate_version_number", 
-              Types.INTEGER, "10", true, true);
+        createTable(ddlVersionBean, database, "testgrouper_sync_subject_to");
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "net_id", 
-              Types.VARCHAR, "30", false, true);
-  
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_int", 
-              Types.INTEGER, "10", false, false);
-      
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_float", 
-              Types.DOUBLE, null, false, false);
-      
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_date", 
-              Types.DATE, null, false, false);
-      
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_timestamp", 
-              Types.TIMESTAMP, null, false, false);
-      
-          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
-              "testgrouper_sync_subject_to", "sample table to SQL sync from another table");
-      
-        }
       }
       
     });
@@ -240,6 +243,33 @@ public class TableSyncTest extends GrouperTest {
    * 
    */
   public void dropTableSyncTables() {
+    
+    dropTableSyncTable("testgrouper_sync_subject_from");
+    dropTableSyncTable("testgrouper_sync_subject_to");
+    
+  }
+
+  /**
+   * @param tableName
+   */
+  public void dropTableSyncTable(final String tableName) {
+    try {
+      // if you cant connrc to it, its not there
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+    } catch (Exception e) {
+      return;
+    }
+    try {
+      HibernateSession.bySqlStatic().executeSql("drop table " + tableName);
+    } catch (Exception e) {
+      return;
+    }
+    try {
+      // if you cant connrc to it, its not there
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+    } catch (Exception e) {
+      return;
+    }
     //we need to delete the test table if it is there, and create a new one
     //drop field id col, first drop foreign keys
     GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
@@ -249,21 +279,13 @@ public class TableSyncTest extends GrouperTest {
         Database database = ddlVersionBean.getDatabase();
   
         {
-          Table loaderTable = database.findTable("testgrouper_sync_subject_from");
+          Table loaderTable = database.findTable(tableName);
           
           if (loaderTable != null) {
             database.removeTable(loaderTable);
           }
         }
-        
-        {
-          Table loaderTable = database.findTable("testgrouper_sync_subject_to");
-          
-          if (loaderTable != null) {
-            database.removeTable(loaderTable);
-          }
-        }
-        
+                
       }
       
     });
@@ -410,4 +432,5 @@ public class TableSyncTest extends GrouperTest {
     assertEquals("55", testgrouperSyncSubjectTo.getNetId());
     
   }
+
 }

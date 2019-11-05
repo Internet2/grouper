@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -1034,7 +1035,53 @@ public class GcTableSync {
       this.tableMetadata.setSchemaTo(GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + this.databaseTo + ".user"));
     }
 
-    processDatabaseColumnMetadata();
+    {
+      //  grouperClient.syncTable.personSource.primaryKeyColumns = penn_id
+      String primaryKeyColumnsString = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.syncTable." +  this.key + ".primaryKeyColumns");
+  
+      Set<String> primaryKeyColumnsSet = new HashSet<String>();
+      
+      for (String primaryKeyColumn : GrouperClientUtils.splitTrim(primaryKeyColumnsString, ",")) {
+        primaryKeyColumnsSet.add(primaryKeyColumn);
+      }
+      
+      //  grouperClient.syncTable.personSource.groupingColumn = penn_id
+      String groupingColumn = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + GcTableSync.this.key + ".groupingColumn");
+  
+      if (StringUtils.isBlank(groupingColumn) && primaryKeyColumnsSet.size() == 1) {
+        groupingColumn = primaryKeyColumnsSet.iterator().next();
+      }
+      if (StringUtils.isBlank(groupingColumn)) {
+        throw new RuntimeException("You need to specify a grouping column if the primary key is more than one column! " + primaryKeyColumnsString);
+      }
+      
+    }
+    
+    //  grouperClient.syncTable.personSource.realTimeLastUpdatedCol = last_updated
+    String realTimeLastUpdatedCol = StringUtils.defaultString(GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + GcTableSync.this.key + ".realTimeLastUpdatedCol"));
+
+
+// TODO
+//    this.tableMetadata.setColumnMetadata(processDatabaseColumnMetadata(this.databaseFrom));
+//    
+//    if (!columnNameSet.contains("*") && !columnNameSet.contains(columnName)) {
+//      continue;
+//    }
+//    GcTableSync.this.tableMetadata.getColumnMetadata().add(gcTableSyncColumnMetadata);
+
+//    if (StringUtils.equals(columnName, groupingColumn)) {
+//      gcTableSyncColumnMetadata.setGroupingColumn(true);
+//    }
+//    
+//    if (StringUtils.equals(columnName, realTimeLastUpdatedCol)) {
+//      gcTableSyncColumnMetadata.setRealTimeLastUpdatedColumn(true);
+//    }
+//    
+//    if (primaryKeyColumnsSet.contains("*") || primaryKeyColumnsSet.contains(columnName)) {
+//      gcTableSyncColumnMetadata.setPrimaryKey(true);
+//    }
+
+
     
     this.groupingSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTable." + this.key + ".groupingSize", 10000);
     
@@ -1262,172 +1309,90 @@ public class GcTableSync {
   }
 
   /**
-   * 
+   * get database column metadata
+   * @param grouperClientDatabaseKey key in grouper.client.properties
+   * @param schema where table is, if blank, dont use a schema
+   * @param tableName to check metadata
+   * @return the metadata
    */
-  public void processDatabaseColumnMetadata() {
+  public static ArrayList<GcTableSyncColumnMetadata> processDatabaseColumnMetadata(String grouperClientDatabaseKey, String schema,
+      String tableName) {
     
-    this.tableMetadata.setColumnMetadata(new ArrayList<GcTableSyncColumnMetadata>());
+    if (GrouperClientUtils.isBlank(tableName)) {
+      throw new RuntimeException("tableName cannot be blank");
+    }
+    if (GrouperClientUtils.isBlank(grouperClientDatabaseKey)) {
+      throw new RuntimeException("grouperClientDatabaseKey cannot be blank");
+    }
+    
+    final String schemaTableName = (GrouperClientUtils.isBlank(schema) ? "" : (schema + ".")) + tableName;
+    String sql = "select * from " + schemaTableName + " where 1 != 1";
+    
+    final ArrayList<GcTableSyncColumnMetadata> gcTableSyncColumnMetadatas = new ArrayList<GcTableSyncColumnMetadata>();
     
     // go to database from and look up metadata
-    new GcDbAccess().connectionName(this.databaseFrom).callbackConnection(new GcConnectionCallback() {
+    new GcDbAccess().connectionName(grouperClientDatabaseKey).sql(sql).callbackResultSet(new GcResultSetCallback() {
 
       @Override
-      public Object callback(Connection connection) {
+      public Object callback(ResultSet resultSet) throws Exception {
         
-        //  grouperClient.syncTable.personSource.primaryKeyColumns = penn_id
-        String primaryKeyColumnsString = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.syncTable." + GcTableSync.this.key + ".primaryKeyColumns");
-
-        Set<String> primaryKeyColumnsSet = new HashSet<String>();
+        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
         
-        for (String primaryKeyColumn : GrouperClientUtils.splitTrim(primaryKeyColumnsString, ",")) {
-          primaryKeyColumnsSet.add(primaryKeyColumn.toUpperCase());
-        }
-        
-        //  grouperClient.syncTable.personSource.groupingColumn = penn_id
-        String groupingColumn = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + GcTableSync.this.key + ".groupingColumn");
-
-        if (groupingColumn != null) {
-          groupingColumn = groupingColumn.toUpperCase();
-        }
-        
-        if (StringUtils.isBlank(groupingColumn) && primaryKeyColumnsSet.size() == 1) {
-          groupingColumn = primaryKeyColumnsSet.iterator().next();
-        }
-        
-        if (StringUtils.isBlank(groupingColumn)) {
-          throw new RuntimeException("You need to specify a grouping column if the primary key is more than one column! " + primaryKeyColumnsString);
-        }
-        
-        //  grouperClient.syncTable.personSource.realTimeLastUpdatedCol = last_updated
-        String realTimeLastUpdatedCol = StringUtils.defaultString(GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + GcTableSync.this.key + ".realTimeLastUpdatedCol")).toUpperCase();
-
-        //  grouperClient.syncTable.personSource.columns = *
-        ResultSet resultSet = null;
-        
-        try {
+        for (int i=0;i<resultSetMetaData.getColumnCount();i++) {
+          GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
+          gcTableSyncColumnMetadatas.add(gcTableSyncColumnMetadata);
           
-          // resultSet = connection.getMetaData().getTables(null, "AUTHZADM", GcTableSync.this.tableMetadata.getTableNameFrom().toUpperCase(), new String[]{"TABLE"});
-          resultSet = connection.getMetaData().getColumns(null, GcTableSync.this.tableMetadata.getSchemaFrom().toUpperCase(), GcTableSync.this.tableMetadata.getTableNameFrom().toUpperCase(), "%");
-          // COLUMN_NAME, DATA_TYPE, TYPE_NAME
-          //ResultSetMetaData resultSetMetadata = resultSet.getMetaData();
-
-          //  grouperClient.syncTable.personSource.columns = *
-          String columnNames = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + GcTableSync.this.key + ".columns", "*");
-          Set<String> columnNameSet = new HashSet<String>();
+          String columnName = resultSetMetaData.getColumnName(i+1);
+          int dataType = resultSetMetaData.getColumnType(i+1);
+          String typeName = resultSetMetaData.getColumnTypeName(i+1);
           
-          for (String columnName : GrouperClientUtils.splitTrimToSet(columnNames, ",")) {
-            columnNameSet.add(columnName.toUpperCase());
+          gcTableSyncColumnMetadata.setColumnIndexZeroIndexed(i);
+          
+          gcTableSyncColumnMetadata.setColumnName(columnName);
+          
+          switch (dataType) {
+            case Types.BIGINT: 
+            case Types.DECIMAL:
+            case Types.DOUBLE:
+            case Types.FLOAT:
+            case Types.INTEGER:
+            case Types.NUMERIC:
+            case Types.REAL:
+            case Types.SMALLINT:
+            case Types.TINYINT:
+              
+              gcTableSyncColumnMetadata.setColumnType(ColumnType.NUMERIC);
+              break;
+              
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+
+              gcTableSyncColumnMetadata.setColumnType(ColumnType.STRING);
+              break;
+
+            case Types.DATE:
+            case Types.TIMESTAMP:
+              
+              gcTableSyncColumnMetadata.setColumnType(ColumnType.TIMESTAMP);
+              break; 
+              
+            default:
+              throw new RuntimeException("Type not supported: " + dataType + ", " + typeName);
+              
+
           }
-
-          int indexZeroIndexed = 0;
-          
-          while (resultSet.next()) {
-            
-            String columnName = resultSet.getString("COLUMN_NAME").toUpperCase();
-            int dataType = resultSet.getBigDecimal("DATA_TYPE").intValue();
-            String typeName = resultSet.getString("TYPE_NAME");
-            
-            if (!columnNameSet.contains("*") && !columnNameSet.contains(columnName)) {
-              continue;
-            }
-
-            GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
-            gcTableSyncColumnMetadata.setColumnIndexZeroIndexed(indexZeroIndexed++);
-            GcTableSync.this.tableMetadata.getColumnMetadata().add(gcTableSyncColumnMetadata);
-            
-            gcTableSyncColumnMetadata.setColumnName(columnName);
-
-            if (StringUtils.equals(columnName, groupingColumn)) {
-              gcTableSyncColumnMetadata.setGroupingColumn(true);
-            }
-            
-            if (StringUtils.equals(columnName, realTimeLastUpdatedCol)) {
-              gcTableSyncColumnMetadata.setRealTimeLastUpdatedColumn(true);
-            }
-            
-            if (primaryKeyColumnsSet.contains("*") || primaryKeyColumnsSet.contains(columnName)) {
-              gcTableSyncColumnMetadata.setPrimaryKey(true);
-            }
-            
-            switch (dataType) {
-              case Types.BIGINT: 
-              case Types.DECIMAL:
-              case Types.DOUBLE:
-              case Types.FLOAT:
-              case Types.INTEGER:
-              case Types.NUMERIC:
-              case Types.REAL:
-              case Types.SMALLINT:
-              case Types.TINYINT:
-                
-                gcTableSyncColumnMetadata.setColumnType(ColumnType.NUMERIC);
-                break;
-                
-              case Types.CHAR:
-              case Types.VARCHAR:
-              case Types.LONGVARCHAR:
-
-                gcTableSyncColumnMetadata.setColumnType(ColumnType.STRING);
-                break;
-
-              case Types.DATE:
-              case Types.TIMESTAMP:
-                
-                gcTableSyncColumnMetadata.setColumnType(ColumnType.TIMESTAMP);
-                break; 
-                
-              default:
-                throw new RuntimeException("Type not supported: " + dataType + ", " + typeName);
-                
-            }
-            
-//            for (int i=0;i<resultSetMetadata.getColumnCount();i++) {
-//              String columnName = resultSetMetadata.getColumnName(i+1);
-//              int columnType = resultSetMetadata.getColumnType(i+1);
-//              Object value = null;
-//              switch (columnType) {
-//                case Types.BIGINT: 
-//                case Types.DECIMAL:
-//                case Types.DOUBLE:
-//                case Types.FLOAT:
-//                case Types.INTEGER:
-//                case Types.NUMERIC:
-//                case Types.REAL:
-//                case Types.SMALLINT:
-//                case Types.TINYINT:
-//                  
-//                  value = resultSet.getBigDecimal(i+1);
-//                  break;
-//                  
-//                case Types.CHAR:
-//                case Types.VARCHAR:
-//                case Types.LONGVARCHAR:
-//
-//                  value = resultSet.getString(i+1);
-//                  break;
-//
-//                case Types.DATE:
-//                case Types.TIMESTAMP:
-//                  
-//                  value = resultSet.getTimestamp(i+1);
-//
-//                default:
-//                  throw new RuntimeException("Type not supported: " + columnType);
-//                  
-//              }
-//              
-//              System.out.println("Column: " + columnName + ": " + value);
-//            }
-          }
-        } catch (Exception e) {
-          throw new RuntimeException("error", e);
-        } finally {
-          GrouperClientUtils.closeQuietly(resultSet);
         }
-        
         return null;
       }
+      
     });
+
+    if (gcTableSyncColumnMetadatas.size() == 0) {
+      throw new RuntimeException("Cant find table metadata for '" + schemaTableName + "' in grouper.client.properties database: '" + grouperClientDatabaseKey + "'");
+    }
+      
+    return gcTableSyncColumnMetadatas;
   }
   
   /**
