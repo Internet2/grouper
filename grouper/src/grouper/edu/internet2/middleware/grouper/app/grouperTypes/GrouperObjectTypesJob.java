@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 @DisallowConcurrentExecution
 public class GrouperObjectTypesJob extends OtherJobBase {
+  
+  public static final String JOB_NAME = "OTHER_JOB_grouperObjectTypeDaemon";
 
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
@@ -60,15 +62,13 @@ public class GrouperObjectTypesJob extends OtherJobBase {
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
     
     hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-    String jobName = "OTHER_JOB_grouperObjectTypeDaemon";
-
-    hib3GrouperLoaderLog.setJobName(jobName);
+    hib3GrouperLoaderLog.setJobName(JOB_NAME);
     hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
     hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
     hib3GrouperLoaderLog.store();
     
     OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
+    otherJobInput.setJobName(JOB_NAME);
     otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     otherJobInput.setGrouperSession(grouperSession);
     new GrouperObjectTypesJob().run(otherJobInput);

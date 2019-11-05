@@ -68,6 +68,8 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 @DisallowConcurrentExecution
 public class GrouperAttestationJob extends OtherJobBase {
   
+  public static final String JOB_NAME = "OTHER_JOB_attestationDaemon";
+  
   /**
    * two weeks days left
    */
@@ -1104,15 +1106,14 @@ public class GrouperAttestationJob extends OtherJobBase {
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
     
     hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-    String jobName = "OTHER_JOB_attestationDaemon";
 
-    hib3GrouperLoaderLog.setJobName(jobName);
+    hib3GrouperLoaderLog.setJobName(JOB_NAME);
     hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
     hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
     hib3GrouperLoaderLog.store();
     
     OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
+    otherJobInput.setJobName(JOB_NAME);
     otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     otherJobInput.setGrouperSession(grouperSession);
     new GrouperAttestationJob().run(otherJobInput);

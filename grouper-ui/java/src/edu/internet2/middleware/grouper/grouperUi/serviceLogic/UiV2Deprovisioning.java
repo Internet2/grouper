@@ -15,6 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
@@ -39,6 +42,7 @@ import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioning
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -55,7 +59,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogic
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttestationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -2399,47 +2402,15 @@ public class UiV2Deprovisioning {
         throw new RuntimeException("Not allowed!!!!!");
       }
       
-      final boolean[] DONE = new boolean[]{false};
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
       
-      Thread thread = new Thread(new Runnable() {
-
-        @Override
-        public void run() {
-          GrouperSession grouperSession = GrouperSession.startRootSession();
-          try {
-            GrouperDeprovisioningJob.runDaemonStandalone();
-            DONE[0] = true;
-          } catch (RuntimeException re) {
-            LOG.error("Error in running daemon", re);
-          } finally {
-            GrouperSession.stopQuietly(grouperSession);
-          }
-          
-        }
-        
-      });
-
-      thread.start();
-      
-      try {
-        thread.join(45000);
-      } catch (Exception e) {
-        throw new RuntimeException("Exception in thread", e);
-      }
-
-      if (DONE[0]) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningSuccessDaemonRan")));
-        
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningInfoDaemonInRunning")));
-
-      }
-      
-  
-  
+      JobKey jobKey = new JobKey(GrouperDeprovisioningJob.JOB_NAME);
+      scheduler.triggerJob(jobKey);
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningInfoDaemonInRunning")));
+     
+    } catch(SchedulerException e) {
+      throw new RuntimeException("Error getting scheduler");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

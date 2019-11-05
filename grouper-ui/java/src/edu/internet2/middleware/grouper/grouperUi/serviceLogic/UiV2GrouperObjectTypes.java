@@ -14,18 +14,22 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesJob;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.grouperTypes.StemObjectType;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
@@ -1002,45 +1006,16 @@ public class UiV2GrouperObjectTypes {
         throw new RuntimeException("Not allowed!!!!!");
       }
       
-      final boolean[] DONE = new boolean[]{false};
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
       
-      Thread thread = new Thread(new Runnable() {
+      JobKey jobKey = new JobKey(GrouperObjectTypesJob.JOB_NAME);
+      scheduler.triggerJob(jobKey);
 
-        @Override
-        public void run() {
-          GrouperSession grouperSession = GrouperSession.startRootSession();
-          try {
-            GrouperObjectTypesJob.runDaemonStandalone();
-            DONE[0] = true;
-          } catch (RuntimeException re) {
-            LOG.error("Error in running daemon", re);
-          } finally {
-            GrouperSession.stopQuietly(grouperSession);
-          }
-          
-        }
-        
-      });
-
-      thread.start();
-      
-      try {
-        thread.join(45000);
-      } catch (Exception e) {
-        throw new RuntimeException("Exception in thread", e);
-      }
-
-      if (DONE[0]) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("objectTypeSuccessDaemonRan")));
-        
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
             TextContainer.retrieveFromRequest().getText().get("objectTypeInfoDaemonInRunning")));
-
-      }
   
+    } catch(SchedulerException e) {
+      throw new RuntimeException("Error getting scheduler");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

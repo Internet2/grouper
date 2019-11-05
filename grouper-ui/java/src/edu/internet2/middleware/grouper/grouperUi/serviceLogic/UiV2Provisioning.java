@@ -8,10 +8,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
@@ -699,45 +704,16 @@ public class UiV2Provisioning {
         throw new RuntimeException("Not allowed!!!!!");
       }
       
-      final boolean[] DONE = new boolean[]{false};
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
       
-      Thread thread = new Thread(new Runnable() {
+      JobKey jobKey = new JobKey(GrouperProvisioningJob.JOB_NAME);
+      scheduler.triggerJob(jobKey);
 
-        @Override
-        public void run() {
-          GrouperSession grouperSession = GrouperSession.startRootSession();
-          try {
-            GrouperProvisioningJob.runDaemonStandalone();
-            DONE[0] = true;
-          } catch (RuntimeException re) {
-            LOG.error("Error in running daemon", re);
-          } finally {
-            GrouperSession.stopQuietly(grouperSession);
-          }
-          
-        }
-        
-      });
-
-      thread.start();
-      
-      try {
-        thread.join(45000);
-      } catch (Exception e) {
-        throw new RuntimeException("Exception in thread", e);
-      }
-
-      if (DONE[0]) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("provisioningSuccessDaemonRan")));
-        
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
             TextContainer.retrieveFromRequest().getText().get("provisioningInfoDaemonInRunning")));
-
-      }
   
+    } catch(SchedulerException e) {
+      throw new RuntimeException("Error getting scheduler");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
