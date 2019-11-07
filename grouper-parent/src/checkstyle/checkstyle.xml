@@ -20,6 +20,7 @@ limitations under the License.
         "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
+  <property name="severity" value="warning"/>
   <property name="haltOnException" value="false"/>
   <property name="charset" value="UTF-8"/>
   <property name="fileExtensions" value="java, xml, properties"/>
