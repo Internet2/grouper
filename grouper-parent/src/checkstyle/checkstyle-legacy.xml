@@ -23,6 +23,7 @@ limitations under the License.
      legacy code may have a lot of style issues unlikely to be fixed
 -->
 <module name="Checker">
+  <property name="severity" value="warning"/>
   <property name="haltOnException" value="false"/>
   <property name="charset" value="UTF-8"/>
   <property name="fileExtensions" value="java, xml, properties"/>
