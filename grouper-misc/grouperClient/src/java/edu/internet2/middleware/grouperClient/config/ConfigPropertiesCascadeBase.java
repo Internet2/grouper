@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -73,7 +73,7 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * log object
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(ConfigPropertiesCascadeBase.class);
+  private static final Log LOG = LogFactory.getLog(ConfigPropertiesCascadeBase.class);
 
   /**
    * this is used to tell engine where the default and example config is...
