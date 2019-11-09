@@ -274,18 +274,20 @@ public class UiV2Main extends UiServiceLogicBase {
 
         int numberOfStemsInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeStemsOnIndexPage", 30);
         int numberOfGroupsInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeGroupsOnIndexPage", 30);
-        Set<Stem> childrenStems = stem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree));
+        int numberOfAttrDefsInTree = 10;
+        int numberOfAttrDefNamesInTree = 10;
+        Set<Stem> childrenStems = stem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree + 1));
         Set<Group> childrenGroups = stem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, 
-            QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree));
+            QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree + 1));
 
         Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
-          .assignQueryOptions(QueryOptions.create("extension", true, 1, 10))
+          .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttrDefsInTree + 1))
           .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
           .assignSubject(GrouperSession.staticGrouperSession().getSubject())
           .assignParentStemId(stem.getId()).assignStemScope(Scope.ONE).findAttributes();
   
         Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
-          .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, 10))
+          .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttrDefNamesInTree + 1))
           .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
           .assignSubject(GrouperSession.staticGrouperSession().getSubject())
           .assignParentStemId(stem.getId()).assignStemScope(Scope.ONE).findAttributeNames();
@@ -304,30 +306,58 @@ public class UiV2Main extends UiServiceLogicBase {
         dojoTreeItem.setChildren(childrenDojoTreeItems);
         
         int index = 0;
+        int stemCt = 0;
         for (Stem childStem : childrenStems) {
-          
-          childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+          if (stemCt < numberOfStemsInTree) {
+            childrenDojoTreeItems[index++] = new DojoTreeItemChild(
               childStem.getDisplayExtension(), childStem.getUuid(), DojoTreeItemType.stem, true);
+            ++stemCt;
+          } else {
+            childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+              "...", null, DojoTreeItemType.stem, null);
+            break;
+          }
         }
 
+        int groupCt = 0;
         for (Group childGroup : childrenGroups) {
-          
-          childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childGroup.getDisplayExtension(), childGroup.getUuid(), 
-              childGroup.getTypeOfGroup() == TypeOfGroup.entity ? DojoTreeItemType.entity : DojoTreeItemType.group, 
-                  null);
+          if (groupCt < numberOfGroupsInTree) {
+            childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+              childGroup.getDisplayExtension(), childGroup.getUuid(),
+              childGroup.getTypeOfGroup() == TypeOfGroup.entity ? DojoTreeItemType.entity : DojoTreeItemType.group,
+              null);
+            ++groupCt;
+          } else {
+            childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+              "...", null, DojoTreeItemType.group,null);
+            break;
+          }
         }
 
+        int attrDefCt = 0;
         for (AttributeDef childAttributeDef : childrenAttributeDefs) {
-          
-          childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+          if (attrDefCt < numberOfAttrDefsInTree) {
+            childrenDojoTreeItems[index++] = new DojoTreeItemChild(
               childAttributeDef.getExtension(), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
+            ++attrDefCt;
+          } else {
+            childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+              "...", null, DojoTreeItemType.attributeDef, null);
+            break;
+          }
         }
 
+        int attrDefNameCt = 0;
         for (AttributeDefName childAttributeDefName : childrenAttributeDefNames) {
-          
-          childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+          if (attrDefNameCt < numberOfAttrDefNamesInTree) {
+            childrenDojoTreeItems[index++] = new DojoTreeItemChild(
               childAttributeDefName.getDisplayExtension(), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
+            ++attrDefNameCt;
+          } else {
+            childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+              "...", null, DojoTreeItemType.attributeDefName, null);
+            break;
+          }
         }
 
         

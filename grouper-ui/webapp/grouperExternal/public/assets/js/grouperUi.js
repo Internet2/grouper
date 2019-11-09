@@ -597,6 +597,11 @@ function dojoInitMenu(autoSelectNode) {
         } 
         return "dijitFolderClosed";
       }
+      if (item.theType == 'stem') {
+        // regular stems are caught above since they have a children attribute; so this
+        // may be a placeholder stem - possibly the "..." pseudo-stem
+        return "dijitFolderClosed";
+      }
       if (item.theType == 'group') {
         //font-awesome icons...
         return "fa fa-group";
@@ -617,16 +622,26 @@ function dojoInitMenu(autoSelectNode) {
     onClick: function(item){
       // Get the URL from the item, and navigate to it
       if (item.theType == 'stem') {
-        guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);                          
+        if ((typeof item.id != 'undefined') && (item.id != null)) {
+          guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);
+        }
       } else if (item.theType == 'entity') {
-        guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=' + item.id);                          
+        if ((typeof item.id != 'undefined') && (item.id != null)) {
+          guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=' + item.id);
+        }
       } else if (item.theType == 'group') {
-        guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);                          
+        if ((typeof item.id != 'undefined') && (item.id != null)) {
+          guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);
+        }
       } else if (item.theType == 'attributeDef') {
-        guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=' + item.id);                          
+        if ((typeof item.id != 'undefined') && (item.id != null)) {
+          guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=' + item.id);
+        }
         //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeUpdate.createEdit&attributeDefId=' + item.id;
       } else if (item.theType == 'attributeDefName') {
-        guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id); 
+        if ((typeof item.id != 'undefined') && (item.id != null)) {
+          guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id);
+        }
         //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefNameId=' + item.id;
       } else {
         alert('ERROR: cant find theType on object with id: ' + item.id + ': ' + item.theType);
