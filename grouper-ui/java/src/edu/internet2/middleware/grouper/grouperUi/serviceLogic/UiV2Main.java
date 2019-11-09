@@ -274,8 +274,8 @@ public class UiV2Main extends UiServiceLogicBase {
 
         int numberOfStemsInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeStemsOnIndexPage", 30);
         int numberOfGroupsInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeGroupsOnIndexPage", 30);
-        int numberOfAttrDefsInTree = 10;
-        int numberOfAttrDefNamesInTree = 10;
+        int numberOfAttrDefsInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeAttributeDefsOnIndexPage", 10);
+        int numberOfAttrDefNamesInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeAttributeDefNamesOnIndexPage", 10);
         Set<Stem> childrenStems = stem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree + 1));
         Set<Group> childrenGroups = stem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, 
             QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree + 1));
