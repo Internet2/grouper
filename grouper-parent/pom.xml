@@ -174,7 +174,6 @@
         <csrfguard.version>3.1.0</csrfguard.version>
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
         <jstl.version>1.2.1</jstl.version>
-        <opencsv.version>2.4</opencsv.version>
         <struts.version>1.2.4</struts.version>
         <taglibs.standard.version>1.1.2</taglibs.standard.version>
         <jsp.version>2.3.2-b02</jsp.version>
@@ -774,11 +773,6 @@
               <groupId>org.ldaptive</groupId>
               <artifactId>ldaptive-unboundid</artifactId>
               <version>${ldaptive.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>au.com.bytecode</groupId>
-                <artifactId>opencsv</artifactId>
-                <version>${opencsv.version}</version>
             </dependency>
             <dependency>
 		          <groupId>org.jsoup</groupId>

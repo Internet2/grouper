@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -52,7 +53,7 @@ public class ImportSubjectWrapper implements Subject {
   private int row;
   
   /** keep row data for error message */
-  private String[] rowData;
+  private CSVRecord rowData;
   
   /** wrapped subject */
   private Subject wrapped;
@@ -107,7 +108,7 @@ public class ImportSubjectWrapper implements Subject {
    * @throws Exception 
    */
   public ImportSubjectWrapper(int theRow, String theSourceId, String theSubjectId, 
-      String subjectIdentifier, String theSubjectIdOrIdentifier, String[] theRowData) 
+      String subjectIdentifier, String theSubjectIdOrIdentifier, CSVRecord theRowData)
         throws SubjectNotFoundException, SubjectNotUniqueException, SourceUnavailableException,
         Exception {
     
@@ -217,8 +218,8 @@ public class ImportSubjectWrapper implements Subject {
    * @param rowData 
    * @return the error label
    */
-  public static String errorLabelForRowStatic(int row, String[] rowData) {
-    return "row: " + row + ", " + GrouperUtil.join(rowData, ',');
+  public static String errorLabelForRowStatic(int row, CSVRecord rowData) {
+    return "row: " + row + ", " + GrouperUtil.join(rowData.iterator(), ',');
   }
   
   /**
