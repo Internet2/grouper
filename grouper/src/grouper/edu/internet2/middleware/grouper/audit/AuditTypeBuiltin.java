@@ -436,6 +436,17 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   GROUP_DELETE_ALL_MEMBERSHIPS(new AuditType("group", "deleteAllGroupMemberships", null, "id", "name", "parentStemId", 
       "displayName", "description")),
   
+  /**
+   * enable group
+   */
+  GROUP_ENABLE(new AuditType("group", "enableGroup", null, "id", "name", "parentStemId", 
+      "displayName", "description")),
+  
+  /**
+   * disable group
+   */
+  GROUP_DISABLE(new AuditType("group", "disableGroup", null, "id", "name", "parentStemId", 
+      "displayName", "description")),
       
   /**
    * add entity

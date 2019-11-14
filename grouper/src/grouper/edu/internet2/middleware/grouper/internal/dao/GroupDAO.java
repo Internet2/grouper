@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -1023,5 +1024,10 @@ public interface GroupDAO extends GrouperDAO {
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
   
 
+  /**
+   * find records which are disabled which shouldnt be, and enabled which shouldnt be
+   * @return the groups
+   */
+  public Set<Group> findAllEnabledDisabledMismatch();
 } 
 

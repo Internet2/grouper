@@ -1556,6 +1556,7 @@ public enum GrouperDdl implements DdlVersionable {
             Types.BIGINT, "20", false, false); 
 
         addGroupAlternateNameCol(database, ddlVersionBean, groupsTable);
+        addGroupEnabledDisabledColumns(database, ddlVersionBean, groupsTableNew);
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
             "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
@@ -2337,6 +2338,31 @@ public enum GrouperDdl implements DdlVersionable {
       addConfigurationTables(ddlVersionBean, database);
       addConfigurationIndexes(ddlVersionBean, database);
 
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#recreateViewsAndForeignKeys()
+     */
+    public boolean recreateViewsAndForeignKeys() {
+      return false;
+    }
+  },
+  
+  /**
+   * <pre>
+   * Grouper 2.5.0
+   * </pre>
+   */
+  V32 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      addGroupEnabledDisabledColumns(database, ddlVersionBean, false);
     }
     
     /**
@@ -13206,6 +13232,51 @@ public enum GrouperDdl implements DdlVersionable {
       ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_group_set set owner_id = owner_attr_def_id where owner_attr_def_id is not null;\ncommit;\n");      
     }
   }
+  
+  /** dont do this twice */
+  static boolean alreadyAddedGroupEnableDisable = false;
+  
+  private static void addGroupEnabledDisabledColumns(Database database, DdlVersionBean ddlVersionBean, boolean groupTableNew) {
+    //this can happen in step 2 as well as the 2.5 step
+    if (alreadyAddedGroupEnableDisable) {
+      return;
+    }
+    
+    alreadyAddedGroupEnableDisable = true;
+    
+    Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS, true);
+    boolean enabledColumnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ENABLED, false);
+
+    //this is required if the group table is new    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, groupTableNew, "T");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED_TIMESTAMP, Types.BIGINT, "20", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_DISABLED_TIMESTAMP, Types.BIGINT, "20", false, false);    
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_idx", false, Group.COLUMN_ENABLED); 
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_time_idx", false, Group.COLUMN_ENABLED_TIMESTAMP);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_disabled_time_idx", false, Group.COLUMN_DISABLED_TIMESTAMP);
+    
+    if (!groupTableNew) {
+      boolean needUpdate = false;
+      
+      if (enabledColumnIsNew) {
+        needUpdate = true;
+      } else {
+        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_groups where enabled is null");
+        if (count > 0) {
+          needUpdate = true;
+        }
+      }
+      
+      if (needUpdate) {
+        ddlVersionBean.getAdditionalScripts().append(
+            "update grouper_groups set enabled='T' where enabled is null;\n" +
+            "commit;\n");
+      }
+    }
+  }
+
 
   /** dont do this twice */
   static boolean alreadyAddedTableIndices = false;

@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -3937,6 +3938,33 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         splitScope, typeOfGroup, membershipSubject, field, parentStemId, stemScope,
         findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, idOfAttributeDefName, 
         attributeValue, attributeValuesOnAssignment, attributeCheckReadOnAttributeDef, idOfAttributeDefName2,attributeValue2, attributeValuesOnAssignment2);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findAllEnabledDisabledMismatch()
+   */
+  public Set<Group> findAllEnabledDisabledMismatch() {
+    long now = System.currentTimeMillis();
+
+    StringBuilder sql = new StringBuilder(
+        "select g from Group as g where  "
+          + "(g.enabledDb = 'F' and g.enabledTimeDb is null and g.disabledTimeDb is null) "  
+          + " or (g.enabledDb = 'F' and g.enabledTimeDb is null and g.disabledTimeDb > :now) "
+          + " or (g.enabledDb = 'F' and g.enabledTimeDb < :now and g.disabledTimeDb is null) "
+          + " or (g.enabledDb = 'F' and g.enabledTimeDb < :now and g.disabledTimeDb > :now) "
+          + " or (g.enabledDb = 'T' and g.disabledTimeDb < :now) "
+          + " or (g.enabledDb = 'T' and g.enabledTimeDb > :now) "
+          + " or (g.enabledDb <> 'T' and g.enabledDb <> 'F') "
+          + " or (g.enabledDb is null) "
+     );
+
+    Set<Group> groups = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setLong( "now",  now )
+      .listSet(Group.class);
+    
+    return groups;
   }
 } 
 

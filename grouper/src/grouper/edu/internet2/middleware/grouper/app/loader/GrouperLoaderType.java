@@ -313,6 +313,7 @@ public enum GrouperLoaderType {
 
           int records = Membership.internal_fixEnabledDisabled();
           records += AttributeAssign.internal_fixEnabledDisabled();
+          records += Group.internal_fixEnabledDisabled();
           records += ExternalSubject.internal_fixDisabled();
 
           hib3GrouploaderLog.setUpdateCount(records);

@@ -110,6 +110,15 @@ public class XmlExportGroup {
 
   /** typeOfGroup */
   private String typeOfGroup;
+  
+  /** T or F */
+  private String enabled;
+
+  /** timestamp of when enabled */
+  private String enabledTimestamp;
+
+  /** timestamp of when disabled */
+  private String disableTimestamp;
 
   /**
    * logger 
@@ -383,6 +392,54 @@ public class XmlExportGroup {
   }
   
   /**
+   * enabled T|F
+   * @return enabled T|F
+   */
+  public String getEnabled() {
+    return this.enabled;
+  }
+
+  /**
+   * enabled T|F
+   * @param enabled1
+   */
+  public void setEnabled(String enabled1) {
+    this.enabled = enabled1;
+  }
+
+  /**
+   * enabled timestamp
+   * @return enabled timestamp
+   */
+  public String getEnabledTimestamp() {
+    return this.enabledTimestamp;
+  }
+
+  /**
+   * enabled timestamp
+   * @param enabledTimestamp1
+   */
+  public void setEnabledTimestamp(String enabledTimestamp1) {
+    this.enabledTimestamp = enabledTimestamp1;
+  }
+
+  /**
+   * disabled timestamp
+   * @return disabled timestamp
+   */
+  public String getDisableTimestamp() {
+    return this.disableTimestamp;
+  }
+
+  /**
+   * disabled timestamp
+   * @param disableTimestamp1
+   */
+  public void setDisableTimestamp(String disableTimestamp1) {
+    this.disableTimestamp = disableTimestamp1;
+  }
+  
+  /**
    * convert to group
    * @return the group
    */
@@ -405,6 +462,9 @@ public class XmlExportGroup {
     group.setParentUuid(this.parentStem);
     group.setTypeOfGroupDb(this.typeOfGroup);
     group.setUuid(this.uuid);
+    group.setDisabledTimeDb(GrouperUtil.dateLongValue(this.disableTimestamp));
+    group.setEnabled(GrouperUtil.booleanValue(this.enabled, true));
+    group.setEnabledTimeDb(GrouperUtil.dateLongValue(this.enabledTimestamp));
     
     return group;
   }

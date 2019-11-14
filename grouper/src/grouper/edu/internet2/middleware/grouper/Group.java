@@ -284,6 +284,15 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** unique number for this group */
   public static final String COLUMN_ID_INDEX = "id_index";
   
+  /** epoch time of when to disable membership */
+  public static final String COLUMN_DISABLED_TIMESTAMP = "disabled_timestamp";
+  
+  /** epoch time of when to enable membership */
+  public static final String COLUMN_ENABLED_TIMESTAMP = "enabled_timestamp";
+  
+  /** whether the membership is enabled or disabled: T|F */
+  public static final String COLUMN_ENABLED = "enabled";
+  
   /**
    * if this is a composite group, get the composite object for this group
    * @return the composite group
@@ -449,6 +458,21 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   
   /** context id of the transaction */
   private String contextId;
+  
+  /**
+   * If the group is enabled.
+   */
+  private boolean enabled = true;
+  
+  /**
+   * Time to enable this group.
+   */
+  private Long enabledTimeDb;
+  
+  /**
+   * Time to disable this group.
+   */
+  private Long disabledTimeDb;
 
   /**
    * context id of the transaction
@@ -520,6 +544,15 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
+  
+  /** constant for field name for: disabledTimeDb */
+  public static final String FIELD_DISABLED_TIME_DB = "disabledTimeDb";
+
+  /** constant for field name for: enabled */
+  public static final String FIELD_ENABLED = "enabled";
+
+  /** constant for field name for: enabledTimeDb */
+  public static final String FIELD_ENABLED_TIME_DB = "enabledTimeDb";
 
   /**
    * fields which are included in db version
@@ -528,7 +561,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, 
-      FIELD_ID_INDEX,
+      FIELD_ID_INDEX, FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB,
       FIELD_ALTERNATE_NAME_DB, FIELD_LAST_MEMBERSHIP_CHANGE_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB);
 
   /**
@@ -539,10 +572,148 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID_INDEX, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
       FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, 
-      FIELD_ALTERNATE_NAME_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB);
+      FIELD_ALTERNATE_NAME_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB,
+      FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
+
+  /**
+   * Should this group be enabled based on the enabled and disabled dates?
+   * @return boolean
+   */
+  private boolean internal_isEnabledUsingTimestamps() {
+    long now = System.currentTimeMillis();
+    if (this.enabledTimeDb != null && this.enabledTimeDb > now) {
+      return false;
+    }
+    if (this.disabledTimeDb != null && this.disabledTimeDb < now) {
+      return false;
+    }
+    return true;
+  }
+  
+  /**
+   * Is this group enabled?
+   * @return boolean
+   */
+  public boolean isEnabled() {
+    return this.enabled;
+  }
+  
+  /**
+   * Whether to enable or disable this group.
+   * @param enabled
+   */
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  /**
+   * Whether or not this group is enabled.
+   * @return the enabled
+   */
+  public String getEnabledDb() {
+    if (this.enabled) {
+      return "T";
+    }
+    
+    return "F";
+  }
+
+  
+  /**
+   * Whether to enable or disable this group.
+   * @param enabled
+   */
+  public void setEnabledDb(String enabled) {
+    this.enabled = GrouperUtil.booleanValue(enabled);
+  }
+
+  /**
+   * Time when this group is enabled if the value is in the future.
+   * @return Long
+   */
+  public Long getEnabledTimeDb() {
+    return this.enabledTimeDb;
+  }
+
+  /**
+   * Time when this group is enabled if the value is in the future.
+   * @return Timestamp
+   */
+  public Timestamp getEnabledTime() {
+    if (this.enabledTimeDb == null) {
+      return null;
+    }
+    
+    return new Timestamp(this.enabledTimeDb);
+  }
+  
+  /**
+   * Set the time when this group should be enabled.
+   * @param enabledTimeDb
+   */
+  public void setEnabledTimeDb(Long enabledTimeDb) {
+    this.enabledTimeDb = enabledTimeDb;
+  }
+
+  /**
+   * Set the time when this group should be enabled.
+   * @param enabledTimeDb
+   */
+  public void setEnabledTime(Timestamp enabledTimeDb) {
+    if (enabledTimeDb == null) {
+      this.enabledTimeDb = null;
+    } else {
+      this.enabledTimeDb = enabledTimeDb.getTime();
+    }
+    
+    setEnabled(internal_isEnabledUsingTimestamps());
+  }
+  
+  /**
+   * Time when this group is disabled if the value is in the future.
+   * @return Long
+   */
+  public Long getDisabledTimeDb() {
+    return this.disabledTimeDb;
+  }
+
+  /**
+   * Time when this group is disabled if the value is in the future.
+   * @return Timestamp
+   */
+  public Timestamp getDisabledTime() {
+    if (this.disabledTimeDb == null) {
+      return null;
+    }
+    
+    return new Timestamp(this.disabledTimeDb);
+  }
+  
+  /**
+   * Set the time to disable this group.
+   * @param disabledTimeDb
+   */
+  public void setDisabledTimeDb(Long disabledTimeDb) {
+    this.disabledTimeDb = disabledTimeDb;
+  }
+  
+  /**
+   * Set the time to disable this group.
+   * @param disabledTimeDb
+   */
+  public void setDisabledTime(Timestamp disabledTimeDb) {
+    if (disabledTimeDb == null) {
+      this.disabledTimeDb = null;
+    } else {
+      this.disabledTimeDb = disabledTimeDb.getTime();
+    }
+    
+    setEnabled(this.internal_isEnabledUsingTimestamps());
+  }
+  
   /** */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeAssignGroupDelegate attributeAssignGroupDelegate;
@@ -5078,13 +5249,26 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               
               String differences = GrouperUtil.dbVersionDescribeDifferences(Group.this.dbVersion(), 
                   Group.this, Group.this.dbVersion() != null ? Group.this.dbVersionDifferentFields() : Group.CLONE_FIELDS);
+              
+              boolean enabling = Group.this.dbVersion() != null && Group.this.isEnabled() && !Group.this.dbVersion().isEnabled();
+              boolean disabling = Group.this.dbVersion() != null && !Group.this.isEnabled() && Group.this.dbVersion().isEnabled();
 
               GrouperDAOFactory.getFactory().getGroup().update( Group.this );
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = null;
                 
-                if (Group.this.typeOfGroup == TypeOfGroup.entity) {
+                if (enabling) {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ENABLE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Enabled group: " + Group.this.getName() + ", " + differences);
+                } else if (disabling) {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DISABLE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Disabled group: " + Group.this.getName() + ", " + differences);
+                } else if (Group.this.typeOfGroup == TypeOfGroup.entity) {
                   
                   auditEntry = new AuditEntry(AuditTypeBuiltin.ENTITY_UPDATE, "id", 
                       Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
@@ -7417,12 +7601,24 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     existingRecord.setParentUuid(this.getParentUuid());
     existingRecord.setTypeOfGroup(this.typeOfGroup);
     existingRecord.setUuid(this.getUuid());
+    existingRecord.setDisabledTimeDb(this.getDisabledTimeDb());
+    existingRecord.setEnabledDb(this.getEnabledDb());
+    existingRecord.setEnabledTimeDb(this.getEnabledTimeDb());
   }
 
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
    */
   public boolean xmlDifferentBusinessProperties(Group other) {
+    if (!GrouperUtil.equals(this.disabledTimeDb, other.disabledTimeDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.enabledTimeDb, other.enabledTimeDb)) {
+      return true;
+    }
+    if (this.enabled != other.enabled) {
+      return true;
+    }
     if (!StringUtils.equals(this.alternateNameDb, other.alternateNameDb)) {
       return true;
     }
@@ -7595,6 +7791,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     xmlExportGroup.setTypeOfGroup(this.getTypeOfGroupDb());
     xmlExportGroup.setUuid(this.getUuid());
     
+    xmlExportGroup.setDisableTimestamp(GrouperUtil.dateStringValue(this.getDisabledTimeDb()));
+    xmlExportGroup.setEnabled(GrouperUtil.booleanValue(this.getEnabledDb(), true) ? "T" : "F");
+    xmlExportGroup.setEnabledTimestamp(GrouperUtil.dateStringValue(this.getEnabledTimeDb()));
      
     return xmlExportGroup;
   }
@@ -8103,6 +8302,20 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             return null;
           }
         });
+  }
+  
+  /**
+   * fix enabled and disabled groups, and return the count of how many were fixed
+   * @return the number of records affected
+   */
+  public static int internal_fixEnabledDisabled() {
+    Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findAllEnabledDisabledMismatch();
+    for (Group group : groups) {
+      group.setEnabled(group.internal_isEnabledUsingTimestamps());
+      group.store();
+    }
+
+    return groups.size();
   }
 
   /**
