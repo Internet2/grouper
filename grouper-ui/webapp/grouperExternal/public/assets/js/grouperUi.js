@@ -597,10 +597,10 @@ function dojoInitMenu(autoSelectNode) {
         } 
         return "dijitFolderClosed";
       }
-      if (item.theType == 'stem') {
+      if (item.theType == 'truncatedItems') {
         // regular stems are caught above since they have a children attribute; so this
         // may be a placeholder stem - possibly the "..." pseudo-stem
-        return "dijitFolderClosed";
+        return "fa fa-ellipsis-h";
       }
       if (item.theType == 'group') {
         //font-awesome icons...
@@ -643,6 +643,10 @@ function dojoInitMenu(autoSelectNode) {
           guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id);
         }
         //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefNameId=' + item.id;
+      } else if (item.theType == 'truncatedItems') {
+        if ((typeof item.id != 'undefined') && (item.id != null)) {
+          guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id)
+        }
       } else {
         alert('ERROR: cant find theType on object with id: ' + item.id + ': ' + item.theType);
       }

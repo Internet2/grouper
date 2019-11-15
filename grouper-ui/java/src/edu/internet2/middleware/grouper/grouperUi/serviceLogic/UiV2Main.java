@@ -314,7 +314,7 @@ public class UiV2Main extends UiServiceLogicBase {
             ++stemCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "...", null, DojoTreeItemType.stem, null);
+              "(More folders)", childStem.getParentUuid(), DojoTreeItemType.truncatedItems, null);
             break;
           }
         }
@@ -329,7 +329,7 @@ public class UiV2Main extends UiServiceLogicBase {
             ++groupCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "...", null, DojoTreeItemType.group,null);
+              "(More groups)", childGroup.getParentUuid(), DojoTreeItemType.truncatedItems,null);
             break;
           }
         }
@@ -342,7 +342,7 @@ public class UiV2Main extends UiServiceLogicBase {
             ++attrDefCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "...", null, DojoTreeItemType.attributeDef, null);
+              "(More attribute defs)", childAttributeDef.getParentUuid(), DojoTreeItemType.truncatedItems, null);
             break;
           }
         }
@@ -355,7 +355,7 @@ public class UiV2Main extends UiServiceLogicBase {
             ++attrDefNameCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "...", null, DojoTreeItemType.attributeDefName, null);
+              "(More attribute def names)", childAttributeDefName.getParentUuid(), DojoTreeItemType.truncatedItems, null);
             break;
           }
         }
