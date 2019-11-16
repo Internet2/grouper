@@ -49,6 +49,8 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssi
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestFindExternalSubjectsRequest;
@@ -313,6 +315,12 @@ public class WsRestClassLookup {
     addAliasClass(WsRestFindExternalSubjectsRequest.class);
     addAliasClass(WsRestExternalSubjectDeleteRequest.class);
     addAliasClass(WsRestExternalSubjectSaveRequest.class);
+    
+    addAliasClass(WsRestGetAuditEntriesLiteRequest.class);
+    addAliasClass(WsRestGetAuditEntriesRequest.class);
+    addAliasClass(WsAuditEntry.class);
+    addAliasClass(WsAuditEntryColumn.class);
+    addAliasClass(WsGetAuditEntriesResults.class);
 
   }
   

@@ -120,7 +120,7 @@ public class WsSampleGetAuditEntriesRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getAuditEntriesLite(WsSampleRestType.xhtml);
+    getAuditEntriesLite(WsSampleRestType.json);
   }
 
 }
