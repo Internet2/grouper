@@ -19,15 +19,13 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.Acknowledge;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AcknowledgeResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessageAcknowledgeResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.Acknowledge;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AcknowledgeResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsMessageAcknowledgeResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
@@ -71,10 +69,6 @@ public class WsSampleAcknowledgeMessage implements WsSampleGenerated {
       options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
       options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
           new Integer(3600000));
-
-      GrouperSession.startRootSession();
-      
-      GrouperSession.start(SubjectFinder.findById("test.subject.0", true));
 
       GrouperMessagingEngine
           .send(new GrouperMessageSendParam().assignQueueOrTopicName("def")

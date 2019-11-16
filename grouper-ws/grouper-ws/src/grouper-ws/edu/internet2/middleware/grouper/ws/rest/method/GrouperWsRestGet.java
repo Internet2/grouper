@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssi
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestFindExternalSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
@@ -613,7 +615,53 @@ public enum GrouperWsRestGet {
           + (requestObject == null ? null : requestObject.getClass()));
     }
   
-  };
+  },
+  
+  /** audit get requests */
+  audits {
+
+    /**
+     * handle the incoming request based on GET HTTP method and group resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/audits
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /xhtml/v1_3_000/audits
+      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
+      
+      if (!StringUtils.isBlank(somethingElse)) {
+        throw new RuntimeException("Cant pass anything after 'audits' in URL");
+      }
+      
+      if (requestObject instanceof WsRestGetAuditEntriesLiteRequest) {
+        
+        return GrouperServiceRest.getAuditEntriesLite(clientVersion,
+            (WsRestGetAuditEntriesLiteRequest)requestObject);
+      }
+      
+      if (requestObject instanceof WsRestGetAuditEntriesRequest) {
+        
+        return GrouperServiceRest.getAuditEntries(clientVersion,
+            (WsRestGetAuditEntriesRequest)requestObject);
+      }
+      
+      throw new RuntimeException("Must pass in a request object of type " 
+          + WsRestGetAuditEntriesLiteRequest.class.getSimpleName() + " or "
+          + WsRestGetAuditEntriesRequest.class.getSimpleName());
+      
+    }
+
+  }
+  
+  
+  ;
 
   /**
    * handle the incoming request based on HTTP method

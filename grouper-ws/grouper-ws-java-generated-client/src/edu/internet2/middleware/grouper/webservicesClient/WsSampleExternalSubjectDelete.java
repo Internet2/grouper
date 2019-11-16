@@ -27,11 +27,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.ExternalSubjectDelete;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsExternalSubjectDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsExternalSubjectDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsExternalSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup;
 
 
 /**

@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -65,6 +64,10 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditFieldType;
+import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -138,6 +141,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults.WsFindGr
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults.WsFindStemsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults.WsGetAttributeAssignActionsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAuditEntriesResults.WsGetAuditEntriesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults.WsGetPermissionAssignmentsResultsCode;
@@ -10534,6 +10538,216 @@ public class GrouperServiceLogic {
     GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsFindExternalSubjectsResults == null ? 0 : GrouperUtil.length(wsFindExternalSubjectsResults.getExternalSubjectResults()));
 
     return wsFindExternalSubjectsResults;
+  }
+  
+  public static WsGetAuditEntriesResults getAuditEntriesLite(final GrouperVersion clientVersion, String subjectId,
+      String subjectSourceId, String subjectIdentifier, 
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, boolean includeExtendedResults, 
+      String auditType, 
+      String auditActionId, String wsOwnerGroupName, String wsOwnerGroupId, 
+      String wsOwnerStemName, String wsOwnerStemId,
+      String wsOwnerAttributeDefName, String wsOwnerAttributeDefId,
+      String wsOwnerAttributeDefNameName, String wsOwnerAttributeDefNameId,
+      String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
+      String paramName0, String paramValue0,
+      String paramName1, String paramValue1,
+      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
+    // setup the subject lookup
+    WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, subjectSourceId,
+        subjectIdentifier);
+    WsSubjectLookup[] subjectLookups = new WsSubjectLookup[]{subjectLookup};
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+
+  
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+  
+    WsGroupLookup[] wsOwnerGroupLookups = null;
+    if (!StringUtils.isBlank(wsOwnerGroupName) || !StringUtils.isBlank(wsOwnerGroupId)) {
+      wsOwnerGroupLookups = new WsGroupLookup[]{new WsGroupLookup(wsOwnerGroupName, wsOwnerGroupId)};
+    }
+    
+    WsStemLookup[] wsOwnerStemLookups = null;
+    if (!StringUtils.isBlank(wsOwnerStemName) || !StringUtils.isBlank(wsOwnerStemId)) {
+      wsOwnerStemLookups = new WsStemLookup[]{new WsStemLookup(wsOwnerStemName, wsOwnerStemId)};
+    }
+    
+    WsSubjectLookup[] wsOwnerSubjectLookups = null;
+    if (!StringUtils.isBlank(wsOwnerSubjectId) || !StringUtils.isBlank(wsOwnerSubjectSourceId) || !StringUtils.isBlank(wsOwnerSubjectIdentifier)) {
+      wsOwnerSubjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(wsOwnerSubjectId, wsOwnerSubjectSourceId, wsOwnerSubjectIdentifier)};
+    }
+    
+    WsAttributeDefLookup[] wsOwnerAttributeDefLookups = null;
+    if (!StringUtils.isBlank(wsOwnerAttributeDefName) || !StringUtils.isBlank(wsOwnerAttributeDefId)) {
+      wsOwnerAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsOwnerAttributeDefName, wsOwnerAttributeDefId)}; 
+    }
+    
+    WsAttributeDefNameLookup[] wsOwnerAttributeDefNameLookups = null;
+    if (!StringUtils.isBlank(wsOwnerAttributeDefNameName) || !StringUtils.isBlank(wsOwnerAttributeDefNameId)) {
+      wsOwnerAttributeDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(wsOwnerAttributeDefNameName, wsOwnerAttributeDefNameId )};
+    }
+    
+    WsGetAuditEntriesResults wsGetAuditEntriesResults = getAuditEntries(clientVersion, subjectLookups,
+        actAsSubjectLookup, includeExtendedResults, params, auditType,
+        auditActionId, wsOwnerStemLookups, wsOwnerAttributeDefLookups, wsOwnerAttributeDefNameLookups,
+        wsOwnerGroupLookups, wsOwnerSubjectLookups, pageSize, pageNumber, sortString, 
+        ascending, pointInTimeFrom, pointInTimeTo);
+  
+    // return new WsGetAuditEntriesLiteResult(wsGetAuditEntriesResults);
+    return wsGetAuditEntriesResults;
+  }
+  
+  public static WsGetAuditEntriesResults getAuditEntries(final GrouperVersion clientVersion,
+      WsSubjectLookup[] subjectLookups, 
+      WsSubjectLookup actAsSubjectLookup, boolean includeExtendedResults,
+      WsParam[] params, String auditType, 
+      String auditActionId, 
+      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups,
+      WsAttributeDefNameLookup[] wsOwnerAttributeDefNameLookups,
+      WsGroupLookup[] wsOwnerGroupLookups, WsSubjectLookup[] wsOwnerSubjectLookups,
+      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getAuditEntries");
+
+    final WsGetAuditEntriesResults wsGetAuditEntriesResults = new WsGetAuditEntriesResults();
+    boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetAuditEntriesResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion+ ", auditType: " + auditType
+          +", auditActionId: " + auditActionId
+          + ", wsOwnerAttributeDefLookups: "
+          + GrouperUtil.toStringForLog(wsOwnerAttributeDefLookups, 200) 
+          + ", wsOwnerAttributeDefNameLookups: " + GrouperUtil.toStringForLog(wsOwnerAttributeDefNameLookups, 200)
+          + ", wsOwnerStemLookups: "
+          + GrouperUtil.toStringForLog(wsOwnerStemLookups, 200) + ", wsOwnerGroupLookups: "
+          + GrouperUtil.toStringForLog(wsOwnerGroupLookups, 200) + ", wsOwnerSubjectLookups: "
+          + GrouperUtil.toStringForLog(wsOwnerSubjectLookups, 200) 
+          + ", includeExtendedResults: " + includeExtendedResults + ", actAsSubject: "
+          + actAsSubjectLookup 
+          + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, ";
+  
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "auditType", auditType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "auditActionId", auditActionId);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeExtendedResults", includeExtendedResults);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeDefNameLookups", wsOwnerAttributeDefNameLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeDefLookups", wsOwnerAttributeDefLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerGroupLookups", wsOwnerGroupLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerStemLookups", wsOwnerStemLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerSubjectLookups", wsOwnerSubjectLookups);
+
+      
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
+          subjectLookups, GrouperWsConfig.WS_GET_GROUPS_SUBJECTS_MAX, 1000000, "subjectLookups");
+
+      int resultIndex = 0;
+      
+      //TODO validate input like audit type, audit action id, from before to etc
+      
+      UserAuditQuery userAuditQuery = new UserAuditQuery();
+      
+      if (actAsSubjectLookup != null && actAsSubjectLookup.retrieveMember() != null) {
+        userAuditQuery.actAsMember(actAsSubjectLookup.retrieveMember());
+      }
+    
+      
+      if (StringUtils.isNotBlank(auditType) && StringUtils.isNotBlank(auditActionId)) {
+        userAuditQuery.addAuditTypeAction(auditType, auditActionId);
+      } else if (StringUtils.isNotBlank(auditType)) {
+        userAuditQuery.addAuditTypeCategory(auditType);
+      }
+      
+      if (pointInTimeFrom != null) {
+        userAuditQuery.setFromDate(pointInTimeFrom);
+      }
+      
+      if (pointInTimeTo != null) {
+        userAuditQuery.setToDate(pointInTimeTo);
+      }
+      
+      if (wsOwnerStemLookups != null && wsOwnerStemLookups.length > 0) {
+        for (WsStemLookup wsStemLookup: wsOwnerStemLookups) {          
+          userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_STEM_ID, wsStemLookup.getUuid());
+        }
+      }
+      
+      if (wsOwnerGroupLookups != null && wsOwnerGroupLookups.length > 0) {
+        for (WsGroupLookup wsGroupLookup: wsOwnerGroupLookups) {          
+          userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_GROUP_ID, wsGroupLookup.getUuid());
+        }
+      }
+      
+      //TODO add attribute defs, attribute def names and subjects
+      
+      List<AuditEntry> auditEntries = userAuditQuery.execute();
+      
+      List<WsAuditEntry> wsAuditEntries = new ArrayList<WsAuditEntry>();
+      
+      for (AuditEntry entry: auditEntries) {
+        WsAuditEntry wsAuditEntry = new WsAuditEntry();
+        AuditType auditTypeObject = entry.getAuditType();
+        wsAuditEntry.setActionName(auditTypeObject.getActionName());
+        wsAuditEntry.setAuditCategory(auditTypeObject.getAuditCategory());
+        
+        List<WsAuditEntryColumn> columns = new ArrayList<WsAuditEntryColumn>();
+        
+        for (String label: auditTypeObject.labels()) {
+          
+          //see if there is data
+          String fieldName = auditTypeObject.retrieveAuditEntryFieldForLabel(label);
+          Object value = GrouperUtil.fieldValue(entry, fieldName);
+          String valueString = GrouperUtil.stringValue(value);
+          if (!StringUtils.isBlank(valueString)) {
+            WsAuditEntryColumn column = new WsAuditEntryColumn();
+            column.setLabel(label);
+            column.setValueInt(null);
+            column.setValueString(valueString);
+            columns.add(column);
+          }
+        }
+        
+        wsAuditEntry.setAuditEntryColumns(columns.toArray(new WsAuditEntryColumn[0]));
+        wsAuditEntries.add(wsAuditEntry);
+      }
+      
+      wsGetAuditEntriesResults.setWsAuditEntries(wsAuditEntries.toArray(new WsAuditEntry[0]));
+      
+      wsGetAuditEntriesResults.assignResultCode(WsGetAuditEntriesResultsCode.SUCCESS);
+      
+      wsGetAuditEntriesResults.getResultMetadata().appendResultMessage(
+          "Success for: " + theSummary);
+      
+    } catch (Exception e) {
+      wsGetAuditEntriesResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetAuditEntriesResults);
+    }
+  
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetAuditEntriesResults == null ? 0 : GrouperUtil.length(wsGetAuditEntriesResults.getWsAuditEntries()));
+
+    return wsGetAuditEntriesResults;
+        
   }
   
         
