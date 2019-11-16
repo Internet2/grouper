@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 public class TableSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
+    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
   }
   
   /**
@@ -63,14 +63,15 @@ public class TableSyncTest extends GrouperTest {
    * 
    */
   public void testTableSyncMetadata() {
-    boolean foundName = false;;
-    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GcTableSync.processDatabaseColumnMetadata("grouper", null, "grouper_groups")) {
-      if (StringUtils.equalsIgnoreCase(gcTableSyncColumnMetadata.getColumnName(), "name")) {
-        assertEquals(ColumnType.STRING, gcTableSyncColumnMetadata.getColumnType());
-        //System.out.println(gcTableSyncColumnMetadata.getColumnName());
-        foundName = true;
-      }
-    }
+    boolean foundName = false;
+    // TODO
+//    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GcTableSync.processDatabaseColumnMetadata("grouper", "grouper_groups")) {
+//      if (StringUtils.equalsIgnoreCase(gcTableSyncColumnMetadata.getColumnName(), "name")) {
+//        assertEquals(ColumnType.STRING, gcTableSyncColumnMetadata.getColumnType());
+//        //System.out.println(gcTableSyncColumnMetadata.getColumnName());
+//        foundName = true;
+//      }
+//    }
     assertTrue(foundName);
   }
   
@@ -120,7 +121,7 @@ public class TableSyncTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     
-    dropTableSyncTables();
+    //dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
 
   }
@@ -132,17 +133,11 @@ public class TableSyncTest extends GrouperTest {
   protected void setupConfigs() {
     super.setupConfigs();
     
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.grouper.driver.elConfig", "${edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig().propertyValueString(\"hibernate.connection.driver_class\")}");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.grouper.url.elConfig", "${edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig().propertyValueString(\"hibernate.connection.url\")}");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.grouper.user.elConfig", "${edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig().propertyValueString(\"hibernate.connection.username\")}");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.grouper.pass.elConfig", "${edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig().propertyValueString(\"hibernate.connection.password\")}");
+//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.grouper.driver.elConfig", "${edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig().propertyValueString(\"hibernate.connection.driver_class\")}");
+//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.grouper.url.elConfig", "${edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig().propertyValueString(\"hibernate.connection.url\")}");
+//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.grouper.user.elConfig", "${edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig().propertyValueString(\"hibernate.connection.username\")}");
+//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.grouper.pass.elConfig", "${edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig().propertyValueString(\"hibernate.connection.password\")}");
     
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "testgrouper_sync_subject_from");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableTo", "testgrouper_sync_subject_to");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
 
     //  GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("", "");
 
@@ -296,6 +291,13 @@ public class TableSyncTest extends GrouperTest {
    */
   public void testPersonSyncFull() {
     
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "testgrouper_sync_subject_from");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableTo", "testgrouper_sync_subject_to");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
+
     int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
     
     assertEquals(0, countFrom);
@@ -356,11 +358,13 @@ public class TableSyncTest extends GrouperTest {
     
     GcTableSync gcTableSync = new GcTableSync();
     gcTableSync.setKey("personSourceTest");
-    GcTableSyncOutput gcTableSyncOutput = gcTableSync.fullSync();
+    GcTableSyncOutput gcTableSyncOutput = new GcTableSyncOutput();
+        
+    //gcTableSync.sync(new GcTableSyncOutput[]{gcTableSyncOutput}); TODO
 
     assertEquals(0, gcTableSyncOutput.getDelete());
     assertEquals(0, gcTableSyncOutput.getUpdate());
-    assertEquals(recordsSize, gcTableSyncOutput.getTotal());
+    //assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom()); TODO
     assertEquals(recordsSize, gcTableSyncOutput.getInsert());
 
     countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
@@ -370,11 +374,14 @@ public class TableSyncTest extends GrouperTest {
     //do it again should do nothing
     gcTableSync = new GcTableSync();
     gcTableSync.setKey("personSourceTest");
-    gcTableSyncOutput = gcTableSync.fullSync();
+    
+    gcTableSyncOutput = new GcTableSyncOutput();
+    
+    //gcTableSync.sync(new GcTableSyncOutput[]{gcTableSyncOutput}); TODO
 
     assertEquals(0, gcTableSyncOutput.getDelete());
     assertEquals(0, gcTableSyncOutput.getUpdate());
-    assertEquals(recordsSize, gcTableSyncOutput.getTotal());
+    //assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom()); TODO
     assertEquals(0, gcTableSyncOutput.getInsert());
     
     TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, "0");
@@ -401,11 +408,13 @@ public class TableSyncTest extends GrouperTest {
 
     gcTableSync = new GcTableSync();
     gcTableSync.setKey("personSourceTest");
-    gcTableSyncOutput = gcTableSync.fullSync();
-
+    gcTableSyncOutput = new GcTableSyncOutput();
+    
+    // gcTableSync.sync(new GcTableSyncOutput[]{gcTableSyncOutput}); TODO
+    
     assertEquals(1, gcTableSyncOutput.getDelete());
     assertEquals(1, gcTableSyncOutput.getUpdate());
-    assertEquals(recordsSize, gcTableSyncOutput.getTotal());
+    // assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom()); TODO
     assertEquals(1, gcTableSyncOutput.getInsert());
     
     try {

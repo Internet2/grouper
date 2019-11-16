@@ -16,7 +16,9 @@
 package edu.internet2.middleware.grouperClient.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,6 +126,93 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
     
     return grouperMessagingConfig;
     
+  }
+  
+  /** 
+   * make a map of dependencies
+   */
+  private Map<String, Set<String>> dbSyncConfigKeyLinkedToConfigKeys = null;  
+  
+  /** 
+   * pattern to get jobs that link to jobs
+   */
+  private static Pattern dbSyncLinkedConfigsPattern = Pattern.compile("^grouperClient.syncTable.([^.]+).linkedConfigKeys$");
+
+  /**
+   * get map of dependencies of db sync jobs, do all calculations
+   * @return the map of config key to linked config keys
+   */
+  public Map<String, Set<String>> dbSyncConfigKeyLinkedToConfigKeys() {
+    
+    if (this.dbSyncConfigKeyLinkedToConfigKeys != null) {
+      return this.dbSyncConfigKeyLinkedToConfigKeys;
+    }
+    
+    Map<String, Set<String>> tempDbSyncConfigKeyLinkedToConfigKeys = new HashMap<String, Set<String>>();
+
+    for (String propertyName : this.propertyNames()) {
+      Matcher matcher = dbSyncLinkedConfigsPattern.matcher(propertyName);
+      if (!matcher.matches()) {
+        continue;
+      }
+      String configKey = matcher.group(1);
+      String linkedConfigKeysString = this.propertyValueString(propertyName);
+      Set<String> linkedConfigKeysSet = GrouperClientUtils.toSet(linkedConfigKeysString);
+      this.dbSyncConfigKeyLinkedToConfigKeys.put(configKey, linkedConfigKeysSet);
+
+    }
+
+    for (int i=0;i<100;i++) {
+      
+      boolean madeChange = false;
+      
+      // add configs that configs point to to the config set, see if any changes were made
+      // A -> B -> C
+      // loop through the A's (copy the set so we dont change while looping)
+      for (String configKeyA : new HashSet<String>(this.dbSyncConfigKeyLinkedToConfigKeys.keySet())) {
+        
+        Set<String> configKeysB = this.dbSyncConfigKeyLinkedToConfigKeys.get(configKeyA);
+        
+        // loop throught the B's  (copy the set so we dont change while looping)
+        for (String configKeyB : new HashSet<String>(configKeysB) ) {
+
+          // B -> A
+          Set<String> configKeysC = this.dbSyncConfigKeyLinkedToConfigKeys.get(configKeyB);
+
+          // if the linked one even has a set
+          if (configKeysC == null) {
+            madeChange = true;
+            configKeysC = new HashSet<String>();
+            this.dbSyncConfigKeyLinkedToConfigKeys.put(configKeyB, configKeysC);
+          }
+          
+          // if the linked set has the reverse
+          if (!configKeysC.contains(configKeyA)) {
+            madeChange = true;
+            configKeysC.add(configKeyA);
+          }
+          
+          // B - > C should add A -> C
+          for (String configKeyC : configKeysC) {
+            if (StringUtils.equals(configKeyC, configKeyA)) {
+              continue;
+            }
+            if (!configKeysB.contains(configKeyC)) {
+              madeChange = true;
+              configKeysB.add(configKeyC);
+            }
+          }
+        }
+      }
+      // if we didnt make a change then we done
+      if (!madeChange) {
+        break;
+      }
+      
+    }
+    this.dbSyncConfigKeyLinkedToConfigKeys = tempDbSyncConfigKeyLinkedToConfigKeys;
+    return tempDbSyncConfigKeyLinkedToConfigKeys;
+
   }
   
   /**

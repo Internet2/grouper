@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouperClient.jdbc;
 
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -21,6 +22,9 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import edu.internet2.middleware.morphString.Morph;
 
 
 
@@ -30,6 +34,29 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
  * @author harveycg
  */
 public class GcDbAccess {
+
+  /**
+   * if grouper started
+   */
+  private static boolean grouperIsStarted = false;
+  
+  
+  /**
+   * if grouper started
+   * @return the grouperIsStarted
+   */
+  public static boolean isGrouperIsStarted() {
+    return grouperIsStarted;
+  }
+  
+  /**
+   * if grouper started
+   * @param theGrouperIsStarted the grouperIsStarted to set
+   */
+  public static void setGrouperIsStarted(boolean theGrouperIsStarted) {
+    GcDbAccess.grouperIsStarted = theGrouperIsStarted;
+  }
+
 
   /**
    * A map to cache result bean data in based on a key, and host it for a particular amount of time.
@@ -1563,7 +1590,10 @@ public class GcDbAccess {
     
   }
 
-  
+  /**
+   *  
+   */
+  private static final Log LOG = LogFactory.getLog(GcDbAccess.class);
   
   /**
    * keep connection in thread local, based on connection name
@@ -1647,23 +1677,10 @@ public class GcDbAccess {
     }
     connectionBean.setConnectionStarted(true);
     
-    String url = null;
+    final String[] url = new String[1];
     
     try {
-      String driver = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".driver");
-
-      url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".url");
-
-      if (StringUtils.isBlank(driver)) {
-        driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(url, driver);
-      }
-        
-      Class.forName(driver);
-  
-      String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".user");
-      String pass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".pass");
-      
-      connection = DriverManager.getConnection(url, user, pass);
+      connection = connectionHelper(connectionName, url);
 
       connectionMapByName.put(connectionName, connection);
       connectionBean.setConnection(connection);
@@ -1680,8 +1697,61 @@ public class GcDbAccess {
     } catch (Exception e) {
       connectionThreadLocal.remove();
       transactionThreadLocal.remove();
-      throw new RuntimeException("Error connecting to: " + url, e);
+      throw new RuntimeException("Error connecting to: " + url[0], e);
     }
+  }
+
+  /**
+   * @param connectionName
+   * @param url
+   * @return the connection
+   * @throws ClassNotFoundException
+   * @throws SQLException
+   */
+  public static Connection connectionCreateNew(String connectionName, final String[] url)
+      throws ClassNotFoundException, SQLException {
+    Connection connection;
+    String driver = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + connectionName + ".driver");
+
+    url[0] = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".url");
+
+    if (StringUtils.isBlank(driver)) {
+      driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(url[0], driver);
+    }
+      
+    Class.forName(driver);
+ 
+    String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".user");
+    String pass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".pass");
+    pass = Morph.decryptIfFile(pass);
+    connection = DriverManager.getConnection(url[0], user, pass);
+    return connection;
+  }
+
+  /**
+   * get a connection from a grouper pool
+   * @param connectionName
+   * @param url
+   * @return the connection
+   * @throws ClassNotFoundException
+   * @throws SQLException
+   */
+  public static Connection connectionGetFromPool(String connectionName, final String[] url)
+      throws ClassNotFoundException, SQLException {
+    
+    final String GROUPER_LOADER_DB_CLASSNAME = "edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb";
+    try {
+      Class grouperLoaderDbClass = GrouperClientUtils.forName(GROUPER_LOADER_DB_CLASSNAME);
+      Constructor constructor = grouperLoaderDbClass.getConstructor(new Class[]{String.class});
+      Object grouperLoaderDbInstance = constructor.newInstance(connectionName);
+      Connection connection = (Connection)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "connection");
+      url[0] = (String)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "getUrl");
+      return connection;
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Error calling constructor and 'connection' on " + GROUPER_LOADER_DB_CLASSNAME, e);
+    }
+    
   }
 
 
@@ -1745,7 +1815,7 @@ public class GcDbAccess {
   public  <T> T callbackPreparedStatement (GcPreparedStatementCallback<T> preparedStatementCallback){
 
 
-    PreparedStatement callableStatement = null;
+    PreparedStatement preparedStatement = null;
 
     ConnectionBean connectionBean = null;
     
@@ -1757,11 +1827,19 @@ public class GcDbAccess {
       this.connection = connectionBean.getConnection();
 
       // Create the callable statement.
-      callableStatement = this.connection.prepareStatement(preparedStatementCallback.getQuery());
+      preparedStatement = this.connection.prepareStatement(preparedStatementCallback.getQuery());
 
       // Execute sub logic.
       Long startTime = System.nanoTime();
-      T t = preparedStatementCallback.callback(callableStatement);
+      // Add bind variables if we have them.
+      if (this.bindVars != null){
+        int i = 1;
+        for (Object bindVar : this.bindVars){
+          boundDataConversion.addBindVariableToStatement(preparedStatement, bindVar, i);
+          i++;
+        }
+      }
+      T t = preparedStatementCallback.callback(preparedStatement);
       this.addQueryToQueriesAndMillis(preparedStatementCallback.getQuery(), startTime);
 
       return t;
@@ -1770,8 +1848,8 @@ public class GcDbAccess {
       throw new RuntimeException(e);
     } finally{
       try{
-        if (callableStatement != null){
-          callableStatement.close();
+        if (preparedStatement != null){
+          preparedStatement.close();
         }
       } catch (Exception e){
         // Nothing to do here.
@@ -2118,6 +2196,21 @@ public class GcDbAccess {
       } 
     }
     return dbAccess;
+  }
+
+  /**
+   * @param connectionName
+   * @param url
+   * @return the connection
+   * @throws ClassNotFoundException
+   * @throws SQLException
+   */
+  public static Connection connectionHelper(String connectionName, final String[] url)
+      throws ClassNotFoundException, SQLException {
+    if (grouperIsStarted) {
+      return connectionGetFromPool(connectionName, url);
+    }
+    return connectionCreateNew(connectionName, url);
   }
 
 }

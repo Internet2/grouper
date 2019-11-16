@@ -20,12 +20,12 @@ import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
 /**
  *
  */
-public class TableSyncCreateRealTimeTable {
+public class TableSyncCreateStatusTable {
 
   /**
    * 
    */
-  public TableSyncCreateRealTimeTable() {
+  public TableSyncCreateStatusTable() {
   }
 
   /**
@@ -39,7 +39,7 @@ public class TableSyncCreateRealTimeTable {
    * 
    */
   public static void createRealTimeTableIfNotExists() {
-    final String tableName = "grouper_sync_real_time_status";
+    final String tableName = "grouper_sync_status";
     try {
       // if you cant connrc to it, its not there
       HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
@@ -58,25 +58,31 @@ public class TableSyncCreateRealTimeTable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", 
             Types.VARCHAR, "40", true, true);
       
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "job_name", 
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "sync_engine", 
             Types.VARCHAR, "50", false, true);
-      
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "job_name", 
+            Types.VARCHAR, "100", false, true);
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "sync_type", 
+            Types.VARCHAR, "50", false, true);
+
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "job_state", 
             Types.VARCHAR, "50", false, true);
       
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_sync_index_or_millis", 
             Types.INTEGER, "10", false, false);
       
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_records_changed_count", 
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "records_changed_count", 
             Types.INTEGER, "10", false, false);
       
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_records_processed_count", 
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "records_processed_count", 
             Types.INTEGER, "10", false, false);
       
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_job_took_millis", 
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "job_took_millis", 
             Types.INTEGER, "10", false, false);
       
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_description", 
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", 
             Types.VARCHAR, "4000", false, false);
       
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_time_work_was_checked", 
@@ -93,11 +99,15 @@ public class TableSyncCreateRealTimeTable {
         
         GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "id", "uuid of this record in this table");
       
-        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "job_name", "name of job must be unique.  this is the config key");
+        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "sync_engine", "e.g. for syncing sql, it sqlTableSync");
+        
+        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "job_name", "name of job must be unique in combination with sync_engine.  this is the config key generally");
       
+        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "sync_type", "type of sync, e.g. for sql sync this is the job subtype");
+        
         GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "job_state", "running, waitingForAnotherJobToFinish (if waiting for another job to finish), notRunning");
       
-        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_index_or_millis_1970", "either an int of last record checked, or an int of millis since 1970 of last record processed");
+        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_index_or_millis", "either an int of last record checked, or an int of millis since 1970 of last record processed");
       
         GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_description", "description of last work done");
       
@@ -109,14 +119,14 @@ public class TableSyncCreateRealTimeTable {
       
         GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "hibernate_version_number", "incrementing id so record is not updated by two separate places at once");
       
-        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_records_changed_count", "records changed during last run");
+        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "records_changed_count", "records changed during last run");
 
-        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_records_processed_count", "records looked at during last run");
+        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "records_processed_count", "records looked at during last run");
 
-        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_job_took_millis", "how long the last job took to run");
+        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "job_took_millis", "how long the last job took to run");
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-            "grouper_sync_job_name", true, "job_name");
+            "grouper_sync_engine_name_idx", true, "sync_engine", "job_name");
 
 
       }

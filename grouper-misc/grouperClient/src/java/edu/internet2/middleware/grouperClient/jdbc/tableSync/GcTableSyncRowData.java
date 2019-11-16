@@ -123,7 +123,7 @@ public class GcTableSyncRowData {
    * @return the primary key
    */
   public MultiKey getPrimaryKey() {
-    List<GcTableSyncColumnMetadata> primaryKeyMetadata = this.gcTableSyncTableData.getGcTableSync().getTableMetadata().getPrimaryKey();
+    List<GcTableSyncColumnMetadata> primaryKeyMetadata = this.gcTableSyncTableData.getGcTableSyncTableBean().getGcTableSync().getTableMetadata().getPrimaryKey();
     Object[] primaryKeyValues = new Object[primaryKeyMetadata.size()];
     int i=0;
     for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : primaryKeyMetadata) {
@@ -138,7 +138,7 @@ public class GcTableSyncRowData {
    * @return the non primary key
    */
   public MultiKey getNonPrimaryKey() {
-    List<GcTableSyncColumnMetadata> nonPrimaryKeyMetadata = this.gcTableSyncTableData.getGcTableSync().getTableMetadata().getNonPrimaryKey();
+    List<GcTableSyncColumnMetadata> nonPrimaryKeyMetadata = this.gcTableSyncTableData.getGcTableSyncTableBean().getGcTableSync().getTableMetadata().getNonPrimaryKey();
     Object[] nonPrimaryKeyValues = new Object[nonPrimaryKeyMetadata.size()];
     int i=0;
     for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : nonPrimaryKeyMetadata) {
@@ -152,8 +152,8 @@ public class GcTableSyncRowData {
    * @return the data
    */
   public List<Object> nonPrimaryAndThenPrimaryKeyData() {
-    List<GcTableSyncColumnMetadata> nonPrimaryKeyMetadata = this.gcTableSyncTableData.getGcTableSync().getTableMetadata().getNonPrimaryKey();
-    List<GcTableSyncColumnMetadata> primaryKeyMetadata = this.gcTableSyncTableData.getGcTableSync().getTableMetadata().getPrimaryKey();
+    List<GcTableSyncColumnMetadata> nonPrimaryKeyMetadata = this.gcTableSyncTableData.getGcTableSyncTableBean().getGcTableSync().getTableMetadata().getNonPrimaryKey();
+    List<GcTableSyncColumnMetadata> primaryKeyMetadata = this.gcTableSyncTableData.getGcTableSyncTableBean().getGcTableSync().getTableMetadata().getPrimaryKey();
     List<Object> values = new ArrayList<Object>();
     for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : nonPrimaryKeyMetadata) {
       values.add(this.data[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()]);
@@ -169,7 +169,7 @@ public class GcTableSyncRowData {
    * @return all columns data
    */
   public List<Object> allColumnsData() {
-    List<GcTableSyncColumnMetadata> columnMetadatas = this.gcTableSyncTableData.getGcTableSync().getTableMetadata().getColumnMetadata();
+    List<GcTableSyncColumnMetadata> columnMetadatas = this.gcTableSyncTableData.getGcTableSyncTableBean().getGcTableSync().getTableMetadata().getColumnMetadata();
     List<Object> values = new ArrayList<Object>();
     for (GcTableSyncColumnMetadata columnMetadata : columnMetadatas) {
       values.add(this.data[columnMetadata.getColumnIndexZeroIndexed()]);

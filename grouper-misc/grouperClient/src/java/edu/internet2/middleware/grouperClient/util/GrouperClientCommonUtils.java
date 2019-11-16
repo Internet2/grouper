@@ -5050,6 +5050,25 @@ public class GrouperClientCommonUtils  {
   }
 
   /**
+   * 
+   * @param file
+   *          is the file to read into a string
+   * 
+   * @return String
+   */
+  public static String readFileIntoStringUtf8(File file) {
+  
+    if (file == null) {
+      return null;
+    }
+    try {
+      return readFileToString(file, "UTF-8");
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+  
+  /**
    * @param file
    *          is the file to read into a string
    * 
@@ -6026,6 +6045,44 @@ public class GrouperClientCommonUtils  {
     if (isFile) {
       //read the contents of the file into a string
       return readFileIntoString(new File(in));
+    }
+    return in;
+  
+  }
+
+  /**
+   * if the input is a file, read string from file.  if not, or if disabled from grouper.properties, return the input
+   * @param in
+   * @param disableExternalFileLookup 
+   * @return the result
+   */
+  public static String readFromFileIfFileUtf8(String in, boolean disableExternalFileLookup) {
+    
+    if (in == null || "".equals(in)) {
+      return in;
+    }
+    
+    boolean isFile = false;
+    if (in.startsWith("file:")) {
+      isFile = true;
+      in = stripPrefix(in, "file:");
+      File file = new File(in);
+      if (!file.exists() || !file.isFile()) {
+        throw new RuntimeException("Cant find or read file: '" + in + "'");
+      }
+    } else {
+      if (!disableExternalFileLookup) {
+        File file = new File(in);
+        if (file.exists() && file.isFile()) {
+          isFile = true;
+        }
+      }
+    }
+    
+    //see if it is a file reference
+    if (isFile) {
+      //read the contents of the file into a string
+      return readFileIntoStringUtf8(new File(in));
     }
     return in;
   

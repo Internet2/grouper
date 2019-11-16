@@ -18,6 +18,28 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GcTableSyncTableData {
 
   /**
+   * link back up to table bean
+   */
+  private GcTableSyncTableBean gcTableSyncTableBean;
+  
+  /**
+   * link back up to table bean
+   * @return the gcTableSyncTableBean
+   */
+  public GcTableSyncTableBean getGcTableSyncTableBean() {
+    return this.gcTableSyncTableBean;
+  }
+
+  
+  /**
+   * link back up to table bean
+   * @param gcTableSyncTableBean1 the gcTableSyncTableBean to set
+   */
+  public void setGcTableSyncTableBean(GcTableSyncTableBean gcTableSyncTableBean1) {
+    this.gcTableSyncTableBean = gcTableSyncTableBean1;
+  }
+
+  /**
    * index the data by primary key
    */
   private Map<MultiKey, GcTableSyncRowData> indexByPrimaryKey = null;
@@ -43,25 +65,6 @@ public class GcTableSyncTableData {
     return this.indexByPrimaryKey.get(primaryKey);
   }
   
-  /**
-   * referenec to the gc table sync
-   */
-  private GcTableSync gcTableSync;
-
-  /**
-   * @return the gcTableSync
-   */
-  public GcTableSync getGcTableSync() {
-    return this.gcTableSync;
-  }
-  
-  /**
-   * @param gcTableSync1 the gcTableSync to set
-   */
-  public void setGcTableSync(GcTableSync gcTableSync1) {
-    this.gcTableSync = gcTableSync1;
-  }
-
   /**
    * 
    */

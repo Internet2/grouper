@@ -13,6 +13,10 @@ import java.sql.SQLException;
  */
 public class GcTableSyncColumnMetadata {
 
+  equals
+  
+  hashcode
+  
   /**
    * 
    */
@@ -24,8 +28,8 @@ public class GcTableSyncColumnMetadata {
     NUMERIC {
 
       @Override
-      public Object readDataFromResultSet(int columnOneIndexed, ResultSet resultSet) throws SQLException {
-        return resultSet.getBigDecimal(columnOneIndexed);
+      public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
+        return resultSet.getBigDecimal(gcTableSyncColumnMetadata.getColumnName());
       }
     },
     
@@ -35,8 +39,8 @@ public class GcTableSyncColumnMetadata {
     STRING {
 
       @Override
-      public Object readDataFromResultSet(int columnOneIndexed, ResultSet resultSet) throws SQLException {
-        return resultSet.getString(columnOneIndexed);
+      public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
+        return resultSet.getString(gcTableSyncColumnMetadata.getColumnName());
       }
     },
     
@@ -46,8 +50,8 @@ public class GcTableSyncColumnMetadata {
     TIMESTAMP {
 
       @Override
-      public Object readDataFromResultSet(int columnOneIndexed, ResultSet resultSet) throws SQLException {
-        return resultSet.getTimestamp(columnOneIndexed);
+      public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
+        return resultSet.getTimestamp(gcTableSyncColumnMetadata.getColumnName());
       }
     };
 
@@ -58,7 +62,7 @@ public class GcTableSyncColumnMetadata {
      * @return the object
      * @throws SQLException
      */
-    public abstract Object readDataFromResultSet(int columnOneIndexed, ResultSet resultSet) throws SQLException;
+    public abstract Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException;
     
   }
   
@@ -83,32 +87,78 @@ public class GcTableSyncColumnMetadata {
   }
 
   /**
-   * if this column is in use in this sync job
-   */
-  private boolean inUse = false;
-  
-  /**
-   * if this column is in use in this sync job
-   * @return the inUse
-   */
-  public boolean isInUse() {
-    return this.inUse;
-  }
-  
-  /**
-   * if this column is in use in this sync job
-   * @param inUse1 the inUse to set
-   */
-  public void setInUse(boolean inUse1) {
-    this.inUse = inUse1;
-  }
-
-  /**
    * type of column
    */
   private ColumnType columnType;
+
+  /**
+   * precision of number in database
+   */
+  private int precision;
   
   
+  /**
+   * precision of number in database
+   * @return the precision
+   */
+  public int getPrecision() {
+    return this.precision;
+  }
+
+  
+  /**
+   * precision of number in database
+   * @param precision1 the precision to set
+   */
+  public void setPrecision(int precision1) {
+    this.precision = precision1;
+  }
+
+  /**
+   * scale of number in database
+   */
+  private int scale;
+
+  
+  /**
+   * scale of number in database
+   * @return the scale
+   */
+  public int getScale() {
+    return this.scale;
+  }
+  
+  /**
+   * scale of number in database
+   * @param scale1 the scale to set
+   */
+  public void setScale(int scale1) {
+    this.scale = scale1;
+  }
+
+
+  /**
+   * length of string cols
+   */
+  private int columnDisplaySize;
+  
+  /**
+   * length of string cols
+   * @return the stringLength
+   */
+  public int getColumnDisplaySize() {
+    return this.columnDisplaySize;
+  }
+
+  
+  /**
+   * length of string cols
+   * @param stringLength1 the stringLength to set
+   */
+  public void setColumnDisplaySize(int stringLength1) {
+    this.columnDisplaySize = stringLength1;
+  }
+
   /**
    * type of column
    * @return the columnType
@@ -157,64 +207,5 @@ public class GcTableSyncColumnMetadata {
     this.columnName = columnName1;
   }
 
-  /**
-   * if is primary key
-   */
-  private boolean primaryKey;
-  
-  /**
-   * if is primary key
-   * @return the primaryKey
-   */
-  public boolean isPrimaryKey() {
-    return this.primaryKey;
-  }
-  
-  /**
-   * @param primaryKey1 the primaryKey to set
-   */
-  public void setPrimaryKey(boolean primaryKey1) {
-    this.primaryKey = primaryKey1;
-  }
-
-  /**
-   * grouping column
-   */
-  private boolean groupingColumn;
-  
-  /**
-   * grouping column
-   * @return the groupingColumn
-   */
-  public boolean isGroupingColumn() {
-    return this.groupingColumn;
-  }
-  
-  /**
-   * @param groupingColumn1 the groupingColumn to set
-   */
-  public void setGroupingColumn(boolean groupingColumn1) {
-    this.groupingColumn = groupingColumn1;
-  }
-
-  /**
-   * realTimeLastUpdatedColumn column
-   */
-  private boolean realTimeLastUpdatedColumn;
-  
-  /**
-   * @param b
-   */
-  public void setRealTimeLastUpdatedColumn(boolean b) {
-    this.realTimeLastUpdatedColumn = b;
-  }
-
-  /**
-   * is it real time last updated column
-   * @return if real time last updated
-   */
-  public boolean isRealTimeLastUpdatedColumn() {
-    return this.realTimeLastUpdatedColumn;
-  }
   
 }
