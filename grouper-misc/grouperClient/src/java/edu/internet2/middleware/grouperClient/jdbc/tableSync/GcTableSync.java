@@ -915,6 +915,7 @@ public class GcTableSync {
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
     } finally {
       done[0]=true;
       debugMap.put("finalLog", true);
