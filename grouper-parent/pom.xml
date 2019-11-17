@@ -92,6 +92,8 @@
         <cglib.version>3.1</cglib.version>
         <jamon.version>2.81</jamon.version>
         <xstream.version>1.4.9</xstream.version>
+        <jsch.version>0.1.55</jsch.version>
+        <commons.vfs2.version>2.4.1</commons.vfs2.version>
         <commons.jexl.version>2.1.1</commons.jexl.version>
         <commons.beanutils.version>1.9.3</commons.beanutils.version>
         <commons.cli.version>1.4</commons.cli.version>
@@ -281,6 +283,16 @@
               <artifactId>aws-java-sdk-sns</artifactId>
               <version>${aws.java.sdk.sns}</version>
             </dependency>
+            <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${jsch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-vfs2</artifactId>
+                <version>${commons.vfs2.version}</version>
+            </dependency>            
             <dependency>
                 <groupId>com.mchange</groupId>
                 <artifactId>c3p0</artifactId>
