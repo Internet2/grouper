@@ -118,7 +118,6 @@ import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMembership;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
-import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -148,7 +147,6 @@ public class Membership extends GrouperAPI implements
         }
       }
     }
-    Member.resolveSubjects(members, false);
   }
   
   /**
@@ -434,7 +432,7 @@ public class Membership extends GrouperAPI implements
   private String  type        = MembershipType.IMMEDIATE.getTypeString(); // reasonable default
   
   /**
-   * If the membership is enabled.  Only applies to immediate memberships.
+   * If the membership is enabled.  Only applies to immediate/composite memberships.
    */
   private boolean enabled = true;
   
@@ -479,12 +477,12 @@ public class Membership extends GrouperAPI implements
   }
   
   /**
-   * Should this membership be enabled based on the enabled and disabled dates?  Only applies to immediate memberships.
+   * Should this membership be enabled based on the enabled and disabled dates?  Only applies to immediate/composite memberships.
    * @return boolean
    */
-  private boolean internal_isEnabledUsingTimestamps() {
-    if (!this.isImmediate()) {
-      throw new RuntimeException("This only applies to immediate memberships.");
+  protected boolean internal_isEnabledUsingTimestamps() {
+    if (!this.isImmediate() && !this.isComposite()) {
+      throw new RuntimeException("This only applies to immediate/composite memberships.");
     }
     
     //currently this is based on timestamp
@@ -495,16 +493,30 @@ public class Membership extends GrouperAPI implements
     if (this.disabledTimeDb != null && this.disabledTimeDb < now) {
       return false;
     }
+    
+    // if owner is a group, check group status.
+    if (this.ownerGroupId != null && !this.getOwnerGroup().isEnabled()) {
+      return false;
+    }
+    
+    // if the member is a group, check group status
+    if (this.getMember().getSubjectTypeId().equals("group")) {
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMember().getSubjectId(), true, null);
+      if (!memberGroup.isEnabled()) {
+        return false;
+      }
+    }
+    
     return true;
   }
   
   /**
-   * Is this membership enabled?  Only applies to immediate memberships.
+   * Is this membership enabled?  Only applies to immediate/composite memberships.
    * @return boolean
    */
   public boolean isEnabled() {
-    if (!this.isImmediate()) {
-      throw new RuntimeException("This only applies to immediate memberships.");
+    if (!this.isImmediate() && !this.isComposite()) {
+      throw new RuntimeException("This only applies to immediate/composite memberships.");
     }
     
     return this.enabled;
@@ -576,19 +588,19 @@ public class Membership extends GrouperAPI implements
 
 
   /**
-   * Whether to enable or disable this membership.  Only applies to immediate memberships.
+   * Whether to enable or disable this membership.  Only applies to immediate/composite memberships.
    * @param enabled
    */
   public void setEnabled(boolean enabled) {
-    if (!this.isImmediate()) {
-      throw new RuntimeException("This only applies to immediate memberships.");
+    if (!this.isImmediate() && !this.isComposite()) {
+      throw new RuntimeException("This only applies to immediate/composite memberships.");
     }
     
     this.enabled = enabled;
   }
 
   /**
-   * Whether or not this membership is enabled.  Only applies to immediate memberships.
+   * Whether or not this membership is enabled.  Only applies to immediate/composite memberships.
    * @return the enabled
    */
   public String getEnabledDb() {
@@ -601,7 +613,7 @@ public class Membership extends GrouperAPI implements
 
   
   /**
-   * Whether to enable or disable this membership.  Only applies to immediate memberships.
+   * Whether to enable or disable this membership.  Only applies to immediate/composite memberships.
    * @param enabled
    */
   public void setEnabledDb(String enabled) {
@@ -1764,7 +1776,7 @@ public class Membership extends GrouperAPI implements
       if (v.isInvalid()) {
         throw new IllegalStateException(v.getErrorMessage());
       }
-      
+            
       // see if the immediate membership already exists
       Membership ms;
       if (this.getOwnerGroupId() != null) {
@@ -1806,6 +1818,8 @@ public class Membership extends GrouperAPI implements
       if (v.isInvalid()) {
         throw new IllegalStateException( v.getErrorMessage() );
       }
+      
+      setEnabled(this.internal_isEnabledUsingTimestamps());
     }
       
     if (this.enabled) {

@@ -876,6 +876,21 @@ TODO update for 1.5
    */
   public Set<Membership> findAllByGroupOwnerAndFieldAndDepth(String ownerGroupId, Field f, int depth, boolean enabledOnly);
   
+  /**
+   * @param ownerGroupId
+   * @param depth
+   * @param enabledOnly
+   * @return set
+   */
+  public Set<Membership> findAllByGroupOwnerAndDepth(String ownerGroupId, int depth, boolean enabledOnly);
+
+  /**
+   * @param memberId
+   * @param depth
+   * @param enabledOnly
+   * @return set
+   */
+  public Set<Membership> findAllByMemberAndDepth(String memberId, int depth, boolean enabledOnly);
 
   /**
    * Find all missing group sets for immediate memberships where the owner is a group.

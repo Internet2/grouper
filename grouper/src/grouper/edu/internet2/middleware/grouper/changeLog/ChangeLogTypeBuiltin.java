@@ -200,11 +200,32 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description, ChangeLogLabels.GROUP_DELETE.idIndex)),
   
   /**
+   * enable group
+   */
+  GROUP_ENABLE(new ChangeLogType("group", "enableGroup", 
+      ChangeLogLabels.GROUP_ENABLE.id, ChangeLogLabels.GROUP_ENABLE.name, ChangeLogLabels.GROUP_ENABLE.parentStemId,
+      ChangeLogLabels.GROUP_ENABLE.displayName, ChangeLogLabels.GROUP_ENABLE.description, ChangeLogLabels.GROUP_ENABLE.idIndex)),
+  
+  /**
+   * disable group
+   */
+  GROUP_DISABLE(new ChangeLogType("group", "disableGroup", 
+      ChangeLogLabels.GROUP_DISABLE.id, ChangeLogLabels.GROUP_DISABLE.name, ChangeLogLabels.GROUP_DISABLE.parentStemId,
+      ChangeLogLabels.GROUP_DISABLE.displayName, ChangeLogLabels.GROUP_DISABLE.description, ChangeLogLabels.GROUP_DISABLE.idIndex)),
+  
+  /**
    * add entity
    */
   ENTITY_ADD(new ChangeLogType("entity", "addEntity", 
       ChangeLogLabels.ENTITY_ADD.id, ChangeLogLabels.ENTITY_ADD.name, ChangeLogLabels.ENTITY_ADD.parentStemId,
       ChangeLogLabels.ENTITY_ADD.displayName, ChangeLogLabels.ENTITY_ADD.description)),
+  
+  /**
+   * enable entity
+   */
+  ENTITY_ENABLE(new ChangeLogType("entity", "enableEntity", 
+      ChangeLogLabels.ENTITY_ENABLE.id, ChangeLogLabels.ENTITY_ENABLE.name, ChangeLogLabels.ENTITY_ENABLE.parentStemId,
+      ChangeLogLabels.ENTITY_ENABLE.displayName, ChangeLogLabels.ENTITY_ENABLE.description)),
   
   /**
    * update entity
@@ -221,6 +242,13 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   ENTITY_DELETE(new ChangeLogType("entity", "deleteEntity", 
       ChangeLogLabels.ENTITY_DELETE.id, ChangeLogLabels.ENTITY_DELETE.name, ChangeLogLabels.ENTITY_DELETE.parentStemId,
       ChangeLogLabels.ENTITY_DELETE.displayName, ChangeLogLabels.ENTITY_DELETE.description)),
+  
+  /**
+   * disable entity
+   */
+  ENTITY_DISABLE(new ChangeLogType("entity", "disableEntity", 
+      ChangeLogLabels.ENTITY_DISABLE.id, ChangeLogLabels.ENTITY_DISABLE.name, ChangeLogLabels.ENTITY_DISABLE.parentStemId,
+      ChangeLogLabels.ENTITY_DISABLE.displayName, ChangeLogLabels.ENTITY_DISABLE.description)),
     
   /**
    * attribute def add

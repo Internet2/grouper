@@ -381,7 +381,58 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
 
     return _getMembershipsFromMembershipAndMemberQuery(mships);
-  } 
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndDepth(java.lang.String, int, boolean)
+   */
+  public Set<Membership> findAllByGroupOwnerAndDepth(String ownerGroupId, int depth, boolean enabledOnly) {
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where "
+        + "ms.ownerGroupId = :owner "
+        + "and ms.memberUuid = m.uuid "
+        + "and ms.depth = :depth ");
+    
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS)
+      .setString("owner", ownerGroupId)
+      .setInteger("depth", depth)
+      .listSet(Object[].class);
+
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
+  }
+  
+  /**
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByMemberAndDepth(java.lang.String, int, boolean)
+   */
+  public Set<Membership> findAllByMemberAndDepth(String memberId, int depth, boolean enabledOnly) {
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where "
+        + "ms.memberUuid = :member "
+        + "and ms.memberUuid = m.uuid "
+        + "and ms.depth = :depth ");
+    
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS)
+      .setString("member", memberId)
+      .setInteger("depth", depth)
+      .listSet(Object[].class);
+
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
+  }
 
   /**
    * @param ownerStemId 

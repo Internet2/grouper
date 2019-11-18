@@ -6089,16 +6089,18 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
         
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT, true, false);
-    
-    //do these second so the right object version is set, and dbVersion is ok
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_POST_COMMIT_INSERT, HooksGroupBean.class, 
-        this, Group.class);
-    
-    InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_GROUP_ADD.name());
+    if (this.isEnabled()) {
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupBean.class, 
+          this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT, true, false);
+      
+      //do these second so the right object version is set, and dbVersion is ok
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_POST_COMMIT_INSERT, HooksGroupBean.class, 
+          this, Group.class);
+      
+      InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_GROUP_ADD.name());
+    }
   }
 
   /**
@@ -6160,15 +6162,180 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       });
     }
     
-    super.onPostUpdate(hibernateSession);
+    boolean enabling = Group.this.dbVersion() != null && Group.this.isEnabled() && !Group.this.dbVersion().isEnabled();
+    boolean disabling = Group.this.dbVersion() != null && !Group.this.isEnabled() && Group.this.dbVersion().isEnabled();
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_POST_COMMIT_UPDATE, HooksGroupBean.class, 
-        this, Group.class);
+    Group oldDbVersion = Group.this.dbVersion();
+    
+    super.onPostUpdate(hibernateSession);
 
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_POST_UPDATE, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_POST_UPDATE, true, false);
+    if (disabling) {
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_POST_COMMIT_DELETE, HooksGroupBean.class, 
+          this, Group.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_POST_DELETE, HooksGroupBean.class, 
+          this, Group.class, VetoTypeGrouper.GROUP_POST_DELETE, true, false);
+      
+      InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_GROUP_DELETE.name());
+      
+      if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+
+        //change log into temp table
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_DISABLE,
+            ChangeLogLabels.ENTITY_DISABLE.id.name(),
+            this.getUuid(), ChangeLogLabels.ENTITY_DISABLE.name.name(),
+            this.getName(), ChangeLogLabels.ENTITY_DISABLE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.ENTITY_DISABLE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.ENTITY_DISABLE.description.name(), this.getDescription()).save();
+      } else {
+ 
+        //change log into temp table
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_DISABLE,
+            ChangeLogLabels.GROUP_DISABLE.id.name(),
+            this.getUuid(), ChangeLogLabels.GROUP_DISABLE.name.name(),
+            this.getName(), ChangeLogLabels.GROUP_DISABLE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.GROUP_DISABLE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.GROUP_DISABLE.description.name(), this.getDescription(),
+            ChangeLogLabels.GROUP_DISABLE.idIndex.name(), "" + this.getIdIndex()).save();
+      }
+      
+      // these queries are best run post update to make sure internal_isEnabledUsingTimestamps is calculating correctly
+      Set<Membership> membershipsToDisable = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndDepth(this.uuid, 0, true);
+      for (Membership membershipToDisable : membershipsToDisable) {
+        membershipToDisable.setOwnerGroup(this);
+        membershipToDisable.setEnabled(membershipToDisable.internal_isEnabledUsingTimestamps());
+        GrouperDAOFactory.getFactory().getMembership().update(membershipToDisable);
+      }
+      
+      membershipsToDisable = GrouperDAOFactory.getFactory().getMembership().findAllByMemberAndDepth(this.toMember().getUuid(), 0, true);
+      for (Membership membershipToDisable : membershipsToDisable) {
+        membershipToDisable.setEnabled(membershipToDisable.internal_isEnabledUsingTimestamps());
+        GrouperDAOFactory.getFactory().getMembership().update(membershipToDisable);
+      }
+            
+      if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_DELETE,
+            ChangeLogLabels.ENTITY_DELETE.id.name(),
+            this.getUuid(), ChangeLogLabels.ENTITY_DELETE.name.name(),
+            this.getName(), ChangeLogLabels.ENTITY_DELETE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.ENTITY_DELETE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.ENTITY_DELETE.description.name(), this.getDescription()).save();
+      } else {
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_DELETE,
+            ChangeLogLabels.GROUP_DELETE.id.name(),
+            this.getUuid(), ChangeLogLabels.GROUP_DELETE.name.name(),
+            this.getName(), ChangeLogLabels.GROUP_DELETE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.GROUP_DELETE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription(),
+            ChangeLogLabels.GROUP_DELETE.idIndex.name(), "" + this.getIdIndex()).save();
+      }
+    } else if (enabling) {
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupBean.class, 
+          this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT, true, false);
+      
+      //do these second so the right object version is set, and dbVersion is ok
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_POST_COMMIT_INSERT, HooksGroupBean.class, 
+          this, Group.class);
+      
+      InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_GROUP_ADD.name());
+            
+      if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+
+        //change log into temp table
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_ENABLE,
+            ChangeLogLabels.ENTITY_ENABLE.id.name(),
+            this.getUuid(), ChangeLogLabels.ENTITY_ENABLE.name.name(),
+            this.getName(), ChangeLogLabels.ENTITY_ENABLE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.ENTITY_ENABLE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.ENTITY_ENABLE.description.name(), this.getDescription()).save();
+
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_ADD,
+            ChangeLogLabels.ENTITY_ADD.id.name(),
+            this.getUuid(), ChangeLogLabels.ENTITY_ADD.name.name(),
+            this.getName(), ChangeLogLabels.ENTITY_ADD.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.ENTITY_ADD.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.ENTITY_ADD.description.name(), this.getDescription()).save();
+
+      } else {
+   
+        //change log into temp table
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ENABLE,
+            ChangeLogLabels.GROUP_ENABLE.id.name(),
+            this.getUuid(), ChangeLogLabels.GROUP_ENABLE.name.name(),
+            this.getName(), ChangeLogLabels.GROUP_ENABLE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.GROUP_ENABLE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.GROUP_ENABLE.description.name(), this.getDescription(),
+            ChangeLogLabels.GROUP_ENABLE.idIndex.name(), "" + this.getIdIndex()).save();
+   
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ADD,
+            ChangeLogLabels.GROUP_ADD.id.name(),
+            this.getUuid(), ChangeLogLabels.GROUP_ADD.name.name(),
+            this.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription(),
+            ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + this.getIdIndex()).save();
+   
+      }
+      
+      // these queries are best run post update to make sure internal_isEnabledUsingTimestamps is calculating correctly
+      Set<Membership> membershipsToEnable = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndDepth(this.uuid, 0, false);
+      for (Membership membershipToEnable : membershipsToEnable) {
+        membershipToEnable.setOwnerGroup(this);
+        membershipToEnable.setEnabled(membershipToEnable.internal_isEnabledUsingTimestamps());
+        GrouperDAOFactory.getFactory().getMembership().update(membershipToEnable);
+      }
+      
+      membershipsToEnable = GrouperDAOFactory.getFactory().getMembership().findAllByMemberAndDepth(this.toMember().getUuid(), 0, false);
+      for (Membership membershipToEnable : membershipsToEnable) {
+        membershipToEnable.setEnabled(membershipToEnable.internal_isEnabledUsingTimestamps());
+        GrouperDAOFactory.getFactory().getMembership().update(membershipToEnable);
+      }
+    } else {
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_POST_COMMIT_UPDATE, HooksGroupBean.class, 
+          this, Group.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_POST_UPDATE, HooksGroupBean.class, 
+          this, Group.class, VetoTypeGrouper.GROUP_POST_UPDATE, true, false); 
+      
+      if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+        //change log into temp table
+        ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ENTITY_UPDATE,
+            this, oldDbVersion,
+            GrouperUtil.toList(ChangeLogLabels.ENTITY_UPDATE.id.name(),this.getUuid(),
+                ChangeLogLabels.ENTITY_UPDATE.name.name(), this.getName(),
+                ChangeLogLabels.ENTITY_UPDATE.parentStemId.name(), this.getParentUuid(),
+                ChangeLogLabels.ENTITY_UPDATE.displayName.name(), this.getDisplayName(),
+                ChangeLogLabels.ENTITY_UPDATE.description.name(), this.getDescription()),
+            GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+            GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
+                ChangeLogLabels.ENTITY_UPDATE.parentStemId.name(),
+                ChangeLogLabels.ENTITY_UPDATE.description.name(),
+                ChangeLogLabels.ENTITY_UPDATE.displayExtension.name()));
+      } else {
+        //change log into temp table
+        ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_UPDATE,
+            this, oldDbVersion,
+            GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.id.name(),this.getUuid(),
+                ChangeLogLabels.GROUP_UPDATE.name.name(), this.getName(),
+                ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
+                ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
+                ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
+            GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME),
+            GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
+                ChangeLogLabels.GROUP_UPDATE.parentStemId.name(),
+                ChangeLogLabels.GROUP_UPDATE.description.name(),
+                ChangeLogLabels.GROUP_UPDATE.displayExtension.name(),
+                ChangeLogLabels.GROUP_UPDATE.displayName.name()
+                ));
+
+      }
+    }
 
     // update member table
     this.toMember().updateMemberAttributes(new GrouperSubject(this), true);
@@ -6338,7 +6505,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_DELETE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_DELETE, false, true);
-    
+
     InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_GROUP_DELETE.name());
   }
 
@@ -6356,12 +6523,17 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       this.idIndex = TableIndex.reserveId(TableIndexType.group);
     }
     
+    if (!this.isEnabled()) {
+      // This needs to be fixed.  Need to still add to temp change log so it can be added to pit but not to the real change log?
+      throw new RuntimeException("Group must be enabled on creation for now");
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT, false, false);
-    
+
     if (this.getTypeOfGroup() == TypeOfGroup.entity) {
-      
+
       //change log into temp table
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_ADD, 
           ChangeLogLabels.ENTITY_ADD.id.name(), 
@@ -6371,7 +6543,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           ChangeLogLabels.ENTITY_ADD.description.name(), this.getDescription()).save();
 
     } else {
-      
+
       //change log into temp table
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ADD, 
           ChangeLogLabels.GROUP_ADD.id.name(), 
@@ -6380,9 +6552,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
           ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription(),
           ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + this.getIdIndex()).save();
-      
+
     }
-    
   }
 
   /**
@@ -6535,6 +6706,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
 
+    // always do this even if group was disabled?  just to make sure target cleans up properly in case they were handling disabled groups differently?
+    // and to make sure pit is cleaned up?
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE, false, false);
@@ -6561,7 +6734,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           ChangeLogLabels.GROUP_DELETE.idIndex.name(), "" + this.getIdIndex()).save();
 
     }
-
   }
   
   /**
@@ -6619,42 +6791,22 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     }
     
     this.internal_setModifiedIfNeeded();
-
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE, false, false);
     
-    if (this.getTypeOfGroup() == TypeOfGroup.entity) {
-      //change log into temp table
-      ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ENTITY_UPDATE, 
-          this, this.dbVersion(),
-          GrouperUtil.toList(ChangeLogLabels.ENTITY_UPDATE.id.name(),this.getUuid(), 
-              ChangeLogLabels.ENTITY_UPDATE.name.name(), this.getName(),
-              ChangeLogLabels.ENTITY_UPDATE.parentStemId.name(), this.getParentUuid(),
-              ChangeLogLabels.ENTITY_UPDATE.displayName.name(), this.getDisplayName(),
-              ChangeLogLabels.ENTITY_UPDATE.description.name(), this.getDescription()),
-          GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
-          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
-              ChangeLogLabels.ENTITY_UPDATE.parentStemId.name(), 
-              ChangeLogLabels.ENTITY_UPDATE.description.name(), 
-              ChangeLogLabels.ENTITY_UPDATE.displayExtension.name()));    
+    boolean enabling = Group.this.dbVersion() != null && Group.this.isEnabled() && !Group.this.dbVersion().isEnabled();
+    boolean disabling = Group.this.dbVersion() != null && !Group.this.isEnabled() && Group.this.dbVersion().isEnabled();
+    
+    if (enabling) {
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
+          this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT, false, false);
+    } else if (disabling) {
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupBean.class, 
+          this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE, false, false);
     } else {
-      //change log into temp table
-      ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_UPDATE, 
-          this, this.dbVersion(),
-          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.id.name(),this.getUuid(), 
-              ChangeLogLabels.GROUP_UPDATE.name.name(), this.getName(),
-              ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
-              ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
-              ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
-          GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME),
-          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
-              ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), 
-              ChangeLogLabels.GROUP_UPDATE.description.name(), 
-              ChangeLogLabels.GROUP_UPDATE.displayExtension.name(),
-              ChangeLogLabels.GROUP_UPDATE.displayName.name()
-              ));    
-      
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
+          GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupBean.class, 
+          this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE, false, false);
     }
   }
 
