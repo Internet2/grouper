@@ -311,9 +311,9 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_ENABLED_DISABLED, hib3GrouploaderLog.getJobName())) {
 
-          int records = Membership.internal_fixEnabledDisabled();
+          int records = Group.internal_fixEnabledDisabled();
+          records += Membership.internal_fixEnabledDisabled();
           records += AttributeAssign.internal_fixEnabledDisabled();
-          records += Group.internal_fixEnabledDisabled();
           records += ExternalSubject.internal_fixDisabled();
 
           hib3GrouploaderLog.setUpdateCount(records);

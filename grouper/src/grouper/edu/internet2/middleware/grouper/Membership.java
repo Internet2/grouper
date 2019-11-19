@@ -480,7 +480,7 @@ public class Membership extends GrouperAPI implements
    * Should this membership be enabled based on the enabled and disabled dates?  Only applies to immediate/composite memberships.
    * @return boolean
    */
-  protected boolean internal_isEnabledUsingTimestamps() {
+  public boolean internal_isEnabledUsingTimestamps() {
     if (!this.isImmediate() && !this.isComposite()) {
       throw new RuntimeException("This only applies to immediate/composite memberships.");
     }
@@ -2352,7 +2352,7 @@ public class Membership extends GrouperAPI implements
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
     
-    if (this.isImmediate()) {
+    if (this.isImmediate() || this.isComposite()) {
       if (this.dbVersionDifferentFields().contains(FIELD_ENABLED)) {
         // if enabled column is changing, we may have to adjust composites and/or groupSets
         boolean oldValue = this.dbVersion().enabled;
@@ -2561,13 +2561,13 @@ public class Membership extends GrouperAPI implements
             auditEntry.saveOrUpdate(true);
           } else if (membership.getField().isAttributeDefListField()) {
             AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_DELETE, 
-                "privilegeType", "naming",
-                    "privilegeName", NamingPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
-                    "stemId", membership.getOwnerStemId(), "stemName", membership.getOwnerStem().getName());
+                "privilegeType", "attributeDef",
+                    "privilegeName", AttributeDefPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
+                    "attributeDefId", membership.getOwnerAttrDefId(), "attributeDefName", membership.getOwnerAttributeDef().getName());
             
-            auditEntry.setDescription("Expired privilege: stem: " + membership.getOwnerStem().getName()
+            auditEntry.setDescription("Expired privilege: attributeDef: " + membership.getOwnerAttributeDef().getName()
                 + ", subject: " +  membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", privilege: "
-                + NamingPrivilege.listToPriv(membership.getField().getName()).getName());
+                + AttributeDefPrivilege.listToPriv(membership.getField().getName()).getName());
 
             auditEntry.saveOrUpdate(true);
           } else {
