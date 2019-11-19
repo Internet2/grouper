@@ -1438,7 +1438,7 @@ public class Membership extends GrouperAPI implements
             MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
   
             // Deal with where group is a member
-            Iterator itIs = g.toMember().getImmediateMemberships(f).iterator();
+            Iterator itIs = MembershipFinder.internal_findAllImmediateByMemberAndField(GrouperSession.staticGrouperSession(), g.toMember(), f, false).iterator();
             while (itIs.hasNext()) {
               ms   = (Membership) itIs.next();
               ms.delete();

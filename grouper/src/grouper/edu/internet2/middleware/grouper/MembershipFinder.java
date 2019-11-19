@@ -2283,14 +2283,26 @@ public class MembershipFinder {
    * @return set of memberships
    */
   public static Set<Membership> internal_findAllImmediateByMemberAndField(GrouperSession s, Member m, Field f) {
+    return internal_findAllImmediateByMemberAndField(s, m, f, true);
+  } 
+
+  /**
+   * 
+   * @param s
+   * @param m
+   * @param f
+   * @param enabledOnly 
+   * @return set of memberships
+   */
+  public static Set<Membership> internal_findAllImmediateByMemberAndField(GrouperSession s, Member m, Field f, boolean enabledOnly) {
     // @filtered  true
     // @session   true
     GrouperSession.validate(s);
     return PrivilegeHelper.canViewMemberships( 
-      s, GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(m.getUuid(), f, true) 
+      s, GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(m.getUuid(), f, enabledOnly) 
     );
   } 
-
+  
   /**
    * 
    * @param s
