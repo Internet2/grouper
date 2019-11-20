@@ -376,11 +376,11 @@ public class GrouperRemedyFullRefresh implements Job {
       debugMap.put("deleteCount", this.deleteCount);
       debugMap.put("totalCount", this.totalCount);
       
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(e));
       String errorMessage = "Problem running remedy full sync";
       LOG.error(errorMessage, e);
-    
+      throw e;
     } finally {
       GrouperRemedyLog.remedyLog(debugMap, startTimeNanos);
       fullRefreshInProgress = false;

@@ -160,6 +160,8 @@ public class GrouperDigitalMarketplaceCommands {
       paramMap.put("dataPageType", "com.bmc.arsys.rx.application.user.datapage.UserDataPageQuery");
       paramMap.put("pageSize", "" + pageSize);
       paramMap.put("startIndex", "" + startIndex);
+      debugMap.put("startIndex", startIndex);
+      debugMap.put("pageSize", pageSize);
       
       JSONObject jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
       
