@@ -9,6 +9,8 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
   
   private String auditActionId;
   
+  private String afterAuditEntryId;
+  
   private String wsOwnerGroupName;
   
   private String wsOwnerGroupId;
@@ -76,9 +78,6 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
 
   /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
   private String ascending;
-
-  /** page number 1 indexed if paging */
-  private String pageNumber;
 
   /** page size if paging */
   private String pageSize;
@@ -436,41 +435,27 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
 
 
 
-
-  public String getPageNumber() {
-    return pageNumber;
+  public String getAfterAuditEntryId() {
+    return afterAuditEntryId;
   }
 
-
-
-
-  public void setPageNumber(String pageNumber) {
-    this.pageNumber = pageNumber;
+  public void setAfterAuditEntryId(String afterAuditEntryId) {
+    this.afterAuditEntryId = afterAuditEntryId;
   }
-
-
 
 
   public String getPageSize() {
     return pageSize;
   }
 
-
-
-
   public void setPageSize(String pageSize) {
     this.pageSize = pageSize;
   }
 
 
-
-
   public String getSortString() {
     return sortString;
   }
-
-
-
 
   public void setSortString(String sortString) {
     this.sortString = sortString;

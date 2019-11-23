@@ -621,22 +621,6 @@
             }
                 
            /**
-            * auto generated Axis2 call back method for stemSaveLite method
-            * override this method for handling normal response from stemSaveLite operation
-            */
-           public void receiveResultstemSaveLite(
-                    edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse result
-                        ) {
-           }
-
-          /**
-           * auto generated Axis2 Error handler
-           * override this method for handling error response from stemSaveLite operation
-           */
-            public void receiveErrorstemSaveLite(java.lang.Exception e) {
-            }
-                
-           /**
             * auto generated Axis2 call back method for getMembersLite method
             * override this method for handling normal response from getMembersLite operation
             */
@@ -650,6 +634,22 @@
            * override this method for handling error response from getMembersLite operation
            */
             public void receiveErrorgetMembersLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for stemSaveLite method
+            * override this method for handling normal response from stemSaveLite operation
+            */
+           public void receiveResultstemSaveLite(
+                    edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from stemSaveLite operation
+           */
+            public void receiveErrorstemSaveLite(java.lang.Exception e) {
             }
                 
            /**
@@ -826,6 +826,22 @@
            * override this method for handling error response from getSubjects operation
            */
             public void receiveErrorgetSubjects(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for getAuditEntries method
+            * override this method for handling normal response from getAuditEntries operation
+            */
+           public void receiveResultgetAuditEntries(
+                    edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getAuditEntries operation
+           */
+            public void receiveErrorgetAuditEntries(java.lang.Exception e) {
             }
                 
            /**

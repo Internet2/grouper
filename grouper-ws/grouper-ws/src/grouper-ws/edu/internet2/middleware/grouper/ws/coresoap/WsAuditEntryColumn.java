@@ -9,36 +9,65 @@ package edu.internet2.middleware.grouper.ws.coresoap;
  */
 public class WsAuditEntryColumn {
   
+  /**
+   * column label
+   */
   private String label;
   
+  /**
+   * integer value if any
+   */
   private String valueInt;
   
+  /**
+   * string value if any
+   */
   private String valueString;
 
+
+  /**
+   * 
+   * @return column label
+   */
   public String getLabel() {
-    return label;
+    return this.label;
   }
 
-  public void setLabel(String label) {
-    this.label = label;
+  /**
+   * @param label1
+   */
+  public void setLabel(String label1) {
+    this.label = label1;
   }
 
+  /**
+   * @return integer value if any
+   */
   public String getValueInt() {
-    return valueInt;
+    return this.valueInt;
   }
 
-  public void setValueInt(String valueInt) {
-    this.valueInt = valueInt;
+  /**
+   * 
+   * @param valueInt1
+   */
+  public void setValueInt(String valueInt1) {
+    this.valueInt = valueInt1;
   }
 
+  /**
+   * @return string value if any
+   */
   public String getValueString() {
-    return valueString;
+    return this.valueString;
   }
 
-  public void setValueString(String valueString) {
-    this.valueString = valueString;
+  /**
+   * 
+   * @param valueString1
+   */
+  public void setValueString(String valueString1) {
+    this.valueString = valueString1;
   }
   
-  
-
 }

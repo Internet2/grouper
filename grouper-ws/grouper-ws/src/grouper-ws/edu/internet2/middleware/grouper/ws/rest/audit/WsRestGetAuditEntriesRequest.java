@@ -11,15 +11,18 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
 public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   
-  /** field */
-  private String clientVersion;
+ /** field */
+ private String clientVersion;
   
-  /** field */
-  private WsSubjectLookup actAsSubjectLookup;
+ /** field */
+ private WsSubjectLookup actAsSubjectLookup;
   
  private String auditType;
   
-  private String auditActionId;
+ private String auditActionId;
+ 
+ private String afterAuditEntryId;
+  
   
   /** field */
   private WsParam[] params;
@@ -37,9 +40,6 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   
   /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
   private String ascending;
-
-  /** page number 1 indexed if paging */
-  private String pageNumber;
 
   /** page size if paging */
   private String pageSize;
@@ -199,18 +199,6 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
 
 
 
-  public String getPageNumber() {
-    return pageNumber;
-  }
-
-
-
-  public void setPageNumber(String pageNumber) {
-    this.pageNumber = pageNumber;
-  }
-
-
-
   public String getPageSize() {
     return pageSize;
   }
@@ -257,6 +245,18 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
 
   public void setPointInTimeTo(String pointInTimeTo) {
     this.pointInTimeTo = pointInTimeTo;
+  }
+
+  
+
+  public String getAfterAuditEntryId() {
+    return afterAuditEntryId;
+  }
+
+
+
+  public void setAfterAuditEntryId(String afterAuditEntryId) {
+    this.afterAuditEntryId = afterAuditEntryId;
   }
 
 

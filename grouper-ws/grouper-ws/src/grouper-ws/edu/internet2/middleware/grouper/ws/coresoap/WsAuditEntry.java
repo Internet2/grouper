@@ -19,44 +19,81 @@ public class WsAuditEntry {
     return ToStringBuilder.reflectionToString(this);
   }
   
+  /**
+   * audit action name
+   */
   private String actionName;
   
+  /**
+   * audit category
+   */
   private String auditCategory;
   
+  /**
+   * timestamp when the audit happened
+   */
   private String timestamp;
   
+  /**
+   * array of audit entry columns
+   */
   private WsAuditEntryColumn[] auditEntryColumns;
 
+  /**
+   * @return audit action name
+   */
   public String getActionName() {
-    return actionName;
+    return this.actionName;
   }
 
-  public void setActionName(String actionName) {
-    this.actionName = actionName;
+  /**
+   * @param actionName1
+   */
+  public void setActionName(String actionName1) {
+    this.actionName = actionName1;
   }
 
+  /**
+   * @return audit category
+   */
   public String getAuditCategory() {
-    return auditCategory;
+    return this.auditCategory;
   }
 
-  public void setAuditCategory(String auditCategory) {
-    this.auditCategory = auditCategory;
+  /**
+   * @param auditCategory1
+   */
+  public void setAuditCategory(String auditCategory1) {
+    this.auditCategory = auditCategory1;
   }
 
+  /**
+   * @return timestamp when the audit happened
+   */
   public String getTimestamp() {
-    return timestamp;
+    return this.timestamp;
   }
 
-  public void setTimestamp(String timestamp) {
-    this.timestamp = timestamp;
+  /**
+   * @param timestamp1
+   */
+  public void setTimestamp(String timestamp1) {
+    this.timestamp = timestamp1;
   }
 
+  /**
+   * @return array of audit entry columns
+   */
   public WsAuditEntryColumn[] getAuditEntryColumns() {
-    return auditEntryColumns;
+    return this.auditEntryColumns;
   }
 
-  public void setAuditEntryColumns(WsAuditEntryColumn[] auditEntryColumns) {
-    this.auditEntryColumns = auditEntryColumns;
+  /**
+   * 
+   * @param auditEntryColumns1
+   */
+  public void setAuditEntryColumns(WsAuditEntryColumn[] auditEntryColumns1) {
+    this.auditEntryColumns = auditEntryColumns1;
   }
 
 }

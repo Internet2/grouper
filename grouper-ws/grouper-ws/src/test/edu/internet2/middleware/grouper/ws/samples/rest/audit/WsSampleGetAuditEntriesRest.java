@@ -14,7 +14,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAuditEntriesResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -24,13 +24,13 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
  * @author vsachdeva
  *
  */
-public class WsSampleGetAuditEntriesRestLite implements WsSampleRest {
+public class WsSampleGetAuditEntriesRest implements WsSampleRest {
   
   /**
   *
   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
   */
- public static void getAuditEntriesLite(WsSampleRestType wsSampleRestType) {
+ public static void getAuditEntries(WsSampleRestType wsSampleRestType) {
    
    try {
      HttpClient httpClient = new HttpClient();
@@ -54,13 +54,13 @@ public class WsSampleGetAuditEntriesRestLite implements WsSampleRest {
      httpClient.getState()
          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
-     WsRestGetAuditEntriesLiteRequest getAuditEntriesLite = new WsRestGetAuditEntriesLiteRequest();
+     WsRestGetAuditEntriesRequest getAuditEntries = new WsRestGetAuditEntriesRequest();
      
-     getAuditEntriesLite.setAuditType("group");
-     getAuditEntriesLite.setAuditActionId("addGroup");
+     getAuditEntries.setAuditType("group");
+     getAuditEntries.setAuditActionId("addGroup");
      
      //get the xml / json / xhtml / paramString
-     String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getAuditEntriesLite);
+     String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getAuditEntries);
      
      //make sure right content type is in request (e.g. application/xhtml+xml
      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -110,7 +110,7 @@ public class WsSampleGetAuditEntriesRestLite implements WsSampleRest {
 
   @Override
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    getAuditEntriesLite(wsSampleRestType);
+    getAuditEntries(wsSampleRestType);
   }
 
   @Override
@@ -123,7 +123,7 @@ public class WsSampleGetAuditEntriesRestLite implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    getAuditEntriesLite(WsSampleRestType.json);
+    getAuditEntries(WsSampleRestType.json);
   }
 
 }

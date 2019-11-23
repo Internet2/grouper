@@ -5233,17 +5233,16 @@ public class GrouperService {
     return wsFindExternalSubjectsResults;
   }
   
+ 
   /**
-   * 
+   * get audit entries
    * @param clientVersion
-   * @param subjectId
-   * @param subjectSourceId
-   * @param subjectIdentifier
    * @param actAsSubjectId
    * @param actAsSubjectSourceId
    * @param actAsSubjectIdentifier
    * @param auditType
    * @param auditActionId
+   * @param afterAuditEntryId
    * @param wsOwnerGroupName
    * @param wsOwnerGroupId
    * @param wsOwnerStemName
@@ -5260,22 +5259,22 @@ public class GrouperService {
    * @param paramName1
    * @param paramValue1
    * @param pageSize
-   * @param pageNumber
    * @param sortString
    * @param ascending
    * @param pointInTimeFrom
    * @param pointInTimeTo
-   * @return
+   * @return audit entries result
    */
-  public WsGetAuditEntriesResults getAuditEntriesLite(final String clientVersion, String subjectId, String subjectSourceId,
-      String subjectIdentifier, String actAsSubjectId, String actAsSubjectSourceId,
-      String actAsSubjectIdentifier, String auditType, String auditActionId,
-      String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId,
+  public WsGetAuditEntriesResults getAuditEntriesLite(final String clientVersion,
+      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+      String auditType, String auditActionId, String afterAuditEntryId,
+      String wsOwnerGroupName, String wsOwnerGroupId,
+      String wsOwnerStemName, String wsOwnerStemId,
       String wsOwnerAttributeDefName, String wsOwnerAttributeDefId,
       String wsOwnerAttributeDefNameName, String wsOwnerAttributeDefNameId,
       String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
       String paramName0, String paramValue0, String paramName1, String paramValue1,
-      String pageSize, String pageNumber, String sortString, String ascending,
+      String pageSize, String sortString, String ascending,
       String pointInTimeFrom, String pointInTimeTo) {
     
     WsGetAuditEntriesResults results = new WsGetAuditEntriesResults();
@@ -5285,22 +5284,19 @@ public class GrouperService {
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
-      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
-      Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
-      
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
 
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
       
-      results =  GrouperServiceLogic.getAuditEntriesLite(grouperWsVersion, subjectId, subjectSourceId, 
-          subjectIdentifier, actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier,
-          false,
-          auditType, auditActionId, wsOwnerGroupName, wsOwnerGroupId, 
+      results =  GrouperServiceLogic.getAuditEntriesLite(grouperWsVersion, 
+          actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier,
+          auditType, auditActionId, afterAuditEntryId,
+          wsOwnerGroupName, wsOwnerGroupId, 
           wsOwnerStemName, wsOwnerStemId, wsOwnerAttributeDefName, wsOwnerAttributeDefId, 
           wsOwnerAttributeDefNameName, wsOwnerAttributeDefNameId, wsOwnerSubjectId, 
           wsOwnerSubjectSourceId, wsOwnerSubjectIdentifier, paramName0, paramValue0, paramName1,
-          paramValue1, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pointInTimeFromTimestamp,
+          paramValue1, pageSize, sortString, ascendingBoolean, pointInTimeFromTimestamp,
           pointInTimeToTimestamp);
      
     } catch (Exception e) {
@@ -5314,16 +5310,36 @@ public class GrouperService {
     
   }
 
+  /**
+   * get audit entries
+   * @param clientVersion
+   * @param actAsSubjectLookup
+   * @param auditType
+   * @param auditActionId
+   * @param afterAuditEntryId
+   * @param wsOwnerGroupLookups
+   * @param wsOwnerStemLookups
+   * @param wsOwnerAttributeDefLookups
+   * @param wsOwnerAttributeDefNameLookups
+   * @param wsOwnerSubjectLookups
+   * @param params
+   * @param pageSize
+   * @param sortString
+   * @param ascending
+   * @param pointInTimeFrom
+   * @param pointInTimeTo
+   * @return get audit entries
+   */
   public WsGetAuditEntriesResults getAuditEntries(final String clientVersion,
-      WsSubjectLookup actAsSubjectLookup, 
-      String auditType, String auditActionId,
+      WsSubjectLookup actAsSubjectLookup,
+      String auditType, String auditActionId, String afterAuditEntryId,
       WsGroupLookup[] wsOwnerGroupLookups,
       WsStemLookup[] wsOwnerStemLookups,
       WsAttributeDefLookup[] wsOwnerAttributeDefLookups,
       WsAttributeDefNameLookup[] wsOwnerAttributeDefNameLookups,
       WsSubjectLookup[] wsOwnerSubjectLookups,
       WsParam[] params,
-      String pageSize, String pageNumber,
+      String pageSize,
       String sortString, String ascending,
       String pointInTimeFrom, String pointInTimeTo) {
     
@@ -5335,19 +5351,16 @@ public class GrouperService {
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
-      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
-      Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
-      
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
 
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
       
-      results =  GrouperServiceLogic.getAuditEntries(grouperWsVersion, null, 
-          actAsSubjectLookup, false, params, auditType, auditActionId,
-          wsOwnerStemLookups, wsOwnerAttributeDefLookups, wsOwnerAttributeDefNameLookups,
-          wsOwnerGroupLookups, wsOwnerSubjectLookups, pageSizeInteger, pageNumberInteger,
-          sortString, ascendingBoolean, pointInTimeFromTimestamp, pointInTimeToTimestamp);
+      results =  GrouperServiceLogic.getAuditEntries(grouperWsVersion,
+          actAsSubjectLookup, auditType, auditActionId, afterAuditEntryId,
+          wsOwnerGroupLookups, wsOwnerStemLookups, wsOwnerAttributeDefLookups, wsOwnerAttributeDefNameLookups,
+          wsOwnerSubjectLookups, params, pageSize, sortString, ascendingBoolean, 
+          pointInTimeFromTimestamp, pointInTimeToTimestamp);
      
     } catch (Exception e) {
       results.assignResultCodeException(null, null, e);

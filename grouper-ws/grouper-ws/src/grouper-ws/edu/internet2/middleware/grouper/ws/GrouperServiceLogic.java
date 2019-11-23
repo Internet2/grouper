@@ -10540,32 +10540,58 @@ public class GrouperServiceLogic {
     return wsFindExternalSubjectsResults;
   }
   
-  public static WsGetAuditEntriesResults getAuditEntriesLite(final GrouperVersion clientVersion, String subjectId,
-      String subjectSourceId, String subjectIdentifier, 
-      String actAsSubjectId, String actAsSubjectSourceId,
-      String actAsSubjectIdentifier, boolean includeExtendedResults, 
-      String auditType, 
-      String auditActionId, String wsOwnerGroupName, String wsOwnerGroupId, 
+  
+  /**
+   * get audit entries
+   * @param clientVersion
+   * @param actAsSubjectId
+   * @param actAsSubjectSourceId
+   * @param actAsSubjectIdentifier
+   * @param auditType
+   * @param auditActionId
+   * @param afterAuditEntryId
+   * @param wsOwnerGroupName
+   * @param wsOwnerGroupId
+   * @param wsOwnerStemName
+   * @param wsOwnerStemId
+   * @param wsOwnerAttributeDefName
+   * @param wsOwnerAttributeDefId
+   * @param wsOwnerAttributeDefNameName
+   * @param wsOwnerAttributeDefNameId
+   * @param wsOwnerSubjectId
+   * @param wsOwnerSubjectSourceId
+   * @param wsOwnerSubjectIdentifier
+   * @param paramName0
+   * @param paramValue0
+   * @param paramName1
+   * @param paramValue1
+   * @param pageSize
+   * @param sortString
+   * @param ascending
+   * @param pointInTimeFrom
+   * @param pointInTimeTo
+   * @return audit entries result
+   */
+  public static WsGetAuditEntriesResults getAuditEntriesLite(final GrouperVersion clientVersion,
+      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+      String auditType, String auditActionId, String afterAuditEntryId, 
+      String wsOwnerGroupName, String wsOwnerGroupId,
       String wsOwnerStemName, String wsOwnerStemId,
       String wsOwnerAttributeDefName, String wsOwnerAttributeDefId,
       String wsOwnerAttributeDefNameName, String wsOwnerAttributeDefNameId,
       String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
       String paramName0, String paramValue0,
       String paramName1, String paramValue1,
-      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      String pageSize,
+      String sortString, Boolean ascending,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
     
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
     GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
 
-    // setup the subject lookup
-    WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, subjectSourceId,
-        subjectIdentifier);
-    WsSubjectLookup[] subjectLookups = new WsSubjectLookup[]{subjectLookup};
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
 
-  
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
     WsGroupLookup[] wsOwnerGroupLookups = null;
@@ -10593,32 +10619,53 @@ public class GrouperServiceLogic {
       wsOwnerAttributeDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(wsOwnerAttributeDefNameName, wsOwnerAttributeDefNameId )};
     }
     
-    WsGetAuditEntriesResults wsGetAuditEntriesResults = getAuditEntries(clientVersion, subjectLookups,
-        actAsSubjectLookup, includeExtendedResults, params, auditType,
-        auditActionId, wsOwnerStemLookups, wsOwnerAttributeDefLookups, wsOwnerAttributeDefNameLookups,
-        wsOwnerGroupLookups, wsOwnerSubjectLookups, pageSize, pageNumber, sortString, 
+    WsGetAuditEntriesResults wsGetAuditEntriesResults = getAuditEntries(clientVersion,
+        actAsSubjectLookup, auditType, auditActionId, afterAuditEntryId, 
+        wsOwnerGroupLookups, wsOwnerStemLookups, wsOwnerAttributeDefLookups, wsOwnerAttributeDefNameLookups,
+        wsOwnerSubjectLookups,
+        params,
+        pageSize,
+        sortString, 
         ascending, pointInTimeFrom, pointInTimeTo);
   
-    // return new WsGetAuditEntriesLiteResult(wsGetAuditEntriesResults);
     return wsGetAuditEntriesResults;
   }
   
+  /**
+   * get audit entries
+   * @param clientVersion
+   * @param actAsSubjectLookup
+   * @param auditType
+   * @param auditActionId
+   * @param afterAuditEntryId
+   * @param wsOwnerGroupLookups
+   * @param wsOwnerStemLookups
+   * @param wsOwnerAttributeDefLookups
+   * @param wsOwnerAttributeDefNameLookups
+   * @param wsOwnerSubjectLookups
+   * @param params
+   * @param pageSize
+   * @param sortString
+   * @param ascending
+   * @param pointInTimeFrom
+   * @param pointInTimeTo
+   * @return audit entries result
+   */
   public static WsGetAuditEntriesResults getAuditEntries(final GrouperVersion clientVersion,
-      WsSubjectLookup[] subjectLookups, 
-      WsSubjectLookup actAsSubjectLookup, boolean includeExtendedResults,
-      WsParam[] params, String auditType, 
-      String auditActionId, 
-      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups,
+      WsSubjectLookup actAsSubjectLookup, 
+      String auditType, String auditActionId, String afterAuditEntryId,
+      WsGroupLookup[] wsOwnerGroupLookups, WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups,
       WsAttributeDefNameLookup[] wsOwnerAttributeDefNameLookups,
-      WsGroupLookup[] wsOwnerGroupLookups, WsSubjectLookup[] wsOwnerSubjectLookups,
-      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      WsSubjectLookup[] wsOwnerSubjectLookups,
+      WsParam[] params,
+      String pageSize,
+      String sortString, Boolean ascending,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
     
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
     GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getAuditEntries");
 
     final WsGetAuditEntriesResults wsGetAuditEntriesResults = new WsGetAuditEntriesResults();
-    boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
 
     GrouperSession session = null;
     String theSummary = null;
@@ -10634,7 +10681,7 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(wsOwnerStemLookups, 200) + ", wsOwnerGroupLookups: "
           + GrouperUtil.toStringForLog(wsOwnerGroupLookups, 200) + ", wsOwnerSubjectLookups: "
           + GrouperUtil.toStringForLog(wsOwnerSubjectLookups, 200) 
-          + ", includeExtendedResults: " + includeExtendedResults + ", actAsSubject: "
+          + ", actAsSubject: "
           + actAsSubjectLookup 
           + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, ";
@@ -10642,7 +10689,6 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "auditType", auditType);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "auditActionId", auditActionId);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeExtendedResults", includeExtendedResults);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeDefNameLookups", wsOwnerAttributeDefNameLookups);
@@ -10654,12 +10700,11 @@ public class GrouperServiceLogic {
       
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-  
-      int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-          subjectLookups, GrouperWsConfig.WS_GET_GROUPS_SUBJECTS_MAX, 1000000, "subjectLookups");
-
-      int resultIndex = 0;
       
+      if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(session.getSubject())) {
+        throw new InsufficientPrivilegeException("Subject cannot get audit entries " + GrouperUtil.subjectToString(session.getSubject()));
+      }
+  
       //TODO validate input like audit type, audit action id, from before to etc
       
       UserAuditQuery userAuditQuery = new UserAuditQuery();
@@ -10667,7 +10712,6 @@ public class GrouperServiceLogic {
       if (actAsSubjectLookup != null && actAsSubjectLookup.retrieveMember() != null) {
         userAuditQuery.actAsMember(actAsSubjectLookup.retrieveMember());
       }
-    
       
       if (StringUtils.isNotBlank(auditType) && StringUtils.isNotBlank(auditActionId)) {
         userAuditQuery.addAuditTypeAction(auditType, auditActionId);

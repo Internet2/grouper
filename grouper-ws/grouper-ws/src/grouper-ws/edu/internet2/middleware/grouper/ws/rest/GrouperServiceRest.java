@@ -2666,12 +2666,13 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestGetAuditEntriesLiteRequest.getClientVersion()), false, "clientVersion");
 
     
-    return new GrouperService(false).getAuditEntriesLite(clientVersionString, "", "",
-        "" ,wsRestGetAuditEntriesLiteRequest.getActAsSubjectId(),
-        wsRestGetAuditEntriesLiteRequest.getActAsSubjectSourceId(), wsRestGetAuditEntriesLiteRequest.getActAsSubjectIdentifier(),
-        
+    return new GrouperService(false).getAuditEntriesLite(clientVersionString, 
+        wsRestGetAuditEntriesLiteRequest.getActAsSubjectId(),
+        wsRestGetAuditEntriesLiteRequest.getActAsSubjectSourceId(), 
+        wsRestGetAuditEntriesLiteRequest.getActAsSubjectIdentifier(),
         wsRestGetAuditEntriesLiteRequest.getAuditType(),
         wsRestGetAuditEntriesLiteRequest.getAuditActionId(),
+        wsRestGetAuditEntriesLiteRequest.getAfterAuditEntryId(),
         wsRestGetAuditEntriesLiteRequest.getWsOwnerGroupName(), wsRestGetAuditEntriesLiteRequest.getWsOwnerGroupId(),
         wsRestGetAuditEntriesLiteRequest.getWsOwnerStemName(), wsRestGetAuditEntriesLiteRequest.getWsOwnerStemId(), 
         wsRestGetAuditEntriesLiteRequest.getWsOwnerAttributeDefName(), wsRestGetAuditEntriesLiteRequest.getWsOwnerAttributeDefId(),
@@ -2680,7 +2681,7 @@ public class GrouperServiceRest {
         wsRestGetAuditEntriesLiteRequest.getWsOwnerSubjectIdentifier(),
         wsRestGetAuditEntriesLiteRequest.getParamName0(), wsRestGetAuditEntriesLiteRequest.getParamValue0(), 
         wsRestGetAuditEntriesLiteRequest.getParamName1(), wsRestGetAuditEntriesLiteRequest.getParamValue1(),
-        wsRestGetAuditEntriesLiteRequest.getPageSize(), wsRestGetAuditEntriesLiteRequest.getPageNumber(),
+        wsRestGetAuditEntriesLiteRequest.getPageSize(),
         wsRestGetAuditEntriesLiteRequest.getSortString(), wsRestGetAuditEntriesLiteRequest.getAscending(),
         wsRestGetAuditEntriesLiteRequest.getPointInTimeFrom(), wsRestGetAuditEntriesLiteRequest.getPointInTimeTo());
     
@@ -2688,10 +2689,10 @@ public class GrouperServiceRest {
   
   /**
    * <pre>
-   * based on a group query, get the groups
+   * based on query, get audits
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
-   * @param wsRestFindGroupsRequest is the request body converted to an object
+   * @param wsRestGetAuditEntriesRequest is the request body converted to an object
    * @return the results
    */
   public static WsGetAuditEntriesResults getAuditEntries(GrouperVersion clientVersion,
@@ -2704,6 +2705,7 @@ public class GrouperServiceRest {
     WsGetAuditEntriesResults wsGetAuditEntriesResults = new GrouperService(false).getAuditEntries(clientVersionString,
         wsRestGetAuditEntriesRequest.getActAsSubjectLookup(), 
         wsRestGetAuditEntriesRequest.getAuditType(), wsRestGetAuditEntriesRequest.getAuditActionId(),
+        wsRestGetAuditEntriesRequest.getAfterAuditEntryId(),
         wsRestGetAuditEntriesRequest.getWsOwnerGroupLookups(),
         wsRestGetAuditEntriesRequest.getWsOwnerStemLookups(),
         wsRestGetAuditEntriesRequest.getWsOwnerAttributeDefLookups(),
@@ -2711,10 +2713,9 @@ public class GrouperServiceRest {
         wsRestGetAuditEntriesRequest.getWsOwnerSubjectLookups(),
         wsRestGetAuditEntriesRequest.getParams(),
         wsRestGetAuditEntriesRequest.getPageSize(),
-        wsRestGetAuditEntriesRequest.getPageNumber(),
         wsRestGetAuditEntriesRequest.getSortString(),
         wsRestGetAuditEntriesRequest.getAscending(),
-        wsRestGetAuditEntriesRequest.getPointInTimeFrom(), 
+        wsRestGetAuditEntriesRequest.getPointInTimeFrom(),
         wsRestGetAuditEntriesRequest.getPointInTimeTo());
 
     //return result

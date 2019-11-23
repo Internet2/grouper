@@ -121,110 +121,46 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:element name="getGroups">
+            <xs:element name="findGroupsLite">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="queryFilterType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupAttributeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupAttributeValue" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupTypeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
-                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="typeOfGroups" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="WsStemLookup">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="getGroupsResponse">
+            <xs:element name="findGroupsLiteResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetGroupsResults"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindGroupsResults"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="WsGetGroupsResults">
+            <xs:complexType name="WsFindGroupsResults">
                 <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="groupResults" nillable="true" type="ns:WsGroup"/>
                     <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsGetGroupsResult"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsGetGroupsResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroups" nillable="true" type="ns:WsGroup"/>
-                    <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="findStems">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsStemQueryFilter" nillable="true" type="ns:WsStemQueryFilter"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStemLookups" nillable="true" type="ns:WsStemLookup"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsStemQueryFilter">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="parentStemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="parentStemNameScope" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="queryTerm" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="stemAttributeName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="stemAttributeValue" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="stemQueryFilter0" nillable="true" type="ns:WsStemQueryFilter"/>
-                    <xs:element minOccurs="0" name="stemQueryFilter1" nillable="true" type="ns:WsStemQueryFilter"/>
-                    <xs:element minOccurs="0" name="stemQueryFilterType" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="findStemsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindStemsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsFindStemsResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="stemResults" nillable="true" type="ns:WsStem"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsStem">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="findGroups">
@@ -260,48 +196,6 @@
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="findGroupsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindGroupsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsFindGroupsResults">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="groupResults" nillable="true" type="ns:WsGroup"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="findGroupsLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queryFilterType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupAttributeName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupAttributeValue" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupTypeName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="typeOfGroups" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findGroupsLiteResponse">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindGroupsResults"/>
@@ -350,6 +244,104 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stemSave">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStemToSaves" nillable="true" type="ns:WsStemToSave"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemToSave">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
+                    <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsStem">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsStemLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stemSaveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsStemSaveResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemSaveResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsStemSaveResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsStemSaveResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findStems">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsStemQueryFilter" nillable="true" type="ns:WsStemQueryFilter"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStemLookups" nillable="true" type="ns:WsStemLookup"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemQueryFilter">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parentStemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parentStemNameScope" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="queryTerm" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemAttributeName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemAttributeValue" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemQueryFilter0" nillable="true" type="ns:WsStemQueryFilter"/>
+                    <xs:element minOccurs="0" name="stemQueryFilter1" nillable="true" type="ns:WsStemQueryFilter"/>
+                    <xs:element minOccurs="0" name="stemQueryFilterType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findStemsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindStemsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsFindStemsResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="stemResults" nillable="true" type="ns:WsStem"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="hasMember">
@@ -563,45 +555,6 @@
                 <xs:sequence>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="stemSave">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStemToSaves" nillable="true" type="ns:WsStemToSave"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsStemToSave">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
-                    <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="stemSaveResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsStemSaveResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsStemSaveResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsStemSaveResult"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsStemSaveResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="stemDelete">
@@ -2282,6 +2235,53 @@
                     <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getGroups">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
+                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getGroupsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetGroupsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGetGroupsResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsGetGroupsResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsGetGroupsResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroups" nillable="true" type="ns:WsGroup"/>
+                    <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>

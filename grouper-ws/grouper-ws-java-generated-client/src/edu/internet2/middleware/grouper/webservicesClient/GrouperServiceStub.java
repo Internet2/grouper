@@ -44,7 +44,7 @@
         //creating the operations
         org.apache.axis2.description.AxisOperation __operation;
 
-        _operations = new org.apache.axis2.description.AxisOperation[64];
+        _operations = new org.apache.axis2.description.AxisOperation[65];
         
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
@@ -481,7 +481,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "stemSaveLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "getMembersLite"));
 	    _service.addOperation(__operation);
 	    
 
@@ -493,7 +493,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "getMembersLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "stemSaveLite"));
 	    _service.addOperation(__operation);
 	    
 
@@ -637,7 +637,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "groupDeleteLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "getAuditEntries"));
 	    _service.addOperation(__operation);
 	    
 
@@ -649,7 +649,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "getMemberships"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "groupDeleteLite"));
 	    _service.addOperation(__operation);
 	    
 
@@ -661,7 +661,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "attributeDefNameDelete"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "getMemberships"));
 	    _service.addOperation(__operation);
 	    
 
@@ -673,7 +673,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "findGroups"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "attributeDefNameDelete"));
 	    _service.addOperation(__operation);
 	    
 
@@ -685,7 +685,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "addMemberLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "findGroups"));
 	    _service.addOperation(__operation);
 	    
 
@@ -697,7 +697,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "assignAttributes"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "addMemberLite"));
 	    _service.addOperation(__operation);
 	    
 
@@ -709,7 +709,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "attributeDefDelete"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "assignAttributes"));
 	    _service.addOperation(__operation);
 	    
 
@@ -721,7 +721,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "stemDeleteLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "attributeDefDelete"));
 	    _service.addOperation(__operation);
 	    
 
@@ -733,7 +733,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "externalSubjectSave"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "stemDeleteLite"));
 	    _service.addOperation(__operation);
 	    
 
@@ -745,7 +745,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "findStemsLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "externalSubjectSave"));
 	    _service.addOperation(__operation);
 	    
 
@@ -757,7 +757,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "getAttributeAssignmentsLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "findStemsLite"));
 	    _service.addOperation(__operation);
 	    
 
@@ -769,7 +769,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "attributeDefNameDeleteLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "getAttributeAssignmentsLite"));
 	    _service.addOperation(__operation);
 	    
 
@@ -781,7 +781,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "groupDelete"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "attributeDefNameDeleteLite"));
 	    _service.addOperation(__operation);
 	    
 
@@ -793,7 +793,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "assignAttributeDefNameInheritanceLite"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "groupDelete"));
 	    _service.addOperation(__operation);
 	    
 
@@ -805,13 +805,25 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "findExternalSubjects"));
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "assignAttributeDefNameInheritanceLite"));
 	    _service.addOperation(__operation);
 	    
 
 	    
 	    
             _operations[63]=__operation;
+            
+        
+                   __operation = new org.apache.axis2.description.OutInAxisOperation();
+                
+
+            __operation.setName(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu", "findExternalSubjects"));
+	    _service.addOperation(__operation);
+	    
+
+	    
+	    
+            _operations[64]=__operation;
             
         
         }
@@ -889,7 +901,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getGroupsLite
-                     * @param getGroupsLite128
+                     * @param getGroupsLite130
                     
                      */
 
@@ -897,7 +909,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLiteResponse getGroupsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLite getGroupsLite128)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLite getGroupsLite130)
                         
 
                     throws java.rmi.RemoteException
@@ -924,7 +936,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getGroupsLite128,
+                                                    getGroupsLite130,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGroupsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGroupsLite"));
@@ -1010,12 +1022,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetGroupsLite
-                    * @param getGroupsLite128
+                    * @param getGroupsLite130
                 
                 */
                 public  void startgetGroupsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLite getGroupsLite128,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLite getGroupsLite130,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -1040,7 +1052,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getGroupsLite128,
+                                                    getGroupsLite130,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGroupsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGroupsLite"));
@@ -1156,7 +1168,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#groupSaveLite
-                     * @param groupSaveLite130
+                     * @param groupSaveLite132
                     
                      */
 
@@ -1164,7 +1176,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLiteResponse groupSaveLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLite groupSaveLite130)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLite groupSaveLite132)
                         
 
                     throws java.rmi.RemoteException
@@ -1191,7 +1203,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    groupSaveLite130,
+                                                    groupSaveLite132,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupSaveLite"));
@@ -1277,12 +1289,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgroupSaveLite
-                    * @param groupSaveLite130
+                    * @param groupSaveLite132
                 
                 */
                 public  void startgroupSaveLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLite groupSaveLite130,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLite groupSaveLite132,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -1307,7 +1319,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    groupSaveLite130,
+                                                    groupSaveLite132,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupSaveLite"));
@@ -1423,7 +1435,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#receiveMessage
-                     * @param receiveMessage132
+                     * @param receiveMessage134
                     
                      */
 
@@ -1431,7 +1443,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ReceiveMessageResponse receiveMessage(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ReceiveMessage receiveMessage132)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ReceiveMessage receiveMessage134)
                         
 
                     throws java.rmi.RemoteException
@@ -1458,7 +1470,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    receiveMessage132,
+                                                    receiveMessage134,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "receiveMessage")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "receiveMessage"));
@@ -1544,12 +1556,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startreceiveMessage
-                    * @param receiveMessage132
+                    * @param receiveMessage134
                 
                 */
                 public  void startreceiveMessage(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ReceiveMessage receiveMessage132,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ReceiveMessage receiveMessage134,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -1574,7 +1586,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    receiveMessage132,
+                                                    receiveMessage134,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "receiveMessage")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "receiveMessage"));
@@ -1690,7 +1702,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findGroupsLite
-                     * @param findGroupsLite134
+                     * @param findGroupsLite136
                     
                      */
 
@@ -1698,7 +1710,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroupsLiteResponse findGroupsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroupsLite findGroupsLite134)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroupsLite findGroupsLite136)
                         
 
                     throws java.rmi.RemoteException
@@ -1725,7 +1737,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findGroupsLite134,
+                                                    findGroupsLite136,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findGroupsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findGroupsLite"));
@@ -1811,12 +1823,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindGroupsLite
-                    * @param findGroupsLite134
+                    * @param findGroupsLite136
                 
                 */
                 public  void startfindGroupsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroupsLite findGroupsLite134,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroupsLite findGroupsLite136,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -1841,7 +1853,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findGroupsLite134,
+                                                    findGroupsLite136,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findGroupsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findGroupsLite"));
@@ -1957,7 +1969,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findAttributeDefs
-                     * @param findAttributeDefs136
+                     * @param findAttributeDefs138
                     
                      */
 
@@ -1965,7 +1977,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefsResponse findAttributeDefs(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefs findAttributeDefs136)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefs findAttributeDefs138)
                         
 
                     throws java.rmi.RemoteException
@@ -1992,7 +2004,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findAttributeDefs136,
+                                                    findAttributeDefs138,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefs")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefs"));
@@ -2078,12 +2090,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindAttributeDefs
-                    * @param findAttributeDefs136
+                    * @param findAttributeDefs138
                 
                 */
                 public  void startfindAttributeDefs(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefs findAttributeDefs136,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefs findAttributeDefs138,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -2108,7 +2120,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findAttributeDefs136,
+                                                    findAttributeDefs138,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefs")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefs"));
@@ -2224,7 +2236,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#attributeDefNameSaveLite
-                     * @param attributeDefNameSaveLite138
+                     * @param attributeDefNameSaveLite140
                     
                      */
 
@@ -2232,7 +2244,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSaveLiteResponse attributeDefNameSaveLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSaveLite attributeDefNameSaveLite138)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSaveLite attributeDefNameSaveLite140)
                         
 
                     throws java.rmi.RemoteException
@@ -2259,7 +2271,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefNameSaveLite138,
+                                                    attributeDefNameSaveLite140,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameSaveLite"));
@@ -2345,12 +2357,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startattributeDefNameSaveLite
-                    * @param attributeDefNameSaveLite138
+                    * @param attributeDefNameSaveLite140
                 
                 */
                 public  void startattributeDefNameSaveLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSaveLite attributeDefNameSaveLite138,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSaveLite attributeDefNameSaveLite140,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -2375,7 +2387,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefNameSaveLite138,
+                                                    attributeDefNameSaveLite140,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameSaveLite"));
@@ -2491,7 +2503,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignAttributeDefActions
-                     * @param assignAttributeDefActions140
+                     * @param assignAttributeDefActions142
                     
                      */
 
@@ -2499,7 +2511,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefActionsResponse assignAttributeDefActions(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefActions assignAttributeDefActions140)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefActions assignAttributeDefActions142)
                         
 
                     throws java.rmi.RemoteException
@@ -2526,7 +2538,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributeDefActions140,
+                                                    assignAttributeDefActions142,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefActions")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefActions"));
@@ -2612,12 +2624,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignAttributeDefActions
-                    * @param assignAttributeDefActions140
+                    * @param assignAttributeDefActions142
                 
                 */
                 public  void startassignAttributeDefActions(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefActions assignAttributeDefActions140,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefActions assignAttributeDefActions142,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -2642,7 +2654,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributeDefActions140,
+                                                    assignAttributeDefActions142,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefActions")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefActions"));
@@ -2758,7 +2770,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getMembershipsLite
-                     * @param getMembershipsLite142
+                     * @param getMembershipsLite144
                     
                      */
 
@@ -2766,7 +2778,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembershipsLiteResponse getMembershipsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembershipsLite getMembershipsLite142)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembershipsLite getMembershipsLite144)
                         
 
                     throws java.rmi.RemoteException
@@ -2793,7 +2805,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getMembershipsLite142,
+                                                    getMembershipsLite144,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMembershipsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMembershipsLite"));
@@ -2879,12 +2891,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetMembershipsLite
-                    * @param getMembershipsLite142
+                    * @param getMembershipsLite144
                 
                 */
                 public  void startgetMembershipsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembershipsLite getMembershipsLite142,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembershipsLite getMembershipsLite144,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -2909,7 +2921,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getMembershipsLite142,
+                                                    getMembershipsLite144,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMembershipsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMembershipsLite"));
@@ -3025,7 +3037,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getPermissionAssignments
-                     * @param getPermissionAssignments144
+                     * @param getPermissionAssignments146
                     
                      */
 
@@ -3033,7 +3045,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignmentsResponse getPermissionAssignments(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignments getPermissionAssignments144)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignments getPermissionAssignments146)
                         
 
                     throws java.rmi.RemoteException
@@ -3060,7 +3072,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getPermissionAssignments144,
+                                                    getPermissionAssignments146,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getPermissionAssignments")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getPermissionAssignments"));
@@ -3146,12 +3158,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetPermissionAssignments
-                    * @param getPermissionAssignments144
+                    * @param getPermissionAssignments146
                 
                 */
                 public  void startgetPermissionAssignments(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignments getPermissionAssignments144,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignments getPermissionAssignments146,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -3176,7 +3188,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getPermissionAssignments144,
+                                                    getPermissionAssignments146,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getPermissionAssignments")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getPermissionAssignments"));
@@ -3292,7 +3304,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#externalSubjectDelete
-                     * @param externalSubjectDelete146
+                     * @param externalSubjectDelete148
                     
                      */
 
@@ -3300,7 +3312,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDeleteResponse externalSubjectDelete(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete externalSubjectDelete146)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete externalSubjectDelete148)
                         
 
                     throws java.rmi.RemoteException
@@ -3327,7 +3339,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    externalSubjectDelete146,
+                                                    externalSubjectDelete148,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "externalSubjectDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "externalSubjectDelete"));
@@ -3413,12 +3425,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startexternalSubjectDelete
-                    * @param externalSubjectDelete146
+                    * @param externalSubjectDelete148
                 
                 */
                 public  void startexternalSubjectDelete(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete externalSubjectDelete146,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete externalSubjectDelete148,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -3443,7 +3455,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    externalSubjectDelete146,
+                                                    externalSubjectDelete148,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "externalSubjectDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "externalSubjectDelete"));
@@ -3559,7 +3571,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getMembers
-                     * @param getMembers148
+                     * @param getMembers150
                     
                      */
 
@@ -3567,7 +3579,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersResponse getMembers(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembers getMembers148)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembers getMembers150)
                         
 
                     throws java.rmi.RemoteException
@@ -3594,7 +3606,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getMembers148,
+                                                    getMembers150,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMembers")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMembers"));
@@ -3680,12 +3692,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetMembers
-                    * @param getMembers148
+                    * @param getMembers150
                 
                 */
                 public  void startgetMembers(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembers getMembers148,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembers getMembers150,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -3710,7 +3722,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getMembers148,
+                                                    getMembers150,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMembers")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMembers"));
@@ -3826,7 +3838,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#memberChangeSubjectLite
-                     * @param memberChangeSubjectLite150
+                     * @param memberChangeSubjectLite152
                     
                      */
 
@@ -3834,7 +3846,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubjectLiteResponse memberChangeSubjectLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubjectLite memberChangeSubjectLite150)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubjectLite memberChangeSubjectLite152)
                         
 
                     throws java.rmi.RemoteException
@@ -3861,7 +3873,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    memberChangeSubjectLite150,
+                                                    memberChangeSubjectLite152,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "memberChangeSubjectLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "memberChangeSubjectLite"));
@@ -3947,12 +3959,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startmemberChangeSubjectLite
-                    * @param memberChangeSubjectLite150
+                    * @param memberChangeSubjectLite152
                 
                 */
                 public  void startmemberChangeSubjectLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubjectLite memberChangeSubjectLite150,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubjectLite memberChangeSubjectLite152,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -3977,7 +3989,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    memberChangeSubjectLite150,
+                                                    memberChangeSubjectLite152,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "memberChangeSubjectLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "memberChangeSubjectLite"));
@@ -4093,7 +4105,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#deleteMember
-                     * @param deleteMember152
+                     * @param deleteMember154
                     
                      */
 
@@ -4101,7 +4113,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMemberResponse deleteMember(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMember deleteMember152)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMember deleteMember154)
                         
 
                     throws java.rmi.RemoteException
@@ -4128,7 +4140,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    deleteMember152,
+                                                    deleteMember154,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "deleteMember")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "deleteMember"));
@@ -4214,12 +4226,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startdeleteMember
-                    * @param deleteMember152
+                    * @param deleteMember154
                 
                 */
                 public  void startdeleteMember(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMember deleteMember152,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMember deleteMember154,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -4244,7 +4256,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    deleteMember152,
+                                                    deleteMember154,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "deleteMember")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "deleteMember"));
@@ -4360,7 +4372,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#groupSave
-                     * @param groupSave154
+                     * @param groupSave156
                     
                      */
 
@@ -4368,7 +4380,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveResponse groupSave(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave groupSave154)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave groupSave156)
                         
 
                     throws java.rmi.RemoteException
@@ -4395,7 +4407,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    groupSave154,
+                                                    groupSave156,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupSave"));
@@ -4481,12 +4493,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgroupSave
-                    * @param groupSave154
+                    * @param groupSave156
                 
                 */
                 public  void startgroupSave(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave groupSave154,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave groupSave156,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -4511,7 +4523,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    groupSave154,
+                                                    groupSave156,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupSave"));
@@ -4627,7 +4639,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#hasMemberLite
-                     * @param hasMemberLite156
+                     * @param hasMemberLite158
                     
                      */
 
@@ -4635,7 +4647,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLiteResponse hasMemberLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLite hasMemberLite156)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLite hasMemberLite158)
                         
 
                     throws java.rmi.RemoteException
@@ -4662,7 +4674,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    hasMemberLite156,
+                                                    hasMemberLite158,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "hasMemberLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "hasMemberLite"));
@@ -4748,12 +4760,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#starthasMemberLite
-                    * @param hasMemberLite156
+                    * @param hasMemberLite158
                 
                 */
                 public  void starthasMemberLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLite hasMemberLite156,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLite hasMemberLite158,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -4778,7 +4790,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    hasMemberLite156,
+                                                    hasMemberLite158,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "hasMemberLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "hasMemberLite"));
@@ -4894,7 +4906,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignGrouperPrivileges
-                     * @param assignGrouperPrivileges158
+                     * @param assignGrouperPrivileges160
                     
                      */
 
@@ -4902,7 +4914,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivilegesResponse assignGrouperPrivileges(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges assignGrouperPrivileges158)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges assignGrouperPrivileges160)
                         
 
                     throws java.rmi.RemoteException
@@ -4929,7 +4941,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignGrouperPrivileges158,
+                                                    assignGrouperPrivileges160,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignGrouperPrivileges")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignGrouperPrivileges"));
@@ -5015,12 +5027,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignGrouperPrivileges
-                    * @param assignGrouperPrivileges158
+                    * @param assignGrouperPrivileges160
                 
                 */
                 public  void startassignGrouperPrivileges(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges assignGrouperPrivileges158,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges assignGrouperPrivileges160,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -5045,7 +5057,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignGrouperPrivileges158,
+                                                    assignGrouperPrivileges160,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignGrouperPrivileges")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignGrouperPrivileges"));
@@ -5161,7 +5173,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getAuditEntriesLite
-                     * @param getAuditEntriesLite160
+                     * @param getAuditEntriesLite162
                     
                      */
 
@@ -5169,7 +5181,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLiteResponse getAuditEntriesLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite getAuditEntriesLite160)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite getAuditEntriesLite162)
                         
 
                     throws java.rmi.RemoteException
@@ -5196,7 +5208,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAuditEntriesLite160,
+                                                    getAuditEntriesLite162,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAuditEntriesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAuditEntriesLite"));
@@ -5282,12 +5294,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetAuditEntriesLite
-                    * @param getAuditEntriesLite160
+                    * @param getAuditEntriesLite162
                 
                 */
                 public  void startgetAuditEntriesLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite getAuditEntriesLite160,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite getAuditEntriesLite162,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -5312,7 +5324,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAuditEntriesLite160,
+                                                    getAuditEntriesLite162,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAuditEntriesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAuditEntriesLite"));
@@ -5428,7 +5440,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#attributeDefSaveLite
-                     * @param attributeDefSaveLite162
+                     * @param attributeDefSaveLite164
                     
                      */
 
@@ -5436,7 +5448,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSaveLiteResponse attributeDefSaveLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSaveLite attributeDefSaveLite162)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSaveLite attributeDefSaveLite164)
                         
 
                     throws java.rmi.RemoteException
@@ -5463,7 +5475,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefSaveLite162,
+                                                    attributeDefSaveLite164,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefSaveLite"));
@@ -5549,12 +5561,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startattributeDefSaveLite
-                    * @param attributeDefSaveLite162
+                    * @param attributeDefSaveLite164
                 
                 */
                 public  void startattributeDefSaveLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSaveLite attributeDefSaveLite162,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSaveLite attributeDefSaveLite164,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -5579,7 +5591,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefSaveLite162,
+                                                    attributeDefSaveLite164,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefSaveLite"));
@@ -5695,7 +5707,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#attributeDefDeleteLite
-                     * @param attributeDefDeleteLite164
+                     * @param attributeDefDeleteLite166
                     
                      */
 
@@ -5703,7 +5715,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDeleteLiteResponse attributeDefDeleteLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDeleteLite attributeDefDeleteLite164)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDeleteLite attributeDefDeleteLite166)
                         
 
                     throws java.rmi.RemoteException
@@ -5730,7 +5742,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefDeleteLite164,
+                                                    attributeDefDeleteLite166,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefDeleteLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefDeleteLite"));
@@ -5816,12 +5828,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startattributeDefDeleteLite
-                    * @param attributeDefDeleteLite164
+                    * @param attributeDefDeleteLite166
                 
                 */
                 public  void startattributeDefDeleteLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDeleteLite attributeDefDeleteLite164,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDeleteLite attributeDefDeleteLite166,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -5846,7 +5858,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefDeleteLite164,
+                                                    attributeDefDeleteLite166,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefDeleteLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefDeleteLite"));
@@ -5962,7 +5974,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getSubjectsLite
-                     * @param getSubjectsLite166
+                     * @param getSubjectsLite168
                     
                      */
 
@@ -5970,7 +5982,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsLiteResponse getSubjectsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsLite getSubjectsLite166)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsLite getSubjectsLite168)
                         
 
                     throws java.rmi.RemoteException
@@ -5997,7 +6009,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getSubjectsLite166,
+                                                    getSubjectsLite168,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getSubjectsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getSubjectsLite"));
@@ -6083,12 +6095,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetSubjectsLite
-                    * @param getSubjectsLite166
+                    * @param getSubjectsLite168
                 
                 */
                 public  void startgetSubjectsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsLite getSubjectsLite166,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsLite getSubjectsLite168,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -6113,7 +6125,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getSubjectsLite166,
+                                                    getSubjectsLite168,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getSubjectsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getSubjectsLite"));
@@ -6229,7 +6241,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#deleteMemberLite
-                     * @param deleteMemberLite168
+                     * @param deleteMemberLite170
                     
                      */
 
@@ -6237,7 +6249,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMemberLiteResponse deleteMemberLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMemberLite deleteMemberLite168)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMemberLite deleteMemberLite170)
                         
 
                     throws java.rmi.RemoteException
@@ -6264,7 +6276,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    deleteMemberLite168,
+                                                    deleteMemberLite170,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "deleteMemberLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "deleteMemberLite"));
@@ -6350,12 +6362,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startdeleteMemberLite
-                    * @param deleteMemberLite168
+                    * @param deleteMemberLite170
                 
                 */
                 public  void startdeleteMemberLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMemberLite deleteMemberLite168,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.DeleteMemberLite deleteMemberLite170,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -6380,7 +6392,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    deleteMemberLite168,
+                                                    deleteMemberLite170,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "deleteMemberLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "deleteMemberLite"));
@@ -6496,7 +6508,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#stemSave
-                     * @param stemSave170
+                     * @param stemSave172
                     
                      */
 
@@ -6504,7 +6516,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveResponse stemSave(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSave stemSave170)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSave stemSave172)
                         
 
                     throws java.rmi.RemoteException
@@ -6531,7 +6543,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    stemSave170,
+                                                    stemSave172,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemSave"));
@@ -6617,12 +6629,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startstemSave
-                    * @param stemSave170
+                    * @param stemSave172
                 
                 */
                 public  void startstemSave(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSave stemSave170,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSave stemSave172,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -6647,7 +6659,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    stemSave170,
+                                                    stemSave172,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemSave"));
@@ -6763,7 +6775,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getGroups
-                     * @param getGroups172
+                     * @param getGroups174
                     
                      */
 
@@ -6771,7 +6783,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsResponse getGroups(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroups getGroups172)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroups getGroups174)
                         
 
                     throws java.rmi.RemoteException
@@ -6798,7 +6810,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getGroups172,
+                                                    getGroups174,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGroups")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGroups"));
@@ -6884,12 +6896,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetGroups
-                    * @param getGroups172
+                    * @param getGroups174
                 
                 */
                 public  void startgetGroups(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroups getGroups172,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroups getGroups174,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -6914,7 +6926,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getGroups172,
+                                                    getGroups174,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGroups")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGroups"));
@@ -7030,7 +7042,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getGrouperPrivilegesLite
-                     * @param getGrouperPrivilegesLite174
+                     * @param getGrouperPrivilegesLite176
                     
                      */
 
@@ -7038,7 +7050,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGrouperPrivilegesLiteResponse getGrouperPrivilegesLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGrouperPrivilegesLite getGrouperPrivilegesLite174)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGrouperPrivilegesLite getGrouperPrivilegesLite176)
                         
 
                     throws java.rmi.RemoteException
@@ -7065,7 +7077,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getGrouperPrivilegesLite174,
+                                                    getGrouperPrivilegesLite176,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGrouperPrivilegesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGrouperPrivilegesLite"));
@@ -7151,12 +7163,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetGrouperPrivilegesLite
-                    * @param getGrouperPrivilegesLite174
+                    * @param getGrouperPrivilegesLite176
                 
                 */
                 public  void startgetGrouperPrivilegesLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGrouperPrivilegesLite getGrouperPrivilegesLite174,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGrouperPrivilegesLite getGrouperPrivilegesLite176,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -7181,7 +7193,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getGrouperPrivilegesLite174,
+                                                    getGrouperPrivilegesLite176,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGrouperPrivilegesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getGrouperPrivilegesLite"));
@@ -7297,7 +7309,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignAttributesLite
-                     * @param assignAttributesLite176
+                     * @param assignAttributesLite178
                     
                      */
 
@@ -7305,7 +7317,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesLiteResponse assignAttributesLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesLite assignAttributesLite176)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesLite assignAttributesLite178)
                         
 
                     throws java.rmi.RemoteException
@@ -7332,7 +7344,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributesLite176,
+                                                    assignAttributesLite178,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributesLite"));
@@ -7418,12 +7430,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignAttributesLite
-                    * @param assignAttributesLite176
+                    * @param assignAttributesLite178
                 
                 */
                 public  void startassignAttributesLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesLite assignAttributesLite176,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesLite assignAttributesLite178,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -7448,7 +7460,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributesLite176,
+                                                    assignAttributesLite178,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributesLite"));
@@ -7564,7 +7576,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#memberChangeSubject
-                     * @param memberChangeSubject178
+                     * @param memberChangeSubject180
                     
                      */
 
@@ -7572,7 +7584,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubjectResponse memberChangeSubject(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubject memberChangeSubject178)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubject memberChangeSubject180)
                         
 
                     throws java.rmi.RemoteException
@@ -7599,7 +7611,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    memberChangeSubject178,
+                                                    memberChangeSubject180,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "memberChangeSubject")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "memberChangeSubject"));
@@ -7685,12 +7697,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startmemberChangeSubject
-                    * @param memberChangeSubject178
+                    * @param memberChangeSubject180
                 
                 */
                 public  void startmemberChangeSubject(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubject memberChangeSubject178,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.MemberChangeSubject memberChangeSubject180,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -7715,7 +7727,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    memberChangeSubject178,
+                                                    memberChangeSubject180,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "memberChangeSubject")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "memberChangeSubject"));
@@ -7831,7 +7843,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getAttributeAssignments
-                     * @param getAttributeAssignments180
+                     * @param getAttributeAssignments182
                     
                      */
 
@@ -7839,7 +7851,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignmentsResponse getAttributeAssignments(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignments getAttributeAssignments180)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignments getAttributeAssignments182)
                         
 
                     throws java.rmi.RemoteException
@@ -7866,7 +7878,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAttributeAssignments180,
+                                                    getAttributeAssignments182,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignments")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignments"));
@@ -7952,12 +7964,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetAttributeAssignments
-                    * @param getAttributeAssignments180
+                    * @param getAttributeAssignments182
                 
                 */
                 public  void startgetAttributeAssignments(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignments getAttributeAssignments180,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignments getAttributeAssignments182,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -7982,7 +7994,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAttributeAssignments180,
+                                                    getAttributeAssignments182,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignments")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignments"));
@@ -8098,7 +8110,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#hasMember
-                     * @param hasMember182
+                     * @param hasMember184
                     
                      */
 
@@ -8106,7 +8118,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberResponse hasMember(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMember hasMember182)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMember hasMember184)
                         
 
                     throws java.rmi.RemoteException
@@ -8133,7 +8145,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    hasMember182,
+                                                    hasMember184,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "hasMember")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "hasMember"));
@@ -8219,12 +8231,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#starthasMember
-                    * @param hasMember182
+                    * @param hasMember184
                 
                 */
                 public  void starthasMember(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMember hasMember182,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMember hasMember184,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -8249,7 +8261,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    hasMember182,
+                                                    hasMember184,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "hasMember")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "hasMember"));
@@ -8365,7 +8377,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findAttributeDefNamesLite
-                     * @param findAttributeDefNamesLite184
+                     * @param findAttributeDefNamesLite186
                     
                      */
 
@@ -8373,7 +8385,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLiteResponse findAttributeDefNamesLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite findAttributeDefNamesLite184)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite findAttributeDefNamesLite186)
                         
 
                     throws java.rmi.RemoteException
@@ -8400,7 +8412,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findAttributeDefNamesLite184,
+                                                    findAttributeDefNamesLite186,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefNamesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefNamesLite"));
@@ -8486,12 +8498,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindAttributeDefNamesLite
-                    * @param findAttributeDefNamesLite184
+                    * @param findAttributeDefNamesLite186
                 
                 */
                 public  void startfindAttributeDefNamesLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite findAttributeDefNamesLite184,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite findAttributeDefNamesLite186,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -8516,7 +8528,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findAttributeDefNamesLite184,
+                                                    findAttributeDefNamesLite186,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefNamesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefNamesLite"));
@@ -8632,7 +8644,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#attributeDefNameSave
-                     * @param attributeDefNameSave186
+                     * @param attributeDefNameSave188
                     
                      */
 
@@ -8640,7 +8652,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSaveResponse attributeDefNameSave(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSave attributeDefNameSave186)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSave attributeDefNameSave188)
                         
 
                     throws java.rmi.RemoteException
@@ -8667,7 +8679,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefNameSave186,
+                                                    attributeDefNameSave188,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameSave"));
@@ -8753,12 +8765,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startattributeDefNameSave
-                    * @param attributeDefNameSave186
+                    * @param attributeDefNameSave188
                 
                 */
                 public  void startattributeDefNameSave(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSave attributeDefNameSave186,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameSave attributeDefNameSave188,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -8783,7 +8795,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefNameSave186,
+                                                    attributeDefNameSave188,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameSave"));
@@ -8899,7 +8911,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#addMember
-                     * @param addMember188
+                     * @param addMember190
                     
                      */
 
@@ -8907,7 +8919,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMemberResponse addMember(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMember addMember188)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMember addMember190)
                         
 
                     throws java.rmi.RemoteException
@@ -8934,7 +8946,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    addMember188,
+                                                    addMember190,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "addMember")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "addMember"));
@@ -9020,12 +9032,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startaddMember
-                    * @param addMember188
+                    * @param addMember190
                 
                 */
                 public  void startaddMember(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMember addMember188,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMember addMember190,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -9050,7 +9062,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    addMember188,
+                                                    addMember190,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "addMember")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "addMember"));
@@ -9166,7 +9178,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findAttributeDefNames
-                     * @param findAttributeDefNames190
+                     * @param findAttributeDefNames192
                     
                      */
 
@@ -9174,7 +9186,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesResponse findAttributeDefNames(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNames findAttributeDefNames190)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNames findAttributeDefNames192)
                         
 
                     throws java.rmi.RemoteException
@@ -9201,7 +9213,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findAttributeDefNames190,
+                                                    findAttributeDefNames192,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefNames")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefNames"));
@@ -9287,12 +9299,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindAttributeDefNames
-                    * @param findAttributeDefNames190
+                    * @param findAttributeDefNames192
                 
                 */
                 public  void startfindAttributeDefNames(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNames findAttributeDefNames190,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNames findAttributeDefNames192,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -9317,7 +9329,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findAttributeDefNames190,
+                                                    findAttributeDefNames192,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefNames")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefNames"));
@@ -9433,7 +9445,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignPermissions
-                     * @param assignPermissions192
+                     * @param assignPermissions194
                     
                      */
 
@@ -9441,7 +9453,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissionsResponse assignPermissions(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissions assignPermissions192)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissions assignPermissions194)
                         
 
                     throws java.rmi.RemoteException
@@ -9468,7 +9480,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignPermissions192,
+                                                    assignPermissions194,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignPermissions")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignPermissions"));
@@ -9554,12 +9566,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignPermissions
-                    * @param assignPermissions192
+                    * @param assignPermissions194
                 
                 */
                 public  void startassignPermissions(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissions assignPermissions192,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissions assignPermissions194,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -9584,7 +9596,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignPermissions192,
+                                                    assignPermissions194,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignPermissions")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignPermissions"));
@@ -9700,7 +9712,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignGrouperPrivilegesLite
-                     * @param assignGrouperPrivilegesLite194
+                     * @param assignGrouperPrivilegesLite196
                     
                      */
 
@@ -9708,7 +9720,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivilegesLiteResponse assignGrouperPrivilegesLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivilegesLite assignGrouperPrivilegesLite194)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivilegesLite assignGrouperPrivilegesLite196)
                         
 
                     throws java.rmi.RemoteException
@@ -9735,7 +9747,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignGrouperPrivilegesLite194,
+                                                    assignGrouperPrivilegesLite196,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignGrouperPrivilegesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignGrouperPrivilegesLite"));
@@ -9821,12 +9833,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignGrouperPrivilegesLite
-                    * @param assignGrouperPrivilegesLite194
+                    * @param assignGrouperPrivilegesLite196
                 
                 */
                 public  void startassignGrouperPrivilegesLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivilegesLite assignGrouperPrivilegesLite194,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivilegesLite assignGrouperPrivilegesLite196,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -9851,7 +9863,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignGrouperPrivilegesLite194,
+                                                    assignGrouperPrivilegesLite196,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignGrouperPrivilegesLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignGrouperPrivilegesLite"));
@@ -9967,7 +9979,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignPermissionsLite
-                     * @param assignPermissionsLite196
+                     * @param assignPermissionsLite198
                     
                      */
 
@@ -9975,7 +9987,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissionsLiteResponse assignPermissionsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissionsLite assignPermissionsLite196)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissionsLite assignPermissionsLite198)
                         
 
                     throws java.rmi.RemoteException
@@ -10002,7 +10014,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignPermissionsLite196,
+                                                    assignPermissionsLite198,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignPermissionsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignPermissionsLite"));
@@ -10088,12 +10100,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignPermissionsLite
-                    * @param assignPermissionsLite196
+                    * @param assignPermissionsLite198
                 
                 */
                 public  void startassignPermissionsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissionsLite assignPermissionsLite196,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignPermissionsLite assignPermissionsLite198,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -10118,7 +10130,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignPermissionsLite196,
+                                                    assignPermissionsLite198,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignPermissionsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignPermissionsLite"));
@@ -10234,7 +10246,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignAttributesBatch
-                     * @param assignAttributesBatch198
+                     * @param assignAttributesBatch200
                     
                      */
 
@@ -10242,7 +10254,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesBatchResponse assignAttributesBatch(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesBatch assignAttributesBatch198)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesBatch assignAttributesBatch200)
                         
 
                     throws java.rmi.RemoteException
@@ -10269,7 +10281,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributesBatch198,
+                                                    assignAttributesBatch200,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributesBatch")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributesBatch"));
@@ -10355,12 +10367,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignAttributesBatch
-                    * @param assignAttributesBatch198
+                    * @param assignAttributesBatch200
                 
                 */
                 public  void startassignAttributesBatch(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesBatch assignAttributesBatch198,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesBatch assignAttributesBatch200,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -10385,7 +10397,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributesBatch198,
+                                                    assignAttributesBatch200,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributesBatch")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributesBatch"));
@@ -10500,273 +10512,6 @@
                     /**
                      * Auto generated method signature
                      * 
-                     * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#stemSaveLite
-                     * @param stemSaveLite200
-                    
-                     */
-
-                    
-
-                            public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse stemSaveLite(
-
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite stemSaveLite200)
-                        
-
-                    throws java.rmi.RemoteException
-                    
-                    {
-              org.apache.axis2.context.MessageContext _messageContext = null;
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[36].getName());
-              _operationClient.getOptions().setAction("urn:stemSaveLite");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-              
-                  addPropertyToOperationClient(_operationClient,org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,"&");
-              
-
-              // create a message context
-              _messageContext = new org.apache.axis2.context.MessageContext();
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    stemSaveLite200,
-                                                    optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
-                                                    "stemSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
-                                                    "stemSaveLite"));
-                                                
-        //adding SOAP soap_headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // set the message context with that soap envelope
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                                java.lang.Object object = fromOM(
-                                             _returnEnv.getBody().getFirstElement() ,
-                                             edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.class,
-                                              getEnvelopeNamespaces(_returnEnv));
-
-                               
-                                        return (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse)object;
-                                   
-         }catch(org.apache.axis2.AxisFault f){
-
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"))){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"));
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"));
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-            } finally {
-                if (_messageContext.getTransportOut() != null) {
-                      _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                }
-            }
-        }
-            
-                /**
-                * Auto generated method signature for Asynchronous Invocations
-                * 
-                * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startstemSaveLite
-                    * @param stemSaveLite200
-                
-                */
-                public  void startstemSaveLite(
-
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite stemSaveLite200,
-
-                  final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
-
-                throws java.rmi.RemoteException{
-
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[36].getName());
-             _operationClient.getOptions().setAction("urn:stemSaveLite");
-             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-              
-                  addPropertyToOperationClient(_operationClient,org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,"&");
-              
-
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env=null;
-              final org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext();
-
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    stemSaveLite200,
-                                                    optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
-                                                    "stemSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
-                                                    "stemSaveLite"));
-                                                
-        // adding SOAP soap_headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        _messageContext.setEnvelope(env);
-
-        // add the message context to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-
-                    
-                        _operationClient.setCallback(new org.apache.axis2.client.async.AxisCallback() {
-                            public void onMessage(org.apache.axis2.context.MessageContext resultContext) {
-                            try {
-                                org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
-                                
-                                        java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
-                                                                         edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.class,
-                                                                         getEnvelopeNamespaces(resultEnv));
-                                        callback.receiveResultstemSaveLite(
-                                        (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse)object);
-                                        
-                            } catch (org.apache.axis2.AxisFault e) {
-                                callback.receiveErrorstemSaveLite(e);
-                            }
-                            }
-
-                            public void onError(java.lang.Exception error) {
-								if (error instanceof org.apache.axis2.AxisFault) {
-									org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
-									org.apache.axiom.om.OMElement faultElt = f.getDetail();
-									if (faultElt!=null){
-										if (faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"))){
-											//make the fault by reflection
-											try{
-													java.lang.String exceptionClassName = (java.lang.String)faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"));
-													java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-													java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
-													//message class
-													java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"));
-														java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-													java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-													java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-															new java.lang.Class[]{messageClass});
-													m.invoke(ex,new java.lang.Object[]{messageObject});
-													
-					
-										            callback.receiveErrorstemSaveLite(new java.rmi.RemoteException(ex.getMessage(), ex));
-                                            } catch(java.lang.ClassCastException e){
-                                                // we cannot intantiate the class - throw the original Axis fault
-                                                callback.receiveErrorstemSaveLite(f);
-                                            } catch (java.lang.ClassNotFoundException e) {
-                                                // we cannot intantiate the class - throw the original Axis fault
-                                                callback.receiveErrorstemSaveLite(f);
-                                            } catch (java.lang.NoSuchMethodException e) {
-                                                // we cannot intantiate the class - throw the original Axis fault
-                                                callback.receiveErrorstemSaveLite(f);
-                                            } catch (java.lang.reflect.InvocationTargetException e) {
-                                                // we cannot intantiate the class - throw the original Axis fault
-                                                callback.receiveErrorstemSaveLite(f);
-                                            } catch (java.lang.IllegalAccessException e) {
-                                                // we cannot intantiate the class - throw the original Axis fault
-                                                callback.receiveErrorstemSaveLite(f);
-                                            } catch (java.lang.InstantiationException e) {
-                                                // we cannot intantiate the class - throw the original Axis fault
-                                                callback.receiveErrorstemSaveLite(f);
-                                            } catch (org.apache.axis2.AxisFault e) {
-                                                // we cannot intantiate the class - throw the original Axis fault
-                                                callback.receiveErrorstemSaveLite(f);
-                                            }
-									    } else {
-										    callback.receiveErrorstemSaveLite(f);
-									    }
-									} else {
-									    callback.receiveErrorstemSaveLite(f);
-									}
-								} else {
-								    callback.receiveErrorstemSaveLite(error);
-								}
-                            }
-
-                            public void onFault(org.apache.axis2.context.MessageContext faultContext) {
-                                org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
-                                onError(fault);
-                            }
-
-                            public void onComplete() {
-                                try {
-                                    _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                                } catch (org.apache.axis2.AxisFault axisFault) {
-                                    callback.receiveErrorstemSaveLite(axisFault);
-                                }
-                            }
-                });
-                        
-
-          org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[36].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
-           _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[36].setMessageReceiver(
-                    _callbackReceiver);
-        }
-
-           //execute the operation client
-           _operationClient.execute(false);
-
-                    }
-                
-                    /**
-                     * Auto generated method signature
-                     * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getMembersLite
                      * @param getMembersLite202
                     
@@ -10784,7 +10529,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[37].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[36].getName());
               _operationClient.getOptions().setAction("urn:getMembersLite");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -10900,7 +10645,7 @@
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[37].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[36].getName());
              _operationClient.getOptions().setAction("urn:getMembersLite");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -11020,6 +10765,273 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
+        if ( _operations[36].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+           _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
+          _operations[36].setMessageReceiver(
+                    _callbackReceiver);
+        }
+
+           //execute the operation client
+           _operationClient.execute(false);
+
+                    }
+                
+                    /**
+                     * Auto generated method signature
+                     * 
+                     * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#stemSaveLite
+                     * @param stemSaveLite204
+                    
+                     */
+
+                    
+
+                            public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse stemSaveLite(
+
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite stemSaveLite204)
+                        
+
+                    throws java.rmi.RemoteException
+                    
+                    {
+              org.apache.axis2.context.MessageContext _messageContext = null;
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[37].getName());
+              _operationClient.getOptions().setAction("urn:stemSaveLite");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+              
+                  addPropertyToOperationClient(_operationClient,org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,"&");
+              
+
+              // create a message context
+              _messageContext = new org.apache.axis2.context.MessageContext();
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    stemSaveLite204,
+                                                    optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
+                                                    "stemSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
+                                                    "stemSaveLite"));
+                                                
+        //adding SOAP soap_headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // set the message context with that soap envelope
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                                java.lang.Object object = fromOM(
+                                             _returnEnv.getBody().getFirstElement() ,
+                                             edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.class,
+                                              getEnvelopeNamespaces(_returnEnv));
+
+                               
+                                        return (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse)object;
+                                   
+         }catch(org.apache.axis2.AxisFault f){
+
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"))){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"));
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"));
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+            } finally {
+                if (_messageContext.getTransportOut() != null) {
+                      _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                }
+            }
+        }
+            
+                /**
+                * Auto generated method signature for Asynchronous Invocations
+                * 
+                * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startstemSaveLite
+                    * @param stemSaveLite204
+                
+                */
+                public  void startstemSaveLite(
+
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite stemSaveLite204,
+
+                  final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
+
+                throws java.rmi.RemoteException{
+
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[37].getName());
+             _operationClient.getOptions().setAction("urn:stemSaveLite");
+             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+              
+                  addPropertyToOperationClient(_operationClient,org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,"&");
+              
+
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env=null;
+              final org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext();
+
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    stemSaveLite204,
+                                                    optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
+                                                    "stemSaveLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
+                                                    "stemSaveLite"));
+                                                
+        // adding SOAP soap_headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        _messageContext.setEnvelope(env);
+
+        // add the message context to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+
+                    
+                        _operationClient.setCallback(new org.apache.axis2.client.async.AxisCallback() {
+                            public void onMessage(org.apache.axis2.context.MessageContext resultContext) {
+                            try {
+                                org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
+                                
+                                        java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
+                                                                         edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.class,
+                                                                         getEnvelopeNamespaces(resultEnv));
+                                        callback.receiveResultstemSaveLite(
+                                        (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse)object);
+                                        
+                            } catch (org.apache.axis2.AxisFault e) {
+                                callback.receiveErrorstemSaveLite(e);
+                            }
+                            }
+
+                            public void onError(java.lang.Exception error) {
+								if (error instanceof org.apache.axis2.AxisFault) {
+									org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
+									org.apache.axiom.om.OMElement faultElt = f.getDetail();
+									if (faultElt!=null){
+										if (faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"))){
+											//make the fault by reflection
+											try{
+													java.lang.String exceptionClassName = (java.lang.String)faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"));
+													java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+													java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
+													//message class
+													java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"stemSaveLite"));
+														java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+													java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+													java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+															new java.lang.Class[]{messageClass});
+													m.invoke(ex,new java.lang.Object[]{messageObject});
+													
+					
+										            callback.receiveErrorstemSaveLite(new java.rmi.RemoteException(ex.getMessage(), ex));
+                                            } catch(java.lang.ClassCastException e){
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorstemSaveLite(f);
+                                            } catch (java.lang.ClassNotFoundException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorstemSaveLite(f);
+                                            } catch (java.lang.NoSuchMethodException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorstemSaveLite(f);
+                                            } catch (java.lang.reflect.InvocationTargetException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorstemSaveLite(f);
+                                            } catch (java.lang.IllegalAccessException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorstemSaveLite(f);
+                                            } catch (java.lang.InstantiationException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorstemSaveLite(f);
+                                            } catch (org.apache.axis2.AxisFault e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorstemSaveLite(f);
+                                            }
+									    } else {
+										    callback.receiveErrorstemSaveLite(f);
+									    }
+									} else {
+									    callback.receiveErrorstemSaveLite(f);
+									}
+								} else {
+								    callback.receiveErrorstemSaveLite(error);
+								}
+                            }
+
+                            public void onFault(org.apache.axis2.context.MessageContext faultContext) {
+                                org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
+                                onError(fault);
+                            }
+
+                            public void onComplete() {
+                                try {
+                                    _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                                } catch (org.apache.axis2.AxisFault axisFault) {
+                                    callback.receiveErrorstemSaveLite(axisFault);
+                                }
+                            }
+                });
+                        
+
+          org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
         if ( _operations[37].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
           _operations[37].setMessageReceiver(
@@ -11035,7 +11047,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#sendMessage
-                     * @param sendMessage204
+                     * @param sendMessage206
                     
                      */
 
@@ -11043,7 +11055,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.SendMessageResponse sendMessage(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.SendMessage sendMessage204)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.SendMessage sendMessage206)
                         
 
                     throws java.rmi.RemoteException
@@ -11070,7 +11082,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    sendMessage204,
+                                                    sendMessage206,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "sendMessage")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "sendMessage"));
@@ -11156,12 +11168,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startsendMessage
-                    * @param sendMessage204
+                    * @param sendMessage206
                 
                 */
                 public  void startsendMessage(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.SendMessage sendMessage204,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.SendMessage sendMessage206,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -11186,7 +11198,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    sendMessage204,
+                                                    sendMessage206,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "sendMessage")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "sendMessage"));
@@ -11302,7 +11314,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findStems
-                     * @param findStems206
+                     * @param findStems208
                     
                      */
 
@@ -11310,7 +11322,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStemsResponse findStems(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStems findStems206)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStems findStems208)
                         
 
                     throws java.rmi.RemoteException
@@ -11337,7 +11349,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findStems206,
+                                                    findStems208,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findStems")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findStems"));
@@ -11423,12 +11435,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindStems
-                    * @param findStems206
+                    * @param findStems208
                 
                 */
                 public  void startfindStems(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStems findStems206,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStems findStems208,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -11453,7 +11465,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findStems206,
+                                                    findStems208,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findStems")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findStems"));
@@ -11569,7 +11581,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getPermissionAssignmentsLite
-                     * @param getPermissionAssignmentsLite208
+                     * @param getPermissionAssignmentsLite210
                     
                      */
 
@@ -11577,7 +11589,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignmentsLiteResponse getPermissionAssignmentsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignmentsLite getPermissionAssignmentsLite208)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignmentsLite getPermissionAssignmentsLite210)
                         
 
                     throws java.rmi.RemoteException
@@ -11604,7 +11616,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getPermissionAssignmentsLite208,
+                                                    getPermissionAssignmentsLite210,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getPermissionAssignmentsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getPermissionAssignmentsLite"));
@@ -11690,12 +11702,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetPermissionAssignmentsLite
-                    * @param getPermissionAssignmentsLite208
+                    * @param getPermissionAssignmentsLite210
                 
                 */
                 public  void startgetPermissionAssignmentsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignmentsLite getPermissionAssignmentsLite208,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignmentsLite getPermissionAssignmentsLite210,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -11720,7 +11732,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getPermissionAssignmentsLite208,
+                                                    getPermissionAssignmentsLite210,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getPermissionAssignmentsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getPermissionAssignmentsLite"));
@@ -11836,7 +11848,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getAttributeAssignActions
-                     * @param getAttributeAssignActions210
+                     * @param getAttributeAssignActions212
                     
                      */
 
@@ -11844,7 +11856,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActionsResponse getAttributeAssignActions(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActions getAttributeAssignActions210)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActions getAttributeAssignActions212)
                         
 
                     throws java.rmi.RemoteException
@@ -11871,7 +11883,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAttributeAssignActions210,
+                                                    getAttributeAssignActions212,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignActions")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignActions"));
@@ -11957,12 +11969,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetAttributeAssignActions
-                    * @param getAttributeAssignActions210
+                    * @param getAttributeAssignActions212
                 
                 */
                 public  void startgetAttributeAssignActions(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActions getAttributeAssignActions210,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActions getAttributeAssignActions212,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -11987,7 +11999,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAttributeAssignActions210,
+                                                    getAttributeAssignActions212,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignActions")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignActions"));
@@ -12103,7 +12115,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#acknowledge
-                     * @param acknowledge212
+                     * @param acknowledge214
                     
                      */
 
@@ -12111,7 +12123,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AcknowledgeResponse acknowledge(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.Acknowledge acknowledge212)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.Acknowledge acknowledge214)
                         
 
                     throws java.rmi.RemoteException
@@ -12138,7 +12150,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    acknowledge212,
+                                                    acknowledge214,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "acknowledge")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "acknowledge"));
@@ -12224,12 +12236,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startacknowledge
-                    * @param acknowledge212
+                    * @param acknowledge214
                 
                 */
                 public  void startacknowledge(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.Acknowledge acknowledge212,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.Acknowledge acknowledge214,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -12254,7 +12266,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    acknowledge212,
+                                                    acknowledge214,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "acknowledge")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "acknowledge"));
@@ -12370,7 +12382,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#stemDelete
-                     * @param stemDelete214
+                     * @param stemDelete216
                     
                      */
 
@@ -12378,7 +12390,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDeleteResponse stemDelete(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDelete stemDelete214)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDelete stemDelete216)
                         
 
                     throws java.rmi.RemoteException
@@ -12405,7 +12417,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    stemDelete214,
+                                                    stemDelete216,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemDelete"));
@@ -12491,12 +12503,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startstemDelete
-                    * @param stemDelete214
+                    * @param stemDelete216
                 
                 */
                 public  void startstemDelete(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDelete stemDelete214,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDelete stemDelete216,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -12521,7 +12533,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    stemDelete214,
+                                                    stemDelete216,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemDelete"));
@@ -12637,7 +12649,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignAttributeDefNameInheritance
-                     * @param assignAttributeDefNameInheritance216
+                     * @param assignAttributeDefNameInheritance218
                     
                      */
 
@@ -12645,7 +12657,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceResponse assignAttributeDefNameInheritance(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritance assignAttributeDefNameInheritance216)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritance assignAttributeDefNameInheritance218)
                         
 
                     throws java.rmi.RemoteException
@@ -12672,7 +12684,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributeDefNameInheritance216,
+                                                    assignAttributeDefNameInheritance218,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefNameInheritance")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefNameInheritance"));
@@ -12758,12 +12770,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignAttributeDefNameInheritance
-                    * @param assignAttributeDefNameInheritance216
+                    * @param assignAttributeDefNameInheritance218
                 
                 */
                 public  void startassignAttributeDefNameInheritance(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritance assignAttributeDefNameInheritance216,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritance assignAttributeDefNameInheritance218,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -12788,7 +12800,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributeDefNameInheritance216,
+                                                    assignAttributeDefNameInheritance218,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefNameInheritance")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefNameInheritance"));
@@ -12904,7 +12916,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getAttributeAssignActionsLite
-                     * @param getAttributeAssignActionsLite218
+                     * @param getAttributeAssignActionsLite220
                     
                      */
 
@@ -12912,7 +12924,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActionsLiteResponse getAttributeAssignActionsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActionsLite getAttributeAssignActionsLite218)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActionsLite getAttributeAssignActionsLite220)
                         
 
                     throws java.rmi.RemoteException
@@ -12939,7 +12951,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAttributeAssignActionsLite218,
+                                                    getAttributeAssignActionsLite220,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignActionsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignActionsLite"));
@@ -13025,12 +13037,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetAttributeAssignActionsLite
-                    * @param getAttributeAssignActionsLite218
+                    * @param getAttributeAssignActionsLite220
                 
                 */
                 public  void startgetAttributeAssignActionsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActionsLite getAttributeAssignActionsLite218,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActionsLite getAttributeAssignActionsLite220,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -13055,7 +13067,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAttributeAssignActionsLite218,
+                                                    getAttributeAssignActionsLite220,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignActionsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignActionsLite"));
@@ -13171,7 +13183,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findAttributeDefsLite
-                     * @param findAttributeDefsLite220
+                     * @param findAttributeDefsLite222
                     
                      */
 
@@ -13179,7 +13191,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefsLiteResponse findAttributeDefsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefsLite findAttributeDefsLite220)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefsLite findAttributeDefsLite222)
                         
 
                     throws java.rmi.RemoteException
@@ -13206,7 +13218,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findAttributeDefsLite220,
+                                                    findAttributeDefsLite222,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefsLite"));
@@ -13292,12 +13304,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindAttributeDefsLite
-                    * @param findAttributeDefsLite220
+                    * @param findAttributeDefsLite222
                 
                 */
                 public  void startfindAttributeDefsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefsLite findAttributeDefsLite220,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefsLite findAttributeDefsLite222,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -13322,7 +13334,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findAttributeDefsLite220,
+                                                    findAttributeDefsLite222,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findAttributeDefsLite"));
@@ -13438,7 +13450,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#attributeDefSave
-                     * @param attributeDefSave222
+                     * @param attributeDefSave224
                     
                      */
 
@@ -13446,7 +13458,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSaveResponse attributeDefSave(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSave attributeDefSave222)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSave attributeDefSave224)
                         
 
                     throws java.rmi.RemoteException
@@ -13473,7 +13485,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefSave222,
+                                                    attributeDefSave224,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefSave"));
@@ -13559,12 +13571,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startattributeDefSave
-                    * @param attributeDefSave222
+                    * @param attributeDefSave224
                 
                 */
                 public  void startattributeDefSave(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSave attributeDefSave222,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefSave attributeDefSave224,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -13589,7 +13601,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefSave222,
+                                                    attributeDefSave224,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefSave"));
@@ -13705,7 +13717,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getSubjects
-                     * @param getSubjects224
+                     * @param getSubjects226
                     
                      */
 
@@ -13713,7 +13725,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsResponse getSubjects(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjects getSubjects224)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjects getSubjects226)
                         
 
                     throws java.rmi.RemoteException
@@ -13740,7 +13752,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getSubjects224,
+                                                    getSubjects226,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getSubjects")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getSubjects"));
@@ -13826,12 +13838,12 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetSubjects
-                    * @param getSubjects224
+                    * @param getSubjects226
                 
                 */
                 public  void startgetSubjects(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjects getSubjects224,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjects getSubjects226,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -13856,7 +13868,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getSubjects224,
+                                                    getSubjects226,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getSubjects")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getSubjects"));
@@ -13971,16 +13983,16 @@
                     /**
                      * Auto generated method signature
                      * 
-                     * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#groupDeleteLite
-                     * @param groupDeleteLite226
+                     * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getAuditEntries
+                     * @param getAuditEntries228
                     
                      */
 
                     
 
-                            public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteLiteResponse groupDeleteLite(
+                            public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse getAuditEntries(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteLite groupDeleteLite226)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries getAuditEntries228)
                         
 
                     throws java.rmi.RemoteException
@@ -13989,6 +14001,273 @@
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
                org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[49].getName());
+              _operationClient.getOptions().setAction("urn:getAuditEntries");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+              
+                  addPropertyToOperationClient(_operationClient,org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,"&");
+              
+
+              // create a message context
+              _messageContext = new org.apache.axis2.context.MessageContext();
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    getAuditEntries228,
+                                                    optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
+                                                    "getAuditEntries")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
+                                                    "getAuditEntries"));
+                                                
+        //adding SOAP soap_headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // set the message context with that soap envelope
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                                java.lang.Object object = fromOM(
+                                             _returnEnv.getBody().getFirstElement() ,
+                                             edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse.class,
+                                              getEnvelopeNamespaces(_returnEnv));
+
+                               
+                                        return (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse)object;
+                                   
+         }catch(org.apache.axis2.AxisFault f){
+
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"getAuditEntries"))){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"getAuditEntries"));
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"getAuditEntries"));
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+            } finally {
+                if (_messageContext.getTransportOut() != null) {
+                      _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                }
+            }
+        }
+            
+                /**
+                * Auto generated method signature for Asynchronous Invocations
+                * 
+                * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetAuditEntries
+                    * @param getAuditEntries228
+                
+                */
+                public  void startgetAuditEntries(
+
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries getAuditEntries228,
+
+                  final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
+
+                throws java.rmi.RemoteException{
+
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[49].getName());
+             _operationClient.getOptions().setAction("urn:getAuditEntries");
+             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+              
+                  addPropertyToOperationClient(_operationClient,org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,"&");
+              
+
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env=null;
+              final org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext();
+
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    getAuditEntries228,
+                                                    optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
+                                                    "getAuditEntries")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
+                                                    "getAuditEntries"));
+                                                
+        // adding SOAP soap_headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        _messageContext.setEnvelope(env);
+
+        // add the message context to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+
+                    
+                        _operationClient.setCallback(new org.apache.axis2.client.async.AxisCallback() {
+                            public void onMessage(org.apache.axis2.context.MessageContext resultContext) {
+                            try {
+                                org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
+                                
+                                        java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
+                                                                         edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse.class,
+                                                                         getEnvelopeNamespaces(resultEnv));
+                                        callback.receiveResultgetAuditEntries(
+                                        (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse)object);
+                                        
+                            } catch (org.apache.axis2.AxisFault e) {
+                                callback.receiveErrorgetAuditEntries(e);
+                            }
+                            }
+
+                            public void onError(java.lang.Exception error) {
+								if (error instanceof org.apache.axis2.AxisFault) {
+									org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
+									org.apache.axiom.om.OMElement faultElt = f.getDetail();
+									if (faultElt!=null){
+										if (faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"getAuditEntries"))){
+											//make the fault by reflection
+											try{
+													java.lang.String exceptionClassName = (java.lang.String)faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"getAuditEntries"));
+													java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+													java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
+													//message class
+													java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),"getAuditEntries"));
+														java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+													java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+													java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+															new java.lang.Class[]{messageClass});
+													m.invoke(ex,new java.lang.Object[]{messageObject});
+													
+					
+										            callback.receiveErrorgetAuditEntries(new java.rmi.RemoteException(ex.getMessage(), ex));
+                                            } catch(java.lang.ClassCastException e){
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorgetAuditEntries(f);
+                                            } catch (java.lang.ClassNotFoundException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorgetAuditEntries(f);
+                                            } catch (java.lang.NoSuchMethodException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorgetAuditEntries(f);
+                                            } catch (java.lang.reflect.InvocationTargetException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorgetAuditEntries(f);
+                                            } catch (java.lang.IllegalAccessException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorgetAuditEntries(f);
+                                            } catch (java.lang.InstantiationException e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorgetAuditEntries(f);
+                                            } catch (org.apache.axis2.AxisFault e) {
+                                                // we cannot intantiate the class - throw the original Axis fault
+                                                callback.receiveErrorgetAuditEntries(f);
+                                            }
+									    } else {
+										    callback.receiveErrorgetAuditEntries(f);
+									    }
+									} else {
+									    callback.receiveErrorgetAuditEntries(f);
+									}
+								} else {
+								    callback.receiveErrorgetAuditEntries(error);
+								}
+                            }
+
+                            public void onFault(org.apache.axis2.context.MessageContext faultContext) {
+                                org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
+                                onError(fault);
+                            }
+
+                            public void onComplete() {
+                                try {
+                                    _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                                } catch (org.apache.axis2.AxisFault axisFault) {
+                                    callback.receiveErrorgetAuditEntries(axisFault);
+                                }
+                            }
+                });
+                        
+
+          org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
+        if ( _operations[49].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+           _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
+          _operations[49].setMessageReceiver(
+                    _callbackReceiver);
+        }
+
+           //execute the operation client
+           _operationClient.execute(false);
+
+                    }
+                
+                    /**
+                     * Auto generated method signature
+                     * 
+                     * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#groupDeleteLite
+                     * @param groupDeleteLite230
+                    
+                     */
+
+                    
+
+                            public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteLiteResponse groupDeleteLite(
+
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteLite groupDeleteLite230)
+                        
+
+                    throws java.rmi.RemoteException
+                    
+                    {
+              org.apache.axis2.context.MessageContext _messageContext = null;
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[50].getName());
               _operationClient.getOptions().setAction("urn:groupDeleteLite");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -14007,7 +14286,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    groupDeleteLite226,
+                                                    groupDeleteLite230,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupDeleteLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupDeleteLite"));
@@ -14093,18 +14372,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgroupDeleteLite
-                    * @param groupDeleteLite226
+                    * @param groupDeleteLite230
                 
                 */
                 public  void startgroupDeleteLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteLite groupDeleteLite226,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteLite groupDeleteLite230,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[49].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[50].getName());
              _operationClient.getOptions().setAction("urn:groupDeleteLite");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -14123,7 +14402,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    groupDeleteLite226,
+                                                    groupDeleteLite230,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupDeleteLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupDeleteLite"));
@@ -14224,9 +14503,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[49].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[50].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[49].setMessageReceiver(
+          _operations[50].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -14239,7 +14518,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getMemberships
-                     * @param getMemberships228
+                     * @param getMemberships232
                     
                      */
 
@@ -14247,7 +14526,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembershipsResponse getMemberships(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMemberships getMemberships228)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMemberships getMemberships232)
                         
 
                     throws java.rmi.RemoteException
@@ -14255,7 +14534,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[50].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[51].getName());
               _operationClient.getOptions().setAction("urn:getMemberships");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -14274,7 +14553,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getMemberships228,
+                                                    getMemberships232,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMemberships")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMemberships"));
@@ -14360,18 +14639,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetMemberships
-                    * @param getMemberships228
+                    * @param getMemberships232
                 
                 */
                 public  void startgetMemberships(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMemberships getMemberships228,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMemberships getMemberships232,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[50].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[51].getName());
              _operationClient.getOptions().setAction("urn:getMemberships");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -14390,7 +14669,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getMemberships228,
+                                                    getMemberships232,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMemberships")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getMemberships"));
@@ -14491,9 +14770,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[50].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[51].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[50].setMessageReceiver(
+          _operations[51].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -14506,7 +14785,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#attributeDefNameDelete
-                     * @param attributeDefNameDelete230
+                     * @param attributeDefNameDelete234
                     
                      */
 
@@ -14514,7 +14793,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDeleteResponse attributeDefNameDelete(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDelete attributeDefNameDelete230)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDelete attributeDefNameDelete234)
                         
 
                     throws java.rmi.RemoteException
@@ -14522,7 +14801,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[51].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[52].getName());
               _operationClient.getOptions().setAction("urn:attributeDefNameDelete");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -14541,7 +14820,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefNameDelete230,
+                                                    attributeDefNameDelete234,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameDelete"));
@@ -14627,18 +14906,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startattributeDefNameDelete
-                    * @param attributeDefNameDelete230
+                    * @param attributeDefNameDelete234
                 
                 */
                 public  void startattributeDefNameDelete(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDelete attributeDefNameDelete230,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDelete attributeDefNameDelete234,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[51].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[52].getName());
              _operationClient.getOptions().setAction("urn:attributeDefNameDelete");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -14657,7 +14936,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefNameDelete230,
+                                                    attributeDefNameDelete234,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameDelete"));
@@ -14758,9 +15037,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[51].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[52].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[51].setMessageReceiver(
+          _operations[52].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -14773,7 +15052,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findGroups
-                     * @param findGroups232
+                     * @param findGroups236
                     
                      */
 
@@ -14781,7 +15060,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroupsResponse findGroups(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroups findGroups232)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroups findGroups236)
                         
 
                     throws java.rmi.RemoteException
@@ -14789,7 +15068,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[52].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[53].getName());
               _operationClient.getOptions().setAction("urn:findGroups");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -14808,7 +15087,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findGroups232,
+                                                    findGroups236,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findGroups")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findGroups"));
@@ -14894,18 +15173,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindGroups
-                    * @param findGroups232
+                    * @param findGroups236
                 
                 */
                 public  void startfindGroups(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroups findGroups232,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindGroups findGroups236,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[52].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[53].getName());
              _operationClient.getOptions().setAction("urn:findGroups");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -14924,7 +15203,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findGroups232,
+                                                    findGroups236,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findGroups")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findGroups"));
@@ -15025,9 +15304,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[52].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[53].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[52].setMessageReceiver(
+          _operations[53].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -15040,7 +15319,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#addMemberLite
-                     * @param addMemberLite234
+                     * @param addMemberLite238
                     
                      */
 
@@ -15048,7 +15327,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMemberLiteResponse addMemberLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMemberLite addMemberLite234)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMemberLite addMemberLite238)
                         
 
                     throws java.rmi.RemoteException
@@ -15056,7 +15335,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[53].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[54].getName());
               _operationClient.getOptions().setAction("urn:addMemberLite");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -15075,7 +15354,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    addMemberLite234,
+                                                    addMemberLite238,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "addMemberLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "addMemberLite"));
@@ -15161,18 +15440,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startaddMemberLite
-                    * @param addMemberLite234
+                    * @param addMemberLite238
                 
                 */
                 public  void startaddMemberLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMemberLite addMemberLite234,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AddMemberLite addMemberLite238,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[53].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[54].getName());
              _operationClient.getOptions().setAction("urn:addMemberLite");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -15191,7 +15470,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    addMemberLite234,
+                                                    addMemberLite238,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "addMemberLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "addMemberLite"));
@@ -15292,9 +15571,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[53].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[54].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[53].setMessageReceiver(
+          _operations[54].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -15307,7 +15586,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignAttributes
-                     * @param assignAttributes236
+                     * @param assignAttributes240
                     
                      */
 
@@ -15315,7 +15594,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesResponse assignAttributes(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributes assignAttributes236)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributes assignAttributes240)
                         
 
                     throws java.rmi.RemoteException
@@ -15323,7 +15602,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[54].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[55].getName());
               _operationClient.getOptions().setAction("urn:assignAttributes");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -15342,7 +15621,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributes236,
+                                                    assignAttributes240,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributes")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributes"));
@@ -15428,18 +15707,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignAttributes
-                    * @param assignAttributes236
+                    * @param assignAttributes240
                 
                 */
                 public  void startassignAttributes(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributes assignAttributes236,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributes assignAttributes240,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[54].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[55].getName());
              _operationClient.getOptions().setAction("urn:assignAttributes");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -15458,7 +15737,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributes236,
+                                                    assignAttributes240,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributes")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributes"));
@@ -15559,9 +15838,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[54].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[55].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[54].setMessageReceiver(
+          _operations[55].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -15574,7 +15853,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#attributeDefDelete
-                     * @param attributeDefDelete238
+                     * @param attributeDefDelete242
                     
                      */
 
@@ -15582,7 +15861,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDeleteResponse attributeDefDelete(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDelete attributeDefDelete238)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDelete attributeDefDelete242)
                         
 
                     throws java.rmi.RemoteException
@@ -15590,7 +15869,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[55].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[56].getName());
               _operationClient.getOptions().setAction("urn:attributeDefDelete");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -15609,7 +15888,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefDelete238,
+                                                    attributeDefDelete242,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefDelete"));
@@ -15695,18 +15974,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startattributeDefDelete
-                    * @param attributeDefDelete238
+                    * @param attributeDefDelete242
                 
                 */
                 public  void startattributeDefDelete(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDelete attributeDefDelete238,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefDelete attributeDefDelete242,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[55].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[56].getName());
              _operationClient.getOptions().setAction("urn:attributeDefDelete");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -15725,7 +16004,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefDelete238,
+                                                    attributeDefDelete242,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefDelete"));
@@ -15826,9 +16105,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[55].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[56].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[55].setMessageReceiver(
+          _operations[56].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -15841,7 +16120,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#stemDeleteLite
-                     * @param stemDeleteLite240
+                     * @param stemDeleteLite244
                     
                      */
 
@@ -15849,7 +16128,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDeleteLiteResponse stemDeleteLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDeleteLite stemDeleteLite240)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDeleteLite stemDeleteLite244)
                         
 
                     throws java.rmi.RemoteException
@@ -15857,7 +16136,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[56].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[57].getName());
               _operationClient.getOptions().setAction("urn:stemDeleteLite");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -15876,7 +16155,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    stemDeleteLite240,
+                                                    stemDeleteLite244,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemDeleteLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemDeleteLite"));
@@ -15962,18 +16241,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startstemDeleteLite
-                    * @param stemDeleteLite240
+                    * @param stemDeleteLite244
                 
                 */
                 public  void startstemDeleteLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDeleteLite stemDeleteLite240,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemDeleteLite stemDeleteLite244,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[56].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[57].getName());
              _operationClient.getOptions().setAction("urn:stemDeleteLite");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -15992,7 +16271,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    stemDeleteLite240,
+                                                    stemDeleteLite244,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemDeleteLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "stemDeleteLite"));
@@ -16093,9 +16372,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[56].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[57].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[56].setMessageReceiver(
+          _operations[57].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -16108,7 +16387,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#externalSubjectSave
-                     * @param externalSubjectSave242
+                     * @param externalSubjectSave246
                     
                      */
 
@@ -16116,7 +16395,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectSaveResponse externalSubjectSave(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectSave externalSubjectSave242)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectSave externalSubjectSave246)
                         
 
                     throws java.rmi.RemoteException
@@ -16124,7 +16403,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[57].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[58].getName());
               _operationClient.getOptions().setAction("urn:externalSubjectSave");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -16143,7 +16422,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    externalSubjectSave242,
+                                                    externalSubjectSave246,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "externalSubjectSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "externalSubjectSave"));
@@ -16229,18 +16508,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startexternalSubjectSave
-                    * @param externalSubjectSave242
+                    * @param externalSubjectSave246
                 
                 */
                 public  void startexternalSubjectSave(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectSave externalSubjectSave242,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectSave externalSubjectSave246,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[57].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[58].getName());
              _operationClient.getOptions().setAction("urn:externalSubjectSave");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -16259,7 +16538,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    externalSubjectSave242,
+                                                    externalSubjectSave246,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "externalSubjectSave")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "externalSubjectSave"));
@@ -16360,9 +16639,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[57].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[58].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[57].setMessageReceiver(
+          _operations[58].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -16375,7 +16654,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findStemsLite
-                     * @param findStemsLite244
+                     * @param findStemsLite248
                     
                      */
 
@@ -16383,7 +16662,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStemsLiteResponse findStemsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStemsLite findStemsLite244)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStemsLite findStemsLite248)
                         
 
                     throws java.rmi.RemoteException
@@ -16391,7 +16670,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[58].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[59].getName());
               _operationClient.getOptions().setAction("urn:findStemsLite");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -16410,7 +16689,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findStemsLite244,
+                                                    findStemsLite248,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findStemsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findStemsLite"));
@@ -16496,18 +16775,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindStemsLite
-                    * @param findStemsLite244
+                    * @param findStemsLite248
                 
                 */
                 public  void startfindStemsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStemsLite findStemsLite244,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindStemsLite findStemsLite248,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[58].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[59].getName());
              _operationClient.getOptions().setAction("urn:findStemsLite");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -16526,7 +16805,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findStemsLite244,
+                                                    findStemsLite248,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findStemsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findStemsLite"));
@@ -16627,9 +16906,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[58].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[59].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[58].setMessageReceiver(
+          _operations[59].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -16642,7 +16921,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#getAttributeAssignmentsLite
-                     * @param getAttributeAssignmentsLite246
+                     * @param getAttributeAssignmentsLite250
                     
                      */
 
@@ -16650,7 +16929,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignmentsLiteResponse getAttributeAssignmentsLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignmentsLite getAttributeAssignmentsLite246)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignmentsLite getAttributeAssignmentsLite250)
                         
 
                     throws java.rmi.RemoteException
@@ -16658,7 +16937,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[59].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[60].getName());
               _operationClient.getOptions().setAction("urn:getAttributeAssignmentsLite");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -16677,7 +16956,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAttributeAssignmentsLite246,
+                                                    getAttributeAssignmentsLite250,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignmentsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignmentsLite"));
@@ -16763,18 +17042,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgetAttributeAssignmentsLite
-                    * @param getAttributeAssignmentsLite246
+                    * @param getAttributeAssignmentsLite250
                 
                 */
                 public  void startgetAttributeAssignmentsLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignmentsLite getAttributeAssignmentsLite246,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignmentsLite getAttributeAssignmentsLite250,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[59].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[60].getName());
              _operationClient.getOptions().setAction("urn:getAttributeAssignmentsLite");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -16793,7 +17072,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    getAttributeAssignmentsLite246,
+                                                    getAttributeAssignmentsLite250,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignmentsLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "getAttributeAssignmentsLite"));
@@ -16894,9 +17173,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[59].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[60].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[59].setMessageReceiver(
+          _operations[60].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -16909,7 +17188,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#attributeDefNameDeleteLite
-                     * @param attributeDefNameDeleteLite248
+                     * @param attributeDefNameDeleteLite252
                     
                      */
 
@@ -16917,7 +17196,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDeleteLiteResponse attributeDefNameDeleteLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDeleteLite attributeDefNameDeleteLite248)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDeleteLite attributeDefNameDeleteLite252)
                         
 
                     throws java.rmi.RemoteException
@@ -16925,7 +17204,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[60].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[61].getName());
               _operationClient.getOptions().setAction("urn:attributeDefNameDeleteLite");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -16944,7 +17223,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefNameDeleteLite248,
+                                                    attributeDefNameDeleteLite252,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameDeleteLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameDeleteLite"));
@@ -17030,18 +17309,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startattributeDefNameDeleteLite
-                    * @param attributeDefNameDeleteLite248
+                    * @param attributeDefNameDeleteLite252
                 
                 */
                 public  void startattributeDefNameDeleteLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDeleteLite attributeDefNameDeleteLite248,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AttributeDefNameDeleteLite attributeDefNameDeleteLite252,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[60].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[61].getName());
              _operationClient.getOptions().setAction("urn:attributeDefNameDeleteLite");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -17060,7 +17339,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    attributeDefNameDeleteLite248,
+                                                    attributeDefNameDeleteLite252,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameDeleteLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "attributeDefNameDeleteLite"));
@@ -17161,9 +17440,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[60].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[61].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[60].setMessageReceiver(
+          _operations[61].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -17176,7 +17455,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#groupDelete
-                     * @param groupDelete250
+                     * @param groupDelete254
                     
                      */
 
@@ -17184,7 +17463,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteResponse groupDelete(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDelete groupDelete250)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDelete groupDelete254)
                         
 
                     throws java.rmi.RemoteException
@@ -17192,7 +17471,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[61].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[62].getName());
               _operationClient.getOptions().setAction("urn:groupDelete");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -17211,7 +17490,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    groupDelete250,
+                                                    groupDelete254,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupDelete"));
@@ -17297,18 +17576,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startgroupDelete
-                    * @param groupDelete250
+                    * @param groupDelete254
                 
                 */
                 public  void startgroupDelete(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDelete groupDelete250,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDelete groupDelete254,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[61].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[62].getName());
              _operationClient.getOptions().setAction("urn:groupDelete");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -17327,7 +17606,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    groupDelete250,
+                                                    groupDelete254,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupDelete")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "groupDelete"));
@@ -17428,9 +17707,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[61].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[62].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[61].setMessageReceiver(
+          _operations[62].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -17443,7 +17722,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#assignAttributeDefNameInheritanceLite
-                     * @param assignAttributeDefNameInheritanceLite252
+                     * @param assignAttributeDefNameInheritanceLite256
                     
                      */
 
@@ -17451,7 +17730,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLiteResponse assignAttributeDefNameInheritanceLite(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLite assignAttributeDefNameInheritanceLite252)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLite assignAttributeDefNameInheritanceLite256)
                         
 
                     throws java.rmi.RemoteException
@@ -17459,7 +17738,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[62].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[63].getName());
               _operationClient.getOptions().setAction("urn:assignAttributeDefNameInheritanceLite");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -17478,7 +17757,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributeDefNameInheritanceLite252,
+                                                    assignAttributeDefNameInheritanceLite256,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefNameInheritanceLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefNameInheritanceLite"));
@@ -17564,18 +17843,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startassignAttributeDefNameInheritanceLite
-                    * @param assignAttributeDefNameInheritanceLite252
+                    * @param assignAttributeDefNameInheritanceLite256
                 
                 */
                 public  void startassignAttributeDefNameInheritanceLite(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLite assignAttributeDefNameInheritanceLite252,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLite assignAttributeDefNameInheritanceLite256,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[62].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[63].getName());
              _operationClient.getOptions().setAction("urn:assignAttributeDefNameInheritanceLite");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -17594,7 +17873,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    assignAttributeDefNameInheritanceLite252,
+                                                    assignAttributeDefNameInheritanceLite256,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefNameInheritanceLite")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "assignAttributeDefNameInheritanceLite"));
@@ -17695,9 +17974,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[62].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[63].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[62].setMessageReceiver(
+          _operations[63].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -17710,7 +17989,7 @@
                      * Auto generated method signature
                      * 
                      * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#findExternalSubjects
-                     * @param findExternalSubjects254
+                     * @param findExternalSubjects258
                     
                      */
 
@@ -17718,7 +17997,7 @@
 
                             public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindExternalSubjectsResponse findExternalSubjects(
 
-                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindExternalSubjects findExternalSubjects254)
+                            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindExternalSubjects findExternalSubjects258)
                         
 
                     throws java.rmi.RemoteException
@@ -17726,7 +18005,7 @@
                     {
               org.apache.axis2.context.MessageContext _messageContext = null;
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[63].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[64].getName());
               _operationClient.getOptions().setAction("urn:findExternalSubjects");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -17745,7 +18024,7 @@
                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findExternalSubjects254,
+                                                    findExternalSubjects258,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findExternalSubjects")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findExternalSubjects"));
@@ -17831,18 +18110,18 @@
                 * Auto generated method signature for Asynchronous Invocations
                 * 
                 * @see edu.internet2.middleware.grouper.webservicesClient.GrouperService#startfindExternalSubjects
-                    * @param findExternalSubjects254
+                    * @param findExternalSubjects258
                 
                 */
                 public  void startfindExternalSubjects(
 
-                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindExternalSubjects findExternalSubjects254,
+                 edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindExternalSubjects findExternalSubjects258,
 
                   final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
                 throws java.rmi.RemoteException{
 
-              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[63].getName());
+              org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[64].getName());
              _operationClient.getOptions().setAction("urn:findExternalSubjects");
              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -17861,7 +18140,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    findExternalSubjects254,
+                                                    findExternalSubjects258,
                                                     optimizeContent(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findExternalSubjects")), new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu",
                                                     "findExternalSubjects"));
@@ -17962,9 +18241,9 @@
                         
 
           org.apache.axis2.util.CallbackReceiver _callbackReceiver = null;
-        if ( _operations[63].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
+        if ( _operations[64].getMessageReceiver()==null &&  _operationClient.getOptions().isUseSeparateListener()) {
            _callbackReceiver = new org.apache.axis2.util.CallbackReceiver();
-          _operations[63].setMessageReceiver(
+          _operations[64].setMessageReceiver(
                     _callbackReceiver);
         }
 
@@ -19013,34 +19292,6 @@
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite param, boolean optimizeContent)
-            throws org.apache.axis2.AxisFault {
-
-            
-                        try{
-                             return param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite.MY_QNAME,
-                                          org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                        } catch(org.apache.axis2.databinding.ADBException e){
-                            throw org.apache.axis2.AxisFault.makeFault(e);
-                        }
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse param, boolean optimizeContent)
-            throws org.apache.axis2.AxisFault {
-
-            
-                        try{
-                             return param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.MY_QNAME,
-                                          org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                        } catch(org.apache.axis2.databinding.ADBException e){
-                            throw org.apache.axis2.AxisFault.makeFault(e);
-                        }
-                    
-
-            }
-        
             private  org.apache.axiom.om.OMElement  toOM(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLite param, boolean optimizeContent)
             throws org.apache.axis2.AxisFault {
 
@@ -19061,6 +19312,34 @@
             
                         try{
                              return param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLiteResponse.MY_QNAME,
+                                          org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                        } catch(org.apache.axis2.databinding.ADBException e){
+                            throw org.apache.axis2.AxisFault.makeFault(e);
+                        }
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite param, boolean optimizeContent)
+            throws org.apache.axis2.AxisFault {
+
+            
+                        try{
+                             return param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite.MY_QNAME,
+                                          org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                        } catch(org.apache.axis2.databinding.ADBException e){
+                            throw org.apache.axis2.AxisFault.makeFault(e);
+                        }
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse param, boolean optimizeContent)
+            throws org.apache.axis2.AxisFault {
+
+            
+                        try{
+                             return param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.MY_QNAME,
                                           org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                         } catch(org.apache.axis2.databinding.ADBException e){
                             throw org.apache.axis2.AxisFault.makeFault(e);
@@ -19369,6 +19648,34 @@
             
                         try{
                              return param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsResponse.MY_QNAME,
+                                          org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                        } catch(org.apache.axis2.databinding.ADBException e){
+                            throw org.apache.axis2.AxisFault.makeFault(e);
+                        }
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries param, boolean optimizeContent)
+            throws org.apache.axis2.AxisFault {
+
+            
+                        try{
+                             return param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries.MY_QNAME,
+                                          org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                        } catch(org.apache.axis2.databinding.ADBException e){
+                            throw org.apache.axis2.AxisFault.makeFault(e);
+                        }
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse param, boolean optimizeContent)
+            throws org.apache.axis2.AxisFault {
+
+            
+                        try{
+                             return param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse.MY_QNAME,
                                           org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                         } catch(org.apache.axis2.databinding.ADBException e){
                             throw org.apache.axis2.AxisFault.makeFault(e);
@@ -20071,35 +20378,14 @@
 
                              
                                     
-                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
+                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
                                         throws org.apache.axis2.AxisFault{
 
                                              
                                                     try{
 
                                                             org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite.MY_QNAME,factory));
-                                                            return emptyEnvelope;
-                                                        } catch(org.apache.axis2.databinding.ADBException e){
-                                                            throw org.apache.axis2.AxisFault.makeFault(e);
-                                                        }
-                                                
-
-                                        }
-                                
-                             
-                             /* methods to provide back word compatibility */
-
-                             
-                                    
-                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
-                                        throws org.apache.axis2.AxisFault{
-
-                                             
-                                                    try{
-
-                                                            org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges.MY_QNAME,factory));
+                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave.MY_QNAME,factory));
                                                             return emptyEnvelope;
                                                         } catch(org.apache.axis2.databinding.ADBException e){
                                                             throw org.apache.axis2.AxisFault.makeFault(e);
@@ -20134,14 +20420,35 @@
 
                              
                                     
-                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
+                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
                                         throws org.apache.axis2.AxisFault{
 
                                              
                                                     try{
 
                                                             org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave.MY_QNAME,factory));
+                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges.MY_QNAME,factory));
+                                                            return emptyEnvelope;
+                                                        } catch(org.apache.axis2.databinding.ADBException e){
+                                                            throw org.apache.axis2.AxisFault.makeFault(e);
+                                                        }
+                                                
+
+                                        }
+                                
+                             
+                             /* methods to provide back word compatibility */
+
+                             
+                                    
+                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
+                                        throws org.apache.axis2.AxisFault{
+
+                                             
+                                                    try{
+
+                                                            org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite.MY_QNAME,factory));
                                                             return emptyEnvelope;
                                                         } catch(org.apache.axis2.databinding.ADBException e){
                                                             throw org.apache.axis2.AxisFault.makeFault(e);
@@ -20554,14 +20861,14 @@
 
                              
                                     
-                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
+                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLite param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
                                         throws org.apache.axis2.AxisFault{
 
                                              
                                                     try{
 
                                                             org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite.MY_QNAME,factory));
+                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLite.MY_QNAME,factory));
                                                             return emptyEnvelope;
                                                         } catch(org.apache.axis2.databinding.ADBException e){
                                                             throw org.apache.axis2.AxisFault.makeFault(e);
@@ -20575,14 +20882,14 @@
 
                              
                                     
-                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLite param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
+                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
                                         throws org.apache.axis2.AxisFault{
 
                                              
                                                     try{
 
                                                             org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLite.MY_QNAME,factory));
+                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite.MY_QNAME,factory));
                                                             return emptyEnvelope;
                                                         } catch(org.apache.axis2.databinding.ADBException e){
                                                             throw org.apache.axis2.AxisFault.makeFault(e);
@@ -20814,6 +21121,27 @@
 
                                                             org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                                                             emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjects.MY_QNAME,factory));
+                                                            return emptyEnvelope;
+                                                        } catch(org.apache.axis2.databinding.ADBException e){
+                                                            throw org.apache.axis2.AxisFault.makeFault(e);
+                                                        }
+                                                
+
+                                        }
+                                
+                             
+                             /* methods to provide back word compatibility */
+
+                             
+                                    
+                                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries param, boolean optimizeContent, javax.xml.namespace.QName methodQName)
+                                        throws org.apache.axis2.AxisFault{
+
+                                             
+                                                    try{
+
+                                                            org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                                                            emptyEnvelope.getBody().addChild(param.getOMElement(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries.MY_QNAME,factory));
                                                             return emptyEnvelope;
                                                         } catch(org.apache.axis2.databinding.ADBException e){
                                                             throw org.apache.axis2.AxisFault.makeFault(e);
@@ -21662,20 +21990,6 @@
 
                 }
            
-                if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite.class.equals(type)){
-                
-                           return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.class.equals(type)){
-                
-                           return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
                 if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLite.class.equals(type)){
                 
                            return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLite.Factory.parse(param.getXMLStreamReaderWithoutCaching());
@@ -21686,6 +22000,20 @@
                 if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLiteResponse.class.equals(type)){
                 
                            return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLiteResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite.class.equals(type)){
+                
+                           return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLite.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.class.equals(type)){
+                
+                           return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.StemSaveLiteResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
@@ -21840,6 +22168,20 @@
                 if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsResponse.class.equals(type)){
                 
                            return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetSubjectsResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries.class.equals(type)){
+                
+                           return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse.class.equals(type)){
+                
+                           return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }

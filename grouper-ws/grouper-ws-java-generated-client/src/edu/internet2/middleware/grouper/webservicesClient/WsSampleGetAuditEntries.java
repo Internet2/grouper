@@ -9,15 +9,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLiteResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse;
 import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetAuditEntriesResults;
 
-public class WsSampleGetAuditEntriesLite implements WsSampleGenerated {
+public class WsSampleGetAuditEntries implements WsSampleGenerated {
 
   @Override
   public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-    getAuditEntriesLite(WsSampleGeneratedType.soap);
+    getAuditEntries(WsSampleGeneratedType.soap);
   }
 
   
@@ -25,7 +25,7 @@ public class WsSampleGetAuditEntriesLite implements WsSampleGenerated {
   *
   * @param wsSampleGeneratedType can run as soap or xml/http
   */
- public static void getAuditEntriesLite(WsSampleGeneratedType wsSampleGeneratedType) {
+ public static void getAuditEntries(WsSampleGeneratedType wsSampleGeneratedType) {
    try {
      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
@@ -40,21 +40,20 @@ public class WsSampleGetAuditEntriesLite implements WsSampleGenerated {
      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
          new Integer(3600000));
 
-     GetAuditEntriesLite getAuditEntriesLite = null;
-     GetAuditEntriesLiteResponse getAuditEntriesLiteResponse = null;
+     GetAuditEntries getAuditEntries = null;
+     GetAuditEntriesResponse getAuditEntriesResponse = null;
      WsGetAuditEntriesResults wsGetAuditEntriesResult = null;
 
-     getAuditEntriesLite = GetAuditEntriesLite.class.newInstance();
+     getAuditEntries = GetAuditEntries.class.newInstance();
 
      //version, e.g. v1_3_000
-     getAuditEntriesLite.setClientVersion(GeneratedClientSettings.VERSION);
+     getAuditEntries.setClientVersion(GeneratedClientSettings.VERSION);
 
-     getAuditEntriesLite.setAuditType("group");
-     getAuditEntriesLite.setAuditActionId("addGroup");
+     getAuditEntries.setAuditType("group");
+     getAuditEntries.setAuditActionId("addGroup");
 
-
-     getAuditEntriesLiteResponse = stub.getAuditEntriesLite(getAuditEntriesLite);
-     wsGetAuditEntriesResult = getAuditEntriesLiteResponse.get_return();
+     getAuditEntriesResponse = stub.getAuditEntries(getAuditEntries);
+     wsGetAuditEntriesResult = getAuditEntriesResponse.get_return();
      System.out.println(ToStringBuilder.reflectionToString(
          wsGetAuditEntriesResult));
      System.out.println(ToStringBuilder.reflectionToString(
@@ -74,6 +73,6 @@ public class WsSampleGetAuditEntriesLite implements WsSampleGenerated {
   * @param args
   */
  public static void main(String[] args) {
-   getAuditEntriesLite(WsSampleGeneratedType.soap);
+   getAuditEntries(WsSampleGeneratedType.soap);
  } 
 }
