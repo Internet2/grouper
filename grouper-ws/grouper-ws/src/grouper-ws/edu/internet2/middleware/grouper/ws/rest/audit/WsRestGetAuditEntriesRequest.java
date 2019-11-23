@@ -9,33 +9,59 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
+/**
+ * 
+ * @author vsachdeva
+ *
+ */
 public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   
- /** field */
- private String clientVersion;
+  /** field */
+  private String clientVersion;
   
- /** field */
- private WsSubjectLookup actAsSubjectLookup;
+  /** field */
+  private WsSubjectLookup actAsSubjectLookup;
   
- private String auditType;
+  /**
+  * audit type
+  */
+  private String auditType;
   
- private String auditActionId;
+  /**
+   * audit action id
+   */
+  private String auditActionId;
  
- private String afterAuditEntryId;
+  /**
+  * audit entry id for pagination
+  */
+  private String afterAuditEntryId;
   
   
   /** field */
   private WsParam[] params;
   
-  /** wsGroupLookups if you want to just pass in a list of uuids and/or names. */
+  /** fetch audit entries for these groups */
   private WsGroupLookup[] wsOwnerGroupLookups;
   
+  /**
+   * fetch audit entries for these stems
+   */
   private WsStemLookup[] wsOwnerStemLookups;
   
+  /**
+   * fetch audit entries for these attribute defs
+   */
   private WsAttributeDefLookup[] wsOwnerAttributeDefLookups;
   
+  /**
+   * fetch audit entries for these attribute defs names
+   */
   private WsAttributeDefNameLookup[] wsOwnerAttributeDefNameLookups;
   
+  /**
+   * fetch audit entries for these subjects
+   */
   private WsSubjectLookup[] wsOwnerSubjectLookups;
   
   /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
@@ -66,198 +92,352 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
    */
   private String pointInTimeTo;
   
+  
 
+  /**
+   * @return the clientVersion
+   */
   public String getClientVersion() {
-    return clientVersion;
+    return this.clientVersion;
   }
 
 
 
-  public void setClientVersion(String clientVersion) {
-    this.clientVersion = clientVersion;
+  /**
+   * @param clientVersion1 the clientVersion to set
+   */
+  public void setClientVersion(String clientVersion1) {
+    this.clientVersion = clientVersion1;
   }
 
 
 
+
+
+  /**
+   * @return the actAsSubjectLookup
+   */
   public WsSubjectLookup getActAsSubjectLookup() {
-    return actAsSubjectLookup;
+    return this.actAsSubjectLookup;
+  }
+
+
+  /**
+   * @param actAsSubjectLookup1 the actAsSubjectLookup to set
+   */
+  public void setActAsSubjectLookup(WsSubjectLookup actAsSubjectLookup1) {
+    this.actAsSubjectLookup = actAsSubjectLookup1;
   }
 
 
 
-  public void setActAsSubjectLookup(WsSubjectLookup actAsSubjectLookup) {
-    this.actAsSubjectLookup = actAsSubjectLookup;
-  }
 
 
-
-  public WsParam[] getParams() {
-    return params;
-  }
-
-
-
-  public void setParams(WsParam[] params) {
-    this.params = params;
-  }
-
-
-
-  public WsGroupLookup[] getWsOwnerGroupLookups() {
-    return wsOwnerGroupLookups;
-  }
-
-
-
-  public void setWsOwnerGroupLookups(WsGroupLookup[] wsOwnerGroupLookups) {
-    this.wsOwnerGroupLookups = wsOwnerGroupLookups;
-  }
-
-
-
-  public WsStemLookup[] getWsOwnerStemLookups() {
-    return wsOwnerStemLookups;
-  }
-
-
-
-  public void setWsOwnerStemLookups(WsStemLookup[] wsOwnerStemLookups) {
-    this.wsOwnerStemLookups = wsOwnerStemLookups;
-  }
-
-
-
-  public WsAttributeDefLookup[] getWsOwnerAttributeDefLookups() {
-    return wsOwnerAttributeDefLookups;
-  }
-
-
-
-  public void setWsOwnerAttributeDefLookups(WsAttributeDefLookup[] wsOwnerAttributeDefLookups) {
-    this.wsOwnerAttributeDefLookups = wsOwnerAttributeDefLookups;
-  }
-
-
-
-  public WsAttributeDefNameLookup[] getWsOwnerAttributeDefNameLookups() {
-    return wsOwnerAttributeDefNameLookups;
-  }
-
-
-
-  public void setWsOwnerAttributeDefNameLookups(WsAttributeDefNameLookup[] wsOwnerAttributeDefNameLookups) {
-    this.wsOwnerAttributeDefNameLookups = wsOwnerAttributeDefNameLookups;
-  }
-
-
-
-  public WsSubjectLookup[] getWsOwnerSubjectLookups() {
-    return wsOwnerSubjectLookups;
-  }
-
-
-
-  public void setWsOwnerSubjectLookups(WsSubjectLookup[] wsOwnerSubjectLookups) {
-    this.wsOwnerSubjectLookups = wsOwnerSubjectLookups;
-  }
-
-  
-
+  /**
+   * @return the auditType
+   */
   public String getAuditType() {
-    return auditType;
+    return this.auditType;
   }
 
 
 
-  public void setAuditType(String auditType) {
-    this.auditType = auditType;
+
+
+  /**
+   * @param auditType1 the auditType to set
+   */
+  public void setAuditType(String auditType1) {
+    this.auditType = auditType1;
   }
 
 
 
+
+
+  /**
+   * @return the auditActionId
+   */
   public String getAuditActionId() {
-    return auditActionId;
+    return this.auditActionId;
   }
 
 
 
-  public void setAuditActionId(String auditActionId) {
-    this.auditActionId = auditActionId;
+
+
+  /**
+   * @param auditActionId1 the auditActionId to set
+   */
+  public void setAuditActionId(String auditActionId1) {
+    this.auditActionId = auditActionId1;
   }
 
 
 
-  public String getAscending() {
-    return ascending;
-  }
 
 
-
-  public void setAscending(String ascending) {
-    this.ascending = ascending;
-  }
-
-
-
-  public String getPageSize() {
-    return pageSize;
-  }
-
-
-
-  public void setPageSize(String pageSize) {
-    this.pageSize = pageSize;
-  }
-
-
-
-  public String getSortString() {
-    return sortString;
-  }
-
-
-
-  public void setSortString(String sortString) {
-    this.sortString = sortString;
-  }
-
-  
-  
-
-
-  public String getPointInTimeFrom() {
-    return pointInTimeFrom;
-  }
-
-
-
-  public void setPointInTimeFrom(String pointInTimeFrom) {
-    this.pointInTimeFrom = pointInTimeFrom;
-  }
-
-
-
-  public String getPointInTimeTo() {
-    return pointInTimeTo;
-  }
-
-
-
-  public void setPointInTimeTo(String pointInTimeTo) {
-    this.pointInTimeTo = pointInTimeTo;
-  }
-
-  
-
+  /**
+   * @return the afterAuditEntryId
+   */
   public String getAfterAuditEntryId() {
-    return afterAuditEntryId;
+    return this.afterAuditEntryId;
   }
 
 
 
-  public void setAfterAuditEntryId(String afterAuditEntryId) {
-    this.afterAuditEntryId = afterAuditEntryId;
+
+
+  /**
+   * @param afterAuditEntryId1 the afterAuditEntryId to set
+   */
+  public void setAfterAuditEntryId(String afterAuditEntryId1) {
+    this.afterAuditEntryId = afterAuditEntryId1;
   }
+
+
+
+
+
+  /**
+   * @return the params
+   */
+  public WsParam[] getParams() {
+    return this.params;
+  }
+
+
+
+
+
+  /**
+   * @param params1 the params to set
+   */
+  public void setParams(WsParam[] params1) {
+    this.params = params1;
+  }
+
+
+
+
+
+  /**
+   * @return the wsOwnerGroupLookups
+   */
+  public WsGroupLookup[] getWsOwnerGroupLookups() {
+    return this.wsOwnerGroupLookups;
+  }
+
+
+
+
+
+  /**
+   * @param wsOwnerGroupLookups1 the wsOwnerGroupLookups to set
+   */
+  public void setWsOwnerGroupLookups(WsGroupLookup[] wsOwnerGroupLookups1) {
+    this.wsOwnerGroupLookups = wsOwnerGroupLookups1;
+  }
+
+
+
+
+
+  /**
+   * @return the wsOwnerStemLookups
+   */
+  public WsStemLookup[] getWsOwnerStemLookups() {
+    return this.wsOwnerStemLookups;
+  }
+
+
+
+
+
+  /**
+   * @param wsOwnerStemLookups1 the wsOwnerStemLookups to set
+   */
+  public void setWsOwnerStemLookups(WsStemLookup[] wsOwnerStemLookups1) {
+    this.wsOwnerStemLookups = wsOwnerStemLookups1;
+  }
+
+
+
+
+
+  /**
+   * @return the wsOwnerAttributeDefLookups
+   */
+  public WsAttributeDefLookup[] getWsOwnerAttributeDefLookups() {
+    return this.wsOwnerAttributeDefLookups;
+  }
+
+
+
+
+
+  /**
+   * @param wsOwnerAttributeDefLookups1 the wsOwnerAttributeDefLookups to set
+   */
+  public void setWsOwnerAttributeDefLookups(WsAttributeDefLookup[] wsOwnerAttributeDefLookups1) {
+    this.wsOwnerAttributeDefLookups = wsOwnerAttributeDefLookups1;
+  }
+
+
+
+
+
+  /**
+   * @return the wsOwnerAttributeDefNameLookups
+   */
+  public WsAttributeDefNameLookup[] getWsOwnerAttributeDefNameLookups() {
+    return this.wsOwnerAttributeDefNameLookups;
+  }
+
+
+
+
+
+  /**
+   * @param wsOwnerAttributeDefNameLookups1 the wsOwnerAttributeDefNameLookups to set
+   */
+  public void setWsOwnerAttributeDefNameLookups(WsAttributeDefNameLookup[] wsOwnerAttributeDefNameLookups1) {
+    this.wsOwnerAttributeDefNameLookups = wsOwnerAttributeDefNameLookups1;
+  }
+
+
+
+
+
+  /**
+   * @return the wsOwnerSubjectLookups
+   */
+  public WsSubjectLookup[] getWsOwnerSubjectLookups() {
+    return this.wsOwnerSubjectLookups;
+  }
+
+
+
+
+
+  /**
+   * @param wsOwnerSubjectLookups1 the wsOwnerSubjectLookups to set
+   */
+  public void setWsOwnerSubjectLookups(WsSubjectLookup[] wsOwnerSubjectLookups1) {
+    this.wsOwnerSubjectLookups = wsOwnerSubjectLookups1;
+  }
+
+
+
+
+
+  /**
+   * @return the ascending
+   */
+  public String getAscending() {
+    return this.ascending;
+  }
+
+
+
+
+
+  /**
+   * @param ascending1 the ascending to set
+   */
+  public void setAscending(String ascending1) {
+    this.ascending = ascending1;
+  }
+
+
+
+
+
+  /**
+   * @return the pageSize
+   */
+  public String getPageSize() {
+    return this.pageSize;
+  }
+
+
+
+
+
+  /**
+   * @param pageSize1 the pageSize to set
+   */
+  public void setPageSize(String pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+
+
+
+
+  /**
+   * @return the sortString
+   */
+  public String getSortString() {
+    return this.sortString;
+  }
+
+
+
+
+
+  /**
+   * @param sortString1 the sortString to set
+   */
+  public void setSortString(String sortString1) {
+    this.sortString = sortString1;
+  }
+
+
+
+
+
+  /**
+   * @return the pointInTimeFrom
+   */
+  public String getPointInTimeFrom() {
+    return this.pointInTimeFrom;
+  }
+
+
+
+
+
+  /**
+   * @param pointInTimeFrom1 the pointInTimeFrom to set
+   */
+  public void setPointInTimeFrom(String pointInTimeFrom1) {
+    this.pointInTimeFrom = pointInTimeFrom1;
+  }
+
+
+
+
+
+  /**
+   * @return the pointInTimeTo
+   */
+  public String getPointInTimeTo() {
+    return this.pointInTimeTo;
+  }
+
+
+
+
+
+  /**
+   * @param pointInTimeTo1 the pointInTimeTo to set
+   */
+  public void setPointInTimeTo(String pointInTimeTo1) {
+    this.pointInTimeTo = pointInTimeTo1;
+  }
+
+
 
 
 

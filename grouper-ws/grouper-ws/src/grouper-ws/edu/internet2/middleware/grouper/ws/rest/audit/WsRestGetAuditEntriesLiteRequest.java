@@ -5,32 +5,74 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
 public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
   
+  /**
+   * audit type
+   */
   private String auditType;
   
+  /**
+   * audit action id
+   */
   private String auditActionId;
   
+  /**
+   * audit entry id for pagination
+   */
   private String afterAuditEntryId;
   
+  /**
+   * fetch audit entries for this group
+   */
   private String wsOwnerGroupName;
   
+  /**
+   * fetch audit entries for this group
+   */
   private String wsOwnerGroupId;
   
+  /**
+   * fetch audit entries for this stem
+   */
   private String wsOwnerStemName;
   
+  /**
+   * fetch audit entries for this stem
+   */
   private String wsOwnerStemId;
   
+  /**
+   * fetch audit entries for this attribute def id
+   */
   private String wsOwnerAttributeDefName;
   
+  /**
+   * fetch audit entries for this attribute def id
+   */
   private String wsOwnerAttributeDefId;
   
+  /**
+   * fetch audit entries for this attribute def name
+   */
   private String wsOwnerAttributeDefNameName;
     
+  /**
+   * fetch audit entries for this attribute def name
+   */
   private String wsOwnerAttributeDefNameId;
   
+  /**
+   * fetch audit entries for this subject
+   */
   private String wsOwnerSubjectId; 
   
+  /**
+   * fetch audit entries for this subject
+   */
   private String wsOwnerSubjectSourceId;
   
+  /**
+   * fetch audit entries for this subject
+   */
   private String wsOwnerSubjectIdentifier;
   
   /**
@@ -86,381 +128,508 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
   private String sortString;
   
   
+  
+  /**
+   * @return the auditType
+   */
   public String getAuditType() {
-    return auditType;
+    return this.auditType;
   }
 
 
 
-
-  public void setAuditType(String auditType) {
-    this.auditType = auditType;
+  /**
+   * @param auditType1 the auditType to set
+   */
+  public void setAuditType(String auditType1) {
+    this.auditType = auditType1;
   }
 
 
 
-
+  /**
+   * @return the auditActionId
+   */
   public String getAuditActionId() {
-    return auditActionId;
+    return this.auditActionId;
   }
 
 
 
-
-  public void setAuditActionId(String auditActionId) {
-    this.auditActionId = auditActionId;
+  /**
+   * @param auditActionId1 the auditActionId to set
+   */
+  public void setAuditActionId(String auditActionId1) {
+    this.auditActionId = auditActionId1;
   }
 
 
 
-
-  public String getWsOwnerGroupName() {
-    return wsOwnerGroupName;
-  }
-
-
-
-
-  public void setWsOwnerGroupName(String wsOwnerGroupName) {
-    this.wsOwnerGroupName = wsOwnerGroupName;
-  }
-
-
-
-
-  public String getWsOwnerGroupId() {
-    return wsOwnerGroupId;
-  }
-
-
-
-
-  public void setWsOwnerGroupId(String wsOwnerGroupId) {
-    this.wsOwnerGroupId = wsOwnerGroupId;
-  }
-
-
-
-
-  public String getWsOwnerStemName() {
-    return wsOwnerStemName;
-  }
-
-
-
-
-  public void setWsOwnerStemName(String wsOwnerStemName) {
-    this.wsOwnerStemName = wsOwnerStemName;
-  }
-
-
-
-
-  public String getWsOwnerStemId() {
-    return wsOwnerStemId;
-  }
-
-
-
-
-  public void setWsOwnerStemId(String wsOwnerStemId) {
-    this.wsOwnerStemId = wsOwnerStemId;
-  }
-
-
-
-
-  public String getWsOwnerAttributeDefName() {
-    return wsOwnerAttributeDefName;
-  }
-
-
-
-
-  public void setWsOwnerAttributeDefName(String wsOwnerAttributeDefName) {
-    this.wsOwnerAttributeDefName = wsOwnerAttributeDefName;
-  }
-
-
-
-
-  public String getWsOwnerAttributeDefId() {
-    return wsOwnerAttributeDefId;
-  }
-
-
-
-
-  public void setWsOwnerAttributeDefId(String wsOwnerAttributeDefId) {
-    this.wsOwnerAttributeDefId = wsOwnerAttributeDefId;
-  }
-
-
-
-
-  public String getWsOwnerAttributeDefNameName() {
-    return wsOwnerAttributeDefNameName;
-  }
-
-
-
-
-  public void setWsOwnerAttributeDefNameName(String wsOwnerAttributeDefNameName) {
-    this.wsOwnerAttributeDefNameName = wsOwnerAttributeDefNameName;
-  }
-
-
-
-
-  public String getWsOwnerAttributeDefNameId() {
-    return wsOwnerAttributeDefNameId;
-  }
-
-
-
-
-  public void setWsOwnerAttributeDefNameId(String wsOwnerAttributeDefNameId) {
-    this.wsOwnerAttributeDefNameId = wsOwnerAttributeDefNameId;
-  }
-
-
-
-
-  public String getWsOwnerSubjectId() {
-    return wsOwnerSubjectId;
-  }
-
-
-
-
-  public void setWsOwnerSubjectId(String wsOwnerSubjectId) {
-    this.wsOwnerSubjectId = wsOwnerSubjectId;
-  }
-
-
-
-
-  public String getWsOwnerSubjectSourceId() {
-    return wsOwnerSubjectSourceId;
-  }
-
-
-
-
-  public void setWsOwnerSubjectSourceId(String wsOwnerSubjectSourceId) {
-    this.wsOwnerSubjectSourceId = wsOwnerSubjectSourceId;
-  }
-
-
-
-
-  public String getWsOwnerSubjectIdentifier() {
-    return wsOwnerSubjectIdentifier;
-  }
-
-
-
-
-  public void setWsOwnerSubjectIdentifier(String wsOwnerSubjectIdentifier) {
-    this.wsOwnerSubjectIdentifier = wsOwnerSubjectIdentifier;
-  }
-
-
-
-
-  public String getPointInTimeFrom() {
-    return pointInTimeFrom;
-  }
-
-
-
-
-  public void setPointInTimeFrom(String pointInTimeFrom) {
-    this.pointInTimeFrom = pointInTimeFrom;
-  }
-
-
-
-
-  public String getPointInTimeTo() {
-    return pointInTimeTo;
-  }
-
-
-
-
-  public void setPointInTimeTo(String pointInTimeTo) {
-    this.pointInTimeTo = pointInTimeTo;
-  }
-
-
-
-
-  public String getClientVersion() {
-    return clientVersion;
-  }
-
-
-
-
-  public void setClientVersion(String clientVersion) {
-    this.clientVersion = clientVersion;
-  }
-
-
-
-
-  public String getActAsSubjectId() {
-    return actAsSubjectId;
-  }
-
-
-
-
-  public void setActAsSubjectId(String actAsSubjectId) {
-    this.actAsSubjectId = actAsSubjectId;
-  }
-
-
-
-
-  public String getActAsSubjectSourceId() {
-    return actAsSubjectSourceId;
-  }
-
-
-
-
-  public void setActAsSubjectSourceId(String actAsSubjectSourceId) {
-    this.actAsSubjectSourceId = actAsSubjectSourceId;
-  }
-
-
-
-
-  public String getActAsSubjectIdentifier() {
-    return actAsSubjectIdentifier;
-  }
-
-
-
-
-  public void setActAsSubjectIdentifier(String actAsSubjectIdentifier) {
-    this.actAsSubjectIdentifier = actAsSubjectIdentifier;
-  }
-
-
-
-
-  public String getIncludeGroupDetail() {
-    return includeGroupDetail;
-  }
-
-
-
-
-  public void setIncludeGroupDetail(String includeGroupDetail) {
-    this.includeGroupDetail = includeGroupDetail;
-  }
-
-
-
-
-  public String getParamName0() {
-    return paramName0;
-  }
-
-
-
-
-  public void setParamName0(String paramName0) {
-    this.paramName0 = paramName0;
-  }
-
-
-
-
-  public String getParamValue0() {
-    return paramValue0;
-  }
-
-
-
-
-  public void setParamValue0(String paramValue0) {
-    this.paramValue0 = paramValue0;
-  }
-
-
-
-
-  public String getParamName1() {
-    return paramName1;
-  }
-
-
-
-
-  public void setParamName1(String paramName1) {
-    this.paramName1 = paramName1;
-  }
-
-
-
-
-  public String getParamValue1() {
-    return paramValue1;
-  }
-
-
-
-
-  public void setParamValue1(String paramValue1) {
-    this.paramValue1 = paramValue1;
-  }
-
-
-
-
-  public String getAscending() {
-    return ascending;
-  }
-
-
-
-
-  public void setAscending(String ascending) {
-    this.ascending = ascending;
-  }
-
-
-
+  /**
+   * @return the afterAuditEntryId
+   */
   public String getAfterAuditEntryId() {
-    return afterAuditEntryId;
-  }
-
-  public void setAfterAuditEntryId(String afterAuditEntryId) {
-    this.afterAuditEntryId = afterAuditEntryId;
+    return this.afterAuditEntryId;
   }
 
 
+
+  /**
+   * @param afterAuditEntryId1 the afterAuditEntryId to set
+   */
+  public void setAfterAuditEntryId(String afterAuditEntryId1) {
+    this.afterAuditEntryId = afterAuditEntryId1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerGroupName
+   */
+  public String getWsOwnerGroupName() {
+    return this.wsOwnerGroupName;
+  }
+
+
+
+  /**
+   * @param wsOwnerGroupName1 the wsOwnerGroupName to set
+   */
+  public void setWsOwnerGroupName(String wsOwnerGroupName1) {
+    this.wsOwnerGroupName = wsOwnerGroupName1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerGroupId
+   */
+  public String getWsOwnerGroupId() {
+    return this.wsOwnerGroupId;
+  }
+
+
+
+  /**
+   * @param wsOwnerGroupId1 the wsOwnerGroupId to set
+   */
+  public void setWsOwnerGroupId(String wsOwnerGroupId1) {
+    this.wsOwnerGroupId = wsOwnerGroupId1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerStemName
+   */
+  public String getWsOwnerStemName() {
+    return this.wsOwnerStemName;
+  }
+
+
+
+  /**
+   * @param wsOwnerStemName1 the wsOwnerStemName to set
+   */
+  public void setWsOwnerStemName(String wsOwnerStemName1) {
+    this.wsOwnerStemName = wsOwnerStemName1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerStemId
+   */
+  public String getWsOwnerStemId() {
+    return this.wsOwnerStemId;
+  }
+
+
+
+  /**
+   * @param wsOwnerStemId1 the wsOwnerStemId to set
+   */
+  public void setWsOwnerStemId(String wsOwnerStemId1) {
+    this.wsOwnerStemId = wsOwnerStemId1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerAttributeDefName
+   */
+  public String getWsOwnerAttributeDefName() {
+    return this.wsOwnerAttributeDefName;
+  }
+
+
+
+  /**
+   * @param wsOwnerAttributeDefName1 the wsOwnerAttributeDefName to set
+   */
+  public void setWsOwnerAttributeDefName(String wsOwnerAttributeDefName1) {
+    this.wsOwnerAttributeDefName = wsOwnerAttributeDefName1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerAttributeDefId
+   */
+  public String getWsOwnerAttributeDefId() {
+    return this.wsOwnerAttributeDefId;
+  }
+
+
+
+  /**
+   * @param wsOwnerAttributeDefId1 the wsOwnerAttributeDefId to set
+   */
+  public void setWsOwnerAttributeDefId(String wsOwnerAttributeDefId1) {
+    this.wsOwnerAttributeDefId = wsOwnerAttributeDefId1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerAttributeDefNameName
+   */
+  public String getWsOwnerAttributeDefNameName() {
+    return this.wsOwnerAttributeDefNameName;
+  }
+
+
+
+  /**
+   * @param wsOwnerAttributeDefNameName1 the wsOwnerAttributeDefNameName to set
+   */
+  public void setWsOwnerAttributeDefNameName(String wsOwnerAttributeDefNameName1) {
+    this.wsOwnerAttributeDefNameName = wsOwnerAttributeDefNameName1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerAttributeDefNameId
+   */
+  public String getWsOwnerAttributeDefNameId() {
+    return this.wsOwnerAttributeDefNameId;
+  }
+
+
+
+  /**
+   * @param wsOwnerAttributeDefNameId1 the wsOwnerAttributeDefNameId to set
+   */
+  public void setWsOwnerAttributeDefNameId(String wsOwnerAttributeDefNameId1) {
+    this.wsOwnerAttributeDefNameId = wsOwnerAttributeDefNameId1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerSubjectId
+   */
+  public String getWsOwnerSubjectId() {
+    return this.wsOwnerSubjectId;
+  }
+
+
+
+  /**
+   * @param wsOwnerSubjectId1 the wsOwnerSubjectId to set
+   */
+  public void setWsOwnerSubjectId(String wsOwnerSubjectId1) {
+    this.wsOwnerSubjectId = wsOwnerSubjectId1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerSubjectSourceId
+   */
+  public String getWsOwnerSubjectSourceId() {
+    return this.wsOwnerSubjectSourceId;
+  }
+
+
+
+  /**
+   * @param wsOwnerSubjectSourceId1 the wsOwnerSubjectSourceId to set
+   */
+  public void setWsOwnerSubjectSourceId(String wsOwnerSubjectSourceId1) {
+    this.wsOwnerSubjectSourceId = wsOwnerSubjectSourceId1;
+  }
+
+
+
+  /**
+   * @return the wsOwnerSubjectIdentifier
+   */
+  public String getWsOwnerSubjectIdentifier() {
+    return this.wsOwnerSubjectIdentifier;
+  }
+
+
+
+  /**
+   * @param wsOwnerSubjectIdentifier1 the wsOwnerSubjectIdentifier to set
+   */
+  public void setWsOwnerSubjectIdentifier(String wsOwnerSubjectIdentifier1) {
+    this.wsOwnerSubjectIdentifier = wsOwnerSubjectIdentifier1;
+  }
+
+
+
+  /**
+   * @return the pointInTimeFrom
+   */
+  public String getPointInTimeFrom() {
+    return this.pointInTimeFrom;
+  }
+
+
+
+  /**
+   * @param pointInTimeFrom1 the pointInTimeFrom to set
+   */
+  public void setPointInTimeFrom(String pointInTimeFrom1) {
+    this.pointInTimeFrom = pointInTimeFrom1;
+  }
+
+
+
+  /**
+   * @return the pointInTimeTo
+   */
+  public String getPointInTimeTo() {
+    return this.pointInTimeTo;
+  }
+
+
+
+  /**
+   * @param pointInTimeTo1 the pointInTimeTo to set
+   */
+  public void setPointInTimeTo(String pointInTimeTo1) {
+    this.pointInTimeTo = pointInTimeTo1;
+  }
+
+
+
+  /**
+   * @return the clientVersion
+   */
+  public String getClientVersion() {
+    return this.clientVersion;
+  }
+
+
+
+  /**
+   * @param clientVersion1 the clientVersion to set
+   */
+  public void setClientVersion(String clientVersion1) {
+    this.clientVersion = clientVersion1;
+  }
+
+
+
+  /**
+   * @return the actAsSubjectId
+   */
+  public String getActAsSubjectId() {
+    return this.actAsSubjectId;
+  }
+
+
+
+  /**
+   * @param actAsSubjectId1 the actAsSubjectId to set
+   */
+  public void setActAsSubjectId(String actAsSubjectId1) {
+    this.actAsSubjectId = actAsSubjectId1;
+  }
+
+
+
+  /**
+   * @return the actAsSubjectSourceId
+   */
+  public String getActAsSubjectSourceId() {
+    return this.actAsSubjectSourceId;
+  }
+
+
+
+  /**
+   * @param actAsSubjectSourceId1 the actAsSubjectSourceId to set
+   */
+  public void setActAsSubjectSourceId(String actAsSubjectSourceId1) {
+    this.actAsSubjectSourceId = actAsSubjectSourceId1;
+  }
+
+
+
+  /**
+   * @return the actAsSubjectIdentifier
+   */
+  public String getActAsSubjectIdentifier() {
+    return this.actAsSubjectIdentifier;
+  }
+
+
+
+  /**
+   * @param actAsSubjectIdentifier1 the actAsSubjectIdentifier to set
+   */
+  public void setActAsSubjectIdentifier(String actAsSubjectIdentifier1) {
+    this.actAsSubjectIdentifier = actAsSubjectIdentifier1;
+  }
+
+
+
+  /**
+   * @return the includeGroupDetail
+   */
+  public String getIncludeGroupDetail() {
+    return this.includeGroupDetail;
+  }
+
+
+
+  /**
+   * @param includeGroupDetail1 the includeGroupDetail to set
+   */
+  public void setIncludeGroupDetail(String includeGroupDetail1) {
+    this.includeGroupDetail = includeGroupDetail1;
+  }
+
+
+
+  /**
+   * @return the paramName0
+   */
+  public String getParamName0() {
+    return this.paramName0;
+  }
+
+
+
+  /**
+   * @param paramName01 the paramName0 to set
+   */
+  public void setParamName0(String paramName01) {
+    this.paramName0 = paramName01;
+  }
+
+
+
+  /**
+   * @return the paramValue0
+   */
+  public String getParamValue0() {
+    return this.paramValue0;
+  }
+
+
+
+  /**
+   * @param paramValue01 the paramValue0 to set
+   */
+  public void setParamValue0(String paramValue01) {
+    this.paramValue0 = paramValue01;
+  }
+
+
+
+  /**
+   * @return the paramName1
+   */
+  public String getParamName1() {
+    return this.paramName1;
+  }
+
+
+
+  /**
+   * @param paramName11 the paramName1 to set
+   */
+  public void setParamName1(String paramName11) {
+    this.paramName1 = paramName11;
+  }
+
+
+
+  /**
+   * @return the paramValue1
+   */
+  public String getParamValue1() {
+    return this.paramValue1;
+  }
+
+
+
+  /**
+   * @param paramValue11 the paramValue1 to set
+   */
+  public void setParamValue1(String paramValue11) {
+    this.paramValue1 = paramValue11;
+  }
+
+
+
+  /**
+   * @return the ascending
+   */
+  public String getAscending() {
+    return this.ascending;
+  }
+
+
+
+  /**
+   * @param ascending1 the ascending to set
+   */
+  public void setAscending(String ascending1) {
+    this.ascending = ascending1;
+  }
+
+
+
+  /**
+   * @return the pageSize
+   */
   public String getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(String pageSize) {
-    this.pageSize = pageSize;
+    return this.pageSize;
   }
 
 
+
+  /**
+   * @param pageSize1 the pageSize to set
+   */
+  public void setPageSize(String pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+
+
+  /**
+   * @return the sortString
+   */
   public String getSortString() {
-    return sortString;
+    return this.sortString;
   }
 
-  public void setSortString(String sortString) {
-    this.sortString = sortString;
-  }
 
+
+  /**
+   * @param sortString1 the sortString to set
+   */
+  public void setSortString(String sortString1) {
+    this.sortString = sortString1;
+  }
 
 
 

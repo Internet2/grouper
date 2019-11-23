@@ -10739,7 +10739,13 @@ public class GrouperServiceLogic {
         }
       }
       
-      //TODO add attribute defs, attribute def names and subjects
+      if (wsOwnerSubjectLookups != null && wsOwnerSubjectLookups.length > 0) {
+        for (WsSubjectLookup wsSubjectLookup: wsOwnerSubjectLookups) {
+          userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_MEMBER_ID, wsSubjectLookup.getSubjectId());
+        }
+      }
+      
+      //TODO add attribute defs, attribute def names
       
       List<AuditEntry> auditEntries = userAuditQuery.execute();
       

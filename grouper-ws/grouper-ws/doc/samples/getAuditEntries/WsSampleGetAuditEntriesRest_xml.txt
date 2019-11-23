@@ -1,3 +1,126 @@
+Grouper web service sample of service: getAuditEntries, WsSampleGetAuditEntriesRest, manually written lite/rest, format: xml, for version: 2.5.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v2_2_000/audits HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+Content-Length: 205
+Content-Type: application/xml; charset=UTF-8
+
+<WsRestGetAuditEntriesRequest>
+  <actAsSubjectLookup>
+    <subjectId>GrouperSystem</subjectId>
+  </actAsSubjectLookup>
+  <auditType>group</auditType>
+  <auditActionId>addGroup</auditActionId>
+</WsRestGetAuditEntriesRequest>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/xml;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Sat, 23 Nov 2019 21:40:57 GMT
+Connection: close
+
+3ff
+<WsGetAuditEntriesResults>
+  <wsAuditEntries>
+    <WsAuditEntry>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>82efd90959164301b17b5fd46f858033</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>test:test</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>709cdb18758546ff914092d8c163c50e</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>test:test</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>5202faaba95a42fca8c1d30caf93fdcf</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:grouperUi:grouperUiUserData</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>8172
+33a
+702ac1e243509071164ed192ca1a</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:grouperUi:grouperUiUserData</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+  </wsAuditEntries>
+  <resultMetadata>
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>Success for: clientVersion: 2.2.0, auditType: group, auditActionId: addGroup, wsOwnerAttributeDefLookups: null, wsOwnerAttributeDefNameLookups: null, wsOwnerStemLookups: null, wsOwnerGroupLookups: null, wsOwnerSubjectLookups: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, paramNames:
+, params: null
+, </resultMessage>
+    <success>T</success>
+  </resultMetadata>
+  <responseMetadata>
+    <resultWarnings></resultWarnings>
+    <millis>7</millis>
+    <serverVersion>2.4.0</serverVersion>
+  </responseMetadata>
+</WsGetAuditEntriesResults>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
 package edu.internet2.middleware.grouper.ws.samples.rest.audit;
 
 import org.apache.commons.httpclient.Credentials;
@@ -132,3 +255,16 @@ public class WsSampleGetAuditEntriesRest implements WsSampleRest {
   }
 
 }
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, auditType: group, auditActionId: addGroup, wsOwnerAttributeDefLookups: null, wsOwnerAttributeDefNameLookups: null, wsOwnerStemLookups: null, wsOwnerGroupLookups: null, wsOwnerSubjectLookups: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, paramNames: 
+, params: null
+,
