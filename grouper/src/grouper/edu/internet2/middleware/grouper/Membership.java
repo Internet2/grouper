@@ -2504,7 +2504,6 @@ public class Membership extends GrouperAPI implements
       
       final Membership membership = theMembership;
       
-      //TODO add auditing, maybe try to maintain context id, or create a new one
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
           AuditControl.WILL_AUDIT, new HibernateHandler() {
         public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
