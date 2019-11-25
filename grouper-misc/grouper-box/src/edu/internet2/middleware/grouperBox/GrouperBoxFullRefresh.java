@@ -96,11 +96,18 @@ public class GrouperBoxFullRefresh implements Job {
       GrouperClientUtils.sleep(100);
     }
   }
-  
   /**
    * full refresh logic
    */
   public static void fullRefreshLogic() {
+    fullRefreshLogicWithResult();
+  }
+  
+  /**
+   * full refresh logic
+   * @return results
+   */
+  public static GrouperBoxFullRefreshResults fullRefreshLogicWithResult() {
     
     fullRefreshInProgress = true;
     
@@ -263,23 +270,155 @@ public class GrouperBoxFullRefresh implements Job {
         
       }
       
-      debugMap.put("millisLoadData", System.currentTimeMillis() - startedUpdateData);
-      debugMap.put("millis", System.currentTimeMillis() - startedMillis);
+      GrouperBoxFullRefreshResults grouperRemedyFullRefresh = new GrouperBoxFullRefreshResults();
+      grouperRemedyFullRefresh.setDeleteCount(deleteCount);
+      grouperRemedyFullRefresh.setInsertCount(insertCount);
+      grouperRemedyFullRefresh.setTotalCount(totalCount);
+      grouperRemedyFullRefresh.setUnresolvableCount(unresolvableCount);
+      grouperRemedyFullRefresh.setMillisGetData((int)(System.currentTimeMillis() - startedUpdateData));
+      grouperRemedyFullRefresh.setMillis((int)(System.currentTimeMillis() - startedMillis));
+
+      debugMap.put("millisLoadData", grouperRemedyFullRefresh.getMillisGetData());
+      debugMap.put("millis", grouperRemedyFullRefresh.getMillis());
       
-      debugMap.put("insertCount", insertCount);
-      debugMap.put("deleteCount", deleteCount);
-      debugMap.put("unresolvableCount", unresolvableCount);
-      debugMap.put("totalCount", totalCount);
+      debugMap.put("insertCount", grouperRemedyFullRefresh.getInsertCount());
+      debugMap.put("deleteCount", grouperRemedyFullRefresh.getDeleteCount());
+      debugMap.put("unresolvableCount", grouperRemedyFullRefresh.getUnresolvableCount());
+      debugMap.put("totalCount", grouperRemedyFullRefresh.getTotalCount());
       
-    } catch (Exception e) {
+      return grouperRemedyFullRefresh;
+      
+    } catch (RuntimeException e) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(e));
       String errorMessage = "Problem running box full sync";
       LOG.error(errorMessage, e);
-    
+      throw e;
     } finally {
       GrouperBoxLog.boxLog(debugMap, startTimeNanos);
       fullRefreshInProgress = false;
     }
   }
 
+  /**
+   * 
+   */
+  public static class GrouperBoxFullRefreshResults {
+    
+    /**
+     * 
+     */
+    private int millisGetData;
+    
+    /**
+     * 
+     */
+    private int millis;
+    
+    /**
+     * 
+     */
+    private int insertCount;
+    
+    /**
+     * 
+     */
+    private int deleteCount;
+    
+    /**
+     * 
+     */
+    private int unresolvableCount;
+    
+    /**
+     * 
+     */
+    private int totalCount;
+    
+    /**
+     * @return the millisLoadData
+     */
+    public int getMillisGetData() {
+      return this.millisGetData;
+    }
+    
+    /**
+     * @param millisGetData1 the millisLoadData to set
+     */
+    public void setMillisGetData(int millisGetData1) {
+      this.millisGetData = millisGetData1;
+    }
+    
+    /**
+     * @return the millis
+     */
+    public int getMillis() {
+      return this.millis;
+    }
+    
+    /**
+     * @param millis1 the millis to set
+     */
+    public void setMillis(int millis1) {
+      this.millis = millis1;
+    }
+    
+    /**
+     * @return the insertCount
+     */
+    public int getInsertCount() {
+      return this.insertCount;
+    }
+    
+    /**
+     * @param insertCount1 the insertCount to set
+     */
+    public void setInsertCount(int insertCount1) {
+      this.insertCount = insertCount1;
+    }
+    
+    /**
+     * @return the deleteCount
+     */
+    public int getDeleteCount() {
+      return this.deleteCount;
+    }
+    
+    /**
+     * @param deleteCount1 the deleteCount to set
+     */
+    public void setDeleteCount(int deleteCount1) {
+      this.deleteCount = deleteCount1;
+    }
+    
+    /**
+     * @return the unresolvableCount
+     */
+    public int getUnresolvableCount() {
+      return this.unresolvableCount;
+    }
+    
+    /**
+     * @param unresolvableCount1 the unresolvableCount to set
+     */
+    public void setUnresolvableCount(int unresolvableCount1) {
+      this.unresolvableCount = unresolvableCount1;
+    }
+    
+    /**
+     * @return the totalCount
+     */
+    public int getTotalCount() {
+      return this.totalCount;
+    }
+    
+    /**
+     * @param totalCount1 the totalCount to set
+     */
+    public void setTotalCount(int totalCount1) {
+      this.totalCount = totalCount1;
+    }
+    
+    
+  }
+  
 }
