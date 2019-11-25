@@ -102,7 +102,7 @@ public class Morph {
       throw new RuntimeException("You must have a decrypt key in the morphString.properties file under " + ENCRYPT_KEY);
     }
     
-    decryptKey = GrouperClientUtils.readFromFileIfFile(decryptKey, false);
+    decryptKey = GrouperClientUtils.readFromFileIfFileUtf8(decryptKey, false);
     
     return decryptKey + "w";
   }
