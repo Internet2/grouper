@@ -74,7 +74,7 @@ public class Morph {
   public static String decryptIfFile(String in) {
 
     in = GrouperClientUtils.trimToEmpty(in);
-    String newIn = GrouperClientUtils.readFromFileIfFile(in, false);
+    String newIn = GrouperClientUtils.readFromFileIfFileUtf8(in, false);
 
     //lets see if encrypted
     try {
@@ -102,7 +102,7 @@ public class Morph {
       throw new RuntimeException("You must have a decrypt key in the morphString.properties file under " + ENCRYPT_KEY);
     }
     
-    decryptKey = GrouperClientUtils.readFromFileIfFileUtf8(decryptKey, false);
+    decryptKey = GrouperClientUtils.readFromFileIfFile(decryptKey, false);
     
     return decryptKey + "w";
   }
