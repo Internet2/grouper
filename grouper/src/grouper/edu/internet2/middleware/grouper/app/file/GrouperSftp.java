@@ -143,7 +143,7 @@ public class GrouperSftp {
           // lines 1-19
           String grouperSftpPrivateKeyPart = GrouperConfig.retrieveConfig().propertyValueString("grouperSftp.site." + configId + ".secret.privateKey_" + i);
           if (!StringUtils.isBlank(grouperSftpPrivateKeyPart)) {
-            if (keyFileContents.length() > 0) {
+            if (keyFileContents.length() > 0 && !keyFileContents.toString().endsWith("\n")) {
               keyFileContents.append("\n");
             }
             //use $newline$ in config overlays
