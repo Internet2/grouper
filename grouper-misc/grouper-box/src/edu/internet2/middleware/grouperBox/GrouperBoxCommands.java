@@ -22,7 +22,6 @@ import com.box.sdk.IAccessTokenCache;
 import com.box.sdk.InMemoryLRUAccessTokenCache;
 import com.box.sdk.JWTEncryptionPreferences;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -129,7 +128,7 @@ public class GrouperBoxCommands {
         for (int i=0;i<10;i++) {
 
           // lines 1-?
-          String privateKeyPart = GrouperConfig.retrieveConfig().propertyValueString("grouperBox.privateKeyContents_" + i);
+          String privateKeyPart = GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.privateKeyContents_" + i);
           if (!StringUtils.isBlank(privateKeyPart)) {
             if (keyFileContentsPart.length() > 0 && !keyFileContentsPart.toString().endsWith("\n")) {
               keyFileContentsPart.append("\n");
