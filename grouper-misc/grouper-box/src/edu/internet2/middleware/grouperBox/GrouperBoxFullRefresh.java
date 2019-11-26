@@ -93,14 +93,17 @@ public class GrouperBoxFullRefresh implements Job {
    */
   public static void waitForFullRefreshToEnd() {
     while (isFullRefreshInProgress()) {
-      GrouperClientUtils.sleep(100);
+      GrouperClientUtils.sleep(1000);
     }
   }
   /**
    * full refresh logic
    */
   public static void fullRefreshLogic() {
-    fullRefreshLogicWithResult();
+    GrouperBoxFullRefreshResults grouperBoxFullRefreshResults = fullRefreshLogicWithResult();
+    if (!GrouperClientUtils.isBlank(grouperBoxFullRefreshResults.getError())) {
+      throw new RuntimeException(grouperBoxFullRefreshResults.getError());
+    }
   }
   
   /**
@@ -109,6 +112,8 @@ public class GrouperBoxFullRefresh implements Job {
    */
   public static GrouperBoxFullRefreshResults fullRefreshLogicWithResult() {
     
+    GrouperBoxFullRefreshResults grouperRemedyFullRefresh = new GrouperBoxFullRefreshResults();
+
     fullRefreshInProgress = true;
     
     GrouperBoxMessageConsumer.waitForIncrementalRefreshToEnd();
@@ -270,7 +275,6 @@ public class GrouperBoxFullRefresh implements Job {
         
       }
       
-      GrouperBoxFullRefreshResults grouperRemedyFullRefresh = new GrouperBoxFullRefreshResults();
       grouperRemedyFullRefresh.setDeleteCount(deleteCount);
       grouperRemedyFullRefresh.setInsertCount(insertCount);
       grouperRemedyFullRefresh.setTotalCount(totalCount);
@@ -286,17 +290,19 @@ public class GrouperBoxFullRefresh implements Job {
       debugMap.put("unresolvableCount", grouperRemedyFullRefresh.getUnresolvableCount());
       debugMap.put("totalCount", grouperRemedyFullRefresh.getTotalCount());
       
-      return grouperRemedyFullRefresh;
-      
     } catch (RuntimeException e) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(e));
+      final String exceptionFullSync = GrouperClientUtils.getFullStackTrace(e);
+      debugMap.put("exception", exceptionFullSync);
       String errorMessage = "Problem running box full sync";
+      grouperRemedyFullRefresh.setError(errorMessage + "\n" + exceptionFullSync);
       LOG.error(errorMessage, e);
-      throw e;
     } finally {
       GrouperBoxLog.boxLog(debugMap, startTimeNanos);
       fullRefreshInProgress = false;
     }
+
+    return grouperRemedyFullRefresh;
+    
   }
 
   /**
@@ -304,6 +310,27 @@ public class GrouperBoxFullRefresh implements Job {
    */
   public static class GrouperBoxFullRefreshResults {
     
+    /**
+     * error
+     */
+    private String error;
+    
+    
+    /**
+     * @return the error
+     */
+    public String getError() {
+      return this.error;
+    }
+
+    
+    /**
+     * @param error1 the error to set
+     */
+    public void setError(String error1) {
+      this.error = error1;
+    }
+
     /**
      * 
      */

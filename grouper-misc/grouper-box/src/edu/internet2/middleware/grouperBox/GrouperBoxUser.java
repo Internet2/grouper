@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.box.sdk.BoxUser;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 /**
@@ -16,20 +17,23 @@ public class GrouperBoxUser {
   /**
    * cache connections
    */
-  private static ExpirableCache<Boolean, Map<String, GrouperBoxUser>> retrieveUsersCache = new ExpirableCache<Boolean, Map<String, GrouperBoxUser>>(5);
-  
+  private static ExpirableCache<Boolean, Map<String, GrouperBoxUser>> retrieveUsersCache = null;
+    
   /**
    * 
    * @return box api connection never null
    */
   public synchronized static Map<String, GrouperBoxUser> retrieveUsers() {
     
-    Map<String, GrouperBoxUser> usersMap = retrieveUsersCache.get(Boolean.TRUE);
+    Map<String, GrouperBoxUser> usersMap = retrieveUsersCache == null ? null : retrieveUsersCache.get(Boolean.TRUE);
     
     if (usersMap == null) {
       
       usersMap = GrouperBoxCommands.retrieveBoxUsers();
       
+      // make a new one each time so the size is updated
+      int userCacheMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouperBox.boxUserCacheMinutes", 10);
+      retrieveUsersCache = new ExpirableCache<Boolean, Map<String, GrouperBoxUser>>(userCacheMinutes);
       retrieveUsersCache.put(Boolean.TRUE, usersMap);
     }
     
