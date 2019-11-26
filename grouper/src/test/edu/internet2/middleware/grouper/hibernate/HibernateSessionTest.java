@@ -62,7 +62,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testSelectFromHqlQuery"));
+    TestRunner.run(new HibernateSessionTest("testEnabledDisabledDaemon"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -913,6 +913,26 @@ public class HibernateSessionTest extends GrouperTest {
     GrouperCacheUtils.clearAllCaches();
 
     assertFalse(edu.hasPrivilege(SubjectTestHelper.SUBJ0, "stemAttrRead"));
+    
+    //###########################################
+    //enabled in future and disabled null, should be disabled - on a stem privilege on a group
+   
+    edu.grantPriv(child.toSubject(), NamingPrivilege.STEM_ATTR_READ, true);
+    membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), edu, child.toSubject(), NamingPrivilege.STEM_ATTR_READ.getField(), true);
+    assertTrue(edu.hasPrivilege(child.toSubject(), "stemAttrRead"));
+
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry " +
+        "set enabledTimeDb = :enabledTime, disabledTimeDb = null where immediateMembershipId = :theId")
+      .setLong("enabledTime", System.currentTimeMillis()+10000)
+      .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
+    
+    //run daemon
+    fixed = Membership.internal_fixEnabledDisabled();
+    
+    assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
+    GrouperCacheUtils.clearAllCaches();
+
+    assertFalse(edu.hasPrivilege(child.toSubject(), "stemAttrRead"));
   }
   
   /**
