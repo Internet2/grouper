@@ -134,6 +134,38 @@ public class GrouperStartup {
   /** print this once */
   private static boolean printedConfigLocation = false;
   
+  /** print this once */
+  private static boolean printedConfigFollowupLocation = false;
+  
+  /**
+   * 
+   */
+  private static void printConfigFollowupOnce() {
+    if (printedConfigFollowupLocation) {
+      return;
+    }
+
+    printedConfigFollowupLocation = true;
+
+    boolean displayMessageString = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.startup.message", true);
+    if (!displayMessageString) {
+      return;
+    }
+
+    String sourcesString = "problem with sources";
+    try {
+      sourcesString = SourceManager.getInstance().printConfig();
+    } catch (Exception e) {
+      LOG.error("problem with sources", e);
+    }
+    
+    System.out.println(sourcesString);
+    if (!GrouperUtil.isPrintGrouperLogsToConsole()) {
+      LOG.warn(sourcesString);
+    }
+
+  }
+  
   /**
    * print where config is read from, to sys out and log warn
    */
@@ -194,13 +226,6 @@ public class GrouperStartup {
     String url = StringUtils.trim(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url"));
     String user = StringUtils.trim(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.username"));
     resultString.append("grouper.hibernate.properties: " + user + "@" + url + "\n");
-    String sourcesString = "problem with sources";
-    try {
-      sourcesString = SourceManager.getInstance().printConfig();
-    } catch (Exception e) {
-      LOG.error("problem with sources", e);
-    }
-    resultString.append(sourcesString);
     System.out.println(resultString);
     try {
       if (!GrouperUtil.isPrintGrouperLogsToConsole()) {
@@ -318,12 +343,6 @@ public class GrouperStartup {
 //        SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
 //        SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
         
-        if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
-          
-          SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
-          
-        }
-        
 //        if (GrouperConfig.retrieveConfig().propertyValueBoolean("entities.autoCreateSource", true)) {
 //          
 //          SourceManager.getInstance().loadSource(EntitySourceAdapter.instance());
@@ -386,7 +405,16 @@ public class GrouperStartup {
         
         //uncache config settings
         GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
+
+        printConfigFollowupOnce();
         
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
+          
+          SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
+          
+        }
+        
+
         return true;
       }
     } catch (RuntimeException re) {
