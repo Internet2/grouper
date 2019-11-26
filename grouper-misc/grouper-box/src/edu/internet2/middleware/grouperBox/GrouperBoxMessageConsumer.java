@@ -19,7 +19,6 @@ import org.quartz.PersistJobDataAfterExecution;
 
 import com.box.sdk.BoxGroupMembership.Info;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
