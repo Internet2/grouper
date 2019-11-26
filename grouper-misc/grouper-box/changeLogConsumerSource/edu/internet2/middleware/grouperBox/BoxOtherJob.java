@@ -10,6 +10,7 @@ import org.quartz.PersistJobDataAfterExecution;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouperBox.GrouperBoxFullRefresh.GrouperBoxFullRefreshResults;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /**
@@ -40,6 +41,10 @@ public class BoxOtherJob extends OtherJobBase {
     hib3GrouperLoaderLog.setMillisGetData(grouperBoxFullRefreshResults.getMillisGetData());
     hib3GrouperLoaderLog.setTotalCount(grouperBoxFullRefreshResults.getTotalCount());
     hib3GrouperLoaderLog.setUnresolvableSubjectCount(grouperBoxFullRefreshResults.getUnresolvableCount());
+    if (!GrouperClientUtils.isBlank(grouperBoxFullRefreshResults.getError())) {
+      hib3GrouperLoaderLog.appendJobMessage(grouperBoxFullRefreshResults.getError());
+      throw new RuntimeException(grouperBoxFullRefreshResults.getError());
+    }
     return null;
   }
 

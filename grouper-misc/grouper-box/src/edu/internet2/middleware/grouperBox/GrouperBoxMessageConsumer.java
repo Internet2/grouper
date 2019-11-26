@@ -19,6 +19,7 @@ import org.quartz.PersistJobDataAfterExecution;
 
 import com.box.sdk.BoxGroupMembership.Info;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -111,16 +112,13 @@ public class GrouperBoxMessageConsumer implements Job {
       int fullSyncOnMessageWaitSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(
           "grouperBox.fullSyncOnMessageWaitSeconds", 30);
 
-      //short circuit to let full go
-      if (GrouperBoxFullRefresh.isFullRefreshInProgress()) {
-        return;
-      }
-
       //wait message ids
       for (WsMessage wsMessage : GrouperClientUtils.nonNull(wsMessages, WsMessage.class)) {
         waitMessageIds.add(wsMessage.getId());
       }
 
+      Map<String, GrouperBoxUser> grouperBoxUserMap = GrouperBoxUser.retrieveUsers();
+      
       //process messages
       for (WsMessage wsMessage : GrouperClientUtils.nonNull(wsMessages, WsMessage.class)) {
 
@@ -170,7 +168,7 @@ public class GrouperBoxMessageConsumer implements Job {
               incrementalRefreshInProgress = true;
             }
           } else {
-            processMessage(esbEvent);
+            processMessage(esbEvent, grouperBoxUserMap);
           }
 
         }
@@ -227,6 +225,15 @@ public class GrouperBoxMessageConsumer implements Job {
    * @param esbEvent
    */
   public static void processMessage(EsbEvent esbEvent) {
+    processMessage(esbEvent, GrouperBoxUser.retrieveUsers());
+  }
+  
+  /**
+   * process message
+   * @param esbEvent
+   * @param grouperBoxUserMap 
+   */
+  public static void processMessage(EsbEvent esbEvent, Map<String, GrouperBoxUser> grouperBoxUserMap) {
     String subjectAttributeForBoxUsername = GrouperBoxUtils.configSubjectAttributeForBoxUsername();
     String subjectAttributeValue = null;
     if (!GrouperClientUtils.equals("id", subjectAttributeForBoxUsername)) {
@@ -235,7 +242,7 @@ public class GrouperBoxMessageConsumer implements Job {
     }
     processMessage(esbEvent.getEventType(), GrouperClientUtils.defaultIfBlank(esbEvent.getName(),esbEvent.getGroupName()), esbEvent.getSourceId(), esbEvent.getSubjectId(), subjectAttributeValue);
   }
-  
+
   /**
    * process message
    * @param eventType 
@@ -245,7 +252,21 @@ public class GrouperBoxMessageConsumer implements Job {
    * @param subjectAttributeValue 
    */
   public static void processMessage(String eventType, String groupName, String sourceId, String subjectId, String subjectAttributeValue) {
+    processMessage(eventType, groupName, sourceId, subjectId, subjectAttributeValue, GrouperBoxUser.retrieveUsers());
+  }
+
+  /**
+   * process message
+   * @param eventType 
+   * @param groupName 
+   * @param sourceId 
+   * @param subjectId 
+   * @param subjectAttributeValue 
+   * @param grouperBoxUserMap 
+   */
+  public static void processMessage(String eventType, String groupName, String sourceId, String subjectId, String subjectAttributeValue, Map<String, GrouperBoxUser> grouperBoxUserMap) {
     
+    GrouperBoxFullRefresh.waitForFullRefreshToEnd();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -353,7 +374,7 @@ public class GrouperBoxMessageConsumer implements Job {
         debugMap.put("boxUsername", username);
         
         //lets get the user from box
-        GrouperBoxUser grouperBoxUser = GrouperBoxUser.retrieveUsers().get(username);
+        GrouperBoxUser grouperBoxUser = grouperBoxUserMap.get(username);
 
         debugMap.put("boxUserExists", grouperBoxUser != null);
 
