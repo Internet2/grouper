@@ -19,14 +19,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param getGroupsLite0
+                    * @param groupSaveLite0
                 
          */
 
          
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLiteResponse getGroupsLite(
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLiteResponse groupSaveLite(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLite getGroupsLite0)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLite groupSaveLite0)
                         throws java.rmi.RemoteException
              ;
 
@@ -34,12 +34,12 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param getGroupsLite0
+                * @param groupSaveLite0
             
           */
-        public void startgetGroupsLite(
+        public void startgroupSaveLite(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLite getGroupsLite0,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLite groupSaveLite0,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -50,14 +50,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param groupSaveLite2
+                    * @param getGroupsLite2
                 
          */
 
          
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLiteResponse groupSaveLite(
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLiteResponse getGroupsLite(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLite groupSaveLite2)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLite getGroupsLite2)
                         throws java.rmi.RemoteException
              ;
 
@@ -65,12 +65,12 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param groupSaveLite2
+                * @param getGroupsLite2
             
           */
-        public void startgroupSaveLite(
+        public void startgetGroupsLite(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveLite groupSaveLite2,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroupsLite getGroupsLite2,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -267,14 +267,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param getPermissionAssignments16
+                    * @param externalSubjectDelete16
                 
          */
 
          
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignmentsResponse getPermissionAssignments(
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDeleteResponse externalSubjectDelete(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignments getPermissionAssignments16)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete externalSubjectDelete16)
                         throws java.rmi.RemoteException
              ;
 
@@ -282,12 +282,12 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param getPermissionAssignments16
+                * @param externalSubjectDelete16
             
           */
-        public void startgetPermissionAssignments(
+        public void startexternalSubjectDelete(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignments getPermissionAssignments16,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete externalSubjectDelete16,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -298,14 +298,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param externalSubjectDelete18
+                    * @param getPermissionAssignments18
                 
          */
 
          
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDeleteResponse externalSubjectDelete(
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignmentsResponse getPermissionAssignments(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete externalSubjectDelete18)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignments getPermissionAssignments18)
                         throws java.rmi.RemoteException
              ;
 
@@ -313,12 +313,12 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param externalSubjectDelete18
+                * @param getPermissionAssignments18
             
           */
-        public void startexternalSubjectDelete(
+        public void startgetPermissionAssignments(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ExternalSubjectDelete externalSubjectDelete18,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetPermissionAssignments getPermissionAssignments18,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -422,107 +422,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param groupSave26
-                
-         */
-
-         
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveResponse groupSave(
-
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave groupSave26)
-                        throws java.rmi.RemoteException
-             ;
-
-        
-         /**
-            * Auto generated method signature for Asynchronous Invocations
-            * 
-                * @param groupSave26
-            
-          */
-        public void startgroupSave(
-
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave groupSave26,
-
-            final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
-
-            throws java.rmi.RemoteException;
-
-     
-
-        /**
-          * Auto generated method signature
-          * 
-                    * @param hasMemberLite28
-                
-         */
-
-         
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLiteResponse hasMemberLite(
-
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLite hasMemberLite28)
-                        throws java.rmi.RemoteException
-             ;
-
-        
-         /**
-            * Auto generated method signature for Asynchronous Invocations
-            * 
-                * @param hasMemberLite28
-            
-          */
-        public void starthasMemberLite(
-
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLite hasMemberLite28,
-
-            final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
-
-            throws java.rmi.RemoteException;
-
-     
-
-        /**
-          * Auto generated method signature
-          * 
-                    * @param assignGrouperPrivileges30
-                
-         */
-
-         
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivilegesResponse assignGrouperPrivileges(
-
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges assignGrouperPrivileges30)
-                        throws java.rmi.RemoteException
-             ;
-
-        
-         /**
-            * Auto generated method signature for Asynchronous Invocations
-            * 
-                * @param assignGrouperPrivileges30
-            
-          */
-        public void startassignGrouperPrivileges(
-
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges assignGrouperPrivileges30,
-
-            final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
-
-            throws java.rmi.RemoteException;
-
-     
-
-        /**
-          * Auto generated method signature
-          * 
-                    * @param getAuditEntriesLite32
+                    * @param getAuditEntriesLite26
                 
          */
 
          
                      public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLiteResponse getAuditEntriesLite(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite getAuditEntriesLite32)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite getAuditEntriesLite26)
                         throws java.rmi.RemoteException
              ;
 
@@ -530,12 +437,105 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param getAuditEntriesLite32
+                * @param getAuditEntriesLite26
             
           */
         public void startgetAuditEntriesLite(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite getAuditEntriesLite32,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesLite getAuditEntriesLite26,
+
+            final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
+
+            throws java.rmi.RemoteException;
+
+     
+
+        /**
+          * Auto generated method signature
+          * 
+                    * @param groupSave28
+                
+         */
+
+         
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSaveResponse groupSave(
+
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave groupSave28)
+                        throws java.rmi.RemoteException
+             ;
+
+        
+         /**
+            * Auto generated method signature for Asynchronous Invocations
+            * 
+                * @param groupSave28
+            
+          */
+        public void startgroupSave(
+
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupSave groupSave28,
+
+            final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
+
+            throws java.rmi.RemoteException;
+
+     
+
+        /**
+          * Auto generated method signature
+          * 
+                    * @param hasMemberLite30
+                
+         */
+
+         
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLiteResponse hasMemberLite(
+
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLite hasMemberLite30)
+                        throws java.rmi.RemoteException
+             ;
+
+        
+         /**
+            * Auto generated method signature for Asynchronous Invocations
+            * 
+                * @param hasMemberLite30
+            
+          */
+        public void starthasMemberLite(
+
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberLite hasMemberLite30,
+
+            final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
+
+            throws java.rmi.RemoteException;
+
+     
+
+        /**
+          * Auto generated method signature
+          * 
+                    * @param assignGrouperPrivileges32
+                
+         */
+
+         
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivilegesResponse assignGrouperPrivileges(
+
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges assignGrouperPrivileges32)
+                        throws java.rmi.RemoteException
+             ;
+
+        
+         /**
+            * Auto generated method signature for Asynchronous Invocations
+            * 
+                * @param assignGrouperPrivileges32
+            
+          */
+        public void startassignGrouperPrivileges(
+
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges assignGrouperPrivileges32,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -856,14 +856,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param hasMember54
+                    * @param findAttributeDefNamesLite54
                 
          */
 
          
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberResponse hasMember(
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLiteResponse findAttributeDefNamesLite(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMember hasMember54)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite findAttributeDefNamesLite54)
                         throws java.rmi.RemoteException
              ;
 
@@ -871,12 +871,12 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param hasMember54
+                * @param findAttributeDefNamesLite54
             
           */
-        public void starthasMember(
+        public void startfindAttributeDefNamesLite(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMember hasMember54,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite findAttributeDefNamesLite54,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -887,14 +887,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param findAttributeDefNamesLite56
+                    * @param hasMember56
                 
          */
 
          
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLiteResponse findAttributeDefNamesLite(
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMemberResponse hasMember(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite findAttributeDefNamesLite56)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMember hasMember56)
                         throws java.rmi.RemoteException
              ;
 
@@ -902,12 +902,12 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param findAttributeDefNamesLite56
+                * @param hasMember56
             
           */
-        public void startfindAttributeDefNamesLite(
+        public void starthasMember(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite findAttributeDefNamesLite56,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.HasMember hasMember56,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -1941,14 +1941,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param groupDelete124
+                    * @param assignAttributeDefNameInheritanceLite124
                 
          */
 
          
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteResponse groupDelete(
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLiteResponse assignAttributeDefNameInheritanceLite(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDelete groupDelete124)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLite assignAttributeDefNameInheritanceLite124)
                         throws java.rmi.RemoteException
              ;
 
@@ -1956,12 +1956,12 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param groupDelete124
+                * @param assignAttributeDefNameInheritanceLite124
             
           */
-        public void startgroupDelete(
+        public void startassignAttributeDefNameInheritanceLite(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDelete groupDelete124,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLite assignAttributeDefNameInheritanceLite124,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 
@@ -1972,14 +1972,14 @@
         /**
           * Auto generated method signature
           * 
-                    * @param assignAttributeDefNameInheritanceLite126
+                    * @param groupDelete126
                 
          */
 
          
-                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLiteResponse assignAttributeDefNameInheritanceLite(
+                     public edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDeleteResponse groupDelete(
 
-                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLite assignAttributeDefNameInheritanceLite126)
+                        edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDelete groupDelete126)
                         throws java.rmi.RemoteException
              ;
 
@@ -1987,12 +1987,12 @@
          /**
             * Auto generated method signature for Asynchronous Invocations
             * 
-                * @param assignAttributeDefNameInheritanceLite126
+                * @param groupDelete126
             
           */
-        public void startassignAttributeDefNameInheritanceLite(
+        public void startgroupDelete(
 
-            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributeDefNameInheritanceLite assignAttributeDefNameInheritanceLite126,
+            edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GroupDelete groupDelete126,
 
             final edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler callback)
 

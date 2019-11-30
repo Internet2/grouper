@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -229,6 +230,49 @@ public class WsSubject implements Comparable<WsSubject> {
       this.assignResultCode(WsSubjectResultCode.SUCCESS);
     }
   }
+  
+  /**
+   * construct with member to set internal fields
+   * 
+   * @param pitMember
+   * @param subjectAttributeNames are the attributes the user is getting (either requested or in config)
+   * (should be calculated for is detail or not)
+   * @param subjectLookup 
+   * @param includeSubjectDetails 
+   */
+   public WsSubject(PITMember pitMember, String[] subjectAttributeNames, WsSubjectLookup subjectLookup, boolean includeSubjectDetails) {
+     this.setId(pitMember.getSubjectId());
+     this.setSourceId(pitMember.getSubjectSourceId());
+
+     int attributesLength = GrouperUtil.length(subjectAttributeNames);
+
+     if (subjectLookup != null && StringUtils.isNotBlank(subjectLookup.getSubjectIdentifier())) {
+       this.identifierLookup = subjectLookup.getSubjectIdentifier();
+     }
+
+     // if getting the subject data (extra queries)
+     if (attributesLength > 0 || includeSubjectDetails) {
+       Subject subject = null;
+       try {
+         String subjectId = pitMember.getSubjectId();
+         subject = SubjectFinder.findById(subjectId, true);
+       } catch (SubjectNotFoundException snfe) {
+         // I guess just ignore if not found, fields will be null
+         if (snfe.getCause() instanceof SubjectNotUniqueException) {
+           this.assignResultCode(WsSubjectResultCode.SUBJECT_DUPLICATE);
+         } else if (snfe.getCause() instanceof SourceUnavailableException) {
+           this.assignResultCode(WsSubjectResultCode.SOURCE_UNAVAILABLE);
+         } else {
+           this.assignResultCode(WsSubjectResultCode.UNRESOLVABLE);
+         }
+         return;
+       }
+       this.assignSubjectData(subject, subjectAttributeNames);
+     } else {
+       //if no other data, then success
+       this.assignResultCode(WsSubjectResultCode.SUCCESS);
+     }
+   }
 
   /**
    * assign subject data

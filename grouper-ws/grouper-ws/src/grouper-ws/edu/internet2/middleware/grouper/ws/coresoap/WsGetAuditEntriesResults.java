@@ -46,7 +46,8 @@ public class WsGetAuditEntriesResults implements WsResponseBean, ResultMetadataH
 
     /** get the name label for a certain version of client 
      * @param clientVersion 
-     * @return */
+     * @return name for version */
+    @Override
     public String nameForVersion(GrouperVersion clientVersion) {
       return this.name();
     }
@@ -62,6 +63,7 @@ public class WsGetAuditEntriesResults implements WsResponseBean, ResultMetadataH
     /**
      * @see edu.internet2.middleware.grouper.ws.WsResultCode#getHttpStatusCode()
      */
+    @Override
     public int getHttpStatusCode() {
       return this.httpStatusCode;
     }
@@ -70,6 +72,7 @@ public class WsGetAuditEntriesResults implements WsResponseBean, ResultMetadataH
      * if this is a successful result
      * @return true if success
      */
+    @Override
     public boolean isSuccess() {
       return this == SUCCESS;
     }
@@ -120,6 +123,7 @@ public class WsGetAuditEntriesResults implements WsResponseBean, ResultMetadataH
   /**
    * @return metadata about the result
    */
+  @Override
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
   }
@@ -135,6 +139,7 @@ public class WsGetAuditEntriesResults implements WsResponseBean, ResultMetadataH
   /**
    * @return metadata about the result
    */
+  @Override
   public WsResponseMeta getResponseMetadata() {
     return this.responseMetadata;
   }
@@ -148,12 +153,19 @@ public class WsGetAuditEntriesResults implements WsResponseBean, ResultMetadataH
   }
   
 
+  /**
+   * @return array of audit entries for response
+   */
   public WsAuditEntry[] getWsAuditEntries() {
-    return wsAuditEntries;
+    return this.wsAuditEntries;
   }
 
-  public void setWsAuditEntries(WsAuditEntry[] wsAuditEntries) {
-    this.wsAuditEntries = wsAuditEntries;
+  /**
+   * set array of audit entries for response
+   * @param wsAuditEntries1
+   */
+  public void setWsAuditEntries(WsAuditEntry[] wsAuditEntries1) {
+    this.wsAuditEntries = wsAuditEntries1;
   }
 
   /**

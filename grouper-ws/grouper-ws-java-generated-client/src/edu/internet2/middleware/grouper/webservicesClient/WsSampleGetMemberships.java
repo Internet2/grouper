@@ -103,13 +103,15 @@ public class WsSampleGetMemberships implements WsSampleGenerated {
       getMemberships.setSubjectAttributeNames(new String[]{null});
 
       WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
-      wsGroupLookup.setGroupName("aStem:aGroup");
+      wsGroupLookup.setGroupName("test:testGroup");
       getMemberships.setWsGroupLookups(new WsGroupLookup[]{wsGroupLookup});
 
       getMemberships.setWsMemberFilter("Immediate");
       
       getMemberships.setWsSubjectLookups(new WsSubjectLookup[]{null});
       getMemberships.setWsStemLookup(new WsStemLookup());
+      
+      getMemberships.setPointInTimeFrom("2019/11/01 10:10:10.000");
       
 //      --pageSize=1 --pageNumber=1 --sortString=displayName --ascending=true",
 //      --pageSizeForMember=1 --pageNumberForMember=1 --sortStringForMember=name --ascendingForMember=true

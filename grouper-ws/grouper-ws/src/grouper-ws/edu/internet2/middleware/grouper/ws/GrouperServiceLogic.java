@@ -227,7 +227,6 @@ public class GrouperServiceLogic {
    * @return the results.  return the subject lookup only if there are problems retrieving the subject.
    * @see GrouperVersion
    */
-  @SuppressWarnings("unchecked")
   public static WsAddMemberResults addMember(final GrouperVersion clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final boolean replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
@@ -287,7 +286,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -352,7 +352,7 @@ public class GrouperServiceLogic {
                     newSubjects.add(new MultiKey(subject.getId(), subject.getSource().getId()));
                   }
                   HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-                    
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       try {
@@ -546,7 +546,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsDeleteMemberResults deleteMember(final GrouperVersion clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final WsSubjectLookup actAsSubjectLookup, final Field fieldName,
@@ -601,6 +600,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -781,7 +781,6 @@ public class GrouperServiceLogic {
    * in alphabetical order
    * @return the groups, or no groups if none found
    */
-  @SuppressWarnings("unchecked")
   public static WsFindGroupsResults findGroups(final GrouperVersion clientVersion,
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail, WsParam[] params, WsGroupLookup[] wsGroupLookups) {
@@ -963,7 +962,6 @@ public class GrouperServiceLogic {
    * in alphabetical order
    * @return the stems, or no stems if none found
    */
-  @SuppressWarnings("unchecked")
   public static WsFindStemsResults findStems(final GrouperVersion clientVersion,
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
       WsParam[] params, WsStemLookup[] wsStemLookups) {
@@ -1161,7 +1159,6 @@ public class GrouperServiceLogic {
    *            minimum point in time to the time specified.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetGroupsResults getGroups(final GrouperVersion clientVersion,
       WsSubjectLookup[] subjectLookups, WsMemberFilter memberFilter, 
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail,
@@ -1491,7 +1488,6 @@ public class GrouperServiceLogic {
    * @param ascending T or null for ascending, F for descending.  
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetMembersResults getMembers(
       final GrouperVersion clientVersion,
       WsGroupLookup[] wsGroupLookups, WsMemberFilter memberFilter,
@@ -1633,7 +1629,6 @@ public class GrouperServiceLogic {
             
             // lets get the members, cant be null
             Set<Member> members = memberFilter.getMembers(group, fieldName, sources, queryOptions);
-            Member.resolveSubjects(members, true);
             wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
           } else {            
             Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroupsIfNeeded("wsGroupLookup", pointInTimeFrom, pointInTimeTo);
@@ -1733,9 +1728,20 @@ public class GrouperServiceLogic {
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetMembershipsResults getMemberships(final GrouperVersion clientVersion,
       WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, WsMemberFilter wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
@@ -1745,7 +1751,8 @@ public class GrouperServiceLogic {
       WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, FieldType fieldType,
       ServiceRole serviceRole, WsAttributeDefNameLookup serviceLookup, Integer pageSize, Integer pageNumber,
       String sortString, Boolean ascending, Integer pageSizeForMember, Integer pageNumberForMember,
-      String sortStringForMember, Boolean ascendingForMember
+      String sortStringForMember, Boolean ascendingForMember,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo
       ) {  
 
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
@@ -2031,15 +2038,30 @@ public class GrouperServiceLogic {
         membershipFinder.assignQueryOptionsForGroup(queryOptions);
         membershipFinder.assignQueryOptionsForMember(queryOptionsForMember);
         membershipFinder.assignQueryOptionsForStem(queryOptions);
-
-        Set<Object[]> membershipObjects = membershipFinder.findMembershipsMembers();
         
+        boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
         
+        Set<Object[]> membershipObjects = null; 
+        
+        if (usePIT) {
+          if (pointInTimeFrom != null) {
+            membershipFinder.assignPointInTimeFrom(pointInTimeFrom);
+          }
+          
+          if (pointInTimeTo != null) {
+            membershipFinder.assignPointInTimeTo(pointInTimeTo);
+          }
+          
+          membershipObjects = membershipFinder.findPITMembershipsMembers();
+          wsGetMembershipsResults.assignPitMembershipResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
+        } else {     
+          membershipObjects = membershipFinder.findMembershipsMembers();
+          //calculate and return the results
+          wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
+        }
         
         Membership.resolveSubjects(membershipObjects);
         
-        //calculate and return the results
-        wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
       }
       wsGetMembershipsResults.assignResultCode(WsGetMembershipsResultsCode.SUCCESS);
       
@@ -2131,6 +2153,18 @@ public class GrouperServiceLogic {
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the memberships, or none if none found
    */
   public static WsGetMembershipsResults getMembershipsLite(final GrouperVersion clientVersion,
@@ -2144,7 +2178,8 @@ public class GrouperServiceLogic {
       FieldType fieldType, ServiceRole serviceRole,
       String serviceId, String serviceName, Integer pageSize, Integer pageNumber,
       String sortString, Boolean ascending, Integer pageSizeForMember, Integer pageNumberForMember,
-      String sortStringForMember, Boolean ascendingForMember) {
+      String sortStringForMember, Boolean ascendingForMember,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
     GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
@@ -2199,7 +2234,7 @@ public class GrouperServiceLogic {
         params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray,
         wsStemLookups, wsAttributeDefLookups, fieldType, serviceRole, serviceLookup,
         pageSize, pageNumber, sortString, ascending, pageSizeForMember, pageNumberForMember, 
-        sortStringForMember, ascendingForMember);
+        sortStringForMember, ascendingForMember, pointInTimeFrom, pointInTimeTo);
   
     return wsGetMembershipsResults;
   }
@@ -2323,7 +2358,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGroupDeleteResults groupDelete(final GrouperVersion clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
@@ -2364,7 +2398,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -2517,7 +2552,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGroupSaveResults groupSave(final GrouperVersion clientVersion,
       final WsGroupToSave[] wsGroupToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final boolean includeGroupDetail,  final WsParam[] params) {
@@ -2558,7 +2592,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -2583,7 +2617,7 @@ public class GrouperServiceLogic {
                   //this should be autonomous, so that within one group, it is transactional
                   HibernateSession.callbackHibernateSession(
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       //make sure everything is in order
@@ -2710,7 +2744,6 @@ public class GrouperServiceLogic {
    * @since 2.3.0.patch
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsExternalSubjectSaveResults externalSubjectSave(final GrouperVersion clientVersion,
       final WsExternalSubjectToSave[] wsExternalSubjectToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -2751,7 +2784,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -2776,7 +2809,8 @@ public class GrouperServiceLogic {
                   //this should be autonomous, so that within one group, it is transactional
                   HibernateSession.callbackHibernateSession(
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-
+                    
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
 
@@ -2869,7 +2903,6 @@ public class GrouperServiceLogic {
    *            minimum point in time to the time specified.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsHasMemberResults hasMember(final GrouperVersion clientVersion,
       WsGroupLookup wsGroupLookup, WsSubjectLookup[] subjectLookups,
       WsMemberFilter memberFilter,
@@ -3209,7 +3242,6 @@ public class GrouperServiceLogic {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsMemberChangeSubjectResults memberChangeSubject(final GrouperVersion clientVersion,
       final WsMemberChangeSubject[] wsMemberChangeSubjects,
       final WsSubjectLookup actAsSubjectLookup, GrouperTransactionType txType, 
@@ -3254,7 +3286,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -3343,7 +3375,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsStemDeleteResults stemDelete(final GrouperVersion clientVersion,
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -3383,7 +3414,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -3528,7 +3559,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsStemSaveResults stemSave(final GrouperVersion clientVersion,
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -3568,7 +3598,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -3595,8 +3625,6 @@ public class GrouperServiceLogic {
                   Stem stem = null;
 
                   String moveOrCopy = paramMap.get("moveOrCopy");
-                  
-                  Group group = null;
                   
                   if (!StringUtils.isBlank(moveOrCopy)) {
                     
@@ -3889,7 +3917,6 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member query
    */
-  @SuppressWarnings({ "cast", "unchecked" })
   public static WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(final GrouperVersion clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
       String groupName, String groupUuid, 
@@ -4432,7 +4459,7 @@ public class GrouperServiceLogic {
       final Subject grouperSessionSubject = GrouperSession.staticGrouperSession().getSubject();
       
       //if this change breaks an app, and you need a quick fix, you can whitelist users
-      final String groupNameOfUsersWhoCanCheckAllPrivileges = GrouperWsConfig.getPropertyString("ws.groupNameOfUsersWhoCanCheckAllPrivileges");
+      final String groupNameOfUsersWhoCanCheckAllPrivileges = GrouperWsConfig.retrieveConfig().propertyValueString("ws.groupNameOfUsersWhoCanCheckAllPrivileges");
       
       //if there is a whitelist to preserve old broken behavior
       if (!StringUtils.isBlank(groupNameOfUsersWhoCanCheckAllPrivileges)) {
@@ -4983,7 +5010,6 @@ public class GrouperServiceLogic {
      * found in list is much lower e.g. 1000)
      * @return the results
      */
-    @SuppressWarnings("unchecked")
     public static WsGetSubjectsResults getSubjects(final GrouperVersion clientVersion,
         WsSubjectLookup[] wsSubjectLookups, String searchString, boolean includeSubjectDetail,
         String[] subjectAttributeNames, WsSubjectLookup actAsSubjectLookup, 
@@ -5733,7 +5759,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -5979,7 +6005,6 @@ public class GrouperServiceLogic {
    * @param wsAssignAssignOwnerActions if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetAttributeAssignmentsResults getAttributeAssignments(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       WsAttributeAssignLookup[] wsAttributeAssignLookups,
@@ -6519,7 +6544,6 @@ public class GrouperServiceLogic {
    * @param wsAssignAssignOwnerAction if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       String attributeAssignId,
@@ -6881,7 +6905,6 @@ public class GrouperServiceLogic {
    * related attributeDefTypes, if blank, then just do all
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesResults assignAttributes(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -7057,7 +7080,6 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesLiteResults assignAttributesLite(
       GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -8089,7 +8111,6 @@ public class GrouperServiceLogic {
    * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetPermissionAssignmentsResults getPermissionAssignments(
       GrouperVersion clientVersion, 
       WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -8396,7 +8417,6 @@ public class GrouperServiceLogic {
    * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
       GrouperVersion clientVersion, 
       String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -8493,7 +8513,6 @@ public class GrouperServiceLogic {
    * @param disallowed is disallowed
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignPermissionsResults assignPermissions(
       GrouperVersion clientVersion, PermissionType permissionType,
       WsAttributeDefNameLookup[] permissionDefNameLookups,
@@ -8637,7 +8656,6 @@ public class GrouperServiceLogic {
    * @param disallowed if the assignment is a disallow
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignPermissionsLiteResults assignPermissionsLite(
       GrouperVersion clientVersion, PermissionType permissionType,
       String permissionDefNameName, String permissionDefNameId,
@@ -8855,7 +8873,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+           @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -8864,7 +8882,8 @@ public class GrouperServiceLogic {
                 //this should be autonomous, so that within one operational, it is transactional
                 HibernateSession.callbackHibernateSession(
                     GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-  
+                  
+                  @Override
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     
@@ -8888,7 +8907,8 @@ public class GrouperServiceLogic {
                 //this should be autonomous, so that within one operational, it is transactional
                 HibernateSession.callbackHibernateSession(
                     GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-  
+                  
+                  @Override
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     
@@ -9062,7 +9082,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -9247,7 +9267,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -9273,7 +9294,7 @@ public class GrouperServiceLogic {
                   //this should be autonomous, so that within one attribute def name, it is transactional
                   HibernateSession.callbackHibernateSession(
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       //make sure everything is in order
@@ -9765,7 +9786,6 @@ public class GrouperServiceLogic {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesBatchResults assignAttributesBatch(
       final GrouperVersion clientVersion, final WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries,
       final WsSubjectLookup actAsSubjectLookup, final boolean includeSubjectDetail, GrouperTransactionType txType,
@@ -9822,7 +9842,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -10319,7 +10340,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsExternalSubjectDeleteResults externalSubjectDelete(final GrouperVersion clientVersion,
       final WsExternalSubjectLookup[] wsExternalSubjectLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -10360,7 +10380,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -10455,7 +10476,6 @@ public class GrouperServiceLogic {
    * @param wsExternalSubjectLookups if you want to just pass in a list of uuids and/or names
    * @return the external subjects, or no external subjects if none found
    */
-  @SuppressWarnings("unchecked")
   public static WsFindExternalSubjectsResults findExternalSubjects(final GrouperVersion clientVersion,
       WsExternalSubjectLookup[] wsExternalSubjectLookups,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
@@ -10495,7 +10515,7 @@ public class GrouperServiceLogic {
           params);
   
       Set<ExternalSubject> externalSubjects = new TreeSet<ExternalSubject>(new Comparator<ExternalSubject>() {
-
+        @Override
         public int compare(ExternalSubject o1, ExternalSubject o2) {
           if (o1 == o2) {
             return 0;

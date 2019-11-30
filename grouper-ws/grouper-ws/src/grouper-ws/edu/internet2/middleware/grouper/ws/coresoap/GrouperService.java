@@ -2405,9 +2405,21 @@ public class GrouperService {
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGetMembershipsResults getMemberships(final String clientVersion,
       WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, String wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, String fieldName, String includeSubjectDetail,
@@ -2417,7 +2429,8 @@ public class GrouperService {
       WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, 
       String fieldType, String serviceRole, WsAttributeDefNameLookup serviceLookup, String pageSize, String pageNumber,
       String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
-      String sortStringForMember, String ascendingForMember) {  
+      String sortStringForMember, String ascendingForMember,
+      String pointInTimeFrom, String pointInTimeTo) {  
     
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
@@ -2457,12 +2470,15 @@ public class GrouperService {
       
       Boolean ascendingForMemberBoolean = GrouperUtil.booleanObjectValue(ascendingForMember);
 
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetMembershipsResults = GrouperServiceLogic.getMemberships(grouperWsVersion, wsGroupLookups, 
           wsSubjectLookups, memberFilter, actAsSubjectLookup, field, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds,
           wsOwnerStemLookups, wsOwnerAttributeDefLookups, fieldTypeEnum, serviceRoleEnum, serviceLookup,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pageSizeForMemberInteger, pageNumberForMemberInteger, 
-          sortStringForMember, ascendingForMemberBoolean);
+          sortStringForMember, ascendingForMemberBoolean, pointInTimeFromTimestamp, pointInTimeToTimestamp);
 
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
@@ -2543,6 +2559,19 @@ public class GrouperService {
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the memberships, or none if none found
    */
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
@@ -2556,7 +2585,8 @@ public class GrouperService {
       String ownerAttributeDefUuid, String fieldType, String serviceRole, 
       String serviceId, String serviceName, String pageSize, String pageNumber,
       String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
-      String sortStringForMember, String ascendingForMember) {
+      String sortStringForMember, String ascendingForMember, 
+      String pointInTimeFrom, String pointInTimeTo) {
   
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
     try {
@@ -2588,6 +2618,9 @@ public class GrouperService {
       
       Boolean ascendingForMemberBoolean = GrouperUtil.booleanObjectValue(ascendingForMember);
 
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetMembershipsResults = GrouperServiceLogic.getMembershipsLite(grouperWsVersion, groupName,
           groupUuid, subjectId, sourceId, subjectIdentifier, memberFilter,includeSubjectDetailBoolean, 
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, field, subjectAttributeNames, 
@@ -2595,7 +2628,7 @@ public class GrouperService {
           stemName, stemUuid, theStemScope, enabled, membershipIds, ownerStemName, ownerStemUuid, 
           nameOfOwnerAttributeDef, ownerAttributeDefUuid, fieldTypeEnum, serviceRoleEnum, serviceId, serviceName,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pageSizeForMemberInteger, pageNumberForMemberInteger, 
-          sortStringForMember, ascendingForMemberBoolean
+          sortStringForMember, ascendingForMemberBoolean, pointInTimeFromTimestamp, pointInTimeToTimestamp
           );
 
     } catch (Exception e) {

@@ -1547,6 +1547,90 @@
                                }
                             
 
+                        /**
+                        * field for PointInTimeFrom
+                        */
+
+                        
+                                    protected java.lang.String localPointInTimeFrom ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPointInTimeFromTracker = false ;
+
+                           public boolean isPointInTimeFromSpecified(){
+                               return localPointInTimeFromTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPointInTimeFrom(){
+                               return localPointInTimeFrom;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PointInTimeFrom
+                               */
+                               public void setPointInTimeFrom(java.lang.String param){
+                            localPointInTimeFromTracker = true;
+                                   
+                                            this.localPointInTimeFrom=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PointInTimeTo
+                        */
+
+                        
+                                    protected java.lang.String localPointInTimeTo ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPointInTimeToTracker = false ;
+
+                           public boolean isPointInTimeToSpecified(){
+                               return localPointInTimeToTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPointInTimeTo(){
+                               return localPointInTimeTo;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PointInTimeTo
+                               */
+                               public void setPointInTimeTo(java.lang.String param){
+                            localPointInTimeToTracker = true;
+                                   
+                                            this.localPointInTimeTo=param;
+                                    
+
+                               }
+                            
+
      
      
         /**
@@ -2206,6 +2290,42 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localPointInTimeFromTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pointInTimeFrom", xmlWriter);
+                             
+
+                                          if (localPointInTimeFrom==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPointInTimeFrom);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPointInTimeToTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pointInTimeTo", xmlWriter);
+                             
+
+                                          if (localPointInTimeTo==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPointInTimeTo);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              }
                     xmlWriter.writeEndElement();
                
@@ -2726,6 +2846,18 @@
                                  
                                          elementList.add(localAscendingForMember==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAscendingForMember));
+                                    } if (localPointInTimeFromTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pointInTimeFrom"));
+                                 
+                                         elementList.add(localPointInTimeFrom==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPointInTimeFrom));
+                                    } if (localPointInTimeToTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pointInTimeTo"));
+                                 
+                                         elementList.add(localPointInTimeTo==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPointInTimeTo));
                                     }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -3827,6 +3959,60 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setAscendingForMember(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pointInTimeFrom").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPointInTimeFrom(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pointInTimeTo").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPointInTimeTo(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

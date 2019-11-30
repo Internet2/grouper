@@ -54,7 +54,7 @@ public class WsSampleGetMembershipsRestLite2 implements WsSampleRest {
       GetMethod method = new GetMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/subjects/10021368/memberships");
+            + "/subjects/babe/memberships");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 

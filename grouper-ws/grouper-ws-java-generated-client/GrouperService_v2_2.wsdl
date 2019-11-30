@@ -119,6 +119,48 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="findGroupsLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queryFilterType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupAttributeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupAttributeValue" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupTypeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="typeOfGroups" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findGroupsLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindGroupsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsFindGroupsResults">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="groupResults" nillable="true" type="ns:WsGroup"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="findStems">
                 <xs:complexType>
                     <xs:sequence>
@@ -219,13 +261,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="WsFindGroupsResults">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="groupResults" nillable="true" type="ns:WsGroup"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:element name="getMembersLite">
                 <xs:complexType>
                     <xs:sequence>
@@ -404,41 +439,6 @@
                     <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:element name="findGroupsLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queryFilterType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupAttributeName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupAttributeValue" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupTypeName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="typeOfGroups" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findGroupsLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindGroupsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
             <xs:element name="stemSaveLite">
                 <xs:complexType>
                     <xs:sequence>

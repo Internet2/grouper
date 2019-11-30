@@ -120,6 +120,933 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="findAttributeDefNames">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAttributeDefLookup" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element minOccurs="0" name="attributeAssignType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsInheritanceSetRelation" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element minOccurs="0" name="wsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="serviceRole" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefNameLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findAttributeDefNamesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefNamesResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsFindAttributeDefNamesResults">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefNameResults" nillable="true" type="ns:WsAttributeDefName"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefs" nillable="true" type="ns:WsAttributeDef"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefName">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="attributeDefId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeDefName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDef">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="assignableTos" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="multiAssignable" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="multiValued" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="valueType" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefNameSave">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameToSaves" nillable="true" type="ns:WsAttributeDefNameToSave"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameToSave">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefNameLookup" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefNameSaveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameSaveResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameSaveResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefNameSaveResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefNameSaveResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefNameSaveLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameLookupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameLookupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefLookupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefLookupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefNameSaveLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameSaveLiteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameSaveLiteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findAttributeDefNamesLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="uuidOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeAssignType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsInheritanceSetRelation" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="serviceRole" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findAttributeDefNamesLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefNamesResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="assignAttributeDefNameInheritance">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAttributeDefNameLookup" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="relatedWsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element minOccurs="0" name="assign" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="replaceAllExisting" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="assignAttributeDefNameInheritanceResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignAttributeDefNameInheritanceResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAssignAttributeDefNameInheritanceResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="assignAttributeDefNameInheritanceLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="relatedAttributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="relatedAttributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assign" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="assignAttributeDefNameInheritanceLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignAttributeDefNameInheritanceResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefNameDelete">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefNameDeleteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameDeleteResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameDeleteResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefNameDeleteResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefNameDeleteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefNameDeleteLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefNameDeleteLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameDeleteLiteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameDeleteLiteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="acknowledge">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="acknowledgeType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="messageIds" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="anotherQueueOrTopicName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="anotherQueueType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="acknowledgeResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsMessageAcknowledgeResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsMessageAcknowledgeResults">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="messageIds" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="assignAttributeDefActions">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAttributeDefLookup" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="actions" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assign" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="replaceAllExisting" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="assignAttributeDefActionsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefAssignActionResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefAssignActionResults">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="actions" nillable="true" type="ns:WsAttributeDefActionOperationPerformed"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefActionOperationPerformed">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefSave">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefsToSave" nillable="true" type="ns:WsAttributeDefToSave"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefToSave">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefLookup" nillable="true" type="ns:WsAttributeDefLookup"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefSaveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefSaveResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefSaveResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefSaveResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefSaveResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefSaveLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefLookupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefLookupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="uuidOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToAttributeDefAssignment" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToEffectiveMembership" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToEffectiveMembershipAssignment" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToGroup" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToGroupAssignment" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToImmediateMembership" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToImmediateMembershipAssignment" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToMember" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToMemberAssignment" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToStem" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignToStemAssignment" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="multiAssignable" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="multiValued" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="valueType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefSaveLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefSaveLiteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefSaveLiteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefDelete">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefDeleteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefDeleteResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefDeleteResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefDeleteResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefDeleteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefDeleteLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsNameOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsIdOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsIdIndexOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefDeleteLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefDeleteLiteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefDeleteLiteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findAttributeDefs">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element minOccurs="0" name="privilegeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="parentStemId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="findByUuidOrName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findAttributeDefsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsFindAttributeDefsResults">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefResults" nillable="true" type="ns:WsAttributeDef"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findAttributeDefsLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="uuidOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="idIndexOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="privilegeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="parentStemId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="findByUuidOrName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findAttributeDefsLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAttributeAssignActions">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="actions" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAttributeAssignActionsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetAttributeAssignActionsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGetAttributeAssignActionsResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssignActionTuples" nillable="true" type="ns:WsAttributeAssignActionTuple"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefs" nillable="true" type="ns:WsAttributeDef"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeAssignActionTuple">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeDefId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getAttributeAssignActionsLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsNameOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsIdOfAtttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsIdIndexOfAtrrbuteDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAttributeAssignActionsLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetAttributeAssignActionsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="receiveMessage">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="routingKey" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="autocreateObjects" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="blockMillis" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="maxMessagesToReceiveAtOnce" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="receiveMessageResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsMessageResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsMessageResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="messages" nillable="true" type="ns:WsMessage"/>
+                    <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsMessage">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="fromMemberId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="messageBody" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="sendMessage">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queueType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="routingKey" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="autocreateObjects" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="messages" nillable="true" type="ns:WsMessage"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="sendMessageResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsMessageResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="externalSubjectDelete">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsExternalSubjectLookups" nillable="true" type="ns:WsExternalSubjectLookup"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsExternalSubjectLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="identifier" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="externalSubjectDeleteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsExternalSubjectDeleteResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsExternalSubjectDeleteResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsExternalSubjectDeleteResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsExternalSubjectDeleteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsExternalSubject" nillable="true" type="ns:WsExternalSubject"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsExternalSubject">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="email" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="identifier" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="institution" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="searchStringLower" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="vettedEmailAddresses" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsExternalSubjectAttributes" nillable="true" type="ns:WsExternalSubjectAttribute"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsExternalSubjectAttribute">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="attributeSystemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeValue" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="externalSubjectSave">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsExternalSubjectToSaves" nillable="true" type="ns:WsExternalSubjectToSave"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsExternalSubjectToSave">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsExternalSubject" nillable="true" type="ns:WsExternalSubject"/>
+                    <xs:element minOccurs="0" name="wsExternalSubjectLookup" nillable="true" type="ns:WsExternalSubjectLookup"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="externalSubjectSaveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsExternalSubjectSaveResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsExternalSubjectSaveResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsExternalSubjectSaveResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsExternalSubjectSaveResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsExternalSubject" nillable="true" type="ns:WsExternalSubject"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findExternalSubjects">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsExternalSubjectLookups" nillable="true" type="ns:WsExternalSubjectLookup"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findExternalSubjectsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindExternalSubjectsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsFindExternalSubjectsResults">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="externalSubjectResults" nillable="true" type="ns:WsExternalSubject"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getAuditEntriesLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="auditType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="auditActionId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="afterAuditEntryId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerGroupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerGroupId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerStemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerStemId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerAttributeDefName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerAttributeDefId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerAttributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerAttributeDefNameId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsOwnerSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAuditEntriesLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetAuditEntriesResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGetAuditEntriesResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAuditEntries" nillable="true" type="ns:WsAuditEntry"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAuditEntry">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="actionName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="auditCategory" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="auditEntryColumns" nillable="true" type="ns:WsAuditEntryColumn"/>
+                    <xs:element minOccurs="0" name="timestamp" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAuditEntryColumn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="label" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="valueInt" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="valueString" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getAuditEntries">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="auditType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="auditActionId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="afterAuditEntryId" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerGroupLookups" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerStemLookups" nillable="true" type="ns:WsStemLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerSubjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getAuditEntriesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetAuditEntriesResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="getGroups">
                 <xs:complexType>
                     <xs:sequence>
@@ -145,13 +1072,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="WsStemLookup">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:element name="getGroupsResponse">
                 <xs:complexType>
                     <xs:sequence>
@@ -172,6 +1092,48 @@
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroups" nillable="true" type="ns:WsGroup"/>
                     <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findGroupsLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queryFilterType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupAttributeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupAttributeValue" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupTypeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="typeOfGroups" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findGroupsLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindGroupsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsFindGroupsResults">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="groupResults" nillable="true" type="ns:WsGroup"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="findStems">
@@ -267,13 +1229,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="WsFindGroupsResults">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="groupResults" nillable="true" type="ns:WsGroup"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:element name="getMembersLite">
                 <xs:complexType>
                     <xs:sequence>
@@ -314,41 +1269,6 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:element name="findGroupsLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queryFilterType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupAttributeName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupAttributeValue" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupTypeName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="typeOfGroups" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findGroupsLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindGroupsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
             <xs:element name="hasMember">
                 <xs:complexType>
                     <xs:sequence>
@@ -1161,23 +2081,11 @@
                         <xs:element minOccurs="0" name="pageNumberForMember" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="sortStringForMember" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="ascendingForMember" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="WsAttributeDefLookup">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeDefNameLookup">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:element name="getMembershipsResponse">
                 <xs:complexType>
                     <xs:sequence>
@@ -1195,20 +2103,6 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsMemberships" nillable="true" type="ns:WsMembership"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStems" nillable="true" type="ns:WsStem"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeDef">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="assignableTos" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="multiAssignable" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="multiValued" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="valueType" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="WsMembership">
@@ -1277,6 +2171,8 @@
                         <xs:element minOccurs="0" name="pageNumberForMember" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="sortStringForMember" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="ascendingForMember" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1510,19 +2406,6 @@
                     <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="valueFormatted" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="valueSystem" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeDefName">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="attributeDefId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="attributeDefName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="idIndex" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="getAttributeAssignmentsLite">
@@ -2047,885 +2930,6 @@
                     <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:element name="attributeDefNameSave">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameToSaves" nillable="true" type="ns:WsAttributeDefNameToSave"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefNameToSave">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
-                    <xs:element minOccurs="0" name="wsAttributeDefNameLookup" nillable="true" type="ns:WsAttributeDefNameLookup"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="attributeDefNameSaveResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameSaveResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefNameSaveResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefNameSaveResult"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeDefNameSaveResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="attributeDefNameSaveLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameLookupUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameLookupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefLookupUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefLookupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="attributeDefNameSaveLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameSaveLiteResult"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefNameSaveLiteResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="findAttributeDefNames">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsAttributeDefLookup" nillable="true" type="ns:WsAttributeDefLookup"/>
-                        <xs:element minOccurs="0" name="attributeAssignType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsInheritanceSetRelation" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                        <xs:element minOccurs="0" name="wsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="serviceRole" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findAttributeDefNamesResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefNamesResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsFindAttributeDefNamesResults">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefNameResults" nillable="true" type="ns:WsAttributeDefName"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefs" nillable="true" type="ns:WsAttributeDef"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="findAttributeDefNamesLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="uuidOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeAssignType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsInheritanceSetRelation" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="subjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="subjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="subjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="serviceRole" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findAttributeDefNamesLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefNamesResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="assignAttributeDefNameInheritance">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsAttributeDefNameLookup" nillable="true" type="ns:WsAttributeDefNameLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="relatedWsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
-                        <xs:element minOccurs="0" name="assign" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="replaceAllExisting" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="assignAttributeDefNameInheritanceResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignAttributeDefNameInheritanceResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAssignAttributeDefNameInheritanceResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="assignAttributeDefNameInheritanceLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="relatedAttributeDefNameUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="relatedAttributeDefNameName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assign" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="assignAttributeDefNameInheritanceLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignAttributeDefNameInheritanceResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="attributeDefNameDelete">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="attributeDefNameDeleteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameDeleteResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefNameDeleteResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefNameDeleteResult"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeDefNameDeleteResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="attributeDefNameDeleteLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="attributeDefNameDeleteLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameDeleteLiteResult"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefNameDeleteLiteResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="acknowledge">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="acknowledgeType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="messageIds" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="anotherQueueOrTopicName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="anotherQueueType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="acknowledgeResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsMessageAcknowledgeResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsMessageAcknowledgeResults">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="messageIds" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="assignAttributeDefActions">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsAttributeDefLookup" nillable="true" type="ns:WsAttributeDefLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="actions" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assign" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="replaceAllExisting" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="assignAttributeDefActionsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefAssignActionResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefAssignActionResults">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="actions" nillable="true" type="ns:WsAttributeDefActionOperationPerformed"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeDefActionOperationPerformed">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="attributeDefSave">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefsToSave" nillable="true" type="ns:WsAttributeDefToSave"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefToSave">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
-                    <xs:element minOccurs="0" name="wsAttributeDefLookup" nillable="true" type="ns:WsAttributeDefLookup"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="attributeDefSaveResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefSaveResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefSaveResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefSaveResult"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeDefSaveResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="attributeDefSaveLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefLookupUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefLookupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="uuidOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToAttributeDefAssignment" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToEffectiveMembership" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToEffectiveMembershipAssignment" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToGroup" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToGroupAssignment" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToImmediateMembership" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToImmediateMembershipAssignment" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToMember" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToMemberAssignment" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToStem" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="assignToStemAssignment" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="multiAssignable" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="multiValued" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="valueType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="attributeDefSaveLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefSaveLiteResult"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefSaveLiteResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="attributeDefDelete">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="attributeDefDeleteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefDeleteResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefDeleteResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefDeleteResult"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeDefDeleteResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="attributeDefDeleteLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsNameOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsIdOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsIdIndexOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="attributeDefDeleteLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefDeleteLiteResult"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsAttributeDefDeleteLiteResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsAttributeDef" nillable="true" type="ns:WsAttributeDef"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="findAttributeDefs">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
-                        <xs:element minOccurs="0" name="privilegeName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="parentStemId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="findByUuidOrName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findAttributeDefsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsFindAttributeDefsResults">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefResults" nillable="true" type="ns:WsAttributeDef"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="findAttributeDefsLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="uuidOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="idIndexOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="privilegeName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="parentStemId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="findByUuidOrName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findAttributeDefsLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAttributeAssignActions">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="actions" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAttributeAssignActionsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetAttributeAssignActionsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsGetAttributeAssignActionsResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssignActionTuples" nillable="true" type="ns:WsAttributeAssignActionTuple"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefs" nillable="true" type="ns:WsAttributeDef"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeAssignActionTuple">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="attributeDefId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="getAttributeAssignActionsLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsNameOfAttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsIdOfAtttributeDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsIdIndexOfAtrrbuteDef" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAttributeAssignActionsLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetAttributeAssignActionsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="receiveMessage">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="routingKey" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="autocreateObjects" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="blockMillis" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="maxMessagesToReceiveAtOnce" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="receiveMessageResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsMessageResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsMessageResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="messages" nillable="true" type="ns:WsMessage"/>
-                    <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsMessage">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="fromMemberId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="messageBody" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="sendMessage">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queueType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queueOrTopicName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="messageSystemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="routingKey" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="autocreateObjects" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="messages" nillable="true" type="ns:WsMessage"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="sendMessageResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsMessageResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="externalSubjectDelete">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsExternalSubjectLookups" nillable="true" type="ns:WsExternalSubjectLookup"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsExternalSubjectLookup">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="identifier" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="externalSubjectDeleteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsExternalSubjectDeleteResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsExternalSubjectDeleteResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsExternalSubjectDeleteResult"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsExternalSubjectDeleteResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsExternalSubject" nillable="true" type="ns:WsExternalSubject"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsExternalSubject">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="email" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="identifier" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="institution" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="searchStringLower" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="vettedEmailAddresses" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsExternalSubjectAttributes" nillable="true" type="ns:WsExternalSubjectAttribute"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsExternalSubjectAttribute">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="attributeSystemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="attributeValue" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="externalSubjectSave">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsExternalSubjectToSaves" nillable="true" type="ns:WsExternalSubjectToSave"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsExternalSubjectToSave">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsExternalSubject" nillable="true" type="ns:WsExternalSubject"/>
-                    <xs:element minOccurs="0" name="wsExternalSubjectLookup" nillable="true" type="ns:WsExternalSubjectLookup"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="externalSubjectSaveResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsExternalSubjectSaveResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsExternalSubjectSaveResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsExternalSubjectSaveResult"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsExternalSubjectSaveResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsExternalSubject" nillable="true" type="ns:WsExternalSubject"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="findExternalSubjects">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsExternalSubjectLookups" nillable="true" type="ns:WsExternalSubjectLookup"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findExternalSubjectsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindExternalSubjectsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsFindExternalSubjectsResults">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="externalSubjectResults" nillable="true" type="ns:WsExternalSubject"/>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="getAuditEntriesLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="auditType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="auditActionId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="afterAuditEntryId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerGroupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerGroupId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerStemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerStemId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerAttributeDefName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerAttributeDefId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerAttributeDefNameName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerAttributeDefNameId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsOwnerSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAuditEntriesLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetAuditEntriesResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsGetAuditEntriesResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAuditEntries" nillable="true" type="ns:WsAuditEntry"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAuditEntry">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="actionName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="auditCategory" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="auditEntryColumns" nillable="true" type="ns:WsAuditEntryColumn"/>
-                    <xs:element minOccurs="0" name="timestamp" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAuditEntryColumn">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="label" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="valueInt" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="valueString" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="getAuditEntries">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="auditType" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="auditActionId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="afterAuditEntryId" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerGroupLookups" nillable="true" type="ns:WsGroupLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerStemLookups" nillable="true" type="ns:WsStemLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerSubjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAuditEntriesResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetAuditEntriesResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
         </xs:schema>
     </wsdl:types>
     <wsdl:message name="attributeDefDeleteLiteRequest">
@@ -2939,6 +2943,12 @@
     </wsdl:message>
     <wsdl:message name="attributeDefSaveLiteResponse">
         <wsdl:part name="parameters" element="ns:attributeDefSaveLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getAuditEntriesLiteRequest">
+        <wsdl:part name="parameters" element="ns:getAuditEntriesLite"/>
+    </wsdl:message>
+    <wsdl:message name="getAuditEntriesLiteResponse">
+        <wsdl:part name="parameters" element="ns:getAuditEntriesLiteResponse"/>
     </wsdl:message>
     <wsdl:message name="groupSaveRequest">
         <wsdl:part name="parameters" element="ns:groupSave"/>
@@ -2957,12 +2967,6 @@
     </wsdl:message>
     <wsdl:message name="assignGrouperPrivilegesResponse">
         <wsdl:part name="parameters" element="ns:assignGrouperPrivilegesResponse"/>
-    </wsdl:message>
-    <wsdl:message name="getAuditEntriesLiteRequest">
-        <wsdl:part name="parameters" element="ns:getAuditEntriesLite"/>
-    </wsdl:message>
-    <wsdl:message name="getAuditEntriesLiteResponse">
-        <wsdl:part name="parameters" element="ns:getAuditEntriesLiteResponse"/>
     </wsdl:message>
     <wsdl:message name="getSubjectsLiteRequest">
         <wsdl:part name="parameters" element="ns:getSubjectsLite"/>
@@ -3000,17 +3004,17 @@
     <wsdl:message name="getGroupsResponse">
         <wsdl:part name="parameters" element="ns:getGroupsResponse"/>
     </wsdl:message>
-    <wsdl:message name="getGroupsLiteRequest">
-        <wsdl:part name="parameters" element="ns:getGroupsLite"/>
-    </wsdl:message>
-    <wsdl:message name="getGroupsLiteResponse">
-        <wsdl:part name="parameters" element="ns:getGroupsLiteResponse"/>
-    </wsdl:message>
     <wsdl:message name="groupSaveLiteRequest">
         <wsdl:part name="parameters" element="ns:groupSaveLite"/>
     </wsdl:message>
     <wsdl:message name="groupSaveLiteResponse">
         <wsdl:part name="parameters" element="ns:groupSaveLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getGroupsLiteRequest">
+        <wsdl:part name="parameters" element="ns:getGroupsLite"/>
+    </wsdl:message>
+    <wsdl:message name="getGroupsLiteResponse">
+        <wsdl:part name="parameters" element="ns:getGroupsLiteResponse"/>
     </wsdl:message>
     <wsdl:message name="receiveMessageRequest">
         <wsdl:part name="parameters" element="ns:receiveMessage"/>
@@ -3060,17 +3064,17 @@
     <wsdl:message name="memberChangeSubjectLiteResponse">
         <wsdl:part name="parameters" element="ns:memberChangeSubjectLiteResponse"/>
     </wsdl:message>
-    <wsdl:message name="getPermissionAssignmentsRequest">
-        <wsdl:part name="parameters" element="ns:getPermissionAssignments"/>
-    </wsdl:message>
-    <wsdl:message name="getPermissionAssignmentsResponse">
-        <wsdl:part name="parameters" element="ns:getPermissionAssignmentsResponse"/>
-    </wsdl:message>
     <wsdl:message name="externalSubjectDeleteRequest">
         <wsdl:part name="parameters" element="ns:externalSubjectDelete"/>
     </wsdl:message>
     <wsdl:message name="externalSubjectDeleteResponse">
         <wsdl:part name="parameters" element="ns:externalSubjectDeleteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getPermissionAssignmentsRequest">
+        <wsdl:part name="parameters" element="ns:getPermissionAssignments"/>
+    </wsdl:message>
+    <wsdl:message name="getPermissionAssignmentsResponse">
+        <wsdl:part name="parameters" element="ns:getPermissionAssignmentsResponse"/>
     </wsdl:message>
     <wsdl:message name="getMembersRequest">
         <wsdl:part name="parameters" element="ns:getMembers"/>
@@ -3156,17 +3160,17 @@
     <wsdl:message name="attributeDefDeleteResponse">
         <wsdl:part name="parameters" element="ns:attributeDefDeleteResponse"/>
     </wsdl:message>
-    <wsdl:message name="groupDeleteRequest">
-        <wsdl:part name="parameters" element="ns:groupDelete"/>
-    </wsdl:message>
-    <wsdl:message name="groupDeleteResponse">
-        <wsdl:part name="parameters" element="ns:groupDeleteResponse"/>
-    </wsdl:message>
     <wsdl:message name="assignAttributeDefNameInheritanceLiteRequest">
         <wsdl:part name="parameters" element="ns:assignAttributeDefNameInheritanceLite"/>
     </wsdl:message>
     <wsdl:message name="assignAttributeDefNameInheritanceLiteResponse">
         <wsdl:part name="parameters" element="ns:assignAttributeDefNameInheritanceLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="groupDeleteRequest">
+        <wsdl:part name="parameters" element="ns:groupDelete"/>
+    </wsdl:message>
+    <wsdl:message name="groupDeleteResponse">
+        <wsdl:part name="parameters" element="ns:groupDeleteResponse"/>
     </wsdl:message>
     <wsdl:message name="findExternalSubjectsRequest">
         <wsdl:part name="parameters" element="ns:findExternalSubjects"/>
@@ -3234,17 +3238,17 @@
     <wsdl:message name="attributeDefNameSaveResponse">
         <wsdl:part name="parameters" element="ns:attributeDefNameSaveResponse"/>
     </wsdl:message>
-    <wsdl:message name="hasMemberRequest">
-        <wsdl:part name="parameters" element="ns:hasMember"/>
-    </wsdl:message>
-    <wsdl:message name="hasMemberResponse">
-        <wsdl:part name="parameters" element="ns:hasMemberResponse"/>
-    </wsdl:message>
     <wsdl:message name="findAttributeDefNamesLiteRequest">
         <wsdl:part name="parameters" element="ns:findAttributeDefNamesLite"/>
     </wsdl:message>
     <wsdl:message name="findAttributeDefNamesLiteResponse">
         <wsdl:part name="parameters" element="ns:findAttributeDefNamesLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="hasMemberRequest">
+        <wsdl:part name="parameters" element="ns:hasMember"/>
+    </wsdl:message>
+    <wsdl:message name="hasMemberResponse">
+        <wsdl:part name="parameters" element="ns:hasMemberResponse"/>
     </wsdl:message>
     <wsdl:message name="findStemsRequest">
         <wsdl:part name="parameters" element="ns:findStems"/>
@@ -3327,6 +3331,10 @@
             <wsdl:input message="tns:attributeDefSaveLiteRequest" wsaw:Action="urn:attributeDefSaveLite"/>
             <wsdl:output message="tns:attributeDefSaveLiteResponse" wsaw:Action="urn:attributeDefSaveLiteResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="getAuditEntriesLite">
+            <wsdl:input message="tns:getAuditEntriesLiteRequest" wsaw:Action="urn:getAuditEntriesLite"/>
+            <wsdl:output message="tns:getAuditEntriesLiteResponse" wsaw:Action="urn:getAuditEntriesLiteResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="groupSave">
             <wsdl:input message="tns:groupSaveRequest" wsaw:Action="urn:groupSave"/>
             <wsdl:output message="tns:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
@@ -3338,10 +3346,6 @@
         <wsdl:operation name="assignGrouperPrivileges">
             <wsdl:input message="tns:assignGrouperPrivilegesRequest" wsaw:Action="urn:assignGrouperPrivileges"/>
             <wsdl:output message="tns:assignGrouperPrivilegesResponse" wsaw:Action="urn:assignGrouperPrivilegesResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="getAuditEntriesLite">
-            <wsdl:input message="tns:getAuditEntriesLiteRequest" wsaw:Action="urn:getAuditEntriesLite"/>
-            <wsdl:output message="tns:getAuditEntriesLiteResponse" wsaw:Action="urn:getAuditEntriesLiteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getSubjectsLite">
             <wsdl:input message="tns:getSubjectsLiteRequest" wsaw:Action="urn:getSubjectsLite"/>
@@ -3367,13 +3371,13 @@
             <wsdl:input message="tns:getGroupsRequest" wsaw:Action="urn:getGroups"/>
             <wsdl:output message="tns:getGroupsResponse" wsaw:Action="urn:getGroupsResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="getGroupsLite">
-            <wsdl:input message="tns:getGroupsLiteRequest" wsaw:Action="urn:getGroupsLite"/>
-            <wsdl:output message="tns:getGroupsLiteResponse" wsaw:Action="urn:getGroupsLiteResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="groupSaveLite">
             <wsdl:input message="tns:groupSaveLiteRequest" wsaw:Action="urn:groupSaveLite"/>
             <wsdl:output message="tns:groupSaveLiteResponse" wsaw:Action="urn:groupSaveLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getGroupsLite">
+            <wsdl:input message="tns:getGroupsLiteRequest" wsaw:Action="urn:getGroupsLite"/>
+            <wsdl:output message="tns:getGroupsLiteResponse" wsaw:Action="urn:getGroupsLiteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="receiveMessage">
             <wsdl:input message="tns:receiveMessageRequest" wsaw:Action="urn:receiveMessage"/>
@@ -3407,13 +3411,13 @@
             <wsdl:input message="tns:memberChangeSubjectLiteRequest" wsaw:Action="urn:memberChangeSubjectLite"/>
             <wsdl:output message="tns:memberChangeSubjectLiteResponse" wsaw:Action="urn:memberChangeSubjectLiteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="getPermissionAssignments">
-            <wsdl:input message="tns:getPermissionAssignmentsRequest" wsaw:Action="urn:getPermissionAssignments"/>
-            <wsdl:output message="tns:getPermissionAssignmentsResponse" wsaw:Action="urn:getPermissionAssignmentsResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="externalSubjectDelete">
             <wsdl:input message="tns:externalSubjectDeleteRequest" wsaw:Action="urn:externalSubjectDelete"/>
             <wsdl:output message="tns:externalSubjectDeleteResponse" wsaw:Action="urn:externalSubjectDeleteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getPermissionAssignments">
+            <wsdl:input message="tns:getPermissionAssignmentsRequest" wsaw:Action="urn:getPermissionAssignments"/>
+            <wsdl:output message="tns:getPermissionAssignmentsResponse" wsaw:Action="urn:getPermissionAssignmentsResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getMembers">
             <wsdl:input message="tns:getMembersRequest" wsaw:Action="urn:getMembers"/>
@@ -3471,13 +3475,13 @@
             <wsdl:input message="tns:attributeDefDeleteRequest" wsaw:Action="urn:attributeDefDelete"/>
             <wsdl:output message="tns:attributeDefDeleteResponse" wsaw:Action="urn:attributeDefDeleteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="groupDelete">
-            <wsdl:input message="tns:groupDeleteRequest" wsaw:Action="urn:groupDelete"/>
-            <wsdl:output message="tns:groupDeleteResponse" wsaw:Action="urn:groupDeleteResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="assignAttributeDefNameInheritanceLite">
             <wsdl:input message="tns:assignAttributeDefNameInheritanceLiteRequest" wsaw:Action="urn:assignAttributeDefNameInheritanceLite"/>
             <wsdl:output message="tns:assignAttributeDefNameInheritanceLiteResponse" wsaw:Action="urn:assignAttributeDefNameInheritanceLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="groupDelete">
+            <wsdl:input message="tns:groupDeleteRequest" wsaw:Action="urn:groupDelete"/>
+            <wsdl:output message="tns:groupDeleteResponse" wsaw:Action="urn:groupDeleteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="findExternalSubjects">
             <wsdl:input message="tns:findExternalSubjectsRequest" wsaw:Action="urn:findExternalSubjects"/>
@@ -3523,13 +3527,13 @@
             <wsdl:input message="tns:attributeDefNameSaveRequest" wsaw:Action="urn:attributeDefNameSave"/>
             <wsdl:output message="tns:attributeDefNameSaveResponse" wsaw:Action="urn:attributeDefNameSaveResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="hasMember">
-            <wsdl:input message="tns:hasMemberRequest" wsaw:Action="urn:hasMember"/>
-            <wsdl:output message="tns:hasMemberResponse" wsaw:Action="urn:hasMemberResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="findAttributeDefNamesLite">
             <wsdl:input message="tns:findAttributeDefNamesLiteRequest" wsaw:Action="urn:findAttributeDefNamesLite"/>
             <wsdl:output message="tns:findAttributeDefNamesLiteResponse" wsaw:Action="urn:findAttributeDefNamesLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="hasMember">
+            <wsdl:input message="tns:hasMemberRequest" wsaw:Action="urn:hasMember"/>
+            <wsdl:output message="tns:hasMemberResponse" wsaw:Action="urn:hasMemberResponse"/>
         </wsdl:operation>
         <wsdl:operation name="findStems">
             <wsdl:input message="tns:findStemsRequest" wsaw:Action="urn:findStems"/>
@@ -3600,6 +3604,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="getAuditEntriesLite">
+            <soap:operation soapAction="urn:getAuditEntriesLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="groupSave">
             <soap:operation soapAction="urn:groupSave" style="document"/>
             <wsdl:input>
@@ -3620,15 +3633,6 @@
         </wsdl:operation>
         <wsdl:operation name="assignGrouperPrivileges">
             <soap:operation soapAction="urn:assignGrouperPrivileges" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getAuditEntriesLite">
-            <soap:operation soapAction="urn:getAuditEntriesLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3690,8 +3694,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveLite">
-            <soap:operation soapAction="urn:groupSaveLite" style="document"/>
+        <wsdl:operation name="getGroupsLite">
+            <soap:operation soapAction="urn:getGroupsLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3699,8 +3703,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getGroupsLite">
-            <soap:operation soapAction="urn:getGroupsLite" style="document"/>
+        <wsdl:operation name="groupSaveLite">
+            <soap:operation soapAction="urn:groupSaveLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3780,8 +3784,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getPermissionAssignments">
-            <soap:operation soapAction="urn:getPermissionAssignments" style="document"/>
+        <wsdl:operation name="externalSubjectDelete">
+            <soap:operation soapAction="urn:externalSubjectDelete" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3789,8 +3793,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="externalSubjectDelete">
-            <soap:operation soapAction="urn:externalSubjectDelete" style="document"/>
+        <wsdl:operation name="getPermissionAssignments">
+            <soap:operation soapAction="urn:getPermissionAssignments" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3924,8 +3928,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupDelete">
-            <soap:operation soapAction="urn:groupDelete" style="document"/>
+        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
+            <soap:operation soapAction="urn:assignAttributeDefNameInheritanceLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3933,8 +3937,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
-            <soap:operation soapAction="urn:assignAttributeDefNameInheritanceLite" style="document"/>
+        <wsdl:operation name="groupDelete">
+            <soap:operation soapAction="urn:groupDelete" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -4041,8 +4045,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMember">
-            <soap:operation soapAction="urn:hasMember" style="document"/>
+        <wsdl:operation name="findAttributeDefNamesLite">
+            <soap:operation soapAction="urn:findAttributeDefNamesLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -4050,8 +4054,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="findAttributeDefNamesLite">
-            <soap:operation soapAction="urn:findAttributeDefNamesLite" style="document"/>
+        <wsdl:operation name="hasMember">
+            <soap:operation soapAction="urn:hasMember" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -4188,6 +4192,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="getAuditEntriesLite">
+            <soap12:operation soapAction="urn:getAuditEntriesLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="groupSave">
             <soap12:operation soapAction="urn:groupSave" style="document"/>
             <wsdl:input>
@@ -4208,15 +4221,6 @@
         </wsdl:operation>
         <wsdl:operation name="assignGrouperPrivileges">
             <soap12:operation soapAction="urn:assignGrouperPrivileges" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getAuditEntriesLite">
-            <soap12:operation soapAction="urn:getAuditEntriesLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4278,8 +4282,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveLite">
-            <soap12:operation soapAction="urn:groupSaveLite" style="document"/>
+        <wsdl:operation name="getGroupsLite">
+            <soap12:operation soapAction="urn:getGroupsLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4287,8 +4291,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getGroupsLite">
-            <soap12:operation soapAction="urn:getGroupsLite" style="document"/>
+        <wsdl:operation name="groupSaveLite">
+            <soap12:operation soapAction="urn:groupSaveLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4368,8 +4372,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getPermissionAssignments">
-            <soap12:operation soapAction="urn:getPermissionAssignments" style="document"/>
+        <wsdl:operation name="externalSubjectDelete">
+            <soap12:operation soapAction="urn:externalSubjectDelete" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4377,8 +4381,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="externalSubjectDelete">
-            <soap12:operation soapAction="urn:externalSubjectDelete" style="document"/>
+        <wsdl:operation name="getPermissionAssignments">
+            <soap12:operation soapAction="urn:getPermissionAssignments" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4512,8 +4516,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupDelete">
-            <soap12:operation soapAction="urn:groupDelete" style="document"/>
+        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
+            <soap12:operation soapAction="urn:assignAttributeDefNameInheritanceLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4521,8 +4525,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
-            <soap12:operation soapAction="urn:assignAttributeDefNameInheritanceLite" style="document"/>
+        <wsdl:operation name="groupDelete">
+            <soap12:operation soapAction="urn:groupDelete" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4629,8 +4633,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMember">
-            <soap12:operation soapAction="urn:hasMember" style="document"/>
+        <wsdl:operation name="findAttributeDefNamesLite">
+            <soap12:operation soapAction="urn:findAttributeDefNamesLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4638,8 +4642,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="findAttributeDefNamesLite">
-            <soap12:operation soapAction="urn:findAttributeDefNamesLite" style="document"/>
+        <wsdl:operation name="hasMember">
+            <soap12:operation soapAction="urn:hasMember" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -4776,6 +4780,15 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="getAuditEntriesLite">
+            <http:operation location="getAuditEntriesLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="groupSave">
             <http:operation location="groupSave"/>
             <wsdl:input>
@@ -4796,15 +4809,6 @@
         </wsdl:operation>
         <wsdl:operation name="assignGrouperPrivileges">
             <http:operation location="assignGrouperPrivileges"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getAuditEntriesLite">
-            <http:operation location="getAuditEntriesLite"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -4866,8 +4870,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveLite">
-            <http:operation location="groupSaveLite"/>
+        <wsdl:operation name="getGroupsLite">
+            <http:operation location="getGroupsLite"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -4875,8 +4879,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getGroupsLite">
-            <http:operation location="getGroupsLite"/>
+        <wsdl:operation name="groupSaveLite">
+            <http:operation location="groupSaveLite"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -4956,8 +4960,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getPermissionAssignments">
-            <http:operation location="getPermissionAssignments"/>
+        <wsdl:operation name="externalSubjectDelete">
+            <http:operation location="externalSubjectDelete"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -4965,8 +4969,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="externalSubjectDelete">
-            <http:operation location="externalSubjectDelete"/>
+        <wsdl:operation name="getPermissionAssignments">
+            <http:operation location="getPermissionAssignments"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -5100,8 +5104,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupDelete">
-            <http:operation location="groupDelete"/>
+        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
+            <http:operation location="assignAttributeDefNameInheritanceLite"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -5109,8 +5113,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
-            <http:operation location="assignAttributeDefNameInheritanceLite"/>
+        <wsdl:operation name="groupDelete">
+            <http:operation location="groupDelete"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -5217,8 +5221,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMember">
-            <http:operation location="hasMember"/>
+        <wsdl:operation name="findAttributeDefNamesLite">
+            <http:operation location="findAttributeDefNamesLite"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -5226,8 +5230,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="findAttributeDefNamesLite">
-            <http:operation location="findAttributeDefNamesLite"/>
+        <wsdl:operation name="hasMember">
+            <http:operation location="hasMember"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>

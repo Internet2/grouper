@@ -1329,7 +1329,8 @@ public class GrouperServiceRest {
             wsRestGetMembershipsRequest.getPageNumber(), wsRestGetMembershipsRequest.getSortString(),
             wsRestGetMembershipsRequest.getAscending(), wsRestGetMembershipsRequest.getPageNumberForMember(),
             wsRestGetMembershipsRequest.getPageNumberForMember(), wsRestGetMembershipsRequest.getSortStringForMember(),
-            wsRestGetMembershipsRequest.getAscendingForMember());
+            wsRestGetMembershipsRequest.getAscendingForMember(),
+            wsRestGetMembershipsRequest.getPointInTimeFrom(), wsRestGetMembershipsRequest.getPointInTimeTo());
   
     //return result
     return wsGetMembershipsResults;
@@ -1387,7 +1388,8 @@ public class GrouperServiceRest {
             wsRestGetMembershipsLiteRequest.getPageNumber(), wsRestGetMembershipsLiteRequest.getSortString(),
             wsRestGetMembershipsLiteRequest.getAscending(), wsRestGetMembershipsLiteRequest.getPageNumberForMember(),
             wsRestGetMembershipsLiteRequest.getPageNumberForMember(), wsRestGetMembershipsLiteRequest.getSortStringForMember(),
-            wsRestGetMembershipsLiteRequest.getAscendingForMember());
+            wsRestGetMembershipsLiteRequest.getAscendingForMember(), 
+            wsRestGetMembershipsLiteRequest.getPointInTimeFrom(), wsRestGetMembershipsLiteRequest.getPointInTimeTo());
   
     //return result
     return wsGetMembershipsResults;

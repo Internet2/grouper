@@ -22,6 +22,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
@@ -86,6 +87,11 @@ public class WsStem implements Comparable<WsStem> {
       this.setIdIndex(stem.getIdIndex() == null ? null : stem.getIdIndex().toString());
     }
 
+  }
+  
+  public WsStem(PITStem pitStem) {
+    this.setName(pitStem.getName());
+    this.setUuid(pitStem.getId());
   }
 
   /**
