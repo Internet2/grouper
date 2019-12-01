@@ -638,14 +638,15 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     int firstIndex = jobName.indexOf("__");
     int lastIndex = jobName.lastIndexOf("__");
 
-    if (firstIndex + 2 <= lastIndex) {
-      // there aren't two separate parts; return past the first one
-      return jobName.substring(firstIndex + 2);
+    if (firstIndex + 2 < lastIndex) {
+      // at least 3 parts; return the second one
+      return jobName.substring(firstIndex + 2, lastIndex);
     }
 
-    // at least 3 parts; return the second one
-    return jobName.substring(firstIndex, lastIndex);
-    
+    // there aren't two separate parts; return past the first one
+    return jobName.substring(firstIndex + 2);
+
+
   }
   
   
