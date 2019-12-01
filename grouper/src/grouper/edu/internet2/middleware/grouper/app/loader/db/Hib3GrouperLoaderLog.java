@@ -611,18 +611,39 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    * @return group name
    */
   public String getGroupNameFromJobName() {
-    //LDAP_SIMPLE__someStem:myLdapGroup__aa8f3a245d1947509d347fee0f6a80b2
-    
+    //LDAP_SIMPLE__someStem:myLdapGroup__aa8f3a245d1947509d347fee0f6a80b2 -> someStem:myLdapGroup
+    //CHANGE_LOG_consumer_syncGroups -> consumer_syncGroups
+
     String jobName = this.getJobName();
     if (StringUtils.isBlank(jobName)) {
       return null;
     }
 
-    int firstIndex = jobName.indexOf("__") + 2;
-    int lastIndex = jobName.lastIndexOf("__");
-    if (firstIndex < 0 || lastIndex == 0) {
-      return null;
+    if (jobName.startsWith("CHANGE_LOG_")) {
+      return jobName.substring(11);
+    } else if (jobName.startsWith("MAINTENANCE__")) {
+      //MAINTENANCE__rules etc.
+      return jobName.substring(13);
+    } else if (jobName.startsWith("MAINTENANCE_")) {
+      //MAINTENANCE_cleanLogs
+      return jobName.substring(12);
+    } else if (jobName.startsWith("OTHER_JOB_")) {
+      return jobName.substring(10);
+    } else if (jobName.startsWith("MESSAGE_LISTENER_")) {
+      return jobName.substring(17);
+    } else if (jobName.startsWith("PSP_FULL_SYNC")) {
+      return jobName;
     }
+
+    int firstIndex = jobName.indexOf("__");
+    int lastIndex = jobName.lastIndexOf("__");
+
+    if (firstIndex + 2 <= lastIndex) {
+      // there aren't two separate parts; return past the first one
+      return jobName.substring(firstIndex + 2);
+    }
+
+    // at least 3 parts; return the second one
     return jobName.substring(firstIndex, lastIndex);
     
   }
