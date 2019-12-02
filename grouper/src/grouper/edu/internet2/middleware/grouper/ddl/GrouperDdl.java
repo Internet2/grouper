@@ -1556,6 +1556,7 @@ public enum GrouperDdl implements DdlVersionable {
             Types.BIGINT, "20", false, false); 
 
         addGroupAlternateNameCol(database, ddlVersionBean, groupsTable);
+        addGroupEnabledDisabledColumns(database, ddlVersionBean, groupsTableNew);
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
             "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
@@ -2339,6 +2340,58 @@ public enum GrouperDdl implements DdlVersionable {
 
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#recreateViewsAndForeignKeys()
+     */
+    public boolean recreateViewsAndForeignKeys() {
+      return false;
+    }
+  },
+  
+  /**
+   * <pre>
+   * Grouper 2.5.0
+   * </pre>
+   */
+  V32 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      addGroupEnabledDisabledColumns(database, ddlVersionBean, false);
+  
+      //GRP-1979 - change grouper_message.from_member_id from 100->40 to match the key it references
+      {
+        Table messageTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
+
+        Column column = GrouperDdlUtils.ddlutilsFindColumn(
+          messageTable, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID, true);
+
+        if ((column.getTypeCode() == Types.VARCHAR) && !"40".equals(column.getSize())) {
+          if (ddlVersionBean.isHsql()) {
+            ddlVersionBean.appendAdditionalScriptUnique("\nALTER TABLE grouper_message ALTER COLUMN from_member_id VARCHAR(40);\n");
+          } else if (ddlVersionBean.isOracle()) {
+            ddlVersionBean.appendAdditionalScriptUnique("\nALTER TABLE GROUPER_MESSAGE MODIFY (FROM_MEMBER_ID VARCHAR(40));\n");
+          } else if (ddlVersionBean.isPostgres()) {
+            ddlVersionBean.appendAdditionalScriptUnique("\nALTER TABLE grouper_message ALTER COLUMN from_member_id TYPE VARCHAR(40);\nCOMMIT;\n");
+          } else if (ddlVersionBean.isMysql()) {
+            // disable fk checks to prevent "Cannot change column 'from_member_id': used in a foreign key constraint 'fk_message_from_member_id'"
+            ddlVersionBean.appendAdditionalScriptUnique("\nSET FOREIGN_KEY_CHECKS=0;\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE grouper_message MODIFY from_member_id VARCHAR(40);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("SET FOREIGN_KEY_CHECKS=1;\n");
+          } else {
+            //everywhere except MySQL and MSSQL generates a table drop/create
+            column.setSize("40");
+          }
+        }
+      }
+    }
+
     /**
      * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#recreateViewsAndForeignKeys()
      */
@@ -13206,6 +13259,51 @@ public enum GrouperDdl implements DdlVersionable {
       ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_group_set set owner_id = owner_attr_def_id where owner_attr_def_id is not null;\ncommit;\n");      
     }
   }
+  
+  /** dont do this twice */
+  static boolean alreadyAddedGroupEnableDisable = false;
+  
+  private static void addGroupEnabledDisabledColumns(Database database, DdlVersionBean ddlVersionBean, boolean groupTableNew) {
+    //this can happen in step 2 as well as the 2.5 step
+    if (alreadyAddedGroupEnableDisable) {
+      return;
+    }
+    
+    alreadyAddedGroupEnableDisable = true;
+    
+    Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS, true);
+    boolean enabledColumnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ENABLED, false);
+
+    //this is required if the group table is new    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, groupTableNew, "T");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED_TIMESTAMP, Types.BIGINT, "20", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_DISABLED_TIMESTAMP, Types.BIGINT, "20", false, false);    
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_idx", false, Group.COLUMN_ENABLED); 
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_time_idx", false, Group.COLUMN_ENABLED_TIMESTAMP);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_disabled_time_idx", false, Group.COLUMN_DISABLED_TIMESTAMP);
+    
+    if (!groupTableNew) {
+      boolean needUpdate = false;
+      
+      if (enabledColumnIsNew) {
+        needUpdate = true;
+      } else {
+        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_groups where enabled is null");
+        if (count > 0) {
+          needUpdate = true;
+        }
+      }
+      
+      if (needUpdate) {
+        ddlVersionBean.getAdditionalScripts().append(
+            "update grouper_groups set enabled='T' where enabled is null;\n" +
+            "commit;\n");
+      }
+    }
+  }
+
 
   /** dont do this twice */
   static boolean alreadyAddedTableIndices = false;
@@ -14402,7 +14500,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.BIGINT, "20", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID,
-          Types.VARCHAR, "100", false, true);
+          Types.VARCHAR, "40", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_QUEUE_NAME,
           Types.VARCHAR, "100", false, true);

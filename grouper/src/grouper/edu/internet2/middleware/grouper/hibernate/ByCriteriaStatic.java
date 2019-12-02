@@ -31,6 +31,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
@@ -440,18 +441,36 @@ public class ByCriteriaStatic {
         
         query.addOrder(order);
         
-    }
+      }
     }
     QueryPaging queryPaging = this.queryOptions == null ? null : this.queryOptions.getQueryPaging();
     if (queryPaging != null) {
       
-      //GRP-1024: sql server problems with paging page number when not initted
-      if(queryPaging.getFirstIndexOnPage() < 0) {
-        query.setFirstResult(0);
+      if (queryPaging.isCursorBasedPaging()) {
+        
+        // if its not null, then we arent on the first page
+        if (queryPaging.getLastCursorField() != null) {
+          if (querySort == null) {
+            throw new RuntimeException("If you are doing cursor based paging, you need to sort by a field!");
+          }
+          
+          QuerySortField querySortField = querySort.getQuerySortFields().get(0);
+          if (queryPaging.isCursorFieldIncludesLastRetrieved()) {
+            query.add(Restrictions.ge(querySortField.getColumn(), queryPaging.getLastCursorField()));
+          } else {
+            query.add(Restrictions.gt(querySortField.getColumn(), queryPaging.getLastCursorField()));
+          }
+        }
+        
       } else {
-        query.setFirstResult(queryPaging.getFirstIndexOnPage());
+        //GRP-1024: sql server problems with paging page number when not initted
+        if(queryPaging.getFirstIndexOnPage() < 0) {
+          query.setFirstResult(0);
+        } else {
+          query.setFirstResult(queryPaging.getFirstIndexOnPage());
+        }
       }
-
+      
       query.setMaxResults(queryPaging.getPageSize());
     }
 

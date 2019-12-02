@@ -121,9 +121,35 @@ public class GrouperBoxCommands {
     
       JWTEncryptionPreferences jwtEncryptionPreferences = new JWTEncryptionPreferences();
       
-      String privateKey = GrouperClientUtils.readFileIntoString(new File(GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperBox.privateKeyFileName")));
+      String privateKeyContents = null;
+      if (GrouperClientConfig.retrieveConfig().containsKey("grouperBox.privateKeyContents_0")) {
+        StringBuilder keyFileContentsPart = new StringBuilder();
+        
+        for (int i=0;i<10;i++) {
+
+          // lines 1-?
+          String privateKeyPart = GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.privateKeyContents_" + i);
+          if (!StringUtils.isBlank(privateKeyPart)) {
+            if (keyFileContentsPart.length() > 0 && !keyFileContentsPart.toString().endsWith("\n")) {
+              keyFileContentsPart.append("\n");
+            }
+            //use $newline$ in config overlays
+            //grouperSftpPrivateKeyPart = StringUtils.replace(grouperSftpPrivateKeyPart, "NEWLINE", "\n");
+            privateKeyPart = StringUtils.trim(privateKeyPart);
+            keyFileContentsPart.append(privateKeyPart);
+
+          } else {
+            break;
+          }
+
+        }
+        privateKeyContents = keyFileContentsPart.toString();
+      } else {
+        File privateKeyFile = new File(GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperBox.privateKeyFileName"));
+        privateKeyContents = GrouperClientUtils.readFileIntoString(privateKeyFile);
+      }
       
-      jwtEncryptionPreferences.setPrivateKey(privateKey);
+      jwtEncryptionPreferences.setPrivateKey(privateKeyContents);
       
       String privateKeyPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperBox.privateKeyPass");
       privateKeyPass = Morph.decryptIfFile(privateKeyPass);

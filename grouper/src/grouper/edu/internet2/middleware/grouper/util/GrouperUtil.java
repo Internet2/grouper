@@ -6275,7 +6275,7 @@ public class GrouperUtil {
   }
 
   /**
-   * Convert a timestamp into a string: yyyy/MM/dd HH:mm:ss.SSS
+   * Convert a timestamp into a string: yyyy_MM_dd__HH_mm_ss_SSS
    * @param timestamp
    * @return the string representation
    */

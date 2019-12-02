@@ -28,6 +28,9 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
+/**
+ *
+ */
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 public class GrouperReportJob implements Job {
@@ -36,23 +39,32 @@ public class GrouperReportJob implements Job {
   
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
-    
+    String jobName = context.getJobDetail().getKey().getName();
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+
+    runJob(hib3GrouploaderLog, jobName);
+  }
+  
+  /**
+   * @param hib3GrouploaderLog 
+   * @param jobName
+   * @throws JobExecutionException
+   */
+  public static void runJob(Hib3GrouperLoaderLog hib3GrouploaderLog, String jobName) throws JobExecutionException {
+
     Pattern grouperReportingJobNamePattern = Pattern.compile("^grouper_report_([a-zA-Z0-9]+)_(\\w+)$");
     
     long startTime = System.currentTimeMillis();
     
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("grouperReportLog");
-
-    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     
     GrouperObject groupOrStem = null;
     GrouperSession grouperSession = null;
     GrouperReportInstance newReportInstance = new GrouperReportInstance();
     try {
       grouperSession = GrouperSession.startRootSession();
-      String jobName = context.getJobDetail().getKey().getName();
       
-      if (GrouperLoader.isJobRunning(jobName)) {
+      if (!"STARTED".equals(hib3GrouploaderLog.getStatus()) && GrouperLoader.isJobRunning(jobName)) {
         GrouperLoaderLogger.addLogEntry("grouperReportLog", "grouperReportingJobAlreadyRunningSoAborting", true);
         LOG.warn("job " + jobName + " is currently running already.  Aborting this run");
         return;

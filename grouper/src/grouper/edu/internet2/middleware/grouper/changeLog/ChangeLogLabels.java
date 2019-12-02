@@ -49,6 +49,30 @@ public class ChangeLogLabels {
     idIndex;
   };
   
+  /**
+   * label for group enable
+   */
+  public static enum GROUP_ENABLE implements ChangeLogLabel {
+
+    /** id of the group */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** parent stem id */
+    parentStemId,
+    
+    /** display name */
+    displayName,
+    
+    /** description */
+    description,
+    
+    /** idIndex */
+    idIndex;
+  };
+  
   /** labels for a group update */
   public static enum GROUP_UPDATE implements ChangeLogLabel {
     
@@ -105,9 +129,54 @@ public class ChangeLogLabels {
   };
   
   /**
+   * labels for group disable
+   */
+  public static enum GROUP_DISABLE implements ChangeLogLabel {
+    
+    /** id of the group */
+    id,
+    
+    /** name */
+    name,
+    
+    /** parent stem id */
+    parentStemId, 
+
+    /** display name */
+    displayName, 
+    
+    /** description */
+    description,
+    
+    /** idIndex */
+    idIndex;
+  };
+  
+  /**
    * label for entity add
    */
   public static enum ENTITY_ADD implements ChangeLogLabel {
+
+    /** id of the entity */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** parent stem id */
+    parentStemId,
+    
+    /** display name */
+    displayName,
+    
+    /** description */
+    description;
+  };
+  
+  /**
+   * label for entity enable
+   */
+  public static enum ENTITY_ENABLE implements ChangeLogLabel {
 
     /** id of the entity */
     id, 
@@ -160,6 +229,27 @@ public class ChangeLogLabels {
    * labels for entity delete
    */
   public static enum ENTITY_DELETE implements ChangeLogLabel {
+    
+    /** id of the entity */
+    id,
+    
+    /** name */
+    name,
+    
+    /** parent stem id */
+    parentStemId, 
+
+    /** display name */
+    displayName, 
+    
+    /** description */
+    description;
+  };
+  
+  /**
+   * labels for entity disable
+   */
+  public static enum ENTITY_DISABLE implements ChangeLogLabel {
     
     /** id of the entity */
     id,

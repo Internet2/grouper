@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -67,6 +68,7 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportJob;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -170,6 +172,32 @@ public enum GrouperLoaderType {
       
     }
   }, 
+  
+  /**
+   * grouper reports
+   */
+  grouper_report {
+
+    @Override
+    public boolean attributeRequired(String attributeName) {
+      return false;
+    }
+
+    @Override
+    public void runJob(LoaderJobBean loaderJobBean) {
+      try {
+        GrouperReportJob.runJob(loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getHib3GrouploaderLogOverall().getJobName());
+      } catch (JobExecutionException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public boolean attributeOptional(String attributeName) {
+      return false;
+    }
+    
+  },
   
   /**
    * other job
@@ -311,7 +339,8 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_ENABLED_DISABLED, hib3GrouploaderLog.getJobName())) {
 
-          int records = Membership.internal_fixEnabledDisabled();
+          int records = Group.internal_fixEnabledDisabled();
+          records += Membership.internal_fixEnabledDisabled();
           records += AttributeAssign.internal_fixEnabledDisabled();
           records += ExternalSubject.internal_fixDisabled();
 

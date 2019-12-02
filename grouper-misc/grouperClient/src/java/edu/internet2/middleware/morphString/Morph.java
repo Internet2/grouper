@@ -74,7 +74,7 @@ public class Morph {
   public static String decryptIfFile(String in) {
 
     in = GrouperClientUtils.trimToEmpty(in);
-    String newIn = GrouperClientUtils.readFromFileIfFile(in, false);
+    String newIn = GrouperClientUtils.readFromFileIfFileUtf8(in, false);
 
     //lets see if encrypted
     try {

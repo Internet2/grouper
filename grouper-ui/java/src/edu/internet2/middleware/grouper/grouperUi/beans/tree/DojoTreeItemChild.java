@@ -39,7 +39,10 @@ public class DojoTreeItemChild {
     attributeDefName,
     
     /** if stem */
-    stem;
+    stem,
+
+    /** indicates there are more items past the display limit for another type */
+    truncatedItems;
   }
   
   /**

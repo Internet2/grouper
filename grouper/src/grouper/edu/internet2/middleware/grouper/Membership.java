@@ -118,7 +118,6 @@ import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMembership;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
-import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -148,7 +147,6 @@ public class Membership extends GrouperAPI implements
         }
       }
     }
-    Member.resolveSubjects(members, false);
   }
   
   /**
@@ -434,7 +432,7 @@ public class Membership extends GrouperAPI implements
   private String  type        = MembershipType.IMMEDIATE.getTypeString(); // reasonable default
   
   /**
-   * If the membership is enabled.  Only applies to immediate memberships.
+   * If the membership is enabled.  Only applies to immediate/composite memberships.
    */
   private boolean enabled = true;
   
@@ -479,12 +477,12 @@ public class Membership extends GrouperAPI implements
   }
   
   /**
-   * Should this membership be enabled based on the enabled and disabled dates?  Only applies to immediate memberships.
+   * Should this membership be enabled based on the enabled and disabled dates?  Only applies to immediate/composite memberships.
    * @return boolean
    */
-  private boolean internal_isEnabledUsingTimestamps() {
-    if (!this.isImmediate()) {
-      throw new RuntimeException("This only applies to immediate memberships.");
+  public boolean internal_isEnabledUsingTimestamps() {
+    if (!this.isImmediate() && !this.isComposite()) {
+      throw new RuntimeException("This only applies to immediate/composite memberships.");
     }
     
     //currently this is based on timestamp
@@ -495,16 +493,30 @@ public class Membership extends GrouperAPI implements
     if (this.disabledTimeDb != null && this.disabledTimeDb < now) {
       return false;
     }
+    
+    // if owner is a group, check group status.
+    if (this.ownerGroupId != null && !this.getOwnerGroup().isEnabled()) {
+      return false;
+    }
+    
+    // if the member is a group, check group status
+    if (this.getMember().getSubjectTypeId().equals("group")) {
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMember().getSubjectId(), true, null);
+      if (!memberGroup.isEnabled()) {
+        return false;
+      }
+    }
+    
     return true;
   }
   
   /**
-   * Is this membership enabled?  Only applies to immediate memberships.
+   * Is this membership enabled?  Only applies to immediate/composite memberships.
    * @return boolean
    */
   public boolean isEnabled() {
-    if (!this.isImmediate()) {
-      throw new RuntimeException("This only applies to immediate memberships.");
+    if (!this.isImmediate() && !this.isComposite()) {
+      throw new RuntimeException("This only applies to immediate/composite memberships.");
     }
     
     return this.enabled;
@@ -576,19 +588,19 @@ public class Membership extends GrouperAPI implements
 
 
   /**
-   * Whether to enable or disable this membership.  Only applies to immediate memberships.
+   * Whether to enable or disable this membership.  Only applies to immediate/composite memberships.
    * @param enabled
    */
   public void setEnabled(boolean enabled) {
-    if (!this.isImmediate()) {
-      throw new RuntimeException("This only applies to immediate memberships.");
+    if (!this.isImmediate() && !this.isComposite()) {
+      throw new RuntimeException("This only applies to immediate/composite memberships.");
     }
     
     this.enabled = enabled;
   }
 
   /**
-   * Whether or not this membership is enabled.  Only applies to immediate memberships.
+   * Whether or not this membership is enabled.  Only applies to immediate/composite memberships.
    * @return the enabled
    */
   public String getEnabledDb() {
@@ -601,7 +613,7 @@ public class Membership extends GrouperAPI implements
 
   
   /**
-   * Whether to enable or disable this membership.  Only applies to immediate memberships.
+   * Whether to enable or disable this membership.  Only applies to immediate/composite memberships.
    * @param enabled
    */
   public void setEnabledDb(String enabled) {
@@ -1426,7 +1438,7 @@ public class Membership extends GrouperAPI implements
             MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
   
             // Deal with where group is a member
-            Iterator itIs = g.toMember().getImmediateMemberships(f).iterator();
+            Iterator itIs = MembershipFinder.internal_findAllImmediateByMemberAndField(GrouperSession.staticGrouperSession(), g.toMember(), f, false).iterator();
             while (itIs.hasNext()) {
               ms   = (Membership) itIs.next();
               ms.delete();
@@ -1764,7 +1776,7 @@ public class Membership extends GrouperAPI implements
       if (v.isInvalid()) {
         throw new IllegalStateException(v.getErrorMessage());
       }
-      
+            
       // see if the immediate membership already exists
       Membership ms;
       if (this.getOwnerGroupId() != null) {
@@ -1806,6 +1818,8 @@ public class Membership extends GrouperAPI implements
       if (v.isInvalid()) {
         throw new IllegalStateException( v.getErrorMessage() );
       }
+      
+      setEnabled(this.internal_isEnabledUsingTimestamps());
     }
       
     if (this.enabled) {
@@ -2338,7 +2352,7 @@ public class Membership extends GrouperAPI implements
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
     
-    if (this.isImmediate()) {
+    if (this.isImmediate() || this.isComposite()) {
       if (this.dbVersionDifferentFields().contains(FIELD_ENABLED)) {
         // if enabled column is changing, we may have to adjust composites and/or groupSets
         boolean oldValue = this.dbVersion().enabled;
@@ -2504,7 +2518,6 @@ public class Membership extends GrouperAPI implements
       
       final Membership membership = theMembership;
       
-      //TODO add auditing, maybe try to maintain context id, or create a new one
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
           AuditControl.WILL_AUDIT, new HibernateHandler() {
         public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
@@ -2547,13 +2560,13 @@ public class Membership extends GrouperAPI implements
             auditEntry.saveOrUpdate(true);
           } else if (membership.getField().isAttributeDefListField()) {
             AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_DELETE, 
-                "privilegeType", "naming",
-                    "privilegeName", NamingPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
-                    "stemId", membership.getOwnerStemId(), "stemName", membership.getOwnerStem().getName());
+                "privilegeType", "attributeDef",
+                    "privilegeName", AttributeDefPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
+                    "attributeDefId", membership.getOwnerAttrDefId(), "attributeDefName", membership.getOwnerAttributeDef().getName());
             
-            auditEntry.setDescription("Expired privilege: stem: " + membership.getOwnerStem().getName()
+            auditEntry.setDescription("Expired privilege: attributeDef: " + membership.getOwnerAttributeDef().getName()
                 + ", subject: " +  membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", privilege: "
-                + NamingPrivilege.listToPriv(membership.getField().getName()).getName());
+                + AttributeDefPrivilege.listToPriv(membership.getField().getName()).getName());
 
             auditEntry.saveOrUpdate(true);
           } else {

@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -502,6 +503,31 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
 
     QuerySort querySort = this.queryOptions == null ? 
         null : this.queryOptions.getQuerySort();
+
+    QueryPaging queryPaging = this.queryOptions == null ? 
+        null : this.queryOptions.getQueryPaging();
+    if (queryPaging != null && queryPaging.isCursorBasedPaging()) {
+        
+      // if its not null, then we arent on the first page
+      if (queryPaging.getLastCursorField() != null) {
+        if (querySort == null) {
+          throw new RuntimeException("If you are doing cursor based paging, you need to sort by a field!");
+        }
+        
+        QuerySortField querySortField = querySort.getQuerySortFields().get(0);
+        
+        if (theHql.toLowerCase().contains(" where" )) {
+          theHql += " and ";
+        } else {
+          theHql += " where ";
+        }
+        
+        theHql += querySortField.getColumn() + " " + (queryPaging.isCursorFieldIncludesLastRetrieved() ? " >= " : " > ") + " :lastCursorField ";
+        this.setScalar("lastCursorField", queryPaging.getLastCursorField());
+      }
+        
+    }
+
     if (querySort != null) {
       String sortString = querySort.sortString(false);
       if (!StringUtils.isBlank(sortString)) {
@@ -511,18 +537,19 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
 
     Query query = session.createQuery(theHql);
 
-    QueryPaging queryPaging = this.queryOptions == null ? 
-        null : this.queryOptions.getQueryPaging();
     if (queryPaging != null) {
-      //GRP-1024: sql server problems with paging page number when not initted
-      if(queryPaging.getFirstIndexOnPage() < 0) {
-        query.setFirstResult(0);
-      } else {
-        query.setFirstResult(queryPaging.getFirstIndexOnPage());
+
+      if (!queryPaging.isCursorBasedPaging()) {
+        //GRP-1024: sql server problems with paging page number when not initted
+        if(queryPaging.getFirstIndexOnPage() < 0) {
+          query.setFirstResult(0);
+        } else {
+          query.setFirstResult(queryPaging.getFirstIndexOnPage());
+        }
       }
       query.setMaxResults(queryPaging.getPageSize());
     }
-
+    
     boolean secondLevelCaching = HibUtils.secondLevelCaching(
         this.cacheable, this.queryOptions);
     query.setCacheable(secondLevelCaching);

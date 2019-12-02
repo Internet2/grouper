@@ -137,5 +137,9 @@
     <property name="alternateNameDb" column="alternate_name"/>
     <property name="typeOfGroupDb" column="type_of_group"/>
     <property name="idIndex" column="id_index"/>
+
+    <property name="enabledDb" type="string" column="enabled" />
+    <property name="enabledTimeDb" type="long" column="enabled_timestamp" />
+    <property name="disabledTimeDb" type="long" column="disabled_timestamp" />
   </class>
 </hibernate-mapping>

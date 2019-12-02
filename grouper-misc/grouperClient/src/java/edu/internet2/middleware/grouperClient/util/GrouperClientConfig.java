@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 /**
  * hierarchical config class for grouper.client.properties
@@ -99,7 +100,7 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
   /**
    * 
    */
-  private static Log log = GrouperClientUtils.retrieveLog(GrouperClientConfig.class);
+  private static Log log = LogFactory.getLog(GrouperClientConfig.class);
   
   /**
    * cache the messaging configs

@@ -20,44 +20,34 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.QuoteMode;
+
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
-import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -65,9 +55,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
@@ -169,18 +156,20 @@ public class SimpleMembershipUpdateImportExport {
       } catch (Exception e) {
         throw new RuntimeException("Cant get response.getWriter: ", e);
       }
-      
-      CSVWriter writer = new CSVWriter(out);
+
+      CSVFormat csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL);
+      CSVPrinter csvPrinter = new CSVPrinter(out, csvFileFormat);
+
       String[] headersNew = new String[headers.length+2];
       System.arraycopy(headers, 0, headersNew, 0, headers.length);
       headersNew[headers.length] = "success";
       headersNew[headers.length+1] = "errorMessage";
-      writer.writeNext(headersNew);
+      csvPrinter.printRecord((Object[]) headersNew);
       for (String[] entries: memberData) {
         // feed in your array (or convert your data to an array)
-        writer.writeNext(entries);
-      }      
-      writer.close();
+        csvPrinter.printRecord((Object[]) entries);
+      }
+      csvPrinter.close();
       auditExport(group.getUuid(), group.getName(), memberData.size(), groupExtensionFileName);
  
     } catch (NoSessionException se) {
@@ -302,14 +291,15 @@ public class SimpleMembershipUpdateImportExport {
       } catch (Exception e) {
         throw new RuntimeException("Cant get response.getWriter: ", e);
       }
-      
-      CSVWriter writer = new CSVWriter(out);
-      writer.writeNext(new String[]{"sourceId", "entityId"});
+
+      CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+      String[] headers = new String[]{"sourceId", "entityId"};
+      csvPrinter.printRecord((Object[]) headers);
       for (String[] entries: memberData) {
         // feed in your array (or convert your data to an array)
-        writer.writeNext(entries);
-      }      
-      writer.close();
+        csvPrinter.printRecord((Object[]) entries);
+      }
+      csvPrinter.close();
       
       auditExport(group.getUuid(), group.getName(), memberData.size(), groupExtensionFileName);
       throw new ControllerDone();
@@ -403,15 +393,15 @@ public class SimpleMembershipUpdateImportExport {
       Map<String, Integer> errorSubjectIdsOnRow, boolean isFileUpload) throws GrouperImportException {
     
     //convert from CSV to 
-    CSVReader reader = null;
+    CSVParser cvsParser = null;
     
     try {
       //note, the first row is the title
-      List<String[]> csvEntries = null;
+      List<CSVRecord> csvEntries = null;
     
       try {
-        reader = new CSVReader(originalReader);
-        csvEntries = reader.readAll();
+        cvsParser = new CSVParser(originalReader, CSVFormat.DEFAULT);
+        csvEntries = cvsParser.getRecords();
       } catch (IOException ioe) {
         throw new GrouperImportException("Error processing file: " + fileName, ioe);
       }
@@ -433,28 +423,28 @@ public class SimpleMembershipUpdateImportExport {
       }
       
       //lets go through the headers
-      String[] headers = csvEntries.get(0);
-      int headerSize = headers.length;
+      CSVRecord headers = csvEntries.get(0);
+      int headerSize = headers.size();
       boolean foundHeader = false;
       for (int i=0;i<headerSize;i++) {
-        if ("sourceId".equalsIgnoreCase(headers[i])) {
+        if ("sourceId".equalsIgnoreCase(headers.get(i))) {
           foundHeader = true;
           sourceIdColumn = i;
         }
-        if ("subjectId".equalsIgnoreCase(headers[i]) || "entityId".equalsIgnoreCase(headers[i])) {
+        if ("subjectId".equalsIgnoreCase(headers.get(i)) || "entityId".equalsIgnoreCase(headers.get(i))) {
           foundHeader = true;
           subjectIdColumn = i;
         }
-        if ("subjectIdentifier".equalsIgnoreCase(headers[i]) || "entityIdentifier".equalsIgnoreCase(headers[i])) {
+        if ("subjectIdentifier".equalsIgnoreCase(headers.get(i)) || "entityIdentifier".equalsIgnoreCase(headers.get(i))) {
           foundHeader = true;
           subjectIdentifierColumn = i;
         }
-        if ("subjectIdOrIdentifier".equalsIgnoreCase(headers[i]) || "entityIdOrIdentifier".equalsIgnoreCase(headers[i])) {
+        if ("subjectIdOrIdentifier".equalsIgnoreCase(headers.get(i)) || "entityIdOrIdentifier".equalsIgnoreCase(headers.get(i))) {
           foundHeader = true;
           subjectIdOrIdentifierColumn = i;
         }
       }
-      
+
       //normally start on index 1, if the first row is header
       int startIndex = 1;
       
@@ -471,7 +461,7 @@ public class SimpleMembershipUpdateImportExport {
       
       //ok, lets go through the rows, start after the headers
       for (int i=startIndex;i<csvEntries.size();i++) {
-        String[] csvEntry = csvEntries.get(i);
+        CSVRecord csvRecord = csvEntries.get(i);
         int row = i+1;
         
         //try catch each one and see where we get
@@ -481,18 +471,18 @@ public class SimpleMembershipUpdateImportExport {
         try {
           String sourceId = null;
     
-          sourceId = sourceIdColumn == -1 ? null : csvEntry[sourceIdColumn]; 
-          subjectId = subjectIdColumn == -1 ? null : csvEntry[subjectIdColumn]; 
-          subjectIdentifier = subjectIdentifierColumn == -1 ? null : csvEntry[subjectIdentifierColumn]; 
-          subjectIdOrIdentifier = subjectIdOrIdentifierColumn == -1 ? null : csvEntry[subjectIdOrIdentifierColumn]; 
+          sourceId = sourceIdColumn == -1 ? null : csvRecord.get(sourceIdColumn);
+          subjectId = subjectIdColumn == -1 ? null : csvRecord.get(subjectIdColumn);
+          subjectIdentifier = subjectIdentifierColumn == -1 ? null : csvRecord.get(subjectIdentifierColumn);
+          subjectIdOrIdentifier = subjectIdOrIdentifierColumn == -1 ? null : csvRecord.get(subjectIdOrIdentifierColumn);
           
           ImportSubjectWrapper importSubjectWrapper = 
-            new ImportSubjectWrapper(row, sourceId, subjectId, subjectIdentifier, subjectIdOrIdentifier, csvEntry);
+            new ImportSubjectWrapper(row, sourceId, subjectId, subjectIdentifier, subjectIdOrIdentifier, csvRecord);
           uploadedSubjects.add(importSubjectWrapper);
           
         } catch (Exception e) {
           LOG.info(e);
-          subjectErrors.add("Error on " + ImportSubjectWrapper.errorLabelForRowStatic(row, csvEntry) + ": " +    e.getMessage());
+          subjectErrors.add("Error on " + ImportSubjectWrapper.errorLabelForRowStatic(row, csvRecord) + ": " +    e.getMessage());
           
           String errorSubjectId = StringUtils.defaultIfEmpty(subjectId, subjectIdentifier);
           errorSubjectId = StringUtils.defaultIfEmpty(errorSubjectId, subjectIdOrIdentifier);
@@ -505,9 +495,9 @@ public class SimpleMembershipUpdateImportExport {
       return uploadedSubjects;
       
     } finally {
-      if (reader != null) {
+      if (cvsParser != null) {
         try {
-          reader.close();
+          cvsParser.close();
         } catch (Exception e) {
           LOG.warn("error", e);
         }

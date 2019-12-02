@@ -64,10 +64,12 @@ public class BoxEsbPublisher extends EsbListenerBase {
       //  ]
       //}
       
+      Map<String, GrouperBoxUser> grouperBoxUserMap = GrouperBoxUser.retrieveUsers();
+      
       //not sure why there would be no events in there
       for (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.class)) {
 
-        GrouperBoxMessageConsumer.processMessage(esbEvent);
+        GrouperBoxMessageConsumer.processMessage(esbEvent, grouperBoxUserMap);
 
       }
       
