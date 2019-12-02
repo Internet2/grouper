@@ -285,6 +285,19 @@ public class QueryOptions {
   }
   
   /**
+   * factory for query paging
+   * @param pageSize
+   * @param lastCursorField 
+   * @param cursorFieldIncludesLastRetrieved 
+   * @param doTotalCount true to do total count, false to not
+   * @return this for chaining
+   */
+  public QueryOptions pagingCursor(int pageSize, Object lastCursorField, boolean cursorFieldIncludesLastRetrieved, boolean doTotalCount) {
+    this.queryPaging = QueryPaging.pageCursor(pageSize, lastCursorField, cursorFieldIncludesLastRetrieved, doTotalCount);
+    return this;
+  }
+  
+  /**
    * sort ascending on this field
    * @param field
    * @return this for chaining

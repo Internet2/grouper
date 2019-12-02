@@ -28,6 +28,62 @@ import java.util.List;
 public class QueryPaging {
 
   /**
+   * if paging by cursor, then this is the last field retrieved
+   */
+  private Object lastCursorField;
+  
+  /**
+   * if cursor field is unique, this should be false.  If not, then should be true
+   * if should include the last field in the next resultset
+   */
+  private boolean cursorFieldIncludesLastRetrieved = false;
+  
+  
+  /**
+   * if paging by cursor, then this is the last field retrieved
+   * @return the lastCursorField
+   */
+  public Object getLastCursorField() {
+    return this.lastCursorField;
+  }
+
+  
+  /**
+   * if paging by cursor, then this is the last field retrieved
+   * @param lastCursorField1 the lastCursorField to set
+   */
+  public void setLastCursorField(Object lastCursorField1) {
+    this.cursorBasedPaging = true;
+    this.lastCursorField = lastCursorField1;
+  }
+
+  
+  /**
+   * if cursor field is unique, this should be false.  If not, then should be true
+   * if should include the last field in the next resultset
+   * @return the cursorFieldIncludesLAstRetrieved
+   */
+  public boolean isCursorFieldIncludesLastRetrieved() {
+    return this.cursorFieldIncludesLastRetrieved;
+  }
+
+  
+  /**
+   * if cursor field is unique, this should be false.  If not, then should be true
+   * if should include the last field in the next resultset
+   * @param cursorFieldIncludesLAstRetrieved1 the cursorFieldIncludesLAstRetrieved to set
+   */
+  public void setCursorFieldIncludesLastRetrieved(boolean cursorFieldIncludesLAstRetrieved1) {
+    this.cursorBasedPaging = true;
+    this.cursorFieldIncludesLastRetrieved = cursorFieldIncludesLAstRetrieved1;
+  }
+
+  /**
+   * if cursor based paging
+   */
+  private boolean cursorBasedPaging = false;
+  
+  /**
    * if we should do the total count when we do that actual query
    * (note, this might not always be possible in all cases, will throw an
    * exception if not possible)
@@ -81,6 +137,11 @@ public class QueryPaging {
    * @return the value of the field
    */
   public int getNumberOfPages() {
+
+    if (this.cursorBasedPaging) {
+      throw new RuntimeException("Cant call getNumberOfPages if cursorBasedPaging");
+    }
+
     return this.numberOfPages;
   }
   
@@ -195,6 +256,9 @@ public class QueryPaging {
    */
   public void calculateIndexes() {
   
+    if (this.cursorBasedPaging) {
+      return;
+    }
     //see if total record count is set
     if (this.getTotalRecordCount() < 0) {
       throw new RuntimeException("Total count must be set before calculating paging!");
@@ -241,6 +305,9 @@ public class QueryPaging {
    */
   public List<Integer> getAllPages() {
     
+    if (this.cursorBasedPaging) {
+      throw new RuntimeException("Cant call getAllPages if cursorBasedPaging");
+    }
     List<Integer> result = new ArrayList<Integer>(this.getNumberOfPages());
     for (int counter=0; counter < this.getNumberOfPages(); ++counter) {
       result.add(counter + 1);
@@ -255,7 +322,11 @@ public class QueryPaging {
    * @return the first index on page 0 indexed
    */
   public int getFirstIndexOnPage() {
-    
+
+    if (this.cursorBasedPaging) {
+      throw new RuntimeException("Cant call getFirstIndexOnPage if cursorBasedPaging");
+    }
+
     if (this.pageNumber < 0 && this.pageStartIndex >= 0) {
       return this.pageStartIndex;
     }
@@ -284,6 +355,10 @@ public class QueryPaging {
    */
   public int getLastIndexOnPage() {
   
+    if (this.cursorBasedPaging) {
+      throw new RuntimeException("Cant call getLastIndexOnPage if cursorBasedPaging");
+    }
+
     if (isLastPage()) {
       return this.getTotalRecordCount() - 1;
     }
@@ -295,6 +370,11 @@ public class QueryPaging {
    * @return number of results on current page
    */
   public int getNumberOfResultsOnPage() {
+
+    if (this.cursorBasedPaging) {
+      throw new RuntimeException("Cant call getNumberOfResultsOnPage if cursorBasedPaging");
+    }
+
     return (this.getLastIndexOnPage() - this.getFirstIndexOnPage()) + 1;
   }
 
@@ -303,6 +383,9 @@ public class QueryPaging {
    * @return total records on last page
    */
   public int getTotalOnLastPage() {
+
+    // this works in cursor paging too
+    
     int totalOnLastPage = -1;
   
     if (this.getTotalRecordCount() == 0) {
@@ -324,11 +407,13 @@ public class QueryPaging {
    * @return true if initted
    */
   public boolean initted() {
-    return !( this.getPageStartIndex() == -1
-      || this.getTotalRecordCount() == -1
-      || this.getPageEndIndex() == -1
-      || this.getNumberOfPages() == -1);
-    
+    if (!cursorBasedPaging) {
+      return !( this.getPageStartIndex() == -1
+        || this.getTotalRecordCount() == -1
+        || this.getPageEndIndex() == -1
+        || this.getNumberOfPages() == -1);
+    }
+    return true;
   }
 
   /**
@@ -337,6 +422,9 @@ public class QueryPaging {
    * @return true if first page
    */
   public boolean isFirstPage() {
+    if (this.cursorBasedPaging) {
+      return this.lastCursorField == null;
+    }
     return this.getPageNumber() == 1;
   }
 
@@ -346,6 +434,10 @@ public class QueryPaging {
    * @return true if last page
    */
   public boolean isLastPage() {
+    if (this.cursorBasedPaging) {
+      throw new RuntimeException("Cant call isLastPage if cursorBasedPaging");
+    }
+
     return this.getTotalRecordCount() == 0
         || this.getPageNumber() == this.getNumberOfPages();
   }
@@ -357,6 +449,11 @@ public class QueryPaging {
    * @return the next page number which is relevant
    */
   public int nextPageNeeded(int currentPageNumber) {
+
+    if (this.cursorBasedPaging) {
+      throw new RuntimeException("Cant call isLastPage if cursorBasedPaging");
+    }
+
     //if total is less than 11, then increment
     if (this.getNumberOfPages() <= 11) {
       return currentPageNumber + 1;
@@ -393,6 +490,7 @@ public class QueryPaging {
    * @return the number of pages total
    */
   private int numberOfPages() {
+    
     int pages = this.getPageSize() == 0 ? 1 : this.getTotalRecordCount() / this.getPageSize();
     int totalOnLastPage = this.getPageSize() == 0 ? 0 : this.getTotalRecordCount() % this.getPageSize();
     if (totalOnLastPage > 0) {
@@ -422,6 +520,9 @@ public class QueryPaging {
    * @return if should page
    */
   public boolean shouldPage() {
+    if (this.isCursorBasedPaging() && this.getPageSize() >= 0 ) {
+      return true;
+    }
     return this.getPageSize() >= 0 && this.getPageNumber() >= 0;
   }
 
@@ -438,6 +539,52 @@ public class QueryPaging {
     }
     return new QueryPaging(pageSize, pageNumber, doTotalCount);
   }
+
+  /**
+   * factory for query paging
+   * @param pageSize
+   * @param lastCursorField object that is last retrieved
+   * @param cursorFieldIncludesLastRetrieved true if >= last cursor field
+   * @param doTotalCount true to do total count, false to not
+   * @return the query paging
+   */
+  public static QueryPaging pageCursor(int pageSize, Object lastCursorField, boolean cursorFieldIncludesLastRetrieved, boolean doTotalCount) {
+    if (pageSize == -1) {
+      return null;
+    }
+    return new QueryPaging(pageSize, lastCursorField, cursorFieldIncludesLastRetrieved, doTotalCount);
+  }
+
+  /**
+   * factory for query paging
+   * @param pageSize1
+   * @param lastCursorField1 object that is last retrieved
+   * @param cursorFieldIncludesLastRetrieved1 true if >= last cursor field
+   * @param doTotalCount1 true to do total count, false to not
+   */
+  public QueryPaging(int pageSize1, Object lastCursorField1, boolean cursorFieldIncludesLastRetrieved1, boolean doTotalCount1) {
+    this.cursorBasedPaging = true;
+    this.pageSize = pageSize1;
+    this.lastCursorField = lastCursorField1;
+    this.cursorFieldIncludesLastRetrieved = cursorFieldIncludesLastRetrieved1;
+    this.doTotalCount = doTotalCount1;
+  }
+
+  
+  /**
+   * @return the cursorBasedPaging
+   */
+  public boolean isCursorBasedPaging() {
+    return this.cursorBasedPaging;
+  }
+  
+  /**
+   * @param cursorBasedPaging1 the cursorBasedPaging to set
+   */
+  public void setCursorBasedPaging(boolean cursorBasedPaging1) {
+    this.cursorBasedPaging = cursorBasedPaging1;
+  }
+
 
   /**
    * constructor.  NOTE, THIS IS 1 INDEXED ON PAGE NUMBER
@@ -457,6 +604,9 @@ public class QueryPaging {
    * @see java.lang.Object#toString()
    */
   public String toString() {
+    if (this.isCursorBasedPaging()) {
+      return "cursorPageSize: " + this.pageSize + ", lastCursorField: " + this.lastCursorField + ", includeLastRetrieved: " + this.cursorFieldIncludesLastRetrieved;
+    }
     return "pageSize: " + this.pageSize + ", pageNumberOneIndexed: " + this.pageNumber;
   }
 

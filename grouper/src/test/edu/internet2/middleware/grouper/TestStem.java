@@ -106,10 +106,10 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestStem("testStemObliterate2AttributeDef3"));
+    TestRunner.run(new TestStem("testObliterateLots"));
     //TestRunner.run(TestStem.class);
-    stemObliterate2setup();
-    
+    //stemObliterate2setup();
+    //loadLotsOfData(3, 3, 3, 3, 3);
   }
 
   /**
@@ -655,6 +655,165 @@ public class TestStem extends GrouperTest {
     
     assertNull(stem);
     
+  }
+  
+  /**
+   * make sure obliterate works
+   */
+  public void testObliterateLots() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    loadLotsOfData(true, true, true, true, 2, 2, 2, 1, 2, 1, 1, 2, 3, 4);
+    stem.obliterate(true, false);
+    
+    stem = StemFinder.findByName(grouperSession, "test", false, new QueryOptions().secondLevelCache(false));
+    
+    assertNull(stem);
+    
+  }
+
+  /**
+   * load lots of data
+   * @param createGroups 
+   * @param createStems 
+   * @param createAttributeDefs 
+   * @param createAttributeNames 
+   * @param sizeLevel0
+   * @param sizeLevel1
+   * @param sizeLevel2
+   * @param sizeLevel3
+   * @param sizeLevel4
+   * @param sizeLevel5 
+   * @param sizeLevel6 
+   * @param sizeLevel7 
+   * @param sizeLevel8 
+   * @param sizeLevel9 
+   */
+  public static void loadLotsOfData(final boolean createGroups, final boolean createStems, final boolean createAttributeDefs, final boolean createAttributeNames,
+      final int sizeLevel0, final int sizeLevel1, final int sizeLevel2, final int sizeLevel3, final int sizeLevel4, 
+      final int sizeLevel5, final int sizeLevel6, final int sizeLevel7, final int sizeLevel8, final int sizeLevel9) {
+    
+    final int[] objectsCreated = new int[]{0};
+    final boolean[] done = new boolean[]{false};
+    new Thread(new Runnable() {
+
+      public void run() {
+        int objectCount = createGroups ? 1 : 0;
+        objectCount += createStems ? 1 : 0;
+        objectCount += createAttributeDefs ? 1 : 0;
+        objectCount += createAttributeNames ? 1 : 0;
+        
+        while (true) {
+          for (int i=0;i<15;i++) {
+            GrouperUtil.sleep(1000);
+            if (done[0]) {
+              return;
+            }
+          }
+          System.out.println("done creating " + objectsCreated[0] + " of " + (objectCount * sizeLevel0 * sizeLevel1 * sizeLevel2 * sizeLevel3 * sizeLevel4
+              * sizeLevel5 * sizeLevel6 * sizeLevel7 * sizeLevel8 * sizeLevel9) );
+        }
+      }
+      
+    }).start();
+
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        char[] level0 = createCharArray(sizeLevel0, 'a');
+        char[] level1 = createCharArray(sizeLevel1, 'f');
+        char[] level2 = createCharArray(sizeLevel2, 'k');
+        char[] level3 = createCharArray(sizeLevel3, 'p');
+        char[] level4 = createCharArray(sizeLevel4, 'u');
+        char[] level5 = createCharArray(sizeLevel5, 'A');
+        char[] level6 = createCharArray(sizeLevel6, 'F');
+        char[] level7 = createCharArray(sizeLevel7, 'K');
+        char[] level8 = createCharArray(sizeLevel8, 'P');
+        char[] level9 = createCharArray(sizeLevel9, 'U');
+
+        AttributeDef attributeDef = null;
+        if (createAttributeNames && !createAttributeDefs) {
+          attributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(false).assignName("test:testAttributeDef").save();
+        }
+        
+        for (char theChar0 : level0) {
+          for (char theChar1 : level1) {
+            for (char theChar2 : level2) {
+              for (char theChar3 : level3) {
+                for (char theChar4 : level4) {
+                  for (char theChar5 : level5) {
+                    for (char theChar6 : level6) {
+                      for (char theChar7 : level7) {
+                        for (char theChar8 : level8) {
+                          for (char theChar9 : level9) {
+                  
+                            final String stemName = "test:" + theChar0 + ":" + theChar1 + ":" + theChar2 + ":" + theChar3 + ":" + theChar4
+                                + ":" + theChar5 + ":" + theChar6 + ":" + theChar7 + ":" + theChar8 + ":" + theChar9;
+                            
+                            if (createStems) {
+                              new StemSave(grouperSession).assignName(stemName)
+                                .assignCreateParentStemsIfNotExist(true).save();
+                              objectsCreated[0]++;
+                            }
+                            if (createGroups) {
+                              new GroupSave(grouperSession).assignName(stemName + ":testGroup")
+                                .assignCreateParentStemsIfNotExist(true).save();
+                              objectsCreated[0]++;
+                            }
+                            AttributeDef testTestAttributeDef = null;
+                            if (createAttributeDefs) {
+                              testTestAttributeDef = new AttributeDefSave(grouperSession).assignName(stemName + ":testAttributeDef").save();
+                              objectsCreated[0]++;
+                            } else {
+                              testTestAttributeDef = attributeDef;
+                            }
+                            if (createAttributeNames) {
+                              new AttributeDefNameSave(grouperSession, testTestAttributeDef).assignName(stemName + ":testAttributeDefName").save();
+                              objectsCreated[0]++;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }      
+
+        
+        return null;
+      }
+    });
+
+    done[0] = true;
+  }
+  
+  /**
+   * make a char array.  e.g. if passed in 5 and 'e', then return: ['e', 'f', 'g', 'h', 'i']
+   * @param size
+   * @param startingChar
+   * @return the array
+   */
+  public static char[] createCharArray(int size, char startingChar) {
+    if (size<=0 || size>26) {
+      throw new RuntimeException("Why is size less than or equal to 0 or greater than 26? " + size);
+    }
+    char[] result = new char[size];
+    for (int i=0;i<size;i++) {
+      char nextChar = (char)(startingChar + i);
+      if (startingChar >= 'a' && startingChar <= 'z' && nextChar > 'z') {
+        nextChar = 'a';
+      }
+      if (startingChar >= 'A' && startingChar <= 'Z' && nextChar > 'Z') {
+        nextChar = 'A';
+      }
+      result[i] = nextChar;
+    }
+    return result;
   }
   
   /**
