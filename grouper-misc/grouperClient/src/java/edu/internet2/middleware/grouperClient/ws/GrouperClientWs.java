@@ -787,8 +787,8 @@ public class GrouperClientWs {
       }
     }
     
-    boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
-        "encrypt.disableExternalFileLookup");
+    boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBoolean(
+        "encrypt.disableExternalFileLookup", false);
     
     //lets lookup if file
     String wsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.password");
