@@ -2248,6 +2248,11 @@ public class GrouperClient {
     Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
         "pageSize", false, null);
 
+    Boolean autopage = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "autopage", false, false);
+
+    Integer autopageOverlap = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+        "autopageOverlap", false, null);
+
     GcGetMembers gcGetMembers = new GcGetMembers();        
 
     if (ascending != null) {
@@ -2261,6 +2266,13 @@ public class GrouperClient {
     }
     if (sortString != null) {
       gcGetMembers.assignSortString(sortString);
+    }
+    
+    if (autopage != null) {
+      gcGetMembers.assignAutopage(autopage);
+    }
+    if (autopageOverlap != null) {
+      gcGetMembers.assignAutopageOverlap(autopageOverlap);
     }
     
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);

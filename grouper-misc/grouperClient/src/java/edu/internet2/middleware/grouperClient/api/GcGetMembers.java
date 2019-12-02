@@ -21,18 +21,25 @@ package edu.internet2.middleware.grouperClient.api;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
+import edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**
@@ -41,11 +48,56 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 public class GcGetMembers {
 
   /**
+   * logger
+   */
+  private static Log LOG = GrouperClientUtils.retrieveLog(GcGetMembers.class);
+
+  /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    new GcGetMembers().addGroupName("test:testGroup").execute();
+    GcGetMembers gcGetMembers = new GcGetMembers().addGroupName("penn:isc:nandt:apps:pennbox:user")
+      .addSubjectAttributeName("PENNNAME").assignAutopage(true);
+    gcGetMembers.assignPageSize(10000);
+    WsGetMembersResults wsGetMembersResults = gcGetMembers.execute();
+    System.out.println("Found " + GrouperClientUtils.length(wsGetMembersResults.getResults()[0].getWsSubjects()));
+    for (WsSubject wsSubject : wsGetMembersResults.getResults()[0].getWsSubjects()) {
+      System.out.println(wsSubject.getAttributeValue(0));
+    }
+    System.out.println("Found " + GrouperClientUtils.length(wsGetMembersResults.getResults()[0].getWsSubjects()));
+
+    //printPagingReport();
+  }
+  
+  /**
+   * if should page through results so it doesnt timeout.  Note, if pageSize is not set, will page 10k records
+   */
+  private Boolean autopage;
+
+  /**
+   * if should page through results so it doesnt timeout.  Note, if pageSize is not set, will page 10k records
+   * @param theAutopage
+   * @return this for chaining
+   */
+  public GcGetMembers assignAutopage(Boolean theAutopage) {
+    this.autopage = theAutopage;
+    return this;
+  }
+  
+  /**
+   * The overlap of the autopage.  Note, should at least be 1, defaults to 5% of the pageSize.
+   */
+  private Integer autopageOverlap;
+  
+  /**
+   * The overlap of the autopage.  Note, should at least be 1, defaults to 5% of the pageSize.
+   * @param theAutopageOverlap
+   * @return this for chaining
+   */
+  public GcGetMembers assignAutopageOverlap(Integer theAutopageOverlap) {
+    this.autopageOverlap = theAutopageOverlap;
+    return this;
   }
   
   /**
@@ -219,13 +271,28 @@ public class GcGetMembers {
       throw new RuntimeException("Group name or uuid or id index is required: " + this);
     }
     
-    if (pointInTimeFrom != null || pointInTimeTo != null) {
+    if (this.pointInTimeFrom != null || this.pointInTimeTo != null) {
       if (this.includeGroupDetail != null && this.includeGroupDetail) {
         throw new RuntimeException("Cannot specify includeGroupDetail for point in time queries.");
       }
       
       if (this.memberFilter != null && !this.memberFilter.equals(WsMemberFilter.All)) {
         throw new RuntimeException("Cannot specify a member filter for point in time queries.");
+      }
+    }
+    
+    if (this.autopage != null && this.autopage) {
+      // autopage
+      if (this.pageNumber != null && this.pageNumber != 0) {
+        throw new RuntimeException("Dont specify the pageNumber when autopaging");
+      }
+    }
+    
+    if (this.autopage != null && this.autopage) {
+      if (GrouperClientUtils.length(this.groupNames) +
+        GrouperClientUtils.length(this.groupUuids) + 
+        GrouperClientUtils.length(this.groupIdIndexes) > 1) {
+        throw new RuntimeException("If autopaging, just get members of one group!");
       }
     }
   }
@@ -352,6 +419,276 @@ public class GcGetMembers {
    */
   public WsGetMembersResults execute() {
     this.validate();
+    if (this.autopage == null || !this.autopage) {
+      return executeHelper();
+    }
+    
+    // autopage
+    if (this.pageSize == null || this.pageSize <= 2) {
+      this.pageSize = 10000;
+    }
+    if (this.sortString == null) {
+      this.sortString = "m.id";
+    }
+    if (this.autopageOverlap == null || this.autopageOverlap < 1) {
+      this.autopageOverlap = (int)(this.pageSize * 0.05);
+      if (this.autopageOverlap < 1) {
+        this.autopageOverlap = 1;
+      }
+    }
+    
+    long nowNanos = System.nanoTime();
+    
+    OUTER: for (int outerLoop = 0;outerLoop<5;outerLoop++) {
+
+      WsGetMembersResults wsGetMembersResultsOuter = new WsGetMembersResults();
+      WsResponseMeta wsResponseMetaOuter = new WsResponseMeta();
+      wsGetMembersResultsOuter.setResponseMetadata(wsResponseMetaOuter);
+      
+      WsResultMeta wsResultMetaOuter = new WsResultMeta();
+      wsGetMembersResultsOuter.setResultMetadata(wsResultMetaOuter);
+      
+      StringBuilder resultWarnings = new StringBuilder();
+      StringBuilder resultMessage = new StringBuilder();
+
+      WsGetMembersResult wsGetMembersResultOuter = null;
+      List<WsSubject> wsSubjectListOuter = new ArrayList<WsSubject>();
+      
+      // sourceId, subjectId, identifierLookup
+      Set<MultiKey> sourceIdSubjectIdIdentifier = new HashSet<MultiKey>();
+      
+      boolean firstRun = true;
+      
+      int ttl = 10000;
+      
+      int originalPageSize = this.pageSize;
+      int lastIndexRetrieved = -1;
+      
+      try {
+      
+        while(true) {
+  
+          this.calculatePaging(originalPageSize, lastIndexRetrieved);
+          
+          if (LOG.isDebugEnabled()) {
+            final int fromIndex = (this.pageNumber-1) * this.pageSize;
+            final int toIndex = (this.pageNumber * this.pageSize) - 1;
+            LOG.debug("Retrieving records: " 
+                + fromIndex + " - " 
+                + toIndex
+                + ", pageSize: " + this.pageSize + ", pageNumber: " + this.pageNumber);
+          }
+          
+          WsGetMembersResults wsGetMembersResultsInner = this.executeHelper();
+          
+          lastIndexRetrieved = (((this.pageNumber-1) * this.pageSize)-1) + GrouperClientUtils.length(wsGetMembersResultsInner.getResults()[0].getWsSubjects()) ;
+              
+          // see if we have overlap
+          boolean hasOverlap = false;
+          
+          // copy results in
+          for (WsGetMembersResult wsGetMembersResult : 
+              GrouperClientUtils.nonNull(wsGetMembersResultsInner.getResults(), WsGetMembersResult.class)) {
+  
+            for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsGetMembersResult.getWsSubjects(), WsSubject.class)) {
+  
+              MultiKey multiKey = new MultiKey(
+                  wsSubject.getSourceId(), wsSubject.getId(), wsSubject.getIdentifierLookup());
+              
+              // if we have overlap, skip it
+              if (sourceIdSubjectIdIdentifier.contains(multiKey)) {
+                hasOverlap = true;
+                continue;
+              }
+              
+              // no overlap
+              sourceIdSubjectIdIdentifier.add(multiKey);
+              
+              if (wsGetMembersResultOuter == null) {
+                wsGetMembersResultOuter = wsGetMembersResult;
+              }
+  
+              // keep track of subjects for this group              
+              wsSubjectListOuter.add(wsSubject);
+            }
+            
+          }
+  
+          if (firstRun) {
+            wsGetMembersResultsOuter.setSubjectAttributeNames(wsGetMembersResultsInner.getSubjectAttributeNames());
+  
+            wsResponseMetaOuter.setServerVersion(wsGetMembersResultsInner.getResponseMetadata().getServerVersion());
+            
+            wsResultMetaOuter.setParams(wsGetMembersResultsInner.getResultMetadata().getParams());
+            wsResultMetaOuter.setResultCode(wsGetMembersResultsInner.getResultMetadata().getResultCode());
+            wsResultMetaOuter.setResultCode2(wsGetMembersResultsInner.getResultMetadata().getResultCode2());
+            wsResultMetaOuter.setSuccess(wsGetMembersResultsInner.getResultMetadata().getSuccess());
+            
+          } else {
+            
+            // if not first run and no overlap, thats not good
+            if (!hasOverlap) {
+              //hmmm, something is wrong, rest a little and let other changes shake out
+              GrouperClientUtils.sleep(30000);
+              continue OUTER;
+            }
+            
+            //lets adjust paging
+            
+          }
+         
+  
+          if (GrouperClientUtils.length(wsGetMembersResultsInner.getResponseMetadata().getResultWarnings()) > 0) {
+            resultWarnings.append(wsGetMembersResultsInner.getResponseMetadata().getResultWarnings() + "\n");
+          }
+          
+          if (GrouperClientUtils.length(wsGetMembersResultsInner.getResultMetadata().getResultMessage()) > 0) {
+            resultMessage.append(wsGetMembersResultsInner.getResultMetadata().getResultMessage() + "\n");
+          }
+          
+          // see if we are done
+          if (GrouperClientUtils.length(wsGetMembersResultsInner.getResults()[0].getWsSubjects()) < this.pageSize) {
+            
+            // set the results at a group level
+            wsGetMembersResultsOuter.setResults(new WsGetMembersResult[]{wsGetMembersResultOuter});
+              
+            if (GrouperClientUtils.length(wsSubjectListOuter) > 0) {
+              wsGetMembersResultOuter.setWsSubjects(GrouperClientUtils.toArray(wsSubjectListOuter, WsSubject.class));
+            }
+            
+            wsResponseMetaOuter.setResultWarnings(resultWarnings.toString());
+            wsResponseMetaOuter.setMillis(""+((System.nanoTime() - nowNanos) / 10000));
+            wsResultMetaOuter.setResultMessage(resultMessage.toString());
+            
+            return wsGetMembersResultsOuter;
+          }
+  
+          firstRun = false;
+          ttl--;
+          if (ttl < 0) {
+            throw new RuntimeException("TTL is less than 0, started at 100k...  endless loop?  page size too small?");
+          }
+        }
+      } finally {
+        this.pageSize = originalPageSize;
+        
+      }
+    }
+    throw new RuntimeException("Tried 5 times to get the paged result, but the data changed too frequently!  Error!");
+  }
+  
+  /**
+   * test the paging with overlap with this report
+   */
+  private static void printPagingReport() {
+    GcGetMembers gcGetMembers = new GcGetMembers();
+    gcGetMembers.pageSize = 1000;
+    gcGetMembers.autopageOverlap = 50;
+    int lastIndex = -1;
+    while (true) {
+      gcGetMembers.calculatePaging(1000, lastIndex);
+      final int fromIndex = (gcGetMembers.pageNumber-1) * gcGetMembers.pageSize;
+      final int toIndex = (gcGetMembers.pageNumber * gcGetMembers.pageSize) - 1;
+      System.out.println("Retrieving records: " 
+          + fromIndex + " - " 
+          + toIndex
+          + ", pageSize: " + gcGetMembers.pageSize + ", pageNumber: " + gcGetMembers.pageNumber);
+      lastIndex = toIndex;
+      if (toIndex > 70000) {
+        break;
+      }
+    }
+  }
+  
+  /**
+   * 
+   * @param originalPageSize
+   * @param lastIndexRetrieved
+   */
+  private void calculatePaging(int originalPageSize, int lastIndexRetrieved) {
+    
+    int wasPageSize = this.pageSize == null ? -1 : this.pageSize;
+    int wasPageNumber = this.pageNumber == null ? -1 : this.pageNumber;
+    this.calculatePagingHelper(originalPageSize, lastIndexRetrieved);
+    if (this.pageSize == wasPageSize && this.pageNumber == wasPageNumber) {
+      throw new RuntimeException("Paging not working, stuck on page number: originalPageSize: " + originalPageSize
+          + ", lastIndexRetrieved: " + lastIndexRetrieved + ", pageNumber: " + this.pageNumber + ", pageSize: " + this.pageSize);
+    }
+    
+  }
+  /**
+   * 
+   * @param originalPageSize
+   * @param lastIndexRetrieved
+   */
+  private void calculatePagingHelper(int originalPageSize, int lastIndexRetrieved) {
+    
+    int pageSizeAdd = (int)Math.max((originalPageSize*0.1), 50);
+    
+    if (lastIndexRetrieved == -1) {
+      this.pageNumber = 1;
+      this.pageSize = (originalPageSize + (3 * pageSizeAdd));
+      return;
+    }
+    int highBound = originalPageSize + (3 * pageSizeAdd);
+    int lowBound = originalPageSize - (3 * pageSizeAdd);
+    int[] pageSizesToRecords = new int[1+highBound-lowBound];
+    int[] pageSizesToRemainders = new int[1+highBound-lowBound];
+    
+    // get the remainder and the records that will be retrieved 
+    for (int i=0;i<pageSizesToRecords.length;i++) {
+      int localPageSize = lowBound + i;
+      pageSizesToRemainders[i] = lastIndexRetrieved % localPageSize;
+      pageSizesToRecords[i] = localPageSize - pageSizesToRemainders[i];
+    }
+    
+    // see if there is one that allows the page overlap in the remainder
+    int bestIndex = -1;
+    int bestRecords = -1;
+    for (int i=0;i<pageSizesToRecords.length;i++) {
+      if (pageSizesToRemainders[i] >= this.autopageOverlap) {
+        if (pageSizesToRecords[i] > bestRecords) {
+          bestIndex = i;
+          bestRecords = pageSizesToRecords[i];
+        }
+      }
+    }
+    
+    if (bestIndex > -1) {
+      this.pageSize = bestIndex + lowBound;
+      this.pageNumber = (lastIndexRetrieved / this.pageSize) + 1;
+      return;
+    }
+    
+    bestIndex = -1;
+    int bestRemainder = -1;
+    //just get the one with the highest overlap i guess
+    for (int i=0;i<pageSizesToRecords.length;i++) {
+      if (pageSizesToRemainders[i] >= bestRemainder) {
+        bestIndex = i;
+        bestRemainder = pageSizesToRemainders[i];
+      }
+    }
+    
+    if (bestIndex > -1) {
+      this.pageSize = bestIndex + lowBound;
+      this.pageNumber = (lastIndexRetrieved / this.pageSize) + 1;
+      return;
+    }
+
+    throw new RuntimeException("Cant find a pageSize and pageNumber: originalPageSize: " 
+        + originalPageSize + ", originalAutoPageOverlap: " +  this.autopageOverlap 
+        + ", lastIndexRetrieved: " +  lastIndexRetrieved);
+    
+  }
+  
+  /**
+   * execute the call and return the results.  If there is a problem calling the service, an
+   * exception will be thrown
+   * 
+   * @return the results
+   */
+  private WsGetMembersResults executeHelper() {
     WsGetMembersResults wsGetMembersResults = null;
     try {
       //Make the body of the request, in this case with beans and marshaling, but you can make
