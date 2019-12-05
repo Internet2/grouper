@@ -19,10 +19,19 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -54,10 +63,82 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#delete(edu.internet2.middleware.grouper.pit.PITStem)
    */
-  public void delete(PITStem pitStem) {
-    HibernateSession.byObjectStatic().delete(pitStem);
+  public void delete(final PITStem pitStem) {
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.obliterate.stem.in.transaction", false)) {
+      
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+          new HibernateHandler() {
+    
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+    
+              Hib3PITStemDAO.this.deleteHelper(pitStem);
+              
+              return null;
+           }
+      });
+    } else {
+      Hib3PITStemDAO.this.deleteHelper(pitStem);
+    }
+
   }
-  
+
+  /**
+   * delete logic
+   * @param pitStem
+   */
+  private void deleteHelper(PITStem pitStem) {
+    
+    boolean printOutput = PITStem.printOutputOnDelete();
+    
+    if (pitStem.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time stem object with id=" + pitStem.getId());
+    }
+    
+    if (printOutput) {
+      System.out.println("Obliterating stem from point in time: " + pitStem.getName() + ", ID=" + pitStem.getId());
+    }
+    
+    // delete groups
+    Set<PITGroup> groups = GrouperDAOFactory.getFactory().getPITGroup().findByPITStemId(pitStem.getId());
+    for (PITGroup group : groups) {
+      GrouperDAOFactory.getFactory().getPITGroup().delete(group);
+      if (printOutput) {
+        System.out.println("Done deleting group from point in time: " + group.getName() + ", ID=" + group.getId());
+      }
+    }
+    
+    // delete attribute def names
+    Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByPITStemId(pitStem.getId());
+    for (PITAttributeDefName attr : attrs) {
+      GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
+      if (printOutput) {
+        System.out.println("Done deleting attributeDefName from point in time: " + attr.getName() + ", ID=" + attr.getId());
+      }
+    }
+    
+    // delete attribute defs
+    Set<PITAttributeDef> defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByPITStemId(pitStem.getId());
+    for (PITAttributeDef def : defs) {
+      GrouperDAOFactory.getFactory().getPITAttributeDef().delete(def);
+      if (printOutput) {
+        System.out.println("Done deleting attributeDef from point in time: " + def.getName() + ", ID=" + def.getId());
+      }
+    }
+    
+    // delete child stems
+    Set<PITStem> stems = GrouperDAOFactory.getFactory().getPITStem().findByParentPITStemId(pitStem.getId());
+    for (PITStem stem : stems) {
+      // call helper so it doesnt do another tx check
+      deleteHelper(stem);
+    }
+    
+    HibernateSession.byObjectStatic().delete(pitStem);
+
+  }
+
   /**
    * reset
    * @param hibernateSession

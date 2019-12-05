@@ -18,7 +18,13 @@ package edu.internet2.middleware.grouper.pit;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -197,12 +203,17 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
    * @param printOutput
    */
   public void delete(boolean printOutput) {
-    printOutputOnDelete.set(printOutput);
 
+    boolean assignedPrintOutput = printOutputOnDelete.get() == null || printOutputOnDelete.get() != printOutput;
+    if (assignedPrintOutput) {
+      printOutputOnDelete.set(printOutput);
+    }
     try {
       GrouperDAOFactory.getFactory().getPITStem().delete(this);
     } finally {
-      printOutputOnDelete.remove();
+      if (assignedPrintOutput) {
+        printOutputOnDelete.remove();
+      }
     }
   }
   
@@ -213,7 +224,7 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
     
-    boolean printOutput = printOutputOnDelete != null && printOutputOnDelete.get() != null && printOutputOnDelete.get() == true ? true : false;
+    boolean printOutput = printOutputOnDelete();
 
     if (printOutput) {
       System.out.println("Done obliterating stem from point in time: " + this.getName() + ", ID=" + this.getId());
@@ -227,14 +238,10 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
 
-    boolean printOutput = printOutputOnDelete != null && printOutputOnDelete.get() != null && printOutputOnDelete.get() == true ? true : false;
+    boolean printOutput = printOutputOnDelete();
     
     if (this.isActive()) {
       throw new RuntimeException("Cannot delete active point in time stem object with id=" + this.getId());
-    }
-    
-    if (printOutput) {
-      System.out.println("Obliterating stem from point in time: " + this.getName() + ", ID=" + this.getId());
     }
     
     // delete memberships
@@ -252,38 +259,13 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
     // delete self group sets and their children
     GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByPITOwnerId(this.getId());
     
-    // delete groups
-    Set<PITGroup> groups = GrouperDAOFactory.getFactory().getPITGroup().findByPITStemId(this.getId());
-    for (PITGroup group : groups) {
-      GrouperDAOFactory.getFactory().getPITGroup().delete(group);
-      if (printOutput) {
-        System.out.println("Done deleting group from point in time: " + group.getName() + ", ID=" + group.getId());
-      }
-    }
-    
-    // delete attribute def names
-    Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByPITStemId(this.getId());
-    for (PITAttributeDefName attr : attrs) {
-      GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
-      if (printOutput) {
-        System.out.println("Done deleting attributeDefName from point in time: " + attr.getName() + ", ID=" + attr.getId());
-      }
-    }
-    
-    // delete attribute defs
-    Set<PITAttributeDef> defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByPITStemId(this.getId());
-    for (PITAttributeDef def : defs) {
-      GrouperDAOFactory.getFactory().getPITAttributeDef().delete(def);
-      if (printOutput) {
-        System.out.println("Done deleting attributeDef from point in time: " + def.getName() + ", ID=" + def.getId());
-      }
-    }
-    
-    // delete child stems
-    Set<PITStem> stems = GrouperDAOFactory.getFactory().getPITStem().findByParentPITStemId(this.getId());
-    for (PITStem stem : stems) {
-      GrouperDAOFactory.getFactory().getPITStem().delete(stem);
-    }
+  }
+
+  /**
+   * @return if print output on delete
+   */
+  public static boolean printOutputOnDelete() {
+    return printOutputOnDelete != null && printOutputOnDelete.get() != null && printOutputOnDelete.get() == true ? true : false;
   }
   
   private PITStem pitParentStem;
