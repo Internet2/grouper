@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportGroupSummary;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateImportExport.GrouperImportException;
@@ -81,6 +82,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * operations in the group screen
@@ -412,6 +414,7 @@ public class UiV2GroupImport {
     }
 
     //loop through all the hidden fields (max 100)
+    //TODO cant this loop and the above logic be collapsed?
     for (int i=0;i<100;i++) {
       String extraGroupId = request.getParameter("extraGroupId_" + i);
       
@@ -463,6 +466,8 @@ public class UiV2GroupImport {
     GrouperSession grouperSession = null;
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    //TODO should this be called "groupsTheUserCanUpdate" ?
     final Set<Group> groups = new LinkedHashSet<Group>();
     final Set<Subject> subjectSet = new LinkedHashSet<Subject>();
     final Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
@@ -609,10 +614,6 @@ public class UiV2GroupImport {
         }
       }
 
-      Map<String, String> reportByGroupName = new HashMap<String, String>();
-      groupImportContainer.setReportForGroupNameMap(reportByGroupName);
-
-
       if (importReplaceMembers && removeMembers) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#replaceExistingMembersId",
@@ -622,6 +623,9 @@ public class UiV2GroupImport {
       
       Iterator<Group> groupIterator = groups.iterator();
 
+      //TODO first off, why checking VIEW?  should it be READ?  or just UPDATE?
+      //TODO second, are groups not checked for UPDATE above in groupImportSetupExtraGroups()?  or is it just groups added from gruop screen?
+      
       //lets go through the groups that were submitted
       while (groupIterator.hasNext()) {
 
@@ -673,6 +677,7 @@ public class UiV2GroupImport {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+    // TODO should be GrouperCallable
     Runnable runnable = new Runnable() {
       
       public void run() {
@@ -718,9 +723,7 @@ public class UiV2GroupImport {
 
     GroupImportContainer groupImportContainer = importThreadProgress.get(sessionId);
     
-    if (groupImportContainer != null) {
-      GrouperRequestContainer.retrieveFromRequestOrCreate().setGroupImportContainer(groupImportContainer);
-    }
+    GrouperRequestContainer.retrieveFromRequestOrCreate().setGroupImportContainer(groupImportContainer);
 
     //show the report screen
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -730,7 +733,7 @@ public class UiV2GroupImport {
     if (groupImportContainer != null) {
       
       // endless loop?
-      if (groupImportContainer.getProgressBean().getStatusCountdown() < 0) {
+      if (groupImportContainer.getProgressBean().isThisLastStatus()) {
         return;
       }
       
@@ -772,9 +775,7 @@ public class UiV2GroupImport {
     GrouperSession grouperSession = null;
 
     int pauseBetweenRecordsMillis = GrouperUiConfig.retrieveConfig().propertyValueIntRequired("grouperUi.import.pauseInBetweenRecordsMillis");
-    
-    Map reportByGroupName = groupImportContainer.getReportForGroupNameMap();
-    
+        
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
@@ -791,22 +792,14 @@ public class UiV2GroupImport {
         final Group group = groupIterator.next();
 
         guiGroups.add(new GuiGroup(group));
-        StringBuilder report = new StringBuilder("<ul>\n");
 
-        //<ul>
-        //  <li>Before importing, the membership count was 10 and is now 12.</li>
-        //  <li>You successfully added 2 members and deleted 0 members.</li>
-        //  <li>2 members were not imported due to errors, as shown below.</li>
-        //</ul>
-        //<h5>Errors</h5>
-        //<ul>
-        //  <li><span class="label label-important">Error</span>&nbsp;on row 2. Subject not found: "foo-bar-user"</li>
-        //</ul>
-
+        GroupImportGroupSummary groupImportGroupSummary = new GroupImportGroupSummary();
+        groupImportContainer.getGroupImportGroupSummaryForGroupMap().put(group, groupImportGroupSummary);
+        
         List<Member> existingMembers = new ArrayList<Member>(GrouperUtil.nonNull(group.getImmediateMembers()));
         List<Subject> subjectList = new ArrayList<Subject>(GrouperUtil.nonNull(subjectSet));
         int existingCount = GrouperUtil.length(existingMembers);
-        groupImportContainer.setGroupCountOriginal(existingCount);
+        groupImportGroupSummary.setGroupCountOriginal(existingCount);
         
         List<Member> overlappingMembers = new ArrayList<Member>(GrouperUtil.nonNull(GrouperUiUtils.removeOverlappingSubjects(existingMembers, subjectList)));
 
@@ -936,13 +929,17 @@ public class UiV2GroupImport {
         
         reportByGroupName.put(group.getName(), report.toString());
 
-        GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-            loggedInSubject, group);
+        try {
+          GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+              loggedInSubject, group);
+        } catch (Exception e) {
+          LOG.warn("Cant add recently used group: " + group.getName() + ", for subject: " + SubjectUtils.subjectToString(loggedInSubject) + ", maybe a priv was lost after import started???", e);
+        }
         
         if (StringUtils.equals(bulkAddOption, "import")) {
           auditImport(group.getUuid(), group.getName(), fileName, addedCount, deletedCount);
         }
-        
+
       }
       
 
