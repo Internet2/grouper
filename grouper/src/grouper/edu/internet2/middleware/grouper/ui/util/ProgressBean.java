@@ -40,6 +40,15 @@ public class ProgressBean {
   private int statusCountdown = 10000;
 
   /**
+   * decrement the status countdown and see if this is the last one
+   * @return true if this is the last status
+   */
+  public boolean isThisLastStatus() {
+    this.statusCountdown--;
+    return this.statusCountdown < 0;
+  }
+  
+  /**
    * get elapsed seconds
    * @return seconds
    */
