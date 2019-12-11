@@ -5,7 +5,7 @@ if [ -d /opt/grouper/grouper.apiBinary ]; then
 elif [ -n "$GROUPER_CONFIG_DIR" -a -d "$GROUPER_CONFIG_DIR" ]; then
   LOADER_PROPERTIES=$GROUPER_CONFIG_DIR/grouper-loader.properties
 else
-  fail "Could not find /opt/grouper/grouper.apiBinary nor GROUPER_ONFIG_DIR"
+  fail "Could not find /opt/grouper/grouper.apiBinary nor GROUPER_CONFIG_DIR"
 fi
 
 [ ! -r "$LOADER_PROPERTIES" ] && fail "Cannot find $LOADER_PROPERTIES"

@@ -1364,6 +1364,9 @@ public abstract class Provisioner
       if ( !shouldGroupBeProvisioned(grouperGroupInfo) ) {
         workItem.markAsSkipped("Group %s is not selected to be provisioned", grouperGroupInfo);
         return;
+      } else {
+        // Document that this new group should be provisioned.
+        selectedGroups.get().add(grouperGroupInfo);
       }
 
       if ( tsGroupCache_shortTerm.containsKey(grouperGroupInfo) ) {
