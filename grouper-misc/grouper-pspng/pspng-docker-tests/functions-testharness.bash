@@ -418,7 +418,7 @@ function wrap_up()
 
   ERRORS=$(run_in_grouper_daemon cat $API/logs/grouper_error.log \
         | grep_ -i exception \
-        | egrep_ -iv 'Optimized, coalesced ldap provisioning failed|THIS WILL BE RETRIED|SqlExceptionHelper.logExceptions|Exception in list') 
+        | egrep_ -iv 'grouperText/grouper.text.en.us.properties|Optimized, coalesced ldap provisioning failed|THIS WILL BE RETRIED|SqlExceptionHelper.logExceptions|Exception in list') 
 
   if type -t filter_wrap_up_errors >/dev/null 
   then

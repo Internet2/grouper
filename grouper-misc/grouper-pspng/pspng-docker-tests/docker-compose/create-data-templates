@@ -52,9 +52,10 @@ if [ $FLAGS_keep_ldap -eq $FLAGS_FALSE ]; then
   
   docker volume create ldap-data-template
   docker volume create ldap-config-template
-  C_LDAP=$($DOCKER_COMPOSE up -d ldap)
+  $DOCKER_COMPOSE up -d ldap
+  C_LDAP=$($DOCKER_COMPOSE ps -q ldap)
 
-  $DOCKER_COMPOSE exec -T ldap await-ldap-server
+  $DOCKER_COMPOSE exec -T ldap bash -c "while ! ldapsearch -x -h localhost -b '' -s base>/dev/null; do echo awaiting ldap; sleep 1; done"
 
   #### DONE WITH LDAP SETUP
   # $DOCKER_COMPOSE logs ldap
@@ -86,13 +87,15 @@ if [ $FLAGS_keep_db -eq $FLAGS_FALSE ]; then
   docker volume create db-data-template
 
   log_always "Starting database container"
-  C_DB=$($DOCKER_COMPOSE up -d db)
+  $DOCKER_COMPOSE up -d db
+  C_DB=$($DOCKER_COMPOSE ps -q db)
 
   $DOCKER_COMPOSE exec -T db wait-for-it.sh -t 60 db:3306
   $DOCKER_COMPOSE exec -T db mysql-as-root --execute "CREATE DATABASE grouper CHARACTER SET utf8 COLLATE utf8_bin"
 
   log_always "Starting LDAP to support grouper daemon"
-  C_LDAP=$($DOCKER_COMPOSE up -d ldap)
+  $DOCKER_COMPOSE up -d ldap
+  C_LDAP=$($DOCKER_COMPOSE ps -q ldap)
 
   #get a grouper-daemon image running for gsh (it won't actually run grouper daemon process)
   log_always "Starting grouper container for gsh -registry"
