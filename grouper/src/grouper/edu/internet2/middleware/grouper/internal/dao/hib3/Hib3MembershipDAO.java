@@ -2688,7 +2688,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     {
       // owner and member are both groups
       StringBuilder sql = new StringBuilder(
-          "select ms from ImmediateMembershipEntry as ms, Group as g, Member as m, Group as mg where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb = 'g:gsa' and ("
+          "select ms from ImmediateMembershipEntry as ms, Group as g, Member as m, Group as mg where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("
             + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and g.enabledDb = 'T' and mg.enabledDb = 'T') "
             + " or (ms.enabledDb = 'T' and g.enabledDb = 'F') "
             + " or (ms.enabledDb = 'T' and mg.enabledDb = 'F') "
@@ -2708,7 +2708,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     {
       // owner is a group, member is not a group
       StringBuilder sql = new StringBuilder(
-          "select ms from ImmediateMembershipEntry as ms, Group as g, Member as m where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid and m.subjectSourceIdDb != 'g:gsa' and ("
+          "select ms from ImmediateMembershipEntry as ms, Group as g, Member as m where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("
             + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and g.enabledDb = 'T') "
             + " or (ms.enabledDb = 'T' and g.enabledDb = 'F') "
             + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
@@ -2727,7 +2727,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     {
       // owner is not a group, member is a group
       StringBuilder sql = new StringBuilder(
-          "select ms from ImmediateMembershipEntry as ms, Member as m, Group as mg where ms.memberUuid = m.uuid and ms.ownerGroupId is null and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb = 'g:gsa' and ("
+          "select ms from ImmediateMembershipEntry as ms, Member as m, Group as mg where ms.memberUuid = m.uuid and ms.ownerGroupId is null and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("
             + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and mg.enabledDb = 'T') "
             + " or (ms.enabledDb = 'T' and mg.enabledDb = 'F') "
             + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
@@ -2746,7 +2746,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     {
       // neither owner nor member are groups
       StringBuilder sql = new StringBuilder(
-          "select ms from ImmediateMembershipEntry as ms, Member as m where ms.memberUuid = m.uuid and ms.ownerGroupId is null and m.subjectSourceIdDb != 'g:gsa' and ("
+          "select ms from ImmediateMembershipEntry as ms, Member as m where ms.memberUuid = m.uuid and ms.ownerGroupId is null and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("
             + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now)) "
             + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
             + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :now) "

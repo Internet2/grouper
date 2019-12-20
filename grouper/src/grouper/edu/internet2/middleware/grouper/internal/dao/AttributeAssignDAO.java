@@ -208,6 +208,20 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @return the attribute assigns or empty if not there
    */
   public Set<AttributeAssign> findByOwnerGroupId(String ownerGroupId);
+  
+  /**
+   * retrieve by owner immediate membership ids.  note, this is not a secure method, will return any results queried
+   * @param ownerMembershipIds 
+   * @return the attribute assigns, will not return null
+   */
+  public Set<AttributeAssign> findByOwnerMembershipIds(Collection<String> ownerMembershipIds);
+  
+  /**
+   * retrieve by owner attribute assign ids.  note, this is not a secure method, will return any results queried
+   * @param ownerAttributeAssignIds 
+   * @return the attribute assigns, will not return null
+   */
+  public Set<AttributeAssign> findByOwnerAttributeAssignIds(Collection<String> ownerAttributeAssignIds);
 
   /**
    * @param ownerStemId
@@ -1151,6 +1165,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeAssigns to find assignments on these assignments
    * @param attributeAssignType of the assignments we are looking for or null for all
    * @param enabled null for all, true for enabled only, false for disabled only
+   * @param useCache 
    * @return the assignments
    */
   public Set<AttributeAssign> findAssignmentsFromAssignments(Collection<AttributeAssign> attributeAssigns, 

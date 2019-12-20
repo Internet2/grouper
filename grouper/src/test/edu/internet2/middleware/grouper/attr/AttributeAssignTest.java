@@ -83,7 +83,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindOwnersMultiple"));
+    TestRunner.run(new AttributeAssignTest("testXmlDifferentUpdateProperties"));
     
 //    GrouperStartup.startup();
 //    
@@ -640,10 +640,10 @@ public class AttributeAssignTest extends GrouperTest {
       attributeAssign = exampleAttributeAssignDb();
       exampleAttributeAssign = exampleRetrieveAttributeAssignDb();
 
-      //this is set based on times...
+      //this is set based on times...  (not anymore 12/2019)
       attributeAssign.setEnabledDb("F");
       
-      assertFalse(attributeAssign.xmlDifferentBusinessProperties(exampleAttributeAssign));
+      assertTrue(attributeAssign.xmlDifferentBusinessProperties(exampleAttributeAssign));
       assertFalse(attributeAssign.xmlDifferentUpdateProperties(exampleAttributeAssign));
 
       attributeAssign.setEnabledDb(exampleAttributeAssign.getEnabledDb());

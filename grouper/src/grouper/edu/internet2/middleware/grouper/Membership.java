@@ -500,7 +500,7 @@ public class Membership extends GrouperAPI implements
     }
     
     // if the member is a group, check group status
-    if (this.getMember().getSubjectTypeId().equals("group")) {
+    if ((this.getMember().getSubjectSourceId().equals("g:gsa") || this.getMember().getSubjectSourceId().equals("grouperEntities"))) {
       Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMember().getSubjectId(), true, null);
       if (!memberGroup.isEnabled()) {
         return false;

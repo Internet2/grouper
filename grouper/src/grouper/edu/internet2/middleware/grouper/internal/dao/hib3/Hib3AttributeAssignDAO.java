@@ -221,25 +221,160 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAllEnabledDisabledMismatch()
    */
   public Set<AttributeAssign> findAllEnabledDisabledMismatch() {
+    Set<AttributeAssign> attributeAssigns = new LinkedHashSet<AttributeAssign>();
     long now = System.currentTimeMillis();
 
-    StringBuilder sql = new StringBuilder(
-        "select ats from AttributeAssign as ats where  "
-          + "(ats.enabledDb = 'F' and ats.enabledTimeDb is null and ats.disabledTimeDb is null) "  
-          + " or (ats.enabledDb = 'F' and ats.enabledTimeDb is null and ats.disabledTimeDb > :now) "
-          + " or (ats.enabledDb = 'F' and ats.enabledTimeDb < :now and ats.disabledTimeDb is null) "
-          + " or (ats.enabledDb = 'F' and ats.enabledTimeDb < :now and ats.disabledTimeDb > :now) "
-          + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-          + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
-          + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
-          + " or (ats.enabledDb is null) "
-     );
-
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic()
-      .createQuery(sql.toString())
-      .setCacheable(false)
-      .setLong( "now",  now )
-      .listSet(AttributeAssign.class);
+    {
+      // if the owner is an object that can't be disabled
+      StringBuilder sql = new StringBuilder(
+          "select ats from AttributeAssign as ats where ats.ownerAttributeAssignId is null and ats.ownerGroupId is null and ats.ownerMemberId is null and ats.ownerMembershipId is null and ("          
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now)) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+            + " or (ats.enabledDb is null)) "
+       );
+  
+      attributeAssigns.addAll(HibernateSession.byHqlStatic()
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setLong("now", now)
+        .listSet(AttributeAssign.class));
+    }
+    
+    {
+      // if the owner is an attribute assign
+      StringBuilder sql = new StringBuilder(
+          "select ats from AttributeAssign as ats, AttributeAssign as ats2 where ats.ownerAttributeAssignId is not null and ats.ownerAttributeAssignId = ats2.id and ("          
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and ats2.enabledDb = 'T') "
+            + " or (ats.enabledDb = 'T' and ats2.enabledDb = 'F') "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+            + " or (ats.enabledDb is null)) "
+       );
+  
+      attributeAssigns.addAll(HibernateSession.byHqlStatic()
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setLong("now", now)
+        .listSet(AttributeAssign.class));
+    }
+    
+    {
+      // if the owner is an immediate membership
+      StringBuilder sql = new StringBuilder(
+          "select ats from AttributeAssign as ats, ImmediateMembershipEntry as ms where ats.ownerMembershipId is not null and ats.ownerMembershipId = ms.id and ("          
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and ms.enabledDb = 'T') "
+            + " or (ats.enabledDb = 'T' and ms.enabledDb = 'F') "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+            + " or (ats.enabledDb is null)) "
+       );
+  
+      attributeAssigns.addAll(HibernateSession.byHqlStatic()
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setLong("now", now)
+        .listSet(AttributeAssign.class));
+    }
+    
+    {
+      // if the owner is a group
+      StringBuilder sql = new StringBuilder(
+          "select ats from AttributeAssign as ats, Group as g where ats.ownerGroupId is not null and ats.ownerMemberId is null and ats.ownerGroupId = g.id and ("          
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and g.enabledDb = 'T') "
+            + " or (ats.enabledDb = 'T' and g.enabledDb = 'F') "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+            + " or (ats.enabledDb is null)) "
+       );
+  
+      attributeAssigns.addAll(HibernateSession.byHqlStatic()
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setLong("now", now)
+        .listSet(AttributeAssign.class));
+    }
+    
+    {
+      // if the owner is a member that is not a group
+      StringBuilder sql = new StringBuilder(
+          "select ats from AttributeAssign as ats, Member as m where ats.ownerMemberId is not null and ats.ownerGroupId is null and ats.ownerMemberId = m.id and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("          
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now)) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+            + " or (ats.enabledDb is null)) "
+       );
+  
+      attributeAssigns.addAll(HibernateSession.byHqlStatic()
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setLong("now", now)
+        .listSet(AttributeAssign.class));
+    }
+    
+    {
+      // if the owner is a member that is a group
+      StringBuilder sql = new StringBuilder(
+          "select ats from AttributeAssign as ats, Member as m, Group as mg where ats.ownerMemberId is not null and ats.ownerGroupId is null and ats.ownerMemberId = m.id and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("          
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and mg.enabledDb = 'T') "
+            + " or (ats.enabledDb = 'T' and mg.enabledDb = 'F') "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+            + " or (ats.enabledDb is null)) "
+       );
+  
+      attributeAssigns.addAll(HibernateSession.byHqlStatic()
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setLong("now", now)
+        .listSet(AttributeAssign.class));
+    }
+    
+    {
+      // if the owner is an effective membership and the member is not a group
+      StringBuilder sql = new StringBuilder(
+          "select ats from AttributeAssign as ats, Member as m, Group as g where ats.ownerMemberId is not null and ats.ownerGroupId is not null and ats.ownerMemberId = m.id and ats.ownerGroupId = g.id and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("          
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and g.enabledDb = 'T') "
+            + " or (ats.enabledDb = 'T' and g.enabledDb = 'F') "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+            + " or (ats.enabledDb is null)) "
+       );
+  
+      attributeAssigns.addAll(HibernateSession.byHqlStatic()
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setLong("now", now)
+        .listSet(AttributeAssign.class));
+    }
+    
+    {
+      // if the owner is an effective membership and the member is a group
+      StringBuilder sql = new StringBuilder(
+          "select ats from AttributeAssign as ats, Member as m, Group as g, Group as mg where ats.ownerMemberId is not null and ats.ownerGroupId is not null and ats.ownerMemberId = m.id and ats.ownerGroupId = g.id and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("          
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and g.enabledDb = 'T' and mg.enabledDb = 'T') "
+            + " or (ats.enabledDb = 'T' and g.enabledDb = 'F') "
+            + " or (ats.enabledDb = 'T' and mg.enabledDb = 'F') "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+            + " or (ats.enabledDb is null)) "
+       );
+  
+      attributeAssigns.addAll(HibernateSession.byHqlStatic()
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setLong("now", now)
+        .listSet(AttributeAssign.class));
+    }
+    
     return attributeAssigns;
   }
 
@@ -316,6 +451,86 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
       
       sql.append(" id in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(") ");
+    
+      Set<AttributeAssign> localResult = byHqlStatic.createQuery(sql.toString())
+        .listSet(AttributeAssign.class);
+      
+      results.addAll(localResult);
+    }
+
+    return results;
+  }
+  
+  /**
+   * retrieve by owner immediate membership ids.  note, this is not a secure method, will return any results queried
+   * @param ownerMembershipIds 
+   * @return the attribute assigns, will not return null
+   */
+  public Set<AttributeAssign> findByOwnerMembershipIds(Collection<String> ownerMembershipIds) {
+    int idsSize = GrouperUtil.length(ownerMembershipIds);
+    
+    Set<AttributeAssign> results = new HashSet<AttributeAssign>();
+    
+    if (idsSize == 0) {
+      return results;
+    }
+    
+    List<String> idsList = new ArrayList<String>(ownerMembershipIds);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+    
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder("from AttributeAssign where ");
+      
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+      
+      sql.append(" ownerMembershipId in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(") ");
+    
+      Set<AttributeAssign> localResult = byHqlStatic.createQuery(sql.toString())
+        .listSet(AttributeAssign.class);
+      
+      results.addAll(localResult);
+    }
+
+    return results;
+  }
+  
+  /**
+   * retrieve by owner attribute assign ids.  note, this is not a secure method, will return any results queried
+   * @param ownerAttributeAssignIds 
+   * @return the attribute assigns, will not return null
+   */
+  public Set<AttributeAssign> findByOwnerAttributeAssignIds(Collection<String> ownerAttributeAssignIds) {
+    int idsSize = GrouperUtil.length(ownerAttributeAssignIds);
+    
+    Set<AttributeAssign> results = new HashSet<AttributeAssign>();
+    
+    if (idsSize == 0) {
+      return results;
+    }
+    
+    List<String> idsList = new ArrayList<String>(ownerAttributeAssignIds);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+    
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder("from AttributeAssign where ");
+      
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+      
+      sql.append(" ownerAttributeAssignId in (");
       sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
       sql.append(") ");
     
@@ -532,7 +747,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }      
     
     attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-        "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerMemberId = :theOwnerMemberId")
+        "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerMemberId = :theOwnerMemberId and attributeAssignTypeDb = 'member'")
         .setString("theAttributeDefNameId", attributeDefNameId)
         .setString("theOwnerMemberId", memberId)
         .listSet(AttributeAssign.class);
@@ -4791,7 +5006,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see AttributeAssignDAO#delete(Attribute
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, edu.internet2.middleware.grouper.attr.AttributeDefType, edu.internet2.middleware.grouper.attr.AttributeDefValueType, java.lang.Object)
    */
   @Override
   public Set<AttributeAssign> findGroupAttributeAssignments(

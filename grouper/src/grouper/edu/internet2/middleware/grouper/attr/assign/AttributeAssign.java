@@ -210,6 +210,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /** constant for field name for: enabledTimeDb */
   public static final String FIELD_ENABLED_TIME_DB = "enabledTimeDb";
 
+  /** constant for field name for: enabled */
+  public static final String FIELD_ENABLED = "enabled";
+  
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
 
@@ -249,7 +252,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, 
       FIELD_ENABLED_TIME_DB, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NOTES, 
       FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, 
-      FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE);
+      FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE, FIELD_ENABLED);
 
   /**
    * fields which are included in clone method
@@ -260,10 +263,15 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, 
       FIELD_ENABLED_TIME_DB, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, 
       FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, 
-      FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE);
+      FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE, FIELD_ENABLED);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
+  /**
+   * If the assignment is enabled.
+   */
+  private boolean enabled = true;
+  
   /**
    * 
    */
@@ -1382,11 +1390,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
   
   /**
-   * true or false for if this assignment is enabled (e.g. might have expired) 
+   * should this be enabled or disabled based on timestamps
    * @return the enabled
    */
-  public boolean isEnabled() {
-    //currently this is based on timestamp
+  public boolean internal_isEnabledUsingTimestamps() {
     long now = System.currentTimeMillis();
     if (this.enabledTimeDb != null && this.enabledTimeDb > now) {
       return false;
@@ -1394,7 +1401,36 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     if (this.disabledTimeDb != null && this.disabledTimeDb < now) {
       return false;
     }
+    
+    // now check if owners are disabled
+    if (this.getOwnerAttributeAssignId() != null && !this.getOwnerAttributeAssign().isEnabled()) {
+      return false;
+    }
+    
+    if (this.getOwnerGroupId() != null && !this.getOwnerGroup().isEnabled()) {
+      return false;
+    }
+    
+    if (this.getOwnerMembershipId() != null && !this.getOwnerMembership().isEnabled()) {
+      return false;
+    }
+    
+    // if the member is a group, check group status
+    if (this.getOwnerMemberId() != null && (this.getOwnerMember().getSubjectSourceId().equals("g:gsa") || this.getOwnerMember().getSubjectSourceId().equals("grouperEntities"))) {
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getOwnerMember().getSubjectId(), true, null);
+      if (!memberGroup.isEnabled()) {
+        return false;
+      }
+    }
+    
     return true;
+  }
+  
+  /**
+   * @return true if this attribute assignment is enabled
+   */
+  public boolean isEnabled() {
+    return this.enabled;
   }
   
   /**
@@ -1402,25 +1438,27 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @return the enabled
    */
   public String getEnabledDb() {
-    return this.isEnabled() ? "T" : "F";
+    if (this.enabled) {
+      return "T";
+    }
+    
+    return "F";
   }
 
   /**
    * true or false for if this assignment is enabled (e.g. might have expired) 
-   * dont call this method, its for hibernate
    * @param enabled1 the enabled to set
    */
-  public void setEnabledDb(@SuppressWarnings("unused") String enabled1) {
-    //note enabled is handled by dates
+  public void setEnabledDb(String enabled1) {
+    this.enabled = GrouperUtil.booleanValue(enabled1);
   }
 
   /**
    * true or false for if this assignment is enabled (e.g. might have expired) 
-   * dont call this method, its for hibernate
    * @param enabled1 the enabled to set
    */
-  public void setEnabled(@SuppressWarnings("unused") boolean enabled1) {
-    //note enabeld is handled by dates
+  public void setEnabled(boolean enabled1) {
+    this.enabled = enabled1;
   }
   
   /**
@@ -1477,6 +1515,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public void setEnabledTime(Timestamp enabledTimeDb1) {
     this.enabledTimeDb = enabledTimeDb1 == null ? null : enabledTimeDb1.getTime();
+    
+    setEnabled(internal_isEnabledUsingTimestamps());
   }
 
   
@@ -1495,6 +1535,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public void setDisabledTime(Timestamp disabledTimeDb1) {
     this.disabledTimeDb = disabledTimeDb1 == null ? null : disabledTimeDb1.getTime();
+    
+    setEnabled(internal_isEnabledUsingTimestamps());
   }
 
   
@@ -1589,6 +1631,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       return true;
     }
     if (!GrouperUtil.equals(this.disabledTimeDb, other.disabledTimeDb)) {
+      return true;
+    }
+    if (this.enabled != other.enabled) {
       return true;
     }
     if (!GrouperUtil.equals(this.enabledTimeDb, other.enabledTimeDb)) {
@@ -2141,7 +2186,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     long now = System.currentTimeMillis();
     this.setCreatedOnDb(now);
     this.setLastUpdatedDb(now);
-    
+    this.setEnabled(internal_isEnabledUsingTimestamps());
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_INSERT, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_INSERT, false, false);
@@ -2207,18 +2253,31 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.GROUP_TYPE_ASSIGN.typeName.name(), groupType.getName()).save();
     }
     
-    if (this.isEnabled()) {
-      //change log into temp table
-      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD, 
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id.name(), this.getId(), 
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId.name(), this.getAttributeDefNameId(), 
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType.name(), this.getAttributeAssignTypeDb(), 
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2,
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName.name(), this.getAttributeDefName().getName(),
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), this.getAttributeAssignAction().getName(),
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed.name(), this.getDisallowedDb()).save();
+    //change log into temp table - add even if it's not enabled to get entry in point in time
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD, 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id.name(), this.getId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId.name(), this.getAttributeDefNameId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType.name(), this.getAttributeAssignTypeDb(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2,
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName.name(), this.getAttributeDefName().getName(),
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), this.getAttributeAssignAction().getName(),
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed.name(), this.getDisallowedDb()).save();
+    
+    // fix this... ugh
+    if (!this.isEnabled()) {
+      // this is a delete
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameId.name(), this.getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType.name(), this.getAttributeAssignTypeDb(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1.name(), ownerId1,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName.name(), this.getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), this.getAttributeAssignAction().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.disallowed.name(), this.getDisallowedDb()).save();
     }
   }
 
@@ -2394,6 +2453,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
               hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
               
               AttributeAssign.this.delete();
+              //recalculate
+              AttributeAssign.this.enabled = AttributeAssign.this.internal_isEnabledUsingTimestamps();
               //insert this again
               AttributeAssign.this.setHibernateVersionNumber(GrouperAPI.INITIAL_VERSION_NUMBER);
               GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(AttributeAssign.this);

@@ -25,10 +25,18 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -56,11 +64,17 @@ public class TestDisabledGroup extends GrouperTest {
   /** root stem */
   private Stem root;
   
+  /** */
+  private AttributeDef testAttributeDef;
+  
+  /** */
+  private AttributeDefName testAttributeDefName;
+  
   /**
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestDisabledGroup("testFixEnabledDisabledDisableViaDisableDate"));
+    TestRunner.run(new TestDisabledGroup("testFixEnabledDisabledStatusOnAttributes"));
   }
   
   /**
@@ -76,6 +90,21 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
     edu   = StemHelper.addChildStem(root, "edu", "education");
+    
+    testAttributeDef = edu.addChildAttributeDef("testAttributeDef", AttributeDefType.attr);
+    testAttributeDef.setAssignToGroup(true);
+    testAttributeDef.setAssignToImmMembership(true);
+    testAttributeDef.setAssignToGroupAssn(true);
+    testAttributeDef.setAssignToImmMembershipAssn(true);
+    testAttributeDef.setAssignToEffMembership(true);
+    testAttributeDef.setAssignToEffMembershipAssn(true);
+    testAttributeDef.setAssignToMember(true);
+    testAttributeDef.setAssignToMemberAssn(true);
+    testAttributeDef.setAssignToStem(true);
+    testAttributeDef.setAssignToStemAssn(true);
+    testAttributeDef.setValueType(AttributeDefValueType.string);
+    testAttributeDef.store();
+    testAttributeDefName = edu.addChildAttributeDefName(testAttributeDef, "testAttributeDefName", "testAttributeDefName");
     
     new SyncPITTables().showResults(false).syncAllPITTables();
     grouperSession = GrouperSession.startRootSession();
@@ -113,7 +142,8 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
@@ -147,7 +177,8 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
@@ -195,7 +226,8 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
@@ -229,7 +261,8 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
@@ -277,7 +310,8 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
     group2.delete();
@@ -286,7 +320,8 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     // just one delete group change log
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
@@ -323,6 +358,7 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
     group2.addMember(SubjectTestHelper.SUBJ1);
@@ -336,7 +372,8 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     group2.setEnabledTime(new Timestamp(System.currentTimeMillis() - 100000L));
     group2.store();
     
@@ -352,6 +389,7 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
   }
   
   /**
@@ -392,7 +430,8 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     composite.setEnabledTime(new Timestamp(System.currentTimeMillis() - 100000L));
     composite.store();
     
@@ -406,6 +445,7 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
   }
   
   /**
@@ -420,7 +460,9 @@ public class TestDisabledGroup extends GrouperTest {
     group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
     group3.addMember(SubjectTestHelper.SUBJ0);
     edu.grantPriv(group2.toSubject(), NamingPrivilege.STEM_ATTR_READ);
-    
+    AttributeAssign group2Assn = group2.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    AttributeAssign group2AssnAssn = group2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+
     ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
@@ -433,13 +475,16 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
-    
+    assertFalse(AttributeAssignFinder.findById(group2Assn.getId(), true).isEnabled());
+    assertFalse(AttributeAssignFinder.findById(group2AssnAssn.getId(), true).isEnabled());
+
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
     try {
@@ -450,6 +495,7 @@ public class TestDisabledGroup extends GrouperTest {
     
     assertEquals(0, Membership.internal_fixEnabledDisabled());
     assertEquals(1, Group.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
 
     group2 = GroupFinder.findByUuid(grouperSession, group2.getUuid(), true, new QueryOptions().secondLevelCache(false));
     assertTrue(group2.isEnabled());
@@ -459,14 +505,17 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
-    
-    // first change log entry should be group enable, second should be group add, 11 total
+    assertTrue(AttributeAssignFinder.findById(group2Assn.getId(), true).isEnabled());
+    assertTrue(AttributeAssignFinder.findById(group2AssnAssn.getId(), true).isEnabled());
+
+    // first change log entry should be group enable, second should be group add, 13 total (including 2 attribute assignments)
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
@@ -479,7 +528,7 @@ public class TestDisabledGroup extends GrouperTest {
         .uniqueResult(ChangeLogEntry.class);
     assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(11, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(13, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
 
@@ -495,7 +544,9 @@ public class TestDisabledGroup extends GrouperTest {
     group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
     group3.addMember(SubjectTestHelper.SUBJ0);
     edu.grantPriv(group2.toSubject(), NamingPrivilege.STEM_ATTR_READ);
-    
+    AttributeAssign group2Assn = group2.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    AttributeAssign group2AssnAssn = group2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+
     ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
@@ -508,12 +559,15 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(AttributeAssignFinder.findById(group2Assn.getId(), true).isEnabled());
+    assertTrue(AttributeAssignFinder.findById(group2AssnAssn.getId(), true).isEnabled());
     
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
@@ -525,6 +579,7 @@ public class TestDisabledGroup extends GrouperTest {
     
     assertEquals(0, Membership.internal_fixEnabledDisabled());
     assertEquals(1, Group.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
 
     group2 = GroupFinder.findByUuid(grouperSession, group2.getUuid(), true, new QueryOptions().secondLevelCache(false));
     assertFalse(group2.isEnabled());
@@ -534,14 +589,17 @@ public class TestDisabledGroup extends GrouperTest {
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
-    
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
-    
-    // first change log entry should be group disable, last should be group delete, 11 total
+    assertFalse(AttributeAssignFinder.findById(group2Assn.getId(), true).isEnabled());
+    assertFalse(AttributeAssignFinder.findById(group2AssnAssn.getId(), true).isEnabled());
+
+    // first change log entry should be group disable, last should be group delete, 13 total (including 2 attribute assignments)
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
@@ -552,8 +610,633 @@ public class TestDisabledGroup extends GrouperTest {
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
-    assertEquals(11L, changeLogEntry.getSequenceNumber().longValue());
+    assertEquals(13L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(11, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(13, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+  }
+  
+  /**
+   * 
+   */
+  public void testWithDisabledMembership() {
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = edu.addChildGroup("test2", "test2");
+    Group group3 = edu.addChildGroup("test3", "test3");
+    group1.addMember(group2.toSubject());
+    group2.addMember(group3.toSubject());
+    group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+    group3.addMember(SubjectTestHelper.SUBJ0);
+    edu.grantPriv(group2.toSubject(), NamingPrivilege.STEM_ATTR_READ);
+    
+    // disable group2 -> group3 membership
+    Membership group2ToGroup3 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    group2ToGroup3.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group2ToGroup3.update();
+    
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    group2.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group2.store();
+    assertFalse(group2.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    
+    // first change log entry should be group disable, last should be group delete, 5 total
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    assertEquals(1L, changeLogEntry.getSequenceNumber().longValue());
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+    assertEquals(5L, changeLogEntry.getSequenceNumber().longValue());
+    
+    assertEquals(5, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    group2.setEnabledTime(null);
+    group2.store();
+    
+    assertTrue(group2.isEnabled());
+
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    
+    // first change log entry should be group enable, second should be group add, 5 total
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    assertEquals(1L, changeLogEntry.getSequenceNumber().longValue());
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+    assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
+    
+    assertEquals(5, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+  }
+  
+
+  /**
+   * 
+   */
+  public void testEnabledDateWithAttributeAssignments() {
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = edu.addChildGroup("test2", "test2");
+    Group group3 = edu.addChildGroup("test3", "test3");
+    group1.addMember(group2.toSubject());
+    group2.addMember(group3.toSubject());
+    group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+    group3.addMember(SubjectTestHelper.SUBJ0);
+    edu.grantPriv(group2.toSubject(), NamingPrivilege.STEM_ATTR_READ);
+
+    Membership g3ToSubj0 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    Membership g1ToG2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    Membership g2ToG3 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    
+    // set up attributes - assignment on group
+    AttributeAssign group1Assn = group1.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign group1AssnAssn = group1Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign group2Assn = group2.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign group2AssnAssn = group2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    
+    // set up attributes - assignment on immediate membership
+    AttributeAssign immG3ToSubj0Assn = g3ToSubj0.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign immG3ToSubj0AssnAssn = immG3ToSubj0Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign immG1ToG2Assn = g1ToG2.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign immG1ToG2AssnAssn = immG1ToG2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign immG2ToG3Assn = g2ToG3.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign immG2ToG3AssnAssn = immG2ToG3Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+
+    // set up attributes - assignment on effective membership
+    AttributeAssign effG3ToSubj0Assn = g3ToSubj0.getAttributeValueDelegateEffMship().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign effG3ToSubj0AssnAssn = effG3ToSubj0Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign effG1ToG2Assn = g1ToG2.getAttributeValueDelegateEffMship().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign effG1ToG2AssnAssn = effG1ToG2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign effG2ToG3Assn = g2ToG3.getAttributeValueDelegateEffMship().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign effG2ToG3AssnAssn = effG2ToG3Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+
+    // set up attributes - assignment on member
+    AttributeAssign group1MemberAssn = group1.toMember().getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign group1MemberAssnAssn = group1MemberAssn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign group2MemberAssn = group2.toMember().getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign group2MemberAssnAssn = group2MemberAssn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    group2.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group2.store();
+    assertFalse(group2.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG1ToG2Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG1ToG2AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG2ToG3Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG2ToG3AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssnAssn.getId(), true, false).isEnabled());
+    
+    // first change log entry should be group disable, last should be group delete, 12 deleteAttributeAssign, 4 deletePrivilege, 5 deleteMembership, 23 total
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    assertEquals(1L, changeLogEntry.getSequenceNumber().longValue());
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+    assertEquals(23L, changeLogEntry.getSequenceNumber().longValue());
+    
+    assertEquals(23, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    group2.setEnabledTime(null);
+    group2.store();
+    
+    assertTrue(group2.isEnabled());
+
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG1ToG2Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG1ToG2AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG2ToG3Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG2ToG3AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssnAssn.getId(), true, false).isEnabled());
+    
+    // first change log entry should be group enable, second should be group add, 23 total
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    assertEquals(1L, changeLogEntry.getSequenceNumber().longValue());
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+    assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
+    
+    assertEquals(23, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+  }
+  
+  /**
+   * 
+   */
+  public void testWithDisabledAttributeAssignments() {
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = edu.addChildGroup("test2", "test2");
+    Group group3 = edu.addChildGroup("test3", "test3");
+    group1.addMember(group2.toSubject());
+    group2.addMember(group3.toSubject());
+    group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+    group3.addMember(SubjectTestHelper.SUBJ0);
+    edu.grantPriv(group2.toSubject(), NamingPrivilege.STEM_ATTR_READ);
+    
+    Membership g3ToSubj0 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    Membership g1ToG2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    Membership g2ToG3 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    
+    // set up attributes - assignment on group
+    AttributeAssign group1Assn = group1.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign group1AssnAssn = group1Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign group2Assn = group2.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    
+    // set up attributes - assignment on immediate membership
+    AttributeAssign immG3ToSubj0Assn = g3ToSubj0.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign immG3ToSubj0AssnAssn = immG3ToSubj0Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign immG1ToG2Assn = g1ToG2.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign immG2ToG3Assn = g2ToG3.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign immG2ToG3AssnAssn = immG2ToG3Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+
+    // set up attributes - assignment on effective membership
+    AttributeAssign effG3ToSubj0Assn = g3ToSubj0.getAttributeValueDelegateEffMship().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign effG3ToSubj0AssnAssn = effG3ToSubj0Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign effG1ToG2Assn = g1ToG2.getAttributeValueDelegateEffMship().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign effG1ToG2AssnAssn = effG1ToG2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign effG2ToG3Assn = g2ToG3.getAttributeValueDelegateEffMship().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign effG2ToG3AssnAssn = effG2ToG3Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+
+    // set up attributes - assignment on member
+    AttributeAssign group1MemberAssn = group1.toMember().getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign group1MemberAssnAssn = group1MemberAssn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would not be disabled
+    AttributeAssign group2MemberAssn = group2.toMember().getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign group2MemberAssnAssn = group2MemberAssn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    
+    // disable group2Assn
+    group2Assn = AttributeAssignFinder.findById(group2Assn.getId(), true);
+    group2Assn.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group2Assn.saveOrUpdate();
+    
+    // disable immG1ToG2Assn
+    immG1ToG2Assn = AttributeAssignFinder.findById(immG1ToG2Assn.getId(), true);
+    immG1ToG2Assn.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    immG1ToG2Assn.saveOrUpdate();
+    
+    // these two should be disabled on creation
+    AttributeAssign group2AssnAssn = group2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    AttributeAssign immG1ToG2AssnAssn = immG1ToG2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();  // this would be disabled
+    
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    group2.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group2.store();
+    assertFalse(group2.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG1ToG2Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG1ToG2AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG2ToG3Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG2ToG3AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssnAssn.getId(), true, false).isEnabled());
+    
+    // first change log entry should be group disable, last should be group delete, 19 total (2 are disabled using timestamps on assignments and 2 more that are assignments on those0
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    assertEquals(1L, changeLogEntry.getSequenceNumber().longValue());
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+    assertEquals(19L, changeLogEntry.getSequenceNumber().longValue());
+    
+    assertEquals(19, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    group2.setEnabledTime(null);
+    group2.store();
+    
+    assertTrue(group2.isEnabled());
+
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0AssnAssn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG1ToG2Assn.getId(), true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG1ToG2AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG2ToG3Assn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG2ToG3AssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssnAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssn.getId(), true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssnAssn.getId(), true, false).isEnabled());
+    
+    // first change log entry should be group enable, second should be group add, 19 total
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    assertEquals(1L, changeLogEntry.getSequenceNumber().longValue());
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+    assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
+    
+    assertEquals(19, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+  }
+  
+  /**
+   * 
+   */
+  public void testAssignmentsOnDisabledObjects() {
+    Group group2 = edu.addChildGroup("test2", "test2");
+    Group group3 = edu.addChildGroup("test3", "test3");
+
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    
+    group2.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group2.store();
+    assertFalse(group2.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    
+    group2.addMember(group3.toSubject());
+   
+    Membership g2ToG3 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    assertFalse(g2ToG3.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    
+    AttributeAssign immG2ToG3Assn = g2ToG3.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    AttributeAssign immG2ToG3AssnAssn = immG2ToG3Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+
+    assertFalse(immG2ToG3Assn.isEnabled());
+    assertFalse(immG2ToG3AssnAssn.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+  }
+  
+  /**
+   * 
+   */
+  public void testWithLocalEntity() {
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Entity testEntity = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("edu:entity").save();
+    group1.addMember(testEntity.toSubject());
+    
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), testEntity.toMember().getUuid(), Group.getDefaultList(), "immediate", true, false);
+    assertTrue(ms.isEnabled());
+    
+    AttributeAssign immAssn = ms.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    AttributeAssign immAssnAssn = immAssn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    
+    assertTrue(immAssn.isEnabled());
+    assertTrue(immAssnAssn.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    
+    // disable the local entity
+    Group testEntityAsGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(testEntity.getId(), true);    
+    testEntityAsGroup.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    testEntityAsGroup.store();
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), testEntity.toMember().getUuid(), Group.getDefaultList(), "immediate", true, false);
+    assertFalse(ms.isEnabled());
+    assertFalse(ms.internal_isEnabledUsingTimestamps());
+    
+    immAssn = AttributeAssignFinder.findById(immAssn.getId(), true);
+    assertFalse(immAssn.isEnabled());
+    assertFalse(immAssn.internal_isEnabledUsingTimestamps());
+    
+    immAssnAssn = AttributeAssignFinder.findById(immAssnAssn.getId(), true);
+    assertFalse(immAssnAssn.isEnabled());
+    assertFalse(immAssnAssn.internal_isEnabledUsingTimestamps());
+    
+    // enable it
+    testEntityAsGroup.setEnabledTime(new Timestamp(System.currentTimeMillis() - 1000000L));
+    testEntityAsGroup.store();
+
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), testEntity.toMember().getUuid(), Group.getDefaultList(), "immediate", true, false);
+    assertTrue(ms.isEnabled());
+    assertTrue(ms.internal_isEnabledUsingTimestamps());
+    
+    immAssn = AttributeAssignFinder.findById(immAssn.getId(), true);
+    assertTrue(immAssn.isEnabled());
+    assertTrue(immAssn.internal_isEnabledUsingTimestamps());
+    
+    immAssnAssn = AttributeAssignFinder.findById(immAssnAssn.getId(), true);
+    assertTrue(immAssnAssn.isEnabled());
+    assertTrue(immAssnAssn.internal_isEnabledUsingTimestamps());
+  }
+  
+  /**
+   * 
+   */
+  public void testFixEnabledDisabledStatusOnAttributes() {
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = edu.addChildGroup("test2", "test2");
+    Group group3 = edu.addChildGroup("test3", "test3");
+    group1.addMember(group2.toSubject());
+    group2.addMember(group3.toSubject());
+    group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+    group3.addMember(SubjectTestHelper.SUBJ0);
+    edu.grantPriv(group2.toSubject(), NamingPrivilege.STEM_ATTR_READ);
+
+    Membership g3ToSubj0 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    Membership g1ToG2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
+    
+    // set up attributes - assignment on group
+    AttributeAssign group1Assn = group1.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    AttributeAssign group2Assn = group2.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    AttributeAssign group2AssnAssn = group2Assn.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    
+    // set up attributes - assignment on immediate membership
+    AttributeAssign immG3ToSubj0Assn = g3ToSubj0.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    
+    // set up attributes - assignment on folder
+    AttributeAssign eduAssn = edu.getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    
+    // set up attributes - assignment on member
+    AttributeAssign group1MemberAssn = group1.toMember().getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    AttributeAssign subj0MemberAssn = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false).getAttributeValueDelegate().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    
+    // set up attributes - assignment on effective membership
+    AttributeAssign effG3ToSubj0Assn = g3ToSubj0.getAttributeValueDelegateEffMship().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    AttributeAssign effG1ToG2Assn = g1ToG2.getAttributeValueDelegateEffMship().assignValue(testAttributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+  
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssign set enabledTimeDb = :enabledTime where id = :id").setLong("enabledTime", System.currentTimeMillis()+1000000).setString("id", group1Assn.getId()).executeUpdate();
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1Assn.getId(), true, false).isEnabled());
+    assertEquals(1, AttributeAssign.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1Assn.getId(), true, false).isEnabled());
+
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssign set disabledTimeDb = :disabledTime where id = :id").setLong("disabledTime", System.currentTimeMillis()-1000000).setString("id", group2AssnAssn.getId()).executeUpdate();
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2AssnAssn.getId(), true, false).isEnabled());
+    assertEquals(1, AttributeAssign.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2AssnAssn.getId(), true, false).isEnabled());
+    
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssign set enabledTimeDb = :enabledTime, enabledDb='F' where id = :id").setLong("enabledTime", System.currentTimeMillis()-1000000).setString("id", eduAssn.getId()).executeUpdate();
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(eduAssn.getId(), true, false).isEnabled());
+    assertEquals(1, AttributeAssign.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(eduAssn.getId(), true, false).isEnabled());
+    
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssign set enabledDb = 'F' where id = :id").setString("id", immG3ToSubj0Assn.getId()).executeUpdate();
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertEquals(1, AttributeAssign.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG3ToSubj0Assn.getId(), true, false).isEnabled());
+    
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssign set enabledDb = 'F' where id = :id").setString("id", subj0MemberAssn.getId()).executeUpdate();
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(subj0MemberAssn.getId(), true, false).isEnabled());
+    assertEquals(1, AttributeAssign.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(subj0MemberAssn.getId(), true, false).isEnabled());
+    
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssign set enabledDb = 'F' where id = :id").setString("id", group1MemberAssn.getId()).executeUpdate();
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssn.getId(), true, false).isEnabled());
+    assertEquals(1, AttributeAssign.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group1MemberAssn.getId(), true, false).isEnabled());
+    
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssign set enabledDb = 'F' where id = :id").setString("id", effG3ToSubj0Assn.getId()).executeUpdate();
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0Assn.getId(), true, false).isEnabled());
+    assertEquals(1, AttributeAssign.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG3ToSubj0Assn.getId(), true, false).isEnabled());
+    
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssign set enabledDb = 'F' where id = :id").setString("id", effG1ToG2Assn.getId()).executeUpdate();
+    assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2Assn.getId(), true, false).isEnabled());
+    assertEquals(1, AttributeAssign.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(effG1ToG2Assn.getId(), true, false).isEnabled());
   }
 }

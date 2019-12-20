@@ -213,6 +213,10 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
       throw new RuntimeException("PITMembership with sourceId=" + id + " not found");
     }
     
+    if (pitMembership.size() == 0) {
+      return null;
+    }
+    
     return pitMembership.iterator().next();
   }
   

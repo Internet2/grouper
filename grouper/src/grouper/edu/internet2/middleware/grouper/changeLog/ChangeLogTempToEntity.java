@@ -1300,7 +1300,44 @@ public class ChangeLogTempToEntity {
       PITMembership pitOwner1 = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(ownerId1, false);
       if (pitOwner1 == null) {
         // it may be disabled..
-        pitOwner1 = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(ownerId1, true);
+        pitOwner1 = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(ownerId1, false);
+        if (pitOwner1 == null) {
+          // maybe we need to add a disabled pit membership
+          Membership owner1 = GrouperDAOFactory.getFactory().getMembership().findByUuid(ownerId1, false, false);
+          if (owner1 == null) {
+            LOG.warn("Skipping change since unable to find membership in either PIT and non-PIT tables: " + changeLogEntry.toStringDeep());
+            return;
+          }
+          
+          pitOwner1 = new PITMembership();
+          pitOwner1.setId(GrouperUuid.getUuid());
+          pitOwner1.setSourceId(owner1.getImmediateMembershipId());
+          pitOwner1.setMemberId(GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(owner1.getMemberUuid(), true, true).getId());
+          pitOwner1.setFieldId(GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(owner1.getFieldId(), true).getId());
+          pitOwner1.setActiveDb("T");
+          pitOwner1.setStartTimeDb(owner1.getCreateTimeLong() * 1000L);
+          if (!owner1.isEnabled()) {
+            pitOwner1.setActiveDb("F");
+            pitOwner1.setEndTimeDb(owner1.getCreateTimeLong() * 1000L);
+          }
+          if (owner1.getOwnerGroupId() != null) {
+            PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(owner1.getOwnerGroupId(), true, true);
+            pitOwner1.setOwnerGroupId(pitOwner.getId());
+          } else if (owner1.getOwnerStemId() != null) {
+            PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(owner1.getOwnerStemId(), true, true);
+            pitOwner1.setOwnerStemId(pitOwner.getId());
+          } else if (owner1.getOwnerAttrDefId() != null) {
+            PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(owner1.getOwnerAttrDefId(), true);
+            pitOwner1.setOwnerAttrDefId(pitOwner.getId());
+          } else {
+            throw new RuntimeException("unexpected owner: " + owner1);
+          }
+          pitOwner1.setContextId(owner1.getContextId());
+          pitOwner1.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(false);
+          pitOwner1.setFlatMembershipNotificationsOnSaveOrUpdate(false);
+          pitOwner1.setFlatPrivilegeNotificationsOnSaveOrUpdate(false);
+          pitOwner1.save();
+        }
       }
       pitAttributeAssign.setOwnerMembershipId(pitOwner1.getId());
     } else {
