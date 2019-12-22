@@ -633,7 +633,7 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /** 
    * USDU member delete
    */
-  USDU_MEMBER_DELETE(new AuditType("usdu", "usduMemberDelete", null, "memberId", "sourceId", "subjectId"));
+  USDU_MEMBER_DELETE(new AuditType("usdu", "usduMemberDelete", null, "memberId", "sourceId", "subjectId")),
   
   /**
    * add report config for stem
