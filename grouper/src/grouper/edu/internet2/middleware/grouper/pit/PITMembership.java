@@ -857,7 +857,13 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setContextId(this.getContextId());
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
+      pitImmediateGroupSet.setSaveChangeLogUpdates(saveChangeLogUpdates);
       pitImmediateGroupSet.saveOrUpdate();
+      
+      if (!saveChangeLogUpdates) {
+        changeLogUpdates.addAll(pitImmediateGroupSet.getChangeLogUpdates());
+        pitImmediateGroupSet.clearChangeLogUpdates();
+      }
     }
     
     super.onPostSave(hibernateSession);
@@ -909,7 +915,13 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setContextId(this.getContextId());
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
+      pitImmediateGroupSet.setSaveChangeLogUpdates(saveChangeLogUpdates);
       pitImmediateGroupSet.saveOrUpdate();
+      
+      if (!saveChangeLogUpdates) {
+        changeLogUpdates.addAll(pitImmediateGroupSet.getChangeLogUpdates());
+        pitImmediateGroupSet.clearChangeLogUpdates();
+      }
     }
     
     super.onPostUpdate(hibernateSession);
