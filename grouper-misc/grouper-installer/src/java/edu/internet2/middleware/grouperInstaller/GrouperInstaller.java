@@ -2018,6 +2018,9 @@ public class GrouperInstaller {
       this.buildDuo(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-duo"));
       this.buildDuo(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-duo"));
       
+      this.buildBox(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-box"));
+      this.buildBox(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-box"));
+      
     }
     
 
@@ -2704,6 +2707,25 @@ public class GrouperInstaller {
                 + File.separator + "dist" + File.separator + "bin"),
             PatchFileType.clazz);
 
+        // box
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-box"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-box" 
+                + File.separator + "src"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-box"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-box" 
+                + File.separator + "changeLogConsumerSource"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-box"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-box" 
+                + File.separator + "dist" + File.separator + "bin"),
+            PatchFileType.clazz);
+
         //add grouper api files
         this.patchCreateProcessFiles(theIndexOfFiles, 
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper"),
@@ -3309,6 +3331,51 @@ public class GrouperInstaller {
     }
 
     System.out.println("\nEnd building duo");
+    System.out.println("##################################\n");
+    
+  }
+
+  /**
+   * build box API
+   * @param boxDir
+   */
+  private void buildBox(File boxDir) {
+    if (!boxDir.exists() || boxDir.isFile()) {
+      throw new RuntimeException("Cant find box: " + boxDir.getAbsolutePath());
+    }
+    
+    File duoBuildToDir = new File(boxDir.getAbsoluteFile() + File.separator + "dist" + File.separator + "bin");
+    
+    boolean rebuildBox = true;
+    
+    if (duoBuildToDir.exists()) {
+      System.out.print("Grouper box has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      rebuildBox = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildBoxAfterHavingBeenBuilt");
+    }
+    
+    if (!rebuildBox) {
+      return;
+    }
+
+    List<String> commands = new ArrayList<String>();
+    
+    addAntCommands(commands);
+    
+    System.out.println("\n##################################");
+    System.out.println("Building box with command:\n" + boxDir.getAbsolutePath() + "> " 
+        + convertCommandsIntoCommand(commands) + "\n");
+    
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, boxDir, null, true);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+
+    System.out.println("\nEnd building box");
     System.out.println("##################################\n");
     
   }
