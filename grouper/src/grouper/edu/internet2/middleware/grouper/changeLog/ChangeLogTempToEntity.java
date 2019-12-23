@@ -205,9 +205,9 @@ public class ChangeLogTempToEntity {
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
                   ChangeLogTempToEntity.processPrivilegeDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD)) {
-                  ChangeLogTempToEntity.processAttributeAssignAdd(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processAttributeAssignAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE)) {
-                  ChangeLogTempToEntity.processAttributeAssignDelete(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processAttributeAssignDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD)) {
                   ChangeLogTempToEntity.processAttributeDefNameAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE)) {
@@ -221,17 +221,17 @@ public class ChangeLogTempToEntity {
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE)) {
                   ChangeLogTempToEntity.processAttributeAssignActionDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD)) {
-                  ChangeLogTempToEntity.processAttributeAssignActionSetAdd(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processAttributeAssignActionSetAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE)) {
-                  ChangeLogTempToEntity.processAttributeAssignActionSetDelete(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processAttributeAssignActionSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_ADD)) {
-                  ChangeLogTempToEntity.processAttributeDefNameSetAdd(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processAttributeDefNameSetAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_DELETE)) {
-                  ChangeLogTempToEntity.processAttributeDefNameSetDelete(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processAttributeDefNameSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_ADD)) {
-                  ChangeLogTempToEntity.processRoleSetAdd(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processRoleSetAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_DELETE)) {
-                  ChangeLogTempToEntity.processRoleSetDelete(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processRoleSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD)) {
                   ChangeLogTempToEntity.processAttributeAssignValueAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE)) {
@@ -1238,7 +1238,7 @@ public class ChangeLogTempToEntity {
    * If an attribute assign gets added, insert into pit table.
    * @param changeLogEntry
    */
-  private static void processAttributeAssignAdd(ChangeLogEntry changeLogEntry) {
+  private static void processAttributeAssignAdd(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1353,14 +1353,18 @@ public class ChangeLogTempToEntity {
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitAttributeAssign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
 
+    pitAttributeAssign.setSaveChangeLogUpdates(false);
+
     pitAttributeAssign.save();
+    changeLogEntriesToSave.addAll(pitAttributeAssign.getChangeLogUpdates());
+    pitAttributeAssign.clearChangeLogUpdates();
   }
   
   /**
    * If an attribute assign gets delete, add end time to pit row.
    * @param changeLogEntry
    */
-  private static void processAttributeAssignDelete(ChangeLogEntry changeLogEntry) {
+  private static void processAttributeAssignDelete(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1382,7 +1386,11 @@ public class ChangeLogTempToEntity {
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitAttributeAssign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
+    pitAttributeAssign.setSaveChangeLogUpdates(false);
+
     pitAttributeAssign.update();
+    changeLogEntriesToSave.addAll(pitAttributeAssign.getChangeLogUpdates());
+    pitAttributeAssign.clearChangeLogUpdates();
   }
   
   /**
@@ -1644,7 +1652,7 @@ public class ChangeLogTempToEntity {
    * If an attribute assign action set gets added, insert into pit table.
    * @param changeLogEntry
    */
-  private static void processAttributeAssignActionSetAdd(ChangeLogEntry changeLogEntry) {
+  private static void processAttributeAssignActionSetAdd(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1686,14 +1694,18 @@ public class ChangeLogTempToEntity {
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitAttributeAssignActionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
+    pitAttributeAssignActionSet.setSaveChangeLogUpdates(false);
+
     pitAttributeAssignActionSet.saveOrUpdate();
+    changeLogEntriesToSave.addAll(pitAttributeAssignActionSet.getChangeLogUpdates());
+    pitAttributeAssignActionSet.clearChangeLogUpdates();
   }
   
   /**
    * If an attribute assign action set gets delete, add end time to pit row.
    * @param changeLogEntry
    */
-  private static void processAttributeAssignActionSetDelete(ChangeLogEntry changeLogEntry) {
+  private static void processAttributeAssignActionSetDelete(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1715,14 +1727,18 @@ public class ChangeLogTempToEntity {
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitAttributeAssignActionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
+    pitAttributeAssignActionSet.setSaveChangeLogUpdates(false);
+
     pitAttributeAssignActionSet.saveOrUpdate();
+    changeLogEntriesToSave.addAll(pitAttributeAssignActionSet.getChangeLogUpdates());
+    pitAttributeAssignActionSet.clearChangeLogUpdates();
   }
   
   /**
    * If an attribute def name set gets added, insert into pit table.
    * @param changeLogEntry
    */
-  private static void processAttributeDefNameSetAdd(ChangeLogEntry changeLogEntry) {
+  private static void processAttributeDefNameSetAdd(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1764,14 +1780,18 @@ public class ChangeLogTempToEntity {
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitAttributeDefNameSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
+    pitAttributeDefNameSet.setSaveChangeLogUpdates(false);
+
     pitAttributeDefNameSet.saveOrUpdate();
+    changeLogEntriesToSave.addAll(pitAttributeDefNameSet.getChangeLogUpdates());
+    pitAttributeDefNameSet.clearChangeLogUpdates();
   }
   
   /**
    * If an attribute def name set gets delete, add end time to pit row.
    * @param changeLogEntry
    */
-  private static void processAttributeDefNameSetDelete(ChangeLogEntry changeLogEntry) {
+  private static void processAttributeDefNameSetDelete(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1793,14 +1813,18 @@ public class ChangeLogTempToEntity {
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitAttributeDefNameSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
+    pitAttributeDefNameSet.setSaveChangeLogUpdates(false);
+
     pitAttributeDefNameSet.saveOrUpdate();
+    changeLogEntriesToSave.addAll(pitAttributeDefNameSet.getChangeLogUpdates());
+    pitAttributeDefNameSet.clearChangeLogUpdates();
   }
   
   /**
    * If a role set set gets added, insert into pit table.
    * @param changeLogEntry
    */
-  private static void processRoleSetAdd(ChangeLogEntry changeLogEntry) {
+  private static void processRoleSetAdd(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1842,14 +1866,18 @@ public class ChangeLogTempToEntity {
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitRoleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
+    pitRoleSet.setSaveChangeLogUpdates(false);
+
     pitRoleSet.saveOrUpdate();
+    changeLogEntriesToSave.addAll(pitRoleSet.getChangeLogUpdates());
+    pitRoleSet.clearChangeLogUpdates();
   }
   
   /**
    * If a role set set gets delete, add end time to pit row.
    * @param changeLogEntry
    */
-  private static void processRoleSetDelete(ChangeLogEntry changeLogEntry) {
+  private static void processRoleSetDelete(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1871,7 +1899,11 @@ public class ChangeLogTempToEntity {
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitRoleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
+    pitRoleSet.setSaveChangeLogUpdates(false);
+
     pitRoleSet.saveOrUpdate();
+    changeLogEntriesToSave.addAll(pitRoleSet.getChangeLogUpdates());
+    pitRoleSet.clearChangeLogUpdates();
   }
   
   /**
