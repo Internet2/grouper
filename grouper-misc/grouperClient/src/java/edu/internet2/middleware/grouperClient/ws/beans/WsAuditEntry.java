@@ -1,9 +1,7 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.ws.coresoap;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
+package edu.internet2.middleware.grouperClient.ws.beans;
 
 /**
  * @author vsachdeva
@@ -12,15 +10,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class WsAuditEntry {
   
   /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-  
-  /**
-   * audit entry id
+   * id of the audit entry
    */
   private String id;
   
@@ -40,12 +30,12 @@ public class WsAuditEntry {
   private String timestamp;
   
   /**
-   * array of audit entry columns
+   * array of audit columns
    */
   private WsAuditEntryColumn[] auditEntryColumns;
 
   /**
-   * @return audit action name
+   * @return action name
    */
   public String getActionName() {
     return this.actionName;
@@ -59,6 +49,7 @@ public class WsAuditEntry {
   }
 
   /**
+   * 
    * @return audit category
    */
   public String getAuditCategory() {
@@ -66,6 +57,7 @@ public class WsAuditEntry {
   }
 
   /**
+   * 
    * @param auditCategory1
    */
   public void setAuditCategory(String auditCategory1) {
@@ -78,7 +70,30 @@ public class WsAuditEntry {
   public String getTimestamp() {
     return this.timestamp;
   }
-  
+
+  /**
+   * 
+   * @param timestamp1
+   */
+  public void setTimestamp(String timestamp1) {
+    this.timestamp = timestamp1;
+  }
+
+  /**
+   * @return array of audit columns
+   */
+  public WsAuditEntryColumn[] getAuditEntryColumns() {
+    return this.auditEntryColumns;
+  }
+
+  /**
+   * 
+   * @param auditEntryColumns1
+   */
+  public void setAuditEntryColumns(WsAuditEntryColumn[] auditEntryColumns1) {
+    this.auditEntryColumns = auditEntryColumns1;
+  }
+
   /**
    * @return the id
    */
@@ -92,27 +107,6 @@ public class WsAuditEntry {
   public void setId(String id1) {
     this.id = id1;
   }
-
-  /**
-   * @param timestamp1
-   */
-  public void setTimestamp(String timestamp1) {
-    this.timestamp = timestamp1;
-  }
-
-  /**
-   * @return array of audit entry columns
-   */
-  public WsAuditEntryColumn[] getAuditEntryColumns() {
-    return this.auditEntryColumns;
-  }
-
-  /**
-   * 
-   * @param auditEntryColumns1
-   */
-  public void setAuditEntryColumns(WsAuditEntryColumn[] auditEntryColumns1) {
-    this.auditEntryColumns = auditEntryColumns1;
-  }
+  
 
 }

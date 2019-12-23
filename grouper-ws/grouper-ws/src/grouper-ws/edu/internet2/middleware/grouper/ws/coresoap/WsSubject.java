@@ -199,6 +199,7 @@ public class WsSubject implements Comparable<WsSubject> {
   *            true to retrieve subject info (more than just the id)
   */
   public WsSubject(Member member, String[] subjectAttributeNames, WsSubjectLookup subjectLookup, boolean includeSubjectDetails) {
+    this.setMemberId(member.getId());
     this.setId(member.getSubjectId());
     this.setSourceId(member.getSubjectSource().getId());
 
@@ -241,6 +242,7 @@ public class WsSubject implements Comparable<WsSubject> {
    * @param includeSubjectDetails 
    */
    public WsSubject(PITMember pitMember, String[] subjectAttributeNames, WsSubjectLookup subjectLookup, boolean includeSubjectDetails) {
+     this.setMemberId(pitMember.getSourceId());
      this.setId(pitMember.getSubjectId());
      this.setSourceId(pitMember.getSubjectSourceId());
 
@@ -354,6 +356,11 @@ public class WsSubject implements Comparable<WsSubject> {
 
   }
 
+  /**
+   * member id
+   */
+  private String memberId;
+  
   /** id of subject, note if no subject found, and identifier was passed in,
    * that will be placed here */
   private String id;
@@ -434,6 +441,20 @@ public class WsSubject implements Comparable<WsSubject> {
    */
   public void setSourceId(String source1) {
     this.sourceId = source1;
+  }
+  
+  /**
+   * @return the memberId
+   */
+  public String getMemberId() {
+    return this.memberId;
+  }
+
+  /**
+   * @param memberId1 the uuid to set
+   */
+  public void setMemberId(String memberId1) {
+    this.memberId = memberId1;
   }
 
   /**

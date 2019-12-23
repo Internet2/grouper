@@ -854,6 +854,174 @@
                             
 
                         /**
+                        * field for PageIsCursor
+                        */
+
+                        
+                                    protected java.lang.String localPageIsCursor ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPageIsCursorTracker = false ;
+
+                           public boolean isPageIsCursorSpecified(){
+                               return localPageIsCursorTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPageIsCursor(){
+                               return localPageIsCursor;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PageIsCursor
+                               */
+                               public void setPageIsCursor(java.lang.String param){
+                            localPageIsCursorTracker = true;
+                                   
+                                            this.localPageIsCursor=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PageLastCursorField
+                        */
+
+                        
+                                    protected java.lang.String localPageLastCursorField ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPageLastCursorFieldTracker = false ;
+
+                           public boolean isPageLastCursorFieldSpecified(){
+                               return localPageLastCursorFieldTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPageLastCursorField(){
+                               return localPageLastCursorField;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PageLastCursorField
+                               */
+                               public void setPageLastCursorField(java.lang.String param){
+                            localPageLastCursorFieldTracker = true;
+                                   
+                                            this.localPageLastCursorField=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PageLastCursorFieldType
+                        */
+
+                        
+                                    protected java.lang.String localPageLastCursorFieldType ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPageLastCursorFieldTypeTracker = false ;
+
+                           public boolean isPageLastCursorFieldTypeSpecified(){
+                               return localPageLastCursorFieldTypeTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPageLastCursorFieldType(){
+                               return localPageLastCursorFieldType;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PageLastCursorFieldType
+                               */
+                               public void setPageLastCursorFieldType(java.lang.String param){
+                            localPageLastCursorFieldTypeTracker = true;
+                                   
+                                            this.localPageLastCursorFieldType=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PageCursorFieldIncludesLastRetrieved
+                        */
+
+                        
+                                    protected java.lang.String localPageCursorFieldIncludesLastRetrieved ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPageCursorFieldIncludesLastRetrievedTracker = false ;
+
+                           public boolean isPageCursorFieldIncludesLastRetrievedSpecified(){
+                               return localPageCursorFieldIncludesLastRetrievedTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPageCursorFieldIncludesLastRetrieved(){
+                               return localPageCursorFieldIncludesLastRetrieved;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PageCursorFieldIncludesLastRetrieved
+                               */
+                               public void setPageCursorFieldIncludesLastRetrieved(java.lang.String param){
+                            localPageCursorFieldIncludesLastRetrievedTracker = true;
+                                   
+                                            this.localPageCursorFieldIncludesLastRetrieved=param;
+                                    
+
+                               }
+                            
+
+                        /**
                         * field for PointInTimeFrom
                         */
 
@@ -1324,6 +1492,78 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localPageIsCursorTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pageIsCursor", xmlWriter);
+                             
+
+                                          if (localPageIsCursor==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPageIsCursor);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPageLastCursorFieldTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pageLastCursorField", xmlWriter);
+                             
+
+                                          if (localPageLastCursorField==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPageLastCursorField);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPageLastCursorFieldTypeTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pageLastCursorFieldType", xmlWriter);
+                             
+
+                                          if (localPageLastCursorFieldType==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPageLastCursorFieldType);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPageCursorFieldIncludesLastRetrievedTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pageCursorFieldIncludesLastRetrieved", xmlWriter);
+                             
+
+                                          if (localPageCursorFieldIncludesLastRetrieved==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPageCursorFieldIncludesLastRetrieved);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              } if (localPointInTimeFromTracker){
                                     namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "pointInTimeFrom", xmlWriter);
@@ -1708,6 +1948,30 @@
                                  
                                          elementList.add(localAscending==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAscending));
+                                    } if (localPageIsCursorTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pageIsCursor"));
+                                 
+                                         elementList.add(localPageIsCursor==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageIsCursor));
+                                    } if (localPageLastCursorFieldTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pageLastCursorField"));
+                                 
+                                         elementList.add(localPageLastCursorField==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageLastCursorField));
+                                    } if (localPageLastCursorFieldTypeTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pageLastCursorFieldType"));
+                                 
+                                         elementList.add(localPageLastCursorFieldType==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageLastCursorFieldType));
+                                    } if (localPageCursorFieldIncludesLastRetrievedTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pageCursorFieldIncludesLastRetrieved"));
+                                 
+                                         elementList.add(localPageCursorFieldIncludesLastRetrieved==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageCursorFieldIncludesLastRetrieved));
                                     } if (localPointInTimeFromTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "pointInTimeFrom"));
@@ -2333,6 +2597,114 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setAscending(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageIsCursor").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPageIsCursor(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageLastCursorField").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPageLastCursorField(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageLastCursorFieldType").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPageLastCursorFieldType(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageCursorFieldIncludesLastRetrieved").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPageCursorFieldIncludesLastRetrieved(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

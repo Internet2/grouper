@@ -424,6 +424,17 @@ public class GcGetGroups {
       getGroups.setPointInTimeFrom(GrouperClientUtils.dateToString(this.pointInTimeFrom));
       getGroups.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
       
+      if (this.pageIsCursor != null) {
+        getGroups.setPageIsCursor(this.pageIsCursor ? "T": "F");
+      }
+      
+      if (this.pageCursorFieldIncludesLastRetrieved != null) {
+        getGroups.setPageCursorFieldIncludesLastRetrieved(this.pageCursorFieldIncludesLastRetrieved ? "T": "F");
+      }
+      
+      getGroups.setPageLastCursorField(this.pageLastCursorField);
+      getGroups.setPageLastCursorFieldType(this.pageLastCursorFieldType);
+      
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
@@ -447,6 +458,66 @@ public class GcGetGroups {
    */
   public GcGetGroups assignMemberFilter(WsMemberFilter theMemberFilter) {
     this.memberFilter = theMemberFilter;
+    return this;
+  }
+  
+  /**
+   * T for when pagination is of cursor type. F or null otherwise
+   */
+  private Boolean pageIsCursor;
+  
+  /**
+   * T for when pagination is of cursor type. F or null otherwise
+   * @param pageIsCursor
+   * @return
+   */
+  public GcGetGroups assignPageIsCursor(Boolean pageIsCursor) {
+    this.pageIsCursor = pageIsCursor;
+    return this;
+  }
+  
+  /**
+   * value of last cursor field
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * value of last cursor field
+   * @param pageLastCursorField
+   * @return
+   */
+  public GcGetGroups assignPageLastCursorField(String pageLastCursorField) {
+    this.pageLastCursorField = pageLastCursorField;
+    return this;
+  }
+  
+  /**
+   * type of last cursor field (string, int, long, date, timestamp)
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * type of last cursor field (string, int, long, date, timestamp)
+   * @param pageLastCursorFieldType
+   * @return
+   */
+  public GcGetGroups assignPageLastCursorFieldType(String pageLastCursorFieldType) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType;
+    return this;
+  }
+  
+  /**
+   * should the last retrieved item be included again in the current result set
+   */
+  private Boolean pageCursorFieldIncludesLastRetrieved;
+  
+  /**
+   * should the last retrieved item be included again in the current result set
+   * @param pageCursorFieldIncludesLastRetrieved
+   * @return
+   */
+  public GcGetGroups assignPageCursorFieldIncludesLastRetrieved(Boolean pageCursorFieldIncludesLastRetrieved) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved;
     return this;
   }
   

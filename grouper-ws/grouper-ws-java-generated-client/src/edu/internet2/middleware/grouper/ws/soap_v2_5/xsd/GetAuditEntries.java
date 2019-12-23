@@ -194,446 +194,256 @@
                             
 
                         /**
-                        * field for AfterAuditEntryId
+                        * field for WsGroupLookup
                         */
 
                         
-                                    protected java.lang.String localAfterAuditEntryId ;
+                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup localWsGroupLookup ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localAfterAuditEntryIdTracker = false ;
+                           protected boolean localWsGroupLookupTracker = false ;
 
-                           public boolean isAfterAuditEntryIdSpecified(){
-                               return localAfterAuditEntryIdTracker;
+                           public boolean isWsGroupLookupSpecified(){
+                               return localWsGroupLookupTracker;
                            }
 
                            
 
                            /**
                            * Auto generated getter method
-                           * @return java.lang.String
+                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup
                            */
-                           public  java.lang.String getAfterAuditEntryId(){
-                               return localAfterAuditEntryId;
+                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup getWsGroupLookup(){
+                               return localWsGroupLookup;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param AfterAuditEntryId
+                               * @param param WsGroupLookup
                                */
-                               public void setAfterAuditEntryId(java.lang.String param){
-                            localAfterAuditEntryIdTracker = true;
+                               public void setWsGroupLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup param){
+                            localWsGroupLookupTracker = true;
                                    
-                                            this.localAfterAuditEntryId=param;
+                                            this.localWsGroupLookup=param;
                                     
 
                                }
                             
 
                         /**
-                        * field for WsOwnerGroupLookups
-                        * This was an Array!
+                        * field for WsStemLookup
                         */
 
                         
-                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[] localWsOwnerGroupLookups ;
+                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup localWsStemLookup ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localWsOwnerGroupLookupsTracker = false ;
+                           protected boolean localWsStemLookupTracker = false ;
 
-                           public boolean isWsOwnerGroupLookupsSpecified(){
-                               return localWsOwnerGroupLookupsTracker;
+                           public boolean isWsStemLookupSpecified(){
+                               return localWsStemLookupTracker;
                            }
 
                            
 
                            /**
                            * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[]
+                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup
                            */
-                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[] getWsOwnerGroupLookups(){
-                               return localWsOwnerGroupLookups;
+                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup getWsStemLookup(){
+                               return localWsStemLookup;
                            }
 
                            
                         
-
-
-                               
-                              /**
-                               * validate the array for WsOwnerGroupLookups
+                            /**
+                               * Auto generated setter method
+                               * @param param WsStemLookup
                                */
-                              protected void validateWsOwnerGroupLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[] param){
-                             
-                              }
+                               public void setWsStemLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup param){
+                            localWsStemLookupTracker = true;
+                                   
+                                            this.localWsStemLookup=param;
+                                    
 
-
-                             /**
-                              * Auto generated setter method
-                              * @param param WsOwnerGroupLookups
-                              */
-                              public void setWsOwnerGroupLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[] param){
-                              
-                                   validateWsOwnerGroupLookups(param);
-
-                               localWsOwnerGroupLookupsTracker = true;
-                                      
-                                      this.localWsOwnerGroupLookups=param;
-                              }
-
-                               
-                             
-                             /**
-                             * Auto generated add method for the array for convenience
-                             * @param param edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup
-                             */
-                             public void addWsOwnerGroupLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup param){
-                                   if (localWsOwnerGroupLookups == null){
-                                   localWsOwnerGroupLookups = new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[]{};
-                                   }
-
+                               }
                             
-                                 //update the setting tracker
-                                localWsOwnerGroupLookupsTracker = true;
-                            
-
-                               java.util.List list =
-                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localWsOwnerGroupLookups);
-                               list.add(param);
-                               this.localWsOwnerGroupLookups =
-                             (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[])list.toArray(
-                            new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[list.size()]);
-
-                             }
-                             
 
                         /**
-                        * field for WsOwnerStemLookups
-                        * This was an Array!
+                        * field for WsAttributeDefLookup
                         */
 
                         
-                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[] localWsOwnerStemLookups ;
+                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup localWsAttributeDefLookup ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localWsOwnerStemLookupsTracker = false ;
+                           protected boolean localWsAttributeDefLookupTracker = false ;
 
-                           public boolean isWsOwnerStemLookupsSpecified(){
-                               return localWsOwnerStemLookupsTracker;
+                           public boolean isWsAttributeDefLookupSpecified(){
+                               return localWsAttributeDefLookupTracker;
                            }
 
                            
 
                            /**
                            * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[]
+                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup
                            */
-                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[] getWsOwnerStemLookups(){
-                               return localWsOwnerStemLookups;
+                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup getWsAttributeDefLookup(){
+                               return localWsAttributeDefLookup;
                            }
 
                            
                         
-
-
-                               
-                              /**
-                               * validate the array for WsOwnerStemLookups
+                            /**
+                               * Auto generated setter method
+                               * @param param WsAttributeDefLookup
                                */
-                              protected void validateWsOwnerStemLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[] param){
-                             
-                              }
+                               public void setWsAttributeDefLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup param){
+                            localWsAttributeDefLookupTracker = true;
+                                   
+                                            this.localWsAttributeDefLookup=param;
+                                    
 
-
-                             /**
-                              * Auto generated setter method
-                              * @param param WsOwnerStemLookups
-                              */
-                              public void setWsOwnerStemLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[] param){
-                              
-                                   validateWsOwnerStemLookups(param);
-
-                               localWsOwnerStemLookupsTracker = true;
-                                      
-                                      this.localWsOwnerStemLookups=param;
-                              }
-
-                               
-                             
-                             /**
-                             * Auto generated add method for the array for convenience
-                             * @param param edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup
-                             */
-                             public void addWsOwnerStemLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup param){
-                                   if (localWsOwnerStemLookups == null){
-                                   localWsOwnerStemLookups = new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[]{};
-                                   }
-
+                               }
                             
-                                 //update the setting tracker
-                                localWsOwnerStemLookupsTracker = true;
-                            
-
-                               java.util.List list =
-                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localWsOwnerStemLookups);
-                               list.add(param);
-                               this.localWsOwnerStemLookups =
-                             (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[])list.toArray(
-                            new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[list.size()]);
-
-                             }
-                             
 
                         /**
-                        * field for WsOwnerAttributeDefLookups
-                        * This was an Array!
+                        * field for WsAttributeDefNameLookup
                         */
 
                         
-                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[] localWsOwnerAttributeDefLookups ;
+                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup localWsAttributeDefNameLookup ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localWsOwnerAttributeDefLookupsTracker = false ;
+                           protected boolean localWsAttributeDefNameLookupTracker = false ;
 
-                           public boolean isWsOwnerAttributeDefLookupsSpecified(){
-                               return localWsOwnerAttributeDefLookupsTracker;
+                           public boolean isWsAttributeDefNameLookupSpecified(){
+                               return localWsAttributeDefNameLookupTracker;
                            }
 
                            
 
                            /**
                            * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[]
+                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup
                            */
-                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[] getWsOwnerAttributeDefLookups(){
-                               return localWsOwnerAttributeDefLookups;
+                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup getWsAttributeDefNameLookup(){
+                               return localWsAttributeDefNameLookup;
                            }
 
                            
                         
-
-
-                               
-                              /**
-                               * validate the array for WsOwnerAttributeDefLookups
+                            /**
+                               * Auto generated setter method
+                               * @param param WsAttributeDefNameLookup
                                */
-                              protected void validateWsOwnerAttributeDefLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[] param){
-                             
-                              }
+                               public void setWsAttributeDefNameLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup param){
+                            localWsAttributeDefNameLookupTracker = true;
+                                   
+                                            this.localWsAttributeDefNameLookup=param;
+                                    
 
-
-                             /**
-                              * Auto generated setter method
-                              * @param param WsOwnerAttributeDefLookups
-                              */
-                              public void setWsOwnerAttributeDefLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[] param){
-                              
-                                   validateWsOwnerAttributeDefLookups(param);
-
-                               localWsOwnerAttributeDefLookupsTracker = true;
-                                      
-                                      this.localWsOwnerAttributeDefLookups=param;
-                              }
-
-                               
-                             
-                             /**
-                             * Auto generated add method for the array for convenience
-                             * @param param edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup
-                             */
-                             public void addWsOwnerAttributeDefLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup param){
-                                   if (localWsOwnerAttributeDefLookups == null){
-                                   localWsOwnerAttributeDefLookups = new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[]{};
-                                   }
-
+                               }
                             
-                                 //update the setting tracker
-                                localWsOwnerAttributeDefLookupsTracker = true;
-                            
-
-                               java.util.List list =
-                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localWsOwnerAttributeDefLookups);
-                               list.add(param);
-                               this.localWsOwnerAttributeDefLookups =
-                             (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[])list.toArray(
-                            new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[list.size()]);
-
-                             }
-                             
 
                         /**
-                        * field for WsOwnerAttributeDefNameLookups
-                        * This was an Array!
+                        * field for WsSubjectLookup
                         */
 
                         
-                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[] localWsOwnerAttributeDefNameLookups ;
+                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup localWsSubjectLookup ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localWsOwnerAttributeDefNameLookupsTracker = false ;
+                           protected boolean localWsSubjectLookupTracker = false ;
 
-                           public boolean isWsOwnerAttributeDefNameLookupsSpecified(){
-                               return localWsOwnerAttributeDefNameLookupsTracker;
+                           public boolean isWsSubjectLookupSpecified(){
+                               return localWsSubjectLookupTracker;
                            }
 
                            
 
                            /**
                            * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[]
+                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup
                            */
-                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[] getWsOwnerAttributeDefNameLookups(){
-                               return localWsOwnerAttributeDefNameLookups;
+                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup getWsSubjectLookup(){
+                               return localWsSubjectLookup;
                            }
 
                            
                         
-
-
-                               
-                              /**
-                               * validate the array for WsOwnerAttributeDefNameLookups
+                            /**
+                               * Auto generated setter method
+                               * @param param WsSubjectLookup
                                */
-                              protected void validateWsOwnerAttributeDefNameLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[] param){
-                             
-                              }
+                               public void setWsSubjectLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup param){
+                            localWsSubjectLookupTracker = true;
+                                   
+                                            this.localWsSubjectLookup=param;
+                                    
 
-
-                             /**
-                              * Auto generated setter method
-                              * @param param WsOwnerAttributeDefNameLookups
-                              */
-                              public void setWsOwnerAttributeDefNameLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[] param){
-                              
-                                   validateWsOwnerAttributeDefNameLookups(param);
-
-                               localWsOwnerAttributeDefNameLookupsTracker = true;
-                                      
-                                      this.localWsOwnerAttributeDefNameLookups=param;
-                              }
-
-                               
-                             
-                             /**
-                             * Auto generated add method for the array for convenience
-                             * @param param edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup
-                             */
-                             public void addWsOwnerAttributeDefNameLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup param){
-                                   if (localWsOwnerAttributeDefNameLookups == null){
-                                   localWsOwnerAttributeDefNameLookups = new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[]{};
-                                   }
-
+                               }
                             
-                                 //update the setting tracker
-                                localWsOwnerAttributeDefNameLookupsTracker = true;
-                            
-
-                               java.util.List list =
-                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localWsOwnerAttributeDefNameLookups);
-                               list.add(param);
-                               this.localWsOwnerAttributeDefNameLookups =
-                             (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[])list.toArray(
-                            new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[list.size()]);
-
-                             }
-                             
 
                         /**
-                        * field for WsOwnerSubjectLookups
-                        * This was an Array!
+                        * field for ActionsPerformedByWsSubjectLookup
                         */
 
                         
-                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[] localWsOwnerSubjectLookups ;
+                                    protected edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup localActionsPerformedByWsSubjectLookup ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localWsOwnerSubjectLookupsTracker = false ;
+                           protected boolean localActionsPerformedByWsSubjectLookupTracker = false ;
 
-                           public boolean isWsOwnerSubjectLookupsSpecified(){
-                               return localWsOwnerSubjectLookupsTracker;
+                           public boolean isActionsPerformedByWsSubjectLookupSpecified(){
+                               return localActionsPerformedByWsSubjectLookupTracker;
                            }
 
                            
 
                            /**
                            * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[]
+                           * @return edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup
                            */
-                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[] getWsOwnerSubjectLookups(){
-                               return localWsOwnerSubjectLookups;
+                           public  edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup getActionsPerformedByWsSubjectLookup(){
+                               return localActionsPerformedByWsSubjectLookup;
                            }
 
                            
                         
-
-
-                               
-                              /**
-                               * validate the array for WsOwnerSubjectLookups
+                            /**
+                               * Auto generated setter method
+                               * @param param ActionsPerformedByWsSubjectLookup
                                */
-                              protected void validateWsOwnerSubjectLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[] param){
-                             
-                              }
+                               public void setActionsPerformedByWsSubjectLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup param){
+                            localActionsPerformedByWsSubjectLookupTracker = true;
+                                   
+                                            this.localActionsPerformedByWsSubjectLookup=param;
+                                    
 
-
-                             /**
-                              * Auto generated setter method
-                              * @param param WsOwnerSubjectLookups
-                              */
-                              public void setWsOwnerSubjectLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[] param){
-                              
-                                   validateWsOwnerSubjectLookups(param);
-
-                               localWsOwnerSubjectLookupsTracker = true;
-                                      
-                                      this.localWsOwnerSubjectLookups=param;
-                              }
-
-                               
-                             
-                             /**
-                             * Auto generated add method for the array for convenience
-                             * @param param edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup
-                             */
-                             public void addWsOwnerSubjectLookups(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup param){
-                                   if (localWsOwnerSubjectLookups == null){
-                                   localWsOwnerSubjectLookups = new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[]{};
-                                   }
-
+                               }
                             
-                                 //update the setting tracker
-                                localWsOwnerSubjectLookupsTracker = true;
-                            
-
-                               java.util.List list =
-                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localWsOwnerSubjectLookups);
-                               list.add(param);
-                               this.localWsOwnerSubjectLookups =
-                             (edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[])list.toArray(
-                            new edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[list.size()]);
-
-                             }
-                             
 
                         /**
                         * field for Params
@@ -842,20 +652,20 @@
                             
 
                         /**
-                        * field for PointInTimeFrom
+                        * field for PageIsCursor
                         */
 
                         
-                                    protected java.lang.String localPointInTimeFrom ;
+                                    protected java.lang.String localPageIsCursor ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localPointInTimeFromTracker = false ;
+                           protected boolean localPageIsCursorTracker = false ;
 
-                           public boolean isPointInTimeFromSpecified(){
-                               return localPointInTimeFromTracker;
+                           public boolean isPageIsCursorSpecified(){
+                               return localPageIsCursorTracker;
                            }
 
                            
@@ -864,40 +674,40 @@
                            * Auto generated getter method
                            * @return java.lang.String
                            */
-                           public  java.lang.String getPointInTimeFrom(){
-                               return localPointInTimeFrom;
+                           public  java.lang.String getPageIsCursor(){
+                               return localPageIsCursor;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param PointInTimeFrom
+                               * @param param PageIsCursor
                                */
-                               public void setPointInTimeFrom(java.lang.String param){
-                            localPointInTimeFromTracker = true;
+                               public void setPageIsCursor(java.lang.String param){
+                            localPageIsCursorTracker = true;
                                    
-                                            this.localPointInTimeFrom=param;
+                                            this.localPageIsCursor=param;
                                     
 
                                }
                             
 
                         /**
-                        * field for PointInTimeTo
+                        * field for PageLastCursorField
                         */
 
                         
-                                    protected java.lang.String localPointInTimeTo ;
+                                    protected java.lang.String localPageLastCursorField ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localPointInTimeToTracker = false ;
+                           protected boolean localPageLastCursorFieldTracker = false ;
 
-                           public boolean isPointInTimeToSpecified(){
-                               return localPointInTimeToTracker;
+                           public boolean isPageLastCursorFieldSpecified(){
+                               return localPageLastCursorFieldTracker;
                            }
 
                            
@@ -906,20 +716,188 @@
                            * Auto generated getter method
                            * @return java.lang.String
                            */
-                           public  java.lang.String getPointInTimeTo(){
-                               return localPointInTimeTo;
+                           public  java.lang.String getPageLastCursorField(){
+                               return localPageLastCursorField;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param PointInTimeTo
+                               * @param param PageLastCursorField
                                */
-                               public void setPointInTimeTo(java.lang.String param){
-                            localPointInTimeToTracker = true;
+                               public void setPageLastCursorField(java.lang.String param){
+                            localPageLastCursorFieldTracker = true;
                                    
-                                            this.localPointInTimeTo=param;
+                                            this.localPageLastCursorField=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PageLastCursorFieldType
+                        */
+
+                        
+                                    protected java.lang.String localPageLastCursorFieldType ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPageLastCursorFieldTypeTracker = false ;
+
+                           public boolean isPageLastCursorFieldTypeSpecified(){
+                               return localPageLastCursorFieldTypeTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPageLastCursorFieldType(){
+                               return localPageLastCursorFieldType;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PageLastCursorFieldType
+                               */
+                               public void setPageLastCursorFieldType(java.lang.String param){
+                            localPageLastCursorFieldTypeTracker = true;
+                                   
+                                            this.localPageLastCursorFieldType=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PageCursorFieldIncludesLastRetrieved
+                        */
+
+                        
+                                    protected java.lang.String localPageCursorFieldIncludesLastRetrieved ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPageCursorFieldIncludesLastRetrievedTracker = false ;
+
+                           public boolean isPageCursorFieldIncludesLastRetrievedSpecified(){
+                               return localPageCursorFieldIncludesLastRetrievedTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPageCursorFieldIncludesLastRetrieved(){
+                               return localPageCursorFieldIncludesLastRetrieved;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PageCursorFieldIncludesLastRetrieved
+                               */
+                               public void setPageCursorFieldIncludesLastRetrieved(java.lang.String param){
+                            localPageCursorFieldIncludesLastRetrievedTracker = true;
+                                   
+                                            this.localPageCursorFieldIncludesLastRetrieved=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for FromDate
+                        */
+
+                        
+                                    protected java.lang.String localFromDate ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localFromDateTracker = false ;
+
+                           public boolean isFromDateSpecified(){
+                               return localFromDateTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getFromDate(){
+                               return localFromDate;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param FromDate
+                               */
+                               public void setFromDate(java.lang.String param){
+                            localFromDateTracker = true;
+                                   
+                                            this.localFromDate=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for ToDate
+                        */
+
+                        
+                                    protected java.lang.String localToDate ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localToDateTracker = false ;
+
+                           public boolean isToDateSpecified(){
+                               return localToDateTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getToDate(){
+                               return localToDate;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param ToDate
+                               */
+                               public void setToDate(java.lang.String param){
+                            localToDateTracker = true;
+                                   
+                                            this.localToDate=param;
                                     
 
                                }
@@ -1049,155 +1027,79 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
-                             } if (localAfterAuditEntryIdTracker){
-                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
-                                    writeStartElement(null, namespace, "afterAuditEntryId", xmlWriter);
-                             
+                             } if (localWsGroupLookupTracker){
+                                    if (localWsGroupLookup==null){
 
-                                          if (localAfterAuditEntryId==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                  
-                                          }else{
+                                        writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsGroupLookup", xmlWriter);
 
-                                        
-                                                   xmlWriter.writeCharacters(localAfterAuditEntryId);
-                                            
-                                          }
-                                    
-                                   xmlWriter.writeEndElement();
-                             } if (localWsOwnerGroupLookupsTracker){
-                                       if (localWsOwnerGroupLookups!=null){
-                                            for (int i = 0;i < localWsOwnerGroupLookups.length;i++){
-                                                if (localWsOwnerGroupLookups[i] != null){
-                                                 localWsOwnerGroupLookups[i].serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerGroupLookups"),
-                                                           xmlWriter);
-                                                } else {
-                                                   
-                                                            writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerGroupLookups", xmlWriter);
-
-                                                           // write the nil attribute
-                                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                           xmlWriter.writeEndElement();
-                                                    
-                                                }
-
-                                            }
-                                     } else {
-                                        
-                                                writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerGroupLookups", xmlWriter);
-
-                                               // write the nil attribute
-                                               writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                               xmlWriter.writeEndElement();
-                                        
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localWsGroupLookup.serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsGroupLookup"),
+                                        xmlWriter);
                                     }
-                                 } if (localWsOwnerStemLookupsTracker){
-                                       if (localWsOwnerStemLookups!=null){
-                                            for (int i = 0;i < localWsOwnerStemLookups.length;i++){
-                                                if (localWsOwnerStemLookups[i] != null){
-                                                 localWsOwnerStemLookups[i].serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerStemLookups"),
-                                                           xmlWriter);
-                                                } else {
-                                                   
-                                                            writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerStemLookups", xmlWriter);
+                                } if (localWsStemLookupTracker){
+                                    if (localWsStemLookup==null){
 
-                                                           // write the nil attribute
-                                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                           xmlWriter.writeEndElement();
-                                                    
-                                                }
+                                        writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsStemLookup", xmlWriter);
 
-                                            }
-                                     } else {
-                                        
-                                                writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerStemLookups", xmlWriter);
-
-                                               // write the nil attribute
-                                               writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                               xmlWriter.writeEndElement();
-                                        
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localWsStemLookup.serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsStemLookup"),
+                                        xmlWriter);
                                     }
-                                 } if (localWsOwnerAttributeDefLookupsTracker){
-                                       if (localWsOwnerAttributeDefLookups!=null){
-                                            for (int i = 0;i < localWsOwnerAttributeDefLookups.length;i++){
-                                                if (localWsOwnerAttributeDefLookups[i] != null){
-                                                 localWsOwnerAttributeDefLookups[i].serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerAttributeDefLookups"),
-                                                           xmlWriter);
-                                                } else {
-                                                   
-                                                            writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerAttributeDefLookups", xmlWriter);
+                                } if (localWsAttributeDefLookupTracker){
+                                    if (localWsAttributeDefLookup==null){
 
-                                                           // write the nil attribute
-                                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                           xmlWriter.writeEndElement();
-                                                    
-                                                }
+                                        writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsAttributeDefLookup", xmlWriter);
 
-                                            }
-                                     } else {
-                                        
-                                                writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerAttributeDefLookups", xmlWriter);
-
-                                               // write the nil attribute
-                                               writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                               xmlWriter.writeEndElement();
-                                        
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localWsAttributeDefLookup.serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsAttributeDefLookup"),
+                                        xmlWriter);
                                     }
-                                 } if (localWsOwnerAttributeDefNameLookupsTracker){
-                                       if (localWsOwnerAttributeDefNameLookups!=null){
-                                            for (int i = 0;i < localWsOwnerAttributeDefNameLookups.length;i++){
-                                                if (localWsOwnerAttributeDefNameLookups[i] != null){
-                                                 localWsOwnerAttributeDefNameLookups[i].serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerAttributeDefNameLookups"),
-                                                           xmlWriter);
-                                                } else {
-                                                   
-                                                            writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerAttributeDefNameLookups", xmlWriter);
+                                } if (localWsAttributeDefNameLookupTracker){
+                                    if (localWsAttributeDefNameLookup==null){
 
-                                                           // write the nil attribute
-                                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                           xmlWriter.writeEndElement();
-                                                    
-                                                }
+                                        writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsAttributeDefNameLookup", xmlWriter);
 
-                                            }
-                                     } else {
-                                        
-                                                writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerAttributeDefNameLookups", xmlWriter);
-
-                                               // write the nil attribute
-                                               writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                               xmlWriter.writeEndElement();
-                                        
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localWsAttributeDefNameLookup.serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsAttributeDefNameLookup"),
+                                        xmlWriter);
                                     }
-                                 } if (localWsOwnerSubjectLookupsTracker){
-                                       if (localWsOwnerSubjectLookups!=null){
-                                            for (int i = 0;i < localWsOwnerSubjectLookups.length;i++){
-                                                if (localWsOwnerSubjectLookups[i] != null){
-                                                 localWsOwnerSubjectLookups[i].serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerSubjectLookups"),
-                                                           xmlWriter);
-                                                } else {
-                                                   
-                                                            writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerSubjectLookups", xmlWriter);
+                                } if (localWsSubjectLookupTracker){
+                                    if (localWsSubjectLookup==null){
 
-                                                           // write the nil attribute
-                                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                           xmlWriter.writeEndElement();
-                                                    
-                                                }
+                                        writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsSubjectLookup", xmlWriter);
 
-                                            }
-                                     } else {
-                                        
-                                                writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "wsOwnerSubjectLookups", xmlWriter);
-
-                                               // write the nil attribute
-                                               writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                               xmlWriter.writeEndElement();
-                                        
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localWsSubjectLookup.serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsSubjectLookup"),
+                                        xmlWriter);
                                     }
-                                 } if (localParamsTracker){
+                                } if (localActionsPerformedByWsSubjectLookupTracker){
+                                    if (localActionsPerformedByWsSubjectLookup==null){
+
+                                        writeStartElement(null, "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd", "actionsPerformedByWsSubjectLookup", xmlWriter);
+
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localActionsPerformedByWsSubjectLookup.serialize(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","actionsPerformedByWsSubjectLookup"),
+                                        xmlWriter);
+                                    }
+                                } if (localParamsTracker){
                                        if (localParams!=null){
                                             for (int i = 0;i < localParams.length;i++){
                                                 if (localParams[i] != null){
@@ -1277,12 +1179,12 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
-                             } if (localPointInTimeFromTracker){
+                             } if (localPageIsCursorTracker){
                                     namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
-                                    writeStartElement(null, namespace, "pointInTimeFrom", xmlWriter);
+                                    writeStartElement(null, namespace, "pageIsCursor", xmlWriter);
                              
 
-                                          if (localPointInTimeFrom==null){
+                                          if (localPageIsCursor==null){
                                               // write the nil attribute
                                               
                                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
@@ -1290,17 +1192,17 @@
                                           }else{
 
                                         
-                                                   xmlWriter.writeCharacters(localPointInTimeFrom);
+                                                   xmlWriter.writeCharacters(localPageIsCursor);
                                             
                                           }
                                     
                                    xmlWriter.writeEndElement();
-                             } if (localPointInTimeToTracker){
+                             } if (localPageLastCursorFieldTracker){
                                     namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
-                                    writeStartElement(null, namespace, "pointInTimeTo", xmlWriter);
+                                    writeStartElement(null, namespace, "pageLastCursorField", xmlWriter);
                              
 
-                                          if (localPointInTimeTo==null){
+                                          if (localPageLastCursorField==null){
                                               // write the nil attribute
                                               
                                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
@@ -1308,7 +1210,79 @@
                                           }else{
 
                                         
-                                                   xmlWriter.writeCharacters(localPointInTimeTo);
+                                                   xmlWriter.writeCharacters(localPageLastCursorField);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPageLastCursorFieldTypeTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pageLastCursorFieldType", xmlWriter);
+                             
+
+                                          if (localPageLastCursorFieldType==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPageLastCursorFieldType);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPageCursorFieldIncludesLastRetrievedTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pageCursorFieldIncludesLastRetrieved", xmlWriter);
+                             
+
+                                          if (localPageCursorFieldIncludesLastRetrieved==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPageCursorFieldIncludesLastRetrieved);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localFromDateTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "fromDate", xmlWriter);
+                             
+
+                                          if (localFromDate==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localFromDate);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localToDateTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "toDate", xmlWriter);
+                             
+
+                                          if (localToDate==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localToDate);
                                             
                                           }
                                     
@@ -1523,138 +1497,49 @@
                                  
                                          elementList.add(localAuditActionId==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAuditActionId));
-                                    } if (localAfterAuditEntryIdTracker){
-                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                      "afterAuditEntryId"));
-                                 
-                                         elementList.add(localAfterAuditEntryId==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAfterAuditEntryId));
-                                    } if (localWsOwnerGroupLookupsTracker){
-                             if (localWsOwnerGroupLookups!=null) {
-                                 for (int i = 0;i < localWsOwnerGroupLookups.length;i++){
-
-                                    if (localWsOwnerGroupLookups[i] != null){
-                                         elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerGroupLookups"));
-                                         elementList.add(localWsOwnerGroupLookups[i]);
-                                    } else {
-                                        
-                                                elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerGroupLookups"));
-                                                elementList.add(null);
-                                            
-                                    }
-
-                                 }
-                             } else {
-                                 
-                                        elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerGroupLookups"));
-                                        elementList.add(localWsOwnerGroupLookups);
-                                    
-                             }
-
-                        } if (localWsOwnerStemLookupsTracker){
-                             if (localWsOwnerStemLookups!=null) {
-                                 for (int i = 0;i < localWsOwnerStemLookups.length;i++){
-
-                                    if (localWsOwnerStemLookups[i] != null){
-                                         elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerStemLookups"));
-                                         elementList.add(localWsOwnerStemLookups[i]);
-                                    } else {
-                                        
-                                                elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerStemLookups"));
-                                                elementList.add(null);
-                                            
-                                    }
-
-                                 }
-                             } else {
-                                 
-                                        elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerStemLookups"));
-                                        elementList.add(localWsOwnerStemLookups);
-                                    
-                             }
-
-                        } if (localWsOwnerAttributeDefLookupsTracker){
-                             if (localWsOwnerAttributeDefLookups!=null) {
-                                 for (int i = 0;i < localWsOwnerAttributeDefLookups.length;i++){
-
-                                    if (localWsOwnerAttributeDefLookups[i] != null){
-                                         elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerAttributeDefLookups"));
-                                         elementList.add(localWsOwnerAttributeDefLookups[i]);
-                                    } else {
-                                        
-                                                elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerAttributeDefLookups"));
-                                                elementList.add(null);
-                                            
-                                    }
-
-                                 }
-                             } else {
-                                 
-                                        elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerAttributeDefLookups"));
-                                        elementList.add(localWsOwnerAttributeDefLookups);
-                                    
-                             }
-
-                        } if (localWsOwnerAttributeDefNameLookupsTracker){
-                             if (localWsOwnerAttributeDefNameLookups!=null) {
-                                 for (int i = 0;i < localWsOwnerAttributeDefNameLookups.length;i++){
-
-                                    if (localWsOwnerAttributeDefNameLookups[i] != null){
-                                         elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerAttributeDefNameLookups"));
-                                         elementList.add(localWsOwnerAttributeDefNameLookups[i]);
-                                    } else {
-                                        
-                                                elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerAttributeDefNameLookups"));
-                                                elementList.add(null);
-                                            
-                                    }
-
-                                 }
-                             } else {
-                                 
-                                        elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerAttributeDefNameLookups"));
-                                        elementList.add(localWsOwnerAttributeDefNameLookups);
-                                    
-                             }
-
-                        } if (localWsOwnerSubjectLookupsTracker){
-                             if (localWsOwnerSubjectLookups!=null) {
-                                 for (int i = 0;i < localWsOwnerSubjectLookups.length;i++){
-
-                                    if (localWsOwnerSubjectLookups[i] != null){
-                                         elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerSubjectLookups"));
-                                         elementList.add(localWsOwnerSubjectLookups[i]);
-                                    } else {
-                                        
-                                                elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerSubjectLookups"));
-                                                elementList.add(null);
-                                            
-                                    }
-
-                                 }
-                             } else {
-                                 
-                                        elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "wsOwnerSubjectLookups"));
-                                        elementList.add(localWsOwnerSubjectLookups);
-                                    
-                             }
-
-                        } if (localParamsTracker){
+                                    } if (localWsGroupLookupTracker){
+                            elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "wsGroupLookup"));
+                            
+                            
+                                    elementList.add(localWsGroupLookup==null?null:
+                                    localWsGroupLookup);
+                                } if (localWsStemLookupTracker){
+                            elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "wsStemLookup"));
+                            
+                            
+                                    elementList.add(localWsStemLookup==null?null:
+                                    localWsStemLookup);
+                                } if (localWsAttributeDefLookupTracker){
+                            elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "wsAttributeDefLookup"));
+                            
+                            
+                                    elementList.add(localWsAttributeDefLookup==null?null:
+                                    localWsAttributeDefLookup);
+                                } if (localWsAttributeDefNameLookupTracker){
+                            elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "wsAttributeDefNameLookup"));
+                            
+                            
+                                    elementList.add(localWsAttributeDefNameLookup==null?null:
+                                    localWsAttributeDefNameLookup);
+                                } if (localWsSubjectLookupTracker){
+                            elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "wsSubjectLookup"));
+                            
+                            
+                                    elementList.add(localWsSubjectLookup==null?null:
+                                    localWsSubjectLookup);
+                                } if (localActionsPerformedByWsSubjectLookupTracker){
+                            elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "actionsPerformedByWsSubjectLookup"));
+                            
+                            
+                                    elementList.add(localActionsPerformedByWsSubjectLookup==null?null:
+                                    localActionsPerformedByWsSubjectLookup);
+                                } if (localParamsTracker){
                              if (localParams!=null) {
                                  for (int i = 0;i < localParams.length;i++){
 
@@ -1697,18 +1582,42 @@
                                  
                                          elementList.add(localAscending==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAscending));
-                                    } if (localPointInTimeFromTracker){
+                                    } if (localPageIsCursorTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                      "pointInTimeFrom"));
+                                                                      "pageIsCursor"));
                                  
-                                         elementList.add(localPointInTimeFrom==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPointInTimeFrom));
-                                    } if (localPointInTimeToTracker){
+                                         elementList.add(localPageIsCursor==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageIsCursor));
+                                    } if (localPageLastCursorFieldTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                      "pointInTimeTo"));
+                                                                      "pageLastCursorField"));
                                  
-                                         elementList.add(localPointInTimeTo==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPointInTimeTo));
+                                         elementList.add(localPageLastCursorField==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageLastCursorField));
+                                    } if (localPageLastCursorFieldTypeTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pageLastCursorFieldType"));
+                                 
+                                         elementList.add(localPageLastCursorFieldType==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageLastCursorFieldType));
+                                    } if (localPageCursorFieldIncludesLastRetrievedTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pageCursorFieldIncludesLastRetrieved"));
+                                 
+                                         elementList.add(localPageCursorFieldIncludesLastRetrieved==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageCursorFieldIncludesLastRetrieved));
+                                    } if (localFromDateTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "fromDate"));
+                                 
+                                         elementList.add(localFromDate==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localFromDate));
+                                    } if (localToDateTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "toDate"));
+                                 
+                                         elementList.add(localToDate==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localToDate));
                                     }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -1785,16 +1694,6 @@
                     
                     reader.next();
                 
-                        java.util.ArrayList list6 = new java.util.ArrayList();
-                    
-                        java.util.ArrayList list7 = new java.util.ArrayList();
-                    
-                        java.util.ArrayList list8 = new java.util.ArrayList();
-                    
-                        java.util.ArrayList list9 = new java.util.ArrayList();
-                    
-                        java.util.ArrayList list10 = new java.util.ArrayList();
-                    
                         java.util.ArrayList list11 = new java.util.ArrayList();
                     
                                     
@@ -1905,24 +1804,21 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","afterAuditEntryId").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsGroupLookup").equals(reader.getName())){
                                 
-                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
-                                    
-                                    java.lang.String content = reader.getElementText();
-                                    
-                                              object.setAfterAuditEntryId(
-                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setWsGroupLookup(null);
+                                          reader.next();
                                             
-                                       } else {
-                                           
-                                           
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
+                                            reader.next();
+                                          
+                                      }else{
+                                    
+                                                object.setWsGroupLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup.Factory.parse(reader));
+                                              
                                         reader.next();
-                                    
+                                    }
                               }  // End of if for expected property start element
                                 
                                     else {
@@ -1932,55 +1828,21 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerGroupLookups").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsStemLookup").equals(reader.getName())){
                                 
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setWsStemLookup(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
                                     
-                                    
-                                    // Process the array and step past its final element's end.
-                                    
-                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                              list6.add(null);
-                                                              reader.next();
-                                                          } else {
-                                                        list6.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup.Factory.parse(reader));
-                                                                }
-                                                        //loop until we find a start element that is not part of this array
-                                                        boolean loopDone6 = false;
-                                                        while(!loopDone6){
-                                                            // We should be at the end element, but make sure
-                                                            while (!reader.isEndElement())
-                                                                reader.next();
-                                                            // Step out of this element
-                                                            reader.next();
-                                                            // Step to next element event.
-                                                            while (!reader.isStartElement() && !reader.isEndElement())
-                                                                reader.next();
-                                                            if (reader.isEndElement()){
-                                                                //two continuous end elements means we are exiting the xml structure
-                                                                loopDone6 = true;
-                                                            } else {
-                                                                if (new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerGroupLookups").equals(reader.getName())){
-                                                                    
-                                                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                                          list6.add(null);
-                                                                          reader.next();
-                                                                      } else {
-                                                                    list6.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup.Factory.parse(reader));
-                                                                        }
-                                                                }else{
-                                                                    loopDone6 = true;
-                                                                }
-                                                            }
-                                                        }
-                                                        // call the converter utility  to convert and set the array
-                                                        
-                                                        object.setWsOwnerGroupLookups((edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup[])
-                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                                edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup.class,
-                                                                list6));
-                                                            
+                                                object.setWsStemLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup.Factory.parse(reader));
+                                              
+                                        reader.next();
+                                    }
                               }  // End of if for expected property start element
                                 
                                     else {
@@ -1990,55 +1852,21 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerStemLookups").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsAttributeDefLookup").equals(reader.getName())){
                                 
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setWsAttributeDefLookup(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
                                     
-                                    
-                                    // Process the array and step past its final element's end.
-                                    
-                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                              list7.add(null);
-                                                              reader.next();
-                                                          } else {
-                                                        list7.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup.Factory.parse(reader));
-                                                                }
-                                                        //loop until we find a start element that is not part of this array
-                                                        boolean loopDone7 = false;
-                                                        while(!loopDone7){
-                                                            // We should be at the end element, but make sure
-                                                            while (!reader.isEndElement())
-                                                                reader.next();
-                                                            // Step out of this element
-                                                            reader.next();
-                                                            // Step to next element event.
-                                                            while (!reader.isStartElement() && !reader.isEndElement())
-                                                                reader.next();
-                                                            if (reader.isEndElement()){
-                                                                //two continuous end elements means we are exiting the xml structure
-                                                                loopDone7 = true;
-                                                            } else {
-                                                                if (new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerStemLookups").equals(reader.getName())){
-                                                                    
-                                                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                                          list7.add(null);
-                                                                          reader.next();
-                                                                      } else {
-                                                                    list7.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup.Factory.parse(reader));
-                                                                        }
-                                                                }else{
-                                                                    loopDone7 = true;
-                                                                }
-                                                            }
-                                                        }
-                                                        // call the converter utility  to convert and set the array
-                                                        
-                                                        object.setWsOwnerStemLookups((edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup[])
-                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                                edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup.class,
-                                                                list7));
-                                                            
+                                                object.setWsAttributeDefLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup.Factory.parse(reader));
+                                              
+                                        reader.next();
+                                    }
                               }  // End of if for expected property start element
                                 
                                     else {
@@ -2048,55 +1876,21 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerAttributeDefLookups").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsAttributeDefNameLookup").equals(reader.getName())){
                                 
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setWsAttributeDefNameLookup(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
                                     
-                                    
-                                    // Process the array and step past its final element's end.
-                                    
-                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                              list8.add(null);
-                                                              reader.next();
-                                                          } else {
-                                                        list8.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup.Factory.parse(reader));
-                                                                }
-                                                        //loop until we find a start element that is not part of this array
-                                                        boolean loopDone8 = false;
-                                                        while(!loopDone8){
-                                                            // We should be at the end element, but make sure
-                                                            while (!reader.isEndElement())
-                                                                reader.next();
-                                                            // Step out of this element
-                                                            reader.next();
-                                                            // Step to next element event.
-                                                            while (!reader.isStartElement() && !reader.isEndElement())
-                                                                reader.next();
-                                                            if (reader.isEndElement()){
-                                                                //two continuous end elements means we are exiting the xml structure
-                                                                loopDone8 = true;
-                                                            } else {
-                                                                if (new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerAttributeDefLookups").equals(reader.getName())){
-                                                                    
-                                                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                                          list8.add(null);
-                                                                          reader.next();
-                                                                      } else {
-                                                                    list8.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup.Factory.parse(reader));
-                                                                        }
-                                                                }else{
-                                                                    loopDone8 = true;
-                                                                }
-                                                            }
-                                                        }
-                                                        // call the converter utility  to convert and set the array
-                                                        
-                                                        object.setWsOwnerAttributeDefLookups((edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup[])
-                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                                edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup.class,
-                                                                list8));
-                                                            
+                                                object.setWsAttributeDefNameLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup.Factory.parse(reader));
+                                              
+                                        reader.next();
+                                    }
                               }  // End of if for expected property start element
                                 
                                     else {
@@ -2106,55 +1900,21 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerAttributeDefNameLookups").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsSubjectLookup").equals(reader.getName())){
                                 
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setWsSubjectLookup(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
                                     
-                                    
-                                    // Process the array and step past its final element's end.
-                                    
-                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                              list9.add(null);
-                                                              reader.next();
-                                                          } else {
-                                                        list9.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup.Factory.parse(reader));
-                                                                }
-                                                        //loop until we find a start element that is not part of this array
-                                                        boolean loopDone9 = false;
-                                                        while(!loopDone9){
-                                                            // We should be at the end element, but make sure
-                                                            while (!reader.isEndElement())
-                                                                reader.next();
-                                                            // Step out of this element
-                                                            reader.next();
-                                                            // Step to next element event.
-                                                            while (!reader.isStartElement() && !reader.isEndElement())
-                                                                reader.next();
-                                                            if (reader.isEndElement()){
-                                                                //two continuous end elements means we are exiting the xml structure
-                                                                loopDone9 = true;
-                                                            } else {
-                                                                if (new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerAttributeDefNameLookups").equals(reader.getName())){
-                                                                    
-                                                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                                          list9.add(null);
-                                                                          reader.next();
-                                                                      } else {
-                                                                    list9.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup.Factory.parse(reader));
-                                                                        }
-                                                                }else{
-                                                                    loopDone9 = true;
-                                                                }
-                                                            }
-                                                        }
-                                                        // call the converter utility  to convert and set the array
-                                                        
-                                                        object.setWsOwnerAttributeDefNameLookups((edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup[])
-                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                                edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefNameLookup.class,
-                                                                list9));
-                                                            
+                                                object.setWsSubjectLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup.Factory.parse(reader));
+                                              
+                                        reader.next();
+                                    }
                               }  // End of if for expected property start element
                                 
                                     else {
@@ -2164,55 +1924,21 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerSubjectLookups").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","actionsPerformedByWsSubjectLookup").equals(reader.getName())){
                                 
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setActionsPerformedByWsSubjectLookup(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
                                     
-                                    
-                                    // Process the array and step past its final element's end.
-                                    
-                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                              list10.add(null);
-                                                              reader.next();
-                                                          } else {
-                                                        list10.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup.Factory.parse(reader));
-                                                                }
-                                                        //loop until we find a start element that is not part of this array
-                                                        boolean loopDone10 = false;
-                                                        while(!loopDone10){
-                                                            // We should be at the end element, but make sure
-                                                            while (!reader.isEndElement())
-                                                                reader.next();
-                                                            // Step out of this element
-                                                            reader.next();
-                                                            // Step to next element event.
-                                                            while (!reader.isStartElement() && !reader.isEndElement())
-                                                                reader.next();
-                                                            if (reader.isEndElement()){
-                                                                //two continuous end elements means we are exiting the xml structure
-                                                                loopDone10 = true;
-                                                            } else {
-                                                                if (new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","wsOwnerSubjectLookups").equals(reader.getName())){
-                                                                    
-                                                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                                          list10.add(null);
-                                                                          reader.next();
-                                                                      } else {
-                                                                    list10.add(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup.Factory.parse(reader));
-                                                                        }
-                                                                }else{
-                                                                    loopDone10 = true;
-                                                                }
-                                                            }
-                                                        }
-                                                        // call the converter utility  to convert and set the array
-                                                        
-                                                        object.setWsOwnerSubjectLookups((edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup[])
-                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                                edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup.class,
-                                                                list10));
-                                                            
+                                                object.setActionsPerformedByWsSubjectLookup(edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup.Factory.parse(reader));
+                                              
+                                        reader.next();
+                                    }
                               }  // End of if for expected property start element
                                 
                                     else {
@@ -2361,14 +2087,14 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pointInTimeFrom").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageIsCursor").equals(reader.getName())){
                                 
                                        nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
                                        if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
                                     
                                     java.lang.String content = reader.getElementText();
                                     
-                                              object.setPointInTimeFrom(
+                                              object.setPageIsCursor(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {
@@ -2388,14 +2114,122 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pointInTimeTo").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageLastCursorField").equals(reader.getName())){
                                 
                                        nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
                                        if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
                                     
                                     java.lang.String content = reader.getElementText();
                                     
-                                              object.setPointInTimeTo(
+                                              object.setPageLastCursorField(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageLastCursorFieldType").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPageLastCursorFieldType(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageCursorFieldIncludesLastRetrieved").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPageCursorFieldIncludesLastRetrieved(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","fromDate").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setFromDate(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","toDate").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setToDate(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

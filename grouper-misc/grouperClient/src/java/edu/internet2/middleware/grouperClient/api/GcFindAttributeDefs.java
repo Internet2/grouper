@@ -205,6 +205,66 @@ public class GcFindAttributeDefs {
     this.sortString = theSortString;
     return this;
   }
+  
+  /**
+   * T for when pagination is of cursor type. F or null otherwise
+   */
+  private Boolean pageIsCursor;
+  
+  /**
+   * T for when pagination is of cursor type. F or null otherwise
+   * @param pageIsCursor
+   * @return
+   */
+  public GcFindAttributeDefs assignPageIsCursor(Boolean pageIsCursor) {
+    this.pageIsCursor = pageIsCursor;
+    return this;
+  }
+  
+  /**
+   * value of last cursor field
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * value of last cursor field
+   * @param pageLastCursorField
+   * @return
+   */
+  public GcFindAttributeDefs assignPageLastCursorField(String pageLastCursorField) {
+    this.pageLastCursorField = pageLastCursorField;
+    return this;
+  }
+  
+  /**
+   * type of last cursor field (string, int, long, date, timestamp)
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * type of last cursor field (string, int, long, date, timestamp)
+   * @param pageLastCursorFieldType
+   * @return
+   */
+  public GcFindAttributeDefs assignPageLastCursorFieldType(String pageLastCursorFieldType) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType;
+    return this;
+  }
+  
+  /**
+   * should the last retrieved item be included again in the current result set
+   */
+  private Boolean pageCursorFieldIncludesLastRetrieved;
+  
+  /**
+   * should the last retrieved item be included again in the current result set
+   * @param pageCursorFieldIncludesLastRetrieved
+   * @return
+   */
+  public GcFindAttributeDefs assignPageCursorFieldIncludesLastRetrieved(Boolean pageCursorFieldIncludesLastRetrieved) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved;
+    return this;
+  }
 
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
@@ -270,6 +330,17 @@ public class GcFindAttributeDefs {
       if (this.privilegeName != null) {
         findAttributeDefs.setPrivilegeName(privilegeName);
       }
+      
+      if (this.pageIsCursor != null) {
+        findAttributeDefs.setPageIsCursor(this.pageIsCursor ? "T": "F");
+      }
+      
+      if (this.pageCursorFieldIncludesLastRetrieved != null) {
+        findAttributeDefs.setPageCursorFieldIncludesLastRetrieved(this.pageCursorFieldIncludesLastRetrieved ? "T": "F");
+      }
+      
+      findAttributeDefs.setPageLastCursorField(this.pageLastCursorField);
+      findAttributeDefs.setPageLastCursorFieldType(this.pageLastCursorFieldType);
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 

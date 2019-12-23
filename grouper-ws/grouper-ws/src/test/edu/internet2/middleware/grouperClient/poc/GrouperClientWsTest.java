@@ -26,13 +26,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -84,6 +81,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
@@ -105,6 +103,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.subject.Subject;
+import junit.textui.TestRunner;
 
 /**
  *
@@ -116,7 +115,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testExternalSubjectSave"));
+    TestRunner.run(new GrouperClientWsTest("testGetAuditEntries"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
 
@@ -9011,6 +9010,28 @@ public class GrouperClientWsTest extends GrouperTest {
           !GrouperClientWs.mostRecentRequest.contains("ALL_IN_SUBTREE"));
       assertTrue(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+      
+      
+      
+      // ######################################################
+      // Try pointInTimeRetrieve
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --pointInTimeRetrieve=true",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("pointInTimeRetrieve"));
 
 
     } finally {
@@ -39174,6 +39195,124 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(systemOut);
       }
   
+    }
+    
+    public void testGetAuditEntries() throws Exception {
+      
+      PrintStream systemOut = System.out;
+      
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      String output = null;
+      String[] outputLines = null;
+      Pattern pattern = null;
+      Matcher matcher = null;
+      
+      try {
+
+        GrouperSession grouperSession = GrouperSession.startRootSession();
+        
+        
+        Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+          .assignGroupNameToEdit("test:group113").assignName("test:group113").assignCreateParentStemsIfNotExist(true)
+          .assignDescription("description").save();
+        
+        // look up by stem
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAuditEntriesWs --auditType=group --auditActionId=addGroup --stemUuid="+group1.getStemId(), " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+  
+        System.setOut(systemOut);
+  
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): actionName: (.+): auditCategory: (.+)$");
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLines[0], matcher.matches());
+  
+        assertEquals("SUCCESS", matcher.group(1));
+        assertEquals("addGroup", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("auditType")
+            && GrouperClientWs.mostRecentRequest.contains("group"));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("auditActionId")
+            && GrouperClientWs.mostRecentRequest.contains("addGroup"));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("uuid")
+            && GrouperClientWs.mostRecentRequest.contains(group1.getStemId()));
+        
+        // look up by group
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAuditEntriesWs --auditType=group --auditActionId=addGroup --groupLookupUuid="+group1.getId(), " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+  
+        System.setOut(systemOut);
+  
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): actionName: (.+): auditCategory: (.+)$");
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLines[0], matcher.matches());
+  
+        assertEquals("SUCCESS", matcher.group(1));
+        assertEquals("addGroup", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("auditType")
+            && GrouperClientWs.mostRecentRequest.contains("group"));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("auditActionId")
+            && GrouperClientWs.mostRecentRequest.contains("addGroup"));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("uuid")
+            && GrouperClientWs.mostRecentRequest.contains(group1.getId()));
+        
+        // look up by subject
+        group1.addMember(SubjectTestHelper.SUBJ0, false);
+        
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAuditEntriesWs --auditType=memberId  --subjectId="+SubjectTestHelper.SUBJ0.getId(), " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+  
+        System.setOut(systemOut);
+  
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): actionName: (.+): auditCategory: (.+)$");
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLines[0], matcher.matches());
+  
+        assertEquals("SUCCESS", matcher.group(1));
+        assertEquals("addGroupMembership", matcher.group(2));
+        assertEquals("membership", matcher.group(3));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("auditType")
+            && GrouperClientWs.mostRecentRequest.contains("memberId"));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("subjectId")
+            && GrouperClientWs.mostRecentRequest.contains(SubjectTestHelper.SUBJ0.getId()));
+        
+      } finally {
+        System.setOut(systemOut);
+      }
+      
     }
   
 }

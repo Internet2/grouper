@@ -3,6 +3,9 @@ package edu.internet2.middleware.grouper.ws.rest.audit;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
+/**
+ * 
+ */
 public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
   
   /**
@@ -16,83 +19,84 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
   private String auditActionId;
   
   /**
-   * audit entry id for pagination
+   * fetch audit entries for this group
    */
-  private String afterAuditEntryId;
+  private String wsGroupName;
   
   /**
    * fetch audit entries for this group
    */
-  private String wsOwnerGroupName;
-  
-  /**
-   * fetch audit entries for this group
-   */
-  private String wsOwnerGroupId;
+  private String wsGroupId;
   
   /**
    * fetch audit entries for this stem
    */
-  private String wsOwnerStemName;
+  private String wsStemName;
   
   /**
    * fetch audit entries for this stem
    */
-  private String wsOwnerStemId;
+  private String wsStemId;
   
   /**
    * fetch audit entries for this attribute def id
    */
-  private String wsOwnerAttributeDefName;
+  private String wsAttributeDefName;
   
   /**
    * fetch audit entries for this attribute def id
    */
-  private String wsOwnerAttributeDefId;
+  private String wsAttributeDefId;
   
   /**
    * fetch audit entries for this attribute def name
    */
-  private String wsOwnerAttributeDefNameName;
+  private String wsAttributeDefNameName;
     
   /**
    * fetch audit entries for this attribute def name
    */
-  private String wsOwnerAttributeDefNameId;
+  private String wsAttributeDefNameId;
   
   /**
    * fetch audit entries for this subject
    */
-  private String wsOwnerSubjectId; 
+  private String wsSubjectId; 
   
   /**
    * fetch audit entries for this subject
    */
-  private String wsOwnerSubjectSourceId;
+  private String wsSubjectSourceId;
   
   /**
    * fetch audit entries for this subject
    */
-  private String wsOwnerSubjectIdentifier;
+  private String wsSubjectIdentifier;
   
   /**
-   * To query members at a certain point in time or time range in the past, set this value
-   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
-   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
-   * then the point in time query range will be from the time specified to now.  
-   * Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * fetch audit entries for actions performed by this subject
    */
-  private String pointInTimeFrom;
+  private String actionsPerformedByWsSubjectId;
   
   /**
-   * To query members at a certain point in time or time range in the past, set this value
-   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
-   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
-   * will be done at a single point in time rather than a range.  If this is specified but 
-   * pointInTimeFrom is not specified, then the point in time query range will be from the 
-   * minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS   
+   * fetch audit entries for actions performed by this subject
    */
-  private String pointInTimeTo;
+  private String actionsPerformedByWsSubjectSourceId;
+  
+  /**
+   * fetch audit entries for actions performed by this subject
+   */
+  private String actionsPerformedByWsSubjectIdentifier;
+  
+  /**
+   * from date
+   */
+  private String fromDate;
+  
+  /**
+   * to date   
+   */
+  private String toDate;
   
   /** 
    * field
@@ -118,16 +122,34 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
   /** field */
   private String paramValue1;
 
-  /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
-  private String ascending;
-
   /** page size if paging */
   private String pageSize;
 
-  /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
+  /**
+   * T|F default to F.  if this is T then we are doing cursor paging
+   */
+  private String pageIsCursor;
+  
+  /**
+   * field that will be sent back for cursor based paging
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * could be: string, int, long, date, timestamp
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * T|F
+   */
+  private String pageCursorFieldIncludesLastRetrieved;
+  
+  /** sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
   private String sortString;
   
-  
+  /** ascending or null for ascending, F for descending.  If you pass T or F, must pass a sort string */
+  private String ascending;
   
   /**
    * @return the auditType
@@ -163,256 +185,254 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
     this.auditActionId = auditActionId1;
   }
 
-
-
   /**
-   * @return the afterAuditEntryId
+   * @return the wsGroupName
    */
-  public String getAfterAuditEntryId() {
-    return this.afterAuditEntryId;
+  public String getWsGroupName() {
+    return this.wsGroupName;
   }
 
 
 
   /**
-   * @param afterAuditEntryId1 the afterAuditEntryId to set
+   * @param wsGroupName1 the wsGroupName to set
    */
-  public void setAfterAuditEntryId(String afterAuditEntryId1) {
-    this.afterAuditEntryId = afterAuditEntryId1;
+  public void setWsGroupName(String wsGroupName1) {
+    this.wsGroupName = wsGroupName1;
   }
 
 
 
   /**
-   * @return the wsOwnerGroupName
+   * @return the wsGroupId
    */
-  public String getWsOwnerGroupName() {
-    return this.wsOwnerGroupName;
+  public String getWsGroupId() {
+    return this.wsGroupId;
   }
 
 
 
   /**
-   * @param wsOwnerGroupName1 the wsOwnerGroupName to set
+   * @param wsGroupId1 the wsGroupId to set
    */
-  public void setWsOwnerGroupName(String wsOwnerGroupName1) {
-    this.wsOwnerGroupName = wsOwnerGroupName1;
+  public void setWsGroupId(String wsGroupId1) {
+    this.wsGroupId = wsGroupId1;
   }
 
 
 
   /**
-   * @return the wsOwnerGroupId
+   * @return the wsStemName
    */
-  public String getWsOwnerGroupId() {
-    return this.wsOwnerGroupId;
+  public String getWsStemName() {
+    return this.wsStemName;
   }
 
 
 
   /**
-   * @param wsOwnerGroupId1 the wsOwnerGroupId to set
+   * @param wsStemName1 the wsStemName to set
    */
-  public void setWsOwnerGroupId(String wsOwnerGroupId1) {
-    this.wsOwnerGroupId = wsOwnerGroupId1;
+  public void setWsStemName(String wsStemName1) {
+    this.wsStemName = wsStemName1;
   }
 
 
 
   /**
-   * @return the wsOwnerStemName
+   * @return the wsStemId
    */
-  public String getWsOwnerStemName() {
-    return this.wsOwnerStemName;
+  public String getWsStemId() {
+    return this.wsStemId;
   }
 
 
 
   /**
-   * @param wsOwnerStemName1 the wsOwnerStemName to set
+   * @param wsStemId1 the wsStemId to set
    */
-  public void setWsOwnerStemName(String wsOwnerStemName1) {
-    this.wsOwnerStemName = wsOwnerStemName1;
+  public void setWsStemId(String wsStemId1) {
+    this.wsStemId = wsStemId1;
   }
 
 
 
   /**
-   * @return the wsOwnerStemId
+   * @return the wsAttributeDefName
    */
-  public String getWsOwnerStemId() {
-    return this.wsOwnerStemId;
+  public String getWsAttributeDefName() {
+    return this.wsAttributeDefName;
   }
 
 
 
   /**
-   * @param wsOwnerStemId1 the wsOwnerStemId to set
+   * @param wsAttributeDefName1 the wsAttributeDefName to set
    */
-  public void setWsOwnerStemId(String wsOwnerStemId1) {
-    this.wsOwnerStemId = wsOwnerStemId1;
+  public void setWsAttributeDefName(String wsAttributeDefName1) {
+    this.wsAttributeDefName = wsAttributeDefName1;
   }
 
 
 
   /**
-   * @return the wsOwnerAttributeDefName
+   * @return the wsAttributeDefId
    */
-  public String getWsOwnerAttributeDefName() {
-    return this.wsOwnerAttributeDefName;
+  public String getWsAttributeDefId() {
+    return this.wsAttributeDefId;
   }
 
 
 
   /**
-   * @param wsOwnerAttributeDefName1 the wsOwnerAttributeDefName to set
+   * @param wsAttributeDefId1 the wsAttributeDefId to set
    */
-  public void setWsOwnerAttributeDefName(String wsOwnerAttributeDefName1) {
-    this.wsOwnerAttributeDefName = wsOwnerAttributeDefName1;
+  public void setWsAttributeDefId(String wsAttributeDefId1) {
+    this.wsAttributeDefId = wsAttributeDefId1;
   }
 
 
 
   /**
-   * @return the wsOwnerAttributeDefId
+   * @return the wsAttributeDefNameName
    */
-  public String getWsOwnerAttributeDefId() {
-    return this.wsOwnerAttributeDefId;
+  public String getWsAttributeDefNameName() {
+    return this.wsAttributeDefNameName;
   }
 
 
 
   /**
-   * @param wsOwnerAttributeDefId1 the wsOwnerAttributeDefId to set
+   * @param wsAttributeDefNameName1 the wsAttributeDefNameName to set
    */
-  public void setWsOwnerAttributeDefId(String wsOwnerAttributeDefId1) {
-    this.wsOwnerAttributeDefId = wsOwnerAttributeDefId1;
+  public void setWsAttributeDefNameName(String wsAttributeDefNameName1) {
+    this.wsAttributeDefNameName = wsAttributeDefNameName1;
   }
 
 
 
   /**
-   * @return the wsOwnerAttributeDefNameName
+   * @return the wsAttributeDefNameId
    */
-  public String getWsOwnerAttributeDefNameName() {
-    return this.wsOwnerAttributeDefNameName;
+  public String getWsAttributeDefNameId() {
+    return this.wsAttributeDefNameId;
   }
 
 
 
   /**
-   * @param wsOwnerAttributeDefNameName1 the wsOwnerAttributeDefNameName to set
+   * @param wsAttributeDefNameId1 the wsAttributeDefNameId to set
    */
-  public void setWsOwnerAttributeDefNameName(String wsOwnerAttributeDefNameName1) {
-    this.wsOwnerAttributeDefNameName = wsOwnerAttributeDefNameName1;
+  public void setWsAttributeDefNameId(String wsAttributeDefNameId1) {
+    this.wsAttributeDefNameId = wsAttributeDefNameId1;
   }
 
 
 
   /**
-   * @return the wsOwnerAttributeDefNameId
+   * @return the wsSubjectId
    */
-  public String getWsOwnerAttributeDefNameId() {
-    return this.wsOwnerAttributeDefNameId;
+  public String getWsSubjectId() {
+    return this.wsSubjectId;
   }
 
 
 
   /**
-   * @param wsOwnerAttributeDefNameId1 the wsOwnerAttributeDefNameId to set
+   * @param wsSubjectId1 the wsSubjectId to set
    */
-  public void setWsOwnerAttributeDefNameId(String wsOwnerAttributeDefNameId1) {
-    this.wsOwnerAttributeDefNameId = wsOwnerAttributeDefNameId1;
+  public void setWsSubjectId(String wsSubjectId1) {
+    this.wsSubjectId = wsSubjectId1;
   }
 
 
 
   /**
-   * @return the wsOwnerSubjectId
+   * @return the wsSubjectSourceId
    */
-  public String getWsOwnerSubjectId() {
-    return this.wsOwnerSubjectId;
+  public String getWsSubjectSourceId() {
+    return this.wsSubjectSourceId;
   }
 
 
 
   /**
-   * @param wsOwnerSubjectId1 the wsOwnerSubjectId to set
+   * @param wsSubjectSourceId1 the wsSubjectSourceId to set
    */
-  public void setWsOwnerSubjectId(String wsOwnerSubjectId1) {
-    this.wsOwnerSubjectId = wsOwnerSubjectId1;
+  public void setWsSubjectSourceId(String wsSubjectSourceId1) {
+    this.wsSubjectSourceId = wsSubjectSourceId1;
   }
 
 
 
   /**
-   * @return the wsOwnerSubjectSourceId
+   * @return the wsSubjectIdentifier
    */
-  public String getWsOwnerSubjectSourceId() {
-    return this.wsOwnerSubjectSourceId;
+  public String getWsSubjectIdentifier() {
+    return this.wsSubjectIdentifier;
   }
 
 
 
   /**
-   * @param wsOwnerSubjectSourceId1 the wsOwnerSubjectSourceId to set
+   * @param wsSubjectIdentifier1 the wsSubjectIdentifier to set
    */
-  public void setWsOwnerSubjectSourceId(String wsOwnerSubjectSourceId1) {
-    this.wsOwnerSubjectSourceId = wsOwnerSubjectSourceId1;
+  public void setWsSubjectIdentifier(String wsSubjectIdentifier1) {
+    this.wsSubjectIdentifier = wsSubjectIdentifier1;
+  }
+
+  
+
+  /**
+   * @return the actionsPerformedByWsSubjectId
+   */
+  public String getActionsPerformedByWsSubjectId() {
+    return this.actionsPerformedByWsSubjectId;
   }
 
 
 
   /**
-   * @return the wsOwnerSubjectIdentifier
+   * @param actionsPerformedByWsSubjectId1 the actionsPerformedByWsSubjectId to set
    */
-  public String getWsOwnerSubjectIdentifier() {
-    return this.wsOwnerSubjectIdentifier;
+  public void setActionsPerformedByWsSubjectId(String actionsPerformedByWsSubjectId1) {
+    this.actionsPerformedByWsSubjectId = actionsPerformedByWsSubjectId1;
   }
 
 
 
   /**
-   * @param wsOwnerSubjectIdentifier1 the wsOwnerSubjectIdentifier to set
+   * @return the actionsPerformedByWsSubjectSourceId
    */
-  public void setWsOwnerSubjectIdentifier(String wsOwnerSubjectIdentifier1) {
-    this.wsOwnerSubjectIdentifier = wsOwnerSubjectIdentifier1;
+  public String getActionsPerformedByWsSubjectSourceId() {
+    return this.actionsPerformedByWsSubjectSourceId;
   }
 
 
 
   /**
-   * @return the pointInTimeFrom
+   * @param actionsPerformedByWsSubjectSourceId1 the actionsPerformedByWsSubjectSourceId to set
    */
-  public String getPointInTimeFrom() {
-    return this.pointInTimeFrom;
+  public void setActionsPerformedByWsSubjectSourceId(String actionsPerformedByWsSubjectSourceId1) {
+    this.actionsPerformedByWsSubjectSourceId = actionsPerformedByWsSubjectSourceId1;
   }
 
 
 
   /**
-   * @param pointInTimeFrom1 the pointInTimeFrom to set
+   * @return the actionsPerformedByWsSubjectIdentifier
    */
-  public void setPointInTimeFrom(String pointInTimeFrom1) {
-    this.pointInTimeFrom = pointInTimeFrom1;
+  public String getActionsPerformedByWsSubjectIdentifier() {
+    return this.actionsPerformedByWsSubjectIdentifier;
   }
 
 
 
   /**
-   * @return the pointInTimeTo
+   * @param actionsPerformedByWsSubjectIdentifier1 the actionsPerformedByWsSubjectIdentifier to set
    */
-  public String getPointInTimeTo() {
-    return this.pointInTimeTo;
-  }
-
-
-
-  /**
-   * @param pointInTimeTo1 the pointInTimeTo to set
-   */
-  public void setPointInTimeTo(String pointInTimeTo1) {
-    this.pointInTimeTo = pointInTimeTo1;
+  public void setActionsPerformedByWsSubjectIdentifier(String actionsPerformedByWsSubjectIdentifier1) {
+    this.actionsPerformedByWsSubjectIdentifier = actionsPerformedByWsSubjectIdentifier1;
   }
 
 
@@ -580,24 +600,6 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
 
 
   /**
-   * @return the ascending
-   */
-  public String getAscending() {
-    return this.ascending;
-  }
-
-
-
-  /**
-   * @param ascending1 the ascending to set
-   */
-  public void setAscending(String ascending1) {
-    this.ascending = ascending1;
-  }
-
-
-
-  /**
    * @return the pageSize
    */
   public String getPageSize() {
@@ -614,6 +616,109 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
   }
 
 
+  /**
+   * @return the pageIsCursor
+   */
+  public String getPageIsCursor() {
+    return this.pageIsCursor;
+  }
+
+
+
+  /**
+   * @param pageIsCursor1 the pageIsCursor to set
+   */
+  public void setPageIsCursor(String pageIsCursor1) {
+    this.pageIsCursor = pageIsCursor1;
+  }
+
+
+
+  /**
+   * @return the pageLastCursorField
+   */
+  public String getPageLastCursorField() {
+    return this.pageLastCursorField;
+  }
+
+
+
+  /**
+   * @param pageLastCursorField1 the pageLastCursorField to set
+   */
+  public void setPageLastCursorField(String pageLastCursorField1) {
+    this.pageLastCursorField = pageLastCursorField1;
+  }
+
+
+
+  /**
+   * @return the pageLastCursorFieldType
+   */
+  public String getPageLastCursorFieldType() {
+    return this.pageLastCursorFieldType;
+  }
+
+
+
+  /**
+   * @param pageLastCursorFieldType1 the pageLastCursorFieldType to set
+   */
+  public void setPageLastCursorFieldType(String pageLastCursorFieldType1) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType1;
+  }
+
+
+
+  /**
+   * @return the pageCursorFieldIncludesLastRetrieved
+   */
+  public String getPageCursorFieldIncludesLastRetrieved() {
+    return this.pageCursorFieldIncludesLastRetrieved;
+  }
+
+
+
+  /**
+   * @param pageCursorFieldIncludesLastRetrieved1 the pageCursorFieldIncludesLastRetrieved to set
+   */
+  public void setPageCursorFieldIncludesLastRetrieved(String pageCursorFieldIncludesLastRetrieved1) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved1;
+  }
+
+  
+  /**
+   * @return the fromDate
+   */
+  public String getFromDate() {
+    return this.fromDate;
+  }
+
+
+
+  /**
+   * @param fromDate1 the fromDate to set
+   */
+  public void setFromDate(String fromDate1) {
+    this.fromDate = fromDate1;
+  }
+
+
+
+  /**
+   * @return the toDate
+   */
+  public String getToDate() {
+    return this.toDate;
+  }
+
+  /**
+   * @param toDate1 the toDate to set
+   */
+  public void setToDate(String toDate1) {
+    this.toDate = toDate1;
+  }
+
 
   /**
    * @return the sortString
@@ -629,6 +734,24 @@ public class WsRestGetAuditEntriesLiteRequest implements WsRequestBean {
    */
   public void setSortString(String sortString1) {
     this.sortString = sortString1;
+  }
+
+
+
+  /**
+   * @return the ascending
+   */
+  public String getAscending() {
+    return this.ascending;
+  }
+
+
+
+  /**
+   * @param ascending1 the ascending to set
+   */
+  public void setAscending(String ascending1) {
+    this.ascending = ascending1;
   }
 
 

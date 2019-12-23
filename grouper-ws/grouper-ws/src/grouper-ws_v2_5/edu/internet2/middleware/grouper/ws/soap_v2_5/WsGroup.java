@@ -239,5 +239,56 @@ public class WsGroup {
   public void setAlternateName(String alternateName1) {
     this.alternateName = alternateName1;
   }
+  
+  /** if the group is enabled, T or F */
+  private String enabled = null;
 
+  /** timestamp this group is enabled: yyyy/MM/dd HH:mm:ss.SSS */
+  private String enabledTime = null;
+
+  /** timestamp this group is disabled: yyyy/MM/dd HH:mm:ss.SSS */
+  private String disabledTime = null;
+
+  /**
+   * @return the enabled
+   */
+  public String getEnabled() {
+    return this.enabled;
+  }
+
+  /**
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabled(String enabled1) {
+    this.enabled = enabled1;
+  }
+
+  /**
+   * @return the enabledTime
+   */
+  public String getEnabledTime() {
+    return this.enabledTime;
+  }
+
+  /**
+   * @param enabledTime1 the enabledTime to set
+   */
+  public void setEnabledTime(String enabledTime1) {
+    this.enabledTime = enabledTime1;
+  }
+
+  /**
+   * @return the disabledTime
+   */
+  public String getDisabledTime() {
+    return this.disabledTime;
+  }
+
+  /**
+   * @param disabledTime1 the disabledTime to set
+   */
+  public void setDisabledTime(String disabledTime1) {
+    this.disabledTime = disabledTime1;
+  }
+  
 }

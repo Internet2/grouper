@@ -1,13 +1,4 @@
-package edu.internet2.middleware.grouper.ws.rest.audit;
-
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
-import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+package edu.internet2.middleware.grouperClient.ws.beans;
 
 /**
  * 
@@ -37,32 +28,27 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   private WsParam[] params;
   
   /** fetch audit entries for this group */
-  private WsGroupLookup wsGroupLookup;
+  private WsGroupLookup wsOwnerGroupLookup;
   
   /**
    * fetch audit entries for this stem
    */
-  private WsStemLookup wsStemLookup;
+  private WsStemLookup wsOwnerStemLookup;
   
   /**
    * fetch audit entries for this attribute def
    */
-  private WsAttributeDefLookup wsAttributeDefLookup;
+  private WsAttributeDefLookup wsOwnerAttributeDefLookup;
   
   /**
    * fetch audit entries for this attribute def name
    */
-  private WsAttributeDefNameLookup wsAttributeDefNameLookup;
+  private WsAttributeDefNameLookup wsOwnerAttributeDefNameLookup;
   
   /**
    * fetch audit entries for these subjects
    */
-  private WsSubjectLookup wsSubjectLookup;
-  
-  /**
-   * fetch audit entries for actions performed by these subjects 
-   */
-  private WsSubjectLookup actionsPerformedByWsSubjectLookup;
+  private WsSubjectLookup wsOwnerSubjectLookup;
   
   /** page size if paging */
   private String pageSize;
@@ -120,6 +106,9 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   }
 
 
+
+
+
   /**
    * @return the actAsSubjectLookup
    */
@@ -137,12 +126,17 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
 
 
 
+
+
   /**
    * @return the auditType
    */
   public String getAuditType() {
     return this.auditType;
   }
+
+
+
 
 
   /**
@@ -153,12 +147,18 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   }
 
 
+
+
+
   /**
    * @return the auditActionId
    */
   public String getAuditActionId() {
     return this.auditActionId;
   }
+
+
+
 
 
   /**
@@ -175,6 +175,9 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   public WsParam[] getParams() {
     return this.params;
   }
+
+
+
 
 
   /**
@@ -344,113 +347,91 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   
 
   /**
-   * @return the wsGroupLookup
+   * @return the wsOwnerGroupLookup
    */
-  public WsGroupLookup getWsGroupLookup() {
-    return this.wsGroupLookup;
+  public WsGroupLookup getWsOwnerGroupLookup() {
+    return this.wsOwnerGroupLookup;
   }
 
 
 
   /**
-   * @param wsGroupLookup1 the wsGroupLookup to set
+   * @param wsOwnerGroupLookup1 the wsOwnerGroupLookup to set
    */
-  public void setWsGroupLookup(WsGroupLookup wsGroupLookup1) {
-    this.wsGroupLookup = wsGroupLookup1;
+  public void setWsOwnerGroupLookup(WsGroupLookup wsOwnerGroupLookup1) {
+    this.wsOwnerGroupLookup = wsOwnerGroupLookup1;
   }
 
 
 
   /**
-   * @return the wsStemLookup
+   * @return the wsOwnerStemLookup
    */
-  public WsStemLookup getWsStemLookup() {
-    return this.wsStemLookup;
+  public WsStemLookup getWsOwnerStemLookup() {
+    return this.wsOwnerStemLookup;
   }
 
 
 
   /**
-   * @param wsStemLookup1 the wsStemLookup to set
+   * @param wsOwnerStemLookup1 the wsOwnerStemLookup to set
    */
-  public void setWsStemLookup(WsStemLookup wsStemLookup1) {
-    this.wsStemLookup = wsStemLookup1;
+  public void setWsOwnerStemLookup(WsStemLookup wsOwnerStemLookup1) {
+    this.wsOwnerStemLookup = wsOwnerStemLookup1;
   }
 
 
 
   /**
-   * @return the wsAttributeDefLookup
+   * @return the wsOwnerAttributeDefLookup
    */
-  public WsAttributeDefLookup getWsAttributeDefLookup() {
-    return this.wsAttributeDefLookup;
+  public WsAttributeDefLookup getWsOwnerAttributeDefLookup() {
+    return this.wsOwnerAttributeDefLookup;
   }
 
 
 
   /**
-   * @param wsAttributeDefLookup1 the wsAttributeDefLookup to set
+   * @param wsOwnerAttributeDefLookup1 the wsOwnerAttributeDefLookup to set
    */
-  public void setWsAttributeDefLookup(WsAttributeDefLookup wsAttributeDefLookup1) {
-    this.wsAttributeDefLookup = wsAttributeDefLookup1;
+  public void setWsOwnerAttributeDefLookup(WsAttributeDefLookup wsOwnerAttributeDefLookup1) {
+    this.wsOwnerAttributeDefLookup = wsOwnerAttributeDefLookup1;
   }
 
 
 
   /**
-   * @return the wsAttributeDefNameLookup
+   * @return the wsOwnerAttributeDefNameLookup
    */
-  public WsAttributeDefNameLookup getWsAttributeDefNameLookup() {
-    return this.wsAttributeDefNameLookup;
+  public WsAttributeDefNameLookup getWsOwnerAttributeDefNameLookup() {
+    return this.wsOwnerAttributeDefNameLookup;
   }
 
 
 
   /**
-   * @param wsAttributeDefNameLookup1 the wsAttributeDefNameLookup to set
+   * @param wsOwnerAttributeDefNameLookup1 the wsOwnerAttributeDefNameLookup to set
    */
-  public void setWsAttributeDefNameLookup(WsAttributeDefNameLookup wsAttributeDefNameLookup1) {
-    this.wsAttributeDefNameLookup = wsAttributeDefNameLookup1;
+  public void setWsOwnerAttributeDefNameLookup(WsAttributeDefNameLookup wsOwnerAttributeDefNameLookup1) {
+    this.wsOwnerAttributeDefNameLookup = wsOwnerAttributeDefNameLookup1;
   }
 
 
 
   /**
-   * @return the wsSubjectLookup
+   * @return the wsOwnerSubjectLookup
    */
-  public WsSubjectLookup getWsSubjectLookup() {
-    return this.wsSubjectLookup;
+  public WsSubjectLookup getWsOwnerSubjectLookup() {
+    return this.wsOwnerSubjectLookup;
   }
 
 
 
   /**
-   * @param wsSubjectLookup1 the wsSubjectLookup to set
+   * @param wsOwnerSubjectLookup1 the wsOwnerSubjectLookup to set
    */
-  public void setWsSubjectLookup(WsSubjectLookup wsSubjectLookup1) {
-    this.wsSubjectLookup = wsSubjectLookup1;
-  }
-
-  
-  /**
-   * @return the actionsPerformedByWsSubjectLookup
-   */
-  public WsSubjectLookup getActionsPerformedByWsSubjectLookup() {
-    return this.actionsPerformedByWsSubjectLookup;
-  }
-
-
-  /**
-   * @param actionsPerformedByWsSubjectLookup1 the actionsPerformedByWsSubjectLookup to set
-   */
-  public void setActionsPerformedByWsSubjectLookup(WsSubjectLookup actionsPerformedByWsSubjectLookup1) {
-    this.actionsPerformedByWsSubjectLookup = actionsPerformedByWsSubjectLookup1;
-  }
-
-
-  @Override
-  public GrouperRestHttpMethod retrieveRestHttpMethod() {
-    return GrouperRestHttpMethod.GET;
+  public void setWsOwnerSubjectLookup(WsSubjectLookup wsOwnerSubjectLookup1) {
+    this.wsOwnerSubjectLookup = wsOwnerSubjectLookup1;
   }
 
 }

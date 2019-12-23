@@ -53,12 +53,20 @@ public class WsGetAuditEntriesResults {
     this.responseMetadata = responseMetadata1;
   }
 
+  /**
+   * get audit entries
+   * @return audit entries
+   */
   public WsAuditEntry[] getWsAuditEntries() {
-    return wsAuditEntries;
+    return this.wsAuditEntries;
   }
 
-  public void setWsAuditEntries(WsAuditEntry[] wsAuditEntries) {
-    this.wsAuditEntries = wsAuditEntries;
+  /**
+   * set audit entries
+   * @param wsAuditEntries1
+   */
+  public void setWsAuditEntries(WsAuditEntry[] wsAuditEntries1) {
+    this.wsAuditEntries = wsAuditEntries1;
   }
 
 }

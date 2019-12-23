@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -219,6 +220,166 @@ public class GcGetMemberships {
    */
   public GcGetMemberships assignAscendingForMember(Boolean theAscendingForMember) {
     this.ascendingForMember = theAscendingForMember;
+    return this;
+  }
+  
+  /**
+   * T for when pagination is of cursor type. F or null otherwise
+   */
+  private Boolean pageIsCursor;
+  
+  /**
+   * T for when pagination is of cursor type. F or null otherwise
+   * @param pageIsCursor
+   * @return
+   */
+  public GcGetMemberships assignPageIsCursor(Boolean pageIsCursor) {
+    this.pageIsCursor = pageIsCursor;
+    return this;
+  }
+  
+  /**
+   * value of last cursor field
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * value of last cursor field
+   * @param pageLastCursorField
+   * @return
+   */
+  public GcGetMemberships assignPageLastCursorField(String pageLastCursorField) {
+    this.pageLastCursorField = pageLastCursorField;
+    return this;
+  }
+  
+  /**
+   * type of last cursor field (string, int, long, date, timestamp)
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * type of last cursor field (string, int, long, date, timestamp)
+   * @param pageLastCursorFieldType
+   * @return
+   */
+  public GcGetMemberships assignPageLastCursorFieldType(String pageLastCursorFieldType) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType;
+    return this;
+  }
+  
+  /**
+   * should the last retrieved item be included again in the current result set
+   */
+  private Boolean pageCursorFieldIncludesLastRetrieved;
+  
+  /**
+   * should the last retrieved item be included again in the current result set
+   * @param pageCursorFieldIncludesLastRetrieved
+   * @return
+   */
+  public GcGetMemberships assignPageCursorFieldIncludesLastRetrieved(Boolean pageCursorFieldIncludesLastRetrieved) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved;
+    return this;
+  }
+  
+  /**
+   * T for when pagination is of cursor type. F or null otherwise
+   */
+  private Boolean pageIsCursorForMember;
+  
+  /**
+   * T for when pagination is of cursor type. F or null otherwise
+   * @param pageIsCursorForMember
+   * @return
+   */
+  public GcGetMemberships assignPageIsCursorForMember(Boolean pageIsCursorForMember) {
+    this.pageIsCursorForMember = pageIsCursorForMember;
+    return this;
+  }
+  
+  /**
+   * value of last cursor field for member results
+   */
+  private String pageLastCursorFieldForMember;
+  
+  /**
+   * value of last cursor field for member results
+   * @param pageLastCursorFieldForMember
+   * @return
+   */
+  public GcGetMemberships assignPageLastCursorFieldForMember(String pageLastCursorFieldForMember) {
+    this.pageLastCursorFieldForMember = pageLastCursorFieldForMember;
+    return this;
+  }
+  
+  /**
+   * type of last cursor field (string, int, long, date, timestamp) for member results
+   */
+  private String pageLastCursorFieldTypeForMember;
+  
+  /**
+   * type of last cursor field (string, int, long, date, timestamp) for member results
+   * @param pageLastCursorFieldTypeForMember
+   * @return
+   */
+  public GcGetMemberships assignPageLastCursorFieldTypeForMember(String pageLastCursorFieldTypeForMember) {
+    this.pageLastCursorFieldTypeForMember = pageLastCursorFieldTypeForMember;
+    return this;
+  }
+  
+  /**
+   * should the last retrieved item be included again in the current result set for member results
+   */
+  private Boolean pageCursorFieldIncludesLastRetrievedForMember;
+  
+  /**
+   * should the last retrieved item be included again in the current result set for member results
+   * @param pageCursorFieldIncludesLastRetrievedForMember
+   * @return
+   */
+  public GcGetMemberships assignPageCursorFieldIncludesLastRetrievedForMember(Boolean pageCursorFieldIncludesLastRetrievedForMember) {
+    this.pageCursorFieldIncludesLastRetrievedForMember = pageCursorFieldIncludesLastRetrievedForMember;
+    return this;
+  }
+  
+  /**
+   * is the query point in time retrieve
+   */
+  private Boolean pointInTimeRetrieve;
+  
+  /**
+   * is the query point in time retrieve
+   * @param pointInTimeRetrieve
+   * @return
+   */
+  public GcGetMemberships assignPointInTimeRetrieve(Boolean pointInTimeRetrieve) {
+    this.pointInTimeRetrieve = pointInTimeRetrieve;
+    return this;
+  }
+  
+  /**
+   * if the query is point in time retrieve, begin date
+   */
+  private Timestamp pointInTimeFrom;
+  
+  public GcGetMemberships assignPointInTimeFrom(Timestamp pointInTimeFrom) {
+    this.pointInTimeFrom = pointInTimeFrom;
+    return this;
+  }
+  
+  /**
+   * if the query is point in time, end date
+   */
+  private Timestamp pointInTimeTo;
+  
+  /**
+   * if the query is point in time, end date
+   * @param pointInTimeTo
+   * @return
+   */
+  public GcGetMemberships assignPointInTimeTo(Timestamp pointInTimeTo) {
+    this.pointInTimeTo = pointInTimeTo;
     return this;
   }
   
@@ -657,6 +818,38 @@ public class GcGetMemberships {
       if (GrouperClientUtils.length(this.wsSubjectLookups) > 0) {
         getMemberships.setWsSubjectLookups(GrouperClientUtils.toArray(this.wsSubjectLookups, WsSubjectLookup.class));
       }
+      
+      if (this.pointInTimeRetrieve != null) {
+        getMemberships.setPointInTimeRetrieve(this.pointInTimeRetrieve ? "T" : "F");
+      }
+      
+      getMemberships.setPointInTimeFrom(GrouperClientUtils.dateToString(this.pointInTimeFrom));
+      getMemberships.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
+      
+      if (this.pageIsCursor != null) {
+        getMemberships.setPageIsCursor(this.pageIsCursor ? "T": "F");
+      }
+      
+      if (this.pageCursorFieldIncludesLastRetrieved != null) {
+        getMemberships.setPageCursorFieldIncludesLastRetrieved(this.pageCursorFieldIncludesLastRetrieved ? "T": "F");
+      }
+      
+      getMemberships.setPageLastCursorField(this.pageLastCursorField);
+      getMemberships.setPageLastCursorFieldType(this.pageLastCursorFieldType);
+      
+      
+      if (this.pageIsCursorForMember != null) {
+        getMemberships.setPageIsCursorForMember(this.pageIsCursorForMember ? "T": "F");
+      }
+      
+      if (this.pageCursorFieldIncludesLastRetrievedForMember != null) {
+        getMemberships.setPageCursorFieldIncludesLastRetrievedForMember(this.pageCursorFieldIncludesLastRetrievedForMember ? "T": "F");
+      }
+      
+      getMemberships.setPageLastCursorFieldForMember(this.pageLastCursorFieldForMember);
+      getMemberships.setPageLastCursorFieldTypeForMember(this.pageLastCursorFieldTypeForMember);
+      
+      
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       

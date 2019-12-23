@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntries;
 import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAuditEntriesResponse;
 import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetAuditEntriesResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup;
 
 public class WsSampleGetAuditEntries implements WsSampleGenerated {
 
@@ -51,7 +52,20 @@ public class WsSampleGetAuditEntries implements WsSampleGenerated {
 
      getAuditEntries.setAuditType("group");
      getAuditEntries.setAuditActionId("addGroup");
-
+     
+     getAuditEntries.setPageLastCursorField("219ae92ea6554b18bbb979e1af725a7c");
+     getAuditEntries.setPageIsCursor("T");
+     getAuditEntries.setPageSize("2");
+     getAuditEntries.setPageLastCursorFieldType("string");
+     getAuditEntries.setPageCursorFieldIncludesLastRetrieved("F");
+     getAuditEntries.setSortString("id");
+     
+     
+//     WsGroupLookup wsGroupLookup = new WsGroupLookup();
+//     wsGroupLookup.setGroupName("");
+//     
+//     getAuditEntries.setWsOwnerGroupLookup(wsGroupLookup);
+     
      getAuditEntriesResponse = stub.getAuditEntries(getAuditEntries);
      wsGetAuditEntriesResult = getAuditEntriesResponse.get_return();
      System.out.println(ToStringBuilder.reflectionToString(

@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
@@ -204,6 +205,11 @@ public class WsGroup implements Comparable<WsGroup> {
       if (includeDetail) {
         this.setDetail(new WsGroupDetail(group));
       }
+      
+      this.setDisabledTime(GrouperServiceUtils.dateToString(group.getDisabledTime()));
+      this.setEnabledTime(GrouperServiceUtils.dateToString(group.getEnabledTime()));
+      this.setEnabled(group.isEnabled() ? "T" : "F");
+      
     } else {
       if (wsGroupLookup != null) {
         //no group, set the look values so the caller can keep things in sync
@@ -223,6 +229,10 @@ public class WsGroup implements Comparable<WsGroup> {
     this.setName(pitGroup.getName());
     this.setUuid(pitGroup.getSourceId());
     this.setExtension(GrouperUtil.extensionFromName(pitGroup.getName()));
+    
+    this.setDisabledTime(GrouperServiceUtils.dateToString(pitGroup.getEndTime()));
+    this.setEnabledTime(GrouperServiceUtils.dateToString(pitGroup.getStartTime()));
+    this.setEnabled(pitGroup.isActive() ? "T" : "F");
   }
 
   /**
@@ -372,4 +382,56 @@ public class WsGroup implements Comparable<WsGroup> {
   public void setAlternateName(String alternateName1) {
     this.alternateName = alternateName1;
   }
+  
+  /** if the group is enabled, T or F */
+  private String enabled = null;
+
+  /** timestamp this group is enabled: yyyy/MM/dd HH:mm:ss.SSS */
+  private String enabledTime = null;
+
+  /** timestamp this group is disabled: yyyy/MM/dd HH:mm:ss.SSS */
+  private String disabledTime = null;
+
+  /**
+   * @return the enabled
+   */
+  public String getEnabled() {
+    return this.enabled;
+  }
+
+  /**
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabled(String enabled1) {
+    this.enabled = enabled1;
+  }
+
+  /**
+   * @return the enabledTime
+   */
+  public String getEnabledTime() {
+    return this.enabledTime;
+  }
+
+  /**
+   * @param enabledTime1 the enabledTime to set
+   */
+  public void setEnabledTime(String enabledTime1) {
+    this.enabledTime = enabledTime1;
+  }
+
+  /**
+   * @return the disabledTime
+   */
+  public String getDisabledTime() {
+    return this.disabledTime;
+  }
+
+  /**
+   * @param disabledTime1 the disabledTime to set
+   */
+  public void setDisabledTime(String disabledTime1) {
+    this.disabledTime = disabledTime1;
+  }
+  
 }

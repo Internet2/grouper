@@ -104,6 +104,7 @@ public class GrouperService {
    * @param ascending or null for ascending, false for descending.  
    * If you pass true or false, must pass a sort string
    * @param typeOfGroups is the comma separated TypeOfGroups to find, e.g. group, role, entity
+   * @param enabled is A for all, T or null for enabled only, F for disabled
    * @return the groups, or no groups if none found
    */
   public WsFindGroupsResults findGroupsLite(final String clientVersion,
@@ -112,7 +113,10 @@ public class GrouperService {
       String groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1, String pageSize, 
-      String pageNumber, String sortString, String ascending, String typeOfGroups) {
+      String pageNumber, String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String typeOfGroups, String enabled) {
     
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "findGroupsLite",
@@ -121,7 +125,10 @@ public class GrouperService {
       groupUuid, groupAttributeName, groupAttributeValue,
       groupTypeName, actAsSubjectId, actAsSubjectSourceId,
       actAsSubjectIdentifier, includeGroupDetail, paramName0,
-      paramValue0, paramName1, paramValue1, pageSize, pageNumber, sortString, ascending, typeOfGroups});
+      paramValue0, paramName1, paramValue1, pageSize, pageNumber, sortString, ascending,
+      pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+      pageCursorFieldIncludesLastRetrieved,
+      typeOfGroups, enabled});
     
     return (WsFindGroupsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
@@ -285,6 +292,7 @@ public class GrouperService {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param sourceIds array of source ids or null if all
+   * @param pointInTimeRetrieve T|F|null
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -306,6 +314,7 @@ public class GrouperService {
       String includeGroupDetail, 
       String includeSubjectDetail, String[] subjectAttributeNames,
       WsParam[] params, String[] sourceIds,
+      String pointInTimeRetrieve,
       String pointInTimeFrom, String pointInTimeTo) {
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
@@ -319,7 +328,7 @@ public class GrouperService {
       includeSubjectDetail, 
       subjectAttributeNames,
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      sourceIds, pointInTimeFrom, pointInTimeTo});
+      sourceIds, pointInTimeRetrieve, pointInTimeFrom, pointInTimeTo});
     
     return (WsGetMembersResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
@@ -377,6 +386,8 @@ public class GrouperService {
       WsParam[] params, String fieldName, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, 
       String pageSize, String pageNumber, String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
       String pointInTimeFrom, String pointInTimeTo) {
     
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
@@ -391,7 +402,10 @@ public class GrouperService {
       fieldName, scope, 
       GrouperUtil.changeToVersion(wsStemLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       stemScope, enabled, 
-      pageSize, pageNumber, sortString, ascending, pointInTimeFrom, pointInTimeTo});
+      pageSize, pageNumber, sortString, ascending,
+      pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+      pageCursorFieldIncludesLastRetrieved,
+      pointInTimeFrom, pointInTimeTo});
     
     return (WsGetGroupsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
@@ -971,6 +985,8 @@ public class GrouperService {
       String paramName1, String paramValue1, String fieldName, String scope, 
       String stemName, String stemUuid, String stemScope, String enabled, 
       String pageSize, String pageNumber, String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
       String pointInTimeFrom, String pointInTimeTo) {
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
@@ -983,7 +999,10 @@ public class GrouperService {
       subjectAttributeNames, paramName0, paramValue0,
       paramName1, paramValue1, fieldName, scope, 
       stemName, stemUuid, stemScope, enabled, 
-      pageSize, pageNumber, sortString, ascending, pointInTimeFrom, pointInTimeTo});
+      pageSize, pageNumber, sortString, ascending, 
+      pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+      pageCursorFieldIncludesLastRetrieved,
+      pointInTimeFrom, pointInTimeTo});
     
     return (WsGetGroupsLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
@@ -1559,6 +1578,7 @@ public class GrouperService {
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pointInTimeRetrieve T|F|null
    * @param pointInTimeFrom 
    *            To query permissions at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -1582,8 +1602,14 @@ public class GrouperService {
       WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds, 
       WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, String fieldType,
       String serviceRole, WsAttributeDefNameLookup serviceLookup, String pageSize, String pageNumber,
-      String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
+      String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved, 
+      String pageSizeForMember, String pageNumberForMember,
       String sortStringForMember, String ascendingForMember,
+      String pageIsCursorForMember, String pageLastCursorFieldForMember, String pageLastCursorFieldTypeForMember,
+      String pageCursorFieldIncludesLastRetrievedForMember,
+      String pointInTimeRetrieve,
       String pointInTimeFrom, String pointInTimeTo
       ) {
   
@@ -1608,8 +1634,14 @@ public class GrouperService {
       GrouperUtil.changeToVersion(wsOwnerStemLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(wsOwnerAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       fieldType, serviceRole, serviceLookup,
-      pageSize, pageNumber, sortString, ascending, pageSizeForMember, pageNumberForMember, 
-      sortStringForMember, ascendingForMember, pointInTimeFrom, pointInTimeTo});
+      pageSize, pageNumber, sortString, ascending, 
+      pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+      pageCursorFieldIncludesLastRetrieved,
+      pageSizeForMember, pageNumberForMember, 
+      sortStringForMember, ascendingForMember, 
+      pageIsCursorForMember, pageLastCursorFieldForMember, pageLastCursorFieldTypeForMember,
+      pageCursorFieldIncludesLastRetrievedForMember,
+      pointInTimeRetrieve, pointInTimeFrom, pointInTimeTo});
 
     return (WsGetMembershipsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
@@ -1683,6 +1715,7 @@ public class GrouperService {
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pointInTimeRetrieve T|F|null
    * @param pointInTimeFrom 
    *            To query permissions at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -1709,8 +1742,15 @@ public class GrouperService {
       String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, 
       String ownerAttributeDefUuid, String fieldType,
       String serviceRole, String serviceId, String serviceName, String pageSize, String pageNumber,
-      String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
-      String sortStringForMember, String ascendingForMember, String pointInTimeFrom,
+      String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String pageSizeForMember, String pageNumberForMember,
+      String sortStringForMember, String ascendingForMember, 
+      String pageIsCursorForMember, String pageLastCursorFieldForMember, String pageLastCursorFieldTypeForMember,
+      String pageCursorFieldIncludesLastRetrievedForMember,
+      String pointInTimeRetrieve,
+      String pointInTimeFrom,
       String pointInTimeTo) {
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
@@ -1726,9 +1766,14 @@ public class GrouperService {
       ownerStemName,
       ownerStemUuid, nameOfOwnerAttributeDef, 
       ownerAttributeDefUuid, fieldType, serviceRole, serviceId, serviceName,
-      pageSize, pageNumber, sortString, ascending, pageSizeForMember, 
+      pageSize, pageNumber, sortString, ascending, 
+      pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+      pageCursorFieldIncludesLastRetrieved,
+      pageSizeForMember, 
       pageNumberForMember, sortStringForMember, ascendingForMember,
-      pointInTimeFrom, pointInTimeTo});
+      pageIsCursorForMember, pageLastCursorFieldForMember, pageLastCursorFieldTypeForMember,
+      pageCursorFieldIncludesLastRetrievedForMember,
+      pointInTimeRetrieve, pointInTimeFrom, pointInTimeTo});
     
     return (WsGetMembershipsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
@@ -1764,8 +1809,8 @@ public class GrouperService {
       WsSubjectLookup[] wsSubjectLookups, String searchString, String includeSubjectDetail, 
       String[] subjectAttributeNames, WsSubjectLookup actAsSubjectLookup, String[] sourceIds, 
       WsGroupLookup wsGroupLookup, String wsMemberFilter,
-       String fieldName, 
-      String includeGroupDetail, final WsParam[] params) {  
+       String fieldName,
+      String includeGroupDetail, final WsParam[] params) {
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getSubjects",
@@ -2788,6 +2833,8 @@ public class GrouperService {
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups, 
       String pageSize, String pageNumber,
       String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
       String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
       WsSubjectLookup wsSubjectLookup, String serviceRole) {
 
@@ -2798,7 +2845,10 @@ public class GrouperService {
       GrouperUtil.changeToVersion(wsAttributeDefLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       attributeAssignType, attributeDefType,
       GrouperUtil.changeToVersion(wsAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      pageSize, pageNumber, sortString, ascending, wsInheritanceSetRelation,
+      pageSize, pageNumber, sortString, ascending, 
+      pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+      pageCursorFieldIncludesLastRetrieved,
+      wsInheritanceSetRelation,
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       wsSubjectLookup, serviceRole
@@ -3318,7 +3368,10 @@ public class GrouperService {
       String privilegeName,
       String stemScope, String parentStemId, String findByUuidOrName,
       String pageSize, String pageNumber,
-      String sortString, String ascending, WsSubjectLookup actAsSubjectLookup,
+      String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      WsSubjectLookup actAsSubjectLookup,
       WsParam[] params) {
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
@@ -3329,6 +3382,8 @@ public class GrouperService {
       stemScope, parentStemId, findByUuidOrName,
       pageSize, pageNumber,
       sortString, ascending,
+      pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+      pageCursorFieldIncludesLastRetrieved,
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName())
       });
@@ -3385,6 +3440,8 @@ public class GrouperService {
       String findByUuidOrName,
       String pageSize, String pageNumber,
       String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1
@@ -3400,6 +3457,8 @@ public class GrouperService {
       findByUuidOrName,
       pageSize, pageNumber,
       sortString, ascending,
+      pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+      pageCursorFieldIncludesLastRetrieved,
       actAsSubjectId, actAsSubjectSourceId,
       actAsSubjectIdentifier, paramName0,
       paramValue0, paramName1, paramValue1
@@ -3541,7 +3600,6 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsExternalSubjectDeleteResults externalSubjectDelete(final String clientVersion,
       final WsExternalSubjectLookup[] wsExternalSubjectLookups, final WsSubjectLookup actAsSubjectLookup,
       String txType, final WsParam[] params) {
@@ -3574,7 +3632,6 @@ public class GrouperService {
    * @since 2.3.0.patch
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsExternalSubjectSaveResults externalSubjectSave(final String clientVersion,
       final WsExternalSubjectToSave[] wsExternalSubjectToSaves, final WsSubjectLookup actAsSubjectLookup,
       String txType, final WsParam[] params) {
@@ -3600,7 +3657,6 @@ public class GrouperService {
    * @param wsExternalSubjectLookups if you want to just pass in a list of uuids and/or names
    * @return the external subjects, or no external subjects if none found
    */
-  @SuppressWarnings("unchecked")
   public WsFindExternalSubjectsResults findExternalSubjects(final String clientVersion,
       WsExternalSubjectLookup[] wsExternalSubjectLookups,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
@@ -3626,18 +3682,17 @@ public class GrouperService {
    * @param actAsSubjectIdentifier
    * @param auditType
    * @param auditActionId
-   * @param afterAuditEntryId
-   * @param wsOwnerGroupName
-   * @param wsOwnerGroupId
-   * @param wsOwnerStemName
-   * @param wsOwnerStemId
-   * @param wsOwnerAttributeDefName
-   * @param wsOwnerAttributeDefId
-   * @param wsOwnerAttributeDefNameName
-   * @param wsOwnerAttributeDefNameId
-   * @param wsOwnerSubjectId
-   * @param wsOwnerSubjectSourceId
-   * @param wsOwnerSubjectIdentifier
+   * @param wsGroupName
+   * @param wsGroupId
+   * @param wsStemName
+   * @param wsStemId
+   * @param wsAttributeDefName
+   * @param wsAttributeDefId
+   * @param wsAttributeDefNameName
+   * @param wsAttributeDefNameId
+   * @param wsSubjectId
+   * @param wsSubjectSourceId
+   * @param wsSubjectIdentifier
    * @param paramName0
    * @param paramValue0
    * @param paramName1
@@ -3651,25 +3706,32 @@ public class GrouperService {
    */
   public WsGetAuditEntriesResults getAuditEntriesLite(final String clientVersion, 
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, 
-      String auditType, String auditActionId, String afterAuditEntryId,
-      String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId,
-      String wsOwnerAttributeDefName, String wsOwnerAttributeDefId,
-      String wsOwnerAttributeDefNameName, String wsOwnerAttributeDefNameId,
-      String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
+      String auditType, String auditActionId,
+      String wsGroupName, String wsGroupId, String wsStemName, String wsStemId,
+      String wsAttributeDefName, String wsAttributeDefId,
+      String wsAttributeDefNameName, String wsAttributeDefNameId,
+      String wsSubjectId, String wsSubjectSourceId, String wsSubjectIdentifier,
+      String actionsPerformedByWsSubjectId, String actionsPerformedByWsSubjectSourceId, String actionsPerformedByWsSubjectIdentifier,
       String paramName0, String paramValue0, String paramName1, String paramValue1,
       String pageSize, String sortString, String ascending,
-      String pointInTimeFrom, String pointInTimeTo) {
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String fromDate, String toDate) {
     
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getAuditEntriesLite",
         new Object[]{clientVersion, actAsSubjectId, actAsSubjectSourceId,
-             actAsSubjectIdentifier, auditType, auditActionId, afterAuditEntryId,
-             wsOwnerGroupName, wsOwnerGroupId, wsOwnerStemName, wsOwnerStemId,
-             wsOwnerAttributeDefName, wsOwnerAttributeDefId,
-             wsOwnerAttributeDefNameName, wsOwnerAttributeDefNameId,
-             wsOwnerSubjectId, wsOwnerSubjectSourceId, wsOwnerSubjectIdentifier,
+             actAsSubjectIdentifier, auditType, auditActionId,
+             wsGroupName, wsGroupId, wsStemName, wsStemId,
+             wsAttributeDefName, wsAttributeDefId,
+             wsAttributeDefNameName, wsAttributeDefNameId,
+             wsSubjectId, wsSubjectSourceId, wsSubjectIdentifier,
+             actionsPerformedByWsSubjectId, actionsPerformedByWsSubjectSourceId, actionsPerformedByWsSubjectIdentifier,
              paramName0, paramValue0, paramName1, paramValue1, pageSize,
-             sortString, ascending, pointInTimeFrom, pointInTimeTo
+             sortString, ascending,
+             pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+             pageCursorFieldIncludesLastRetrieved,
+             fromDate, toDate
       });
     
     WsGetAuditEntriesResults resultToReturn = (WsGetAuditEntriesResults) GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
@@ -3683,7 +3745,6 @@ public class GrouperService {
    * @param actAsSubjectLookup
    * @param auditType
    * @param auditActionId
-   * @param afterAuditEntryId
    * @param wsOwnerGroupLookups
    * @param wsOwnerStemLookups
    * @param wsOwnerAttributeDefLookups
@@ -3693,36 +3754,40 @@ public class GrouperService {
    * @param pageSize
    * @param sortString
    * @param ascending
-   * @param pointInTimeFrom
-   * @param pointInTimeTo
+   * @param fromDate
+   * @param toDate
    * @return audit entries result
    */
   public WsGetAuditEntriesResults getAuditEntries(final String clientVersion,
       WsSubjectLookup actAsSubjectLookup,
-      String auditType, String auditActionId, String afterAuditEntryId,
-      WsGroupLookup[] wsOwnerGroupLookups,
-      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups,
-      WsAttributeDefNameLookup[] wsOwnerAttributeDefNameLookups,
-      WsSubjectLookup[] wsOwnerSubjectLookups, WsParam[] params,
+      String auditType, String auditActionId,
+      WsGroupLookup wsGroupLookup,
+      WsStemLookup wsStemLookup, WsAttributeDefLookup wsAttributeDefLookup,
+      WsAttributeDefNameLookup wsAttributeDefNameLookup,
+      WsSubjectLookup wsSubjectLookup, 
+      WsSubjectLookup actionsPerformedByWsSubjectLookup,
+      WsParam[] params,
       String pageSize, String sortString, String ascending,
-      String pointInTimeFrom, String pointInTimeTo) {
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String fromDate, String toDate) {
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getAuditEntries",
         new Object[] {
            clientVersion,
            GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-           auditType, auditActionId, afterAuditEntryId,
-           GrouperUtil.changeToVersion(wsOwnerGroupLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-           GrouperUtil.changeToVersion(wsOwnerStemLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-           GrouperUtil.changeToVersion(wsOwnerAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-           GrouperUtil.changeToVersion(wsOwnerAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-           GrouperUtil.changeToVersion(wsOwnerSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+           auditType, auditActionId,
+           GrouperUtil.changeToVersion(wsGroupLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+           GrouperUtil.changeToVersion(wsStemLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+           GrouperUtil.changeToVersion(wsAttributeDefLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+           GrouperUtil.changeToVersion(wsAttributeDefNameLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+           GrouperUtil.changeToVersion(wsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+           GrouperUtil.changeToVersion(actionsPerformedByWsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
            GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-           pageSize,
-           sortString, ascending,
-           pointInTimeFrom, pointInTimeTo            
-            
+           pageSize, sortString, ascending,
+           pageIsCursor, pageLastCursorField, pageLastCursorFieldType, pageCursorFieldIncludesLastRetrieved,
+           fromDate, toDate
         });
     
     return (WsGetAuditEntriesResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);

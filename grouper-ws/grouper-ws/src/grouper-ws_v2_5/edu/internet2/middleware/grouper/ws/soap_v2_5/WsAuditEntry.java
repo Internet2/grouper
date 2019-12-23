@@ -10,6 +10,11 @@ package edu.internet2.middleware.grouper.ws.soap_v2_5;
 public class WsAuditEntry {
   
   /**
+   * id of the audit entry
+   */
+  private String id;
+  
+  /**
    * audit action name
    */
   private String actionName;
@@ -87,6 +92,20 @@ public class WsAuditEntry {
    */
   public void setAuditEntryColumns(WsAuditEntryColumn[] auditEntryColumns1) {
     this.auditEntryColumns = auditEntryColumns1;
+  }
+
+  /**
+   * @return the id
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @param id1 the id to set
+   */
+  public void setId(String id1) {
+    this.id = id1;
   }
   
 

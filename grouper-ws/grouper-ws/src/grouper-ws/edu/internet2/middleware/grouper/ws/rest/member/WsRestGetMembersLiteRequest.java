@@ -75,6 +75,11 @@ public class WsRestGetMembersLiteRequest implements WsRequestBean {
   private String sourceIds;
   
   /**
+   * T|F|null
+   */
+  private String pointInTimeRetrieve;
+  
+  /**
    * To query members at a certain point in time or time range in the past, set this value
    * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
    * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
@@ -113,6 +118,26 @@ public class WsRestGetMembersLiteRequest implements WsRequestBean {
    * ascending T or null for ascending, F for descending.  
    */
   private String ascending;
+  
+  /**
+   * T|F default to F.  if this is T then we are doing cursor paging
+   */
+  private String pageIsCursor;
+  
+  /**
+   * field that will be sent back for cursor based paging
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * could be: string, int, long, date, timestamp
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * T|F
+   */
+  private String pageCursorFieldIncludesLastRetrieved;
   
   /**
    * page size if paging
@@ -499,4 +524,86 @@ public class WsRestGetMembersLiteRequest implements WsRequestBean {
   public void setPointInTimeTo(String pointInTimeTo1) {
     this.pointInTimeTo = pointInTimeTo1;
   }
+
+
+  /**
+   * @return the pageIsCursor
+   */
+  public String getPageIsCursor() {
+    return this.pageIsCursor;
+  }
+
+
+  /**
+   * @param pageIsCursor1 the pageIsCursor to set
+   */
+  public void setPageIsCursor(String pageIsCursor1) {
+    this.pageIsCursor = pageIsCursor1;
+  }
+
+
+  /**
+   * @return the pageLastCursorField
+   */
+  public String getPageLastCursorField() {
+    return this.pageLastCursorField;
+  }
+
+
+  /**
+   * @param pageLastCursorField1 the pageLastCursorField to set
+   */
+  public void setPageLastCursorField(String pageLastCursorField1) {
+    this.pageLastCursorField = pageLastCursorField1;
+  }
+
+
+  /**
+   * @return the pageLastCursorFieldType
+   */
+  public String getPageLastCursorFieldType() {
+    return this.pageLastCursorFieldType;
+  }
+
+
+  /**
+   * @param pageLastCursorFieldType1 the pageLastCursorFieldType to set
+   */
+  public void setPageLastCursorFieldType(String pageLastCursorFieldType1) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType1;
+  }
+
+
+  /**
+   * @return the pageCursorFieldIncludesLastRetrieved
+   */
+  public String getPageCursorFieldIncludesLastRetrieved() {
+    return this.pageCursorFieldIncludesLastRetrieved;
+  }
+
+
+  /**
+   * @param pageCursorFieldIncludesLastRetrieved1 the pageCursorFieldIncludesLastRetrieved to set
+   */
+  public void setPageCursorFieldIncludesLastRetrieved(String pageCursorFieldIncludesLastRetrieved1) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved1;
+  }
+
+
+  /**
+   * @return the pointInTimeRetrieve
+   */
+  public String getPointInTimeRetrieve() {
+    return this.pointInTimeRetrieve;
+  }
+
+
+  /**
+   * @param pointInTimeRetrieve1 the pointInTimeRetrieve to set
+   */
+  public void setPointInTimeRetrieve(String pointInTimeRetrieve1) {
+    this.pointInTimeRetrieve = pointInTimeRetrieve1;
+  }
+  
+  
 }

@@ -635,7 +635,223 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   public void setAscendingForMember(String ascendingForMember1) {
     this.ascendingForMember = ascendingForMember1;
   }
-
   
+  /**
+   * T|F default to F.  if this is T then we are doing cursor paging
+   */
+  private String pageIsCursor;
+  
+  /**
+   * field that will be sent back for cursor based paging
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * could be: string, int, long, date, timestamp
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * T|F
+   */
+  private String pageCursorFieldIncludesLastRetrieved;
+  
+  /**
+   * T|F default to F.  if this is T then we are doing cursor paging
+   */
+  private String pageIsCursorForMember;
+  
+  /**
+   * field that will be sent back for cursor based paging
+   */
+  private String pageLastCursorFieldForMember;
+  
+  /**
+   * could be: string, int, long, date, timestamp
+   */
+  private String pageLastCursorFieldTypeForMember;
+  
+  /**
+   * T|F
+   */
+  private String pageCursorFieldIncludesLastRetrievedForMember;
+  
+  /**
+   * T|F|null
+   */
+  private String pointInTimeRetrieve;
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   * Format:  yyyy/MM/dd HH:mm:ss.SSS
+   */
+  private String pointInTimeFrom;
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS   
+   */
+  private String pointInTimeTo;
+
+  /**
+   * @return the pageIsCursor
+   */
+  public String getPageIsCursor() {
+    return pageIsCursor;
+  }
+
+  /**
+   * @param pageIsCursor the pageIsCursor to set
+   */
+  public void setPageIsCursor(String pageIsCursor) {
+    this.pageIsCursor = pageIsCursor;
+  }
+
+  /**
+   * @return the pageLastCursorField
+   */
+  public String getPageLastCursorField() {
+    return pageLastCursorField;
+  }
+
+  /**
+   * @param pageLastCursorField the pageLastCursorField to set
+   */
+  public void setPageLastCursorField(String pageLastCursorField) {
+    this.pageLastCursorField = pageLastCursorField;
+  }
+
+  /**
+   * @return the pageLastCursorFieldType
+   */
+  public String getPageLastCursorFieldType() {
+    return pageLastCursorFieldType;
+  }
+
+  /**
+   * @param pageLastCursorFieldType the pageLastCursorFieldType to set
+   */
+  public void setPageLastCursorFieldType(String pageLastCursorFieldType) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType;
+  }
+
+  /**
+   * @return the pageCursorFieldIncludesLastRetrieved
+   */
+  public String getPageCursorFieldIncludesLastRetrieved() {
+    return pageCursorFieldIncludesLastRetrieved;
+  }
+
+  /**
+   * @param pageCursorFieldIncludesLastRetrieved the pageCursorFieldIncludesLastRetrieved to set
+   */
+  public void setPageCursorFieldIncludesLastRetrieved(String pageCursorFieldIncludesLastRetrieved) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved;
+  }
+
+  /**
+   * @return the pageIsCursorForMember
+   */
+  public String getPageIsCursorForMember() {
+    return pageIsCursorForMember;
+  }
+
+  /**
+   * @param pageIsCursorForMember the pageIsCursorForMember to set
+   */
+  public void setPageIsCursorForMember(String pageIsCursorForMember) {
+    this.pageIsCursorForMember = pageIsCursorForMember;
+  }
+
+  /**
+   * @return the pageLastCursorFieldForMember
+   */
+  public String getPageLastCursorFieldForMember() {
+    return pageLastCursorFieldForMember;
+  }
+
+  /**
+   * @param pageLastCursorFieldForMember the pageLastCursorFieldForMember to set
+   */
+  public void setPageLastCursorFieldForMember(String pageLastCursorFieldForMember) {
+    this.pageLastCursorFieldForMember = pageLastCursorFieldForMember;
+  }
+
+  /**
+   * @return the pageLastCursorFieldTypeForMember
+   */
+  public String getPageLastCursorFieldTypeForMember() {
+    return pageLastCursorFieldTypeForMember;
+  }
+
+  /**
+   * @param pageLastCursorFieldTypeForMember the pageLastCursorFieldTypeForMember to set
+   */
+  public void setPageLastCursorFieldTypeForMember(String pageLastCursorFieldTypeForMember) {
+    this.pageLastCursorFieldTypeForMember = pageLastCursorFieldTypeForMember;
+  }
+
+  /**
+   * @return the pageCursorFieldIncludesLastRetrievedForMember
+   */
+  public String getPageCursorFieldIncludesLastRetrievedForMember() {
+    return pageCursorFieldIncludesLastRetrievedForMember;
+  }
+
+  /**
+   * @param pageCursorFieldIncludesLastRetrievedForMember the pageCursorFieldIncludesLastRetrievedForMember to set
+   */
+  public void setPageCursorFieldIncludesLastRetrievedForMember(String pageCursorFieldIncludesLastRetrievedForMember) {
+    this.pageCursorFieldIncludesLastRetrievedForMember = pageCursorFieldIncludesLastRetrievedForMember;
+  }
+
+  /**
+   * @return the pointInTimeRetrieve
+   */
+  public String getPointInTimeRetrieve() {
+    return pointInTimeRetrieve;
+  }
+
+  /**
+   * @param pointInTimeRetrieve the pointInTimeRetrieve to set
+   */
+  public void setPointInTimeRetrieve(String pointInTimeRetrieve) {
+    this.pointInTimeRetrieve = pointInTimeRetrieve;
+  }
+
+  /**
+   * @return the pointInTimeFrom
+   */
+  public String getPointInTimeFrom() {
+    return pointInTimeFrom;
+  }
+
+  /**
+   * @param pointInTimeFrom the pointInTimeFrom to set
+   */
+  public void setPointInTimeFrom(String pointInTimeFrom) {
+    this.pointInTimeFrom = pointInTimeFrom;
+  }
+
+  /**
+   * @return the pointInTimeTo
+   */
+  public String getPointInTimeTo() {
+    return pointInTimeTo;
+  }
+
+  /**
+   * @param pointInTimeTo the pointInTimeTo to set
+   */
+  public void setPointInTimeTo(String pointInTimeTo) {
+    this.pointInTimeTo = pointInTimeTo;
+  }
   
 }

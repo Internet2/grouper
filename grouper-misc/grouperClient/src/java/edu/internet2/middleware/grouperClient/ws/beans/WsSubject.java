@@ -176,5 +176,24 @@ public class WsSubject {
   public void setSuccess(String success1) {
     this.success = success1;
   }
+  
+  /**
+   * member id
+   */
+  private String memberId;
 
+  /**
+   * @return the memberId
+   */
+  public String getMemberId() {
+    return memberId;
+  }
+
+  /**
+   * @param memberId the memberId to set
+   */
+  public void setMemberId(String memberId) {
+    this.memberId = memberId;
+  }
+  
 }
