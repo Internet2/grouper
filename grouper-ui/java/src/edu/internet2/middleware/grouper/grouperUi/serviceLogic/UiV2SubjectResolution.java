@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectResolutionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -109,7 +110,8 @@ public class UiV2SubjectResolution {
       
       GuiPaging guiPaging = subjectResolutionContainer.getGuiPaging();
       final QueryOptions queryOptions = new QueryOptions();
-      
+      QuerySort querySort = new QuerySort("sourceId, subjectId", true);
+      queryOptions.sort(querySort);
       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
       
       
