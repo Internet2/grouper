@@ -200,9 +200,9 @@ public class ChangeLogTempToEntity {
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
                   ChangeLogTempToEntity.processMemberDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD)) {
-                  ChangeLogTempToEntity.processPrivilegeAdd(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processPrivilegeAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
-                  ChangeLogTempToEntity.processPrivilegeDelete(CHANGE_LOG_ENTRY);
+                  ChangeLogTempToEntity.processPrivilegeDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD)) {
                   ChangeLogTempToEntity.processAttributeAssignAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE)) {
@@ -419,7 +419,7 @@ public class ChangeLogTempToEntity {
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
-
+    
     PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(id, false);
     if (pitGroup == null) {
       return;
@@ -1122,8 +1122,9 @@ public class ChangeLogTempToEntity {
    * If an access, naming, or attr def privilege gets added, the privilege needs to
    * get added to the PIT table.
    * @param changeLogEntry
+   * @param changeLogEntriesToSave
    */
-  private static void processPrivilegeAdd(ChangeLogEntry changeLogEntry) {
+  private static void processPrivilegeAdd(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1179,8 +1180,11 @@ public class ChangeLogTempToEntity {
     pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(false);
     pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
-    
+    pitMembership.setSaveChangeLogUpdates(false);
+
     pitMembership.save();
+    changeLogEntriesToSave.addAll(pitMembership.getChangeLogUpdates());
+    pitMembership.clearChangeLogUpdates();
   }
   
   
@@ -1188,8 +1192,9 @@ public class ChangeLogTempToEntity {
    * If an access, naming, or attr def privilege gets deleted, the privilege needs to
    * get deleted from the PIT table.
    * @param changeLogEntry
+   * @param changeLogEntriesToSave
    */
-  private static void processPrivilegeDelete(ChangeLogEntry changeLogEntry) {
+  private static void processPrivilegeDelete(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
@@ -1215,8 +1220,11 @@ public class ChangeLogTempToEntity {
     pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(false);
     pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
-    
+    pitMembership.setSaveChangeLogUpdates(false);
+
     pitMembership.update();
+    changeLogEntriesToSave.addAll(pitMembership.getChangeLogUpdates());
+    pitMembership.clearChangeLogUpdates();
   }
   
   /**
