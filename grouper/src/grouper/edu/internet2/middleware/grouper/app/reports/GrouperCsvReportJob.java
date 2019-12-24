@@ -63,6 +63,9 @@ public class GrouperCsvReportJob extends OtherJobBase {
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     String jobName = otherJobInput.getJobName();
     
+    // jobName = OTHER_JOB_csvSync
+    jobName = jobName.substring("OTHER_JOB_".length(), jobName.length());
+
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = otherJobInput.getHib3GrouperLoaderLog();
     if (hib3GrouperLoaderLog == null) {
       hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
