@@ -810,7 +810,7 @@ public class MemberFinder {
     if ( SubjectFinder.internal_getGSA().getId().equals( m.getSubjectSourceId() )) {
       // subject is a group.  is it VIEWable?
       try {
-        MemberFinder.findByUuid( s, m.getSubjectId(), true ); // TODO 20070328 this is rather heavy
+        GroupFinder.findByUuid( s, m.getSubjectId(), true ); // TODO 20070328 this is rather heavy
       }
       catch (GroupNotFoundException eGNF) {
         if (exceptionIfNotExist) {
