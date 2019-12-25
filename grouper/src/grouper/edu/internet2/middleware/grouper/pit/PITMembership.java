@@ -302,14 +302,24 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         assignment.setEndTimeDb(this.getStartTimeDb());
         assignment.setActiveDb("F");
         assignment.setContextId(this.getContextId());
+        assignment.setSaveChangeLogUpdates(saveChangeLogUpdates);
         assignment.update();
+        if (!saveChangeLogUpdates) {
+          changeLogUpdates.addAll(assignment.getChangeLogUpdates());
+          assignment.clearChangeLogUpdates();
+        }
         
         assignmentCopy.setId(GrouperUuid.getUuid());
         assignmentCopy.setOwnerMembershipId(this.getId());
         assignmentCopy.setStartTimeDb(this.getStartTimeDb());
         assignmentCopy.setContextId(this.getContextId());
         assignmentCopy.setHibernateVersionNumber(-1L);
+        assignmentCopy.setSaveChangeLogUpdates(saveChangeLogUpdates);
         assignmentCopy.save();
+        if (!saveChangeLogUpdates) {
+          changeLogUpdates.addAll(assignmentCopy.getChangeLogUpdates());
+          assignmentCopy.clearChangeLogUpdates();
+        }
       }
     }
   }
@@ -857,7 +867,13 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setContextId(this.getContextId());
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
+      pitImmediateGroupSet.setSaveChangeLogUpdates(saveChangeLogUpdates);
       pitImmediateGroupSet.saveOrUpdate();
+      
+      if (!saveChangeLogUpdates) {
+        changeLogUpdates.addAll(pitImmediateGroupSet.getChangeLogUpdates());
+        pitImmediateGroupSet.clearChangeLogUpdates();
+      }
     }
     
     super.onPostSave(hibernateSession);
@@ -909,7 +925,13 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setContextId(this.getContextId());
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
+      pitImmediateGroupSet.setSaveChangeLogUpdates(saveChangeLogUpdates);
       pitImmediateGroupSet.saveOrUpdate();
+      
+      if (!saveChangeLogUpdates) {
+        changeLogUpdates.addAll(pitImmediateGroupSet.getChangeLogUpdates());
+        pitImmediateGroupSet.clearChangeLogUpdates();
+      }
     }
     
     super.onPostUpdate(hibernateSession);

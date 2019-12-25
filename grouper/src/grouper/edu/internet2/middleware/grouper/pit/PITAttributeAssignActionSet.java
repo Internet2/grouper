@@ -15,7 +15,9 @@
  */
 package edu.internet2.middleware.grouper.pit;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -132,6 +134,32 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
   
   /** sourceId */
   private String sourceId;
+  
+  private boolean saveChangeLogUpdates = true;
+  
+  /**
+   * @param saveChangeLogUpdates the saveChangeLogUpdates to set
+   */
+  public void setSaveChangeLogUpdates(boolean saveChangeLogUpdates) {
+    this.saveChangeLogUpdates = saveChangeLogUpdates;
+  }
+  
+  private List<ChangeLogEntry> changeLogUpdates = new ArrayList<ChangeLogEntry>();
+  
+  /**
+   * @return changelog entries
+   */
+  public List<ChangeLogEntry> getChangeLogUpdates() {
+    return changeLogUpdates;
+  }
+  
+  
+  /**
+   * 
+   */
+  public void clearChangeLogUpdates() {
+    changeLogUpdates.clear();
+  }
   
   /**
    * @return source id
@@ -294,10 +322,15 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
             
         changeLogEntry.setContextId(this.getContextId());
         changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-        changeLogEntryBatch.add(changeLogEntry);
-        if (changeLogEntryBatch.size() % batchSize == 0) {
-          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-          changeLogEntryBatch.clear();
+        
+        if (saveChangeLogUpdates) {
+          changeLogEntryBatch.add(changeLogEntry);
+          if (changeLogEntryBatch.size() % batchSize == 0) {
+            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+            changeLogEntryBatch.clear();
+          }
+        } else {
+          changeLogUpdates.add(changeLogEntry);
         }
       }
       
@@ -332,10 +365,15 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
             
         changeLogEntry.setContextId(this.getContextId());
         changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-        changeLogEntryBatch.add(changeLogEntry);
-        if (changeLogEntryBatch.size() % batchSize == 0) {
-          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-          changeLogEntryBatch.clear();
+        
+        if (saveChangeLogUpdates) {
+          changeLogEntryBatch.add(changeLogEntry);
+          if (changeLogEntryBatch.size() % batchSize == 0) {
+            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+            changeLogEntryBatch.clear();
+          }
+        } else {
+          changeLogUpdates.add(changeLogEntry);
         }
       }
       
