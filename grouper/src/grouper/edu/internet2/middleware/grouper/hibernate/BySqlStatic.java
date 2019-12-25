@@ -23,7 +23,10 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -341,39 +344,34 @@ public class BySqlStatic {
           
           resultSet = preparedStatement.executeQuery();
           
+          ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+          
+          List<Integer> columnTypes = new ArrayList<Integer>();
           int columnCount = resultSet.getMetaData().getColumnCount();
+          
+          for (int i=0;i<columnCount;i++) {
+            columnTypes.add(resultSetMetaData.getColumnType(i+1));
+          }
           
           while (resultSet.next()) {
           
             T result = null;
             
             if (returnClassType.isArray()) {
-              result = (T)Array.newInstance(String.class, columnCount);
+              Class<?> componentType = returnClassType.getComponentType();
+              result = (T)Array.newInstance(componentType, columnCount);
               for (int i=0;i<columnCount;i++) {
-                Array.set(result, i, resultSet.getString(1+i));
+                componentType = massageComponentType(componentType, columnTypes.get(i));
+                Object subresult = extractPrimitiveFromResultset(componentType, resultSet, i+1);
+                Array.set(result, i, subresult);
               }
             } else {
             
-              boolean isInt = int.class.equals(returnClassType);
-              boolean isPrimitive = isInt;
-              if (isInt || Integer.class.equals(returnClassType)) {
-                BigDecimal bigDecimal = resultSet.getBigDecimal(1);
-                if (bigDecimal != null) {
-                  result = (T)(Object)bigDecimal.intValue();
-                }
-              } else if (String.class.equals(returnClassType)) {
-                result = (T)resultSet.getString(1);
-              } else {
-                throw new RuntimeException("Unexpected type: " + returnClassType);
-              }
-              if (result == null && isPrimitive) {
-                throw new NullPointerException("expecting primitive (" + returnClassType.getSimpleName() 
-                    + "), but received null");
-              }
+              result = extractPrimitiveFromResultset(returnClassType, resultSet, 1);
             }
             
             resultList.add(result);
-          }          
+          }
           return resultList;
 
         } catch (Exception e) {
@@ -382,11 +380,92 @@ public class BySqlStatic {
           GrouperUtil.closeQuietly(preparedStatement);
         }
       }
+
+      /**
+       * @param <T>
+       * @param returnClassType
+       * @param resultSet
+       * @return the answer
+       * @throws SQLException
+       */
+      public <T> T extractPrimitiveFromResultset(final Class<T> returnClassType,
+          ResultSet resultSet, int positionOneIndexed) throws SQLException {
+        
+        T result = null;
+        boolean isInt = int.class.equals(returnClassType);
+        boolean isDouble = double.class.equals(returnClassType);
+        boolean isPrimitive = isInt || isDouble;
+        if (isInt || Integer.class.equals(returnClassType)) {
+          BigDecimal bigDecimal = resultSet.getBigDecimal(positionOneIndexed);
+          if (bigDecimal != null) {
+            result = (T)(Object)bigDecimal.intValue();
+          }
+        } else if (isDouble || Double.class.equals(returnClassType)) {
+          BigDecimal bigDecimal = resultSet.getBigDecimal(positionOneIndexed);
+          if (bigDecimal != null) {
+            result = (T)(Object)bigDecimal.doubleValue();
+          }
+        } else if (String.class.equals(returnClassType)) {
+          result = (T)resultSet.getString(positionOneIndexed);
+        } else if (Timestamp.class.equals(returnClassType)) {
+          result = (T)resultSet.getTimestamp(positionOneIndexed);
+        } else {
+          throw new RuntimeException("Unexpected type: " + returnClassType);
+        }
+        if (result == null && isPrimitive) {
+          throw new NullPointerException("expecting primitive (" + returnClassType.getSimpleName() 
+              + "), but received null");
+        }
+        return result;
+      }
     });
     return theResult;
   
   }
 
+  /**
+   * 
+   * @param componentType
+   * @param columnType
+   * @return the class
+   */
+  private static Class<?> massageComponentType(Class<?> componentType, int columnType) {
+    if (componentType != Object.class) {
+      return componentType;
+    }
+    
+    switch (columnType) {
+      case Types.BIGINT: 
+      case Types.INTEGER:
+      case Types.SMALLINT:
+      case Types.TINYINT:
+        return Integer.class;
+        
+      case Types.NUMERIC:
+      case Types.REAL:
+      case Types.DECIMAL:
+      case Types.DOUBLE:
+      case Types.FLOAT:
+        
+        return Double.class;
+        
+      case Types.CHAR:
+      case Types.VARCHAR:
+      case Types.LONGVARCHAR:
+
+        return String.class;
+
+      case Types.DATE:
+      case Types.TIMESTAMP:
+        
+        return Timestamp.class; 
+        
+      default:
+        throw new RuntimeException("Type not supported: " + columnType);
+    }    
+  }
+  
+      
   /**
    * Attach params for a prepared statement.  The type of the params and types must be the
    * same (e.g. either both array or list, but not one is Array, and the other list
