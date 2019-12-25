@@ -20,6 +20,7 @@
                <tr>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderAssignmentType']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderAttributeName']}</th>
+                 <th>${textContainer.text['simpleAttributeUpdate.assignHeaderGroup']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderEnabled']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderValues']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderAttributeDef']}</th>
@@ -34,6 +35,7 @@
                  <tr>
                    <td style="white-space: nowrap;">${textContainer.text['simpleAttributeUpdate.assignDirect']}</td>
                    <td>${guiAttributeAssign.guiAttributeDefName.shortLinkWithIcon}</td>
+                   <td>${grouperRequestContainer.groupContainer.guiGroup.shortLinkWithIcon}</td>
                    <td>${textContainer.text[guiAttributeAssign.enabledDisabledKey]}</td>
                    
                    <td style="white-space: nowrap;">
