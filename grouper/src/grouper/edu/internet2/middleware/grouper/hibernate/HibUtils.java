@@ -82,6 +82,10 @@ public class HibUtils {
     
     if (clazz.isArray()) {
       clazz = clazz.getComponentType();
+      
+      if (clazz == Object.class) {
+        return true;
+      }
     }
     
     if (clazz.isPrimitive() || clazz == java.lang.String.class
