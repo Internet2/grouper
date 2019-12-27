@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -227,6 +228,34 @@ public class AttributeAssignValueFinder {
   }
   
   /**
+   * look for values of members where it is an assignment on assignment
+   */
+  private Collection<String> ownerMemberIdsOfAssignAssign;
+
+  /**
+   * look for values of members where it is an assignment on assignment
+   * @param ownerMemberIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder assignOwnerMemberIdsOfAssignAssign(Collection<String> ownerMemberIdsOfAssignAssign1) {
+    this.ownerMemberIdsOfAssignAssign = ownerMemberIdsOfAssignAssign1;
+    return this;
+  }
+  
+  /**
+   * look for values of members where it is an assignment on assignment
+   * @param ownerMemberIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder addOwnerMemberIdOfAssignAssign(String ownerMemberIdsOfAssignAssign1) {
+    if (this.ownerMemberIdsOfAssignAssign == null) {
+      this.ownerMemberIdsOfAssignAssign = new LinkedHashSet<String>();
+    }
+    this.ownerMemberIdsOfAssignAssign.add(ownerMemberIdsOfAssignAssign1);
+    return this;
+  }
+  
+  /**
    * look for values of groups where it is an assignment on assignment
    * @param ownerGroupIdsOfAssignAssign1
    * @return this for chaining
@@ -252,6 +281,15 @@ public class AttributeAssignValueFinder {
    */
   public AttributeAssignValueFinder addOwnerGroupOfAssignAssign(Group ownerGroupIdsOfAssignAssign1) {
     return this.addOwnerGroupIdsOfAssignAssign(ownerGroupIdsOfAssignAssign1.getId());
+  }
+  
+  /**
+   * look for values of members where it is an assignment on assignment
+   * @param ownerMemberIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder addOwnerMemberOfAssignAssign(Member ownerMemberIdsOfAssignAssign1) {
+    return this.addOwnerMemberIdOfAssignAssign(ownerMemberIdsOfAssignAssign1.getId());
   }
   
   /**
@@ -380,6 +418,7 @@ public class AttributeAssignValueFinder {
     
     
     AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder()
+      .assignOwnerMemberIds(this.ownerMemberIdsOfAssignAssign)
       .assignOwnerGroupIds(this.ownerGroupIdsOfAssignAssign)
       .assignOwnerStemIds(this.ownerStemIdsOfAssignAssign)
       .assignOwnerAttributeDefIds(this.ownerAttributeDefIdsOfAssignAssign)

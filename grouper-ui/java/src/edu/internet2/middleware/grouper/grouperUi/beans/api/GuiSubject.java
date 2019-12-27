@@ -94,19 +94,30 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    * @return the member id if exists or null if not
    */
   public String getMemberId() {
+    Member theMember = this.getMember();
+    return theMember == null ? null : theMember.getId();
+  }
+  
+  /**
+   * member
+   */
+  private Member member;
+  
+  /**
+   * get the member of the subject or null if not there
+   * @return the member if exists or null if not
+   */
+  public Member getMember() {
     
-    if (this.subject != null) {
+    if (this.member == null) {
       GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
       
       //when converting json this is null, so dont do a query if just doing json beans
       if (grouperSession != null) {
-        Member member = MemberFinder.findBySubject(grouperSession, this.getSubject(), false);
-        if (member != null) {
-          return member.getId();
-        }
+        this.member = MemberFinder.findBySubject(grouperSession, this.getSubject(), false);
       }
     }
-    return null;
+    return this.member;
   }
   
   /**
@@ -689,8 +700,25 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
       result.put("sourceId", this.subject.getSourceId());
       result.put("sourceName", this.subject.getSource().getName());
       result.put("subjectId", this.subject.getId());
-      result.put("name", this.subject.getName());
-      result.put("description", this.subject.getDescription());
+      
+      Member theMember = this.getMember();
+      
+      {
+        String name = this.subject.getName();
+        if (this.subject instanceof UnresolvableSubject && theMember != null && !StringUtils.isBlank(theMember.getName())) {
+          name = theMember.getName();
+        }
+        result.put("name",  name);
+      }
+      
+      {
+        String description = this.subject.getDescription();
+        if (this.subject instanceof UnresolvableSubject && theMember != null && !StringUtils.isBlank(theMember.getDescription())) {
+          description = theMember.getDescription();
+        }
+        result.put("description",  description);
+        
+      }
       
       this.attributes = result;
     }

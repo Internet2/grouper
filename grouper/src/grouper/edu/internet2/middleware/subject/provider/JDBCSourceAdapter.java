@@ -102,6 +102,76 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   private List<String> identifierAttributes = new ArrayList<String>();
   
   /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getAllSubjectIds()
+   */
+  @Override
+  public Set<String> getAllSubjectIds() {
+
+    String getAllSubjectIdsIsImplementedString = this.getInitParam("getAllSubjectIdsIsImplemented");
+    boolean getAllSubjectIdsIsImplemented = SubjectUtils.booleanValue(getAllSubjectIdsIsImplementedString, true);
+    if (!getAllSubjectIdsIsImplemented) {
+      throw new UnsupportedOperationException();
+    }
+    Search search = getSearch("searchSubject");
+    
+    String sql = search.getParam("sql");
+    
+    if (!StringUtils.contains(sql, "{inclause}")) {
+      throw new UnsupportedOperationException();
+    }
+
+    sql = sql.replace("{inclause}", "1=1");
+    sql = "select " + this.subjectIDAttributeName + " from ( " + sql + " ) as subjects";
+
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    JdbcConnectionBean jdbcConnectionBean = null;
+
+    try {
+      jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
+      conn = jdbcConnectionBean.connection();
+      
+      queryCountforTesting++;
+      
+      stmt = conn.prepareStatement(sql);
+      
+      ResultSet rs = stmt.executeQuery();
+      Set<String> subjectIds = new HashSet<String>();
+      while (rs.next()) {
+        subjectIds.add(rs.getString(1));
+      }
+      
+      jdbcConnectionBean.doneWithConnection();
+      
+      return subjectIds;
+
+    } catch (SQLException ex) {
+      String error = "problem in subject.properties getAllSubjectIds source: " + this.getId() + ", sql: "
+          + sql;
+      try {
+        jdbcConnectionBean.doneWithConnectionError(ex);
+      } catch (RuntimeException e) {
+        if (!getAllSubjectIdsLogOnce) {
+          log.error(error, e);
+          getAllSubjectIdsLogOnce = true;
+        }
+      }
+      throw new UnsupportedOperationException();
+    } finally {
+      closeStatement(stmt);
+      if (jdbcConnectionBean != null) {
+        jdbcConnectionBean.doneWithConnectionFinally();
+      }
+    }
+
+  }
+
+  /**
+   * only log this once
+   */
+  private static boolean getAllSubjectIdsLogOnce = false;
+  
+  /**
    * try to change a paging query, note it will add one to the resultSetLimit so that
    * the caller can see if there are too many records
    * @param query

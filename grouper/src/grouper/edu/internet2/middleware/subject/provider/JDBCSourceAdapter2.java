@@ -484,6 +484,72 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   }
 
   /**
+   * @see edu.internet2.middleware.subject.provider.JDBCSourceAdapter#getAllSubjectIds()
+   */
+  @Override
+  public Set<String> getAllSubjectIds() {
+
+    String getAllSubjectIdsIsImplementedString = this.getInitParam("getAllSubjectIdsIsImplemented");
+    boolean getAllSubjectIdsIsImplemented = SubjectUtils.booleanValue(getAllSubjectIdsIsImplementedString, true);
+    if (!getAllSubjectIdsIsImplemented) {
+      throw new UnsupportedOperationException();
+    }
+    
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    JdbcConnectionBean jdbcConnectionBean = null;
+    Set<String> results = new LinkedHashSet<String>();
+    String query = "select " + this.subjectIdCol + " from " + this.dbTableOrView;
+    try {
+      jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
+      conn = jdbcConnectionBean.connection();
+      
+      stmt = conn.prepareStatement(query);
+      ResultSet rs = null;
+
+      rs = stmt.executeQuery();
+
+      while (rs.next()) {
+
+        String subjectId = rs.getString(this.subjectIdCol);
+        results.add(subjectId);
+
+      }
+
+      jdbcConnectionBean.doneWithConnection();
+      
+      return results;
+
+    } catch (SQLException ex) {
+      String error = "problem in subject.properties source: " + this.getId() + ", sql: " + query;
+      try {
+        jdbcConnectionBean.doneWithConnectionError(ex);
+      } catch (RuntimeException e) {
+        if (!getAllSubjectIdsLogOnce) {
+          log.error(error, e);
+          getAllSubjectIdsLogOnce = true;
+        }
+      }
+      throw new SourceUnavailableException(error, ex);
+    } finally {
+      
+      if (log.isDebugEnabled()) {
+        log.debug("Query allSubjectIds returned " + results.size() + ", " + query);
+      }
+      
+      closeStatement(stmt);
+      if (jdbcConnectionBean != null) {
+        jdbcConnectionBean.doneWithConnectionFinally();
+      }
+    }
+  }
+
+  /**
+   * only log this once
+   */
+  private static boolean getAllSubjectIdsLogOnce = false;
+
+  /**
    * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectsByIds(java.util.Collection, java.lang.String)
    */
   @Override

@@ -138,6 +138,21 @@ public class SubjectFinder {
   private String subjectIdOrIdentifier;
 
   /**
+   * if we should allow unresolvable subjects
+   */
+  private boolean allowUnresolvable;
+  
+  /**
+   * if should allow unresolvable
+   * @param theAllowUnresolvable
+   * @return self for chaining
+   */
+  public SubjectFinder assignAllowUnresolvable(boolean theAllowUnresolvable) {
+    this.allowUnresolvable = theAllowUnresolvable;
+    return this;
+  }
+  
+  /**
    * assign subject id or identifier to search for
    * @param theSubjectIdOrIdentifier
    * @return this for chaining
@@ -203,44 +218,69 @@ public class SubjectFinder {
           + this.subjectIdentifier + "', '" + this.subjectIdOrIdentifier +  "', '" + this.memberId + "'");
     }
 
+    Subject subject = findSubjectHelper();
+    if (subject != null) {
+      return subject;
+    }
+    if (this.allowUnresolvable) {
+      Member member = MemberFinder.find(this.sourceId, this.subjectId, this.subjectIdentifier, this.subjectIdOrIdentifier, this.memberId);
+      if (member != null) {
+        return member.getSubject();
+      }
+    }
+
+    if (this.exceptionIfNotFound) {
+      throw new SubjectNotFoundException("Cant find subject"
+          + (StringUtils.isBlank(this.sourceId) ? "" : (", sourceId: '" + this.sourceId + "'"))
+          + (StringUtils.isBlank(this.subjectId) ? "" : (", subjectId: '" + this.subjectId + "'"))
+          + (StringUtils.isBlank(this.memberId) ? "" : (", memberId: '" + this.memberId + "'"))
+          + (StringUtils.isBlank(this.subjectIdentifier) ? "" : (", subjectIdentifier: '" + this.subjectIdentifier + "'"))
+          + (StringUtils.isBlank(this.subjectIdOrIdentifier) ? "" : (", subjectIdOrIdentifier: '" + this.subjectIdOrIdentifier + "'")));
+    }
+    return null;
+  }
+
+  /**
+   * @return subject
+   */
+  private Subject findSubjectHelper() {
     if (!StringUtils.isBlank(this.subjectId)) {
       if (!StringUtils.isBlank(this.sourceId)) {
-        return SubjectFinder.findByIdAndSource(this.subjectId, this.sourceId, this.exceptionIfNotFound);
+        return SubjectFinder.findByIdAndSource(this.subjectId, this.sourceId, false);
       }
-      return SubjectFinder.findById(this.subjectId, this.exceptionIfNotFound);
+      return SubjectFinder.findById(this.subjectId, false);
     }
     
     if (!StringUtils.isBlank(this.subjectIdentifier)) {
       if (!StringUtils.isBlank(this.sourceId)) {
-        return SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.sourceId, this.exceptionIfNotFound);
+        return SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.sourceId, false);
       }
-      return SubjectFinder.findByIdentifier(this.subjectId, this.exceptionIfNotFound);
+      return SubjectFinder.findByIdentifier(this.subjectId, false);
     }
     
     if (!StringUtils.isBlank(this.subjectIdOrIdentifier)) {
       if (!StringUtils.isBlank(this.sourceId)) {
-        return SubjectFinder.findByIdOrIdentifierAndSource(this.subjectIdOrIdentifier, this.sourceId, this.exceptionIfNotFound);
+        return SubjectFinder.findByIdOrIdentifierAndSource(this.subjectIdOrIdentifier, this.sourceId, false);
       }
-      return SubjectFinder.findByIdOrIdentifier(this.subjectIdOrIdentifier, this.exceptionIfNotFound);
+      return SubjectFinder.findByIdOrIdentifier(this.subjectIdOrIdentifier, false);
     }
 
     if (!StringUtils.isBlank(this.memberId)) {
-      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.memberId, this.exceptionIfNotFound);
-      if (!StringUtils.isBlank(this.sourceId)) {
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.memberId, false);
+      if (member != null && !StringUtils.isBlank(this.sourceId)) {
         if (member != null && !StringUtils.equals(member.getSubjectSourceId(), this.sourceId)) {
           throw new RuntimeException("Member id: " + this.memberId + ", which is source: " + member.getSubjectSourceId()
               + ", and subjectId: " + member.getSubjectId() + ", but was queried with source id: " + this.sourceId);
         }
       }
       
-      //this seems weird, why would a memberId not be found???
       if (member == null) {
         return null;
       }
       return member.getSubject();
     }
-
     throw new RuntimeException("Why are we here?");
+
   }
   
   /** */

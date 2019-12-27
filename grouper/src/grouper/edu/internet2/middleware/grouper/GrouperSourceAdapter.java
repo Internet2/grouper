@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,12 +53,14 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -97,6 +100,33 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * @version $Id: GrouperSourceAdapter.java,v 1.31 2009-08-12 04:52:21 mchyzer Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getAllSubjectIds()
+   */
+  @Override
+  public Set<String> getAllSubjectIds() {
+
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(GrouperSession.staticGrouperSession().getSubject())) {
+      throw new UnsupportedOperationException();
+    }
+    StringBuilder sql = new StringBuilder("select id from grouper_groups where type_of_group in (");
+    
+    List<TypeOfGroup> typeOfGroups = new ArrayList<TypeOfGroup>( this.typeOfGroups());
+    
+    int collectionSize = typeOfGroups.size();
+    for (int i = 0; i < collectionSize; i++) {
+      sql.append("'").append(typeOfGroups.get(i)).append("'");
+
+      if (i < collectionSize - 1) {
+        sql.append(", ");
+      }
+    }
+    sql.append(")");
+    Set<String> groupIds = new HashSet<String>(HibernateSession.bySqlStatic().listSelect(String.class, 
+        sql.toString(), null, null));
+    return groupIds;
+  }
 
   /** types */
   private Set _types  = new LinkedHashSet();

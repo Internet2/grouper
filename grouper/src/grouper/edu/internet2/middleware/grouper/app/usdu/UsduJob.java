@@ -29,6 +29,8 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -148,6 +150,14 @@ public class UsduJob extends OtherJobBase {
   }
   
   /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    runDaemonStandalone();
+  }
+  
+  /**
    * run standalone
    */
   public static void runDaemonStandalone() {
@@ -227,6 +237,7 @@ public class UsduJob extends OtherJobBase {
       Set<Member> membersWithoutExplicitSourceConfiguration) {
     
     Set<Field> fields = getMemberFields();
+    Set<Member> unresolvablesWithMemberships = new HashSet<Member>();
     
     for (Member member : unresolvables) {
       
@@ -236,8 +247,22 @@ public class UsduJob extends OtherJobBase {
         LOG.info("member_uuid='" + member.getUuid() + "' subject=" + member + " no_memberships");
         continue;
       }
+      unresolvablesWithMemberships.add(member);
+    }
+
+    AttributeAssignValueFinder attributeAssignValueFinder = new AttributeAssignValueFinder();
+    
+    for (Member member : unresolvablesWithMemberships) {
       
-      SubjectResolutionAttributeValue savedSubjectResolutionAttributeValue = saveSubjectResolutionAttributeValue(member);
+      attributeAssignValueFinder.addOwnerMemberIdOfAssignAssign(member.getId());
+    }
+    
+    attributeAssignValueFinder.addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId());
+    AttributeAssignValueFinderResult attributeAssignValueFinderResult = attributeAssignValueFinder.findAttributeAssignValuesResult();
+    
+    for (Member member : unresolvablesWithMemberships) {
+      
+      SubjectResolutionAttributeValue savedSubjectResolutionAttributeValue = saveSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
       
       addUnresolvedMemberToCorrectSet(member, savedSubjectResolutionAttributeValue, sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
       
@@ -326,9 +351,9 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private SubjectResolutionAttributeValue saveSubjectResolutionAttributeValue(Member member) {
+  private SubjectResolutionAttributeValue saveSubjectResolutionAttributeValue(Member member, AttributeAssignValueFinderResult attributeAssignValueFinderResult) {
     
-    SubjectResolutionAttributeValue existingSubjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+    SubjectResolutionAttributeValue existingSubjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
     
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
     Date currentDate = new Date();
@@ -393,7 +418,7 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private long deleteUnresolvableMembers(Set<Member> unresolvableMembers, int howMany) {
+  public static long deleteUnresolvableMembers(Set<Member> unresolvableMembers, int howMany) {
     
     long deletedCount = 0;
     
@@ -450,7 +475,7 @@ public class UsduJob extends OtherJobBase {
           auditEntry.assignStringValue(auditEntry.getAuditType(), "memberId", member.getUuid());
           auditEntry.assignStringValue(auditEntry.getAuditType(), "sourceId", member.getSubjectSourceId());
           auditEntry.assignStringValue(auditEntry.getAuditType(), "subjectId", member.getSubjectId());
-          auditEntry.setDescription("Deleted subject id: "+member.getSubjectId()+" name: "+member.getName());
+          auditEntry.setDescription("Deleted source id: " + member.getSubjectSourceId() + ", subject id: "+member.getSubjectId()+", name: "+member.getName()+", description: " + member.getDescription());
           
           auditEntry.saveOrUpdate(true);
           
@@ -473,7 +498,7 @@ public class UsduJob extends OtherJobBase {
    * @return set of fields
    * @throws SchemaException
    */
-  protected Set<Field> getMemberFields() throws SchemaException {
+  protected static Set<Field> getMemberFields() throws SchemaException {
 
     Set<Field> listFields = new LinkedHashSet<Field>();
     for (Object field : FieldFinder.findAllByType(FieldType.LIST)) {
@@ -497,7 +522,7 @@ public class UsduJob extends OtherJobBase {
    * @return a set of memberships
    * @throws SchemaException
    */
-  protected Set<Membership> getAllImmediateMemberships(Member member, Set<Field> fields) throws SchemaException {
+  protected static Set<Membership> getAllImmediateMemberships(Member member, Set<Field> fields) throws SchemaException {
 
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     for (Field field : fields) {
@@ -518,7 +543,7 @@ public class UsduJob extends OtherJobBase {
    * @param field
    * @return the privilege matching the given field or null
    */
-  protected Privilege getPrivilege(Field field) {
+  protected static Privilege getPrivilege(Field field) {
 
     return list2priv.get(field.getName());
   }

@@ -359,6 +359,34 @@ public class AttributeAssignFinder {
   }
   
   /**
+   * 
+   */
+  private Collection<String> ownerMemberIds;
+  
+  /**
+   * add owner member id
+   * @param ownerMemberId
+   * @return this for chaining
+   */
+  public AttributeAssignFinder addOwnerMemberId(String ownerMemberId) {
+    if (this.ownerMemberIds == null) {
+      this.ownerMemberIds = new LinkedHashSet<String>();
+    }
+    this.ownerMemberIds.add(ownerMemberId);
+    return this;
+  }
+  
+  /**
+   * add owner member id
+   * @param ownerMemberIds1
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignOwnerMemberIds(Collection<String> ownerMemberIds1) {
+    this.ownerMemberIds = ownerMemberIds1;
+    return this;
+  }
+  
+  /**
    * if assignments on assignments should also be included
    */
   private boolean includeAssignmentsOnAssignments = false;
@@ -715,6 +743,9 @@ public class AttributeAssignFinder {
     if (GrouperUtil.length(this.ownerGroupIds) > 0) {
       ownerCount++;
     }
+    if (GrouperUtil.length(this.ownerMemberIds) > 0) {
+      ownerCount++;
+    }
     if (GrouperUtil.length(this.ownerStemIds) > 0) {
       ownerCount++;
     }
@@ -728,13 +759,22 @@ public class AttributeAssignFinder {
       ownerCount++;
     }
     if (ownerCount > 1) {
-      throw new RuntimeException("Can only pass one type of owner: groups, stems, attributeDefs, attributeAssigns, attributeAssignType, but has " + ownerCount + " types");
+      throw new RuntimeException("Can only pass one type of owner: members, groups, stems, attributeDefs, attributeAssigns, attributeAssignType, but has " + ownerCount + " types");
     }
 
     if (this.ownerGroupIds != null) {
       this.attributeCheckReadOnAttributeDef = GrouperUtil.booleanValue(this.attributeCheckReadOnAttributeDef, true);
       return GrouperDAOFactory.getFactory().getAttributeAssign()
           .findGroupAttributeAssignments(null, null, this.attributeDefNameIds, this.ownerGroupIds, null, true, 
+              this.includeAssignmentsOnAssignments, null, null, null, this.attributeCheckReadOnAttributeDef, 
+              this.idOfAttributeDefNameOnAssignment0, this.attributeValuesOnAssignment0, this.idOfAttributeDefNameOnAssignment1, this.attributeValuesOnAssignment1);
+
+    }
+    
+    if (this.ownerMemberIds != null) {
+      this.attributeCheckReadOnAttributeDef = GrouperUtil.booleanValue(this.attributeCheckReadOnAttributeDef, true);
+      return GrouperDAOFactory.getFactory().getAttributeAssign()
+          .findMemberAttributeAssignments(null, null, this.attributeDefNameIds, this.ownerMemberIds, null, true, 
               this.includeAssignmentsOnAssignments, null, null, null, this.attributeCheckReadOnAttributeDef, 
               this.idOfAttributeDefNameOnAssignment0, this.attributeValuesOnAssignment0, this.idOfAttributeDefNameOnAssignment1, this.attributeValuesOnAssignment1);
 

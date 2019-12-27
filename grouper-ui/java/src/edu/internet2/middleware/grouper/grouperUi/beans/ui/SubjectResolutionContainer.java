@@ -5,23 +5,77 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-
 import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionAttributeValue;
 import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionStat;
-import edu.internet2.middleware.grouper.app.usdu.UsduService;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubjectResolutionSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.subject.Subject;
 
+/**
+ * 
+ */
 public class SubjectResolutionContainer {
   
+  /**
+   * how many deleted
+   */
+  private int deleteCount;
+  
+  /**
+   * how many deleted
+   * @return the deleteCount
+   */
+  public int getDeleteCount() {
+    return this.deleteCount;
+  }
+  
+  /**
+   * how many deleted
+   * @param deleteCount1 the deleteCount to set
+   */
+  public void setDeleteCount(int deleteCount1) {
+    this.deleteCount = deleteCount1;
+  }
+
+  /**
+   * true to show deleted only, false to show unresolved only, null to show all
+   */
+  private Boolean showDeleted;
+  
+  /**
+   * true to show deleted only, false to show unresolved only, null to show all
+   * @return the showDeleted
+   */
+  public Boolean getShowDeleted() {
+    return this.showDeleted;
+  }
+  
+  /**
+   * true to show deleted only, false to show unresolved only, null to show all
+   * @return the showDeleted
+   */
+  public String getShowDeletedLabel() {
+    if (this.showDeleted == null) {
+      return "showAll";
+    }
+    if (this.showDeleted) {
+      return "showDeleted";
+    }
+    return "doNotShowDeleted";
+  }
+  
+  /**
+   * true to show deleted only, false to show unresolved only, null to show all
+   * @param showDeleted1 the showDeleted to set
+   */
+  public void setShowDeleted(Boolean showDeleted1) {
+    this.showDeleted = showDeleted1;
+  }
+
   /**
    * stats for resolvable/unresolvable subjects per source
    */
