@@ -71,6 +71,10 @@ public class GuiAttributeAssign implements Serializable, Comparable<GuiAttribute
       .toHashCode();
   }
 
+  /**
+   * gui member
+   */
+  private GuiMember guiMember;
 
   /** attribute assignment */
   private AttributeAssign attributeAssign;
@@ -367,6 +371,20 @@ public class GuiAttributeAssign implements Serializable, Comparable<GuiAttribute
     String nameOfOtherAttributeDefName = otherAttributeDefName == null ? null : otherAttributeDefName.getName();
     
     return new CompareToBuilder().append(nameOfLocalAttributeDefName, nameOfOtherAttributeDefName).append(this.attributeAssign.getId(), other.attributeAssign.getId()).toComparison();
+  }
+
+  /**
+   * @return the guiMember
+   */
+  public GuiMember getGuiMember() {
+    return guiMember;
+  }
+
+  /**
+   * @param guiMember the guiMember to set
+   */
+  public void setGuiMember(GuiMember guiMember) {
+    this.guiMember = guiMember;
   }
   
 }
