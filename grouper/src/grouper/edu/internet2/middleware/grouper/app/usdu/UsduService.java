@@ -8,8 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,8 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
@@ -30,22 +33,34 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.subject.Source;
 
+/**
+ * 
+ */
 public class UsduService {
   
   
   /**
    * retrieve subject resolution attribute value for a given member if it exists or null
    * @param member
+   * @param attributeAssignValueFinderResult 
    * @return SubjectResolutionAttributeValue or null
    */
-  public static SubjectResolutionAttributeValue getSubjectResolutionAttributeValue(Member member) {
+  public static SubjectResolutionAttributeValue getSubjectResolutionAttributeValue(Member member, AttributeAssignValueFinderResult attributeAssignValueFinderResult) {
     
-    AttributeAssign attributeAssign = getAttributeAssign(member);
-    if (attributeAssign == null) {
-      return null;
+    AttributeAssign attributeAssign = null;
+    Map<String, String> attributeDefNamesAndValues = null;
+    if (attributeAssignValueFinderResult == null) {
+      attributeAssign = getAttributeAssign(member);
+      if (attributeAssign == null) {
+        return null;
+      }
+    } else {
+      attributeDefNamesAndValues = attributeAssignValueFinderResult.retrieveAttributeDefNamesAndValueStrings(member.getId());
+      if (GrouperUtil.length(attributeDefNamesAndValues) == 0) {
+        return null;
+      }
     }
-    
-    return buildSubjectResolutionAttributeValue(attributeAssign, member);
+    return buildSubjectResolutionAttributeValue(attributeAssign, member, attributeDefNamesAndValues);
   }
   
   /**
@@ -77,7 +92,7 @@ public class UsduService {
     
     // clear the rest
     attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), null);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), org.apache.commons.lang3.BooleanUtils.toStringTrueFalse(false));
         
     attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETE_DATE, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), null);
@@ -223,62 +238,100 @@ public class UsduService {
   /**
    * 
    * @param queryOptions
+   * @param deleted true for delete, false for not deleted, null for all
    * @return unresolved subjects
    */
-  public static Set<SubjectResolutionAttributeValue> getUnresolvedSubjects(QueryOptions queryOptions) {
+  public static Set<SubjectResolutionAttributeValue> getUnresolvedSubjects(QueryOptions queryOptions, Boolean deleted) {
     
-    Set<SubjectResolutionAttributeValue> unresolvedSubjects = new HashSet<SubjectResolutionAttributeValue>();
+    Set<SubjectResolutionAttributeValue> unresolvedSubjects = new LinkedHashSet<SubjectResolutionAttributeValue>();
     
-    Set<Member> unresolvedMembers = new MemberFinder()
+    Set<Member> unresolvedMembers = null;
+    
+    if (deleted == null) {
+      unresolvedMembers = new MemberFinder()
         .assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE)
-        .addAttributeValuesOnAssignment("false")
+        .assignNameOfAttributeDefName(UsduAttributeNames.retrieveAttributeDefNameBase().getName())
         .assignQueryOptions(queryOptions)
         .findMembers();
-    
-    Set<Member> deletedMembers = new MemberFinder()
+      
+    } else if (deleted) {
+      unresolvedMembers = new MemberFinder()
         .assignAttributeCheckReadOnAttributeDef(false)
         .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED)
         .addAttributeValuesOnAssignment("true")
         .assignQueryOptions(queryOptions)
         .findMembers();
-    
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-    Date currentDate = new Date();
-    Calendar c = Calendar.getInstance();
-    
-    for (Member member: unresolvedMembers) {
+       
+    } else {
+      unresolvedMembers = new MemberFinder()
+        .assignAttributeCheckReadOnAttributeDef(false)
+        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE)
+        .addAttributeValuesOnAssignment("false")
+        .assignQueryOptions(queryOptions)
+        .findMembers();
       
-      String sourceId = member.getSubjectSourceId();
+    }
+
+// dont do two queries since it messes up paging
+//    Set<Member> deletedMembers = new MemberFinder()
+//        .assignAttributeCheckReadOnAttributeDef(false)
+//        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED)
+//        .addAttributeValuesOnAssignment("true")
+//        .assignQueryOptions(queryOptions)
+//        .findMembers();
+    
+    if (GrouperUtil.length(unresolvedMembers) > 0) {
+    
+      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+      Date currentDate = new Date();
+      Calendar c = Calendar.getInstance();
       
-      Integer deleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.source."+sourceId+".delete.ifAfterDays");
-      if (deleteAfterDays == null) {
-        deleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.delete.ifAfterDays", 30);
+      AttributeAssignValueFinder attributeAssignValueFinder = new AttributeAssignValueFinder();
+      
+      for (Member member: unresolvedMembers) {
+        
+        attributeAssignValueFinder.addOwnerMemberIdOfAssignAssign(member.getId());
       }
       
-      SubjectResolutionAttributeValue subjectResolutionAttributeValue = getSubjectResolutionAttributeValue(member);
+      attributeAssignValueFinder.addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId());
+      AttributeAssignValueFinderResult attributeAssignValueFinderResult = attributeAssignValueFinder.findAttributeAssignValuesResult();
         
-      Long daysSubjectHasBeenUnresolved = subjectResolutionAttributeValue.getSubjectResolutionDaysUnresolved();
-      Long daysAfterWhichSubjectWillBeDeleted = deleteAfterDays - daysSubjectHasBeenUnresolved;
+      for (Member member: unresolvedMembers) {
+        SubjectResolutionAttributeValue subjectResolutionAttributeValue = getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
       
-      c.setTime(currentDate);
-      c.add(Calendar.DATE, daysAfterWhichSubjectWillBeDeleted.intValue());
-      String dateSubjectWillBeDeleted = dateFormat.format(c.getTime());
-      
-      subjectResolutionAttributeValue.setDateSubjectWillBeDeletedString(dateSubjectWillBeDeleted);
-      
-      unresolvedSubjects.add(subjectResolutionAttributeValue);
-    }
-    
-    for (Member member: deletedMembers) {
-      
-      SubjectResolutionAttributeValue subjectResolutionAttributeValue = getSubjectResolutionAttributeValue(member);
-      
-      String deletedDate = subjectResolutionAttributeValue.getSubjectResolutionDateDelete();
-      subjectResolutionAttributeValue.setDateSubjectWillBeDeletedString(deletedDate);
-      
-      unresolvedSubjects.add(subjectResolutionAttributeValue);
-      
+        if (subjectResolutionAttributeValue.isDeleted()) {
+  
+          String deletedDate = subjectResolutionAttributeValue.getSubjectResolutionDateDelete();
+          subjectResolutionAttributeValue.setDateSubjectWillBeDeletedString(deletedDate);
+          
+        } else {
+        
+          String sourceId = member.getSubjectSourceId();
+          
+          Integer deleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.source."+sourceId+".delete.ifAfterDays");
+          if (deleteAfterDays == null) {
+            deleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.delete.ifAfterDays", 30);
+          }
+          
+            
+          Long daysSubjectHasBeenUnresolved = subjectResolutionAttributeValue.getSubjectResolutionDaysUnresolved();
+          Long daysAfterWhichSubjectWillBeDeleted = deleteAfterDays - daysSubjectHasBeenUnresolved;
+          
+          c.setTime(currentDate);
+          c.add(Calendar.DATE, daysAfterWhichSubjectWillBeDeleted.intValue());
+          String dateSubjectWillBeDeleted = dateFormat.format(c.getTime());
+          
+          subjectResolutionAttributeValue.setDateSubjectWillBeDeletedString(dateSubjectWillBeDeleted);
+        }
+  
+        if (!StringUtils.isBlank(subjectResolutionAttributeValue.getSubjectResolutionDateLastResolvedString())) {
+          Date lastResolvedDate = subjectResolutionAttributeValue.getSubjectResolutionDateLastResolved();
+          int daysBetween = (int)(System.currentTimeMillis() - lastResolvedDate.getTime()) / (1000 * 60 * 60 * 24);
+          subjectResolutionAttributeValue.setSubjectResolutionDaysUnresolvedString(Integer.toString(daysBetween));
+        }
+        
+        unresolvedSubjects.add(subjectResolutionAttributeValue);
+      }
     }
     
     return unresolvedSubjects;
@@ -290,46 +343,43 @@ public class UsduService {
    * build subject resolution attribute object from member attributes
    * @param attributeAssign
    * @param member
+   * @param nameOfAttributeDefNameToValue 
    * @return SubjectResolutionAttributeValue
    */
-  private static SubjectResolutionAttributeValue buildSubjectResolutionAttributeValue(AttributeAssign attributeAssign, Member member) {
+  private static SubjectResolutionAttributeValue buildSubjectResolutionAttributeValue(AttributeAssign attributeAssign, Member member, Map<String, String> nameOfAttributeDefNameToValue) {
     
-    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    AttributeValueDelegate attributeValueDelegate = attributeAssign == null ? null : attributeAssign.getAttributeValueDelegate();
     
     SubjectResolutionAttributeValue result = new SubjectResolutionAttributeValue();
     result.setMember(member);
-    
-    AttributeAssignValue assignValue = attributeValueDelegate.retrieveAttributeAssignValue(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE);
-    if (assignValue != null) {      
-      result.setSubjectResolutionResolvableString(assignValue.getValueString());
-    }
-    
-    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+SUBJECT_RESOLUTION_DATE_LAST_RESOLVED);
-    if (assignValue != null) {      
-      result.setSubjectResolutionDateLastResolvedString(assignValue.getValueString());
-    }
-    
-    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DAYS_UNRESOLVED);
-    if (assignValue != null) {      
-      result.setSubjectResolutionDaysUnresolvedString(assignValue.getValueString());
-    }
-    
-    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED);
-    if (assignValue != null) {      
-      result.setSubjectResolutionDateLastCheckedString(assignValue.getValueString());
-    }
-    
-    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED);
-    if (assignValue != null) {      
-      result.setSubjectResolutionDeletedString(assignValue.getValueString());
-    }
-    
-    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETE_DATE);
-    if (assignValue != null) {
-      result.setSubjectResolutionDateDeleteString(assignValue.getValueString());
-    }
+
+    result.setSubjectResolutionResolvableString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE, nameOfAttributeDefNameToValue));
+    result.setSubjectResolutionDateLastResolvedString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED, nameOfAttributeDefNameToValue));
+    result.setSubjectResolutionDaysUnresolvedString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DAYS_UNRESOLVED, nameOfAttributeDefNameToValue));
+    result.setSubjectResolutionDateLastCheckedString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED, nameOfAttributeDefNameToValue));
+    result.setSubjectResolutionDeletedString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED, nameOfAttributeDefNameToValue));
+    result.setSubjectResolutionDateDeleteString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETE_DATE, nameOfAttributeDefNameToValue));
 
     return result;
+  }
+  
+  /**
+   * get the value of the attribute
+   * @param attributeValueDelegate
+   * @param nameOfAttributeDefName
+   * @param nameOfAttributeDefNameToValue
+   * @return the value
+   */
+  private static String buildSubjectResolutionValue(AttributeValueDelegate attributeValueDelegate, String nameOfAttributeDefName, Map<String, String> nameOfAttributeDefNameToValue){
+    if (attributeValueDelegate != null) {
+      AttributeAssignValue assignValue = attributeValueDelegate.retrieveAttributeAssignValue(nameOfAttributeDefName);
+      if (assignValue != null) {      
+        return assignValue.getValueString();
+      }
+    } else {
+      return nameOfAttributeDefNameToValue.get(nameOfAttributeDefName); 
+    } 
+    return null;
   }
   
   /**

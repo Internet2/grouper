@@ -80,6 +80,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -469,6 +470,7 @@ public class UiV2Subject {
     
     SubjectFinder subjectFinder = addedError ? null : new SubjectFinder().assignSourceId(sourceId)
         .assignSubjectId(subjectId).assignSubjectIdentifier(subjectIdentifier)
+        .assignAllowUnresolvable(PrivilegeHelper.isWheelOrRootOrReadonlyRoot(GrouperSession.staticGrouperSession().getSubject()))
         .assignSubjectIdOrIdentifier(subjectIdOrIdentifier).assignMemberId(memberId);
 
     subject = subjectFinder == null ? null : subjectFinder.findSubject();

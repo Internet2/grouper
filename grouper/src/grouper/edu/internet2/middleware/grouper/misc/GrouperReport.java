@@ -36,7 +36,9 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionStat;
 import edu.internet2.middleware.grouper.app.usdu.USDU;
+import edu.internet2.middleware.grouper.app.usdu.UsduService;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -47,9 +49,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class GrouperReport {
-  
-  /** whether to find unresolvable subjects */
-  private boolean findUnresolvables = false;
   
   /** whether to find bad memberships */
   private boolean findBadMemberships = false;
@@ -73,7 +72,6 @@ public class GrouperReport {
    * @return GrouperReport
    */
   public GrouperReport findUnresolvables(boolean findUnresolvables) {
-    this.findUnresolvables = findUnresolvables;
     return this;
   }
   
@@ -153,14 +151,13 @@ public class GrouperReport {
         "select count(*) from Stem").uniqueResult(Long.class);
       result.append("folders:               ").append(formatCommas(folderCountTotal)).append("\n");
     
-      String unresolvableResults = "Not configured to compute this today";
       Set<Member> usduMembers = new HashSet<Member>();
-      if (findUnresolvables) {
-        usduMembers = GrouperUtil.nonNull(USDU.getUnresolvableMembers(grouperSession, null));
-        unresolvableResults = formatCommas(Long.valueOf(usduMembers.size()));
+      List<SubjectResolutionStat> subjectResolutionStats = UsduService.getSubjectResolutionStats();
+      int unresolvableResultCount = 0;
+      for (SubjectResolutionStat subjectResolutionStat : subjectResolutionStats) {
+        unresolvableResultCount += subjectResolutionStat.getUnresolvedCount();
       }
-      result.append("unresolvable subjects: ").append(unresolvableResults).append("\n");
-      
+      result.append("unresolvable subjects: ").append(formatCommas(Long.valueOf(unresolvableResultCount))).append("\n");
       
       String badMembershipResults = "Not configured to compute this today";
       String badMembershipGshScript = null;

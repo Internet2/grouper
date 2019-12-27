@@ -31,16 +31,20 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -54,6 +58,8 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -62,6 +68,14 @@ import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITMembership;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -70,6 +84,7 @@ import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Find members within the Groups Registry.
@@ -422,6 +437,63 @@ public class MemberFinder {
 
   }
 
+  /**
+   * might want to make sure the user is root before doing this
+   * @param sourceId
+   * @param subjectId
+   * @param subjectIdentifier
+   * @param subjectIdOrIdentifier
+   * @param memberId
+   * @return the member
+   */
+  public static Member find(String sourceId, String subjectId, String subjectIdentifier, String subjectIdOrIdentifier, String memberId) {
+    
+    List<Criterion> criterionList = new ArrayList<Criterion>();
+    
+    boolean validSearch = false;
+    
+    if (!StringUtils.isBlank(sourceId)) {
+      criterionList.add(Restrictions.eq("subjectSourceIdDb", sourceId));      
+    }
+    
+    if (!StringUtils.isBlank(subjectId)) {
+      criterionList.add(Restrictions.eq("subjectIdDb", subjectId));      
+      validSearch = true;
+    }
+    
+    if (!StringUtils.isBlank(subjectIdentifier)) {
+      criterionList.add(Restrictions.eq("subjectIdentifier0", subjectIdentifier));      
+      validSearch = true;
+    }
+    
+    if (!StringUtils.isBlank(memberId)) {
+      criterionList.add(Restrictions.eq("uuid", memberId));      
+      validSearch = true;
+    }
+    
+    if (!StringUtils.isBlank(subjectIdOrIdentifier)) {
+      criterionList.add(Restrictions.or(
+          Restrictions.eq("subjectIdDb", subjectIdOrIdentifier),
+          Restrictions.eq("subjectIdentifier0", subjectIdOrIdentifier)
+       ));     
+      validSearch = true;
+    }
+
+    if (!validSearch) {
+      throw new RuntimeException("Need to pass in id, identifier, memberId, or subjectIdOrIdentifier!");
+    }
+
+    Criterion allCriteria = HibUtils.listCrit(criterionList);
+    
+    final List<Member> memberList = HibernateSession.byCriteriaStatic().list(Member.class, allCriteria);
+    if (GrouperUtil.length(memberList) > 1) {
+      throw new SubjectNotUniqueException("More than one subject found! " + sourceId + ", " + subjectId + ", " + subjectIdentifier + ", " + subjectIdOrIdentifier + ", " + memberId);
+    }
+    Member member = GrouperUtil.listPopOne(memberList);
+
+    return member;
+  }
+  
   /**
    * Convert a {@link Subject} to a {@link Member}.
    * <pre class="eg">

@@ -4,7 +4,8 @@
               <ul class="breadcrumb">
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                  <li class="active">${textContainer.text['miscellaneousSubjectResolutionOverallBreadcrumb'] }</li>
+                  <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.subjectResolutionMain');">${textContainer.text['miscellaneousSubjectResolutionOverallBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li class="active">${textContainer.text['miscellaneousSubjectResolutionAuditsBreadcrumb'] }</li>
               </ul>
                             
               <div class="page-header blue-gradient">
@@ -31,8 +32,9 @@
                     <option value="between">${textContainer.text['subjectResolutionSubjectDeleteLogFilterType_between']}</option>
                     <option value="since">${textContainer.text['subjectResolutionSubjectDeleteLogFilterType_since']}</option>
                   </select>
+                  (&nbsp;
                   <input id="from-date" name="filterFromDate" type="text" placeholder="${textContainer.text['subjectResolutionSubjectDeleteLogFilterDatePlaceholder'] }" 
-                    class="span2">&nbsp;( ${textContainer.text['subjectResolutionSubjectDeleteLogFilterAndLabel'] }&nbsp;
+                    class="span2">&nbsp; ${textContainer.text['subjectResolutionSubjectDeleteLogFilterAndLabel'] }&nbsp;
                   <input id="to-date" name="filterToDate" type="text" placeholder="${textContainer.text['subjectResolutionSubjectDeleteLogFilterDatePlaceholder'] }" 
                     class="span2">&nbsp;)
                   <label class="checkbox">

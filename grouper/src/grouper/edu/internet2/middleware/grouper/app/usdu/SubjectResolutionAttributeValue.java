@@ -1,10 +1,12 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
@@ -63,6 +65,24 @@ public class SubjectResolutionAttributeValue {
   }
 
   /**
+   * 
+   * @return timestamp when member was last resolved
+   */
+  public Date getSubjectResolutionDateLastResolved() {
+    
+    if (StringUtils.isNotBlank(this.subjectResolutionDateLastResolvedString)) {
+      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+      try {
+        return dateFormat.parse(this.subjectResolutionDateLastResolvedString);
+      } catch (ParseException pe) {
+        throw new RuntimeException("Invlaid date: '" + this.subjectResolutionDateLastResolvedString + "'", pe);
+      }
+    }
+    return null;
+  }
+
+
+  /**
    * date when the subject was last resolvable
    * @param subjectResolutionDateLastResolvedString
    */
@@ -70,6 +90,14 @@ public class SubjectResolutionAttributeValue {
     this.subjectResolutionDateLastResolvedString = subjectResolutionDateLastResolvedString;
   }
 
+  /**
+   * if this subject is deleted
+   * @return
+   */
+  public boolean isDeleted() {
+    return GrouperUtil.booleanValue(this.getSubjectResolutionDeletedString(), false);
+  }
+  
   /**
    * 
    * @return date when the subject was last checked for resolvable/unresolvable

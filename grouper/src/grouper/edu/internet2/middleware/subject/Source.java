@@ -30,6 +30,13 @@ import edu.internet2.middleware.subject.provider.SubjectStatusConfig;
 public interface Source {
 
   /**
+   * get all subject ids
+   * @return all subjectIds
+   * @throws UnsupportedOperationException if not implemented
+   */
+  public Set<String> getAllSubjectIds();
+  
+  /**
    * get the config bean for this source
    * @return the config bean for this source
    */

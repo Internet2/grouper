@@ -10,6 +10,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
@@ -74,7 +76,11 @@ public class UsduJobTest extends GrouperTest {
     
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subjA, true);
     
-    SubjectResolutionAttributeValue subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+    AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()
+      .addOwnerMemberOfAssignAssign(member).addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId())
+      .findAttributeAssignValuesResult();
+
+    SubjectResolutionAttributeValue subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
     
     assertNotNull(subjectResolutionAttributeValue);
     
@@ -121,7 +127,11 @@ public class UsduJobTest extends GrouperTest {
     //Then
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subjA, true);
     
-    SubjectResolutionAttributeValue subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+    AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()
+    .addOwnerMemberOfAssignAssign(member).addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId())
+    .findAttributeAssignValuesResult();
+
+    SubjectResolutionAttributeValue subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
     
     assertNotNull(subjectResolutionAttributeValue);
     
@@ -168,7 +178,11 @@ public class UsduJobTest extends GrouperTest {
     
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subjA, true);
     
-    SubjectResolutionAttributeValue subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+    AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()
+      .addOwnerMemberOfAssignAssign(member).addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId())
+      .findAttributeAssignValuesResult();
+
+    SubjectResolutionAttributeValue subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
     
     // add the same subject again
     RegistrySubjectDAO  dao   = GrouperDAOFactory.getFactory().getRegistrySubject();
@@ -186,7 +200,11 @@ public class UsduJobTest extends GrouperTest {
     gA.addMember(subjA, false);
     assertTrue(gA.hasMember(subjA));
     
-    subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+    attributeAssignValueFinderResult = new AttributeAssignValueFinder()
+    .addOwnerMemberOfAssignAssign(member).addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId())
+    .findAttributeAssignValuesResult();
+
+    subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
     assertNotNull(subjectResolutionAttributeValue);
     
     //When - run the job again
@@ -194,7 +212,11 @@ public class UsduJobTest extends GrouperTest {
     
     //Then
     member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subjA, true);
-    subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+    attributeAssignValueFinderResult = new AttributeAssignValueFinder()
+      .addOwnerMemberOfAssignAssign(member).addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId())
+      .findAttributeAssignValuesResult();
+  
+    subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
     
     assertNull(subjectResolutionAttributeValue);
             

@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.app.usdu;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +30,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -37,6 +40,7 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
@@ -53,6 +57,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -63,6 +68,7 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /**
@@ -504,8 +510,33 @@ public class USDU {
 
     Set<Member> members = new LinkedHashSet<Member>();
 
+    Set<MultiKey> resolvedSourceIdsSubjectIds = new HashSet<MultiKey>();
+    
+    for (Source currentSource : SourceManager.getInstance().getSources()) {
+      
+      if (source == null || StringUtils.equals(currentSource.getId(),source.getId())) {
+        try {
+          Set<String> subjectIds = currentSource.getAllSubjectIds();
+          for (String subjectId : GrouperUtil.nonNull(subjectIds)) {
+            resolvedSourceIdsSubjectIds.add(new MultiKey(currentSource.getId(), subjectId));
+          }
+
+        } catch (UnsupportedOperationException uoe) {
+          // ignore
+        }
+      }
+    }
+    
     for (Object m : MemberFinder.findAllUsed(s, source)) {
+
       Member member = (Member) m;
+
+      //see if in the bulk retrieve
+      MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+      if (resolvedSourceIdsSubjectIds.contains(multiKey)) {
+        continue;
+      }
+      
       if (!isMemberResolvable(s, member)) {
         members.add(member);
       }

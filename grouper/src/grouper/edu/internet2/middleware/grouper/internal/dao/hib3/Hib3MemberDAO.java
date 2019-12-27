@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
+
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -54,6 +55,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
+import edu.internet2.middleware.grouper.app.usdu.UsduService;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
@@ -82,6 +85,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+
 import org.hibernate.criterion.Criterion;
 
 
@@ -883,7 +887,11 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
     //memberships or attributes
     query.append(" exists (select 1 from ImmediateMembershipEntry as theMembership where theMembership.memberUuid = theMember.uuid) " +
-    		" or exists (select 1 from AttributeAssign as theAttributeAssign where theAttributeAssign.ownerMemberId = theMember.uuid) ");
+    		" or exists (select 1 from AttributeAssign as theAttributeAssign where theAttributeAssign.ownerMemberId = theMember.uuid"
+    		+ " and theAttributeAssign.attributeDefNameId != :theAttributeDefNameId ) ");
+    
+    // dont worry about the unresolvable attributes
+    byHqlStatic.setString("theAttributeDefNameId", UsduAttributeNames.retrieveAttributeDefNameBase().getId());
     
     //even out parens
     if (source != null) {

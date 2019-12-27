@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionAttributeValue;
+import edu.internet2.middleware.grouper.app.usdu.USDU;
+import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
+import edu.internet2.middleware.grouper.app.usdu.UsduJob;
 import edu.internet2.middleware.grouper.app.usdu.UsduService;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.AuditTypeIdentifier;
@@ -38,6 +44,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -87,6 +94,79 @@ public class UiV2SubjectResolution {
   }
   
   /**
+   * delete unresolved subjects
+   * @param request
+   * @param response
+   */
+  public void removeMembers(HttpServletRequest request, HttpServletResponse response) {
+
+    final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    final SubjectResolutionContainer subjectResolutionContainer = grouperRequestContainer.getSubjectResolutionContainer();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      subjectResolutionContainer.assertSubjectResolutionEnabledAndAllowed();
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final Set<String> memberIds = new HashSet<String>();
+      
+      for (int i=0;i<1000;i++) {
+        String memberId = request.getParameter("memberRow_" + i + "[]");
+        if (!StringUtils.isBlank(memberId)) {
+          memberIds.add(memberId);
+        }
+      }
+  
+      if (memberIds.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("subjectResolutionRemoveNoSubjectSelects")));
+        return;
+      }
+
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          Set<Member> members = new HashSet<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(memberIds, null));
+          
+          // make sure they are unresolvable
+          for (Member member : members) {
+            
+            if (USDU.isMemberResolvable(GrouperSession.staticGrouperSession(), member)) {
+              throw new RuntimeException("Subject was resolvable! " + SubjectHelper.getPretty(member));
+            }
+          }
+          
+          int deleteCount = (int)UsduJob.deleteUnresolvableMembers(members, GrouperUtil.length(members));
+
+          subjectResolutionContainer.setDeleteCount(deleteCount);
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("subjectResolutionRemoveSuccess")));
+          
+          return null;
+        }
+      });
+      
+      viewUnresolvedSubjects(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
    * view unresolved subjects
    * @param request
    * @param response
@@ -114,18 +194,41 @@ public class UiV2SubjectResolution {
       queryOptions.sort(querySort);
       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
       
+      // showDeleted, doNotShowDeleted, showAll
+      String includeDeleted = request.getParameter("includeDeleted");
+
+      Boolean deleted = null;
+      
+      if (StringUtils.equals(includeDeleted, "showDeleted")) {
+        deleted = true;
+        subjectResolutionContainer.setShowDeleted(true);
+      } else if (StringUtils.equals(includeDeleted, "doNotShowDeleted") || StringUtils.isBlank(includeDeleted)) {
+        deleted = false;
+        subjectResolutionContainer.setShowDeleted(false);
+      } else if (StringUtils.equals(includeDeleted, "showAll")) {
+        deleted = null;
+        subjectResolutionContainer.setShowDeleted(null);
+      } else {
+        throw new RuntimeException("Invalid value for includeDeleted: '" + includeDeleted + "'");
+      }
+      
+      subjectResolutionContainer.setShowDeleted(deleted);
+      
+      final Boolean DELETED = deleted;
       
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          Set<SubjectResolutionAttributeValue> unresolvedSubjects = UsduService.getUnresolvedSubjects(queryOptions);
+          Set<SubjectResolutionAttributeValue> unresolvedSubjects = UsduService.getUnresolvedSubjects(queryOptions, DELETED);
           subjectResolutionContainer.setUnresolvedSubjects(unresolvedSubjects);
           return null;
         }
       });
       
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/subjectResolution/unresolvedSubjects.jsp"));
       
@@ -401,7 +504,11 @@ public class UiV2SubjectResolution {
               return null;
             }
             
-            SubjectResolutionAttributeValue attributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+            AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()
+              .addOwnerMemberOfAssignAssign(member).addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId())
+              .findAttributeAssignValuesResult();
+
+            SubjectResolutionAttributeValue attributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
             if (attributeValue == null) {
               
               // maybe the UsduJob has not run yet and that's why the attributes are not populated.

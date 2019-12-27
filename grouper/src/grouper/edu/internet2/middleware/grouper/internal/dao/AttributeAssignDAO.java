@@ -967,6 +967,41 @@ public interface AttributeAssignDAO extends GrouperDAO {
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
    * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param memberIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * then get the assignment which tells you the owner as well
+   * @param attributeCheckReadOnAttributeDef if security should be checked on attribute def
+   * @param idOfAttributeDefNameOnAssignment id of attribute def name that there is an assignment on assignment of with a value
+   * @param attributeValuesOnAssignment values that the attribute def name on assignment of assignment has
+   * @param idOfAttributeDefNameOnAssignment2 second id of attribute def name that there is an assignment on assignment of with a value
+   * @param attributeValuesOnAssignment2 second values that the attribute def name on assignment of assignment has
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findMemberAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> memberIds, 
+      Collection<String> actions, 
+      Boolean enabled, 
+      boolean includeAssignmentsOnAssignments,
+      AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue, boolean attributeCheckReadOnAttributeDef, 
+      final String idOfAttributeDefNameOnAssignment, Set<Object> attributeValuesOnAssignment,
+  final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2);
+  
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
    * @param attributeDefIds optional
    * @param attributeDefNameIds mutually exclusive with attributeDefIds
    * @param actions (null means all actions)
