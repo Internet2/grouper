@@ -135,7 +135,7 @@ public class UsduJobTest extends GrouperTest {
     
     assertNotNull(subjectResolutionAttributeValue);
     
-    assertNull(subjectResolutionAttributeValue.getSubjectResolutionDeletedString());
+    assertEquals("false", subjectResolutionAttributeValue.getSubjectResolutionDeletedString());
     assertNotNull(subjectResolutionAttributeValue.getSubjectResolutionDateLastCheckedString());
     assertEquals("false", subjectResolutionAttributeValue.getSubjectResolutionResolvableString());
     assertNotNull(subjectResolutionAttributeValue.getSubjectResolutionDaysUnresolvedString());
