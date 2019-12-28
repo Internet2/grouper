@@ -249,6 +249,10 @@ public class UsduJob extends OtherJobBase {
       }
       unresolvablesWithMemberships.add(member);
     }
+    
+    if (unresolvablesWithMemberships.size() == 0) {
+      return;
+    }
 
     AttributeAssignValueFinder attributeAssignValueFinder = new AttributeAssignValueFinder();
     
@@ -314,7 +318,7 @@ public class UsduJob extends OtherJobBase {
             + "usdu.failsafe.removeUpToFailsafe is set to false hence not going to delete any members.");
       } else {
         LOG.info("For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+"unresolvable members. max limit is "+globalMaxAllowed+". "
-            + "usdu.failsafe.removeUpToFailsafe is set to true hence not going to delete "+globalMaxAllowed+" members.");
+            + "usdu.failsafe.removeUpToFailsafe is set to true hence going to delete "+globalMaxAllowed+" members.");
         
         deletedCount += deleteUnresolvableMembers(membersWithoutExplicitSourceConfiguration, globalMaxAllowed);
         
