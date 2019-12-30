@@ -40,7 +40,7 @@ public class GcTableSync {
   private long lastLog = System.currentTimeMillis();
   
   /**
-   * data bean in the from table
+   * data bean in the from table coying data from
    */
   private GcTableSyncTableBean dataBeanFrom;
   
@@ -61,7 +61,7 @@ public class GcTableSync {
   }
 
   /**
-   * data in the to table
+   * data in the to table where copying data to
    */
   private GcTableSyncTableBean dataBeanTo;
   
@@ -82,7 +82,7 @@ public class GcTableSync {
   }
 
   /**
-   * data in the status table
+   * data in the status table which has status of all the jobs
    */
   private GcTableSyncTableBean dataBeanStatus;
   
@@ -103,7 +103,7 @@ public class GcTableSync {
   }
 
   /**
-   * data in the realtime table
+   * data in the realtime table which gives events of what to process
    */
   private GcTableSyncTableBean dataBeanRealTime;
   
@@ -136,14 +136,21 @@ public class GcTableSync {
    * @return true if running, false if not
    */
   public boolean statusIsFullRunning(final Map<String, Object> debugMap) {
-   
-    final GcTableSyncColumnMetadata realTimeLastUpdatedColumnMetadata = this.getRealTimeLastUpdatedColumnMetadata();
 
+    Set<String> linkedConfigKeys = this.getGcTableSyncConfiguration().getLinkedConfigKeys();
+
+    if (GrouperClientUtils.length(linkedConfigKeys) == 0) {
+      return false;
+    }
+
+    sdf
+    
     // where we at with full?
-    String sql = "select " + realTimeLastUpdatedColumnMetadata.getColumnName() + " from " + this.getStatusTable()
+    String sql = "select " + realTimeLastUpdatedColumnMetadata.getColumnName() + " from " + this.getDataBeanStatus().getTableMetadata().getTableName()
         + " where name = ?"; 
 
-    Timestamp fullLastUpdated = new GcDbAccess().connectionName(this.statusDatabase).sql(sql).addBindVar("tableSync_full_" + this.key).select(Timestamp.class);
+    Timestamp fullLastUpdated = new GcDbAccess().connectionName(this.getDataBeanStatus().getTableMetadata().getConnectionName())
+        .sql(sql).addBindVar("tableSync_full_" + this.configKey).select(Timestamp.class);
     
     if (fullLastUpdated != null && (System.currentTimeMillis() - fullLastUpdated.getTime() ) < (1000 * 60 * 5 )  ) {
       

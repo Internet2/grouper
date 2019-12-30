@@ -101,6 +101,30 @@ public class GcDbAccess {
    */
   private String sql;
 
+  /**
+   * table name if not from annotation
+   */
+  private String tableName;
+  
+  /**
+   * table name if not from annotation
+   * @param theTableName
+   * @return the table name
+   */
+  public GcDbAccess tableName(String theTableName) {
+    this.tableName = theTableName;
+    return this;
+  }
+  
+  /**
+   * use the table passed in or from annotation
+   */
+  private String tableName(Class<?> theClass) {
+    if (!GrouperClientUtils.isBlank(this.tableName)) {
+      return this.tableName;
+    }
+    return GcPersistableHelper.tableName(theClass);
+  }
   
   /**
    * If selecting something by primary key, this is one or many keys.
@@ -417,6 +441,7 @@ public class GcDbAccess {
    * @return true if so.
    */
   public boolean isPreviouslyPersisted(Object o){
+
     Field field = GcPersistableHelper.primaryKeyField(o.getClass());
 
     List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(o.getClass());
@@ -446,7 +471,7 @@ public class GcDbAccess {
 
         Long startTime = System.nanoTime();
 
-        String query = "select count(*) from " + GcPersistableHelper.tableName(o.getClass()) + " where " +  GcPersistableHelper.columnName(field) + " =  ?";
+        String query = "select count(*) from " + this.tableName(o.getClass()) + " where " +  GcPersistableHelper.columnName(field) + " =  ?";
 
         int count = new GcDbAccess().connectionName(this.connectionName)
             .sql(query)
@@ -475,7 +500,7 @@ public class GcDbAccess {
 
       List<Object> theBindVariables = new ArrayList<Object>();
 
-      String theSql = "select count(*) from " + GcPersistableHelper.tableName(o.getClass()) + " where ";
+      String theSql = "select count(*) from " + this.tableName(o.getClass()) + " where ";
 
       // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
       for (Field compoundPrimaryKey : compoundPrimaryKeys){
@@ -517,7 +542,9 @@ public class GcDbAccess {
    */
   public  void deleteFromDatabase(Object o){
     if (!isPreviouslyPersisted(o)){
-      return;
+      if (!GcPersistableHelper.defaultUpdate(o.getClass())) {
+        return;
+      }
     }
 
     Field primaryKeyField = GcPersistableHelper.primaryKeyField(o.getClass());
@@ -543,7 +570,7 @@ public class GcDbAccess {
         throw new RuntimeException(e);
       } 
 
-      String tableName = GcPersistableHelper.tableName(o.getClass());
+      String tableName = this.tableName(o.getClass());
 
       String sqlToUse = "delete from " + tableName + " where " + primaryKeyColumnName + " = ? ";
 
@@ -560,7 +587,7 @@ public class GcDbAccess {
     if (compoundPrimaryKeys.size() > 0){
       List<Object> theBindVariables = new ArrayList<Object>();
 
-      String theSql = "delete from " + GcPersistableHelper.tableName(o.getClass()) + " where ";
+      String theSql = "delete from " + this.tableName(o.getClass()) + " where ";
 
       // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
       for (Field compoundPrimaryKey : compoundPrimaryKeys){
@@ -609,10 +636,133 @@ public class GcDbAccess {
     }
 
     Map<String, Object> columnNamesAndValues = new HashMap<String, Object>();
-    Object primaryKeyValue = null;
 
     // Get the primary key.
     Field primaryKey = GcPersistableHelper.primaryKeyField(t.getClass());
+
+    boolean defaultUpdate = GcPersistableHelper.defaultUpdate(t.getClass());
+
+    boolean previouslyPersisted = false;
+    
+    try{
+      
+      if (defaultUpdate) {
+        previouslyPersisted = true;
+      } else {
+        previouslyPersisted = isPreviouslyPersisted(t);
+      }
+      
+      boolean keepPrimaryKeyColumns = t instanceof GcSqlAssignPrimaryKey && !previouslyPersisted;
+      
+      if (keepPrimaryKeyColumns) {
+        ((GcSqlAssignPrimaryKey)t).gcSqlAssignNewPrimaryKeyForInsert();
+      }
+      
+      // Get column names and values
+      for (Field field: GcPersistableHelper.heirarchicalFields(t.getClass())){
+        field.setAccessible(true);
+        // We are putting everything in here except the primary key because we may have to go out and get a primary key shortly
+        // unless the primary key is manually assigned, in which case it can go in here.
+        if ((primaryKey == null && GcPersistableHelper.isPersist(field, t.getClass())) || ( GcPersistableHelper.isPersist(field, t.getClass()) && (keepPrimaryKeyColumns || GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) || !GcPersistableHelper.isPrimaryKey(field)))){
+          columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(t));
+        }
+      }
+
+      // Update if we are already saved.
+
+      if (defaultUpdate) {
+        try {
+          int records = this.storeToDatabaseUpdateHelper(t, columnNamesAndValues, primaryKey);
+          if (records == 0) {
+            throw new RuntimeException("");
+          }
+        } catch (RuntimeException re) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Error trying to update a defaultUpdate record: " + t, re);
+          }
+          this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey);
+        }
+      } else {
+        if (previouslyPersisted){
+          this.storeToDatabaseUpdateHelper(t, columnNamesAndValues, primaryKey);
+        } else {
+          this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey);
+        }
+      }
+    } catch (Exception e){
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Insert into the database
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param <T> is the type to store.
+   * @param t is the object to store to the database.
+   */
+  private <T> void storeToDatabaseInsertHelper(T t, Map<String, Object> columnNamesAndValues, Field primaryKey){
+
+    Object primaryKeyValue = null;
+    List<Object> bindVarstoUse = new ArrayList<Object>();
+    StringBuilder sqlToUse = new StringBuilder();
+    try{
+      
+      // Else insert.
+      sqlToUse.append(" insert into ").append(this.tableName(t.getClass())).append(" ( ");
+      StringBuilder bindVarString = new StringBuilder("values (");
+      for (String columnName : columnNamesAndValues.keySet()){
+        sqlToUse.append(columnName + ",");
+        bindVarString.append("?,");
+        bindVarstoUse.add(columnNamesAndValues.get(columnName));
+      }
+
+      // Get a primary key from the sequence if it is not manually assigned.
+      if (primaryKey != null && !GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) && !GcPersistableHelper.findPersistableClassAnnotation(t.getClass()).hasNoPrimaryKey()){
+
+        sqlToUse.append(GcPersistableHelper.columnName(primaryKey));
+        sqlToUse.append(") ");
+
+        primaryKeyValue = new GcDbAccess()
+            .sql(" select " + GcPersistableHelper.primaryKeySequenceName(primaryKey) + ".nextval from dual")
+            .select(primaryKey.getType());
+
+        bindVarstoUse.add(primaryKeyValue);
+        bindVarString.append("?) ");
+
+      } else {
+        sqlToUse = new StringBuilder(GrouperClientUtils.removeEnd(sqlToUse.toString(), ",") + ") ");
+        bindVarString = new StringBuilder(GrouperClientUtils.removeEnd(bindVarString.toString(), ",") + ") ");
+      }
+
+
+      sqlToUse.append(bindVarString);
+
+      // Execute the insert or update.
+      this.sql(sqlToUse.toString());
+      this.bindVars(bindVarstoUse);
+      this.executeSql();
+
+      // Set the primary key if it was an insert and we grabbed a new one.
+      if (primaryKeyValue != null){
+        boundDataConversion.setFieldValue(t, primaryKey, primaryKeyValue);
+      }
+
+    } catch (Exception e){
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Update the database
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param <T> is the type to store.
+   * @param t is the object to store to the database.
+   */
+  private <T> int storeToDatabaseUpdateHelper(T t, Map<String, Object> columnNamesAndValues, Field primaryKey){
+
+    List<Object> bindVarstoUse = new ArrayList<Object>();
 
     List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(t.getClass());
 
@@ -636,82 +786,42 @@ public class GcDbAccess {
         }
       }
 
-      String sqlToUse = "";
-      List<Object> bindVarstoUse = new ArrayList<Object>();
+      StringBuilder sqlToUse = new StringBuilder();
 
       // Update if we are already saved.
+      sqlToUse.append(" update ").append(this.tableName(t.getClass())).append(" set ");
+      for (String columnName : columnNamesAndValues.keySet()){
+        sqlToUse.append(" ").append(columnName).append(" = ?, ");
+        bindVarstoUse.add(columnNamesAndValues.get(columnName));
+      }
+      sqlToUse = new StringBuilder(GrouperClientUtils.removeEnd(sqlToUse.toString(), ", "));
 
-      if (previouslyPersisted){
-        sqlToUse =  " update " + GcPersistableHelper.tableName(t.getClass()) + " set ";
-        for (String columnName : columnNamesAndValues.keySet()){
-          sqlToUse += " " + columnName + " = ?, " ;
-          bindVarstoUse.add(columnNamesAndValues.get(columnName));
+
+      if (primaryKey != null){
+        sqlToUse.append(" where ").append(GcPersistableHelper.columnName(primaryKey)).append(" = ? ");
+        bindVarstoUse.add(primaryKey.get(t));
+      } else if (compoundPrimaryKeys.size() > 0){
+
+        sqlToUse.append(" where ");
+
+        // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
+        for (Field compoundPrimaryKey : compoundPrimaryKeys){
+          Object fieldValue = null;
+          try {
+            fieldValue = compoundPrimaryKey.get(t);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          } 
+          sqlToUse.append(GcPersistableHelper.columnName(compoundPrimaryKey)).append(" = ? and ");
+          bindVarstoUse.add(fieldValue);
         }
-        sqlToUse = GrouperClientUtils.removeEnd(sqlToUse, ", ");
-
-
-        if (primaryKey != null){
-          sqlToUse += " where " + GcPersistableHelper.columnName(primaryKey) + " = ? ";
-          bindVarstoUse.add(primaryKey.get(t));
-        } else if (compoundPrimaryKeys.size() > 0){
-
-          sqlToUse += " where ";
-
-          // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
-          for (Field compoundPrimaryKey : compoundPrimaryKeys){
-            Object fieldValue = null;
-            try {
-              fieldValue = compoundPrimaryKey.get(t);
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            } 
-            sqlToUse += GcPersistableHelper.columnName(compoundPrimaryKey) + " = ? and ";
-            bindVarstoUse.add(fieldValue);
-          }
-          sqlToUse = sqlToUse.substring(0, sqlToUse.length() - 4);
-        }
-      } else {
-        
-        // Else insert.
-        sqlToUse =  " insert into " + GcPersistableHelper.tableName(t.getClass()) + " ( ";
-        String bindVarString = "values (";
-        for (String columnName : columnNamesAndValues.keySet()){
-          sqlToUse +=  columnName + "," ;
-          bindVarString += "?,";
-          bindVarstoUse.add(columnNamesAndValues.get(columnName));
-        }
-
-        // Get a primary key from the sequence if it is not manually assigned.
-        if (primaryKey != null && !GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) && !GcPersistableHelper.findPersistableClassAnnotation(t.getClass()).hasNoPrimaryKey()){
-
-          sqlToUse += GcPersistableHelper.columnName(primaryKey);
-          sqlToUse += ") ";
-
-          primaryKeyValue = new GcDbAccess()
-              .sql(" select " + GcPersistableHelper.primaryKeySequenceName(primaryKey) + ".nextval from dual")
-              .select(primaryKey.getType());
-
-          bindVarstoUse.add(primaryKeyValue);
-          bindVarString += "?) ";
-
-        } else {
-          sqlToUse = GrouperClientUtils.removeEnd(sqlToUse, ",") + ") ";
-          bindVarString = GrouperClientUtils.removeEnd(bindVarString, ",") + ") ";
-        }
-
-
-        sqlToUse += bindVarString;
+        sqlToUse = new StringBuilder( sqlToUse.substring(0, sqlToUse.length() - 4));
       }
 
       // Execute the insert or update.
-      this.sql(sqlToUse);
+      this.sql(sqlToUse.toString());
       this.bindVars(bindVarstoUse);
-      this.executeSql();
-
-      // Set the primary key if it was an insert and we grabbed a new one.
-      if (primaryKeyValue != null){
-        boundDataConversion.setFieldValue(t, primaryKey, primaryKeyValue);
-      }
+      return this.executeSql();
 
     } catch (Exception e){
       throw new RuntimeException(e);
@@ -719,6 +829,7 @@ public class GcDbAccess {
   }
 
 
+  
   /**
    * <pre>Store the given objects to the database in a batch - 
    * the objects should have appropriate annotations from the PersistableX annotations.
@@ -804,7 +915,6 @@ public class GcDbAccess {
     storeBatchToDatabase(objects, false);
   }
 
-
   /**
    * <pre>Store the given objects to the database in a batch - 
    * the objects should have appropriate annotations from the PersistableX annotations.
@@ -819,6 +929,39 @@ public class GcDbAccess {
    * we will just set the primary key population as "some_sequence.nextval" instead of selecting it manually before storing the object.
    */
   public <T> void storeBatchToDatabase(List<T> objects, boolean omitPrimaryKeyPopulation){
+    
+    if ((GrouperClientUtils.length(objects) > 0) && GcPersistableHelper.defaultUpdate(objects.get(0).getClass())) {
+      
+      try {
+        
+        storeBatchToDatabaseHelper(objects, omitPrimaryKeyPopulation);
+        
+      } catch (RuntimeException re) {
+        for (T object : objects) {
+          storeToDatabase(object);
+        }
+      }
+      
+    } else {
+      storeBatchToDatabaseHelper(objects, omitPrimaryKeyPopulation);
+    }
+    
+  }
+  
+  /**
+   * <pre>Store the given objects to the database in a batch - 
+   * the objects should have appropriate annotations from the PersistableX annotations.
+   * You cannot have both inserts and updates in the list of objects to store; they MUST all have the 
+   * same action (insert or update) being taken against them as jdbc statements supoprt mutliple
+   * sqls in a batch but do not support bind variables when using this capability.</pre>
+   * @param <T> is the type being stored.
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param objects is the list of objects to store to the database.
+   * @param omitPrimaryKeyPopulation if you DON'T need primary keys populated into your objects, you can set this and save some query time since
+   * we will just set the primary key population as "some_sequence.nextval" instead of selecting it manually before storing the object.
+   */
+  private <T> void storeBatchToDatabaseHelper(List<T> objects, boolean omitPrimaryKeyPopulation){
 
     // No data nothing to do.
     if (objects == null || objects.size() == 0){
@@ -888,7 +1031,7 @@ public class GcDbAccess {
 
           // Create the sql.
           if (!updateSqlInitialized){
-            updateSql =  " update " + GcPersistableHelper.tableName(object.getClass()) + " set ";
+            updateSql =  " update " + this.tableName(object.getClass()) + " set ";
             for (String columnName : columnNamesAndValues.keySet()){
               updateSql += " " + columnName + " = ?, " ;
             }
@@ -940,7 +1083,7 @@ public class GcDbAccess {
           // Else insert.
           String bindVarString = "";
           if (!insertSqlInitialized){
-            insertSql =  " insert into " + GcPersistableHelper.tableName(object.getClass()) + " ( ";
+            insertSql =  " insert into " + this.tableName(object.getClass()) + " ( ";
             bindVarString = "values (";
             for (String columnName : columnNamesAndValues.keySet()){
               insertSql +=  columnName + "," ;
@@ -1319,7 +1462,7 @@ public class GcDbAccess {
       // Get the primary key field.
       Field primaryKeyField = GcPersistableHelper.primaryKeyField(clazz);
 
-      String theSql = " select " + columnNames + " from " + GcPersistableHelper.tableName(clazz) + " where " +   GcPersistableHelper.columnName(primaryKeyField);
+      String theSql = " select " + columnNames + " from " + this.tableName(clazz) + " where " +   GcPersistableHelper.columnName(primaryKeyField);
       if (this.primaryKeys.size() == 1){
         theSql += " = ? ";
         this.bindVars(this.primaryKeys.get(0));
@@ -1335,11 +1478,11 @@ public class GcDbAccess {
 
       // They used no sql and no primary key - that means that we are selecting everything from the table.
     } else if (this.sql == null && this.example == null){
-      this.sql(" select " + columnNames + " from " + GcPersistableHelper.tableName(clazz));
+      this.sql(" select " + columnNames + " from " + this.tableName(clazz));
     } else if (this.example != null){
 
       // Make the sql and bind variables.
-      String theSql = " select * from " + GcPersistableHelper.tableName(clazz) + " where ";
+      String theSql = " select * from " + this.tableName(clazz) + " where ";
       String whereClauseToUse = "";
       List<Object> bindVarstoUse = new ArrayList<Object>();
 
@@ -1722,7 +1865,7 @@ public class GcDbAccess {
     Class.forName(driver);
  
     String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".user");
-    String pass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".pass");
+    String pass = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + connectionName + ".pass");
     pass = Morph.decryptIfFile(pass);
     connection = DriverManager.getConnection(url[0], user, pass);
     return connection;

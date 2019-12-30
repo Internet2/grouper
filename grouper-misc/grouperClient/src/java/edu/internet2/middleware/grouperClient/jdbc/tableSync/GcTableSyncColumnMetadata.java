@@ -7,16 +7,50 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.HashCodeBuilder;
+
 
 /**
  *
  */
 public class GcTableSyncColumnMetadata {
 
-  equals
-  
-  hashcode
-  
+  /**
+   * 
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder()
+        .append(this.columnName)
+        .append(this.columnType)
+        .append(this.precision)
+        .append(this.scale).
+        append(this.columnDisplaySize).toHashCode();
+  }
+
+  /**
+   * 
+   */
+  @Override
+  public boolean equals(Object obj) {
+    
+    if (obj == null || (!(obj instanceof GcTableSyncColumnMetadata))) {
+      return false;
+    }
+    
+    GcTableSyncColumnMetadata other = (GcTableSyncColumnMetadata)obj;
+    
+    return new EqualsBuilder()
+        .append(this.columnName, other.columnName)
+        .append(this.columnType, other.columnType)
+        .append(this.precision, other.precision)
+        .append(this.scale, other.scale)
+        .append(this.columnDisplaySize, other.columnDisplaySize).isEquals();
+
+  }
+
+
   /**
    * 
    */

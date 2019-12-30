@@ -1045,7 +1045,7 @@ public class GrouperDdlUtils {
     
     return logMessage;
   } 
-  
+
   /**
    * <pre>
    * helper method to run custom db ddl, which is more easily testable
@@ -1081,6 +1081,46 @@ public class GrouperDdlUtils {
    */
   @SuppressWarnings("unchecked")
   public static String changeDatabase(String objectName, DdlUtilsChangeDatabase ddlUtilsChangeDatabase) {
+    return changeDatabase(objectName, true, true, ddlUtilsChangeDatabase);
+  }
+
+  /**
+   * <pre>
+   * helper method to run custom db ddl, which is more easily testable
+   * TODO consolidate this code with the bootstrap code in the DdlVersionBean or somewhere
+   * Here is an example:
+   * 
+   *     GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+   * 
+   *       public void changeDatabase(DdlVersionBean ddlVersionBean) {
+   *         
+   *         Database database = ddlVersionBean.getDatabase();
+   *         {
+   *           Table attributesTable = database.findTable(Attribute.TABLE_GROUPER_ATTRIBUTES);
+   *           Column attributesFieldIdColumn = attributesTable.findColumn(Attribute.COLUMN_FIELD_ID);
+   *           attributesTable.removeColumn(attributesFieldIdColumn);
+   *         }
+   *         
+   *         {
+   *           Table membershipsTable = database.findTable(Membership.TABLE_GROUPER_MEMBERSHIPS);
+   *           Column membershipsFieldIdColumn = membershipsTable.findColumn(Membership.COLUMN_FIELD_ID);
+   *           membershipsTable.removeColumn(membershipsFieldIdColumn);
+   *         }
+   *         
+   *       }
+   *       
+   *     });
+   * 
+   * 
+   * </pre>
+   * @param objectName (from enum of ddl utils type)
+   * @param ddlUtilsChangeDatabase is the callback to change the database
+   * @param dropViewsConstraintsFirst
+   * @param runScript
+   * @return string
+   */
+  @SuppressWarnings("unchecked")
+  public static String changeDatabase(String objectName, boolean dropViewsConstraintsFirst, boolean runScript, DdlUtilsChangeDatabase ddlUtilsChangeDatabase) {
         
     String resultString = null;
     
@@ -1130,10 +1170,13 @@ public class GrouperDdlUtils {
         {
           DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder,
               null, null, null, false, -1, result);
-          ddlVersionable.dropAllViews(tempDdlVersionBean);
-  
-          //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-          dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+          
+          if (dropViewsConstraintsFirst) {
+            ddlVersionable.dropAllViews(tempDdlVersionBean);
+    
+            //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+            dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+          }
         }
         
         //it needs a name, just use "grouper"
@@ -1185,71 +1228,74 @@ public class GrouperDdlUtils {
       File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
       GrouperUtil.saveStringIntoFile(scriptFile, resultString);
 
-      String logMessage = "Ran this DDL:\n" + scriptFile.getAbsolutePath();
+      String logMessage = (runScript ? "Ran" : "Run") + " this DDL:\n" + scriptFile.getAbsolutePath();
       if (LOG.isErrorEnabled()) {
         LOG.error(logMessage);
       } else {
         System.err.println(logMessage);
       }
-      logMessage = "";
-
-      PrintStream err = System.err;
-      PrintStream out = System.out;
-      InputStream in = System.in;
-
-      //dont let ant mess up or close the streams
-      ByteArrayOutputStream baosOutErr = new ByteArrayOutputStream();
-      PrintStream newOutErr = new PrintStream(baosOutErr);
-
-      System.setErr(newOutErr);
-      System.setOut(newOutErr);
       
-      SQLExec sqlExec = new SQLExec();
-      
-      sqlExec.setSrc(scriptFile);
-      
-      sqlExec.setDriver(grouperDb.getDriver());
-
-      sqlExec.setUrl(grouperDb.getUrl());
-      sqlExec.setUserid(grouperDb.getUser());
-      sqlExec.setPassword(grouperDb.getPass());
-
-      Project project = new GrouperAntProject();
-
-      //tell output where to go
-      DefaultLogger defaultLogger = new DefaultLogger();
-      defaultLogger.setErrorPrintStream(newOutErr);
-      defaultLogger.setOutputPrintStream(newOutErr);
-      project.addBuildListener(defaultLogger);
-      
-      try {
-        sqlExec.setProject(project);
-
-        sqlExec.execute();
-
-        logMessage += "Script was executed successfully\n";
-      } catch (Exception e) {
-        throw new RuntimeException("Error running script", e);
-      } finally {
-      
-        newOutErr.flush();
-        newOutErr.close();
+      if (runScript) {
+        logMessage = "";
+  
+        PrintStream err = System.err;
+        PrintStream out = System.out;
+        InputStream in = System.in;
+  
+        //dont let ant mess up or close the streams
+        ByteArrayOutputStream baosOutErr = new ByteArrayOutputStream();
+        PrintStream newOutErr = new PrintStream(baosOutErr);
+  
+        System.setErr(newOutErr);
+        System.setOut(newOutErr);
         
-        System.setErr(err);
-        System.setOut(out);
-        System.setIn(in);
-      }
-      
-      String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
-
-      if (!StringUtils.isBlank(antOutput)) {
-        logMessage += antOutput + "\n";
-      }
-      //if call from command line, print to screen
-      if (LOG.isErrorEnabled()) {
-        LOG.error(logMessage);
-      } else {
-        System.out.println(logMessage);
+        SQLExec sqlExec = new SQLExec();
+        
+        sqlExec.setSrc(scriptFile);
+        
+        sqlExec.setDriver(grouperDb.getDriver());
+  
+        sqlExec.setUrl(grouperDb.getUrl());
+        sqlExec.setUserid(grouperDb.getUser());
+        sqlExec.setPassword(grouperDb.getPass());
+  
+        Project project = new GrouperAntProject();
+  
+        //tell output where to go
+        DefaultLogger defaultLogger = new DefaultLogger();
+        defaultLogger.setErrorPrintStream(newOutErr);
+        defaultLogger.setOutputPrintStream(newOutErr);
+        project.addBuildListener(defaultLogger);
+        
+        try {
+          sqlExec.setProject(project);
+  
+          sqlExec.execute();
+  
+          logMessage += "Script was executed successfully\n";
+        } catch (Exception e) {
+          throw new RuntimeException("Error running script", e);
+        } finally {
+        
+          newOutErr.flush();
+          newOutErr.close();
+          
+          System.setErr(err);
+          System.setOut(out);
+          System.setIn(in);
+        }
+        
+        String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
+  
+        if (!StringUtils.isBlank(antOutput)) {
+          logMessage += antOutput + "\n";
+        }
+        //if call from command line, print to screen
+        if (LOG.isErrorEnabled()) {
+          LOG.error(logMessage);
+        } else {
+          System.out.println(logMessage);
+        }
       }
     } finally {
       insideBootstrap = false;
