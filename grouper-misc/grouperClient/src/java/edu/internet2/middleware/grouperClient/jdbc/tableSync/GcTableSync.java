@@ -40,7 +40,7 @@ public class GcTableSync {
   private long lastLog = System.currentTimeMillis();
   
   /**
-   * data bean in the from table coying data from
+   * data bean in the from table copying data from
    */
   private GcTableSyncTableBean dataBeanFrom;
   
@@ -82,24 +82,45 @@ public class GcTableSync {
   }
 
   /**
-   * data in the status table which has status of all the jobs
+   * provisioning table about this provisioner
    */
-  private GcTableSyncTableBean dataBeanStatus;
+  private GcGrouperSync gcGrouperSync;
   
   /**
-   * data in the status table
-   * @return the dataBeanStatus
+   * provisioning table about this provisioner
+   * @return sync
    */
-  public GcTableSyncTableBean getDataBeanStatus() {
-    return this.dataBeanStatus;
+  public GcGrouperSync getGcGrouperSync() {
+    return this.gcGrouperSync;
   }
+
+  /**
+   * provisioning table about this provisioner
+   * @param gcGrouperSync1
+   */
+  public void setGcGrouperSync(GcGrouperSync gcGrouperSync1) {
+    this.gcGrouperSync = gcGrouperSync1;
+  }
+
+  /**
+   * provisioning table about this job (full, incremental, etc) in this provisioner
+   */
+  private GcGrouperSyncJob gcGrouperSyncJob;
   
   /**
-   * data in the status table
-   * @param dataBeanStatus the dataBeanStatus to set
+   * provisioning table about this job (full, incremental, etc) in this provisioner
+   * @return job
    */
-  public void setDataBeanStatus(GcTableSyncTableBean dataBeanStatus) {
-    this.dataBeanStatus = dataBeanStatus;
+  public GcGrouperSyncJob getGcGrouperSyncJob() {
+    return gcGrouperSyncJob;
+  }
+
+  /**
+   * provisioning table about this job (full, incremental, etc) in this provisioner
+   * @param gcGrouperSyncJob1
+   */
+  public void setGcGrouperSyncJob(GcGrouperSyncJob gcGrouperSyncJob1) {
+    this.gcGrouperSyncJob = gcGrouperSyncJob1;
   }
 
   /**
@@ -142,9 +163,7 @@ public class GcTableSync {
     if (GrouperClientUtils.length(linkedConfigKeys) == 0) {
       return false;
     }
-
-    sdf
-    
+abc    
     // where we at with full?
     String sql = "select " + realTimeLastUpdatedColumnMetadata.getColumnName() + " from " + this.getDataBeanStatus().getTableMetadata().getTableName()
         + " where name = ?"; 
@@ -247,7 +266,7 @@ public class GcTableSync {
           receiveUpdatesSince = System.currentTimeMillis() - (1000 * 60 * 5);
         }
         
-        String sql = "select " + this.tableMetadata.getRealTimeLastUpdatedColumnMetadata().getColumnName() + " from " + this.getRealTimeTable() + " where " 
+        String sql = "select " + this.tableMetadata.getRealTimeLastUpdatedColumnMetadata().getColumnName() + " from " + this.getIncrementalFullPrimaryKeyTable() + " where " 
             + realTimeLastUpdatedColumnMetadata.getColumnName() + " > ?";
   
         int total = (Integer)new GcDbAccess().connectionName(this.databaseFrom).sql(sql).callbackResultSet(new GcResultSetCallback() {
@@ -258,8 +277,8 @@ public class GcTableSync {
               
               while (resultSet.next()) {
                 Object value = realTimeLastUpdatedColumnMetadata.getColumnType().readDataFromResultSet(1, resultSet);
-                GcTableSync.this.fromGroupingUniqueValues.add(value);
-                debugMap.put("fromGroupingUniqueValues", GcTableSync.this.fromGroupingUniqueValues.size());
+                GcTableSync.this.fromGroupUniqueValues.add(value);
+                debugMap.put("fromGroupUniqueValues", GcTableSync.this.fromGroupUniqueValues.size());
                 logPeriodically(debugMap, gcTableSyncOutput);
               }
               
@@ -275,7 +294,7 @@ public class GcTableSync {
   
         if (total > 0) {
           // sorted unique values
-          Collections.sort((List)this.fromGroupingUniqueValues);
+          Collections.sort((List)this.fromGroupUniqueValues);
           logPeriodically(debugMap, gcTableSyncOutput);
     
           int realTimeBatchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTable.personSource.realTimeBatchSize", 1000);
@@ -298,7 +317,7 @@ public class GcTableSync {
     
             debugMap.put("state", "retrieveFromRealTimeBatch");
   
-            List<Object> groupingsFromBatch = GrouperClientUtils.batchList(this.fromGroupingUniqueValues, realTimeBatchSize, i);
+            List<Object> groupsFromBatch = GrouperClientUtils.batchList(this.fromGroupUniqueValues, realTimeBatchSize, i);
   
             // get the from batch
             {
@@ -310,9 +329,9 @@ public class GcTableSync {
               sqlBuilder.append(" from " + this.tableMetadata.getTableNameFrom() 
                   + " where " + realTimeLastUpdatedColumnMetadata.getColumnName() + " >= ? and " + realTimeLastUpdatedColumnMetadata.getColumnName() + " <= ?");
               // add first
-              bindVars.add(groupingsFromBatch.get(0));
+              bindVars.add(groupsFromBatch.get(0));
               // add last.  note, you might get more than you bargained for... maybe check for that?
-              bindVars.add(groupingsFromBatch.get(groupingsFromBatch.size()-1));
+              bindVars.add(groupsFromBatch.get(groupsFromBatch.size()-1));
               
               this.fromData = new GcTableSyncTableData();
               this.fromData.setGcTableSync(this);
@@ -323,7 +342,7 @@ public class GcTableSync {
               gcTableSyncOutput.addRowsSelectedFrom(this.fromData.getRows().size());
       
               debugMap.put("rowsSelectedFrom", gcTableSyncOutput.getRowsSelectedFrom());
-              // logPeriodically(debugMap);  wait until we get the "to" groupings
+              // logPeriodically(debugMap);  wait until we get the "to" groups
             }
             
             // get the to batch
@@ -582,11 +601,11 @@ public class GcTableSync {
       }
 
   
-      if (StringUtils.isBlank(groupingColumn) && primaryKeyColumnsSet.size() == 1) {
-        groupingColumn = primaryKeyColumnsSet.iterator().next();
+      if (StringUtils.isBlank(groupColumn) && primaryKeyColumnsSet.size() == 1) {
+        groupColumn = primaryKeyColumnsSet.iterator().next();
       }
-      if (StringUtils.isBlank(groupingColumn)) {
-        throw new RuntimeException("You need to specify a grouping column if the primary key is more than one column! " + primaryKeyColumnsString);
+      if (StringUtils.isBlank(groupColumn)) {
+        throw new RuntimeException("You need to specify a group column if the primary key is more than one column! " + primaryKeyColumnsString);
       }
       
    // TODO
@@ -597,8 +616,8 @@ public class GcTableSync {
 //    }
 //    GcTableSync.this.tableMetadata.getColumnMetadata().add(gcTableSyncColumnMetadata);
 
-//    if (StringUtils.equals(columnName, groupingColumn)) {
-//      gcTableSyncColumnMetadata.setGroupingColumn(true);
+//    if (StringUtils.equals(columnName, groupColumn)) {
+//      gcTableSyncColumnMetadata.setGroupColumn(true);
 //    }
 //    
 //    if (StringUtils.equals(columnName, realTimeLastUpdatedCol)) {
@@ -649,7 +668,7 @@ public class GcTableSync {
       
       thread.start();
       
-      final GcTableSyncColumnMetadata groupingColumnMetadata = this.tableMetadata.getGroupingColumnMetadata();
+      final GcTableSyncColumnMetadata groupColumnMetadata = this.tableMetadata.getGroupColumnMetadata();
 
       String sql = "select count(*) from " + this.tableMetadata.getTableNameFrom();
 
@@ -657,11 +676,11 @@ public class GcTableSync {
       debugMap.put("totalCountFrom", total);
       gcTableSyncOutput.addRowsSelectedFrom(total);
       
-      debugMap.put("state", "retrieveAllFromGroupings");
+      debugMap.put("state", "retrieveAllFromGroups");
 
-      sql = "select distinct " + groupingColumnMetadata.getColumnName() + " from " + this.tableMetadata.getTableNameFrom();
+      sql = "select distinct " + groupColumnMetadata.getColumnName() + " from " + this.tableMetadata.getTableNameFrom();
       
-      this.fromGroupingUniqueValues = new ArrayList<Object>();
+      this.fromGroupUniqueValues = new ArrayList<Object>();
       
       // lets get the from source group values
       new GcDbAccess().connectionName(this.databaseFrom).sql(sql).callbackResultSet(new GcResultSetCallback() {
@@ -671,9 +690,9 @@ public class GcTableSync {
           try {
             
             while (resultSet.next()) {
-              Object value = groupingColumnMetadata.getColumnType().readDataFromResultSet(1, resultSet);
-              GcTableSync.this.fromGroupingUniqueValues.add(value);
-              debugMap.put("fromGroupingUniqueValues", GcTableSync.this.fromGroupingUniqueValues.size());
+              Object value = groupColumnMetadata.getColumnType().readDataFromResultSet(1, resultSet);
+              GcTableSync.this.fromGroupUniqueValues.add(value);
+              debugMap.put("fromGroupUniqueValues", GcTableSync.this.fromGroupUniqueValues.size());
             }
             
           } finally {
@@ -684,13 +703,13 @@ public class GcTableSync {
       });
 
       // sorted unique values
-      Collections.sort((List)this.fromGroupingUniqueValues);
+      Collections.sort((List)this.fromGroupUniqueValues);
       
-      debugMap.put("state", "retrieveAllToGroupings");
+      debugMap.put("state", "retrieveAllToGroups");
   
-      sql = "select distinct " + groupingColumnMetadata.getColumnName() + " from " + this.tableMetadata.getTableNameTo();
+      sql = "select distinct " + groupColumnMetadata.getColumnName() + " from " + this.tableMetadata.getTableNameTo();
       
-      this.toGroupingUniqueValues = new LinkedHashSet<Object>();
+      this.toGroupUniqueValues = new LinkedHashSet<Object>();
       
       // lets get the from source group values
       new GcDbAccess().connectionName(this.databaseTo).sql(sql).callbackResultSet(new GcResultSetCallback() {
@@ -700,9 +719,9 @@ public class GcTableSync {
           try {
             
             while (resultSet.next()) {
-              Object value = groupingColumnMetadata.getColumnType().readDataFromResultSet(1, resultSet);
-              GcTableSync.this.toGroupingUniqueValues.add(value);
-              debugMap.put("toGroupingUniqueValues", GcTableSync.this.toGroupingUniqueValues.size());
+              Object value = groupColumnMetadata.getColumnType().readDataFromResultSet(1, resultSet);
+              GcTableSync.this.toGroupUniqueValues.add(value);
+              debugMap.put("toGroupUniqueValues", GcTableSync.this.toGroupUniqueValues.size());
             }
             
           } finally {
@@ -712,27 +731,27 @@ public class GcTableSync {
         }
       });
 
-      debugMap.put("state", "deleteGroupings");
+      debugMap.put("state", "deleteGroups");
 
       //delete batches which arent there
-      Set<Object> groupingsToDelete = new LinkedHashSet<Object>(this.toGroupingUniqueValues);
-      groupingsToDelete.removeAll(new HashSet<Object>(this.fromGroupingUniqueValues));
+      Set<Object> groupsToDelete = new LinkedHashSet<Object>(this.toGroupUniqueValues);
+      groupsToDelete.removeAll(new HashSet<Object>(this.fromGroupUniqueValues));
   
-      debugMap.put("groupingsToDelete", groupingsToDelete.size());
+      debugMap.put("groupsToDelete", groupsToDelete.size());
 
       //batch through to delete
-      int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(groupingsToDelete, 200);
+      int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(groupsToDelete, 200);
 
       for (int i=0;i<numberOfBatches;i++) {
 
-        List<Object> groupingsToDeleteBatch = GrouperClientUtils.batchList(groupingsToDelete, 200, i);
+        List<Object> groupsToDeleteBatch = GrouperClientUtils.batchList(groupsToDelete, 200, i);
         
-        if (GrouperClientUtils.length(groupingsToDeleteBatch) > 0) {
+        if (GrouperClientUtils.length(groupsToDeleteBatch) > 0) {
           StringBuilder sqlBuilder = new StringBuilder("delete from " + this.tableMetadata.getTableNameTo() 
-              + " where " + groupingColumnMetadata.getColumnName() + " in (");
-          GrouperClientUtils.appendQuestions(sqlBuilder, GrouperClientUtils.length(groupingsToDeleteBatch));
+              + " where " + groupColumnMetadata.getColumnName() + " in (");
+          GrouperClientUtils.appendQuestions(sqlBuilder, GrouperClientUtils.length(groupsToDeleteBatch));
           sqlBuilder.append(")");
-          sqlBatchAdd(sqlBatch, sqlBuilder.toString(), groupingsToDeleteBatch);
+          sqlBatchAdd(sqlBatch, sqlBuilder.toString(), groupsToDeleteBatch);
         }      
 
       }
@@ -742,7 +761,7 @@ public class GcTableSync {
       }
 
       //batch through to select from from
-      numberOfBatches = GrouperClientUtils.batchNumberOfBatches(this.fromGroupingUniqueValues, this.groupingSize);
+      numberOfBatches = GrouperClientUtils.batchNumberOfBatches(this.fromGroupUniqueValues, this.groupSize);
       
       final boolean selectIndividual = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.syncTable." + this.key + ".selectIndividual", false);
       
@@ -752,9 +771,9 @@ public class GcTableSync {
         
         debugMap.put("currentBatch", i);
 
-        debugMap.put("state", "retrieveFromGroupingsOfBatch");
+        debugMap.put("state", "retrieveFromGroupsOfBatch");
 
-        List<Object> groupingsFromBatch = GrouperClientUtils.batchList(this.fromGroupingUniqueValues, this.groupingSize, i);
+        List<Object> groupsFromBatch = GrouperClientUtils.batchList(this.fromGroupUniqueValues, this.groupSize, i);
         
         // get the from batch
         {
@@ -765,17 +784,17 @@ public class GcTableSync {
           List<Object> bindVars = new ArrayList<Object>();
           if (selectIndividual) {
             sqlBuilder.append(" from " + this.tableMetadata.getTableNameFrom() 
-              + " where " + groupingColumnMetadata.getColumnName() + " in (");
-              GrouperClientUtils.appendQuestions(sqlBuilder, GrouperClientUtils.length(groupingsFromBatch));
+              + " where " + groupColumnMetadata.getColumnName() + " in (");
+              GrouperClientUtils.appendQuestions(sqlBuilder, GrouperClientUtils.length(groupsFromBatch));
             sqlBuilder.append(")");
-            bindVars = groupingsFromBatch;
+            bindVars = groupsFromBatch;
           } else {
             sqlBuilder.append(" from " + this.tableMetadata.getTableNameFrom() 
-                + " where " + groupingColumnMetadata.getColumnName() + " >= ? and " + groupingColumnMetadata.getColumnName() + " <= ?");
+                + " where " + groupColumnMetadata.getColumnName() + " >= ? and " + groupColumnMetadata.getColumnName() + " <= ?");
             // add first
-            bindVars.add(groupingsFromBatch.get(0));
+            bindVars.add(groupsFromBatch.get(0));
             // add last
-            bindVars.add(groupingsFromBatch.get(groupingsFromBatch.size()-1));
+            bindVars.add(groupsFromBatch.get(groupsFromBatch.size()-1));
           }
           
           this.fromData = new GcTableSyncTableData();
@@ -791,7 +810,7 @@ public class GcTableSync {
         
         
         // get the to batch
-        debugMap.put("state", "retrieveToGroupingsOfBatch");
+        debugMap.put("state", "retrieveToGroupsOfBatch");
         {
           StringBuilder sqlBuilder = new StringBuilder("select ");
     
@@ -801,17 +820,17 @@ public class GcTableSync {
           List<Object> bindVars = new ArrayList<Object>();
           if (selectIndividual) {
             sqlBuilder.append(" from " + this.tableMetadata.getTableNameTo() 
-              + " where " + groupingColumnMetadata.getColumnName() + " in (");
-              GrouperClientUtils.appendQuestions(sqlBuilder, GrouperClientUtils.length(groupingsFromBatch));
+              + " where " + groupColumnMetadata.getColumnName() + " in (");
+              GrouperClientUtils.appendQuestions(sqlBuilder, GrouperClientUtils.length(groupsFromBatch));
             sqlBuilder.append(")");
-            bindVars = groupingsFromBatch;
+            bindVars = groupsFromBatch;
           } else {
             sqlBuilder.append(" from " + this.tableMetadata.getTableNameTo() 
-                + " where " + groupingColumnMetadata.getColumnName() + " >= ? and " + groupingColumnMetadata.getColumnName() + " <= ?");
+                + " where " + groupColumnMetadata.getColumnName() + " >= ? and " + groupColumnMetadata.getColumnName() + " <= ?");
             // add first
-            bindVars.add(groupingsFromBatch.get(0));
+            bindVars.add(groupsFromBatch.get(0));
             // add last
-            bindVars.add(groupingsFromBatch.get(groupingsFromBatch.size()-1));
+            bindVars.add(groupsFromBatch.get(groupsFromBatch.size()-1));
           }
 
           this.toData = new GcTableSyncTableData();

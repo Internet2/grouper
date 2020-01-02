@@ -17,15 +17,15 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**
- * if doing grouping level syncs, this is the last status
+ * data about groups being synced
  */
-@GcPersistableClass(tableName="grouper_sync_grouping", defaultFieldPersist=GcPersist.doPersist)
-public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
+@GcPersistableClass(tableName="grouper_sync_group", defaultFieldPersist=GcPersist.doPersist)
+public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey {
 
   /**
    * 
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSyncGrouping.class);
+  private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSyncGroup.class);
 
   /**
    * 
@@ -36,18 +36,21 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
       this.lastUpdated = new Timestamp(System.currentTimeMillis());
       this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
       new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
-    } catch (RuntimeException e) {
-      LOG.info("GrouperSyncGrouping uuid potential mismatch: " + this.grouperSyncId + ", " + this.groupingId, e);
+    } catch (RuntimeException re) {
+      LOG.info("GrouperSyncGroup uuid potential mismatch: " + this.grouperSyncId + ", " + this.groupId, re);
       // maybe a different uuid is there
-      GcGrouperSyncGrouping gcGrouperSyncGrouping = this.grouperSync.retrieveGroupingByGroupingId(this.groupingId);
-      if (gcGrouperSyncGrouping != null) {
-        this.id = gcGrouperSyncGrouping.getId();
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.grouperSync.retrieveGroupByGroupId(this.groupId);
+      if (gcGrouperSyncGroup != null) {
+        this.id = gcGrouperSyncGroup.getId();
         new GcDbAccess().connectionName(connectionName).storeToDatabase(this);
-        LOG.warn("GrouperSyncGrouping uuid mismatch corrected: " + this.grouperSyncId + ", " + this.groupingId);
+        LOG.warn("GrouperSyncGroup uuid mismatch corrected: " + this.grouperSyncId + ", " + this.groupId);
+      } else {
+        throw re;
       }
     }
   }
 
+  
   /**
    * 
    * @return sync
@@ -121,8 +124,8 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
     
     System.out.println("none");
     
-    for (GcGrouperSyncGrouping theGcGrouperSyncGrouping : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGrouping.class)) {
-      System.out.println(theGcGrouperSyncGrouping.toString());
+    for (GcGrouperSyncGroup theGcGrouperSyncGroup : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGroup.class)) {
+      System.out.println(theGcGrouperSyncGroup.toString());
     }
     
     // foreign key
@@ -131,45 +134,45 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
     gcGrouperSync.setProvisionerName("myJob");
     gcGrouperSync.store();
     
-    GcGrouperSyncGrouping gcGrouperSyncGrouping = new GcGrouperSyncGrouping();
-    gcGrouperSyncGrouping.setGrouperSync(gcGrouperSync);
-    gcGrouperSyncGrouping.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
-    gcGrouperSyncGrouping.groupingFromId2 = "from2";
-    gcGrouperSyncGrouping.groupingFromId3 = "from3";
-    gcGrouperSyncGrouping.groupingId = "myId";
-    gcGrouperSyncGrouping.groupingName = "myName";
-    gcGrouperSyncGrouping.groupingToId2 = "toId2";
-    gcGrouperSyncGrouping.groupingToId3 = "toId3";
-    gcGrouperSyncGrouping.inTargetDb = "T";
-    gcGrouperSyncGrouping.inTargetEnd = new Timestamp(123L);
-    gcGrouperSyncGrouping.inTargetStart = new Timestamp(234L);
-    gcGrouperSyncGrouping.lastTimeWorkWasDone = new Timestamp(345L);
-    gcGrouperSyncGrouping.provisionableDb = "T";
-    gcGrouperSyncGrouping.provisionableEnd = new Timestamp(456L);
-    gcGrouperSyncGrouping.provisionableStart = new Timestamp(567L);
-    gcGrouperSyncGrouping.totalCount = 678;
-    gcGrouperSyncGrouping.store();
+    GcGrouperSyncGroup gcGrouperSyncGroup = new GcGrouperSyncGroup();
+    gcGrouperSyncGroup.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncGroup.groupFromId2 = "from2";
+    gcGrouperSyncGroup.groupFromId3 = "from3";
+    gcGrouperSyncGroup.groupId = "myId";
+    gcGrouperSyncGroup.groupName = "myName";
+    gcGrouperSyncGroup.groupToId2 = "toId2";
+    gcGrouperSyncGroup.groupToId3 = "toId3";
+    gcGrouperSyncGroup.inTargetDb = "T";
+    gcGrouperSyncGroup.inTargetInsertOrExistsDb = "T";
+    gcGrouperSyncGroup.inTargetEnd = new Timestamp(123L);
+    gcGrouperSyncGroup.inTargetStart = new Timestamp(234L);
+    gcGrouperSyncGroup.lastTimeWorkWasDone = new Timestamp(345L);
+    gcGrouperSyncGroup.provisionableDb = "T";
+    gcGrouperSyncGroup.provisionableEnd = new Timestamp(456L);
+    gcGrouperSyncGroup.provisionableStart = new Timestamp(567L);
+    gcGrouperSyncGroup.store();
     
     System.out.println("stored");
     
-    gcGrouperSyncGrouping = gcGrouperSync.retrieveGroupingByGroupingId("myId");
-    System.out.println(gcGrouperSyncGrouping);
+    gcGrouperSyncGroup = gcGrouperSync.retrieveGroupByGroupId("myId");
+    System.out.println(gcGrouperSyncGroup);
     
-    gcGrouperSyncGrouping.setGroupingToId2("toId2a");
-    gcGrouperSyncGrouping.store();
+    gcGrouperSyncGroup.setGroupToId2("toId2a");
+    gcGrouperSyncGroup.store();
 
     System.out.println("updated");
 
-    for (GcGrouperSyncGrouping theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGrouping.class)) {
+    for (GcGrouperSyncGroup theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGroup.class)) {
       System.out.println(theGcGrouperSyncStatus.toString());
     }
 
-    gcGrouperSyncGrouping.delete();
+    gcGrouperSyncGroup.delete();
     gcGrouperSync.delete();
     
     System.out.println("deleted");
 
-    for (GcGrouperSyncGrouping theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGrouping.class)) {
+    for (GcGrouperSyncGroup theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGroup.class)) {
       System.out.println(theGcGrouperSyncStatus.toString());
     }
   }
@@ -182,21 +185,20 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   public String toString() {
     return new ToStringBuilder(this)
         .append("id", this.id)
-        .append("groupingId", this.groupingId)
+        .append("groupId", this.groupId)
         .append("grouperSyncId", this.grouperSyncId)
-        .append("groupingFromId2", this.groupingFromId2)
-        .append("groupingFromId3", this.groupingFromId3)
-        .append("groupingName", this.groupingName)
-        .append("groupingToId2", this.groupingToId2)
-        .append("groupingToId3", this.groupingFromId3)
+        .append("groupFromId2", this.groupFromId2)
+        .append("groupFromId3", this.groupFromId3)
+        .append("groupName", this.groupName)
+        .append("groupToId2", this.groupToId2)
+        .append("groupToId3", this.groupFromId3)
         .append("inTarget", this.isInTarget())
+        .append("inTargetInsertOrExists", this.isInTargetInsertOrExists())
         .append("inTargetStart", this.getInTargetStart())
         .append("inTargetEnd", this.getInTargetEnd())
-        .append("lastTimeWorkWasDone", this.getLastTimeWorkWasDone())
         .append("provisionable", this.isProvisionable())
         .append("provisionableStart", this.getProvisionableStart())
         .append("provisionableEnd", this.getProvisionableEnd())
-        .append("totalCount", this.getTotalCount())
         .append("lastUpdated", this.lastUpdated)
         .append("lastTimeWorkWasDone", this.lastTimeWorkWasDone).build();
   }
@@ -225,7 +227,7 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   /**
    * 
    */
-  public GcGrouperSyncGrouping() {
+  public GcGrouperSyncGroup() {
   }
   
   /**
@@ -253,13 +255,13 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * if this grouping exists in the target/destination
+   * if this group exists in the target/destination
    */
   @GcPersistableField(columnName="in_target")
   private String inTargetDb;
   
   /**
-   * if this grouping exists in the target/destination
+   * if this group exists in the target/destination
    * @return if in target
    */
   public String getInTargetDb() {
@@ -267,7 +269,7 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * if this grouping exists in the target/destination
+   * if this group exists in the target/destination
    * @param inTargetDb1
    */
   public void setInTargetDb(String inTargetDb1) {
@@ -292,7 +294,7 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   
 
   /**
-   * if this grouping exists in the target/destination
+   * if this group exists in the target/destination
    * @return if is target
    */
   public Boolean getInTarget() {
@@ -300,11 +302,41 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
   
   /**
-   * if this grouping exists in the target/destination
-   * @param inTarget
+   * T if inserted on the in_target_start date, or F if it existed then and not sure when inserted
    */
-  public void setInTarget(Boolean inTarget) {
-    this.inTargetDb = inTarget ? "T" : "F";
+  @GcPersistableField(columnName="in_target_insert_or_exists")
+  private String inTargetInsertOrExistsDb;
+
+  /**
+   * T if inserted on the in_target_start date, or F if it existed then and not sure when inserted
+   * @return true or false
+   */
+  public String getInTargetInsertOrExistsDb() {
+    return this.inTargetInsertOrExistsDb;
+  }
+
+  /**
+   * T if inserted on the in_target_start date, or F if it existed then and not sure when inserted
+   * @param inTargetInsertOrExistsDb1
+   */
+  public void setInTargetInsertOrExistsDb(String inTargetInsertOrExistsDb1) {
+    this.inTargetInsertOrExistsDb = inTargetInsertOrExistsDb1;
+  }
+
+  /**
+   * T if inserted on the in_target_start date, or F if it existed then and not sure when inserted
+   * @return true or false
+   */
+  public boolean isInTargetInsertOrExists() {
+    return GrouperClientUtils.booleanValue(this.inTargetInsertOrExistsDb, false);
+  }
+  
+  /**
+   * T if inserted on the in_target_start date, or F if it existed then and not sure when inserted
+   * @param inTargetInsertOrExists
+   */
+  public void setInTargetInsertOrExists(boolean inTargetInsertOrExists) {
+    this.inTargetInsertOrExistsDb = inTargetInsertOrExists ? "T" : "F";
   }
   
   /**
@@ -326,6 +358,9 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
    */
   public void setGrouperSyncId(String grouperSyncId1) {
     this.grouperSyncId = grouperSyncId1;
+    if (this.grouperSync == null || !GrouperClientUtils.equals(this.grouperSync.getId(), grouperSyncId1)) {
+      this.grouperSync = null;
+    }
   }
 
   /**
@@ -350,45 +385,45 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * for groups this is the group idIndex
+   * for groups this is the group uuid, though not a real foreign key
    */
-  private String groupingId;
+  private String groupId;
   
   /**
-   * for groups this is the group idIndex
+   * for groups this is the group uuid, though not a real foreign key
    * @return group id
    */
-  public String getGroupingId() {
-    return this.groupingId;
+  public String getGroupId() {
+    return this.groupId;
   }
 
   /**
-   * for groups this is the group idIndex
-   * @param groupingId1
+   * for groups this is the group uuid, though not a real foreign key
+   * @param groupId1
    */
-  public void setGroupingId(String groupingId1) {
-    this.groupingId = groupingId1;
+  public void setGroupId(String groupId1) {
+    this.groupId = groupId1;
   }
 
   /**
    * for groups this is the group system name
    */
-  private String groupingName;
+  private String groupName;
   
   /**
    * for groups this is the group system name
-   * @return grouping name
+   * @return group name
    */
-  public String getGroupingName() {
-    return this.groupingName;
+  public String getGroupName() {
+    return this.groupName;
   }
 
   /**
    * for groups this is the group system name
-   * @param groupingName1
+   * @param groupName1
    */
-  public void setGroupingName(String groupingName1) {
-    this.groupingName = groupingName1;
+  public void setGroupName(String groupName1) {
+    this.groupName = groupName1;
   }
 
   /**
@@ -430,12 +465,12 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
   
   /**
-   * millis since 1970 that this grouping started to be provisionable
+   * millis since 1970 that this group started to be provisionable
    */
   private Timestamp provisionableStart;
     
   /**
-   * millis since 1970 that this grouping started to be provisionable
+   * millis since 1970 that this group started to be provisionable
    * @return millis
    */
   public Timestamp getProvisionableStart() {
@@ -443,7 +478,7 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * millis since 1970 that this grouping started to be provisionable
+   * millis since 1970 that this group started to be provisionable
    * @param provisionableStartMillis1
    */
   public void setProvisionableStart(Timestamp provisionableStartMillis1) {
@@ -495,12 +530,12 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * millis since 1970 that this grouping ended being provisionable
+   * millis since 1970 that this group ended being provisionable
    */
   private Timestamp provisionableEnd;
 
   /**
-   * millis since 1970 that this grouping ended being provisionable
+   * millis since 1970 that this group ended being provisionable
    * @return millis
    */
   public Timestamp getProvisionableEnd() {
@@ -508,7 +543,7 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * millis since 1970 that this grouping ended being provisionable
+   * millis since 1970 that this group ended being provisionable
    * @param provisionableEndMillis1
    */
   public void setProvisionableEnd(Timestamp provisionableEndMillis1) {
@@ -516,108 +551,87 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * number of records in this grouping
+   * for groups this is the group idIndex
    */
-  private Integer totalCount;
+  private String groupFromId2;
 
   /**
-   * number of records in this grouping
-   * @return total count
+   * for groups this is the group idIndex
+   * @return group from id 2
    */
-  public Integer getTotalCount() {
-    return this.totalCount;
+  public String getGroupFromId2() {
+    return this.groupFromId2;
   }
 
   /**
-   * number of records in this grouping
-   * @param totalCount1
+   * for groups this is the group idIndex
+   * @param groupFromId2_1
    */
-  public void setTotalCount(Integer totalCount1) {
-    this.totalCount = totalCount1;
-  }
-
-  /**
-   * for groups this is the group uuid
-   */
-  private String groupingFromId2;
-
-  /**
-   * for groups this is the group uuid
-   * @return grouping from id 2
-   */
-  public String getGroupingFromId2() {
-    return this.groupingFromId2;
-  }
-
-  /**
-   * for groups this is the group uuid
-   * @param groupingFromId2_1
-   */
-  public void setGroupingFromId2(String groupingFromId2_1) {
-    this.groupingFromId2 = groupingFromId2_1;
+  public void setGroupFromId2(String groupFromId2_1) {
+    this.groupFromId2 = groupFromId2_1;
   }
 
   /**
    * other metadata on groups
    */
-  private String groupingFromId3;
+  private String groupFromId3;
 
   /**
    * other metadata on groups
    * @return id3
    */
-  public String getGroupingFromId3() {
-    return this.groupingFromId3;
+  public String getGroupFromId3() {
+    return this.groupFromId3;
   }
 
   /**
    * other metadata on groups
-   * @param groupingFromId3_1
+   * @param groupFromId3_1
    */
-  public void setGroupingFromId3(String groupingFromId3_1) {
-    this.groupingFromId3 = groupingFromId3_1;
+  public void setGroupFromId3(String groupFromId3_1) {
+    this.groupFromId3 = groupFromId3_1;
   }
 
   /**
    * other metadata on groups
    */
-  private String groupingToId2;
+  private String groupToId2;
   
   /**
    * other metadata on groups
    * @return metadata
    */
-  public String getGroupingToId2() {
-    return this.groupingToId2;
+  public String getGroupToId2() {
+    return this.groupToId2;
   }
 
   /**
    * other metadata on groups
-   * @param groupingToId2_1
+   * @param groupToId2_1
    */
-  public void setGroupingToId2(String groupingToId2_1) {
-    this.groupingToId2 = groupingToId2_1;
+  public void setGroupToId2(String groupToId2_1) {
+    this.groupToId2 = groupToId2_1;
   }
 
   /**
    * other metadata on groups
    */
-  private String groupingToId3;
+  private String groupToId3;
 
   /**
    * other metadata on groups
-   * @return grouping id
+   * @return group id
    */
-  public String getGroupingToId3() {
-    return this.groupingToId3;
+  public String getGroupToId3() {
+    return this.groupToId3;
   }
 
   /**
    * other metadata on groups
-   * @param groupingToId3_1
+   * @param groupToId3_1
    */
-  public void setGroupingToId3(String groupingToId3_1) {
-    this.groupingToId3 = groupingToId3_1;
+  public void setGroupToId3(String groupToId3_1) {
+    this.groupToId3 = groupToId3_1;
   }
 
   /**
@@ -626,6 +640,41 @@ public class GcGrouperSyncGrouping implements GcSqlAssignPrimaryKey {
   @Override
   public void gcSqlAssignNewPrimaryKeyForInsert() {
     this.id = GrouperClientUtils.uuid();
+  }
+
+
+  /**
+   * select grouper sync group by id
+   * @param theConnectionName
+   * @param provisionerName
+   * @return the sync
+   */
+  public static GcGrouperSyncGroup retrieveById(String theConnectionName, String id) {
+    theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
+    GcGrouperSyncGroup gcGrouperSyncGroup = new GcDbAccess().connectionName(theConnectionName)
+        .sql("select * from grouper_sync_group where id = ?").addBindVar(id).select(GcGrouperSyncGroup.class);
+    if (gcGrouperSyncGroup != null) {
+      gcGrouperSyncGroup.connectionName = theConnectionName;
+    }
+    return gcGrouperSyncGroup;
+  }
+
+
+  /**
+   * select grouper sync group by sync id and group id
+   * @param grouperSyncId
+   * @param grouperGroupId
+   * @param provisionerName
+   * @return the sync
+   */
+  public static GcGrouperSyncGroup retrieveBySyncIdAndGroupId(String theConnectionName, String grouperSyncId, String grouperGroupId) {
+    theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
+    GcGrouperSyncGroup gcGrouperSyncGroup = new GcDbAccess().connectionName(theConnectionName)
+        .sql("select * from grouper_sync_group where grouper_sync_id = ? and group_id = ?").addBindVar(grouperSyncId).addBindVar(grouperGroupId).select(GcGrouperSyncGroup.class);
+    if (gcGrouperSyncGroup != null) {
+      gcGrouperSyncGroup.connectionName = theConnectionName;
+    }
+    return gcGrouperSyncGroup;
   }
 
 

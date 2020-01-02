@@ -51,21 +51,25 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
     theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
     GcGrouperSync gcGrouperSync = new GcDbAccess().connectionName(theConnectionName)
         .sql("select * from grouper_sync where provisioner_name = ?").addBindVar(provisionerName).select(GcGrouperSync.class);
-    gcGrouperSync.connectionName = theConnectionName;
+    if (gcGrouperSync != null) {
+      gcGrouperSync.connectionName = theConnectionName;
+    }
     return gcGrouperSync;
   }
   
   /**
    * select grouper sync by id
    * @param theConnectionName
-   * @param provisionerName
+   * @param id
    * @return the sync
    */
   public static GcGrouperSync retrieveById(String theConnectionName, String id) {
     theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
     GcGrouperSync gcGrouperSync = new GcDbAccess().connectionName(theConnectionName)
         .sql("select * from grouper_sync where id = ?").addBindVar(id).select(GcGrouperSync.class);
-    gcGrouperSync.connectionName = theConnectionName;
+    if (gcGrouperSync != null) {
+      gcGrouperSync.connectionName = theConnectionName;
+    }
     return gcGrouperSync;
   }
   
@@ -76,21 +80,48 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
    * @return the job
    */
   public GcGrouperSyncJob retrieveJobBySyncType(String syncType) {
-    return new GcDbAccess().connectionName(this.connectionName)
+    GcGrouperSyncJob gcGrouperSyncJob = new GcDbAccess().connectionName(this.connectionName)
         .sql("select * from grouper_sync_job where grouper_sync_id = ? and sync_type = ?")
           .addBindVar(this.id).addBindVar(syncType).select(GcGrouperSyncJob.class);
+    if (gcGrouperSyncJob != null) {
+      gcGrouperSyncJob.setGrouperSync(this);
+      gcGrouperSyncJob.setConnectionName(this.connectionName);
+    }
+    return gcGrouperSyncJob;
   }
   
   /**
-   * select grouper sync grouping by grouping id
+   * select grouper sync group by group id
    * @param connectionName
-   * @param groupingId
-   * @return the grouping
+   * @param groupId
+   * @return the group
    */
-  public GcGrouperSyncGrouping retrieveGroupingByGroupingId(String groupingId) {
-    return new GcDbAccess().connectionName(this.connectionName)
-        .sql("select * from grouper_sync_grouping where grouper_sync_id = ? and grouping_id = ?")
-          .addBindVar(this.id).addBindVar(groupingId).select(GcGrouperSyncGrouping.class);
+  public GcGrouperSyncGroup retrieveGroupByGroupId(String groupId) {
+    GcGrouperSyncGroup gcGrouperSyncGroup = new GcDbAccess().connectionName(this.connectionName)
+        .sql("select * from grouper_sync_group where grouper_sync_id = ? and group_id = ?")
+          .addBindVar(this.id).addBindVar(groupId).select(GcGrouperSyncGroup.class);
+    if (gcGrouperSyncGroup != null) {
+      gcGrouperSyncGroup.setGrouperSync(this);
+      gcGrouperSyncGroup.setConnectionName(this.connectionName);
+    }
+    return gcGrouperSyncGroup;
+  }
+  
+  /**
+   * select grouper sync user by user id
+   * @param connectionName
+   * @param mcemberId
+   * @return the user
+   */
+  public GcGrouperSyncMember retrieveMemberByMemberId(String memberId) {
+    GcGrouperSyncMember gcGrouperSyncUser = new GcDbAccess().connectionName(this.connectionName)
+        .sql("select * from grouper_sync_member where grouper_sync_id = ? and member_id = ?")
+          .addBindVar(this.id).addBindVar(memberId).select(GcGrouperSyncMember.class);
+    if (gcGrouperSyncUser != null) {
+      gcGrouperSyncUser.setGrouperSync(this);
+      gcGrouperSyncUser.setConnectionName(this.connectionName);
+    }
+    return gcGrouperSyncUser;
   }
   
   /**
@@ -124,14 +155,16 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
       this.lastUpdated = new Timestamp(System.currentTimeMillis());
       this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
       new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
-    } catch (RuntimeException e) {
-      LOG.info("GrouperSync uuid potential mismatch: " + this.provisionerName, e);
+    } catch (RuntimeException re) {
+      LOG.info("GrouperSync uuid potential mismatch: " + this.provisionerName, re);
       // maybe a different uuid is there
       GcGrouperSync gcGrouperSync = retrieveByProvisionerName(this.connectionName, this.getProvisionerName());
       if (gcGrouperSync != null) {
         this.id = gcGrouperSync.getId();
         new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
         LOG.warn("GrouperSync uuid mismatch corrected: " + this.provisionerName);
+      } else {
+        throw re;
       }
     }
   }
@@ -164,7 +197,7 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
     gcGrouperSync.setProvisionerName("myJob");
     gcGrouperSync.setLastUpdated(new Timestamp(System.currentTimeMillis()));
     gcGrouperSync.setRecordsCount(10);
-    gcGrouperSync.setGroupingCount(5);
+    gcGrouperSync.setGroupCount(5);
     gcGrouperSync.setUserCount(12);
     gcGrouperSync.setConnectionName("grouper");
     gcGrouperSync.store();
@@ -203,7 +236,7 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
         .append("provisionerName", this.provisionerName)
         .append("lastUpdated", this.lastUpdated)
         .append("recordsCount", this.recordsCount)
-        .append("groupingCount", this.groupingCount)
+        .append("groupCount", this.groupCount)
         .append("userCount", this.userCount).build();
   }
 
@@ -305,25 +338,25 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * if grouping this is the number of groups
+   * if group this is the number of groups
    */
-  private Integer groupingCount;
+  private Integer groupCount;
 
 
   /**
-   * if grouping this is the number of groups
-   * @return grouping count
+   * if group this is the number of groups
+   * @return group count
    */
-  public Integer getGroupingCount() {
-    return this.groupingCount;
+  public Integer getGroupCount() {
+    return this.groupCount;
   }
 
   /**
-   * if grouping this is the number of groups
-   * @param groupingCount1
+   * if group this is the number of groups
+   * @param groupCount1
    */
-  public void setGroupingCount(Integer groupingCount1) {
-    this.groupingCount = groupingCount1;
+  public void setGroupCount(Integer groupCount1) {
+    this.groupCount = groupCount1;
   }
 
   /**

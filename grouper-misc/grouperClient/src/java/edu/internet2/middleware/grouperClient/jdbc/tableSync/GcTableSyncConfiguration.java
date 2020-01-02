@@ -6,7 +6,6 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -91,9 +90,9 @@ public class GcTableSyncConfiguration {
   
 
   /**
-   * grouping column
+   * group column
    */
-  private String groupingColumnString;
+  private String groupColumnString;
  
   /**
    * batch size when batching data
@@ -124,7 +123,7 @@ public class GcTableSyncConfiguration {
   private int groupingSize;
 
   /**
-   * @return the groupingSize
+   * @return the groupSize
    */
   public int getGroupingSize() {
     return this.groupingSize;
@@ -134,11 +133,55 @@ public class GcTableSyncConfiguration {
    * key in config that points to this instance of table sync
    */
   private String configKey;
+
+  /**
+   * if doing fullSyncChangeFlag (look for a col that says if the rows are equal, e.g. a timestamp or a checksum)
+   */
+  private String fullSyncChangeFlagColumnString;
+  
+  /**
+   * if doing fullSyncChangeFlag (look for a col that says if the rows are equal, e.g. a timestamp or a checksum)
+   * @return col
+   */
+  public String getFullSyncChangeFlagColumnString() {
+    return this.fullSyncChangeFlagColumnString;
+  }
+
+  /**
+   * if doing fullSyncChangeFlag (look for a col that says if the rows are equal, e.g. a timestamp or a checksum)
+   * @param fullSyncChangeFlagColumnString1
+   */
+  public void setFullSyncChangeFlagColumnString(String fullSyncChangeFlagColumnString1) {
+    this.fullSyncChangeFlagColumnString = fullSyncChangeFlagColumnString1;
+  }
+
+  /**
+   * name of a column that has a sequence or last updated date
+   */
+  private String incrementalAllColumnsColumnString;
+
+  /**
+   * name of a column that has a sequence or last updated date
+   * @return incremental col
+   */
+  public String getIncrementalAllColumnsColumnString() {
+    return this.incrementalAllColumnsColumnString;
+  }
+
+  /**
+   * name of a column that has a sequence or last updated date
+   * @param incrementalAllColumnsColumnString1
+   */
+  public void setIncrementalAllColumnsColumnString(
+      String incrementalAllColumnsColumnString1) {
+    this.incrementalAllColumnsColumnString = incrementalAllColumnsColumnString1;
+  }
+
   /**
    * realTimeLastUpdatedColumn column
    */
   private String realTimeLastUpdatedColumnString;
-  
+
   /**
    * realTimeColumnsString comma separated list of column names to select from real time table
    */
@@ -163,7 +206,7 @@ public class GcTableSyncConfiguration {
   /**
    * table where real time primary key and last_updated col is
    */
-  private String realTimeTable;
+  private String incrementalPrimaryKeyTable;
   /**
    * grouperClient.syncTable.personSource.statusDatabase = awsDev
    */
@@ -185,28 +228,6 @@ public class GcTableSyncConfiguration {
    * 
    */
   public GcTableSyncConfiguration() {
-  }
-
-  /**
-   * if there are linked jobs (e.g. configured similarly and dont run at same time)
-   */
-  private Set<String> linkedConfigKeys = null;
-  
-  /**
-   * if there are linked jobs (e.g. configured similarly and dont run at same time)
-   * @return the linkedJobKeys
-   */
-  public Set<String> getLinkedConfigKeys() {
-    return this.linkedConfigKeys;
-  }
-
-  
-  /**
-   * if there are linked jobs (e.g. configured similarly and dont run at same time)
-   * @param linkedJobKeys1 the linkedJobKeys to set
-   */
-  public void setLinkedConfigKeys(Set<String> linkedJobKeys1) {
-    this.linkedConfigKeys = linkedJobKeys1;
   }
 
   /**
@@ -239,15 +260,12 @@ public class GcTableSyncConfiguration {
    */
   public String retrieveConfigString(String configName, boolean required) {
     //  grouperClient.syncTable.personSource.configName = pcom
+    
+    change this to part of config
+    
     String value = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + this.configKey + "." + configName);
     if (!StringUtils.isBlank(value)) {
       return value;
-    }
-    for (String linkedConfigKey : GrouperClientUtils.nonNull(this.linkedConfigKeys)) {
-      value = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + linkedConfigKey + "." + configName);
-      if (!StringUtils.isBlank(value)) {
-        return value;
-      }
     }
     value = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTableDefault." + configName);
     if (!StringUtils.isBlank(value)) {
@@ -322,12 +340,6 @@ public class GcTableSyncConfiguration {
       debugMap = new LinkedHashMap();
     }
     
-    // find linked jobs
-    this.linkedConfigKeys = GrouperClientUtils.nonNull(GrouperClientConfig.retrieveConfig().dbSyncConfigKeyLinkedToConfigKeys().get(this.configKey));
-    if (GrouperClientUtils.length(this.linkedConfigKeys) > 0) {
-      debugMap.put("configLinkedConfigKeys", this.linkedConfigKeys);
-    }
-    
     //  grouperClient.syncTable.personSource.databaseFrom = pcom
     this.databaseFrom = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("databaseFrom", false), "grouper");
     debugMap.put("configDatabaseFrom", this.databaseFrom);
@@ -364,15 +376,29 @@ public class GcTableSyncConfiguration {
     this.primaryKeyColumnsString = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("primaryKeyColumns", false), "*");
     debugMap.put("configPrimaryKeyColumns", this.primaryKeyColumnsString);
 
-    //  grouperClient.syncTable.personSource.groupingColumn = penn_id
-    this.groupingColumnString = this.retrieveConfigString("groupingColumn", false);
-    if (this.gcTableSyncSubtype.isNeedsGroupingColumn() ) {
-      if (StringUtils.isBlank(this.groupingColumnString)) {
-        this.groupingColumnString = this.primaryKeyColumnsString;
-      }
-      debugMap.put("configGroupingColumns", this.primaryKeyColumnsString);
+    // grouperClient.syncTable.personSource.fullSyncChangeFlagColumn = check_sum
+    this.fullSyncChangeFlagColumnString = this.retrieveConfigString("fullSyncChangeFlagColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.fullSyncChangeFlag);
+    if (!GrouperClientUtils.isBlank(this.fullSyncChangeFlagColumnString)) {
+      debugMap.put("fullSyncChangeFlagColumn", this.fullSyncChangeFlagColumnString);
     }
-
+    
+    // grouperClient.syncTable.personSource.incrementalAllColumnsColumn = last_updated
+    this.incrementalAllColumnsColumnString = this.retrieveConfigString("incrementalAllColumnsColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalAllColumns);
+    if (!GrouperClientUtils.isBlank(this.incrementalAllColumnsColumnString)) {
+      debugMap.put("incrementalAllColumnsColumn", this.incrementalAllColumnsColumnString);
+    }
+    
+    //  grouperClient.syncTable.personSource.groupColumn = penn_id
+    this.groupColumnString = this.retrieveConfigString("groupColumn", false);
+    if (this.gcTableSyncSubtype.isNeedsGroupColumn() ) {
+      if (GrouperClientUtils.isBlank(this.groupColumnString)) {
+        this.groupColumnString = this.primaryKeyColumnsString;
+      }
+    }
+    if (!GrouperClientUtils.isBlank(this.groupColumnString)) {
+      debugMap.put("configGroupColumn", this.groupColumnString);
+    }
+    
     // grouperClient.syncTable.personSource.batchSize = 50
     // size of jdbc batches
     this.batchSize = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("batchSize", false), 1000);
@@ -381,10 +407,10 @@ public class GcTableSyncConfiguration {
     }
     
     // grouperClient.syncTable.personSource.groupingSize = 10000
-    // the grouping column is what is uniquely selected, and then batched through to get data, defaults to 10000
+    // the group column is what is uniquely selected, and then batched through to get data, defaults to 10000
     // size of jdbc batches
-    this.groupingSize = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("groupingSize", false), 1000);
-    if (this.groupingSize != 1000) {
+    this.groupingSize = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("groupingSize", false), 10000);
+    if (this.groupingSize != 10000) {
       debugMap.put("configGroupingSize", this.groupingSize);
     }
 
@@ -400,10 +426,10 @@ public class GcTableSyncConfiguration {
       debugMap.put("configStatusTable", this.statusTable);
     }
 
-    // grouperClient.syncTable.personSource.realTimeTable = real_time_table
-    this.realTimeTable = GrouperClientUtils.defaultIfNull(this.retrieveConfigString("realTimeTable", false), this.tableFrom);
-    if (!StringUtils.equals(this.realTimeTable, this.tableFrom)) {
-      debugMap.put("configStatusTable", this.statusTable);
+    // grouperClient.syncTable.personSource.incrementalPrimaryKeyTable = real_time_table
+    this.incrementalPrimaryKeyTable = GrouperClientUtils.defaultIfNull(this.retrieveConfigString("incrementalPrimaryKeyTable", false), this.tableFrom);
+    if (!GrouperClientUtils.isBlank(this.incrementalPrimaryKeyTable)) {
+      debugMap.put("incrementalPrimaryKeyTable", this.incrementalPrimaryKeyTable);
     }
 
     // grouperClient.syncTable.personSource.realTimeLastUpdatedColumn = last_updated
@@ -430,8 +456,8 @@ public class GcTableSyncConfiguration {
    * table where real time primary key and last_updated col is
    * @return the realTimeTable
    */
-  public String getRealTimeTable() {
-    return this.realTimeTable;
+  public String getIncrementalPrimaryKeyTable() {
+    return this.incrementalPrimaryKeyTable;
   }
 
   /**
@@ -466,11 +492,11 @@ public class GcTableSyncConfiguration {
   }
 
   /**
-   * grouping column
-   * @return the groupingColumn
+   * group column
+   * @return the groupColumn
    */
-  public String getGroupingColumnString() {
-    return this.groupingColumnString;
+  public String getGroupColumnString() {
+    return this.groupColumnString;
   }
 
   /**
@@ -498,17 +524,17 @@ public class GcTableSyncConfiguration {
   }
 
   /**
-   * @param groupingColumn1 the groupingColumn to set
+   * @param groupColumn1 the groupColumn to set
    */
-  public void setGroupingColumnString(String groupingColumn1) {
-    this.groupingColumnString = groupingColumn1;
+  public void setGroupColumnString(String groupColumn1) {
+    this.groupColumnString = groupColumn1;
   }
 
   /**
-   * @param groupingSize1 the groupingSize to set
+   * @param groupSize1 the groupSize to set
    */
-  public void setGroupingSize(int groupingSize1) {
-    this.groupingSize = groupingSize1;
+  public void setGroupingSize(int groupSize1) {
+    this.groupingSize = groupSize1;
   }
 
   /**
@@ -530,8 +556,8 @@ public class GcTableSyncConfiguration {
    * table where real time primary key and last_updated col is
    * @param realTimeTable1 the realTimeTable to set
    */
-  public void setRealTimeTable(String realTimeTable1) {
-    this.realTimeTable = realTimeTable1;
+  public void setIncrementalPrimaryKeyTable(String realTimeTable1) {
+    this.incrementalPrimaryKeyTable = realTimeTable1;
   }
 
   /**

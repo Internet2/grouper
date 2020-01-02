@@ -97,7 +97,7 @@ public class GcTableSyncTableBean {
 
 
   /**
-   * data in the table e.g. for grouping or whatever
+   * data in the table e.g. for group or whatever
    */
   private GcTableSyncTableData dataPartialColumns;
 
@@ -108,9 +108,9 @@ public class GcTableSyncTableBean {
 
   
   /**
-   * grouping unique vals from source
+   * group unique vals from source
    */
-  private List<Object> groupingUniqueValues;
+  private List<Object> groupUniqueValues;
 
   /**
    * data in the table
@@ -130,19 +130,19 @@ public class GcTableSyncTableBean {
   }
 
   /**
-   * grouping unique vals from source
-   * @return the fromGroupingUniqueValues
+   * group unique vals from source
+   * @return the fromGroupUniqueValues
    */
-  public List<Object> getGroupingUniqueValues() {
-    return this.groupingUniqueValues;
+  public List<Object> getGroupUniqueValues() {
+    return this.groupUniqueValues;
   }
 
   /**
-   * grouping unique vals from source
-   * @param fromGroupingUniqueValues1 the fromGroupingUniqueValues to set
+   * group unique vals from source
+   * @param fromGroupUniqueValues1 the fromGroupUniqueValues to set
    */
-  public void setGroupingUniqueValues(List<Object> fromGroupingUniqueValues1) {
-    this.groupingUniqueValues = fromGroupingUniqueValues1;
+  public void setGroupUniqueValues(List<Object> fromGroupUniqueValues1) {
+    this.groupUniqueValues = fromGroupUniqueValues1;
   }
 
 }

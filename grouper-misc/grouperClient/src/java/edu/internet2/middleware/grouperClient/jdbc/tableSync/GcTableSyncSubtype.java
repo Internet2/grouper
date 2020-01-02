@@ -27,9 +27,9 @@ public enum GcTableSyncSubtype {
   },
   
   /**
-   * full sync but do groupings on single col primary key or single grouping col (e.g. group name of memberships)
+   * full sync but do groups on single col primary key or single group col (e.g. group name of memberships)
    */
-  fullSyncGroupings {
+  fullSyncGroups {
 
     /**
      * see if full sync
@@ -41,11 +41,11 @@ public enum GcTableSyncSubtype {
     }
     
     /**
-     * see if needs grouping column
-     * @return true if needs grouping column
+     * see if needs group column
+     * @return true if needs group column
      */
     @Override
-    public boolean isNeedsGroupingColumn() { 
+    public boolean isNeedsGroupColumn() { 
       return true;
     }
 
@@ -69,7 +69,7 @@ public enum GcTableSyncSubtype {
   /**
    * get all incremental rows and all columns in those rows (e.g. last updated col on source, which might not get deletes unless there is a disabled flag)
    */
-  incrementalFullAllColumns {
+  incrementalAllColumns {
 
     /**
      * see if full sync
@@ -84,7 +84,7 @@ public enum GcTableSyncSubtype {
   /**
    * get all incremental rows, which have the primary keys of rows that need updating
    */
-  incrementalFullPrimaryKey {
+  incrementalPrimaryKey {
 
     /**
      * see if full sync
@@ -106,7 +106,7 @@ public enum GcTableSyncSubtype {
    * see if full sync
    * @return true if full sync or false if incremental
    */
-  public boolean isNeedsGroupingColumn() { 
+  public boolean isNeedsGroupColumn() { 
     return false;
   }
   

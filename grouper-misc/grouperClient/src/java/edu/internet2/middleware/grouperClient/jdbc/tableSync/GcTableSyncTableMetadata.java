@@ -297,9 +297,9 @@ public class GcTableSyncTableMetadata {
   private List<GcTableSyncColumnMetadata> columns;
 
   /**
-   * if grouping this is the grouping column
+   * if group this is the group column
    */
-  private GcTableSyncColumnMetadata groupingColumn;
+  private GcTableSyncColumnMetadata groupColumn;
 
   
   /**
@@ -375,18 +375,18 @@ public class GcTableSyncTableMetadata {
 
   /**
    * 
-   * @param groupingColumnName
+   * @param groupColumnName
    */
-  public void assignGroupingColumn(String groupingColumnName) {
-    this.groupingColumn = this.lookupColumn(groupingColumnName);
+  public void assignGroupColumn(String groupColumnName) {
+    this.groupColumn = this.lookupColumn(groupColumnName);
   }
 
   /**
-   * get grouping column metadata
+   * get group column metadata
    * @return the metadata
    */
-  public GcTableSyncColumnMetadata getGroupingColumnMetadata() {
-    return this.getGroupingColumnMetadata();
+  public GcTableSyncColumnMetadata getGroupColumnMetadata() {
+    return this.getGroupColumnMetadata();
   }
   
 }

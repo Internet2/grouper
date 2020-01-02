@@ -28,6 +28,22 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
   private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSyncJob.class);
 
   /**
+   * select grouper sync job by id
+   * @param theConnectionName
+   * @param id
+   * @return the sync job
+   */
+  public static GcGrouperSyncJob retrieveById(String theConnectionName, String id) {
+    theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
+    GcGrouperSyncJob gcGrouperSyncJob = new GcDbAccess().connectionName(theConnectionName)
+        .sql("select * from grouper_sync_job where id = ?").addBindVar(id).select(GcGrouperSyncJob.class);
+    if (gcGrouperSyncJob != null) {
+      gcGrouperSyncJob.connectionName = theConnectionName;
+    }
+    return gcGrouperSyncJob;
+  }
+
+  /**
    * 
    * @param connectionName
    */
@@ -251,10 +267,10 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
    * @param grouperSyncId1
    */
   public void setGrouperSyncId(String grouperSyncId1) {
+    this.grouperSyncId = grouperSyncId1;
     if (this.grouperSync == null || !GrouperClientUtils.equals(this.grouperSync.getId(), grouperSyncId1)) {
       this.grouperSync = null;
     }
-    this.grouperSyncId = grouperSyncId1;
   }
   
   /**
@@ -278,6 +294,27 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
    */
   public void setJobState(String jobState1) {
     this.jobState = jobState1;
+  }
+
+  /**
+   * when last record processed if timestamp and not integer
+   */
+  private Timestamp lastSyncTimestamp;
+  
+  /**
+   * when last record processed if timestamp and not integer
+   * @return when processed
+   */
+  public Timestamp getLastSyncTimestamp() {
+    return this.lastSyncTimestamp;
+  }
+
+  /**
+   * when last record processed if timestamp and not integer
+   * @param lastSyncTimestamp1
+   */
+  public void setLastSyncTimestamp(Timestamp lastSyncTimestamp1) {
+    this.lastSyncTimestamp = lastSyncTimestamp1;
   }
 
   /**

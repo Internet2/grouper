@@ -142,7 +142,7 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
    * get map of dependencies of db sync jobs, do all calculations
    * @return the map of config key to linked config keys
    */
-  public Map<String, Set<String>> dbSyncConfigKeyLinkedToConfigKeys() {
+  public Map<String, Set<String>> dbSyncConfigKeyLinkedToConfigKeysBak() {
     
     if (this.dbSyncConfigKeyLinkedToConfigKeys != null) {
       return this.dbSyncConfigKeyLinkedToConfigKeys;
