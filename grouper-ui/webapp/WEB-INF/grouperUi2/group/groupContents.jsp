@@ -102,6 +102,9 @@
                                     <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
                                       <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>
                                     </c:if>
+                                    <c:if test="${grouperRequestContainer.groupContainer.canAdmin || grouperRequestContainer.groupContainer.canReadAttributes || grouperRequestContainer.groupContainer.canUpdateAttributes}">
+                                      <li><a href="#" onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewMembershipAttributeAssignments'] }</a></li>
+                                    </c:if>
                                   </ul>
                                 </div>
                               </c:if>

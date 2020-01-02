@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignGroupDelegate;
@@ -20,6 +21,9 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -71,6 +75,100 @@ public class UiV2GroupAttributeAssignment {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+    
+  }
+  
+  /**
+   * view membership attributes assigned to this group.
+   * @param request
+   * @param response
+   */
+  public void viewMembershipAttributeAssignments(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, true).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/groupMembershipAttribute/viewGroupMembershipAttributeAssigns.jsp"));
+      
+      membershipAttributeAssignmentsFilter(group);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * show membership attribute assignments for the given group
+   * @param group
+   */
+  private void membershipAttributeAssignmentsFilter(Group group) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    Set<Member> members = group.getMembers();
+    
+    String attributeAssignAttributeDef = null;
+    String attributeAssignAttributeName = null;
+    String attributeAssignStem = null;
+    String attributeAssignOwnerAttributeDef = null;
+    String attributeAssignMembershipId = null;
+    Boolean enabledDisabledBoolean = null;
+    
+    Set<GuiAttributeAssign> guiAttributeAssigns = new TreeSet<GuiAttributeAssign>();
+    
+    for (Member member: members) {
+      
+      Set<AttributeAssign> attributeAssignsMemberships = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(
+          AttributeAssignType.any_mem,
+          attributeAssignAttributeDef, attributeAssignAttributeName, group.getId(), 
+          attributeAssignStem, member.getUuid(), attributeAssignOwnerAttributeDef, 
+          attributeAssignMembershipId, 
+          enabledDisabledBoolean, false);
+      
+      Set<AttributeAssign> attributeAssignsImmMemberships = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(
+          AttributeAssignType.imm_mem,
+          attributeAssignAttributeDef, attributeAssignAttributeName, group.getId(), 
+          attributeAssignStem, member.getUuid(), attributeAssignOwnerAttributeDef, 
+          attributeAssignMembershipId, 
+          enabledDisabledBoolean, false);
+      
+      for (AttributeAssign attributeAssign : attributeAssignsMemberships) {
+        GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
+        guiAttributeAssign.setAttributeAssign(attributeAssign);
+        guiAttributeAssign.setGuiMember(new GuiMember(member));
+        guiAttributeAssigns.add(guiAttributeAssign);
+      }
+      
+      for (AttributeAssign attributeAssign : attributeAssignsImmMemberships) {
+        GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
+        guiAttributeAssign.setAttributeAssign(attributeAssign);
+        guiAttributeAssign.setGuiMember(new GuiMember(member));
+        guiAttributeAssigns.add(guiAttributeAssign);
+      }
+    
+    }
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    grouperRequestContainer.getMembershipGuiContainer().setGuiAttributeAssigns(guiAttributeAssigns);
+
+    grouperRequestContainer.getGroupContainer().setGuiGroup(new GuiGroup(group));
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewMembershipAttributeAssignments",
+        "/WEB-INF/grouperUi2/groupMembershipAttribute/groupMembershipViewAttributeAssignsContents.jsp"));
     
   }
   

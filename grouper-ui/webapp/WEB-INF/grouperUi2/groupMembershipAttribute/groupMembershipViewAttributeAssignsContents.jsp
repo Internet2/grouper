@@ -21,10 +21,10 @@
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderAssignmentType']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderAttributeName']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderGroup']}</th>
+                 <th>${textContainer.text['simpleAttributeUpdate.assignHeaderEntity']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderEnabled']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderValues']}</th>
                  <th>${textContainer.text['simpleAttributeUpdate.assignHeaderAttributeDef']}</th>
-                 <th>${textContainer.text['membershipViewAttributeAssignmentsColumnAction']}</th>
                </tr>
              </thead>
              <tbody>
@@ -36,6 +36,7 @@
                    <td style="white-space: nowrap;">${textContainer.text['simpleAttributeUpdate.assignDirect']}</td>
                    <td>${guiAttributeAssign.guiAttributeDefName.shortLinkWithIcon}</td>
                    <td>${grouperRequestContainer.groupContainer.guiGroup.shortLinkWithIcon}</td>
+                   <td>${guiAttributeAssign.guiMember.shortLink}</td>
                    <td>${textContainer.text[guiAttributeAssign.enabledDisabledKey]}</td>
                    
                    <td style="white-space: nowrap;">
@@ -51,10 +52,6 @@
                        </c:if>
    
                        ${grouper:escapeHtml(attributeAssignValue.valueFriendly)}
-                       <a class="assignmentValueButton" href="#">
-                         <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                          id="assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                       </a>
                        
                        <c:set var="valueRow" value="${valueRow + 1}" />
                      </c:forEach>
@@ -62,21 +59,6 @@
                    </td>
                    <td>
                      ${guiAttributeAssign.guiAttributeDef.shortLinkWithIcon}
-                   </td>
-                   <td>
-                     <div class="btn-group">
-                        <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                          aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
-                        ${textContainer.text['groupViewActionsButton'] } 
-                          <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.assignEdit&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
-	                        <li><a href="#" onclick="ajax('../app/UiV2MembershipAttributeAssignment.assignDelete?attributeAssignId=${attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
-                        </ul>
-                      </div>
                    </td>
                  </tr>
                  
@@ -100,10 +82,6 @@
                            <%-- we need a newline before non-first rows --%>
                            <c:if test="${valueRow != 0}"><br /></c:if>
                            ${grouper:escapeHtml(attributeAssignValue.valueFriendly)}
-                           <a class="assignmentValueButton" href="#">
-                             <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                              id="assignmentValueButton_${guiAttributeAssignAssign.attributeAssign.id}_${attributeAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                           </a>
                  
                            <c:set var="valueRow" value="${valueRow + 1}" />
                  
@@ -111,20 +89,6 @@
              
                        </td>
                        <td>${guiAttributeAssignAssign.guiAttributeDef.shortLinkWithIcon}</td>
-                       <td>
-                         <div class="btn-group">
-	                        <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-	                          aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
-	                        ${textContainer.text['membershipViewActionsButton'] } 
-	                          <span class="caret"></span>
-	                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.assignEdit&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
-                          <li><a href="#" onclick="ajax('../app/UiV2MembershipAttributeAssignment.assignDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
-                        </ul>
-                      </div>
-                       </td>
                      </tr>
                    </c:if>
                  </c:forEach>
@@ -133,11 +97,5 @@
              </tbody>
            </table>
          
-         <%-- attach a menu for each limit value --%>
-         <grouper:menu menuId="assignmentValueMenu"
-           operation="UiV2MembershipAttributeAssignment.assignmentValueMenu"
-           structureOperation="UiV2MembershipAttributeAssignment.assignmentValueMenuStructure" 
-           contextZoneJqueryHandle=".assignmentValueButton" contextMenu="true" />
-      
       </c:otherwise>
     </c:choose>

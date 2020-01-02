@@ -114,6 +114,8 @@
 	                        <li class="divider"></li>
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupAttributeAssignmentsButton'] }</a></li>
+                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupAttributeAssignment.viewMembershipAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupAttributeMembershipAssignmentsButton'] }</a></li>
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.groupContainer.canView && grouperRequestContainer.workflowContainer.canViewElectronicForm}">

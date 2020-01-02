@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -150,7 +151,15 @@ public class UiV2MembershipAttributeAssignment {
       
       Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
       Member member = MemberFinder.findBySubject(grouperSession, subject, false);
-      Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, true).getGroup();
+      
+      String groupId = request.getParameter("grouperMembershipAttributeAssignmentGroupComboName");
+      
+      if (StringUtils.isBlank(groupId)) {
+        //if didnt pick one from results
+        groupId = request.getParameter("grouperMembershipAttributeAssignmentGroupComboNameDisplay");
+      }
+      
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
       
       String attributeAssignTypeString = request.getParameter("assignmentType");
       
