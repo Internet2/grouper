@@ -489,7 +489,11 @@ public class GcGetMembers {
           // copy results in
           for (WsGetMembersResult wsGetMembersResult : 
               GrouperClientUtils.nonNull(wsGetMembersResultsInner.getResults(), WsGetMembersResult.class)) {
-  
+
+            if (wsGetMembersResultOuter == null) {
+              wsGetMembersResultOuter = wsGetMembersResult;
+            }
+
             for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsGetMembersResult.getWsSubjects(), WsSubject.class)) {
   
               MultiKey multiKey = new MultiKey(
@@ -504,10 +508,6 @@ public class GcGetMembers {
               // no overlap
               sourceIdSubjectIdIdentifier.add(multiKey);
               
-              if (wsGetMembersResultOuter == null) {
-                wsGetMembersResultOuter = wsGetMembersResult;
-              }
-  
               // keep track of subjects for this group              
               wsSubjectListOuter.add(wsSubject);
             }

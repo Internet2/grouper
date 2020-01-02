@@ -81,8 +81,8 @@ public class GrouperWsCommandsForBox {
 
       WsGetMembersResult wsGetMembersResult = wsGetMembersResults.getResults()[0];
         
-      WsSubject[] wsSubjects = wsGetMembersResult.getWsSubjects();
-      
+      WsSubject[] wsSubjects = wsGetMembersResult == null ? null : wsGetMembersResult.getWsSubjects();
+      //
       debugMap.put("originalMemberCount", GrouperClientUtils.length(wsSubjects));
 
       String[] attributeNames = wsGetMembersResults.getSubjectAttributeNames();
