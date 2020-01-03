@@ -191,8 +191,10 @@ public class GrouperDeprovisioningEmailService {
       }
     }
     
-    if (attributeValue.isDirectAssignment() && attributeValue.isSendEmail()) {
-      populateEmailObjectsHelper(grouperSession, grouperObject, subject, attributeValue, userEmailObjects);
+    if (attributeValue.isDirectAssignment()) {
+      if (attributeValue.isSendEmail()) {
+        populateEmailObjectsHelper(grouperSession, grouperObject, subject, attributeValue, userEmailObjects);
+      }
     } else {
       String deprovisioningInheritedFromFolderId = attributeValue.getInheritedFromFolderIdString();
       try {
@@ -531,6 +533,12 @@ public class GrouperDeprovisioningEmailService {
       EmailPerPerson emailPerPerson = null;
       if (userEmailObjects.containsKey(emailTo)) {
         emailPerPerson = userEmailObjects.get(emailTo);
+        
+        // GRP-2368: deprovisioning report has duplicates on it. each group should display once and only once
+        if (emailPerPerson.containsOwner(grouperObject)) {
+          continue;
+        }
+        
       } else {
         emailPerPerson = new EmailPerPerson();
         userEmailObjects.put(emailTo, emailPerPerson);
@@ -571,6 +579,23 @@ public class GrouperDeprovisioningEmailService {
     public List<GrouperObjectWithAffiliation> deprovisioningGroupEmailObjects = new ArrayList<GrouperObjectWithAffiliation>();
     public List<GrouperObjectWithAffiliation> deprovisioningStemEmailObjects = new ArrayList<GrouperObjectWithAffiliation>();
     public List<GrouperObjectWithAffiliation> deprovisioningAttributeDefEmailObjects = new ArrayList<GrouperObjectWithAffiliation>();
+
+    /**
+     * see if the owner is there (any affiliation)
+     * @param grouperObject
+     * @return true if contains owner
+     */
+    public boolean containsOwner(GrouperObject grouperObject) {
+      
+      for (List<GrouperObjectWithAffiliation> grouperObjectListWithAffiliation : new List[]{deprovisioningGroupEmailObjects, deprovisioningStemEmailObjects, deprovisioningAttributeDefEmailObjects}) {
+        for (GrouperObjectWithAffiliation grouperObjectWithAffiliation : grouperObjectListWithAffiliation) {
+          if (GrouperUtil.equals(grouperObjectWithAffiliation.grouperObject, grouperObject)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
     
   }
   
