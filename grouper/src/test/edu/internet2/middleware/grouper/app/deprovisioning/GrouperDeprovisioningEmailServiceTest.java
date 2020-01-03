@@ -32,7 +32,8 @@ public class GrouperDeprovisioningEmailServiceTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDeprovisioningEmailServiceTest("testBuildEmailObjects"));
+    //TestRunner.run(new GrouperDeprovisioningEmailServiceTest("testBuildEmailObjects"));
+    TestRunner.run(GrouperDeprovisioningEmailServiceTest.class);
   }
   
   /**
