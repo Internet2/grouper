@@ -196,7 +196,7 @@
                                 <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['deprovisioningAutoselectForRemovalLabel'] }</strong></td>
                                 <td>
                                   <c:choose>
-                                    <c:when test="${grouperDeprovisioningAttributeValue.showForRemoval}">
+                                    <c:when test="${grouperDeprovisioningAttributeValue.autoselectForRemoval}">
                                       ${textContainer.textEscapeXml['deprovisioningYesAutoselectForRemoval']}
                                     </c:when>
                                     <c:otherwise>
