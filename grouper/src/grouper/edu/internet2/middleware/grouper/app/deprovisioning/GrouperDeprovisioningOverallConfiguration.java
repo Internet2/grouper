@@ -183,18 +183,28 @@ public class GrouperDeprovisioningOverallConfiguration {
   
   /**
    * is should show for removal
+   * @param affiliation 
    * @return if show for removal
    */
-  public boolean isShowForRemoval() {
-    return true;
+  public boolean isShowForRemoval(String affiliation) {
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.affiliationToConfiguration.get(affiliation);
+    if (grouperDeprovisioningConfiguration == null || grouperDeprovisioningConfiguration.getOriginalConfig() == null) {
+      return true;
+    }
+    return grouperDeprovisioningConfiguration.getOriginalConfig().isShowForRemoval();
   }
   
   /**
    * 
+   * @param affiliation 
    * @return true if auto select for removal
    */
-  public boolean isAutoselectForRemoval() {
-    return true;
+  public boolean isAutoselectForRemoval(String affiliation) {
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.affiliationToConfiguration.get(affiliation);
+    if (grouperDeprovisioningConfiguration == null || grouperDeprovisioningConfiguration.getOriginalConfig() == null) {
+      return true;
+    }
+    return grouperDeprovisioningConfiguration.getOriginalConfig().isAutoselectForRemoval();
   }
 
   /**
@@ -296,7 +306,7 @@ public class GrouperDeprovisioningOverallConfiguration {
    * 
    * @param groupOrFolderOrAttributeDef
    * @param useCache
-   * @return 
+   * @return config
    */
   private static GrouperDeprovisioningOverallConfiguration cacheRetrieve(GrouperObject groupOrFolderOrAttributeDef, boolean useCache) {
     if (!useCache || groupOrFolderOrAttributeDef == null) {
@@ -744,18 +754,28 @@ public class GrouperDeprovisioningOverallConfiguration {
 
   /**
    * if allow adds while deprovisioned
+   * @param affiliation 
    * @return true / false
    */
-  public boolean isAllowAddsWhileDeprovisioned() {
-    return false;
+  public boolean isAllowAddsWhileDeprovisioned(String affiliation) {
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.affiliationToConfiguration.get(affiliation);
+    if (grouperDeprovisioningConfiguration == null || grouperDeprovisioningConfiguration.getOriginalConfig() == null) {
+      return false;
+    }
+    return grouperDeprovisioningConfiguration.getOriginalConfig().isAllowAddsWhileDeprovisioned();
   }
 
   /**
    * 
+   * @param affiliation 
    * @return true if auto change loader based on config
    */
-  public boolean isAutoChangeLoader() {
-    return true;
+  public boolean isAutoChangeLoader(String affiliation) {
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.affiliationToConfiguration.get(affiliation);
+    if (grouperDeprovisioningConfiguration == null || grouperDeprovisioningConfiguration.getOriginalConfig() == null) {
+      return true;
+    }
+    return grouperDeprovisioningConfiguration.getOriginalConfig().isAutoChangeLoader();
   }
 
   /**
