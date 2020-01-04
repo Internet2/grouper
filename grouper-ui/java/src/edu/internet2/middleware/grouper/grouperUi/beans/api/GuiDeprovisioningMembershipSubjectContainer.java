@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -109,9 +108,10 @@ public class GuiDeprovisioningMembershipSubjectContainer {
   /**
    * convert gui membership subject containers to gui deprovisioning membership subject containers
    * @param guiMembershipSubjectContainers
+   * @param affiliation
    * @return the converted set
    */
-  public static Set<GuiDeprovisioningMembershipSubjectContainer> convertFromGuiMembershipSubjectContainers(Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers) {
+  public static Set<GuiDeprovisioningMembershipSubjectContainer> convertFromGuiMembershipSubjectContainers(Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers, String affiliation) {
     
     ArrayList<GuiMembershipSubjectContainer> sortedMembershipSubjectContainers = new ArrayList<GuiMembershipSubjectContainer>(guiMembershipSubjectContainers);
     
@@ -157,7 +157,7 @@ public class GuiDeprovisioningMembershipSubjectContainer {
       GrouperDeprovisioningOverallConfiguration config = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
     
       guiDeprovisioningContainers.add(new GuiDeprovisioningMembershipSubjectContainer(guiMembershipSubjectContainer,
-        config.isShowForRemoval(), config.isAutoselectForRemoval()));
+        affiliation == null ? true : config.isShowForRemoval(affiliation), affiliation == null ? true : config.isAutoselectForRemoval(affiliation)));
               
     }
     
