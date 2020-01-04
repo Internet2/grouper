@@ -76,9 +76,11 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
 
       // seeif two subjects are in the group
       WsGroupLookup[] groupLookups = new WsGroupLookup[1];
-      groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
+      groupLookups[0] = new WsGroupLookup("test:testGroup", null);
 
       getMemberships.setWsGroupLookups(groupLookups);
+      
+      getMemberships.setPointInTimeFrom("2019/11/01 10:10:10.000");
 
       getMemberships.setSubjectAttributeNames(new String[]{"description", "loginid", "name"});
       

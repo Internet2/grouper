@@ -370,5 +370,100 @@ public class WsQueryFilter {
   public void setSortString(String sortString1) {
     this.sortString = sortString1;
   }
+  
+  /**
+   * T|F default to F.  if this is T then we are doing cursor paging
+   */
+  private String pageIsCursor;
+  
+  /**
+   * field that will be sent back for cursor based paging
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * could be: string, int, long, date, timestamp
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * T|F
+   */
+  private String pageCursorFieldIncludesLastRetrieved;
+
+  /**
+   * @return the pageIsCursor
+   */
+  public String getPageIsCursor() {
+    return this.pageIsCursor;
+  }
+
+  /**
+   * @param pageIsCursor1 the pageIsCursor to set
+   */
+  public void setPageIsCursor(String pageIsCursor1) {
+    this.pageIsCursor = pageIsCursor1;
+  }
+
+  /**
+   * @return the pageLastCursorField
+   */
+  public String getPageLastCursorField() {
+    return this.pageLastCursorField;
+  }
+
+  /**
+   * @param pageLastCursorField1 the pageLastCursorField to set
+   */
+  public void setPageLastCursorField(String pageLastCursorField1) {
+    this.pageLastCursorField = pageLastCursorField1;
+  }
+
+  /**
+   * @return the pageLastCursorFieldType
+   */
+  public String getPageLastCursorFieldType() {
+    return this.pageLastCursorFieldType;
+  }
+
+  /**
+   * @param pageLastCursorFieldType1 the pageLastCursorFieldType to set
+   */
+  public void setPageLastCursorFieldType(String pageLastCursorFieldType1) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType1;
+  }
+
+  /**
+   * @return the pageCursorFieldIncludesLastRetrieved
+   */
+  public String getPageCursorFieldIncludesLastRetrieved() {
+    return this.pageCursorFieldIncludesLastRetrieved;
+  }
+
+  /**
+   * @param pageCursorFieldIncludesLastRetrieved1 the pageCursorFieldIncludesLastRetrieved to set
+   */
+  public void setPageCursorFieldIncludesLastRetrieved(String pageCursorFieldIncludesLastRetrieved1) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved1;
+  }
+  
+  /** 
+   * enabled is A for all, T or null for enabled only, F for disabled
+   */
+  private String enabled;
+
+  /**
+   * @return the enabled
+   */
+  public String getEnabled() {
+    return this.enabled;
+  }
+
+  /**
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabled(String enabled1) {
+    this.enabled = enabled1;
+  }
 
 }

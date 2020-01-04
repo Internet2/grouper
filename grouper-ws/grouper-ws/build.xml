@@ -271,7 +271,22 @@
        <arg value="http://localhost:8090/grouper-ws/services/GrouperService_v2_4" />
 
      </java>
-
+		
+		<touch file="${generated.client.project.dir}/GrouperService_v2_5.wsdl" />
+     <delete file="${generated.client.project.dir}/GrouperService_v2_5.wsdl" />
+     <java classname="org.apache.ws.java2wsdl.Java2WSDL" fork="true">
+       <classpath refid="ws.class.path" />
+       <arg value="-o" />
+       <arg value="${generated.client.project.dir}" />
+       <arg value="-of" />
+       <arg value="GrouperService_v2_5.wsdl" />
+       <arg value="-cn" />
+       <arg value="edu.internet2.middleware.grouper.ws.soap_v2_5.GrouperService" />
+       <arg value="-stn" />
+       <arg value="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd" />
+       <arg value="-l" />
+       <arg value="http://localhost:8090/grouper-ws/services/GrouperService_v2_5" />
+     </java>
 	
 	</target>
 	<target name="wsdl2java" description="convert the wsdl to a java client">
@@ -286,13 +301,14 @@
         <include name="test/edu/internet2/middleware/grouper/ws/soap_v2_1/xsd/*.java" />
         <include name="test/edu/internet2/middleware/grouper/ws/soap_v2_2/xsd/*.java" />
         <include name="test/edu/internet2/middleware/grouper/ws/soap_v2_3/xsd/*.java" />
-		<include name="test/edu/internet2/middleware/grouper/ws/soap_v2_4/xsd/*.java" />
+			  <include name="test/edu/internet2/middleware/grouper/ws/soap_v2_4/xsd/*.java" />
+			  <include name="test/edu/internet2/middleware/grouper/ws/soap_v2_5/xsd/*.java" />
 			</fileset>
 		</delete>
 		<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
 			<classpath refid="ws.class.path" />
 			<arg value="-uri" />
-			<arg file="${generated.client.project.dir}/GrouperService_v2_4.wsdl" />
+			<arg file="${generated.client.project.dir}/GrouperService_v2_5.wsdl" />
 			<arg value="-t" />
       <arg value="-u" />
 			<arg value="-p" />
@@ -379,6 +395,18 @@
       <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
       <fileset dir="webservices/GrouperServiceWssec_v2_4.aar" />
     </jar>
+		
+		<!-- normal axis -->
+    <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService_v2_5.aar">
+      <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
+      <fileset dir="webservices/GrouperService_v2_5.aar" />
+    </jar>
+    <!-- for rampart -->
+    <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperServiceWssec_v2_5.aar">
+      <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
+      <fileset dir="webservices/GrouperServiceWssec_v2_5.aar" />
+    </jar>
+    	
 	</target>
 
 	<!-- 
@@ -463,6 +491,10 @@
       classpathref="ws.class.path" debug="true">
     </javac>
     <javac srcdir="${basedir}/src/grouper-ws_v2_4"  source="1.8" target="1.8"
+      destdir="${build.dir.grouper-ws}" 
+      classpathref="ws.class.path" debug="true">
+    </javac>
+		<javac srcdir="${basedir}/src/grouper-ws_v2_5"  source="1.8" target="1.8"
       destdir="${build.dir.grouper-ws}" 
       classpathref="ws.class.path" debug="true">
     </javac>
@@ -690,6 +722,9 @@
         <delete file="webapp/WEB-INF/services/GrouperServiceWssec_v2_4.aar.dontuse" />
         <move file="webapp/WEB-INF/services/GrouperServiceWssec_v2_4.aar" 
           tofile="webapp/WEB-INF/services/GrouperServiceWssec_v2_4.aar.dontuse"  />
+      	<delete file="webapp/WEB-INF/services/GrouperServiceWssec_v2_5.aar.dontuse" />
+        <move file="webapp/WEB-INF/services/GrouperServiceWssec_v2_5.aar" 
+          tofile="webapp/WEB-INF/services/GrouperServiceWssec_v2_5.aar.dontuse"  />
       </then>
     </if>
 
@@ -709,6 +744,8 @@
           tofile="${webapp.folder}/WEB-INF/services/GrouperService_v2_3.aar.isondeck"  />
         <move file="${webapp.folder}/WEB-INF/services/GrouperService_v2_4.aar" 
           tofile="${webapp.folder}/WEB-INF/services/GrouperService_v2_4.aar.isondeck"  />
+      	<move file="${webapp.folder}/WEB-INF/services/GrouperService_v2_5.aar" 
+      	  tofile="${webapp.folder}/WEB-INF/services/GrouperService_v2_5.aar.isondeck"  />
       </then>
       <else>
         <if>
@@ -757,6 +794,14 @@
           <then>
             <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_4.aar" 
               tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_4.aar.isondeck"  />
+          </then>
+        </if>
+      	<if>
+          <!-- might not be there if not there all the time for steady state -->
+          <available file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_5.aar" />
+          <then>
+            <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_5.aar" 
+              tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_5.aar.isondeck"  />
           </then>
         </if>
       </else>

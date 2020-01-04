@@ -1,0 +1,414 @@
+2017-08-08 07:53:11,999: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 07:53:17,303: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 07:53:17,323: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 07:53:17,325: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 07:53:17,390: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 07:53:17,546: [main] INFO  EventLog.info(156) -  - [e2e265f3768a4349954770e158c953cc,'GrouperSystem','application'] session: start (134ms)
+2017-08-08 07:53:17,586: [main] INFO  EventLog.info(156) -  - [9964fd317b9247c095eb5124468b00f6,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:53:17,736: [main] INFO  EventLog.info(156) -  - [276436007d434437b577044e1f1e6668,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 07:53:18,230: [main] INFO  EventLog.info(156) -  - [461705d7047e4597b51de3acc0c5b877,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:53:18,281: [main] INFO  EventLog.info(156) -  - [ba2b4ade36434250b7c110f082c19d34,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 07:53:18,294: [main] INFO  EventLog.info(156) -  - [9e77c55f8b944d0ead8e88158bc99d2b,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:53:18,298: [main] INFO  EventLog.info(156) -  - [957e730cd4374f1a865f28ae5fbe8dd3,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:53:18,302: [main] INFO  EventLog.info(156) -  - [97b29428dc5d471180d8d9766b53896c,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:53:18,312: [main] INFO  EventLog.info(156) -  - [957e730cd4374f1a865f28ae5fbe8dd3,'GrouperSystem','application'] add group type: 'grouperLoader' (12ms)
+2017-08-08 07:53:26,051: [pool-1-thread-1] ERROR GrouperStartup$1.callLogic(318) -  - Error: Problems checking UTF and database features
+edu.internet2.middleware.grouper.internal.dao.GrouperDAOException: Problem in HibernateSession: null,
+Exception in uniqueResult: (class edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl), ByHqlStatic, query: 'select theHib3GrouperDdl from Hib3GrouperDdl as theHib3GrouperDdl where objectName = :theObjectName', cacheable: false, cacheRegion: null, tx type: null, tx type: nullBind var[0]: 'Param (class java.lang.String): 'theObjectName'->'GROUPER', 
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession._internal_hibernateSessionCatch(HibernateSession.java:588)
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession.callbackHibernateSession(HibernateSession.java:710)
+	at edu.internet2.middleware.grouper.hibernate.ByHqlStatic.uniqueResult(ByHqlStatic.java:340)
+	at edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.retrieveDdlByNameFromDatabase(GrouperDdlUtils.java:1889)
+	at edu.internet2.middleware.grouper.misc.GrouperStartup.verifyUtf8andTransactionsHelper(GrouperStartup.java:401)
+	at edu.internet2.middleware.grouper.misc.GrouperStartup$1.callLogic(GrouperStartup.java:315)
+	at edu.internet2.middleware.grouper.misc.GrouperStartup$1.callLogic(GrouperStartup.java:1)
+	at edu.internet2.middleware.grouper.util.GrouperCallable.callLogicWithSessionIfExists(GrouperCallable.java:196)
+	at edu.internet2.middleware.grouper.util.GrouperCallable.call(GrouperCallable.java:154)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.hibernate.SessionException: Session is closed!
+	at org.hibernate.internal.AbstractSessionImpl.errorIfClosed(AbstractSessionImpl.java:128)
+	at org.hibernate.internal.AbstractSessionImpl.getTransaction(AbstractSessionImpl.java:307)
+	at org.hibernate.internal.SessionImpl.<init>(SessionImpl.java:277)
+	at org.hibernate.internal.SessionFactoryImpl$SessionBuilderImpl.openSession(SessionFactoryImpl.java:1322)
+	at org.hibernate.internal.SessionFactoryImpl.openSession(SessionFactoryImpl.java:677)
+	at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO.session(Hib3DAO.java:325)
+	at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory.getSession(Hib3DAOFactory.java:186)
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession.<init>(HibernateSession.java:241)
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession._internal_hibernateSession(HibernateSession.java:467)
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession.callbackHibernateSession(HibernateSession.java:659)
+	... 11 more
+2017-08-08 07:54:13,089: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 07:54:16,254: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 07:54:16,256: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 07:54:16,257: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 07:54:16,301: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 07:54:16,449: [main] INFO  EventLog.info(156) -  - [cafab227810c4ee98edde4a0f0409fa5,'GrouperSystem','application'] session: start (126ms)
+2017-08-08 07:54:16,477: [main] INFO  EventLog.info(156) -  - [68027c499dab48bf9a1071f73e493b8a,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:54:16,591: [main] INFO  EventLog.info(156) -  - [5964618fb5f14bb398c6e234707fad61,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:54:17,030: [main] INFO  EventLog.info(156) -  - [e794ab6f01fa4328930a2f764d6237ac,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:54:17,086: [main] INFO  EventLog.info(156) -  - [2d24903d138d46c9a3b94596f2319470,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:54:17,096: [main] INFO  EventLog.info(156) -  - [03321cb1d4a648be96bba841e09bfc61,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:54:17,100: [main] INFO  EventLog.info(156) -  - [504b726290484d60afeb1c56be0612e7,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 07:54:17,102: [main] INFO  EventLog.info(156) -  - [b470802d453343b3b95a654a90fb16e4,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 07:54:17,111: [main] INFO  EventLog.info(156) -  - [504b726290484d60afeb1c56be0612e7,'GrouperSystem','application'] add group type: 'grouperLoader' (10ms)
+2017-08-08 07:54:17,906: [pool-1-thread-1] ERROR GrouperStartup$1.callLogic(318) -  - Error: Problems checking UTF and database features
+edu.internet2.middleware.grouper.internal.dao.GrouperDAOException: Problem in HibernateSession: null,
+Exception in uniqueResult: (class edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl), ByHqlStatic, query: 'select theHib3GrouperDdl from Hib3GrouperDdl as theHib3GrouperDdl where objectName = :theObjectName', cacheable: false, cacheRegion: null, tx type: null, tx type: nullBind var[0]: 'Param (class java.lang.String): 'theObjectName'->'GROUPER', 
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession._internal_hibernateSessionCatch(HibernateSession.java:588)
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession.callbackHibernateSession(HibernateSession.java:710)
+	at edu.internet2.middleware.grouper.hibernate.ByHqlStatic.uniqueResult(ByHqlStatic.java:340)
+	at edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.retrieveDdlByNameFromDatabase(GrouperDdlUtils.java:1889)
+	at edu.internet2.middleware.grouper.misc.GrouperStartup.verifyUtf8andTransactionsHelper(GrouperStartup.java:401)
+	at edu.internet2.middleware.grouper.misc.GrouperStartup$1.callLogic(GrouperStartup.java:315)
+	at edu.internet2.middleware.grouper.misc.GrouperStartup$1.callLogic(GrouperStartup.java:1)
+	at edu.internet2.middleware.grouper.util.GrouperCallable.callLogicWithSessionIfExists(GrouperCallable.java:196)
+	at edu.internet2.middleware.grouper.util.GrouperCallable.call(GrouperCallable.java:154)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.hibernate.SessionException: Session is closed!
+	at org.hibernate.internal.AbstractSessionImpl.errorIfClosed(AbstractSessionImpl.java:128)
+	at org.hibernate.internal.AbstractSessionImpl.getTransaction(AbstractSessionImpl.java:307)
+	at org.hibernate.internal.SessionImpl.<init>(SessionImpl.java:277)
+	at org.hibernate.internal.SessionFactoryImpl$SessionBuilderImpl.openSession(SessionFactoryImpl.java:1322)
+	at org.hibernate.internal.SessionFactoryImpl.openSession(SessionFactoryImpl.java:677)
+	at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO.session(Hib3DAO.java:325)
+	at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory.getSession(Hib3DAOFactory.java:186)
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession.<init>(HibernateSession.java:241)
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession._internal_hibernateSession(HibernateSession.java:467)
+	at edu.internet2.middleware.grouper.hibernate.HibernateSession.callbackHibernateSession(HibernateSession.java:659)
+	... 11 more
+2017-08-08 07:55:46,384: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 07:56:14,284: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 07:56:14,297: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 07:56:14,308: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 07:56:14,518: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 07:56:15,099: [main] INFO  EventLog.info(156) -  - [61634904f3bc4afdb0306c0541a90eed,'GrouperSystem','application'] session: start (471ms)
+2017-08-08 07:56:15,246: [main] INFO  EventLog.info(156) -  - [1b1aa252a5ff40e1800c13576693aae7,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 07:56:15,942: [main] INFO  EventLog.info(156) -  - [8d432e02ce6b45e9b66869aa7e4adb65,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 07:56:19,909: [main] INFO  EventLog.info(156) -  - [1981167b0f124976825d7feded9348ee,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 07:56:20,379: [main] INFO  EventLog.info(156) -  - [8add2bd1972b4d2d95982e365aeca6f1,'GrouperSystem','application'] session: start (3ms)
+2017-08-08 07:56:20,436: [main] INFO  EventLog.info(156) -  - [e1a5daacc354435fad2c84dedb9b0ccb,'GrouperSystem','application'] session: start (3ms)
+2017-08-08 07:56:20,455: [main] INFO  EventLog.info(156) -  - [0cc554c3c92240b59e5df9cf962cb710,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 07:56:20,465: [main] INFO  EventLog.info(156) -  - [2c11cbd4a0644f0991ff7a4b24c53079,'GrouperSystem','application'] session: start (3ms)
+2017-08-08 07:56:20,546: [main] INFO  EventLog.info(156) -  - [0cc554c3c92240b59e5df9cf962cb710,'GrouperSystem','application'] add group type: 'grouperLoader' (88ms)
+2017-08-08 07:56:20,917: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(407) -  - Error: Queries in your database seem to be case insensitive, this can be a problem for Grouper, if you are using MySQL you should use a bin collation
+2017-08-08 07:56:20,937: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(449) -  - Error: Cannot properly read UTF string from database: '???????', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties
+2017-08-08 07:56:21,026: [main] INFO  EventLog.info(156) -  - [6a5622e65c4a4999bcc72826339ef5c9,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 07:56:21,032: [main] INFO  EventLog.info(156) -  - [2972aa276524408d8f07c3ae58a7038c,'GrouperSystem','application'] session: start (3ms)
+2017-08-08 08:08:32,003: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 08:09:05,181: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'grouperClient.jar' size: LinkedHashSet size: 2: [0]: 4341330
+[1]: 4332468
+ manifest version: 2.3.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:09:05,214: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 08:09:05,215: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:09:05,216: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'log4j.jar' size: LinkedHashSet size: 1: [0]: 489883
+ manifest version: 1.2.17.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:09:05,217: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:09:05,224: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'slf4j-api-1.6.1.jar' size: LinkedHashSet size: 1: [0]: 25496
+ manifest version: 1.6.1.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:09:05,260: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 08:09:05,387: [main] INFO  EventLog.info(156) -  - [d4a0e3c2d88a46e5b45c0b6e95d0811b,'GrouperSystem','application'] session: start (107ms)
+2017-08-08 08:09:05,413: [main] INFO  EventLog.info(156) -  - [0bc2456b19f145bfb171ea039644a7e2,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:09:05,538: [main] INFO  EventLog.info(156) -  - [a426247823994c1bad434e65a2216cd5,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:09:05,960: [main] INFO  EventLog.info(156) -  - [fb9af87801e04a969a62c91e6264eb50,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:09:06,000: [main] INFO  EventLog.info(156) -  - [f81f9dcddca643fdbcc87e6de4b2cfbd,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:09:06,011: [main] INFO  EventLog.info(156) -  - [3741aa6851904692bc9c93d9624c62d9,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:09:06,013: [main] INFO  EventLog.info(156) -  - [ba03a16ea21040398fdbbdfd80cdb890,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:09:06,016: [main] INFO  EventLog.info(156) -  - [7b731139d0774e40b43cdad8c0b64db3,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:09:06,024: [main] INFO  EventLog.info(156) -  - [ba03a16ea21040398fdbbdfd80cdb890,'GrouperSystem','application'] add group type: 'grouperLoader' (10ms)
+2017-08-08 08:09:06,064: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(407) -  - Error: Queries in your database seem to be case insensitive, this can be a problem for Grouper, if you are using MySQL you should use a bin collation
+2017-08-08 08:09:06,078: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(449) -  - Error: Cannot properly read UTF string from database: '???????', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties
+2017-08-08 08:09:06,081: [main] INFO  EventLog.info(156) -  - [201bdb5c0acf461ba6eed0f7a9f93edf,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:09:06,082: [main] INFO  EventLog.info(156) -  - [14fbbfa392644892b9187b57b4822db5,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:10:33,346: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 08:11:04,194: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'grouperClient.jar' size: LinkedHashSet size: 2: [0]: 4341330
+[1]: 4332468
+ manifest version: 2.3.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:11:04,330: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 08:11:04,341: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:11:04,346: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'log4j.jar' size: LinkedHashSet size: 1: [0]: 489883
+ manifest version: 1.2.17.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:11:04,349: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:11:04,385: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'slf4j-api-1.6.1.jar' size: LinkedHashSet size: 1: [0]: 25496
+ manifest version: 1.6.1.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:11:04,543: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 08:11:05,139: [main] INFO  EventLog.info(156) -  - [42ab86f63e664616a748ca49ed360669,'GrouperSystem','application'] session: start (483ms)
+2017-08-08 08:11:05,291: [main] INFO  EventLog.info(156) -  - [904589433e1248599cfc5bbf706cae81,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:11:06,045: [main] INFO  EventLog.info(156) -  - [d83d30ac72874bd582037834f65e6941,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:11:10,011: [main] INFO  EventLog.info(156) -  - [561a45271d7e4dc0b03e26161c380aef,'GrouperSystem','application'] session: start (3ms)
+2017-08-08 08:11:10,470: [main] INFO  EventLog.info(156) -  - [133adbabcba54a449ec25e0b82df4858,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:11:10,522: [main] INFO  EventLog.info(156) -  - [861d045eeb82460fb68e6c1430ea1207,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:11:10,543: [main] INFO  EventLog.info(156) -  - [5bdd304749244630be15589f170ffab4,'GrouperSystem','application'] session: start (3ms)
+2017-08-08 08:11:10,554: [main] INFO  EventLog.info(156) -  - [5b7871ae2a1844e5bd049e28530908ec,'GrouperSystem','application'] session: start (5ms)
+2017-08-08 08:11:10,643: [main] INFO  EventLog.info(156) -  - [5bdd304749244630be15589f170ffab4,'GrouperSystem','application'] add group type: 'grouperLoader' (97ms)
+2017-08-08 08:11:11,001: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(407) -  - Error: Queries in your database seem to be case insensitive, this can be a problem for Grouper, if you are using MySQL you should use a bin collation
+2017-08-08 08:11:11,017: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(449) -  - Error: Cannot properly read UTF string from database: '???????', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties
+2017-08-08 08:11:11,099: [main] INFO  EventLog.info(156) -  - [569c16ffffed412f976506492fb2657b,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:11:11,108: [main] INFO  EventLog.info(156) -  - [df3ba6252e604a65affe048c0cb9f514,'GrouperSystem','application'] session: start (6ms)
+2017-08-08 08:12:56,812: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 08:12:59,974: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'grouperClient.jar' size: LinkedHashSet size: 2: [0]: 4341330
+[1]: 4332468
+ manifest version: 2.3.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:12:59,994: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 08:12:59,996: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:12:59,997: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'log4j.jar' size: LinkedHashSet size: 1: [0]: 489883
+ manifest version: 1.2.17.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:12:59,998: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:13:00,004: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'slf4j-api-1.6.1.jar' size: LinkedHashSet size: 1: [0]: 25496
+ manifest version: 1.6.1.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:13:00,044: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 08:13:00,166: [main] INFO  EventLog.info(156) -  - [cd7eac735b83485e91d5d00351f5aba3,'GrouperSystem','application'] session: start (102ms)
+2017-08-08 08:13:00,193: [main] INFO  EventLog.info(156) -  - [58df0f31d9094f778c0813fc6b459599,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:13:00,322: [main] INFO  EventLog.info(156) -  - [fc8bb3a932214a2380926ef88c52971f,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:13:00,853: [main] INFO  EventLog.info(156) -  - [534689fff44d4c1b8fe420ef641da500,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:00,899: [main] INFO  EventLog.info(156) -  - [bac590d562204a41a67df6deed22bfc5,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:13:00,909: [main] INFO  EventLog.info(156) -  - [58623db759564e77b8a6aa4b72d4e44e,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:00,911: [main] INFO  EventLog.info(156) -  - [7c75d671b6684db2854ca7ff2840b17c,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:13:00,913: [main] INFO  EventLog.info(156) -  - [1f506f66a3ac43408c44cb5bd15a0096,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:00,922: [main] INFO  EventLog.info(156) -  - [7c75d671b6684db2854ca7ff2840b17c,'GrouperSystem','application'] add group type: 'grouperLoader' (10ms)
+2017-08-08 08:13:00,966: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(407) -  - Error: Queries in your database seem to be case insensitive, this can be a problem for Grouper, if you are using MySQL you should use a bin collation
+2017-08-08 08:13:00,977: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(449) -  - Error: Cannot properly read UTF string from database: '???????', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties
+2017-08-08 08:13:00,979: [main] INFO  EventLog.info(156) -  - [c941b8f103164b69a457a3e59a2854ff,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:00,980: [main] INFO  EventLog.info(156) -  - [aa4454ef57644193834721833884a3af,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:32,386: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 08:13:35,927: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'grouperClient.jar' size: LinkedHashSet size: 2: [0]: 4341330
+[1]: 4332468
+ manifest version: 2.3.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:13:35,951: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 08:13:35,953: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:13:35,953: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'log4j.jar' size: LinkedHashSet size: 1: [0]: 489883
+ manifest version: 1.2.17.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:13:35,955: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:13:35,963: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'slf4j-api-1.6.1.jar' size: LinkedHashSet size: 1: [0]: 25496
+ manifest version: 1.6.1.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:13:35,999: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 08:13:36,141: [main] INFO  EventLog.info(156) -  - [7569d927aee74b20bf03d3ddf293bd1f,'GrouperSystem','application'] session: start (120ms)
+2017-08-08 08:13:36,172: [main] INFO  EventLog.info(156) -  - [a2d0b57554024ae2b5c06d91211051a2,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:36,295: [main] INFO  EventLog.info(156) -  - [79767275b4534adf8dc9ff38e616c56d,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:36,756: [main] INFO  EventLog.info(156) -  - [0162a74e3ee14afb80855095c22ccf3f,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:13:36,808: [main] INFO  EventLog.info(156) -  - [e0939e3ef2674699b9b502578579514e,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:36,820: [main] INFO  EventLog.info(156) -  - [dcf6482576814f6b896c3df638110a3b,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:36,823: [main] INFO  EventLog.info(156) -  - [7798db39a02b4ad1a94f7159c8cb7917,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 08:13:36,825: [main] INFO  EventLog.info(156) -  - [98e86a32fef141c0a6d19ee0536ab0d6,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:36,834: [main] INFO  EventLog.info(156) -  - [7798db39a02b4ad1a94f7159c8cb7917,'GrouperSystem','application'] add group type: 'grouperLoader' (10ms)
+2017-08-08 08:13:36,879: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(407) -  - Error: Queries in your database seem to be case insensitive, this can be a problem for Grouper, if you are using MySQL you should use a bin collation
+2017-08-08 08:13:36,896: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(449) -  - Error: Cannot properly read UTF string from database: '???????', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties
+2017-08-08 08:13:36,899: [main] INFO  EventLog.info(156) -  - [53a8094a5092479a953324e9ca81be3c,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:13:36,900: [main] INFO  EventLog.info(156) -  - [8c5bef068f8341aea0ae86f318672097,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 08:20:09,716: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 08:20:37,820: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'grouperClient.jar' size: LinkedHashSet size: 2: [0]: 4341330
+[1]: 4332468
+ manifest version: 2.3.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:20:37,947: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 08:20:37,958: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:20:37,964: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'log4j.jar' size: LinkedHashSet size: 1: [0]: 489883
+ manifest version: 1.2.17.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:20:37,967: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 08:20:37,998: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'slf4j-api-1.6.1.jar' size: LinkedHashSet size: 1: [0]: 25496
+ manifest version: 1.6.1.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 08:20:38,159: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 08:20:38,740: [main] INFO  EventLog.info(156) -  - [11973c0768e64eda9ab89c524a613098,'GrouperSystem','application'] session: start (475ms)
+2017-08-08 08:20:38,892: [main] INFO  EventLog.info(156) -  - [745bbcc805604ff99bd6bce3dbfbdd21,'GrouperSystem','application'] session: start (3ms)
+2017-08-08 08:20:39,632: [main] INFO  EventLog.info(156) -  - [c2bb337880d24f9192d0a754501b85ab,'GrouperSystem','application'] session: start (6ms)
+2017-08-08 08:20:43,577: [main] INFO  EventLog.info(156) -  - [55f4f98f02264b3285bc3bc9aea86e66,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:20:44,034: [main] INFO  EventLog.info(156) -  - [9d1e089c16b74f18a3c77ba7a0606056,'GrouperSystem','application'] session: start (5ms)
+2017-08-08 08:20:44,092: [main] INFO  EventLog.info(156) -  - [ead5ca342b874e2fa3dd783f65a1ccbd,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:20:44,112: [main] INFO  EventLog.info(156) -  - [c2489bedc2ed4cfe9b2a0f5071526893,'GrouperSystem','application'] session: start (3ms)
+2017-08-08 08:20:44,124: [main] INFO  EventLog.info(156) -  - [a292f0b60eaa49839c2c3ecc06809eb2,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:20:44,210: [main] INFO  EventLog.info(156) -  - [c2489bedc2ed4cfe9b2a0f5071526893,'GrouperSystem','application'] add group type: 'grouperLoader' (95ms)
+2017-08-08 08:20:44,567: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(407) -  - Error: Queries in your database seem to be case insensitive, this can be a problem for Grouper, if you are using MySQL you should use a bin collation
+2017-08-08 08:20:44,583: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(449) -  - Error: Cannot properly read UTF string from database: '???????', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties
+2017-08-08 08:20:44,668: [main] INFO  EventLog.info(156) -  - [6738d9bbe6054a2e9b475bf5622c0a20,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 08:20:44,675: [main] INFO  EventLog.info(156) -  - [55aa386346344416aa7768fdf1cdc806,'GrouperSystem','application'] session: start (4ms)
+2017-08-08 19:00:48,245: [main] WARN  GrouperStartup.printConfigOnce(167) -  - Grouper starting up: version: 2.3.0, build date: null, env: <no label configured>
+grouper.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.properties
+Grouper current directory is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws
+log4j.properties read from:   /Users/vsachdeva/git/i2-grouper/grouper/build/log4j.properties
+Grouper is logging to file:   /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/logs/grouper_error.log, at min level WARN for package: edu.internet2.middleware.grouper, based on log4j.properties
+grouper.hibernate.properties: /Users/vsachdeva/git/i2-grouper/grouper/build/grouper.hibernate.properties
+grouper.hibernate.properties: root@jdbc:mysql://localhost:3306/grouper
+subject.properties read from: /Users/vsachdeva/git/i2-grouper/grouper/build/subject.properties
+sources.xml read from:        /Users/vsachdeva/git/i2-grouper/grouper/build/sources.xml
+sources configured in:        sources.xml
+sources.xml        groupersource id: g:gsa
+sources.xml        groupersource id: grouperEntities
+sources.xml        jdbc source id:   jdbc: GrouperJdbcConnectionProvider
+sources.xml        jdbc2 source id:   vivekSource: root@jdbc:mysql://localhost:3306/grouper_source
+2017-08-08 19:00:51,722: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'grouperClient.jar' size: LinkedHashSet size: 2: [0]: 4341330
+[1]: 4332468
+ manifest version: 2.3.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 19:00:51,744: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'joda-time-2.9.7.jar' size: LinkedHashSet size: 1: [0]: 633290
+ manifest version: 2.9.7.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/joda-time-1.5.1.jar, name: joda-time-1.5.1.jar size: 531011 manifest version: 1.5.1
+2017-08-08 19:00:51,746: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'jta.jar' size: LinkedHashSet size: 1: [0]: 8374
+ manifest version: 1.0.1B.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 19:00:51,747: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'log4j.jar' size: LinkedHashSet size: 1: [0]: 489883
+ manifest version: 1.2.17.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 19:00:51,747: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'mailapi.jar' size: LinkedHashSet size: 1: [0]: 178533
+ manifest version: 1.3.2.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws-non-webapp/servlet.jar, name: servlet.jar size: 1728932 manifest version: 1.4
+2017-08-08 19:00:51,754: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'slf4j-api-1.6.1.jar' size: LinkedHashSet size: 1: [0]: 25496
+ manifest version: 1.6.1.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper-ws/grouper-ws/lib/grouper-ws/grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar, name: grouper-messaging-rabbitmq-2.3.0-SNAPSHOT-jar-with-dependencies.jar size: 4912228 manifest version: null
+2017-08-08 19:00:51,789: [main] WARN  GrouperCheckConfig.checkJar(269) -  - jarfile mismatch, expecting name: 'subject.jar' size: LinkedHashSet size: 2: [0]: 271917
+[1]: 266056
+ manifest version: 2.2.0.  However the jar detected is: /Users/vsachdeva/git/i2-grouper/grouper/lib/grouper/subject.jar, name: subject.jar size: 271917 manifest version: 2.3.0
+2017-08-08 19:00:51,936: [main] INFO  EventLog.info(156) -  - [671dcefefe1d4da880635ca7ed99086a,'GrouperSystem','application'] session: start (113ms)
+2017-08-08 19:00:51,970: [main] INFO  EventLog.info(156) -  - [a214910874ec4b66b959202a2b1c8d17,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 19:00:52,121: [main] INFO  EventLog.info(156) -  - [a9dde74d1f744204b8e475294e7705c7,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 19:00:52,551: [main] INFO  EventLog.info(156) -  - [240e9085e70f412da2a5210dec358f46,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 19:00:52,594: [main] INFO  EventLog.info(156) -  - [5591329cbf164300ad56aefda774b4b0,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 19:00:52,606: [main] INFO  EventLog.info(156) -  - [8265ff57c1ae4c808c96eaaac6cd598b,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 19:00:52,608: [main] INFO  EventLog.info(156) -  - [7ad82824ae0040b9904f9dcddeccecfe,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 19:00:52,611: [main] INFO  EventLog.info(156) -  - [f720b00ad45446e2ba55bfd6d72c577c,'GrouperSystem','application'] session: start (0ms)
+2017-08-08 19:00:52,620: [main] INFO  EventLog.info(156) -  - [7ad82824ae0040b9904f9dcddeccecfe,'GrouperSystem','application'] add group type: 'grouperLoader' (11ms)
+2017-08-08 19:00:52,661: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(407) -  - Error: Queries in your database seem to be case insensitive, this can be a problem for Grouper, if you are using MySQL you should use a bin collation
+2017-08-08 19:00:52,674: [pool-1-thread-1] ERROR GrouperStartup.verifyUtf8andTransactionsHelper(449) -  - Error: Cannot properly read UTF string from database: '???????', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties
+2017-08-08 19:00:52,678: [main] INFO  EventLog.info(156) -  - [3ea4394ad4cf4be09f5595b764eae180,'GrouperSystem','application'] session: start (1ms)
+2017-08-08 19:00:52,679: [main] INFO  EventLog.info(156) -  - [845d514a4f214378a665b85647a5ae2c,'GrouperSystem','application'] session: start (1ms)

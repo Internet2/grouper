@@ -30,6 +30,10 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
@@ -266,6 +270,74 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
     this.wsGroups = wsGroup1;
   }
 
+  /**
+   * convert pit members to subject results
+   * @param membershipSet
+   * @param includeGroupDetail
+   * @param includeSubjectDetail
+   * @param theSubjectAttributeNames
+   */
+  public void assignPitMembershipResult(Set<Object[]> membershipSet, boolean includeGroupDetail, 
+      boolean includeSubjectDetail, String[] theSubjectAttributeNames) {
+    
+    Set<PITGroup> groupSet = new LinkedHashSet<PITGroup>();
+    Set<PITAttributeDef> attributeDefSet = new LinkedHashSet<PITAttributeDef>();
+    Set<PITStem> stemSet = new LinkedHashSet<PITStem>();
+    Set<PITMember> memberSet = new LinkedHashSet<PITMember>();
+    
+    this.subjectAttributeNames = theSubjectAttributeNames;
+
+    this.setWsMemberships(WsMembership.convertPITMembers(membershipSet, groupSet, stemSet, attributeDefSet, memberSet));
+    
+    //turn groups into wsgroups
+    if (groupSet.size() > 0) {      
+      this.wsGroups = WsGroup.convertGroups(groupSet);
+    }
+
+    if (stemSet.size() > 0) {
+      if (!GrouperWsVersionUtils.retrieveCurrentClientVersion()
+          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_005"))) {
+        throw new RuntimeException("Clients 2.1.4 or less cannot query for stem privileges");
+      }
+      
+      this.setWsStems(new WsStem[stemSet.size()]);
+      int index = 0;
+      for (PITStem stem : stemSet) {
+        this.wsStems[index] = new WsStem(stem);
+        index++;
+      }
+    }
+
+    if (attributeDefSet.size() > 0) {
+      if (!GrouperWsVersionUtils.retrieveCurrentClientVersion()
+          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_005"))) {
+        throw new RuntimeException("Clients 2.1.4 or less cannot query for attributeDef privileges");
+      }
+      this.setWsAttributeDefs(new WsAttributeDef[attributeDefSet.size()]);
+      int index = 0;
+      for (PITAttributeDef attributeDef : attributeDefSet) {
+        this.wsAttributeDefs[index] = new WsAttributeDef(attributeDef, null);
+        
+        index++;
+      }
+    }
+
+    if (memberSet.size() > 0) {
+      this.wsSubjects = new WsSubject[memberSet.size()];
+      int index = 0;
+      for (PITMember member : memberSet) {
+        this.wsSubjects[index] = new WsSubject(member, theSubjectAttributeNames, null, includeSubjectDetail);
+        
+        index++;
+      }
+    }    
+    
+    this.sortResults();
+    
+    
+  }
+  
+  
   /**
    * convert members to subject results
    * @param membershipSet

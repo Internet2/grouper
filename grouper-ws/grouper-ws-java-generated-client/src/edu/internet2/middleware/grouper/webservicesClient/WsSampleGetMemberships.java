@@ -18,29 +18,23 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.GetMemberships;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMembership;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
-import edu.internet2.middleware.grouperClient.GrouperClient;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMemberships;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsMembership;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup;
 
 /**
  *
@@ -109,13 +103,15 @@ public class WsSampleGetMemberships implements WsSampleGenerated {
       getMemberships.setSubjectAttributeNames(new String[]{null});
 
       WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
-      wsGroupLookup.setGroupName("aStem:aGroup");
+      wsGroupLookup.setGroupName("test:testGroup");
       getMemberships.setWsGroupLookups(new WsGroupLookup[]{wsGroupLookup});
 
       getMemberships.setWsMemberFilter("Immediate");
       
       getMemberships.setWsSubjectLookups(new WsSubjectLookup[]{null});
       getMemberships.setWsStemLookup(new WsStemLookup());
+      
+      getMemberships.setPointInTimeFrom("2019/11/01 10:10:10.000");
       
 //      --pageSize=1 --pageNumber=1 --sortString=displayName --ascending=true",
 //      --pageSizeForMember=1 --pageNumberForMember=1 --sortStringForMember=name --ascendingForMember=true

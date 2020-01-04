@@ -91,9 +91,34 @@ public class WsRestFindGroupsLiteRequest implements WsRequestBean {
 
   /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
   private String sortString;
+  
+  /**
+   * T|F default to F.  if this is T then we are doing cursor paging
+   */
+  private String pageIsCursor;
+  
+  /**
+   * field that will be sent back for cursor based paging
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * could be: string, int, long, date, timestamp
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * T|F
+   */
+  private String pageCursorFieldIncludesLastRetrieved;
 
   /** comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity */
   private String typeOfGroups;
+  
+  /**
+   * enabled is A for all, T or null for enabled only, F for disabled
+   */
+  private String enabled;
   
   /**
    * field
@@ -236,6 +261,7 @@ public class WsRestFindGroupsLiteRequest implements WsRequestBean {
    * 
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
    */
+  @Override
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
     return GrouperRestHttpMethod.GET;
   }
@@ -434,6 +460,66 @@ public class WsRestFindGroupsLiteRequest implements WsRequestBean {
    */
   public void setTypeOfGroups(String typeOfGroups1) {
     this.typeOfGroups = typeOfGroups1;
+  }
+  /**
+   * @return the pageIsCursor
+   */
+  public String getPageIsCursor() {
+    return this.pageIsCursor;
+  }
+  /**
+   * @param pageIsCursor1 the pageIsCursor to set
+   */
+  public void setPageIsCursor(String pageIsCursor1) {
+    this.pageIsCursor = pageIsCursor1;
+  }
+  /**
+   * @return the pageLastCursorField
+   */
+  public String getPageLastCursorField() {
+    return this.pageLastCursorField;
+  }
+  /**
+   * @param pageLastCursorField1 the pageLastCursorField to set
+   */
+  public void setPageLastCursorField(String pageLastCursorField1) {
+    this.pageLastCursorField = pageLastCursorField1;
+  }
+  /**
+   * @return the pageLastCursorFieldType
+   */
+  public String getPageLastCursorFieldType() {
+    return this.pageLastCursorFieldType;
+  }
+  /**
+   * @param pageLastCursorFieldType1 the pageLastCursorFieldType to set
+   */
+  public void setPageLastCursorFieldType(String pageLastCursorFieldType1) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType1;
+  }
+  /**
+   * @return the pageCursorFieldIncludesLastRetrieved
+   */
+  public String getPageCursorFieldIncludesLastRetrieved() {
+    return this.pageCursorFieldIncludesLastRetrieved;
+  }
+  /**
+   * @param pageCursorFieldIncludesLastRetrieved1 the pageCursorFieldIncludesLastRetrieved to set
+   */
+  public void setPageCursorFieldIncludesLastRetrieved(String pageCursorFieldIncludesLastRetrieved1) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved1;
+  }
+  /**
+   * @return the enabled
+   */
+  public String getEnabled() {
+    return this.enabled;
+  }
+  /**
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabled(String enabled1) {
+    this.enabled = enabled1;
   }
 
 }

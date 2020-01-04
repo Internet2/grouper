@@ -40,7 +40,6 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
    * get members lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  @SuppressWarnings("deprecation")
   public static void getMembershipsLite(WsSampleRestType wsSampleRestType) {
 
     try {
@@ -54,7 +53,7 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
       GetMethod method = new GetMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/memberships");
+            + "/groups/test%3AtestGroup/memberships");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 

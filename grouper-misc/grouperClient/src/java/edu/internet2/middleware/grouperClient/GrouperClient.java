@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouperClient.api.GcFindGroups;
 import edu.internet2.middleware.grouperClient.api.GcFindStems;
 import edu.internet2.middleware.grouperClient.api.GcGetAttributeAssignActions;
 import edu.internet2.middleware.grouperClient.api.GcGetAttributeAssignments;
+import edu.internet2.middleware.grouperClient.api.GcGetAuditEntries;
 import edu.internet2.middleware.grouperClient.api.GcGetGrouperPrivilegesLite;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
@@ -110,6 +111,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefSaveResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefToSave;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAuditEntry;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubject;
@@ -127,6 +129,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindStemsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetAttributeAssignmentsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetAuditEntriesResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
@@ -495,7 +498,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "acknowledgeMessageWs")) {
           result = acknowledgeMessage(argMap, argMapNotUsed);
-
+          
+      } else if (GrouperClientUtils.equals(operation, "getAuditEntriesWs")) {
+        result = getAuditEntries(argMap, argMapNotUsed);
       } else {
         System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -jar grouperClient.jar" );
         if (exitOnError) {
@@ -1938,6 +1943,27 @@ public class GrouperClient {
     if (pageSize != null) {
       result.setPageSize(pageSize.toString());
     }
+    
+    {
+      Boolean pageIsCursor = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageIsCursor");
+      if (pageIsCursor != null) {
+        result.setPageIsCursor(pageIsCursor ? "T" : "F");
+      }
+      
+      String pageLastCursorField = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorField", false);
+      result.setPageLastCursorField(pageLastCursorField);
+      
+      String pageLastCursorFieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldType", false);
+      result.setPageLastCursorFieldType(pageLastCursorFieldType);
+      
+      Boolean pageCursorFieldIncludesLastRetrieved = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageCursorFieldIncludesLastRetrieved");
+      if (pageCursorFieldIncludesLastRetrieved != null) {
+        result.setPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved ? "T" : "F");
+      }
+    }
+    
+    String enabled = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "enabled", false);
+    result.setEnabled(enabled);
      
     return result;
   }
@@ -2275,6 +2301,24 @@ public class GrouperClient {
       gcGetMembers.assignAutopageOverlap(autopageOverlap);
     }
     
+    {
+      Boolean pageIsCursor = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageIsCursor");
+      if (pageIsCursor != null) {
+        gcGetMembers.assignPageIsCursor(pageIsCursor);
+      }
+      
+      String pageLastCursorField = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorField", false);
+      gcGetMembers.assignPageLastCursorField(pageLastCursorField);
+      
+      String pageLastCursorFieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldType", false);
+      gcGetMembers.assignPageLastCursorFieldType(pageLastCursorFieldType);
+      
+      Boolean pageCursorFieldIncludesLastRetrieved = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageCursorFieldIncludesLastRetrieved");
+      if (pageCursorFieldIncludesLastRetrieved != null) {
+        gcGetMembers.assignPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved);
+      }
+    }
+    
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
     gcGetMembers.assignClientVersion(clientVersion);
 
@@ -2459,6 +2503,24 @@ public class GrouperClient {
     gcGetGroups.assignAscending(ascending);
     
     gcGetGroups.assignFieldName(fieldName);
+    
+    {
+      Boolean pageIsCursor = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageIsCursor");
+      if (pageIsCursor != null) {
+        gcGetGroups.assignPageIsCursor(pageIsCursor);
+      }
+      
+      String pageLastCursorField = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorField", false);
+      gcGetGroups.assignPageLastCursorField(pageLastCursorField);
+      
+      String pageLastCursorFieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldType", false);
+      gcGetGroups.assignPageLastCursorFieldType(pageLastCursorFieldType);
+      
+      Boolean pageCursorFieldIncludesLastRetrieved = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageCursorFieldIncludesLastRetrieved");
+      if (pageCursorFieldIncludesLastRetrieved != null) {
+        gcGetGroups.assignPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved);
+      }
+    }
     
     List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap, argMapNotUsed, true);
     
@@ -3144,6 +3206,55 @@ public class GrouperClient {
       }
       if (sortStringForMember != null) {
         gcGetMemberships.assignSortStringForMember(sortStringForMember);
+      }
+    }
+    
+    {
+      Boolean pointInTimeRetrieve = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pointInTimeRetrieve");
+      if (pointInTimeRetrieve != null) {
+        gcGetMemberships.assignPointInTimeRetrieve(pointInTimeRetrieve);
+      }
+      
+      Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+      Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+      
+      gcGetMemberships.assignPointInTimeFrom(pointInTimeFrom);
+      gcGetMemberships.assignPointInTimeTo(pointInTimeTo);
+    }
+    
+    {
+      Boolean pageIsCursor = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageIsCursor");
+      if (pageIsCursor != null) {
+        gcGetMemberships.assignPageIsCursor(pageIsCursor);
+      }
+      
+      String pageLastCursorField = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorField", false);
+      gcGetMemberships.assignPageLastCursorField(pageLastCursorField);
+      
+      String pageLastCursorFieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldType", false);
+      gcGetMemberships.assignPageLastCursorFieldType(pageLastCursorFieldType);
+      
+      Boolean pageCursorFieldIncludesLastRetrieved = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageCursorFieldIncludesLastRetrieved");
+      if (pageCursorFieldIncludesLastRetrieved != null) {
+        gcGetMemberships.assignPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved);
+      }
+    }
+    
+    {
+      Boolean pageIsCursorForMember = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageIsCursorForMember");
+      if (pageIsCursorForMember != null) {
+        gcGetMemberships.assignPageIsCursorForMember(pageIsCursorForMember);
+      }
+      
+      String pageLastCursorFieldForMember = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldForMember", false);
+      gcGetMemberships.assignPageLastCursorFieldForMember(pageLastCursorFieldForMember);
+      
+      String pageLastCursorFieldTypeForMember = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldTypeForMember", false);
+      gcGetMemberships.assignPageLastCursorFieldTypeForMember(pageLastCursorFieldTypeForMember);
+      
+      Boolean pageCursorFieldIncludesLastRetrievedForMember = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageCursorFieldIncludesLastRetrievedForMember");
+      if (pageCursorFieldIncludesLastRetrievedForMember != null) {
+        gcGetMemberships.assignPageCursorFieldIncludesLastRetrievedForMember(pageCursorFieldIncludesLastRetrievedForMember);
       }
     }
 
@@ -5756,6 +5867,24 @@ public class GrouperClient {
       }
     }
     
+    {
+      Boolean pageIsCursor = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageIsCursor");
+      if (pageIsCursor != null) {
+        gcFindAttributeDefNames.assignPageIsCursor(pageIsCursor);
+      }
+      
+      String pageLastCursorField = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorField", false);
+      gcFindAttributeDefNames.assignPageLastCursorField(pageLastCursorField);
+      
+      String pageLastCursorFieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldType", false);
+      gcFindAttributeDefNames.assignPageLastCursorFieldType(pageLastCursorFieldType);
+      
+      Boolean pageCursorFieldIncludesLastRetrieved = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageCursorFieldIncludesLastRetrieved");
+      if (pageCursorFieldIncludesLastRetrieved != null) {
+        gcFindAttributeDefNames.assignPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved);
+      }
+    }
+    
     WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
     
     gcFindAttributeDefNames.assignActAsSubject(actAsSubject);
@@ -6557,6 +6686,24 @@ public class GrouperClient {
         }
       }
     }
+    
+    {
+      Boolean pageIsCursor = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageIsCursor");
+      if (pageIsCursor != null) {
+        gcFindAttributeDefs.assignPageIsCursor(pageIsCursor);
+      }
+      
+      String pageLastCursorField = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorField", false);
+      gcFindAttributeDefs.assignPageLastCursorField(pageLastCursorField);
+      
+      String pageLastCursorFieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldType", false);
+      gcFindAttributeDefs.assignPageLastCursorFieldType(pageLastCursorFieldType);
+      
+      Boolean pageCursorFieldIncludesLastRetrieved = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageCursorFieldIncludesLastRetrieved");
+      if (pageCursorFieldIncludesLastRetrieved != null) {
+        gcFindAttributeDefs.assignPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved);
+      }
+    }
 
     WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
 
@@ -7157,6 +7304,190 @@ public class GrouperClient {
       wsExternalSubjectSaveResult.getWsExternalSubject();
       substituteMap.put("wsExternalSubject", wsExternalSubject);
       
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+  
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String getAuditEntries(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+   
+    
+    GcGetAuditEntries gcAuditEntries = new GcGetAuditEntries();    
+    
+    String auditType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "auditType", false);
+    gcAuditEntries.assignAuditType(auditType);
+    
+    String auditActionId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "auditActionId", false);
+    gcAuditEntries.assignAuditActionId(auditActionId);
+    
+    {
+      String groupLookupName = GrouperClientUtils.argMapString(argMap, 
+          argMapNotUsed, "groupLookupName", false);
+      String groupLookupUuid = GrouperClientUtils.argMapString(argMap, 
+          argMapNotUsed, "groupLookupUuid", false);
+      String groupLookupIdIndex = GrouperClientUtils.argMapString(argMap, 
+          argMapNotUsed, "groupLookupIdIndex", false);
+      
+      WsGroupLookup wsGroupLookup = null;
+      if (!GrouperClientUtils.isBlank(groupLookupName) || !GrouperClientUtils.isBlank(groupLookupUuid) || !GrouperClientUtils.isBlank(groupLookupIdIndex)) {
+        wsGroupLookup = new WsGroupLookup();
+        if (!GrouperClientUtils.isBlank(groupLookupName)) {
+          wsGroupLookup.setGroupName(groupLookupName);
+        }
+        if (!GrouperClientUtils.isBlank(groupLookupUuid)) {
+          wsGroupLookup.setUuid(groupLookupUuid);
+        }
+        if (!GrouperClientUtils.isBlank(groupLookupIdIndex)) {
+          wsGroupLookup.setIdIndex(groupLookupIdIndex);
+        }
+      }
+      
+      gcAuditEntries.assignWsGroupLookup(wsGroupLookup);
+    
+    }
+    
+    {
+      String nameOfAttributeDef = GrouperClientUtils.argMapString(argMap, argMapNotUsed,
+          "nameOfAttributeDef", false);
+      String uuidOfAttributeDef = GrouperClientUtils.argMapString(argMap, argMapNotUsed,
+          "uuidOfAttributeDef", false);
+      String idIndexOfAttributeDef = GrouperClientUtils.argMapString(argMap,
+          argMapNotUsed, "idIndexOfAttributeDef", false);
+
+      if (!GrouperClientUtils.isBlank(uuidOfAttributeDef)
+          || !GrouperClientUtils.isBlank(nameOfAttributeDef)
+          || !GrouperClientUtils.isBlank(idIndexOfAttributeDef)) {
+        WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup(
+            nameOfAttributeDef, uuidOfAttributeDef, idIndexOfAttributeDef);
+        gcAuditEntries.assignWsAttributeDefLookup(wsAttributeDefLookup);
+      }
+
+    }
+    
+    {
+      String stemUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemUuid", false);
+      String stemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemName", false);
+      
+      WsStemLookup wsStemLookup = null;
+      
+      if (!GrouperClientUtils.isBlank(stemName) || !GrouperClientUtils.isBlank(stemUuid)) {
+        wsStemLookup = new WsStemLookup(stemName, stemUuid);
+        gcAuditEntries.assignWsStemLookup(wsStemLookup);
+      }
+    }
+    
+    {
+      WsSubjectLookup wsSubjectLookup = retrieveSubjectFromArgs(argMap, argMapNotUsed);
+      if (wsSubjectLookup != null) {
+        gcAuditEntries.assignWsSubjectLookup(wsSubjectLookup);
+      }
+      
+    }
+    
+    {
+      String attributeDefNameName = GrouperClientUtils.argMapString(argMap, 
+          argMapNotUsed, "attributeDefNameName", false);
+      
+      if (!GrouperClientUtils.isBlank(attributeDefNameName)) {
+        gcAuditEntries.assignWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefNameName, null));
+      }
+
+    }
+
+        
+    Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, "pageSize", false, null); 
+    
+    String sortString = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "sortString", false);
+    
+    Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "ascending");
+    
+    Timestamp fromDate = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "fromDate");
+    Timestamp toDate = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "toDate");
+    
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcAuditEntries.assignClientVersion(clientVersion);
+
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcAuditEntries.assignActAsSubject(actAsSubject);
+
+
+    gcAuditEntries.assignPageSize(pageSize);
+    gcAuditEntries.assignSortString(sortString);
+    gcAuditEntries.assignAscending(ascending);
+    
+    
+    {
+      Boolean pageIsCursor = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageIsCursor");
+      if (pageIsCursor != null) {
+        gcAuditEntries.assignPageIsCursor(pageIsCursor);
+      }
+      
+      String pageLastCursorField = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorField", false);
+      gcAuditEntries.assignPageLastCursorField(pageLastCursorField);
+      
+      String pageLastCursorFieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pageLastCursorFieldType", false);
+      gcAuditEntries.assignPageLastCursorFieldType(pageLastCursorFieldType);
+      
+      Boolean pageCursorFieldIncludesLastRetrieved = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "pageCursorFieldIncludesLastRetrieved");
+      if (pageCursorFieldIncludesLastRetrieved != null) {
+        gcAuditEntries.assignPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved);
+      }
+    }
+    
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    for (WsParam param : params) {
+      gcAuditEntries.addParam(param);
+    }
+    
+    gcAuditEntries.assignFromDate(fromDate);
+    
+    gcAuditEntries.assignToDate(toDate);
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+
+    WsGetAuditEntriesResults wsGetAuditEntriesResults = gcAuditEntries.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+
+    substituteMap.put("wsGetAuditEntriesResults", wsGetAuditEntriesResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+    
+    substituteMap.put("resultMetadata", wsGetAuditEntriesResults.getResultMetadata());
+
+    String outputTemplate = null;
+
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.getAuditEntries.output");
+    }
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetAuditEntriesResults, " +
+          "grouperClientUtils, wsAuditEntries, resultMetadata");
+    }
+    
+    for (WsAuditEntry wsAuditEntry : GrouperClientUtils.nonNull(wsGetAuditEntriesResults.getWsAuditEntries(), WsAuditEntry.class)) {
+      substituteMap.put("index", index);
+      substituteMap.put("wsAuditEntry", wsAuditEntry);
+ 
       String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
       result.append(output);
       

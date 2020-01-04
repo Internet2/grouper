@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -65,6 +64,10 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditFieldType;
+import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -138,6 +141,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults.WsFindGr
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults.WsFindStemsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults.WsGetAttributeAssignActionsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAuditEntriesResults.WsGetAuditEntriesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults.WsGetPermissionAssignmentsResultsCode;
@@ -223,7 +227,6 @@ public class GrouperServiceLogic {
    * @return the results.  return the subject lookup only if there are problems retrieving the subject.
    * @see GrouperVersion
    */
-  @SuppressWarnings("unchecked")
   public static WsAddMemberResults addMember(final GrouperVersion clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final boolean replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
@@ -283,7 +286,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -348,7 +352,7 @@ public class GrouperServiceLogic {
                     newSubjects.add(new MultiKey(subject.getId(), subject.getSource().getId()));
                   }
                   HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-                    
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       try {
@@ -542,7 +546,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsDeleteMemberResults deleteMember(final GrouperVersion clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final WsSubjectLookup actAsSubjectLookup, final Field fieldName,
@@ -597,6 +600,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -777,7 +781,6 @@ public class GrouperServiceLogic {
    * in alphabetical order
    * @return the groups, or no groups if none found
    */
-  @SuppressWarnings("unchecked")
   public static WsFindGroupsResults findGroups(final GrouperVersion clientVersion,
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail, WsParam[] params, WsGroupLookup[] wsGroupLookups) {
@@ -906,7 +909,12 @@ public class GrouperServiceLogic {
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  
    * If you pass true or false, must pass a sort string
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param typeOfGroups is comma separated TypeOfGroups to find, e.g. group, role, entity
+   * @param enabled enabled is A for all, T or null for enabled only, F for disabled
    * @return the groups, or no groups if none found
    */
   public static WsFindGroupsResults findGroupsLite(final GrouperVersion clientVersion,
@@ -915,7 +923,10 @@ public class GrouperServiceLogic {
       GroupType groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1, String pageSize, 
-      String pageNumber, String sortString, String ascending, String typeOfGroups) {
+      String pageNumber, String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String typeOfGroups, String enabled) {
   
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
     GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
@@ -940,6 +951,11 @@ public class GrouperServiceLogic {
     wsQueryFilter.setSortString(sortString);
     wsQueryFilter.setAscending(ascending);
     wsQueryFilter.setTypeOfGroups(typeOfGroups);
+    wsQueryFilter.setPageIsCursor(pageIsCursor);
+    wsQueryFilter.setPageLastCursorField(pageLastCursorField);
+    wsQueryFilter.setPageLastCursorFieldType(pageLastCursorFieldType);
+    wsQueryFilter.setPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved);
+    wsQueryFilter.setEnabled(enabled);
     
     // pass through to the more comprehensive method
     WsFindGroupsResults wsFindGroupsResults = findGroups(clientVersion, wsQueryFilter,
@@ -959,7 +975,6 @@ public class GrouperServiceLogic {
    * in alphabetical order
    * @return the stems, or no stems if none found
    */
-  @SuppressWarnings("unchecked")
   public static WsFindStemsResults findStems(final GrouperVersion clientVersion,
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
       WsParam[] params, WsStemLookup[] wsStemLookups) {
@@ -1143,6 +1158,10 @@ public class GrouperServiceLogic {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -1157,7 +1176,6 @@ public class GrouperServiceLogic {
    *            minimum point in time to the time specified.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetGroupsResults getGroups(final GrouperVersion clientVersion,
       WsSubjectLookup[] subjectLookups, WsMemberFilter memberFilter, 
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail,
@@ -1165,6 +1183,8 @@ public class GrouperServiceLogic {
       String[] subjectAttributeNames, WsParam[] params, String fieldName, String scope, 
       WsStemLookup wsStemLookup, StemScope stemScope, String enabled, 
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
@@ -1208,6 +1228,11 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectLookups", subjectLookups);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemLookup", wsStemLookup);
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageIsCursor", pageIsCursor);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorField", pageLastCursorField);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldType", pageLastCursorFieldType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageCursorFieldIncludesLastRetrieved", pageCursorFieldIncludesLastRetrieved);
       
       subjectAttributeNames = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -1285,7 +1310,6 @@ public class GrouperServiceLogic {
             }
 
             //if supposed to have stem but cant find, then dont get any groups
-            QueryOptions queryOptions = null;
             Scope stemDotScope = null;
             if (wsStemLookup == null || stem != null ) {
               
@@ -1294,22 +1318,10 @@ public class GrouperServiceLogic {
               }
               
             }
-
-            if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
-              queryOptions = new QueryOptions();
-              if ((pageSize == null) != (pageNumber == null)) {
-                throw new RuntimeException("If you pass page size, you must pass page number and vice versa");
-              }
-              if (pageSize != null) {
-                queryOptions.paging(new QueryPaging(pageSize, pageNumber, false));
-              }
-              if (!StringUtils.isBlank(sortString)) {
-                if (ascending == null) {
-                  ascending = true;
-                }
-                queryOptions.sort(new QuerySort(sortString, ascending));
-              }
-            }
+            
+            QueryOptions queryOptions = buildQueryOptions(pageSize, pageNumber, sortString, ascending,
+                pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+                pageCursorFieldIncludesLastRetrieved);
 
             if (!usePIT) {
               groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
@@ -1397,6 +1409,10 @@ public class GrouperServiceLogic {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -1421,6 +1437,8 @@ public class GrouperServiceLogic {
       String paramName1, String paramValue1, String fieldName, String scope, 
       String stemName, String stemUuid, StemScope stemScope, String enabled, 
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
@@ -1442,7 +1460,10 @@ public class GrouperServiceLogic {
     
     WsGetGroupsResults wsGetGroupsResults = getGroups(clientVersion, subjectLookups,
         memberFilter, actAsSubjectLookup, includeGroupDetail, includeSubjectDetail,
-        subjectAttributeArray, params, fieldName, scope, wsStemLookup, stemScope, enabled, pageSize, pageNumber, sortString, ascending,
+        subjectAttributeArray, params, fieldName, scope, wsStemLookup, stemScope, enabled, 
+        pageSize, pageNumber, sortString, ascending,
+        pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+        pageCursorFieldIncludesLastRetrieved,
         pointInTimeFrom, pointInTimeTo);
   
     return new WsGetGroupsLiteResult(wsGetGroupsResults);
@@ -1468,6 +1489,7 @@ public class GrouperServiceLogic {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param sourceIds are source ids of members to retrieve
+   * @param pointInTimeRetrieve true means pull point in time retrieve, false otherwise
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -1484,19 +1506,26 @@ public class GrouperServiceLogic {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
-   * @param ascending T or null for ascending, F for descending.  
+   * @param ascending T or null for ascending, F for descending.
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item  
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetMembersResults getMembers(
       final GrouperVersion clientVersion,
       WsGroupLookup[] wsGroupLookups, WsMemberFilter memberFilter,
       WsSubjectLookup actAsSubjectLookup, final Field fieldName,
       boolean includeGroupDetail, 
       boolean includeSubjectDetail, String[] subjectAttributeNames,
-      WsParam[] params, String[] sourceIds, Timestamp pointInTimeFrom, Timestamp pointInTimeTo,
+      WsParam[] params, String[] sourceIds, 
+      Boolean pointInTimeRetrieve, Timestamp pointInTimeFrom, Timestamp pointInTimeTo,
       Integer pageSize, Integer pageNumber,
-      String sortString, Boolean ascending) {
+      String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved
+      ) {
   
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
 
@@ -1510,7 +1539,6 @@ public class GrouperServiceLogic {
       GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetMembersResults.getResponseMetadata().warnings());
 
       boolean hasSources = GrouperUtil.length(sourceIds) > 0;
-      boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
 
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
           + GrouperUtil.toStringForLog(wsGroupLookups,200) + "\n, memberFilter: " 
@@ -1541,6 +1569,12 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "sortString", sortString);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "ascending", ascending);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pointInTimeRetrieve", pointInTimeRetrieve);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageIsCursor", pageIsCursor);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorField", pageLastCursorField);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldType", pageLastCursorFieldType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageCursorFieldIncludesLastRetrieved", pageCursorFieldIncludesLastRetrieved);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -1557,11 +1591,15 @@ public class GrouperServiceLogic {
         sources = GrouperUtil.convertSources(sourceIds);
       }
       
-      if (usePIT && memberFilter != null && memberFilter.getMembershipType() != null) {
+      if (pointInTimeFrom != null || pointInTimeTo != null) {
+        pointInTimeRetrieve = true;
+      }
+      
+      if (pointInTimeRetrieve && memberFilter != null && memberFilter.getMembershipType() != null) {
         throw new WsInvalidQueryException("Cannot specify a member filter for point in time queries.");
       }
       
-      if (usePIT && includeGroupDetail) {
+      if (pointInTimeRetrieve && includeGroupDetail) {
         throw new WsInvalidQueryException("Cannot specify includeGroupDetail for point in time queries.");
       }
       
@@ -1569,47 +1607,20 @@ public class GrouperServiceLogic {
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
       wsGetMembersResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
             
-      if ((pageNumber != null) && (pageSize == null) ) {
-        
-        throw new WsInvalidQueryException(
-          "If you pass in pageNumber you need to pass in pageSize");
-      
-      }
-      
       for (WsGroupLookup wsGroupLookup : GrouperUtil.nonNull(wsGroupLookups, WsGroupLookup.class)) {
         
-        QueryOptions queryOptions = null;
-        if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
-          queryOptions = new QueryOptions();
-          boolean hasPaging = false;
-          if (pageNumber != null || pageSize != null) {
-            //default page number to 1
-            if (pageNumber == null) {
-              pageNumber = 1;
-            }
-            queryOptions.paging(pageSize, pageNumber, false);
-            hasPaging = true;
-          }
-          if (hasPaging || ascending != null || !StringUtils.isBlank(sortString)) {
-            //default sort string to subjectId
-            if (StringUtils.isBlank(sortString)) {
-              sortString = "sourceId,subjectId";
-            }
-            if (ascending == null || ascending) {
-              queryOptions.sortAsc(sortString);
-            } else {
-              queryOptions.sortDesc(sortString);
-            }
-          }
+        if (StringUtils.isBlank(sortString)) {
+          sortString = "sourceId,subjectId";
         }
-
-
+        
+        QueryOptions queryOptions = buildQueryOptions(pageSize, pageNumber, sortString, ascending,
+            pageIsCursor, pageLastCursorField, pageLastCursorFieldType, pageCursorFieldIncludesLastRetrieved);
         
         WsGetMembersResult wsGetMembersResult = new WsGetMembersResult();
         results.add(wsGetMembersResult);
         
         try {
-          if (!usePIT) {
+          if (!pointInTimeRetrieve) {
             Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
   
             //init in case error
@@ -1629,7 +1640,6 @@ public class GrouperServiceLogic {
             
             // lets get the members, cant be null
             Set<Member> members = memberFilter.getMembers(group, fieldName, sources, queryOptions);
-            Member.resolveSubjects(members, true);
             wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
           } else {            
             Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroupsIfNeeded("wsGroupLookup", pointInTimeFrom, pointInTimeTo);
@@ -1723,15 +1733,35 @@ public class GrouperServiceLogic {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending T or null for ascending, F for descending.  
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param pageSizeForMember page size if paging in the members part
    * @param pageNumberForMember page number 1 indexed if paging in the members part
    * @param sortStringForMember must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pageIsCursorForMember true means cursor based paging
+   * @param pageLastCursorFieldForMember field based on which paging needs to occur 
+   * @param pageLastCursorFieldTypeForMember type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrievedForMember should the result has last retrieved item
+   * @param pointInTimeRetrieve true means retrieve point in time records
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetMembershipsResults getMemberships(final GrouperVersion clientVersion,
       WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, WsMemberFilter wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
@@ -1740,9 +1770,15 @@ public class GrouperServiceLogic {
       WsStemLookup wsStemLookup, StemScope stemScope, String enabled, String[] membershipIds,
       WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, FieldType fieldType,
       ServiceRole serviceRole, WsAttributeDefNameLookup serviceLookup, Integer pageSize, Integer pageNumber,
-      String sortString, Boolean ascending, Integer pageSizeForMember, Integer pageNumberForMember,
-      String sortStringForMember, Boolean ascendingForMember
-      ) {  
+      String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
+      Integer pageSizeForMember, Integer pageNumberForMember,
+      String sortStringForMember, Boolean ascendingForMember,
+      Boolean pageIsCursorForMember, String pageLastCursorFieldForMember, String pageLastCursorFieldTypeForMember,
+      Boolean pageCursorFieldIncludesLastRetrievedForMember,
+      Boolean pointInTimeRetrieve,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
 
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
     
@@ -1770,6 +1806,7 @@ public class GrouperServiceLogic {
           + "\n, wsStemLookups: " + GrouperUtil.toStringForLog(wsOwnerStemLookups, 200)
           + "\n, wsAttributeDefLookups: " + GrouperUtil.toStringForLog(wsOwnerAttributeDefLookups, 200)
           + "\n, pageSize: " + pageSize + ", pageNumber: " + pageNumber 
+          + "\n, pointInTimeRetrieve: " + pointInTimeRetrieve 
           + ", sortString: " + sortString + ", ascending: " + ascending;
   
       GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
@@ -1800,6 +1837,17 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerStemLookups", wsOwnerStemLookups);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemLookup", wsStemLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsSubjectLookups", wsSubjectLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pointInTimeRetrieve", pointInTimeRetrieve);
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageIsCursor", pageIsCursor);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorField", pageLastCursorField);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldType", pageLastCursorFieldType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageCursorFieldIncludesLastRetrieved", pageCursorFieldIncludesLastRetrieved);
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageIsCursorForMember", pageIsCursorForMember);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldForMember", pageLastCursorFieldForMember);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldTypeForMember", pageLastCursorFieldTypeForMember);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageCursorFieldIncludesLastRetrievedForMember", pageCursorFieldIncludesLastRetrievedForMember);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -1820,51 +1868,13 @@ public class GrouperServiceLogic {
         membershipFinder.assignMembershipType(membershipType);
       }
 
-      QueryOptions queryOptions = null;
-      if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
-        queryOptions = new QueryOptions();
-        boolean hasPaging = false;
-        if (pageNumber != null || pageSize != null) {
-          //default page number to 1
-          if (pageNumber == null) {
-            pageNumber = 1;
-          }
-          queryOptions.paging(pageSize, pageNumber, false);
-          hasPaging = true;
-        }
-        if (!StringUtils.isBlank(sortString)) {
-          if (hasPaging || ascending != null) {
-            if (ascending == null || ascending) {
-              queryOptions.sortAsc(sortString);
-            } else {
-              queryOptions.sortDesc(sortString);
-            }
-          }
-        }
-      }
-
-      QueryOptions queryOptionsForMember = null;
-      if (pageSizeForMember != null || pageNumberForMember != null || !StringUtils.isBlank(sortStringForMember) || ascendingForMember != null) {
-        queryOptionsForMember = new QueryOptions();
-        boolean hasPagingForMember = false;
-        if (pageNumberForMember != null || pageSizeForMember != null) {
-          //default page number to 1
-          if (pageNumberForMember == null) {
-            pageNumberForMember = 1;
-          }
-          queryOptionsForMember.paging(pageSizeForMember, pageNumberForMember, false);
-          hasPagingForMember = true;
-        }
-        if (!StringUtils.isBlank(sortStringForMember)) {
-          if (hasPagingForMember || ascendingForMember != null) {
-            if (ascendingForMember == null || ascendingForMember) {
-              queryOptionsForMember.sortAsc(sortStringForMember);
-            } else {
-              queryOptionsForMember.sortDesc(sortStringForMember);
-            }
-          }
-        }
-      }
+      QueryOptions queryOptions = buildQueryOptions(pageSize, pageNumber,
+          sortString, ascending, pageIsCursor, pageLastCursorField,
+          pageLastCursorFieldType, pageCursorFieldIncludesLastRetrieved);
+      
+      QueryOptions queryOptionsForMember = buildQueryOptions(pageSizeForMember, pageNumberForMember, 
+          sortStringForMember, ascendingForMember, pageIsCursorForMember, pageLastCursorFieldForMember, 
+          pageLastCursorFieldTypeForMember, pageCursorFieldIncludesLastRetrievedForMember);
 
       //get all the groups
       //we could probably batch these to get better performance.  And we dont even have to lookup uuids
@@ -2027,15 +2037,32 @@ public class GrouperServiceLogic {
         membershipFinder.assignQueryOptionsForGroup(queryOptions);
         membershipFinder.assignQueryOptionsForMember(queryOptionsForMember);
         membershipFinder.assignQueryOptionsForStem(queryOptions);
-
-        Set<Object[]> membershipObjects = membershipFinder.findMembershipsMembers();
         
+        Set<Object[]> membershipObjects = null; 
         
+        if (pointInTimeFrom != null || pointInTimeTo != null) {
+          pointInTimeRetrieve = true;
+        }
+        
+        if (pointInTimeRetrieve) {
+          if (pointInTimeFrom != null) {
+            membershipFinder.assignPointInTimeFrom(pointInTimeFrom);
+          }
+          
+          if (pointInTimeTo != null) {
+            membershipFinder.assignPointInTimeTo(pointInTimeTo);
+          }
+          
+          membershipObjects = membershipFinder.findPITMembershipsMembers();
+          wsGetMembershipsResults.assignPitMembershipResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
+        } else {     
+          membershipObjects = membershipFinder.findMembershipsMembers();
+          //calculate and return the results
+          wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
+        }
         
         Membership.resolveSubjects(membershipObjects);
         
-        //calculate and return the results
-        wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
       }
       wsGetMembershipsResults.assignResultCode(WsGetMembershipsResultsCode.SUCCESS);
       
@@ -2120,13 +2147,34 @@ public class GrouperServiceLogic {
    * @param pageSize page size if paging
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
-   * @param ascending T or null for ascending, F for descending.  
+   * @param ascending T or null for ascending, F for descending.
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item  
    * @param pageSizeForMember page size if paging in the members part
    * @param pageNumberForMember page number 1 indexed if paging in the members part
    * @param sortStringForMember must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pageIsCursorForMember true means cursor based paging
+   * @param pageLastCursorFieldForMember field based on which paging needs to occur 
+   * @param pageLastCursorFieldTypeForMember type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrievedForMember should the result has last retrieved item
+   * @param pointInTimeRetrieve true means retrieve point in time records
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the memberships, or none if none found
    */
   public static WsGetMembershipsResults getMembershipsLite(final GrouperVersion clientVersion,
@@ -2139,8 +2187,15 @@ public class GrouperServiceLogic {
       String stemUuid, StemScope stemScope, String enabled, String membershipIds, String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, String ownerAttributeDefUuid, 
       FieldType fieldType, ServiceRole serviceRole,
       String serviceId, String serviceName, Integer pageSize, Integer pageNumber,
-      String sortString, Boolean ascending, Integer pageSizeForMember, Integer pageNumberForMember,
-      String sortStringForMember, Boolean ascendingForMember) {
+      String sortString, Boolean ascending, 
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
+      Integer pageSizeForMember, Integer pageNumberForMember,
+      String sortStringForMember, Boolean ascendingForMember,
+      Boolean pageIsCursorForMember, String pageLastCursorFieldForMember, String pageLastCursorFieldTypeForMember,
+      Boolean pageCursorFieldIncludesLastRetrievedForMember,
+      Boolean pointInTimeRetrieve,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
     GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
@@ -2194,8 +2249,14 @@ public class GrouperServiceLogic {
         includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
         params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray,
         wsStemLookups, wsAttributeDefLookups, fieldType, serviceRole, serviceLookup,
-        pageSize, pageNumber, sortString, ascending, pageSizeForMember, pageNumberForMember, 
-        sortStringForMember, ascendingForMember);
+        pageSize, pageNumber, sortString, ascending, 
+        pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+        pageCursorFieldIncludesLastRetrieved,
+        pageSizeForMember, pageNumberForMember,
+        sortStringForMember, ascendingForMember,
+        pageIsCursorForMember, pageLastCursorFieldForMember, pageLastCursorFieldTypeForMember,
+        pageCursorFieldIncludesLastRetrievedForMember,
+        pointInTimeRetrieve, pointInTimeFrom, pointInTimeTo);
   
     return wsGetMembershipsResults;
   }
@@ -2238,6 +2299,7 @@ public class GrouperServiceLogic {
    * @param paramValue1
    *            reserved for future use
    * @param sourceIds comma separated of sources to get members from
+   * @param pointInTimeRetrieve true means retrieve point in time records
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -2255,6 +2317,10 @@ public class GrouperServiceLogic {
    * @param sortString must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
    * @param ascending T or null for ascending, F for descending.  
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @return the members, or no members if none found
    */
   public static WsGetMembersLiteResult getMembersLite(
@@ -2267,9 +2333,13 @@ public class GrouperServiceLogic {
       boolean includeSubjectDetail, String subjectAttributeNames,
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds,
+      Boolean pointInTimeRetrieve,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo,
       Integer pageSize, Integer pageNumber,
-      String sortString, Boolean ascending) {
+      String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved
+      ) {
   
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
     GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
@@ -2287,17 +2357,17 @@ public class GrouperServiceLogic {
   
     String[] sourceIdArray = GrouperUtil.splitTrim(sourceIds, ",");
     
-    boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
-
     // pass through to the more comprehensive method
     WsGetMembersResults wsGetMembersResults = getMembers(clientVersion, wsGroupLookups,
         memberFilter, actAsSubjectLookup, fieldName, 
         includeGroupDetail, includeSubjectDetail,
-        subjectAttributeArray, params, sourceIdArray, pointInTimeFrom, pointInTimeTo,
+        subjectAttributeArray, params, sourceIdArray, pointInTimeRetrieve, pointInTimeFrom, pointInTimeTo,
         pageSize, pageNumber,
-        sortString, ascending);
+        sortString, ascending,
+        pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+        pageCursorFieldIncludesLastRetrieved);
   
-    if (usePIT && wsGetMembersResults.getResults() != null && wsGetMembersResults.getResults().length > 1) {
+    if (pointInTimeRetrieve && wsGetMembersResults.getResults() != null && wsGetMembersResults.getResults().length > 1) {
       WsGetMembersResult[] lastResult = { wsGetMembersResults.getResults()[wsGetMembersResults.getResults().length - 1] };
       wsGetMembersResults.setResults(lastResult);
     }
@@ -2319,7 +2389,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGroupDeleteResults groupDelete(final GrouperVersion clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
@@ -2360,7 +2429,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -2513,7 +2583,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGroupSaveResults groupSave(final GrouperVersion clientVersion,
       final WsGroupToSave[] wsGroupToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final boolean includeGroupDetail,  final WsParam[] params) {
@@ -2554,7 +2623,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -2579,7 +2648,7 @@ public class GrouperServiceLogic {
                   //this should be autonomous, so that within one group, it is transactional
                   HibernateSession.callbackHibernateSession(
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       //make sure everything is in order
@@ -2706,7 +2775,6 @@ public class GrouperServiceLogic {
    * @since 2.3.0.patch
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsExternalSubjectSaveResults externalSubjectSave(final GrouperVersion clientVersion,
       final WsExternalSubjectToSave[] wsExternalSubjectToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -2747,7 +2815,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -2772,7 +2840,8 @@ public class GrouperServiceLogic {
                   //this should be autonomous, so that within one group, it is transactional
                   HibernateSession.callbackHibernateSession(
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-
+                    
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
 
@@ -2865,7 +2934,6 @@ public class GrouperServiceLogic {
    *            minimum point in time to the time specified.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsHasMemberResults hasMember(final GrouperVersion clientVersion,
       WsGroupLookup wsGroupLookup, WsSubjectLookup[] subjectLookups,
       WsMemberFilter memberFilter,
@@ -3205,7 +3273,6 @@ public class GrouperServiceLogic {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsMemberChangeSubjectResults memberChangeSubject(final GrouperVersion clientVersion,
       final WsMemberChangeSubject[] wsMemberChangeSubjects,
       final WsSubjectLookup actAsSubjectLookup, GrouperTransactionType txType, 
@@ -3250,7 +3317,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -3339,7 +3406,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsStemDeleteResults stemDelete(final GrouperVersion clientVersion,
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -3379,7 +3445,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -3524,7 +3590,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsStemSaveResults stemSave(final GrouperVersion clientVersion,
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -3564,7 +3629,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -3591,8 +3656,6 @@ public class GrouperServiceLogic {
                   Stem stem = null;
 
                   String moveOrCopy = paramMap.get("moveOrCopy");
-                  
-                  Group group = null;
                   
                   if (!StringUtils.isBlank(moveOrCopy)) {
                     
@@ -3885,7 +3948,6 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member query
    */
-  @SuppressWarnings({ "cast", "unchecked" })
   public static WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(final GrouperVersion clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
       String groupName, String groupUuid, 
@@ -4428,7 +4490,7 @@ public class GrouperServiceLogic {
       final Subject grouperSessionSubject = GrouperSession.staticGrouperSession().getSubject();
       
       //if this change breaks an app, and you need a quick fix, you can whitelist users
-      final String groupNameOfUsersWhoCanCheckAllPrivileges = GrouperWsConfig.getPropertyString("ws.groupNameOfUsersWhoCanCheckAllPrivileges");
+      final String groupNameOfUsersWhoCanCheckAllPrivileges = GrouperWsConfig.retrieveConfig().propertyValueString("ws.groupNameOfUsersWhoCanCheckAllPrivileges");
       
       //if there is a whitelist to preserve old broken behavior
       if (!StringUtils.isBlank(groupNameOfUsersWhoCanCheckAllPrivileges)) {
@@ -4979,7 +5041,6 @@ public class GrouperServiceLogic {
      * found in list is much lower e.g. 1000)
      * @return the results
      */
-    @SuppressWarnings("unchecked")
     public static WsGetSubjectsResults getSubjects(final GrouperVersion clientVersion,
         WsSubjectLookup[] wsSubjectLookups, String searchString, boolean includeSubjectDetail,
         String[] subjectAttributeNames, WsSubjectLookup actAsSubjectLookup, 
@@ -5729,7 +5790,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -5975,7 +6036,6 @@ public class GrouperServiceLogic {
    * @param wsAssignAssignOwnerActions if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetAttributeAssignmentsResults getAttributeAssignments(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       WsAttributeAssignLookup[] wsAttributeAssignLookups,
@@ -6515,7 +6575,6 @@ public class GrouperServiceLogic {
    * @param wsAssignAssignOwnerAction if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       String attributeAssignId,
@@ -6877,7 +6936,6 @@ public class GrouperServiceLogic {
    * related attributeDefTypes, if blank, then just do all
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesResults assignAttributes(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -7053,7 +7111,6 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesLiteResults assignAttributesLite(
       GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -7664,6 +7721,10 @@ public class GrouperServiceLogic {
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @return the attribute defs, or no attribute def if none found
    */
   public static WsFindAttributeDefsResults findAttributeDefs(
@@ -7672,6 +7733,8 @@ public class GrouperServiceLogic {
       String privilegeName, StemScope stemScope,
       String parentStemId, Boolean findByUuidOrName,
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
 
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
@@ -7712,6 +7775,11 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "splitScope", splitScope);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "stemScope", stemScope);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefLookups", wsAttributeDefLookups);
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageIsCursor", pageIsCursor);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorField", pageLastCursorField);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldType", pageLastCursorFieldType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageCursorFieldIncludesLastRetrieved", pageCursorFieldIncludesLastRetrieved);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -7738,25 +7806,11 @@ public class GrouperServiceLogic {
             "If you pass in pageNumber you need to pass in pageSize");
       }
 
-      QueryOptions queryOptions = new QueryOptions();
-      if (pageNumber != null || pageSize != null) {
-        //default page number to 1
-        if (pageNumber == null) {
-          pageNumber = 1;
-        }
-        queryOptions.paging(pageSize, pageNumber, false);
+      if (StringUtils.isBlank(sortString)) {
+        sortString = "displayName";
       }
-      if (ascending != null || !StringUtils.isBlank(sortString)) {
-        //default sort string to displayName
-        if (StringUtils.isBlank(sortString)) {
-          sortString = "displayName";
-        }
-        if (ascending == null || ascending) {
-          queryOptions.sortAsc(sortString);
-        } else {
-          queryOptions.sortDesc(sortString);
-        }
-      }
+      QueryOptions queryOptions = buildQueryOptions(pageSize, pageNumber, sortString, ascending,
+          pageIsCursor, pageLastCursorField, pageLastCursorFieldType, pageCursorFieldIncludesLastRetrieved);
 
       Scope stemDotScope = null;
       if (stemScope != null) {
@@ -7842,6 +7896,10 @@ public class GrouperServiceLogic {
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param actAsSubjectId
    *            optional: is the subject id of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
@@ -7870,6 +7928,8 @@ public class GrouperServiceLogic {
       String parentStemId, Boolean findByUuidOrName,
       Integer pageSize, Integer pageNumber,
       String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
@@ -7897,6 +7957,8 @@ public class GrouperServiceLogic {
         scope, splitScope, wsAttributeDefLookups, privilegeName, stemScope, parentStemId,
         findByUuidOrName,
         pageSize, pageNumber, sortString, ascending,
+        pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+        pageCursorFieldIncludesLastRetrieved,
         actAsSubjectLookup, params);
 
     return wsFindAttributeDefsResults;
@@ -8085,7 +8147,6 @@ public class GrouperServiceLogic {
    * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetPermissionAssignmentsResults getPermissionAssignments(
       GrouperVersion clientVersion, 
       WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -8106,6 +8167,9 @@ public class GrouperServiceLogic {
   
     GrouperSession session = null;
     String theSummary = null;
+    
+    //TODO Add pointInTimeRetrieve 
+    
     boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
 
     try {
@@ -8392,7 +8456,6 @@ public class GrouperServiceLogic {
    * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
       GrouperVersion clientVersion, 
       String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -8489,7 +8552,6 @@ public class GrouperServiceLogic {
    * @param disallowed is disallowed
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignPermissionsResults assignPermissions(
       GrouperVersion clientVersion, PermissionType permissionType,
       WsAttributeDefNameLookup[] permissionDefNameLookups,
@@ -8633,7 +8695,6 @@ public class GrouperServiceLogic {
    * @param disallowed if the assignment is a disallow
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignPermissionsLiteResults assignPermissionsLite(
       GrouperVersion clientVersion, PermissionType permissionType,
       String permissionDefNameName, String permissionDefNameId,
@@ -8851,7 +8912,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+           @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -8860,7 +8921,8 @@ public class GrouperServiceLogic {
                 //this should be autonomous, so that within one operational, it is transactional
                 HibernateSession.callbackHibernateSession(
                     GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-  
+                  
+                  @Override
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     
@@ -8884,7 +8946,8 @@ public class GrouperServiceLogic {
                 //this should be autonomous, so that within one operational, it is transactional
                 HibernateSession.callbackHibernateSession(
                     GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-  
+                  
+                  @Override
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     
@@ -9058,7 +9121,7 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -9243,7 +9306,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -9269,7 +9333,7 @@ public class GrouperServiceLogic {
                   //this should be autonomous, so that within one attribute def name, it is transactional
                   HibernateSession.callbackHibernateSession(
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       //make sure everything is in order
@@ -9426,6 +9490,10 @@ public class GrouperServiceLogic {
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -9437,7 +9505,9 @@ public class GrouperServiceLogic {
       String scope, Boolean splitScope, WsAttributeDefLookup wsAttributeDefLookup,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups, Integer pageSize, Integer pageNumber,
-      String sortString, Boolean ascending, 
+      String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
       WsInheritanceSetRelation wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
       WsSubjectLookup wsSubjectLookup, ServiceRole serviceRole) {
 
@@ -9481,6 +9551,11 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefNameLookups", wsAttributeDefNameLookups);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsInheritanceSetRelation", wsInheritanceSetRelation);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsSubjectLookup", wsSubjectLookup);
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageIsCursor", pageIsCursor);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorField", pageLastCursorField);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldType", pageLastCursorFieldType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageCursorFieldIncludesLastRetrieved", pageCursorFieldIncludesLastRetrieved);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -9561,28 +9636,12 @@ public class GrouperServiceLogic {
           attributeDefId = wsAttributeDefLookup.retrieveAttributeDef().getId();
         }
         
-        QueryOptions queryOptions = null;
-        if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
-          queryOptions = new QueryOptions();
-          if (pageNumber != null || pageSize != null) {
-            //default page number to 1
-            if (pageNumber == null) {
-              pageNumber = 1;
-            }
-            queryOptions.paging(pageSize, pageNumber, false);
-          }
-          if (ascending != null || !StringUtils.isBlank(sortString)) {
-            //default sort string to displayName
-            if (StringUtils.isBlank(sortString)) {
-              sortString = "displayName";
-            }
-            if (ascending == null || ascending) {
-              queryOptions.sortAsc(sortString);
-            } else {
-              queryOptions.sortDesc(sortString);
-            }
-          }
+        if (StringUtils.isBlank(sortString)) {
+          sortString = "displayName";
         }
+        
+        QueryOptions queryOptions = buildQueryOptions(pageSize, pageNumber, sortString, ascending, 
+            pageIsCursor, pageLastCursorField, pageLastCursorFieldType, pageCursorFieldIncludesLastRetrieved);
         
         Subject subject = wsSubjectLookup == null ? null : wsSubjectLookup.retrieveSubject();
         
@@ -9673,6 +9732,10 @@ public class GrouperServiceLogic {
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -9704,7 +9767,10 @@ public class GrouperServiceLogic {
       String scope, Boolean splitScope, String uuidOfAttributeDef, String nameOfAttributeDef,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, String attributeDefNameUuid, String attributeDefNameName,
       Integer pageSize, Integer pageNumber,
-      String sortString, Boolean ascending, WsInheritanceSetRelation wsInheritanceSetRelation,
+      String sortString, Boolean ascending, 
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
+      WsInheritanceSetRelation wsInheritanceSetRelation,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1, String subjectId, String subjectSourceId,
@@ -9737,7 +9803,10 @@ public class GrouperServiceLogic {
     // pass through to the more comprehensive method
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = findAttributeDefNames(clientVersion, 
         scope, splitScope, wsAttributeDefLookup, attributeAssignType, attributeDefType, wsAttributeDefNameLookups, 
-        pageSize, pageNumber, sortString, ascending, wsInheritanceSetRelation, 
+        pageSize, pageNumber, sortString, ascending, 
+        pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+        pageCursorFieldIncludesLastRetrieved,
+        wsInheritanceSetRelation, 
         actAsSubjectLookup, params, wsSubjectLookup, serviceRole);
   
     return wsFindAttributeDefNamesResults;
@@ -9761,7 +9830,6 @@ public class GrouperServiceLogic {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesBatchResults assignAttributesBatch(
       final GrouperVersion clientVersion, final WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries,
       final WsSubjectLookup actAsSubjectLookup, final boolean includeSubjectDetail, GrouperTransactionType txType,
@@ -9818,7 +9886,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -10315,7 +10384,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsExternalSubjectDeleteResults externalSubjectDelete(final GrouperVersion clientVersion,
       final WsExternalSubjectLookup[] wsExternalSubjectLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -10356,7 +10424,8 @@ public class GrouperServiceLogic {
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
-  
+            
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -10451,7 +10520,6 @@ public class GrouperServiceLogic {
    * @param wsExternalSubjectLookups if you want to just pass in a list of uuids and/or names
    * @return the external subjects, or no external subjects if none found
    */
-  @SuppressWarnings("unchecked")
   public static WsFindExternalSubjectsResults findExternalSubjects(final GrouperVersion clientVersion,
       WsExternalSubjectLookup[] wsExternalSubjectLookups,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
@@ -10491,7 +10559,7 @@ public class GrouperServiceLogic {
           params);
   
       Set<ExternalSubject> externalSubjects = new TreeSet<ExternalSubject>(new Comparator<ExternalSubject>() {
-
+        @Override
         public int compare(ExternalSubject o1, ExternalSubject o2) {
           if (o1 == o2) {
             return 0;
@@ -10536,5 +10604,383 @@ public class GrouperServiceLogic {
     return wsFindExternalSubjectsResults;
   }
   
+  
+  /**
+   * get audit entries
+   * @param clientVersion
+   * @param actAsSubjectId
+   * @param actAsSubjectSourceId
+   * @param actAsSubjectIdentifier
+   * @param auditType
+   * @param auditActionId
+   * @param wsGroupName
+   * @param wsGroupId
+   * @param wsStemName
+   * @param wsStemId
+   * @param wsAttributeDefName
+   * @param wsAttributeDefId
+   * @param wsAttributeDefNameName
+   * @param wsAttributeDefNameId
+   * @param wsSubjectId
+   * @param wsSubjectSourceId
+   * @param wsSubjectIdentifier
+   * @param actionsPerformedByWsSubjectId
+   * @param actionsPerformedByWsSubjectSourceId
+   * @param actionsPerformedByWsSubjectIdentifier
+   * @param paramName0
+   * @param paramValue0
+   * @param paramName1
+   * @param paramValue1
+   * @param pageSize
+   * @param sortString
+   * @param ascending
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
+   * @param fromDate
+   * @param toDate
+   * @return audit entries result
+   */
+  public static WsGetAuditEntriesResults getAuditEntriesLite(final GrouperVersion clientVersion,
+      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+      String auditType, String auditActionId,
+      String wsGroupName, String wsGroupId,
+      String wsStemName, String wsStemId,
+      String wsAttributeDefName, String wsAttributeDefId,
+      String wsAttributeDefNameName, String wsAttributeDefNameId,
+      String wsSubjectId, String wsSubjectSourceId, String wsSubjectIdentifier,
+      String actionsPerformedByWsSubjectId, String actionsPerformedByWsSubjectSourceId, String actionsPerformedByWsSubjectIdentifier,
+      String paramName0, String paramValue0,
+      String paramName1, String paramValue1,
+      Integer pageSize,
+      String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
+      Timestamp fromDate, Timestamp toDate) {
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+  
+    WsGroupLookup wsGroupLookup = null;
+    if (!StringUtils.isBlank(wsGroupName) || !StringUtils.isBlank(wsGroupId)) {
+      wsGroupLookup = new WsGroupLookup(wsGroupName, wsGroupId);
+    }
+    
+    WsStemLookup wsStemLookup = null;
+    if (!StringUtils.isBlank(wsStemName) || !StringUtils.isBlank(wsStemId)) {
+      wsStemLookup = new WsStemLookup(wsStemName, wsStemId);
+    }
+    
+    WsSubjectLookup wsSubjectLookup = null;
+    if (!StringUtils.isBlank(wsSubjectId) || !StringUtils.isBlank(wsSubjectSourceId) || !StringUtils.isBlank(wsSubjectIdentifier)) {
+      wsSubjectLookup = new WsSubjectLookup(wsSubjectId, wsSubjectSourceId, wsSubjectIdentifier);
+    }
+    
+    WsSubjectLookup actionsPerformedByWsSubjectLookup = null;
+    if (!StringUtils.isBlank(actionsPerformedByWsSubjectId) || !StringUtils.isBlank(actionsPerformedByWsSubjectSourceId) || !StringUtils.isBlank(actionsPerformedByWsSubjectIdentifier)) {
+      actionsPerformedByWsSubjectLookup = new WsSubjectLookup(actionsPerformedByWsSubjectId, actionsPerformedByWsSubjectSourceId, actionsPerformedByWsSubjectIdentifier);
+    }
+    
+    WsAttributeDefLookup wsAttributeDefLookup = null;
+    if (!StringUtils.isBlank(wsAttributeDefName) || !StringUtils.isBlank(wsAttributeDefId)) {
+      wsAttributeDefLookup = new WsAttributeDefLookup(wsAttributeDefName, wsAttributeDefId); 
+    }
+    
+    WsAttributeDefNameLookup wsAttributeDefNameLookup = null;
+    if (!StringUtils.isBlank(wsAttributeDefNameName) || !StringUtils.isBlank(wsAttributeDefNameId)) {
+      wsAttributeDefNameLookup = new WsAttributeDefNameLookup(wsAttributeDefNameName, wsAttributeDefNameId );
+    }
+    
+    WsGetAuditEntriesResults wsGetAuditEntriesResults = getAuditEntries(clientVersion,
+        actAsSubjectLookup, auditType, auditActionId,
+        wsGroupLookup, wsStemLookup, wsAttributeDefLookup, wsAttributeDefNameLookup,
+        wsSubjectLookup,
+        actionsPerformedByWsSubjectLookup,
+        params,
+        pageSize, sortString, ascending,
+        pageIsCursor,
+        pageLastCursorField, pageLastCursorFieldType,
+        pageCursorFieldIncludesLastRetrieved,
+        fromDate, toDate);
+  
+    return wsGetAuditEntriesResults;
+  }
+  
+  /**
+   * get audit entries
+   * @param clientVersion
+   * @param actAsSubjectLookup
+   * @param auditType
+   * @param auditActionId
+   * @param wsGroupLookup
+   * @param wsStemLookup
+   * @param wsAttributeDefLookup
+   * @param wsAttributeDefNameLookup
+   * @param wsSubjectLookup
+   * @param actionsPerformedByWsSubjectLookup
+   * @param params
+   * @param pageSize
+   * @param sortString
+   * @param ascending
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
+   * @param fromDate
+   * @param toDate
+   * @return audit entries result
+   */
+  public static WsGetAuditEntriesResults getAuditEntries(final GrouperVersion clientVersion,
+      WsSubjectLookup actAsSubjectLookup, 
+      String auditType, String auditActionId,
+      WsGroupLookup wsGroupLookup, WsStemLookup wsStemLookup, WsAttributeDefLookup wsAttributeDefLookup,
+      WsAttributeDefNameLookup wsAttributeDefNameLookup,
+      WsSubjectLookup wsSubjectLookup,
+      WsSubjectLookup actionsPerformedByWsSubjectLookup,
+      WsParam[] params,
+      Integer pageSize,
+      String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved,
+      Timestamp fromDate, Timestamp toDate) {
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getAuditEntries");
+
+    final WsGetAuditEntriesResults wsGetAuditEntriesResults = new WsGetAuditEntriesResults();
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetAuditEntriesResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion+ ", auditType: " + auditType
+          +", auditActionId: " + auditActionId
+          + ", wsOwnerAttributeDefLookup: "
+          + wsAttributeDefLookup 
+          + ", wsOwnerAttributeDefNameLookup: " + wsAttributeDefNameLookup
+          + ", wsOwnerStemLookup: "
+          + wsStemLookup + ", wsOwnerGroupLookup: "
+          + wsGroupLookup + ", wsOwnerSubjectLookup: "
+          + wsSubjectLookup
+          + ", actAsSubject: "
+          + actAsSubjectLookup 
+          + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, ";
+  
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "auditType", auditType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "auditActionId", auditActionId);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeDefNameLookup", wsAttributeDefNameLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeDefLookup", wsAttributeDefLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerGroupLookup", wsGroupLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerStemLookup", wsStemLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerSubjectLookup", wsSubjectLookup);
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageSize", pageSize);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageIsCursor", pageIsCursor);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorField", pageLastCursorField);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldType", pageLastCursorFieldType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageCursorFieldIncludesLastRetrieved", pageCursorFieldIncludesLastRetrieved);
+
+      
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+      
+      if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(session.getSubject())) {
+        throw new InsufficientPrivilegeException("Subject cannot get audit entries " + GrouperUtil.subjectToString(session.getSubject()));
+      }
+  
+      if (StringUtils.isBlank(auditType)) {
+        throw new WsInvalidQueryException("You need to pass in auditType.");
+      }
+      
+      
+      UserAuditQuery userAuditQuery = new UserAuditQuery();
+      
+      if (actionsPerformedByWsSubjectLookup != null && actionsPerformedByWsSubjectLookup.retrieveMember() != null) {
+
+        userAuditQuery=userAuditQuery.loggedInMember(actionsPerformedByWsSubjectLookup.retrieveMember());
+        userAuditQuery=userAuditQuery.actAsMember(actionsPerformedByWsSubjectLookup.retrieveMember());
+        
+      }
+      
+      if (StringUtils.isNotBlank(auditType) && StringUtils.isNotBlank(auditActionId)) {
+        userAuditQuery.addAuditTypeAction(auditType, auditActionId);
+      } else if (StringUtils.isNotBlank(auditType)) {
+        userAuditQuery.addAuditTypeCategory(auditType);
+      }
+      
+      
+      if (fromDate != null) {
+        userAuditQuery.setFromDate(fromDate);
+      }
+      
+      if (toDate != null) {
+        userAuditQuery.setToDate(toDate);
+      }
+      
+      if (wsStemLookup != null) {
+        userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_STEM_ID, wsStemLookup.getUuid());
+      }
+      
+      if (wsGroupLookup != null ) {
+        userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_GROUP_ID, wsGroupLookup.getUuid());
+      }
+      
+      if (wsSubjectLookup != null) {
+        
+        final Subject subject = wsSubjectLookup.retrieveSubject("subjectLookup");
+        
+        Member member = MemberFinder.findBySubject(session, subject, false);
+        
+        userAuditQuery.addAuditTypeCategory("membership").addAuditTypeFieldValue("memberId", member.getUuid());
+        
+        // userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_MEMBER_ID, wsOwnerSubjectLookup.getSubjectId());
+      }
+      
+      QueryOptions queryOptions = buildQueryOptions(pageSize, null, sortString,
+          ascending, pageIsCursor, pageLastCursorField, pageLastCursorFieldType, pageCursorFieldIncludesLastRetrieved);
+      
+      //TODO add attribute defs, attribute def names
+      if (wsAttributeDefLookup != null ) {
+        throw new WsInvalidQueryException("wsAttributeDefLookup not implemented yet");
+      }
+      
+      if (wsAttributeDefNameLookup != null ) {
+        throw new WsInvalidQueryException("wsAttributeDefNameLookup not implemented yet");
+      }
+      
+      userAuditQuery.setQueryOptions(queryOptions);
+      
+      List<AuditEntry> auditEntries = userAuditQuery.execute();
+      
+      List<WsAuditEntry> wsAuditEntries = new ArrayList<WsAuditEntry>();
+      
+      for (AuditEntry entry: auditEntries) {
+        WsAuditEntry wsAuditEntry = new WsAuditEntry();
+        AuditType auditTypeObject = entry.getAuditType();
+        wsAuditEntry.setActionName(auditTypeObject.getActionName());
+        wsAuditEntry.setAuditCategory(auditTypeObject.getAuditCategory());
+        wsAuditEntry.setId(entry.getId());
+        
+        List<WsAuditEntryColumn> columns = new ArrayList<WsAuditEntryColumn>();
+        
+        for (String label: auditTypeObject.labels()) {
+          
+          //see if there is data
+          String fieldName = auditTypeObject.retrieveAuditEntryFieldForLabel(label);
+          Object value = GrouperUtil.fieldValue(entry, fieldName);
+          String valueString = GrouperUtil.stringValue(value);
+          if (!StringUtils.isBlank(valueString)) {
+            WsAuditEntryColumn column = new WsAuditEntryColumn();
+            column.setLabel(label);
+            column.setValueInt(null);
+            column.setValueString(valueString);
+            columns.add(column);
+          }
+        }
+        
+        wsAuditEntry.setAuditEntryColumns(columns.toArray(new WsAuditEntryColumn[0]));
+        wsAuditEntries.add(wsAuditEntry);
+      }
+      
+      wsGetAuditEntriesResults.setWsAuditEntries(wsAuditEntries.toArray(new WsAuditEntry[0]));
+      
+      wsGetAuditEntriesResults.assignResultCode(WsGetAuditEntriesResultsCode.SUCCESS);
+      
+      wsGetAuditEntriesResults.getResultMetadata().appendResultMessage(
+          "Success for: " + theSummary);
+      
+    } catch (Exception e) {
+      wsGetAuditEntriesResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetAuditEntriesResults);
+    }
+  
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetAuditEntriesResults == null ? 0 : GrouperUtil.length(wsGetAuditEntriesResults.getWsAuditEntries()));
+
+    return wsGetAuditEntriesResults;
+        
+  }
+  
+  /**
+   * 
+   * @param pageSize
+   * @param pageNumber
+   * @param sortString
+   * @param ascending
+   * @param pageIsCursor
+   * @param pageLastCursorField
+   * @param pageLastCursorFieldType
+   * @param pageCursorFieldIncludesLastRetrieved
+   * @return query options for paging and sorting
+   */
+  private static QueryOptions buildQueryOptions(Integer pageSize, Integer pageNumber,
+      String sortString, Boolean ascending,
+      Boolean pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      Boolean pageCursorFieldIncludesLastRetrieved) {
+    
+    QueryOptions queryOptions = null;
+    
+    Object lastCursorField = null;
+    
+    if (pageLastCursorField != null) {
+      if (StringUtils.equals(pageLastCursorFieldType, "string")) {
+        lastCursorField = pageLastCursorField;
+      } else if (StringUtils.equals(pageLastCursorFieldType, "int")) {
+        lastCursorField = GrouperUtil.intValue(pageLastCursorField);
+      } else if (StringUtils.equals(pageLastCursorFieldType, "long")) {
+        lastCursorField = GrouperUtil.longValue(pageLastCursorField);
+      } else if (StringUtils.equals(pageLastCursorFieldType, "date")) {
+        lastCursorField = GrouperUtil.dateValue(pageLastCursorField);
+      } else if (StringUtils.equals(pageLastCursorFieldType, "timestamp")) {
+        lastCursorField = GrouperUtil.stringToTimestamp(pageLastCursorField);
+      } else {
+        throw new RuntimeException("pageLastCursorFieldType not valid should be string|int|long|date|timestamp");
+      }
+    }
+    
+    if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
+      queryOptions = new QueryOptions();
+
+      if (pageIsCursor) {
+        queryOptions.pagingCursor(pageSize, lastCursorField, pageCursorFieldIncludesLastRetrieved, false);
+      } else {
+        
+        if ((pageSize == null) != (pageNumber == null)) {
+          throw new RuntimeException("For offset based paging, if you pass page size, you must pass page number and vice versa");
+        }
+        
+        if (pageSize != null) {
+          if (pageNumber == null) {
+            pageNumber = 1;
+          }
+          queryOptions.paging(new QueryPaging(pageSize, pageNumber, false));
+        }
+      }
+      
+      if (StringUtils.isNotBlank(sortString)) {
+        if (ascending == null) {
+          ascending = true;
+        }
+        queryOptions.sort(new QuerySort(sortString, ascending));
+      }
+      
+    }
+    
+    return queryOptions;
+  }
         
 }

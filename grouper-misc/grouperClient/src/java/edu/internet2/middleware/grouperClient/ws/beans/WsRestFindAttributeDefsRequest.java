@@ -246,5 +246,81 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   public void setPrivilegeName(String privilegeName) {
     this.privilegeName = privilegeName;
   }
+  
+  /**
+   * T|F default to F.  if this is T then we are doing cursor paging
+   */
+  private String pageIsCursor;
+  
+  /**
+   * field that will be sent back for cursor based paging
+   */
+  private String pageLastCursorField;
+  
+  /**
+   * could be: string, int, long, date, timestamp
+   */
+  private String pageLastCursorFieldType;
+  
+  /**
+   * T|F
+   */
+  private String pageCursorFieldIncludesLastRetrieved;
+
+  /**
+   * @return the pageIsCursor
+   */
+  public String getPageIsCursor() {
+    return pageIsCursor;
+  }
+
+  /**
+   * @param pageIsCursor the pageIsCursor to set
+   */
+  public void setPageIsCursor(String pageIsCursor) {
+    this.pageIsCursor = pageIsCursor;
+  }
+
+  /**
+   * @return the pageLastCursorField
+   */
+  public String getPageLastCursorField() {
+    return pageLastCursorField;
+  }
+
+  /**
+   * @param pageLastCursorField the pageLastCursorField to set
+   */
+  public void setPageLastCursorField(String pageLastCursorField) {
+    this.pageLastCursorField = pageLastCursorField;
+  }
+
+  /**
+   * @return the pageLastCursorFieldType
+   */
+  public String getPageLastCursorFieldType() {
+    return pageLastCursorFieldType;
+  }
+
+  /**
+   * @param pageLastCursorFieldType the pageLastCursorFieldType to set
+   */
+  public void setPageLastCursorFieldType(String pageLastCursorFieldType) {
+    this.pageLastCursorFieldType = pageLastCursorFieldType;
+  }
+
+  /**
+   * @return the pageCursorFieldIncludesLastRetrieved
+   */
+  public String getPageCursorFieldIncludesLastRetrieved() {
+    return pageCursorFieldIncludesLastRetrieved;
+  }
+
+  /**
+   * @param pageCursorFieldIncludesLastRetrieved the pageCursorFieldIncludesLastRetrieved to set
+   */
+  public void setPageCursorFieldIncludesLastRetrieved(String pageCursorFieldIncludesLastRetrieved) {
+    this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved;
+  }
 
 }

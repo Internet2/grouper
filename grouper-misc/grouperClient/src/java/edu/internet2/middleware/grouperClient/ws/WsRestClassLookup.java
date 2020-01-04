@@ -208,6 +208,11 @@ public class WsRestClassLookup {
     addAliasClass(WsRestFindExternalSubjectsRequest.class);
     addAliasClass(WsRestExternalSubjectDeleteRequest.class);
     addAliasClass(WsRestExternalSubjectSaveRequest.class);
+    
+    addAliasClass(WsRestGetAuditEntriesRequest.class);
+    addAliasClass(WsAuditEntry.class);
+    addAliasClass(WsAuditEntryColumn.class);
+    addAliasClass(WsGetAuditEntriesResults.class);
 
   }
   

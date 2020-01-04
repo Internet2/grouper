@@ -54,7 +54,6 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -106,6 +105,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAs
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignActionsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignments;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignmentsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAuditEntries;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAuditEntriesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGrouperPrivilegesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroups;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsAdmins;
@@ -162,6 +163,8 @@ import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAtt
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignActionsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.audit.WsSampleGetAuditEntriesRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.audit.WsSampleGetAuditEntriesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleExternalSubjectDeleteRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleExternalSubjectSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindExternalSubjectsRest;
@@ -304,12 +307,13 @@ public class SampleCapture {
 ////    captureGroupDelete();
 ////    captureGroupSave();
 ////    captureHasMember();
-    captureMemberChangeSubject();
+////    captureMemberChangeSubject();
 ////    captureReceiveMessage();
 ////    captureRampart();
 ////    captureSendMessage();
 ////    captureStemDelete();
 ////    captureStemSave();
+        captureGetAuditEntries();
     
 
   }
@@ -1375,6 +1379,21 @@ public class SampleCapture {
         WsSampleFindGroupsRest.class, "findGroups", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindGroupsRestLite.class, "findGroups", "_withInput");
+    
+  }
+  
+  /**
+   * get audit entries captures
+   */
+  public static void captureGetAuditEntries() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetAuditEntries.class, "getAuditEntries", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetAuditEntriesLite.class, "getAuditEntries", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetAuditEntriesRest.class, "getAuditEntries", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetAuditEntriesRestLite.class, "getAuditEntries", "_withInput");
     
   }
 

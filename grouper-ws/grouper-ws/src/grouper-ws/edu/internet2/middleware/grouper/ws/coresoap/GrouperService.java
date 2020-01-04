@@ -153,7 +153,12 @@ public class GrouperService {
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  
    * If you pass true or false, must pass a sort string
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param typeOfGroups is the comma separated TypeOfGroups to find, e.g. group, role, entity
+   * @param enabled enabled is A for all, T or null for enabled only, F for disabled
    * @return the groups, or no groups if none found
    */
   public WsFindGroupsResults findGroupsLite(final String clientVersion,
@@ -162,7 +167,10 @@ public class GrouperService {
       String groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1, String pageSize, 
-      String pageNumber, String sortString, String ascending, String typeOfGroups) {
+      String pageNumber, String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String typeOfGroups, String enabled) {
 
     WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
 
@@ -178,12 +186,15 @@ public class GrouperService {
       WsQueryFilterType wsQueryFilterType = WsQueryFilterType.valueOfIgnoreCase(queryFilterType);
 
       GroupType groupType = GrouperServiceUtils.retrieveGroupType(groupTypeName);
-
+      
       wsFindGroupsResults = GrouperServiceLogic.findGroupsLite(grouperWsVersion, wsQueryFilterType, 
           groupName, stemName, stemScope, groupUuid, groupAttributeName, groupAttributeValue,
           groupType,actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, 
           includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1,
-          pageSize, pageNumber, sortString, ascending, typeOfGroups);
+          pageSize, pageNumber, sortString, ascending, 
+          pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrieved,
+          typeOfGroups, enabled);
       
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, null, e);
@@ -318,6 +329,7 @@ public class GrouperService {
    * @param paramValue1
    *            reserved for future use
    * @param sourceIds comma separated source ids or null for all
+   * @param pointInTimeRetrieve true means retrieve point in time records
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -335,7 +347,11 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
-   * @param ascending T or null for ascending, F for descending.  
+   * @param ascending T or null for ascending, F for descending.
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @return the members, or no members if none found
    */
   public WsGetMembersLiteResult getMembersLite(final String clientVersion,
@@ -345,8 +361,11 @@ public class GrouperService {
       String includeSubjectDetail, String subjectAttributeNames,
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds,
+      String pointInTimeRetrieve,
       String pointInTimeFrom, String pointInTimeTo, String pageSize, String pageNumber,
-      String sortString, String ascending ) {
+      String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved) {
 
     WsGetMembersLiteResult wsGetMembersLiteResult = new WsGetMembersLiteResult();
 
@@ -374,13 +393,21 @@ public class GrouperService {
       Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+      
+      Boolean pointInTimeRetrieveBoolean = GrouperUtil.booleanValue(pointInTimeRetrieve, false);
+      
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
 
       wsGetMembersLiteResult = GrouperServiceLogic.getMembersLite(grouperWsVersion, 
           groupName, groupUuid, wsMemberFilter, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-          paramName1, paramValue1, sourceIds, pointInTimeFromTimestamp, pointInTimeToTimestamp,
-          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
+          paramName1, paramValue1, sourceIds,
+          pointInTimeRetrieveBoolean, pointInTimeFromTimestamp, pointInTimeToTimestamp,
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean);
     } catch (Exception e) {
       wsGetMembersLiteResult.assignResultCodeException(null, null, e);
     }
@@ -412,6 +439,7 @@ public class GrouperService {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param sourceIds array of source ids or null if all
+   * @param pointInTimeRetrieve true means retrieve point in time records
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -430,6 +458,10 @@ public class GrouperService {
    * @param sortString must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
    * @param ascending T or null for ascending, F for descending.  
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -439,8 +471,11 @@ public class GrouperService {
       String includeGroupDetail, 
       String includeSubjectDetail, String[] subjectAttributeNames,
       WsParam[] params, String[] sourceIds,
+      String pointInTimeRetrieve,
       String pointInTimeFrom, String pointInTimeTo, String pageSize, String pageNumber,
-      String sortString, String ascending ) {
+      String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved) {
 	  
     WsGetMembersResults wsGetMembersResults = new WsGetMembersResults();
   
@@ -468,12 +503,20 @@ public class GrouperService {
       Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+      
+      Boolean pointInTimeRetrieveBoolean = GrouperUtil.booleanValue(pointInTimeRetrieve, false);
+      
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
 
       wsGetMembersResults = GrouperServiceLogic.getMembers(grouperWsVersion, wsGroupLookups, 
           wsMemberFilter, actAsSubjectLookup, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, params, sourceIds, 
-          pointInTimeFromTimestamp, pointInTimeToTimestamp,
-          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
+          pointInTimeRetrieveBoolean, pointInTimeFromTimestamp, pointInTimeToTimestamp,
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean);
     } catch (Exception e) {
       wsGetMembersResults.assignResultCodeException(null, null, e);
     }
@@ -517,6 +560,10 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  If you pass T or F, must pass a sort string
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -540,6 +587,8 @@ public class GrouperService {
       WsParam[] params, String fieldName, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, 
       String pageSize, String pageNumber, String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
       String pointInTimeFrom, String pointInTimeTo) {
     
     WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
@@ -565,6 +614,9 @@ public class GrouperService {
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
       
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
+      
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
       
@@ -572,6 +624,8 @@ public class GrouperService {
           wsMemberFilter, actAsSubjectLookup, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, params, fieldName, scope, wsStemLookup, 
           stemScopeEnum, enabled, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
           pointInTimeFromTimestamp, pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, null, e);
@@ -1395,6 +1449,10 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param pointInTimeFrom 
    *            To query members at a certain point in time or time range in the past, set this value
    *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -1419,6 +1477,8 @@ public class GrouperService {
       String paramName1, String paramValue1, String fieldName, String scope, 
       String stemName, String stemUuid, String stemScope, String enabled, 
       String pageSize, String pageNumber, String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
       String pointInTimeFrom, String pointInTimeTo) {
 
     WsGetGroupsLiteResult wsGetGroupsLiteResult = new WsGetGroupsLiteResult();
@@ -1443,6 +1503,9 @@ public class GrouperService {
       Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+      
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
 
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
@@ -1452,7 +1515,10 @@ public class GrouperService {
           actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
           paramName1, paramValue1, fieldName, scope, stemName, stemUuid, stemScopeEnum, enabled, 
-          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pointInTimeFromTimestamp,
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, 
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
+          pointInTimeFromTimestamp,
           pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetGroupsLiteResult.assignResultCodeException(null, null, e);
@@ -2398,16 +2464,37 @@ public class GrouperService {
    * @param pageSize page size if paging
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
-   * @param ascending T or null for ascending, F for descending.  
+   * @param ascending T or null for ascending, F for descending. 
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item 
    * @param pageSizeForMember page size if paging in the members part
    * @param pageNumberForMember page number 1 indexed if paging in the members part
    * @param sortStringForMember must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pageIsCursorForMember true means cursor based paging
+   * @param pageLastCursorFieldForMember field based on which paging needs to occur 
+   * @param pageLastCursorFieldTypeForMember type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrievedForMember should the result has last retrieved item
+   * @param pointInTimeRetrieve true means retrieve point in time records
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGetMembershipsResults getMemberships(final String clientVersion,
       WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, String wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, String fieldName, String includeSubjectDetail,
@@ -2416,8 +2503,16 @@ public class GrouperService {
       WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds, 
       WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, 
       String fieldType, String serviceRole, WsAttributeDefNameLookup serviceLookup, String pageSize, String pageNumber,
-      String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
-      String sortStringForMember, String ascendingForMember) {  
+      String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String pageSizeForMember, String pageNumberForMember,
+      String sortStringForMember, String ascendingForMember,
+      String pageIsCursorForMember, String pageLastCursorFieldForMember, 
+      String pageLastCursorFieldTypeForMember,
+      String pageCursorFieldIncludesLastRetrievedForMember,
+      String pointInTimeRetrieve,
+      String pointInTimeFrom, String pointInTimeTo) {  
     
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
@@ -2451,18 +2546,35 @@ public class GrouperService {
       Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+      
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
 
       Integer pageSizeForMemberInteger = GrouperUtil.intObjectValue(pageSizeForMember, true);
       Integer pageNumberForMemberInteger = GrouperUtil.intObjectValue(pageNumberForMember, true);
       
       Boolean ascendingForMemberBoolean = GrouperUtil.booleanObjectValue(ascendingForMember);
+      
+      Boolean pageIsCursorForMemberBoolean = GrouperUtil.booleanValue(pageIsCursorForMember, false);
+      Boolean pageCursorFieldIncludesLastRetrievedForMemberBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrievedForMember, false);
 
+      Boolean pointInTimeRetrieveBoolean = GrouperUtil.booleanValue(pointInTimeRetrieve, false);
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetMembershipsResults = GrouperServiceLogic.getMemberships(grouperWsVersion, wsGroupLookups, 
           wsSubjectLookups, memberFilter, actAsSubjectLookup, field, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds,
           wsOwnerStemLookups, wsOwnerAttributeDefLookups, fieldTypeEnum, serviceRoleEnum, serviceLookup,
-          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pageSizeForMemberInteger, pageNumberForMemberInteger, 
-          sortStringForMember, ascendingForMemberBoolean);
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, 
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
+          pageSizeForMemberInteger, pageNumberForMemberInteger, 
+          sortStringForMember, ascendingForMemberBoolean, 
+          pageIsCursorForMemberBoolean, pageLastCursorFieldForMember, pageLastCursorFieldTypeForMember,
+          pageCursorFieldIncludesLastRetrievedForMemberBoolean,
+          pointInTimeRetrieveBoolean,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp);
 
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
@@ -2536,13 +2648,35 @@ public class GrouperService {
    * @param pageSize page size if paging
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
-   * @param ascending T or null for ascending, F for descending.  
+   * @param ascending T or null for ascending, F for descending.
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param pageSizeForMember page size if paging in the members part
    * @param pageNumberForMember page number 1 indexed if paging in the members part
    * @param sortStringForMember must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
    * in the members part
    * @param ascendingForMember T or null for ascending, F for descending in the members part
+   * @param pageIsCursorForMember true means cursor based paging
+   * @param pageLastCursorFieldForMember field based on which paging needs to occur 
+   * @param pageLastCursorFieldTypeForMember type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrievedForMember should the result has last retrieved item
+   * @param pointInTimeRetrieve true means retrieve point in time records
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the memberships, or none if none found
    */
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
@@ -2555,8 +2689,15 @@ public class GrouperService {
       String stemUuid, String stemScope, String enabled, String membershipIds, String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, 
       String ownerAttributeDefUuid, String fieldType, String serviceRole, 
       String serviceId, String serviceName, String pageSize, String pageNumber,
-      String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
-      String sortStringForMember, String ascendingForMember) {
+      String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String pageSizeForMember, String pageNumberForMember,
+      String sortStringForMember, String ascendingForMember, 
+      String pageIsCursorForMember, String pageLastCursorFieldForMember, 
+      String pageLastCursorFieldTypeForMember, String pageCursorFieldIncludesLastRetrievedForMember,
+      String pointInTimeRetrieve,
+      String pointInTimeFrom, String pointInTimeTo) {
   
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
     try {
@@ -2583,19 +2724,37 @@ public class GrouperService {
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
 
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
+
       Integer pageSizeForMemberInteger = GrouperUtil.intObjectValue(pageSizeForMember, true);
       Integer pageNumberForMemberInteger = GrouperUtil.intObjectValue(pageNumberForMember, true);
       
       Boolean ascendingForMemberBoolean = GrouperUtil.booleanObjectValue(ascendingForMember);
 
+      Boolean pageIsCursorForMemberBoolean = GrouperUtil.booleanValue(pageIsCursorForMember, false);
+      Boolean pageCursorFieldIncludesLastRetrievedForMemberBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrievedForMember, false);
+      
+      Boolean pointInTimeRetrieveBoolean = GrouperUtil.booleanValue(pointInTimeRetrieve, false);
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetMembershipsResults = GrouperServiceLogic.getMembershipsLite(grouperWsVersion, groupName,
           groupUuid, subjectId, sourceId, subjectIdentifier, memberFilter,includeSubjectDetailBoolean, 
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, field, subjectAttributeNames, 
           includeGroupDetailBoolean, paramName0, paramValue1, paramName1, paramValue1, sourceIds, scope, 
           stemName, stemUuid, theStemScope, enabled, membershipIds, ownerStemName, ownerStemUuid, 
           nameOfOwnerAttributeDef, ownerAttributeDefUuid, fieldTypeEnum, serviceRoleEnum, serviceId, serviceName,
-          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pageSizeForMemberInteger, pageNumberForMemberInteger, 
-          sortStringForMember, ascendingForMemberBoolean
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, 
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
+          pageSizeForMemberInteger, pageNumberForMemberInteger, 
+          sortStringForMember, ascendingForMemberBoolean, 
+          pageIsCursorForMemberBoolean, pageLastCursorFieldForMember, 
+          pageLastCursorFieldTypeForMember,
+          pageCursorFieldIncludesLastRetrievedForMemberBoolean,
+          pointInTimeRetrieveBoolean,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp
           );
 
     } catch (Exception e) {
@@ -4406,7 +4565,11 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
-   * @param ascending or null for ascending, F for descending.  
+   * @param ascending or null for ascending, F for descending.
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @return the attribute defs, or no attribute def if none found
    */
   public WsFindAttributeDefsResults findAttributeDefs(final String clientVersion,
@@ -4414,7 +4577,10 @@ public class GrouperService {
       String privilegeName,
       String stemScope, String parentStemId, String findByUuidOrName,
       String pageSize, String pageNumber,
-      String sortString, String ascending, WsSubjectLookup actAsSubjectLookup,
+      String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      WsSubjectLookup actAsSubjectLookup,
       WsParam[] params) {
 
     WsFindAttributeDefsResults wsFindAttributeDefsResults = new WsFindAttributeDefsResults();
@@ -4438,6 +4604,9 @@ public class GrouperService {
       Integer pageSizeInteger = GrouperServiceUtils.integerValue(pageSize, "pageSize");
       Integer pageNumberInteger = GrouperServiceUtils.integerValue(pageNumber,
           "pageNumber");
+      
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
 
       StemScope stemScopeEnum = StemScope.valueOfIgnoreCase(stemScope);
 
@@ -4447,6 +4616,8 @@ public class GrouperService {
           privilegeName,
           stemScopeEnum, parentStemId, findByUuidOrNameBoolean,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
           actAsSubjectLookup, params);
 
     } catch (Exception e) {
@@ -4482,6 +4653,10 @@ public class GrouperService {
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param actAsSubjectId
    *            optional: is the subject id of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
@@ -4510,6 +4685,8 @@ public class GrouperService {
       String findByUuidOrName,
       String pageSize, String pageNumber,
       String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1
@@ -4536,6 +4713,9 @@ public class GrouperService {
       Integer pageSizeInteger = GrouperServiceUtils.integerValue(pageSize, "pageSize");
       Integer pageNumberInteger = GrouperServiceUtils.integerValue(pageNumber,
           "pageNumber");
+      
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
 
       StemScope stemScopeEnum = StemScope.valueOfIgnoreCase(stemScope);
 
@@ -4545,6 +4725,8 @@ public class GrouperService {
           idIndexOfAttributeDef, privilegeName,
           stemScopeEnum, parentStemId, findByUuidOrNameBoolean,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
           actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, paramName0,
           paramValue0, paramName1, paramValue1);
@@ -4808,7 +4990,11 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging on a sort filter or parent
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
-   * @param ascending or null for ascending, F for descending.  
+   * @param ascending or null for ascending, F for descending.
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -4821,7 +5007,10 @@ public class GrouperService {
       String attributeAssignType, String attributeDefType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups, 
       String pageSize, String pageNumber,
-      String sortString, String ascending, String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
+      String sortString, String ascending, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
       WsSubjectLookup wsSubjectLookup, String serviceRole) {
 
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
@@ -4841,6 +5030,9 @@ public class GrouperService {
       Integer pageSizeInteger = GrouperServiceUtils.integerValue(pageSize, "pageSize");
       Integer pageNumberInteger = GrouperServiceUtils.integerValue(pageNumber, "pageNumber");
 
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
+      
       AttributeDefType attributeDefTypeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(AttributeDefType.class,attributeDefType, false);
       AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(AttributeAssignType.class, attributeAssignType, false);
       WsInheritanceSetRelation wsInheritanceSetRelationEnum = WsInheritanceSetRelation.valueOfIgnoreCase(wsInheritanceSetRelation);
@@ -4851,6 +5043,8 @@ public class GrouperService {
           scope, splitScopeBoolean, wsAttributeDefLookup,
           attributeAssignTypeEnum, attributeDefTypeEnum,
           wsAttributeDefNameLookups, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
           wsInheritanceSetRelationEnum, actAsSubjectLookup, params, wsSubjectLookup, serviceRoleEnum);
   
     } catch (Exception e) {
@@ -4885,7 +5079,11 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging on a sort filter or parent
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
-   * @param ascending or null for ascending, F for descending.  
+   * @param ascending or null for ascending, F for descending.
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -4917,7 +5115,10 @@ public class GrouperService {
       String scope, String splitScope, String uuidOfAttributeDef, String nameOfAttributeDef,
       String attributeAssignType, String attributeDefType, String attributeDefNameUuid, String attributeDefNameName,
       String pageSize, String pageNumber,
-      String sortString, String ascending, String wsInheritanceSetRelation,
+      String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String wsInheritanceSetRelation,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1,
@@ -4946,12 +5147,17 @@ public class GrouperService {
       Integer pageSizeInteger = GrouperServiceUtils.integerValue(pageSize, "pageSize");
       Integer pageNumberInteger = GrouperServiceUtils.integerValue(pageNumber, "pageNumber");
 
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
+      
       ServiceRole serviceRoleEnum = GrouperServiceUtils.enumValueOfIgnoreCase(ServiceRole.class, serviceRole, false);
 
       wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNamesLite(grouperWsVersion,
           scope, splitScopeBoolean, uuidOfAttributeDef, nameOfAttributeDef,
           attributeAssignTypeEnum, attributeDefTypeEnum, attributeDefNameUuid, attributeDefNameName,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
           wsInheritanceSetRelationEnum, actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, paramName0,
           paramValue0, paramName1, paramValue1, subjectId, subjectSourceId,
@@ -5231,6 +5437,185 @@ public class GrouperService {
 
     //this should be the first and only return, or else it is exiting too early
     return wsFindExternalSubjectsResults;
+  }
+  
+ 
+  /**
+   * get audit entries
+   * @param clientVersion
+   * @param actAsSubjectId
+   * @param actAsSubjectSourceId
+   * @param actAsSubjectIdentifier
+   * @param auditType
+   * @param auditActionId
+   * @param wsGroupName
+   * @param wsGroupId
+   * @param wsStemName
+   * @param wsStemId
+   * @param wsAttributeDefName
+   * @param wsAttributeDefId
+   * @param wsAttributeDefNameName
+   * @param wsAttributeDefNameId
+   * @param wsSubjectId
+   * @param wsSubjectSourceId
+   * @param wsSubjectIdentifier
+   * @param actionsPerformedByWsSubjectId
+   * @param actionsPerformedByWsSubjectSourceId
+   * @param actionsPerformedByWsSubjectIdentifier
+   * @param paramName0
+   * @param paramValue0
+   * @param paramName1
+   * @param paramValue1
+   * @param pageSize
+   * @param sortString
+   * @param ascending
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
+   * @param pointInTimeFrom
+   * @param pointInTimeTo
+   * @return audit entries result
+   */
+  public WsGetAuditEntriesResults getAuditEntriesLite(final String clientVersion,
+      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+      String auditType, String auditActionId,
+      String wsGroupName, String wsGroupId,
+      String wsStemName, String wsStemId,
+      String wsAttributeDefName, String wsAttributeDefId,
+      String wsAttributeDefNameName, String wsAttributeDefNameId,
+      String wsSubjectId, String wsSubjectSourceId, String wsSubjectIdentifier,
+      String actionsPerformedByWsSubjectId, String actionsPerformedByWsSubjectSourceId, String actionsPerformedByWsSubjectIdentifier,
+      String paramName0, String paramValue0, String paramName1, String paramValue1,
+      String pageSize,
+      String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String pointInTimeFrom, String pointInTimeTo) {
+    
+    WsGetAuditEntriesResults results = new WsGetAuditEntriesResults();
+    
+    try {
+
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+
+      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
+      
+      Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+      
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
+
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
+      results =  GrouperServiceLogic.getAuditEntriesLite(grouperWsVersion, 
+          actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier,
+          auditType, auditActionId,
+          wsGroupName, wsGroupId, 
+          wsStemName, wsStemId, wsAttributeDefName, wsAttributeDefId, 
+          wsAttributeDefNameName, wsAttributeDefNameId, wsSubjectId, 
+          wsSubjectSourceId, wsSubjectIdentifier, 
+          actionsPerformedByWsSubjectId, actionsPerformedByWsSubjectSourceId, actionsPerformedByWsSubjectIdentifier,
+          paramName0, paramValue0, paramName1,
+          paramValue1, pageSizeInteger,
+          sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
+          pointInTimeFromTimestamp,
+          pointInTimeToTimestamp);
+     
+    } catch (Exception e) {
+      results.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(results.getResultMetadata(), this.soap);
+    
+    return results;
+    
+  }
+
+  /**
+   * get audit entries
+   * @param clientVersion
+   * @param actAsSubjectLookup
+   * @param auditType
+   * @param auditActionId
+   * @param wsGroupLookup 
+   * @param wsStemLookup 
+   * @param wsAttributeDefLookup 
+   * @param wsAttributeDefNameLookup 
+   * @param wsSubjectLookup 
+   * @param actionsPerformedByWsSubjectLookup 
+   * @param wsOwnerGroupLookups
+   * @param wsOwnerStemLookups
+   * @param wsOwnerAttributeDefLookups
+   * @param wsOwnerAttributeDefNameLookups
+   * @param wsOwnerSubjectLookups
+   * @param params
+   * @param pageSize
+   * @param sortString 
+   * @param ascending 
+   * @param pageIsCursor true means cursor based paging
+   * @param pageLastCursorField field based on which paging needs to occur 
+   * @param pageLastCursorFieldType type of last cursor field (eg: string, int, timestamp, etc)
+   * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
+   * @param fromDate
+   * @param toDate
+   * @return get audit entries
+   */
+  public WsGetAuditEntriesResults getAuditEntries(final String clientVersion,
+      WsSubjectLookup actAsSubjectLookup,
+      String auditType, String auditActionId,
+      WsGroupLookup wsGroupLookup,
+      WsStemLookup wsStemLookup,
+      WsAttributeDefLookup wsAttributeDefLookup,
+      WsAttributeDefNameLookup wsAttributeDefNameLookup,
+      WsSubjectLookup wsSubjectLookup,
+      WsSubjectLookup actionsPerformedByWsSubjectLookup,
+      WsParam[] params,
+      String pageSize,
+      String sortString, String ascending,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
+      String fromDate, String toDate) {
+    
+    
+    WsGetAuditEntriesResults results = new WsGetAuditEntriesResults();
+    
+    try {
+
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+
+      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
+      
+      Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+      
+      Boolean pageIsCursorBoolean = GrouperUtil.booleanValue(pageIsCursor, false);
+      Boolean pageCursorFieldIncludesLastRetrievedBoolean = GrouperUtil.booleanValue(pageCursorFieldIncludesLastRetrieved, false);
+      
+      Timestamp fromDateTimestamp = GrouperServiceUtils.stringToTimestamp(fromDate);
+      Timestamp toDateTimestamp = GrouperServiceUtils.stringToTimestamp(toDate);
+      
+      results =  GrouperServiceLogic.getAuditEntries(grouperWsVersion,
+          actAsSubjectLookup, auditType, auditActionId,
+          wsGroupLookup, wsStemLookup, wsAttributeDefLookup, wsAttributeDefNameLookup,
+          wsSubjectLookup, actionsPerformedByWsSubjectLookup, params, pageSizeInteger, sortString, ascendingBoolean,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean,
+          fromDateTimestamp, toDateTimestamp);
+     
+    } catch (Exception e) {
+      results.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(results.getResultMetadata(), this.soap);
+    
+    return results;
   }
 
 }

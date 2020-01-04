@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAuditEntriesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
@@ -105,6 +106,8 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssi
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestFindExternalSubjectsRequest;
@@ -210,7 +213,11 @@ public class GrouperServiceRest {
             .getParamName1(), wsRestFindGroupsLiteRequest.getParamValue1(),
             wsRestFindGroupsLiteRequest.getPageSize(), wsRestFindGroupsLiteRequest.getPageNumber(),
             wsRestFindGroupsLiteRequest.getSortString(), wsRestFindGroupsLiteRequest.getAscending(),
-            wsRestFindGroupsLiteRequest.getTypeOfGroups());
+            wsRestFindGroupsLiteRequest.getPageIsCursor(),
+            wsRestFindGroupsLiteRequest.getPageLastCursorField(),
+            wsRestFindGroupsLiteRequest.getPageLastCursorFieldType(),
+            wsRestFindGroupsLiteRequest.getPageCursorFieldIncludesLastRetrieved(),
+            wsRestFindGroupsLiteRequest.getTypeOfGroups(), wsRestFindGroupsLiteRequest.getEnabled());
 
     //return result
     return wsFindGroupsResults;
@@ -250,10 +257,15 @@ public class GrouperServiceRest {
         wsRestGetMembersLiteRequest.getParamValue0(), wsRestGetMembersLiteRequest
             .getParamName1(), wsRestGetMembersLiteRequest.getParamValue1(), 
             wsRestGetMembersLiteRequest.getSourceIds(), 
+            wsRestGetMembersLiteRequest.getPointInTimeRetrieve(),
             wsRestGetMembersLiteRequest.getPointInTimeFrom(), 
             wsRestGetMembersLiteRequest.getPointInTimeTo(), wsRestGetMembersLiteRequest.getPageSize(),
             wsRestGetMembersLiteRequest.getPageNumber(), wsRestGetMembersLiteRequest.getSortString(), 
-            wsRestGetMembersLiteRequest.getAscending());
+            wsRestGetMembersLiteRequest.getAscending(),
+            wsRestGetMembersLiteRequest.getPageIsCursor(),
+            wsRestGetMembersLiteRequest.getPageLastCursorField(),
+            wsRestGetMembersLiteRequest.getPageLastCursorFieldType(),
+            wsRestGetMembersLiteRequest.getPageCursorFieldIncludesLastRetrieved());
 
     //return result
     return wsGetMembersLiteResult;
@@ -566,7 +578,12 @@ public class GrouperServiceRest {
             wsRestGetMembersRequest.getPointInTimeFrom(),
             wsRestGetMembersRequest.getPointInTimeTo(), wsRestGetMembersRequest.getPageSize(),
             wsRestGetMembersRequest.getPageNumber(), wsRestGetMembersRequest.getSortString(), 
-            wsRestGetMembersRequest.getAscending());
+            wsRestGetMembersRequest.getAscending(),
+            wsRestGetMembersRequest.getPageIsCursor(),
+            wsRestGetMembersRequest.getPageLastCursorField(),
+            wsRestGetMembersRequest.getPageLastCursorFieldType(),
+            wsRestGetMembersRequest.getPageCursorFieldIncludesLastRetrieved(),
+            wsRestGetMembersRequest.getEnabled());
 
     //return result
     return wsGetMembersResults;
@@ -848,6 +865,10 @@ public class GrouperServiceRest {
             wsRestGetGroupsRequest.getWsStemLookup(), wsRestGetGroupsRequest.getStemScope(), wsRestGetGroupsRequest.getEnabled(),
             wsRestGetGroupsRequest.getPageSize(), wsRestGetGroupsRequest.getPageNumber(), wsRestGetGroupsRequest.getSortString(), 
             wsRestGetGroupsRequest.getAscending(),
+            wsRestGetGroupsRequest.getPageIsCursor(),
+            wsRestGetGroupsRequest.getPageLastCursorField(),
+            wsRestGetGroupsRequest.getPageLastCursorFieldType(),
+            wsRestGetGroupsRequest.getPageCursorFieldIncludesLastRetrieved(),
             wsRestGetGroupsRequest.getPointInTimeFrom(), wsRestGetGroupsRequest.getPointInTimeTo());
 
     //return result
@@ -899,6 +920,10 @@ public class GrouperServiceRest {
             wsRestGetGroupsLiteRequest.getEnabled(), wsRestGetGroupsLiteRequest.getPageSize(),
             wsRestGetGroupsLiteRequest.getPageNumber(), wsRestGetGroupsLiteRequest.getSortString(), 
             wsRestGetGroupsLiteRequest.getAscending(),
+            wsRestGetGroupsLiteRequest.getPageIsCursor(),
+            wsRestGetGroupsLiteRequest.getPageLastCursorField(),
+            wsRestGetGroupsLiteRequest.getPageLastCursorFieldType(),
+            wsRestGetGroupsLiteRequest.getPageCursorFieldIncludesLastRetrieved(),
             wsRestGetGroupsLiteRequest.getPointInTimeFrom(), wsRestGetGroupsLiteRequest.getPointInTimeTo());
 
     //return result
@@ -1324,9 +1349,20 @@ public class GrouperServiceRest {
             wsRestGetMembershipsRequest.getFieldType(), wsRestGetMembershipsRequest.getServiceRole(), 
             wsRestGetMembershipsRequest.getServiceLookup(), wsRestGetMembershipsRequest.getPageSize(),
             wsRestGetMembershipsRequest.getPageNumber(), wsRestGetMembershipsRequest.getSortString(),
-            wsRestGetMembershipsRequest.getAscending(), wsRestGetMembershipsRequest.getPageNumberForMember(),
+            wsRestGetMembershipsRequest.getAscending(),
+            wsRestGetMembershipsRequest.getPageIsCursor(),
+            wsRestGetMembershipsRequest.getPageLastCursorField(),
+            wsRestGetMembershipsRequest.getPageLastCursorFieldType(),
+            wsRestGetMembershipsRequest.getPageCursorFieldIncludesLastRetrieved(),
+            wsRestGetMembershipsRequest.getPageNumberForMember(),
             wsRestGetMembershipsRequest.getPageNumberForMember(), wsRestGetMembershipsRequest.getSortStringForMember(),
-            wsRestGetMembershipsRequest.getAscendingForMember());
+            wsRestGetMembershipsRequest.getAscendingForMember(),
+            wsRestGetMembershipsRequest.getPageIsCursorForMember(),
+            wsRestGetMembershipsRequest.getPageLastCursorFieldForMember(),
+            wsRestGetMembershipsRequest.getPageLastCursorFieldTypeForMember(),
+            wsRestGetMembershipsRequest.getPageCursorFieldIncludesLastRetrievedForMember(),
+            wsRestGetMembershipsRequest.getPointInTimeRetrieve(),
+            wsRestGetMembershipsRequest.getPointInTimeFrom(), wsRestGetMembershipsRequest.getPointInTimeTo());
   
     //return result
     return wsGetMembershipsResults;
@@ -1382,9 +1418,20 @@ public class GrouperServiceRest {
             wsRestGetMembershipsLiteRequest.getServiceRole(), wsRestGetMembershipsLiteRequest.getServiceId(), 
             wsRestGetMembershipsLiteRequest.getServiceName(), wsRestGetMembershipsLiteRequest.getPageSize(),
             wsRestGetMembershipsLiteRequest.getPageNumber(), wsRestGetMembershipsLiteRequest.getSortString(),
-            wsRestGetMembershipsLiteRequest.getAscending(), wsRestGetMembershipsLiteRequest.getPageNumberForMember(),
+            wsRestGetMembershipsLiteRequest.getAscending(),
+            wsRestGetMembershipsLiteRequest.getPageIsCursor(),
+            wsRestGetMembershipsLiteRequest.getPageLastCursorField(),
+            wsRestGetMembershipsLiteRequest.getPageLastCursorFieldType(),
+            wsRestGetMembershipsLiteRequest.getPageCursorFieldIncludesLastRetrieved(),
+            wsRestGetMembershipsLiteRequest.getPageNumberForMember(),
             wsRestGetMembershipsLiteRequest.getPageNumberForMember(), wsRestGetMembershipsLiteRequest.getSortStringForMember(),
-            wsRestGetMembershipsLiteRequest.getAscendingForMember());
+            wsRestGetMembershipsLiteRequest.getAscendingForMember(),
+            wsRestGetMembershipsLiteRequest.getPageIsCursorForMember(),
+            wsRestGetMembershipsLiteRequest.getPageLastCursorFieldForMember(),
+            wsRestGetMembershipsLiteRequest.getPageLastCursorFieldTypeForMember(),
+            wsRestGetMembershipsLiteRequest.getPageCursorFieldIncludesLastRetrievedForMember(),
+            wsRestGetMembershipsLiteRequest.getPointInTimeRetrieve(),
+            wsRestGetMembershipsLiteRequest.getPointInTimeFrom(), wsRestGetMembershipsLiteRequest.getPointInTimeTo());
   
     //return result
     return wsGetMembershipsResults;
@@ -2119,6 +2166,10 @@ public class GrouperServiceRest {
             wsRestFindAttributeDefsRequest.getPageNumber(),
             wsRestFindAttributeDefsRequest.getSortString(),
             wsRestFindAttributeDefsRequest.getAscending(),
+            wsRestFindAttributeDefsRequest.getPageIsCursor(),
+            wsRestFindAttributeDefsRequest.getPageLastCursorField(),
+            wsRestFindAttributeDefsRequest.getPageLastCursorFieldType(),
+            wsRestFindAttributeDefsRequest.getPageCursorFieldIncludesLastRetrieved(),
             wsRestFindAttributeDefsRequest.getActAsSubjectLookup(),
             wsRestFindAttributeDefsRequest.getParams());
 
@@ -2159,6 +2210,10 @@ public class GrouperServiceRest {
             wsRestFindAttributeDefsLiteRequest.getPageNumber(),
             wsRestFindAttributeDefsLiteRequest.getSortString(),
             wsRestFindAttributeDefsLiteRequest.getAscending(),
+            wsRestFindAttributeDefsLiteRequest.getPageIsCursor(),
+            wsRestFindAttributeDefsLiteRequest.getPageLastCursorField(),
+            wsRestFindAttributeDefsLiteRequest.getPageLastCursorFieldType(),
+            wsRestFindAttributeDefsLiteRequest.getPageCursorFieldIncludesLastRetrieved(),
             wsRestFindAttributeDefsLiteRequest.getActAsSubjectId(),
             wsRestFindAttributeDefsLiteRequest.getActAsSubjectSourceId(),
             wsRestFindAttributeDefsLiteRequest.getActAsSubjectIdentifier(),
@@ -2381,6 +2436,10 @@ public class GrouperServiceRest {
         wsRestFindAttributeDefNamesRequest.getPageNumber(), 
         wsRestFindAttributeDefNamesRequest.getSortString(), 
         wsRestFindAttributeDefNamesRequest.getAscending(), 
+        wsRestFindAttributeDefNamesRequest.getPageIsCursor(),
+        wsRestFindAttributeDefNamesRequest.getPageLastCursorField(),
+        wsRestFindAttributeDefNamesRequest.getPageLastCursorFieldType(),
+        wsRestFindAttributeDefNamesRequest.getPageCursorFieldIncludesLastRetrieved(),
         wsRestFindAttributeDefNamesRequest.getWsInheritanceSetRelation(), 
         wsRestFindAttributeDefNamesRequest.getActAsSubjectLookup(), 
         wsRestFindAttributeDefNamesRequest.getParams(),
@@ -2423,7 +2482,11 @@ public class GrouperServiceRest {
         wsRestFindAttributeDefNamesLiteRequest.getPageSize(), 
         wsRestFindAttributeDefNamesLiteRequest.getPageNumber(), 
         wsRestFindAttributeDefNamesLiteRequest.getSortString(), 
-        wsRestFindAttributeDefNamesLiteRequest.getAscending(), 
+        wsRestFindAttributeDefNamesLiteRequest.getAscending(),
+        wsRestFindAttributeDefNamesLiteRequest.getPageIsCursor(),
+        wsRestFindAttributeDefNamesLiteRequest.getPageLastCursorField(),
+        wsRestFindAttributeDefNamesLiteRequest.getPageLastCursorFieldType(),
+        wsRestFindAttributeDefNamesLiteRequest.getPageCursorFieldIncludesLastRetrieved(),
         wsRestFindAttributeDefNamesLiteRequest.getWsInheritanceSetRelation(), 
         wsRestFindAttributeDefNamesLiteRequest.getActAsSubjectId(), 
         wsRestFindAttributeDefNamesLiteRequest.getActAsSubjectSourceId(), 
@@ -2646,6 +2709,87 @@ public class GrouperServiceRest {
     //return result
     return wsExternalSubjectSaveResults;
   
+  }
+  
+  /**
+   * <pre>
+   * based on query, get audits
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestGetAuditEntriesLiteRequest is the request body converted to an object
+   * @return the results
+   */
+  public static WsGetAuditEntriesResults getAuditEntriesLite(GrouperVersion clientVersion,
+      WsRestGetAuditEntriesLiteRequest wsRestGetAuditEntriesLiteRequest) {
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestGetAuditEntriesLiteRequest.getClientVersion()), false, "clientVersion");
+
+    
+    return new GrouperService(false).getAuditEntriesLite(clientVersionString, 
+        wsRestGetAuditEntriesLiteRequest.getActAsSubjectId(),
+        wsRestGetAuditEntriesLiteRequest.getActAsSubjectSourceId(), 
+        wsRestGetAuditEntriesLiteRequest.getActAsSubjectIdentifier(),
+        wsRestGetAuditEntriesLiteRequest.getAuditType(),
+        wsRestGetAuditEntriesLiteRequest.getAuditActionId(),
+        wsRestGetAuditEntriesLiteRequest.getWsGroupName(), wsRestGetAuditEntriesLiteRequest.getWsGroupId(),
+        wsRestGetAuditEntriesLiteRequest.getWsStemName(), wsRestGetAuditEntriesLiteRequest.getWsStemId(), 
+        wsRestGetAuditEntriesLiteRequest.getWsAttributeDefName(), wsRestGetAuditEntriesLiteRequest.getWsAttributeDefId(),
+        wsRestGetAuditEntriesLiteRequest.getWsAttributeDefNameName(), wsRestGetAuditEntriesLiteRequest.getWsAttributeDefNameId(),
+        wsRestGetAuditEntriesLiteRequest.getWsSubjectId(), wsRestGetAuditEntriesLiteRequest.getWsSubjectSourceId(),
+        wsRestGetAuditEntriesLiteRequest.getWsSubjectIdentifier(),
+        wsRestGetAuditEntriesLiteRequest.getActionsPerformedByWsSubjectId(), wsRestGetAuditEntriesLiteRequest.getActionsPerformedByWsSubjectSourceId(),
+        wsRestGetAuditEntriesLiteRequest.getActionsPerformedByWsSubjectIdentifier(),
+        wsRestGetAuditEntriesLiteRequest.getParamName0(), wsRestGetAuditEntriesLiteRequest.getParamValue0(), 
+        wsRestGetAuditEntriesLiteRequest.getParamName1(), wsRestGetAuditEntriesLiteRequest.getParamValue1(),
+        wsRestGetAuditEntriesLiteRequest.getPageSize(),
+        wsRestGetAuditEntriesLiteRequest.getSortString(),
+        wsRestGetAuditEntriesLiteRequest.getAscending(),
+        wsRestGetAuditEntriesLiteRequest.getPageIsCursor(),
+        wsRestGetAuditEntriesLiteRequest.getPageLastCursorField(),
+        wsRestGetAuditEntriesLiteRequest.getPageLastCursorFieldType(),
+        wsRestGetAuditEntriesLiteRequest.getPageCursorFieldIncludesLastRetrieved(),
+        wsRestGetAuditEntriesLiteRequest.getFromDate(), wsRestGetAuditEntriesLiteRequest.getToDate());
+    
+  }
+  
+  /**
+   * <pre>
+   * based on query, get audits
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestGetAuditEntriesRequest is the request body converted to an object
+   * @return the results
+   */
+  public static WsGetAuditEntriesResults getAuditEntries(GrouperVersion clientVersion,
+      WsRestGetAuditEntriesRequest wsRestGetAuditEntriesRequest) {
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestGetAuditEntriesRequest.getClientVersion()), false, "clientVersion");
+
+    //get the results
+    WsGetAuditEntriesResults wsGetAuditEntriesResults = new GrouperService(false).getAuditEntries(clientVersionString,
+        wsRestGetAuditEntriesRequest.getActAsSubjectLookup(), 
+        wsRestGetAuditEntriesRequest.getAuditType(), wsRestGetAuditEntriesRequest.getAuditActionId(),
+        wsRestGetAuditEntriesRequest.getWsGroupLookup(),
+        wsRestGetAuditEntriesRequest.getWsStemLookup(),
+        wsRestGetAuditEntriesRequest.getWsAttributeDefLookup(),
+        wsRestGetAuditEntriesRequest.getWsAttributeDefNameLookup(),
+        wsRestGetAuditEntriesRequest.getWsSubjectLookup(),
+        wsRestGetAuditEntriesRequest.getActionsPerformedByWsSubjectLookup(),
+        wsRestGetAuditEntriesRequest.getParams(),
+        wsRestGetAuditEntriesRequest.getPageSize(),
+        wsRestGetAuditEntriesRequest.getSortString(),
+        wsRestGetAuditEntriesRequest.getAscending(),
+        wsRestGetAuditEntriesRequest.getPageIsCursor(),
+        wsRestGetAuditEntriesRequest.getPageLastCursorField(),
+        wsRestGetAuditEntriesRequest.getPageLastCursorFieldType(),
+        wsRestGetAuditEntriesRequest.getPageCursorFieldIncludesLastRetrieved(),
+        wsRestGetAuditEntriesRequest.getFromDate(),
+        wsRestGetAuditEntriesRequest.getToDate());
+
+    //return result
+    return wsGetAuditEntriesResults;
   }
 
 

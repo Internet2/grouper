@@ -30,6 +30,12 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITMembership;
+import edu.internet2.middleware.grouper.pit.PITMembershipView;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
@@ -375,10 +381,44 @@ public class WsMembership implements Comparable<WsMembership> {
   }
 
   /**
+   * construct with PITMembership and other objects to set internal fields
+   * 
+   * @param pitMembership
+   * @param pitMember 
+   */
+  private WsMembership(PITMembership pitMembership, PITMember pitMember) {
+    this.setMembershipId(pitMembership.getId());
+    // this.setMembershipType(pitMembership.getTy);
+    // this.setCreateTime(GrouperServiceUtils.dateToString(pitMembership.get));
+    // this.setListType(listFieldType == null ? null : listFieldType.toString());
+    // this.setListName(listField == null ? null : listField.getName());
+    this.setDisabledTime(GrouperServiceUtils.dateToString(pitMembership.getEndTime()));
+    this.setEnabledTime(GrouperServiceUtils.dateToString(pitMembership.getStartTime()));
+    this.setEnabled(pitMembership.isActive() ? "T" : "F");
+    
+    this.setGroupId(pitMembership.getOwnerGroupId());
+    this.setOwnerStemId(pitMembership.getOwnerStemId());
+    this.setOwnerIdOfAttributeDef(pitMembership.getOwnerAttrDefId());
+    
+    this.setMemberId(pitMembership.getMemberId());
+    
+    String subjectId1 = pitMember == null ? pitMembership.getMember().getSubjectId() : pitMember.getSubjectId();
+    
+    String subjectSourceId1 = pitMember == null ? pitMembership.getMember().getSubjectSourceId() : pitMember.getSubjectSourceId();
+    
+    this.setSubjectId(subjectId1);
+    this.setSubjectSourceId(subjectSourceId1);
+    
+    GrouperVersion clientVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
+    if (clientVersion != null && GrouperVersion.valueOfIgnoreCase("v1_6_000").lessThanArg(clientVersion, true)) {
+      // this.setImmediateMembershipId(pitMembership.getImmediateMembershipId());
+    }
+  }
+  
+  /**
    * construct with membership and other objects to set internal fields
    * 
    * @param membership
-   * @param group 
    * @param member 
    */
   private WsMembership(Membership membership, Member member) {
@@ -470,6 +510,65 @@ public class WsMembership implements Comparable<WsMembership> {
     this.setOwnerNameOfAttributeDef(attributeDef.getName());
     
   }
+  
+  
+  /**
+   * construct with PITMembership and other objects to set internal fields
+   * 
+   * @param pitMembership
+   * @param group 
+   * @param pitMember 
+   */
+  public WsMembership(PITMembership pitMembership, PITGroup group, PITMember pitMember) {
+    this(pitMembership, pitMember);
+    
+    String groupName1 = group == null ? pitMembership.getOwnerPITGroup().getName() : group.getName();
+    
+    this.setGroupName(groupName1);
+    
+  }
+  
+  /**
+   * construct with PITMembership and other objects to set internal fields
+   * 
+   * @param pitMembership
+   * @param stem 
+   * @param pitMember 
+   */
+  public WsMembership(PITMembership pitMembership, PITStem stem, PITMember pitMember) {
+    this(pitMembership, pitMember);
+    
+    if (!GrouperWsVersionUtils.retrieveCurrentClientVersion()
+        .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_005"))) {
+      throw new RuntimeException("Clients 2.1.4 or less cannot query for stem privileges: " + GrouperWsVersionUtils.retrieveCurrentClientVersion());
+    }
+
+    String stemName = stem == null ? pitMembership.getOwnerPITStem().getName() : stem.getName();
+    
+    this.setOwnerStemName(stemName);
+    
+  }
+
+  /**
+   * construct with PITMembership and other objects to set internal fields
+   * 
+   * @param pitMembership
+   * @param attributeDef 
+   * @param pitMember 
+   */
+  public WsMembership(PITMembership pitMembership, PITAttributeDef attributeDef, PITMember pitMember) {
+    this(pitMembership, pitMember);
+
+    if (!GrouperWsVersionUtils.retrieveCurrentClientVersion()
+        .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_005"))) {
+      throw new RuntimeException("Clients 2.1.4 or less cannot query for attributeDef privileges");
+    }
+
+    String attributeDefName = attributeDef == null ? pitMembership.getOwnerPITAttributeDef().getName() : attributeDef.getName();
+    
+    this.setOwnerNameOfAttributeDef(attributeDefName);
+    
+  }
 
   /** timestamp it was created: yyyy/MM/dd HH:mm:ss.SSS */
   private String createTime;
@@ -544,6 +643,76 @@ public class WsMembership implements Comparable<WsMembership> {
    */
   public void setCreateTime(String createTime1) {
     this.createTime = createTime1;
+  }
+  
+  /**
+   * convert pit members to subject results
+   * @param pitMembershipSet
+   * @param returnedGroups
+   * @param returnedStems
+   * @param returnedAttributeDefs
+   * @param returnedMembers
+   * @return ws membership
+   */
+  public static WsMembership[] convertPITMembers(Set<Object[]> pitMembershipSet,
+      Set<PITGroup> returnedGroups, Set<PITStem> returnedStems, Set<PITAttributeDef> returnedAttributeDefs,
+      Set<PITMember> returnedMembers) {
+    
+    int memberSetLength = GrouperUtil.length(pitMembershipSet);
+    if (memberSetLength == 0) {
+      return null;
+    }
+
+    WsMembership[] wsGetMembershipsResultArray = new WsMembership[memberSetLength];
+    int index = 0;
+    for (Object[] objects : pitMembershipSet) {
+      
+      PITMembershipView pitMembershipView = (PITMembershipView) objects[0];
+      PITMembership pitMembership = pitMembershipView.getPITMembership();
+      
+      Object object = objects[1];
+      
+      PITMember pitMember = (PITMember)objects[2];
+
+      if (object instanceof PITGroup) {
+        PITGroup pitGroup = (PITGroup)object;
+
+        wsGetMembershipsResultArray[index++] = new WsMembership(pitMembership, pitGroup, pitMember);
+
+        if (!returnedGroups.contains(pitGroup)) {
+          returnedGroups.add(pitGroup);
+        }
+
+      } 
+      else if (object instanceof PITStem) {
+        PITStem pitStem = (PITStem)object;
+
+        wsGetMembershipsResultArray[index++] = new WsMembership(pitMembership, pitStem, pitMember);
+
+        if (!returnedStems.contains(pitStem)) {
+          returnedStems.add(pitStem);
+        }
+        
+      } else if (object instanceof PITAttributeDef) {
+        PITAttributeDef pitAttributeDef = (PITAttributeDef)object;
+
+        wsGetMembershipsResultArray[index++] = new WsMembership(pitMembership, pitAttributeDef, pitMember);
+
+        if (!returnedAttributeDefs.contains(pitAttributeDef)) {
+          returnedAttributeDefs.add(pitAttributeDef);
+        }
+
+      } else {
+        throw new RuntimeException("Not expecting object of type: " + (object == null ? null : object.getClass().getName()));
+      }
+      
+      
+      if (!returnedMembers.contains(pitMember)) {
+        returnedMembers.add(pitMember);
+      }
+      
+    }
+    return wsGetMembershipsResultArray;
   }
 
   /**
