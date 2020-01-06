@@ -169,8 +169,8 @@ public class UsduService {
     
     final String sqlUnresolvable = "select source_id, count(*) from grouper_aval_asn_asn_member_v "
         + "where attribute_def_name_name1 = '" + UsduAttributeNames.retrieveAttributeDefNameBase().getName() + "' "
-        + "and attribute_def_name_name2 = '" + UsduSettings.usduStemName() + ":" + UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE + "' "
-        + "and value_string = 'false' and enabled2 = 'T'  group by source_id";
+        + "and attribute_def_name_name2 = '" + UsduSettings.usduStemName() + ":" + UsduAttributeNames.SUBJECT_RESOLUTION_DELETED + "' "
+        + "and (value_string is null or value_string = 'false') and enabled2 = 'T'  group by source_id";
     List<Object[]> sourceIdCountUnresolvables = HibernateSession.bySqlStatic().listSelect(Object[].class, sqlUnresolvable, null, null);
     
 
@@ -216,7 +216,7 @@ public class UsduService {
             if (!StringUtils.equals(source.getId(), sourceIdDeleted)) {
               continue DELETEDS;
             }
-            deletedCount = GrouperUtil.intValue(sourceIdCountUnresolvable[1]);
+            deletedCount = GrouperUtil.intValue(sourceIdCountDeleted[1]);
             unresolvedCount -= deletedCount;
             break DELETEDS;
           }
@@ -265,7 +265,7 @@ public class UsduService {
     } else {
       unresolvedMembers = new MemberFinder()
         .assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE)
+        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED)
         .addAttributeValuesOnAssignment("false")
         .assignQueryOptions(queryOptions)
         .findMembers();
