@@ -16,16 +16,16 @@
                           </label>
                         </th>
                       
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectSource']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectId']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectIdentifier']}</th>
-                        <th class="sorted" style="width: 200px;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectName']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectDescription']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderStatus']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderLastResolved']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderLastChecked']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderDaysUnresolved']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderDeleteDate']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectSource']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectId']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectIdentifier']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;" style="width: 200px;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectName']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectDescription']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderStatus']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderLastResolved']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderLastChecked']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderDaysUnresolved']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderDeleteDate']}</th>
                       </tr>
                     </thead>
                     
