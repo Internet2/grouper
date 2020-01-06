@@ -34,7 +34,7 @@ public interface Source {
    * @return all subjectIds
    * @throws UnsupportedOperationException if not implemented
    */
-  public Set<String> getAllSubjectIds();
+  public Set<String> retrieveAllSubjectIds();
   
   /**
    * get the config bean for this source

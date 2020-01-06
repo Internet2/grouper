@@ -516,7 +516,7 @@ public class USDU {
       
       if (source == null || StringUtils.equals(currentSource.getId(),source.getId())) {
         try {
-          Set<String> subjectIds = currentSource.getAllSubjectIds();
+          Set<String> subjectIds = currentSource.retrieveAllSubjectIds();
           for (String subjectId : GrouperUtil.nonNull(subjectIds)) {
             resolvedSourceIdsSubjectIds.add(new MultiKey(currentSource.getId(), subjectId));
           }
