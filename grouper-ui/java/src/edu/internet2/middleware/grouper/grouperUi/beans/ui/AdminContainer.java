@@ -269,7 +269,27 @@ public class AdminContainer {
     this.daemonJobsShowExtendedResults = daemonJobsShowExtendedResults;
   }
 
+  /**
+   * 
+   */
+  private String daemonJobsFilter;
   
+  
+  /**
+   * @return the daemonJobsFilter
+   */
+  public String getDaemonJobsFilter() {
+    return this.daemonJobsFilter;
+  }
+
+  
+  /**
+   * @param daemonJobsFilter1 the daemonJobsFilter to set
+   */
+  public void setDaemonJobsFilter(String daemonJobsFilter1) {
+    this.daemonJobsFilter = daemonJobsFilter1;
+  }
+
   /**
    * @return the guiHib3GrouperLoaderLogs
    */

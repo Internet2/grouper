@@ -47,14 +47,20 @@
                       <label for="daemonJobsFilterId" style="white-space: nowrap;">${textContainer.text['daemonJobsFilterFor'] }</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
-                      <input type="text" name="daemonJobsFilter" placeholder="${textContainer.textEscapeXml['daemonJobsSearchNamePlaceholder'] }" id="daemonJobsFilterId" class="span12"/>
+                      <input type="text" name="daemonJobsFilter" 
+                        placeholder="${textContainer.textEscapeXml['daemonJobsSearchNamePlaceholder'] }" id="daemonJobsFilterId" class="span12"
+                        value="${grouper:escapeHtml(grouperRequestContainer.adminContainer.daemonJobsFilter) }"
+                        />
                     </div>
                   </div>
                   <div class="row-fluid" style="margin-top: 0.5em">
                     <div class="span1">&nbsp;</div>
                     <div class="span3" style="white-space: nowrap;">
                       <label class="checkbox">
-                        <input type="checkbox" name="daemonJobsFilterShowExtendedResults">${textContainer.text['daemonJobsFilterShowExtendedResults']}
+                        <input type="checkbox" name="daemonJobsFilterShowExtendedResults" 
+                           ${grouperRequestContainer.adminContainer.daemonJobsShowExtendedResults ? 'checked="checked"' : ''} 
+                           >${textContainer.text['daemonJobsFilterShowExtendedResults']}
+ 
                       </label>
                     </div>
                   </div>
@@ -62,7 +68,9 @@
                     <div class="span1">&nbsp;</div>
                     <div class="span3" style="white-space: nowrap;">
                       <label class="checkbox">
-                        <input type="checkbox" name="daemonJobsFilterShowOnlyErrors">${textContainer.text['daemonJobsFilterShowOnlyErrors']}
+                        <input type="checkbox" name="daemonJobsFilterShowOnlyErrors"
+                        ${grouperRequestContainer.adminContainer.daemonJobsShowOnlyErrors ? 'checked="checked"' : ''}
+                        >${textContainer.text['daemonJobsFilterShowOnlyErrors']}
                       </label>
                     </div>
                   </div>
