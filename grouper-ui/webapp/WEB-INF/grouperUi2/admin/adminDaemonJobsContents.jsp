@@ -104,3 +104,9 @@
                     <grouper:paging2 guiPaging="${grouperRequestContainer.adminContainer.daemonJobsGuiPaging}" formName="daemonJobsPagingForm" ajaxFormIds="daemonJobsFilterFormId"
                       refreshOperation="../app/UiV2Admin.daemonJobsSubmit" />
                   </div>
+            <script language="javascript">
+              daemonJobsNextRefreshSeconds = daemonJobsRefreshSeconds;
+              if (!daemonJobsRefreshInterval) { 
+                daemonJobsRefreshInterval = setInterval(theFunction, 1000);
+              }
+            </script>

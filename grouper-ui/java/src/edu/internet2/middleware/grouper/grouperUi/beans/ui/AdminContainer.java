@@ -36,6 +36,8 @@ public class AdminContainer {
   
   private boolean daemonJobsShowExtendedResults = false;
   
+  private boolean daemonJobsShowOnlyErrors = false;
+  
   private List<GuiHib3GrouperLoaderLog> guiHib3GrouperLoaderLogs;
   
   /**
@@ -236,6 +238,22 @@ public class AdminContainer {
   }
 
   
+  
+  /**
+   * @return the daemonJobsShowOnlyErrors
+   */
+  public boolean isDaemonJobsShowOnlyErrors() {
+    return this.daemonJobsShowOnlyErrors;
+  }
+
+  
+  /**
+   * @param daemonJobsShowOnlyErrors1 the daemonJobsShowOnlyErrors to set
+   */
+  public void setDaemonJobsShowOnlyErrors(boolean daemonJobsShowOnlyErrors1) {
+    this.daemonJobsShowOnlyErrors = daemonJobsShowOnlyErrors1;
+  }
+
   /**
    * @return the daemonJobsShowExtendedResults
    */
