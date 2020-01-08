@@ -209,9 +209,12 @@ public class UiV2Admin extends UiServiceLogicBase {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
+      daemonJobsHelper(request, response);
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminDaemonJobs.jsp"));          
       
-      daemonJobsHelper(request, response);
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
+
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -243,6 +246,9 @@ public class UiV2Admin extends UiServiceLogicBase {
       //get the unfiltered jobs
       daemonJobsHelper(request, response);
       
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
+
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -264,6 +270,11 @@ public class UiV2Admin extends UiServiceLogicBase {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       daemonJobsHelper(request, response);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
+
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -313,6 +324,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
                   
       String daemonJobsFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsFilter"));
+      adminContainer.setDaemonJobsFilter(daemonJobsFilter);
       
       String showExtendedResults = request.getParameter("daemonJobsFilterShowExtendedResults");
       adminContainer.setDaemonJobsShowExtendedResults(StringUtils.equals(showExtendedResults, "on"));
@@ -374,7 +386,6 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       adminContainer.setGuiDaemonJobs(guiDaemonJobs);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
