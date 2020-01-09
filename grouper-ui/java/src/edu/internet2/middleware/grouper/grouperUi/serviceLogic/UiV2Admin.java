@@ -326,6 +326,9 @@ public class UiV2Admin extends UiServiceLogicBase {
       String daemonJobsFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsFilter"));
       adminContainer.setDaemonJobsFilter(daemonJobsFilter);
       
+      String daemonJobsCommonFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsCommonFilter"));
+      adminContainer.setDaemonJobsCommonFilter(daemonJobsCommonFilter);
+      
       String showExtendedResults = request.getParameter("daemonJobsFilterShowExtendedResults");
       adminContainer.setDaemonJobsShowExtendedResults(StringUtils.equals(showExtendedResults, "on"));
 
@@ -333,10 +336,30 @@ public class UiV2Admin extends UiServiceLogicBase {
       adminContainer.setDaemonJobsShowOnlyErrors(StringUtils.equals(daemonJobsFilterShowOnlyErrors, "on"));
       
       Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.anyJobGroup());
+
       List<String> allJobNamesAfterFilter = new ArrayList<String>();
       for (JobKey jobKey : jobKeys) {
         String jobName = jobKey.getName();
-        if (daemonJobsFilter.isEmpty() || jobName.toLowerCase().contains(daemonJobsFilter.toLowerCase())) {
+        Boolean shouldAdd = null;
+        if (!StringUtils.isBlank(daemonJobsFilter)) {
+          shouldAdd = jobName.toLowerCase().contains(daemonJobsFilter.toLowerCase());
+        }
+        // not a false yet
+        if (shouldAdd == null || shouldAdd) {
+          if (!StringUtils.isBlank(daemonJobsCommonFilter)) {
+            if (StringUtils.equals("INTERNAL_LOADER", daemonJobsCommonFilter)) {
+              shouldAdd = jobName.toLowerCase().contains("sql_simple_")
+                  || jobName.toLowerCase().contains("sql_group_list_")
+                  || jobName.toLowerCase().contains("ldap_simple_")
+                  || jobName.toLowerCase().contains("ldap_group_list_")
+                  || jobName.toLowerCase().contains("ldap_groups_from_attributes_");
+            } else {
+              shouldAdd = jobName.toLowerCase().contains(daemonJobsCommonFilter.toLowerCase());
+            }
+          }
+        }
+      
+        if (shouldAdd == null || shouldAdd) {
           allJobNamesAfterFilter.add(jobName);
         }
       }
