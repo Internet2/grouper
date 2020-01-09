@@ -3,19 +3,24 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiOption;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -269,6 +274,81 @@ public class AdminContainer {
     this.daemonJobsShowExtendedResults = daemonJobsShowExtendedResults;
   }
 
+  /**
+   * selected item for common filter
+   */
+  private String daemonJobsCommonFilter;
+  
+  
+  /**
+   * selected item for common filter
+   * @return the daemonJobsCommonFilter
+   */
+  public String getDaemonJobsCommonFilter() {
+    return this.daemonJobsCommonFilter;
+  }
+
+  
+  /**
+   * selected item for common filter
+   * @param daemonJobsCommonFilter1 the daemonJobsCommonFilter to set
+   */
+  public void setDaemonJobsCommonFilter(String daemonJobsCommonFilter1) {
+    this.daemonJobsCommonFilter = daemonJobsCommonFilter1;
+  }
+
+  /**
+   * 
+   */
+  private List<GuiOption> daemonJobsCommonFilters;
+  
+  /**
+   * @return the daemonJobsCommonFilters
+   */
+  public List<GuiOption> getDaemonJobsCommonFilters() {
+    
+    if (this.daemonJobsCommonFilters == null) {
+      
+      this.daemonJobsCommonFilters = new ArrayList<GuiOption>();
+
+      this.daemonJobsCommonFilters.add(new GuiOption("Loader", "INTERNAL_LOADER", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Other job", "OTHER_JOB_", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Reports", "grouper_report_", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Change log", "CHANGE_LOG_", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Maintenance", "MAINTENANCE_", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Loader - SQL simple", "SQL_SIMPLE_", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Loader - SQL group list", "SQL_GROUP_LIST_", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Loader - LDAP group list", "LDAP_GROUP_LIST_", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Loader - LDAP groups from attributes", "LDAP_GROUPS_FROM_ATTRIBUTES_", null));
+      this.daemonJobsCommonFilters.add(new GuiOption("Loader - LDAP simple", "LDAP_SIMPLE_", null));
+      
+      String customCommonFilterString = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.admin.daemonJob.commonFilterAdditions");
+      if (!StringUtils.isBlank(customCommonFilterString)) {
+        for (String commonFilterAddition : GrouperUtil.splitTrim(customCommonFilterString, ",")) {
+          this.daemonJobsCommonFilters.add(new GuiOption(commonFilterAddition, commonFilterAddition, null));
+        }
+      }
+      
+      Collections.sort(this.daemonJobsCommonFilters, new Comparator<GuiOption>() {
+
+        public int compare(GuiOption o1, GuiOption o2) {
+          if (o1 == o2) {
+            return 0;
+          }
+          if (o1==null) {
+            return -1;
+          }
+          if (o2==null) {
+            return 1;
+          }
+          return o1.getName().compareTo(o2.getName());
+        }
+      });
+    }
+    
+    return this.daemonJobsCommonFilters;
+  }
+  
   /**
    * 
    */

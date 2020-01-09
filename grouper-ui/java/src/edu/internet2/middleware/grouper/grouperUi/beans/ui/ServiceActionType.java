@@ -133,6 +133,7 @@ public enum ServiceActionType {
         RuleApi.inheritAttributeDefPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
       }
       
+      RuleApi.runRulesForOwner(stem);
     }
     
   },

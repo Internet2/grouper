@@ -41,7 +41,7 @@
             <div class="row-fluid">
               <div class="span12">
                 <form class="form-inline form-filter" id="daemonJobsFilterFormId"
-                    onsubmit="ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">
+                    onsubmit="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">
                   <div class="row-fluid">
                     <div class="span1">
                       <label for="daemonJobsFilterId" style="white-space: nowrap;">${textContainer.text['daemonJobsFilterFor'] }</label>
@@ -51,6 +51,20 @@
                         placeholder="${textContainer.textEscapeXml['daemonJobsSearchNamePlaceholder'] }" id="daemonJobsFilterId" class="span12"
                         value="${grouper:escapeHtml(grouperRequestContainer.adminContainer.daemonJobsFilter) }"
                         />
+                    </div>
+                  </div>
+                  <div class="row-fluid" style="margin-top: 0.5em">
+                    <div class="span1">&nbsp;</div>
+                    <div class="span4" style="white-space: nowrap;">
+                      <select name="daemonJobsCommonFilter">
+                        <option value="" style="color:#aaaaaa !important">${textContainer.textEscapeXml['daemonJobsCommonSearchNamePlaceholder'] }</option>
+                        <c:forEach items="${grouperRequestContainer.adminContainer.daemonJobsCommonFilters}" var="daemonJobsCommonFilter" >
+                          <option value="${grouper:escapeHtml(daemonJobsCommonFilter.value)}"
+                            ${grouperRequestContainer.adminContainer.daemonJobsCommonFilter == daemonJobsCommonFilter.value ? 'selected="selected"' : ''}>
+                            ${grouper:escapeHtml(daemonJobsCommonFilter.name) }
+                          </option>
+                        </c:forEach>
+                      </select>
                     </div>
                   </div>
                   <div class="row-fluid" style="margin-top: 0.5em">
