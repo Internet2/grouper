@@ -127,7 +127,6 @@
           description="Compile .java files, copy Hibernate mapping files"
           depends="init.conf"
   >
-    <record name="${build.log}" action="start"/>
     <mkdir  dir="${build.dir.grouper}"/>
     <javac  srcdir="${src.dir.grouper}" 
             destdir="${build.dir.grouper}"
@@ -151,7 +150,6 @@
         <include name="**/*.properties"/>   <!-- xml default export|import properties -->
       </fileset>
     </copy>
-    <record name="${build.log}" action="stop"/>
   </target>
   <!-- target: compile -->
 
@@ -333,70 +331,10 @@
   </target>
   <!-- target: init.conf -->
 
-  <!-- target: test -->
-  <target name="test"
-          depends="test.compile"
-          description="Run Grouper Tests"
-  >
-    <echo/>
-    <echo message="*** results can be found in ${dist.dir.test} ***"/>
-    <echo/>
-    <record name="${test.log}" action="start" append="yes"/>
-    <mkdir dir="${dist.dir.test}"/>
-    <!-- prompt the user -->
-    <java fork="false"
-              maxmemory="${memory.max}"
-              classpathref="test.classpath"
-              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
-              failonerror="true"
-        >
-       <sysproperty key="grouper.home" value="${grouper.home}"/>
-        <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,address=4001,suspend=y"/>
-        </java>
-    
-    <input validargs="y,n"
-        addproperty="do.sql"
-      />
-      <condition property="do.abort.sql">
-        <equals arg1="n" arg2="${do.sql}"/>
-      </condition>
-      <fail if="do.abort.sql">Build aborted by user.</fail>
-
-    <junit  fork="yes"
-            haltonerror="yes"
-            haltonfailure="yes"
-            maxmemory="${memory.max}"
-            printsummary="withOutAndErr"
-            showoutput="yes"
-    >
-      <jvmarg value="-Dgrouper.allow.db.changes=true"/>
-      <jvmarg value="-Dgrouper.home=${grouper.home}"/>
-      <classpath  refid="test.classpath"/>
-      <formatter  type="xml"/>
-      <test       name="edu.internet2.middleware.grouper.AllTests"
-                  todir="${dist.dir.test}" 
-      />
-    </junit>
-    <!-- TODO 20061228 Switch to batchtest once I've migrated the tests
-          <batchtest  fork="yes"
-                      todir="${dist.dir.test}"
-          >
-            <formatter  type="xml"/>
-            <fileset    dir="${src.dir.test}">
-              <include  name="**/Test*.java"/>
-              <exclude  name="**/Suite*.java"/>
-            </fileset>  
-          </batchtest>
-    -->
-    <record name="${test.log}" action="stop"/>
-  </target>
-  <!-- target: test -->
-
   <!-- target: test.compile -->
   <target name="test.compile"
           depends="init, compile"
   >
-    <record name="${test.log}" action="start" append="yes"/>
     <javac srcdir="${src.dir.test}" destdir="${build.dir.test}" debug="true"
       source="8" target="8">
       <classpath  refid="test.classpath"/>
@@ -407,7 +345,6 @@
         <include name="**/*.gsh"/>      <!-- source -->
       </fileset>
    </copy>
-    <record name="${test.log}" action="stop"/>
   </target>
   <!-- target: test.compile -->
 

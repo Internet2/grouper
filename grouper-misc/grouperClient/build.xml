@@ -93,14 +93,15 @@
 
   </target>
 
-  <target name="clean" depends="init">
-    <mkdir dir="${main.binDir}" />
-    <delete dir="${main.binDir}" />
-    <mkdir dir="${main.binDir}" />
+  <target name="clean" depends="init" description="clean previous build artifacts">
+  	
+  	<mkdir dir="${main.outputDir}" />
+  	<delete dir="${main.outputDir}" />
+  	<mkdir dir="${main.outputDir}" />
 
   </target> 
   
-  <target name="compile">
+  <target name="compile" depends="init" description="compiles source code">
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.binDir}" />
 
@@ -136,10 +137,12 @@
     </copy>
   </target>
 
-  <target name="jar">
+  <target name="jar" depends="init" description="create jar file">
     <tstamp>
         <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss Z" />
     </tstamp>
+  	<!-- we dont want this in the jar, we want it next to the jar -->
+  	<delete file="${main.binDir}/grouper.client.usage.txt" /> 
     <jar jarfile="${main.jarFile}" duplicate="fail">
       <fileset dir="misc">
         <include name="META-INF/*" />
@@ -156,32 +159,11 @@
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
      </jar>
-    <property name="instName" value="grouperClient.institution-${version}" />
-    <mkdir dir="dist/institution/${instName}"/>
-    <copy todir="dist/institution/${instName}">    
-      <fileset dir="${main.confDir}">
-        <include name="grouper.client.properties"/>
-        <include name="grouper.client.base.properties"/>
-      </fileset>
-      <fileset dir="dist">
-        <include name="grouperClient.jar"/>
-      </fileset>
-      <fileset dir="misc">
-        <include name="README.txt"/>
-      </fileset>
-    </copy>
-    <tar destfile="dist/${instName}.tar.gz" compression="gzip">
-      <tarfileset dir="dist/institution" >
-        <include name="${instName}/**"/>
-      </tarfileset>
-    </tar>            
-    <echo message="Output is: dist/grouperClient.jar and dist/${instName}.tar.gz" />
-    <echo message="Note: dist/${instName}.tar.gz contains the conf/grouper.client.properties, make sure it has no sensitive credentials in it" />
+   
+    <echo message="Output is: dist/grouperClient.jar" />
    </target>
   
-  <target name="distPackage" description="build tar gz on internet2 box" depends="init">
-
-    <delete dir="doc" />
+  <target name="tarball" description="build tar gz" depends="init">
 
     <copy todir="${basedir}/../grouper.client-${version}">
       <fileset dir="${basedir}/../grouperClient" />
@@ -195,34 +177,32 @@
     </tar>            
     
   </target>
+	
+	<target name="distBinaryPreJar">
+	    <!-- we dont want this in the jar, we want it next to the jar -->
+	    <delete file="${main.binDir}/grouper.client.usage.txt" />
+	  </target>
+	
+	<target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,distBinaryPreJar,jar">
+	    <property name="binName" value="grouper.clientBinary-${version}" />
+	    <mkdir dir="dist/binary/${binName}"/>
+	    <copy todir="dist/binary/${binName}">    
+	      <fileset dir="${main.confDir}">
+	        <include name="grouper.client*.properties"/>
+	        <include name="grouper.client.usage*.txt"/>
+	      </fileset>
+	      <fileset dir="dist">
+	        <include name="grouperClient.jar"/>
+	      </fileset>
+	      <fileset dir="misc">
+	        <include name="BINARY-README.txt"/>
+	      </fileset>
+	    </copy>
+	    <tar destfile="${basedir}/../${binName}.tar.gz" compression="gzip">
+	      <tarfileset dir="dist/binary" >
+	        <include name="${binName}/**"/>
+	      </tarfileset>
+	    </tar>            
+	  </target>
 
-  <target name="distBinaryPreJar">
-
-    <!-- we dont want this in the jar, we want it next to the jar -->
-    <delete file="${main.binDir}/grouper.client.usage.txt" />  
-
-  </target>
-    
-  <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,distBinaryPreJar,jar">
-    <property name="binName" value="grouper.clientBinary-${version}" />
-    <mkdir dir="dist/binary/${binName}"/>
-    <copy todir="dist/binary/${binName}">    
-      <fileset dir="${main.confDir}">
-        <include name="grouper.client*.properties"/>
-        <include name="grouper.client.usage*.txt"/>
-      </fileset>
-      <fileset dir="dist">
-        <include name="grouperClient.jar"/>
-      </fileset>
-      <fileset dir="misc">
-        <include name="BINARY-README.txt"/>
-      </fileset>
-    </copy>
-    <tar destfile="${basedir}/../${binName}.tar.gz" compression="gzip">
-      <tarfileset dir="dist/binary" >
-        <include name="${binName}/**"/>
-      </tarfileset>
-    </tar>            
-  </target>
-  
 </project>
