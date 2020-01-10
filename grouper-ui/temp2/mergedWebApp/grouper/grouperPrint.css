@@ -1,0 +1,22 @@
+/* do not display in printer friendly mode */
+.printerFriendlyNot, .infodotImage, #LeftInNav {
+  display: none;
+  visibility: hidden;
+}
+
+#ContentSpace {
+  margin: 0px;
+}
+
+#RightInNav {
+  float: none;
+}
+
+#Navbar {
+  position: inherit;
+}
+
+/* dont print background colors */
+.sectionBody {
+  background-color: white;  
+}

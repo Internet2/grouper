@@ -1,0 +1,30 @@
+http://dhtmlx.com/docs/products/kb/index.php?s=normal&q=10879&a=17774
+
+The combobox queries the server too quickly. Is there a way to configure a delay so that it doesnt query the server until after 500 milliseconds after there is no more typing?
+
+Thanks,
+Chris
+
+
+Hello, 
+
+combo doesn't provide a ready solution to do that. But you can try to modify dhtmlxcombo.js, line 667 as follows (but this solution isn't supported)
+
+if (this._filter) return this.filterSelf((ev==8)||(ev==46));
+
+replace with 
+
+var self=this;
+var km = (ev==8)||(ev==46);
+if (self._suggest) clearTimeout(self._suggest);
+self._suggest = setTimeout(function(){
+  if (self._filter) return self.filterSelf(km);
+},500)
+
+###########################
+Add this to the css to remove the images on the drop downs
+
+/* dont show pulldown on comboboxes */
+img.dhx_combo_img {
+  display: none;
+} 
