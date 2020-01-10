@@ -180,7 +180,15 @@ public class GrouperDeprovisioningOverallConfiguration {
     return grouperDeprovisioningConfiguration.getOriginalConfig() != null;
 
   }
-  
+
+  /**
+   * is should show for removal
+   * @return if show for removal
+   */
+  public boolean isShowForRemoval() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * is should show for removal
    * @param affiliation 
@@ -193,7 +201,15 @@ public class GrouperDeprovisioningOverallConfiguration {
     }
     return grouperDeprovisioningConfiguration.getOriginalConfig().isShowForRemoval();
   }
-  
+
+  /**
+   * 
+   * @return true if auto select for removal
+   */
+  public boolean isAutoselectForRemoval() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * 
    * @param affiliation 
