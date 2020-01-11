@@ -55,12 +55,6 @@
       </fileset>
     </path>
 
-    <path id="main.mainClasspath">
-      <fileset dir="${main.lib}/clientSrcRequireIfUse">
-        <include name="**/*.jar" />
-      </fileset>
-    </path>
-
     <condition property="main.os" value="windows">
       <os family="windows" />
     </condition>
@@ -69,7 +63,6 @@
     </condition>
 
     <pathconvert targetos="${main.os}" property="main.theExtClasspath" refid="main.extClasspath" />
-    <pathconvert targetos="${main.os}" property="main.theMainClasspath" refid="main.mainClasspath" />
     
     <if><not><available file="${main.confDir}/grouper.client.properties" /></not>
       <then><copy file="misc/grouper.client.example.properties" 
@@ -108,7 +101,7 @@
     <javac   target="1.5"  source="1.5" 
       srcdir="${main.sourceExtDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}" />
     <javac  target="1.5" source="1.5" 
-      srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true"  classpath="${main.theMainClasspath}"/>
+      srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true"  />
     <javac  target="1.5" source="1.5" 
       srcdir="${main.sourceExtMoreDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}"/>
   </target>
