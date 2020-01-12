@@ -79,7 +79,7 @@
           <!-- ? quartz pool is using c3p0, not using hikariCP -->
           <exclusion>
               <groupId>com.zaxxer</groupId>
-              <artifactId>HikariCP-java6</artifactId>
+              <artifactId>HikariCP-java7</artifactId>
           </exclusion>
       </exclusions>
     </dependency>

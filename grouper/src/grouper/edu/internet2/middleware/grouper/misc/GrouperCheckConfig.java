@@ -1849,7 +1849,7 @@ public class GrouperCheckConfig {
     checkJar("aws-java-sdk-sqs-1.11.567.jar", 308744, "com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder", "null");
     checkJar("backport-util-concurrent-3.1.jar", 331716, "edu.emory.mathcs.backport.java.util.AbstractCollection", "null");
     checkJar("bsh-2.0b5.jar", 383846, "bsh.BSHFormalComment", "2.0b5 2005-06-12 04:50:41");
-    checkJar("c3p0-0.9.5.2.jar", 497865, "com.mchange.v2.c3p0.ConnectionTester", "0.9.5.2");
+    checkJar("c3p0-0.9.5.4.jar", 499844, "com.mchange.v2.c3p0.ConnectionTester", "0.9.5.4");
     checkJar("c3p0-oracle-thin-extras-0.9.5.jar", 2710, "com.mchange.v2.c3p0.dbms.OracleUtils", "null");
     checkJar("commons-beanutils-1.9.3.jar", 246174, "org.apache.commons.beanutils.locale.LocaleConverter", "1.9.3");
     checkJar("commons-cli-1.4.jar", 53820, "org.apache.commons.cli.GnuParser", "1.4");
@@ -1894,10 +1894,10 @@ public class GrouperCheckConfig {
     checkJar("ldaptive-1.1.2.jar", 818299, "org.ldaptive.AbstractConfig", "null");
     checkJar("log4j-1.2.17.jar", 489884, "org.apache.log4j.Appender", "1.2.17");
     checkJar("mail-1.4.7.jar", 521157, "javax.mail.NoSuchProviderException", "1.4.7");
-    checkJar("mchange-commons-java-0.2.14.jar", 623971, "com.mchange.v1.identicator.StrongIdentityIdenticator", "0.2.14");
+    checkJar("mchange-commons-java-0.2.15.jar", 624036, "com.mchange.v1.identicator.StrongIdentityIdenticator", "0.2.15");
     checkJar("oro-2.0.8.jar", 65261, "org.apache.oro.io.AwkFilenameFilter", "2.0.8 2003-12-28 11:00:13");
     checkJar("p6spy-3.6.0.jar", 123220, "com.p6spy.engine.logging.P6LogOptionsMBean", "null");
-    checkJar("quartz-2.3.0.jar", 690992, "org.quartz.Calendar", "null");
+    checkJar("quartz-2.3.2.jar", 693050, "org.quartz.Calendar", "null");
     checkJar("slf4j-api-1.7.25.jar", 41203, "org.slf4j.event.EventConstants", "1.7.25");
     checkJar("slf4j-log4j12-1.7.25.jar", 12244, "org.apache.log4j.MDCFriend", "1.7.25");
     checkJar("smack-3.1.0.jar", 285035, "org.jivesoftware.smack.AccountManager", "null");

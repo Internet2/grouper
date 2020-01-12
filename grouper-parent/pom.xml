@@ -86,9 +86,9 @@
         <antlr.version>2.7.7</antlr.version>
         <asm.version>3.3.1</asm.version>
         <backport.util.version>3.1</backport.util.version>
-        <c3p0.version>0.9.5.2</c3p0.version>
+        <c3p0.version>0.9.5.4</c3p0.version>
         <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
-        <mchange.commons.version>0.2.14</mchange.commons.version>
+        <mchange.commons.version>0.2.15</mchange.commons.version>
         <cglib.version>3.1</cglib.version>
         <jamon.version>2.81</jamon.version>
         <xstream.version>1.4.9</xstream.version>
@@ -144,7 +144,7 @@
         <jetty.util.version>6.1.26</jetty.util.version>
         <opensaml.version>2.6.1</opensaml.version>
         <openspml2.version>192-20100413</openspml2.version>
-        <quartz.version>2.3.0</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
         <slf4j.version>1.7.25</slf4j.version>
         <slf4j.log4j.version>1.7.25</slf4j.log4j.version>
         <xom.version>1.2.5</xom.version>
