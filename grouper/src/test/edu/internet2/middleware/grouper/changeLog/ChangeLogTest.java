@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import junit.textui.TestRunner;
 
@@ -96,7 +97,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testEntities"));
+    TestRunner.run(new ChangeLogTest("testPermissionChangeOnSubjectByGroupSet"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -128,7 +129,1457 @@ public class ChangeLogTest extends GrouperTest {
     super.tearDown();
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.env.name");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("changeLog.includeRolesWithPermissionChanges");
     GrouperConfig.retrieveConfig().resetAttributeDefNameIdsToIgnoreChangeLogAndAudit();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testRolePermissionEnableDisableWithPermissionChangeOnSubjectNotifications() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // assign permission
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission(attributeDefName, PermissionAllowed.ALLOWED).getAttributeAssign();
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+  
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), attributeAssign.getContextId());
+  
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    
+    //##################################
+    // try disabling
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.setEnabled(false);
+    attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
+    attributeAssign.saveOrUpdate();
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    //##################################
+    // try enabling
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.setEnabled(true);
+    attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() - 100000));
+    attributeAssign.saveOrUpdate();
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    //##################################
+    // try deleting now
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.delete();
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+  }
+  
+
+  /**
+   * @throws Exception
+   */
+  public void testSubjectRolePermissionEnableDisableWithPermissionChangeOnSubjectNotifications() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // assign permission
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignSubjectRolePermission(attributeDefName, newMember1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+  
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), attributeAssign.getContextId());
+  
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    
+    //##################################
+    // try disabling
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.setEnabled(false);
+    attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
+    attributeAssign.saveOrUpdate();
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    //##################################
+    // try enabling
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.setEnabled(true);
+    attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() - 100000));
+    attributeAssign.saveOrUpdate();
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    //##################################
+    // try deleting now
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.delete();
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testSubjectRolePermissionDeleteMembership() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    
+    // assign permission
+    group.getPermissionRoleDelegate().assignSubjectRolePermission(attributeDefName, newMember1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // now delete the membership
+    group.deleteMember(newMember1.getSubject(), true);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testPermissionChangeOnSubjectByMember() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Group group2 = edu.addChildGroup("testGroup2", "testGroup2");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member newMember2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    group.addMember(newMember1.getSubject(), true);
+    group.addMember(group2.toSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    group.getPermissionRoleDelegate().assignRolePermission(attributeDefName, PermissionAllowed.ALLOWED).getAttributeAssign();
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // give user permission again
+    group2.addMember(newMember1.getSubject());
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+  
+    
+    // no flat permission changes
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNull(changeLogEntry);
+
+    //#########################
+    // Try adding a member that should cause a new permission
+    
+    group2.addMember(newMember2.getSubject());
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+   
+    // one new permission
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    assertEquals(newMember2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // Now delete a permission that causes no flat permission changes
+    
+    // give user permission again
+    group2.deleteMember(newMember1.getSubject());
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+  
+    // no flat permission changes
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNull(changeLogEntry);
+    
+    //#########################
+    // Now delete a permission that causes one flat permission change
+    
+    // give user permission again
+    group2.deleteMember(newMember2.getSubject());
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one permission delete
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+
+    assertEquals(newMember2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testPermissionChangeOnSubjectByGroupSet() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Group group2 = edu.addChildGroup("testGroup2", "testGroup2");
+    Group group3 = edu.addChildGroup("testGroup3", "testGroup3");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member newMember2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    group2.addMember(group3.toSubject());
+    group.addMember(newMember1.getSubject(), true);
+    group3.addMember(newMember1.getSubject(), true);
+    group3.addMember(newMember2.getSubject(), true);
+        
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    group.getPermissionRoleDelegate().assignRolePermission(attributeDefName, PermissionAllowed.ALLOWED).getAttributeAssign();
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // give group2 permission
+    group.addMember(group2.toSubject(), true);
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // three flat permission changes
+    Set<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .listSet(ChangeLogEntry.class);
+  
+    assertEquals(3, changeLogEntries.size());
+
+    // Verify group2
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string01 = :subjectId")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .setString("subjectId", group2.toSubject().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    assertEquals(group2.toMember().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(group2.toSubject().getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(group2.toSubject().getSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    // Verify group3
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string01 = :subjectId")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .setString("subjectId", group3.toSubject().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+
+    assertEquals(group3.toMember().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(group3.toSubject().getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(group3.toSubject().getSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    // Verify test.subject.2
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string01 = :subjectId")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .setString("subjectId", newMember2.getSubjectId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    assertEquals(newMember2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // Now delete a permission
+    
+    group.deleteMember(group2.toSubject(), true);
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // three flat permission changes
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .listSet(ChangeLogEntry.class);
+  
+    assertEquals(3, changeLogEntries.size());
+
+    // Verify group2
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string01 = :subjectId")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .setString("subjectId", group2.toSubject().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    assertEquals(group2.toMember().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(group2.toSubject().getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(group2.toSubject().getSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    // Verify group3
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string01 = :subjectId")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .setString("subjectId", group3.toSubject().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    assertEquals(group3.toMember().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(group3.toSubject().getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(group3.toSubject().getSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    // Verify test.subject.2
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string01 = :subjectId")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .setString("subjectId", newMember2.getSubjectId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    assertEquals(newMember2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testPermissionChangeOnSubjectByAction() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    final AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
+    final AttributeAssignAction action2 = attributeDef.getAttributeDefActionDelegate().addAction("testAction2");
+    final AttributeAssignAction action3 = attributeDef.getAttributeDefActionDelegate().addAction("testAction3");
+    group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName, PermissionAllowed.ALLOWED).getAttributeAssign();
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // give user the second action now
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        action1.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(action2);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat add
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // Give the user a third action now
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        action2.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(action3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat add
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // Give the user the third action in a second way which should not cause any flat changes
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        action1.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(action3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // no flat adds
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNull(changeLogEntry);
+    
+    
+    //#########################
+    // Remove the third action from the user in one way -- no flat changes
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        action2.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(action3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // no flat adds
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNull(changeLogEntry);
+    
+    //#########################
+    // Remove the third action from the user in all ways
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        action1.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(action3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat delete
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    //#########################
+    // Delete the first action completely
+    action1.delete();
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // 2 flat changes - because 2 different set deletions
+    Set<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .listSet(ChangeLogEntry.class);
+    
+    assertEquals(2, changeLogEntries.size());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testPermissionChangeOnSubjectByAttributeDefName() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    final AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef, "testAttribute1", "testAttribute1");
+    final AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef, "testAttribute2", "testAttribute2");
+    final AttributeDefName attributeDefName3 = edu.addChildAttributeDefName(attributeDef, "testAttribute3", "testAttribute3");
+    attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
+    group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // give user the second resource now
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        attributeDefName1.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName2);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat add
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // Give the user a third resource now
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        attributeDefName2.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat add
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // Give the user the third resource in a second way which should not cause any flat changes
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        attributeDefName1.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    
+    // no flat adds
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNull(changeLogEntry);
+    
+    
+    //#########################
+    // Remove the third resource from the user in one way -- no flat changes
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        attributeDefName2.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefName3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    
+    // no flat adds
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNull(changeLogEntry);
+    
+    //#########################
+    // Remove the third resource from the user in all ways
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        attributeDefName1.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefName3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    
+    // one flat delete
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    //#########################
+    // Delete the first resource completely
+    attributeDefName1.delete();
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    
+    // 2 flat deletes - this is 2 because the attribute name sets are removed separately
+    Set<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .listSet(ChangeLogEntry.class);
+    
+    assertEquals(2, changeLogEntries.size());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testPermissionChangeOnSubjectByRoleSets() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    final Role group1 = edu.addChildRole("testGroup1", "testGroup1");
+    final Role group2 = edu.addChildRole("testGroup2", "testGroup2");
+    final Role group3 = edu.addChildRole("testGroup3", "testGroup3");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group1.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef, "testAttribute1", "testAttribute1");
+    AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef, "testAttribute2", "testAttribute2");
+    AttributeDefName attributeDefName3 = edu.addChildAttributeDefName(attributeDef, "testAttribute3", "testAttribute3");
+    attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
+    group1.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    group2.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName2, PermissionAllowed.ALLOWED).getAttributeAssign();
+    group3.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName3, PermissionAllowed.ALLOWED).getAttributeAssign();
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // give user the second resource now
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        group1.getRoleInheritanceDelegate().addRoleToInheritFromThis(group2);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat add
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group1.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group1.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // Give the user a third resource now
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        group2.getRoleInheritanceDelegate().addRoleToInheritFromThis(group3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat add
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group1.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group1.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // Give the user the third resource in a second way which should not cause any flat changes
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        group1.getRoleInheritanceDelegate().addRoleToInheritFromThis(group3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // no flat adds
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNull(changeLogEntry);
+    
+    
+    //#########################
+    // Remove the third resource from the user in one way -- no flat changes
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        group2.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(group3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // no flat deletes
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNull(changeLogEntry);
+    
+    //#########################
+    // Remove the third resource from the user in all ways
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        group1.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(group3);
+        return null;
+      }
+    });
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat delete
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group1.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group1.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    //#########################
+    // Delete the first role completely
+    group1.delete();
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // 1 flat delete
+    Set<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .listSet(ChangeLogEntry.class);
+    
+    assertEquals(1, changeLogEntries.size());
+  }
+  
+
+  /**
+   * @throws Exception
+   */
+  public void testPermissionChangeOnSubjectWithSubjectRolePermissions() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
+
+    // initialize some data
+    Role group1 = edu.addChildRole("testGroup1", "testGroup1");
+    Role group2 = edu.addChildRole("testGroup2", "testGroup2");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group1.addMember(newMember1.getSubject(), true);
+    group2.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    
+    // assign permission
+    group1.getPermissionRoleDelegate().assignSubjectRolePermission(attributeDefName, newMember1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    //#########################
+    // now assign the permission to the role
+    group2.getPermissionRoleDelegate().assignRolePermission(attributeDefName, PermissionAllowed.ALLOWED).getAttributeAssign();
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    // 1 flat add
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group2.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group2.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    //#########################
+    // now remove the permission from the role
+    
+    group2.getPermissionRoleDelegate().removeRolePermission(attributeDefName).getAttributeAssign();
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    
+    // 1 flat delete
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+    assertEquals(group2.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+    assertEquals(group2.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // now remove the permission from the subject role
+    
+    group1.getPermissionRoleDelegate().removeSubjectRolePermission(attributeDefName, newMember1).getAttributeAssign();
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    
+    // one flat delete
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(changeLogEntry);
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    //#########################
+    // now assign the permission to the role
+    group2.getPermissionRoleDelegate().assignRolePermission(attributeDefName, PermissionAllowed.ALLOWED).getAttributeAssign();
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    // one flat add
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+    
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    //#########################
+    // now assign the permission to the subject role
+    
+    group1.getPermissionRoleDelegate().assignSubjectRolePermission(attributeDefName, newMember1, PermissionAllowed.ALLOWED).getAttributeAssign();
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    // 1 flat add
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    //#########################
+    // now remove the permission from the subject role
+    
+    group1.getPermissionRoleDelegate().removeSubjectRolePermission(attributeDefName, newMember1).getAttributeAssign();
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    // 1 flat change
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertNotNull(changeLogEntry);
   }
   
   /**

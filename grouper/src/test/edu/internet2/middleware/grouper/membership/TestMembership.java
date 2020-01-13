@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.membership;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -52,6 +53,14 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -61,8 +70,11 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -82,7 +94,57 @@ public class TestMembership extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembership("testIllegalEffectiveDelete"));
+    TestRunner.run(new TestMembership("testbb"));
+  }
+  
+  public void testaa() {
+    ChangeLogTempToEntity.convertRecords();
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    Group g1 = edu.addChildGroup("group1", "group1");
+    Group g2 = edu.addChildGroup("group2", "group2");
+    
+    
+    g2.addMember(SubjectTestHelper.SUBJ0);
+    g2.addMember(SubjectTestHelper.SUBJ1);
+    g1.addMember(g2.toSubject());
+
+    ChangeLogTempToEntity.convertRecords();
+
+  }
+  
+  public void testbb() {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeRolesWithPermissionChanges", "true");
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+
+    // assign permission
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission(attributeDefName, PermissionAllowed.ALLOWED).getAttributeAssign();
+    
+    attributeAssign.setEnabled(false);
+    attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
+    attributeAssign.saveOrUpdate(true);
+    
+    attributeAssign.setEnabled(true);
+    attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() - 100000));
+    attributeAssign.saveOrUpdate(true);
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
   }
   
   // Private Class Constants

@@ -140,6 +140,7 @@ public class PITSyncTests extends GrouperTest {
     root  = StemHelper.findRootStem(grouperSession);
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeRolesWithPermissionChanges", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeSubjectsWithPermissionChanges", "true");
   }
 
   /**
@@ -346,10 +347,10 @@ public class PITSyncTests extends GrouperTest {
 
     assertEquals(0, changeLogTempCount);
     
-    // 1 group membership, 1 imm stem privilege, 1 eff stem privilege, 2 group privileges, and 1 permission
+    // 1 group membership, 1 imm stem privilege, 1 eff stem privilege, 2 group privileges, and 1 permission change on role, 1 permission change on subject
     // the change log entries are being added by code that's tested elsewhere (not by the sync script) 
     // so we are just verifying the number of entries...
-    assertEquals(6, changeLogCount);
+    assertEquals(7, changeLogCount);
 
     // now delete data, clear temp change log, and check again
     grouperSession = GrouperSession.startRootSession();
@@ -364,7 +365,7 @@ public class PITSyncTests extends GrouperTest {
     changeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
 
     assertEquals(0, changeLogTempCount);
-    assertEquals(12, changeLogCount);
+    assertEquals(14, changeLogCount);
   }
   
   /**

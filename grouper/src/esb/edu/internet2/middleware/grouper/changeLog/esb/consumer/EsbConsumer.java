@@ -477,6 +477,15 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.STEM_UPDATE.propertyNewValue));
 
+        } else if (changeLogEntry
+            .equalsCategoryAndAction(ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT)) {
+
+          event.setEventType(EsbEvent.EsbEventType.PERMISSION_CHANGE_ON_SUBJECT.name());
+          event.setSubjectId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
+          event.setSourceId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
+          event.setRoleId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
+          event.setRoleName(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+          event.setMemberId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
         }
         if (LOG.isDebugEnabled()) {
           debugMap.put("eventType", event.getEventType());
