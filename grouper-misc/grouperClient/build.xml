@@ -36,7 +36,6 @@
     
     <property name="main.sourceDir" value="src/java" />
     <property name="main.sourceExtDir" value="src/ext" />
-    <property name="main.sourceExtMoreDir" value="src/extMore" />
 
     <property name="main.confDir" value="conf" />
 
@@ -102,8 +101,6 @@
       srcdir="${main.sourceExtDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}" />
     <javac  target="1.5" source="1.5" 
       srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true"  />
-    <javac  target="1.5" source="1.5" 
-      srcdir="${main.sourceExtMoreDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}"/>
   </target>
 
   <target name="jarPrepare">
@@ -116,9 +113,6 @@
         <include name="**/*.html"/>      <!-- html -->
       </fileset>
       <fileset dir="${main.sourceExtDir}">
-        <include name="**/*.java"/>      <!-- source -->
-      </fileset>
-      <fileset dir="${main.sourceExtMoreDir}">
         <include name="**/*.java"/>      <!-- source -->
       </fileset>
       <fileset dir="${main.confDir}">
