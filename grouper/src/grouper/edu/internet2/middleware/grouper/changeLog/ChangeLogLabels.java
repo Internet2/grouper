@@ -1131,4 +1131,25 @@ public class ChangeLogLabels {
     /** roleName */
     roleName;
   }
+  
+  /**
+   * label for permission changes on subjects
+   */
+  public static enum PERMISSION_CHANGE_ON_SUBJECT implements ChangeLogLabel {
+  
+    /** subjectId */
+    subjectId,
+    
+    /** subjectSourceId */
+    subjectSourceId,
+    
+    /** memberId */
+    memberId,
+    
+    /** roleId */
+    roleId,
+    
+    /** roleName */
+    roleName;
+  }
 }
