@@ -36,7 +36,6 @@
     
     <property name="main.sourceDir" value="src/java" />
     <property name="main.sourceExtDir" value="src/ext" />
-    <property name="main.sourceExtMoreDir" value="src/extMore" />
 
     <property name="main.confDir" value="conf" />
 
@@ -55,12 +54,6 @@
       </fileset>
     </path>
 
-    <path id="main.mainClasspath">
-      <fileset dir="${main.lib}/clientSrcRequireIfUse">
-        <include name="**/*.jar" />
-      </fileset>
-    </path>
-
     <condition property="main.os" value="windows">
       <os family="windows" />
     </condition>
@@ -69,7 +62,6 @@
     </condition>
 
     <pathconvert targetos="${main.os}" property="main.theExtClasspath" refid="main.extClasspath" />
-    <pathconvert targetos="${main.os}" property="main.theMainClasspath" refid="main.mainClasspath" />
     
     <if><not><available file="${main.confDir}/grouper.client.properties" /></not>
       <then><copy file="misc/grouper.client.example.properties" 
@@ -108,9 +100,7 @@
     <javac   target="1.5"  source="1.5" 
       srcdir="${main.sourceExtDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}" />
     <javac  target="1.5" source="1.5" 
-      srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true"  classpath="${main.theMainClasspath}"/>
-    <javac  target="1.5" source="1.5" 
-      srcdir="${main.sourceExtMoreDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}"/>
+      srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true"  />
   </target>
 
   <target name="jarPrepare">
@@ -123,9 +113,6 @@
         <include name="**/*.html"/>      <!-- html -->
       </fileset>
       <fileset dir="${main.sourceExtDir}">
-        <include name="**/*.java"/>      <!-- source -->
-      </fileset>
-      <fileset dir="${main.sourceExtMoreDir}">
         <include name="**/*.java"/>      <!-- source -->
       </fileset>
       <fileset dir="${main.confDir}">
