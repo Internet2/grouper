@@ -1,20 +1,20 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
-import static edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED;
-import static edu.internet2.middleware.grouper.app.usdu.UsduSettings.usduStemName;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -151,7 +151,22 @@ public class UsduService {
    */
   public static List<SubjectResolutionStat> getSubjectResolutionStats() {
     
-    Set<Source> sources = SubjectFinder.getSources();
+    List<Source> sources = new ArrayList<Source>(SubjectFinder.getSources());
+    Collections.sort(sources, new Comparator<Source>() {
+
+      public int compare(Source o1, Source o2) {
+        if (o1== o2) {
+          return 0;
+        }
+        if (o1 == null) {
+          return -1;
+        }
+        if (o1 == null) {
+          return 1;
+        }
+        return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+      }
+    });
     
     GrouperSession session = GrouperSession.startRootSession();
     
@@ -169,8 +184,8 @@ public class UsduService {
     
     final String sqlUnresolvable = "select source_id, count(*) from grouper_aval_asn_asn_member_v "
         + "where attribute_def_name_name1 = '" + UsduAttributeNames.retrieveAttributeDefNameBase().getName() + "' "
-        + "and attribute_def_name_name2 = '" + UsduSettings.usduStemName() + ":" + UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE + "' "
-        + "and value_string = 'false' and enabled2 = 'T'  group by source_id";
+        + "and attribute_def_name_name2 = '" + UsduSettings.usduStemName() + ":" + UsduAttributeNames.SUBJECT_RESOLUTION_DELETED + "' "
+        + "and (value_string is null or value_string = 'false') and enabled2 = 'T'  group by source_id";
     List<Object[]> sourceIdCountUnresolvables = HibernateSession.bySqlStatic().listSelect(Object[].class, sqlUnresolvable, null, null);
     
 
@@ -216,7 +231,7 @@ public class UsduService {
             if (!StringUtils.equals(source.getId(), sourceIdDeleted)) {
               continue DELETEDS;
             }
-            deletedCount = GrouperUtil.intValue(sourceIdCountUnresolvable[1]);
+            deletedCount = GrouperUtil.intValue(sourceIdCountDeleted[1]);
             unresolvedCount -= deletedCount;
             break DELETEDS;
           }
@@ -265,7 +280,7 @@ public class UsduService {
     } else {
       unresolvedMembers = new MemberFinder()
         .assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE)
+        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED)
         .addAttributeValuesOnAssignment("false")
         .assignQueryOptions(queryOptions)
         .findMembers();

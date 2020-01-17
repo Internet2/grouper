@@ -59,9 +59,10 @@ public abstract class BaseSourceAdapter implements Source {
   
   
   /**
-   * @see edu.internet2.middleware.subject.Source#getAllSubjectIds()
+   * @see edu.internet2.middleware.subject.Source#retrieveAllSubjectIds()
    */
-  public Set<String> getAllSubjectIds() {
+  @Override
+  public Set<String> retrieveAllSubjectIds() {
     throw new UnsupportedOperationException();
   }
 

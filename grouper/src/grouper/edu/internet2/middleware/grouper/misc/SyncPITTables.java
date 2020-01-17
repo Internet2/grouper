@@ -120,6 +120,9 @@ public class SyncPITTables {
   
   /** whether there will be notifications for roles with permission changes */ 
   private boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
+  
+  /** whether there will be notifications for subjects with permission changes */
+  private boolean includeSubjectsWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeSubjectsWithPermissionChanges", false);
 
   /** max query size for queries that have a max **/
   private static final int MAX_QUERY_SIZE = 100000;
@@ -323,6 +326,7 @@ public class SyncPITTables {
         
         if (sendPermissionNotifications) {
           pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          pitMembership.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
 
         pitMembership.save();
@@ -424,6 +428,7 @@ public class SyncPITTables {
                 
         if (sendPermissionNotifications) {
           pitAttributeAssign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          pitAttributeAssign.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
 
         pitAttributeAssign.save();
@@ -634,6 +639,7 @@ public class SyncPITTables {
         
         if (sendPermissionNotifications) {
           pitAttributeDefNameSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          pitAttributeDefNameSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
         
         pitAttributeDefNameSet.saveOrUpdate();
@@ -832,6 +838,10 @@ public class SyncPITTables {
           pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
           pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
         }
+        
+        if (sendPermissionNotifications) {
+          pitGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
+        }
       
         batch.add(pitGroupSet);
       }
@@ -923,6 +933,10 @@ public class SyncPITTables {
           pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
         }
         
+        if (sendPermissionNotifications) {
+          pitGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
+        }
+        
         pitGroupSet.saveOrUpdate();
       }
       
@@ -973,6 +987,7 @@ public class SyncPITTables {
         
         if (sendPermissionNotifications) {
           pitRoleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          pitRoleSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
         
         pitRoleSet.saveOrUpdate();
@@ -1242,6 +1257,7 @@ public class SyncPITTables {
                 
         if (sendPermissionNotifications) {
           pitAttributeAssignActionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          pitAttributeAssignActionSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
 
         pitAttributeAssignActionSet.saveOrUpdate();
@@ -1286,6 +1302,7 @@ public class SyncPITTables {
         
         if (sendPermissionNotifications) {
           mship.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          mship.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
         
         mship.update();
@@ -1324,6 +1341,7 @@ public class SyncPITTables {
 
         if (sendPermissionNotifications) {
           assign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          assign.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
         
         assign.update();
@@ -1464,6 +1482,7 @@ public class SyncPITTables {
         
         if (sendPermissionNotifications) {
           attrSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          attrSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
         
         attrSet.saveOrUpdate();        
@@ -1540,6 +1559,10 @@ public class SyncPITTables {
           groupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
         }
         
+        if (sendPermissionNotifications) {
+          groupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
+        }
+        
         groupSet.saveOrUpdate();     
       }
       
@@ -1576,6 +1599,7 @@ public class SyncPITTables {
         
         if (sendPermissionNotifications) {
           roleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          roleSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
         
         roleSet.saveOrUpdate();     
@@ -1750,6 +1774,7 @@ public class SyncPITTables {
 
         if (sendPermissionNotifications) {
           actionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+          actionSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
         }
         
         actionSet.saveOrUpdate();

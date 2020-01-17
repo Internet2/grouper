@@ -3,8 +3,8 @@
  <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                     <thead>
                       <tr>
-                        <th class="sorted" style="width: 200px;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectName']}</th>
-                        <th class="sorted">${textContainer.text['subjectResolutionSubjectsSearchTableHeaderIsSubjectResolvable']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;" style="width: 200px;">${textContainer.text['subjectResolutionUnresolvedSubjectsTableHeaderSubjectName']}</th>
+                        <th data-hide="phone" style="white-space: nowrap;">${textContainer.text['subjectResolutionSubjectsSearchTableHeaderIsSubjectResolvable']}</th>
                       </tr>
                     </thead>
                     <tbody>

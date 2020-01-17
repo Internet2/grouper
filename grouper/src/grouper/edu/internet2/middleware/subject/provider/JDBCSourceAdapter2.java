@@ -484,10 +484,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   }
 
   /**
-   * @see edu.internet2.middleware.subject.provider.JDBCSourceAdapter#getAllSubjectIds()
+   * @see edu.internet2.middleware.subject.provider.JDBCSourceAdapter#retrieveAllSubjectIds()
    */
   @Override
-  public Set<String> getAllSubjectIds() {
+  public Set<String> retrieveAllSubjectIds() {
 
     String getAllSubjectIdsIsImplementedString = this.getInitParam("getAllSubjectIdsIsImplemented");
     boolean getAllSubjectIdsIsImplemented = SubjectUtils.booleanValue(getAllSubjectIdsIsImplementedString, true);

@@ -102,10 +102,10 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /**
-   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getAllSubjectIds()
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#retrieveAllSubjectIds()
    */
   @Override
-  public Set<String> getAllSubjectIds() {
+  public Set<String> retrieveAllSubjectIds() {
 
     if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(GrouperSession.staticGrouperSession().getSubject())) {
       throw new UnsupportedOperationException();

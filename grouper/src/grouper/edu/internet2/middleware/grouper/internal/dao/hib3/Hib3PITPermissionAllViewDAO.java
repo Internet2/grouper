@@ -27,7 +27,13 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
+import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
+import edu.internet2.middleware.grouper.pit.PITGroupSet;
+import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
+import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -186,5 +192,107 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
     
     //we should be down to the secure list
     return results;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO#findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet)
+   */
+  public Set<PITPermissionAllView> findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(PITAttributeAssignActionSet actionSet) {
+    Set<PITPermissionAllView> perms = HibernateSession
+      .byHqlStatic()
+      .createQuery("select perm from PITPermissionAllView as perm where actionSetId = :actionSetId " +
+          "and groupSetActiveDb = 'T' and membershipActiveDb = 'T' and roleSetActiveDb = 'T' and actionSetActiveDb = 'T' and attributeDefNameSetActiveDb = 'T' and attributeAssignActiveDb = 'T' " +
+          "and not exists (select 1 from PITPermissionAllView perm2 where perm2.roleId=perm.roleId and perm2.attributeDefNameId=perm.attributeDefNameId and perm2.actionId=perm.actionId and perm2.memberId=perm.memberId and perm2.actionSetId <> :actionSetId " +
+          "and perm2.groupSetActiveDb = 'T' and perm2.membershipActiveDb = 'T' and perm2.roleSetActiveDb = 'T' and perm2.actionSetActiveDb = 'T' and perm2.attributeDefNameSetActiveDb = 'T' and perm2.attributeAssignActiveDb = 'T')")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindNewOrDeletedFlatPermissionsAfterActionSetAddOrDelete")
+      .setString("actionSetId", actionSet.getId())
+      .listSet(PITPermissionAllView.class);
+    
+    return perms;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO#findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet)
+   */
+  public Set<PITPermissionAllView> findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(PITAttributeDefNameSet attributeDefNameSet) {
+    Set<PITPermissionAllView> perms = HibernateSession
+      .byHqlStatic()
+      .createQuery("select perm from PITPermissionAllView as perm where attributeDefNameSetId = :attributeDefNameSetId " +
+          "and groupSetActiveDb = 'T' and membershipActiveDb = 'T' and roleSetActiveDb = 'T' and actionSetActiveDb = 'T' and attributeDefNameSetActiveDb = 'T' and attributeAssignActiveDb = 'T' " +
+          "and not exists (select 1 from PITPermissionAllView perm2 where perm2.roleId=perm.roleId and perm2.attributeDefNameId=perm.attributeDefNameId and perm2.actionId=perm.actionId and perm2.memberId=perm.memberId and perm2.attributeDefNameSetId <> :attributeDefNameSetId " +
+          "and perm2.groupSetActiveDb = 'T' and perm2.membershipActiveDb = 'T' and perm2.roleSetActiveDb = 'T' and perm2.actionSetActiveDb = 'T' and perm2.attributeDefNameSetActiveDb = 'T' and perm2.attributeAssignActiveDb = 'T')")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindNewOrDeletedFlatPermissionsAfterAttributeDefNameSetAddOrDelete")
+      .setString("attributeDefNameSetId", attributeDefNameSet.getId())
+      .listSet(PITPermissionAllView.class);
+    
+    return perms;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO#findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(edu.internet2.middleware.grouper.pit.PITRoleSet)
+   */
+  public Set<PITPermissionAllView> findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(PITRoleSet roleSet) {
+    Set<PITPermissionAllView> perms = HibernateSession
+      .byHqlStatic()
+      .createQuery("select perm from PITPermissionAllView as perm where roleSetId = :roleSetId " +
+          "and groupSetActiveDb = 'T' and membershipActiveDb = 'T' and roleSetActiveDb = 'T' and actionSetActiveDb = 'T' and attributeDefNameSetActiveDb = 'T' and attributeAssignActiveDb = 'T' " +
+          "and not exists (select 1 from PITPermissionAllView perm2 where perm2.roleId=perm.roleId and perm2.attributeDefNameId=perm.attributeDefNameId and perm2.actionId=perm.actionId and perm2.memberId=perm.memberId and perm2.roleSetId <> :roleSetId " +
+          "and perm2.groupSetActiveDb = 'T' and perm2.membershipActiveDb = 'T' and perm2.roleSetActiveDb = 'T' and perm2.actionSetActiveDb = 'T' and perm2.attributeDefNameSetActiveDb = 'T' and perm2.attributeAssignActiveDb = 'T')")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindNewOrDeletedFlatPermissionsAfterRoleSetAddOrDelete")
+      .setString("roleSetId", roleSet.getId())
+      .listSet(PITPermissionAllView.class);
+    
+    return perms;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO#findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(edu.internet2.middleware.grouper.pit.PITAttributeAssign)
+   */
+  public Set<PITPermissionAllView> findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(PITAttributeAssign attributeAssign) {
+    Set<PITPermissionAllView> perms = HibernateSession
+      .byHqlStatic()
+      .createQuery("select perm from PITPermissionAllView as perm where attributeAssignId = :attributeAssignId " +
+          "and groupSetActiveDb = 'T' and membershipActiveDb = 'T' and roleSetActiveDb = 'T' and actionSetActiveDb = 'T' and attributeDefNameSetActiveDb = 'T' and attributeAssignActiveDb = 'T' " +
+          "and not exists (select 1 from PITPermissionAllView perm2 where perm2.roleId=perm.roleId and perm2.attributeDefNameId=perm.attributeDefNameId and perm2.actionId=perm.actionId and perm2.memberId=perm.memberId and perm2.attributeAssignId <> :attributeAssignId " +
+          "and perm2.groupSetActiveDb = 'T' and perm2.membershipActiveDb = 'T' and perm2.roleSetActiveDb = 'T' and perm2.actionSetActiveDb = 'T' and perm2.attributeDefNameSetActiveDb = 'T' and perm2.attributeAssignActiveDb = 'T')")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindNewOrDeletedFlatPermissionsAfterAttributeAssignAddOrDelete")
+      .setString("attributeAssignId", attributeAssign.getId())
+      .listSet(PITPermissionAllView.class);
+    
+    return perms;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO#findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(edu.internet2.middleware.grouper.pit.PITGroupSet)
+   */
+  public Set<PITPermissionAllView> findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(PITGroupSet groupSet) {
+    Set<PITPermissionAllView> perms = HibernateSession
+      .byHqlStatic()
+      .createQuery("select perm from PITPermissionAllView as perm where groupSetId = :groupSetId " +
+          "and groupSetActiveDb = 'T' and membershipActiveDb = 'T' and roleSetActiveDb = 'T' and actionSetActiveDb = 'T' and attributeDefNameSetActiveDb = 'T' and attributeAssignActiveDb = 'T' " +
+          "and not exists (select 1 from PITPermissionAllView perm2 where perm2.roleId=perm.roleId and perm2.attributeDefNameId=perm.attributeDefNameId and perm2.actionId=perm.actionId and perm2.memberId=perm.memberId and perm2.groupSetId <> :groupSetId " +
+          "and perm2.groupSetActiveDb = 'T' and perm2.membershipActiveDb = 'T' and perm2.roleSetActiveDb = 'T' and perm2.actionSetActiveDb = 'T' and perm2.attributeDefNameSetActiveDb = 'T' and perm2.attributeAssignActiveDb = 'T')")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindOrDeletedNewFlatPermissionsAfterGroupSetAddOrDelete")
+      .setString("groupSetId", groupSet.getId())
+      .listSet(PITPermissionAllView.class);
+    
+    return perms;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO#findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(edu.internet2.middleware.grouper.pit.PITMembership)
+   */
+  public Set<PITPermissionAllView> findNewOrDeletedFlatPermissionsAfterObjectAddOrDelete(PITMembership membership) {
+    Set<PITPermissionAllView> perms = HibernateSession
+      .byHqlStatic()
+      .createQuery("select perm from PITPermissionAllView as perm where membershipId = :membershipId " +
+          "and groupSetActiveDb = 'T' and membershipActiveDb = 'T' and roleSetActiveDb = 'T' and actionSetActiveDb = 'T' and attributeDefNameSetActiveDb = 'T' and attributeAssignActiveDb = 'T' " +
+          "and not exists (select 1 from PITPermissionAllView perm2 where perm2.roleId=perm.roleId and perm2.attributeDefNameId=perm.attributeDefNameId and perm2.actionId=perm.actionId and perm2.memberId=perm.memberId and perm2.membershipId <> :membershipId " +
+          "and perm2.groupSetActiveDb = 'T' and perm2.membershipActiveDb = 'T' and perm2.roleSetActiveDb = 'T' and perm2.actionSetActiveDb = 'T' and perm2.attributeDefNameSetActiveDb = 'T' and perm2.attributeAssignActiveDb = 'T')")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindNewOrDeletedFlatPermissionsAfterMembershipAddOrDelete")
+      .setString("membershipId", membership.getId())
+      .listSet(PITPermissionAllView.class);
+    
+    return perms;
   }
 }

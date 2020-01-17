@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
@@ -992,6 +993,11 @@ public class GrouperServiceJ2ee implements Filter {
    * filter method
    */
   public void init(FilterConfig arg0) throws ServletException {
+    
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.WS, false, false);
+
+    GrouperStartup.startup();
+    
     InstrumentationThread.startThread(GrouperEngineBuiltin.WS, null);
     
     

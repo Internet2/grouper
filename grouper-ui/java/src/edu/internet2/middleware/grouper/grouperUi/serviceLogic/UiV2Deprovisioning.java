@@ -740,13 +740,23 @@ public class UiV2Deprovisioning {
           
           if (!StringUtils.isBlank(deprovisioningContainer.getAffiliation())) {
             
-            boolean hasExistingConfiguration = deprovisioningContainer.getGrouperDeprovisioningOverallConfiguration().hasConfigurationForAffiliation(deprovisioningContainer.getAffiliation());
+            GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = deprovisioningContainer.getGrouperDeprovisioningOverallConfiguration().getAffiliationToConfiguration().get(deprovisioningContainer.getAffiliation());
             
             GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = deprovisioningContainer.getGrouperDeprovisioningAttributeValueNew();
 
-            if (!hasExistingConfiguration) {
+            if (grouperDeprovisioningConfiguration != null && grouperDeprovisioningConfiguration.getAttributeAssignBase() == null) {
               grouperDeprovisioningAttributeValue.setDeprovision(true);
+              
+              // this is just inherited, there is nothing there
+              grouperDeprovisioningConfiguration.setOriginalConfig(null);
             }
+            if (grouperDeprovisioningConfiguration.getNewConfig() != null) {
+              if (!StringUtils.isBlank(grouperDeprovisioningConfiguration.getNewConfig().getInheritedFromFolderIdString()) && grouperDeprovisioningConfiguration.getNewConfig().isDirectAssignment()) {
+                
+                grouperDeprovisioningConfiguration.getNewConfig().setInheritedFromFolderIdString(null);
+              }
+            }
+            
 
             if (!SWITCHED_AFFILIATION) {
               Boolean hasConfiguration = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningHasConfigurationName"));
@@ -1406,7 +1416,7 @@ public class UiV2Deprovisioning {
           
           Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
           
-          Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
+          Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers, deprovisioningContainer.getAffiliation());
           
           deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
           
@@ -1755,7 +1765,7 @@ public class UiV2Deprovisioning {
           
           Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
           Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = 
-              GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
+              GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers, null);
           GuiDeprovisioningMembershipSubjectContainer.markAffiliations(guiDeprovisioningContainers, subjectsWhoAreDeprovisioned);
           deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
           
@@ -2666,7 +2676,7 @@ public class UiV2Deprovisioning {
           
           Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
           Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = 
-              GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
+              GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers, null);
           GuiDeprovisioningMembershipSubjectContainer.markAffiliations(guiDeprovisioningContainers, subjectsWhoAreDeprovisioned);
           deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
           
@@ -2824,7 +2834,7 @@ public class UiV2Deprovisioning {
           
           Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
           Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = 
-              GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
+              GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers, null);
           GuiDeprovisioningMembershipSubjectContainer.markAffiliations(guiDeprovisioningContainers, subjectsWhoAreDeprovisioned);
           deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
           

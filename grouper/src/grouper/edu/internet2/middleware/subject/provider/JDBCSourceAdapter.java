@@ -102,10 +102,10 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   private List<String> identifierAttributes = new ArrayList<String>();
   
   /**
-   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getAllSubjectIds()
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#retrieveAllSubjectIds()
    */
   @Override
-  public Set<String> getAllSubjectIds() {
+  public Set<String> retrieveAllSubjectIds() {
 
     String getAllSubjectIdsIsImplementedString = this.getInitParam("getAllSubjectIdsIsImplemented");
     boolean getAllSubjectIdsIsImplemented = SubjectUtils.booleanValue(getAllSubjectIdsIsImplementedString, true);

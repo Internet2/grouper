@@ -134,8 +134,10 @@ public class EsbEvent {
     STEM_DELETE,
 
     /** STEM_UPDATE event */
-    STEM_UPDATE;
+    STEM_UPDATE,
     
+    /** PERMISSION_CHANGE_ON_SUBJECT event */
+    PERMISSION_CHANGE_ON_SUBJECT;
   }
   
   
@@ -213,6 +215,15 @@ public class EsbEvent {
 
   /** */
   private String groupName;
+  
+  /** */
+  private String roleId;
+
+  /** */
+  private String roleName;
+  
+  /** */
+  private String memberId;
 
   /** */
   private String groupTypeId;
@@ -794,5 +805,53 @@ public class EsbEvent {
       newArray[this.subjectAttributes.length][1] = attributeValue;
       this.setSubjectAttributes(newArray);
     }
+  }
+
+  
+  /**
+   * @return the roleId
+   */
+  public String getRoleId() {
+    return roleId;
+  }
+
+  
+  /**
+   * @param roleId the roleId to set
+   */
+  public void setRoleId(String roleId) {
+    this.roleId = roleId;
+  }
+
+  
+  /**
+   * @return the roleName
+   */
+  public String getRoleName() {
+    return roleName;
+  }
+
+  
+  /**
+   * @param roleName the roleName to set
+   */
+  public void setRoleName(String roleName) {
+    this.roleName = roleName;
+  }
+
+  
+  /**
+   * @return the memberId
+   */
+  public String getMemberId() {
+    return memberId;
+  }
+
+  
+  /**
+   * @param memberId the memberId to set
+   */
+  public void setMemberId(String memberId) {
+    this.memberId = memberId;
   }
 }

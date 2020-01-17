@@ -514,11 +514,21 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType)),      
       
   /**
-   * permission add
+   * permission change on role
    */
   PERMISSION_CHANGE_ON_ROLE(new ChangeLogType("permission", "permissionChangeOnRole",
       ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId,
-      ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName));
+      ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName)),
+  
+  /**
+   * permission change on subject
+   */
+  PERMISSION_CHANGE_ON_SUBJECT(new ChangeLogType("permission", "permissionChangeOnSubject",
+      ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId,
+      ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId,
+      ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId,
+      ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId,
+      ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
       
   /**
    * defaults for changelog type, though doesn't hold the id
