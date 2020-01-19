@@ -153,6 +153,7 @@ public class GrouperReportConfigServiceTest extends GrouperTest {
     
     //clean up
     scheduler.deleteJob(jobKey);
+    GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     
   }
   
