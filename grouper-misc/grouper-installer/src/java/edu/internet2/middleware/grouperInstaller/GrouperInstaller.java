@@ -83,6 +83,8 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclien
  */
 public class GrouperInstaller {
 
+  public static final String JAVA_MIN_VERSION = "1.7";
+
   /**
    * location of where grouper is an find all the files within
    */
@@ -1609,8 +1611,6 @@ public class GrouperInstaller {
     //System.out.println("INFO: external java command set to '" + theJavaCommand + "'");
     javaCommand = theJavaCommand;
   }
-
-  public static final String JAVA_MIN_VERSION = "1.7";
 
   /**
    * Validate java and javac commands through various methods - using JAVA_HOME/bin/(cmd) and shell path location

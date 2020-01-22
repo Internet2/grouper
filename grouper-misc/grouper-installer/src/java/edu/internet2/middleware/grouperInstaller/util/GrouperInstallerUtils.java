@@ -10838,27 +10838,9 @@ public class GrouperInstallerUtils  {
     if (version2 == null) {
       return jar1;
     }
-    
-    GiGrouperVersion giGrouperVersion1 = GiGrouperVersion.valueOfIgnoreCase(version1, false);
-    GiGrouperVersion giGrouperVersion2 = GiGrouperVersion.valueOfIgnoreCase(version2, false);
 
-    if (giGrouperVersion1 == null && giGrouperVersion2 == null) {
-      return null;
-    }
-    
-    if (giGrouperVersion1 == null) {
-      return jar2;
-    }
-    
-    if (giGrouperVersion2 == null) {
-      return jar1;
-    }
-
-    if (giGrouperVersion1.lessThanArg(giGrouperVersion2)) {
-      return jar2;
-    }
-    
-    return jar1;
+    int compare = compareVersions(version1, version2);
+    return (compare >= 0 ? jar1 : jar2);
   }
   
   /**
@@ -10906,18 +10888,17 @@ public class GrouperInstallerUtils  {
     return null;
   }
   
-  private static Pattern versionPattern = Pattern.compile("^.*(\\d+)\\.(\\d+)\\.(\\d+)\\.jar*$");
-  
   /**
-   * get the property value from version in the manifest of a jar
+   * get the property value from version in the jar filename; e.g. jarfile-1.2.3.jar
    * @param jarFile
    * @return the version or null if cant find
    */
   public static String jarVersion0(File jarFile) {
+    Pattern versionPattern = Pattern.compile("^.*-((\\d+)\\.(\\d+)(\\.(\\d+))*)\\.jar*$");
     String fileName = jarFile.getName();
     Matcher matcher = versionPattern.matcher(fileName);
     if (matcher.matches()) {
-      return matcher.group(1) + "." + matcher.group(2) + "." + matcher.group(3);
+      return matcher.group(1);
     }
     return null;
   }
