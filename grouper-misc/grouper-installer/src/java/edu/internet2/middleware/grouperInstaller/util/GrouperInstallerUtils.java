@@ -10316,6 +10316,7 @@ public class GrouperInstallerUtils  {
    * 
    * @return java command
    */
+  @Deprecated
   public static String javaCommand() {
     return javaHome() + File.separator + "bin" + File.separator + "java";
   }
@@ -10324,9 +10325,13 @@ public class GrouperInstallerUtils  {
   private static String JAVA_HOME = null;
   
   /**
-   * 
+   * The effective java home (System.getProperty("java.home")), based on the path to the currently running
+   * java; deprecated since it may not be the same as the JAVA_HOME environment variable (e.g. in a Windows
+   * install java may be set to the jre,even if the JDK is present
+   *
    * @return the java home location without slash afterward
    */
+  @Deprecated
   public static String javaHome() {
     if (isBlank(JAVA_HOME)) {
       
@@ -11349,4 +11354,58 @@ public class GrouperInstallerUtils  {
   
   }
 
+  /**
+   * Given two string of a.b.c..., return 0 if equal, -1 if first string is lower, and 1 if first string is higher (similar to Integer.compareTo())
+   * @param s1String first version string
+   * @param s2String second version string
+   * @return int value -1 if first is lower, 1 if first is higher, and 0 if equal
+   */
+  public static int compareVersions(String s1String, String s2String) {
+    if (s1String.equals(s2String)) {
+      return 0;
+    }
+
+    String[] s1Tokens = s1String.split("\\.");
+    String[] s2Tokens = s2String.split("\\.");
+
+    int i = 0;
+    while( i < s1Tokens.length && i < s2Tokens.length && s1Tokens[i].equals(s2Tokens[i]) ) {
+      i++;
+    }
+
+    while (i < s1Tokens.length || i < s2Tokens.length) {
+      Integer s1Value = 0;
+      Integer s2Value = 0;
+
+      if (i < s1Tokens.length) {
+        String s1Token = s1Tokens[i];
+        try {
+          s1Value = Integer.parseInt(s1Token);
+        } catch (NumberFormatException e) {
+          System.out.println("WARNING: Could not parse number from '" + s1Token + "' in version string '" + s1String + "'");
+          return -1;
+        }
+      }
+
+      if (i < s2Tokens.length) {
+        String s2Token = s2Tokens[i];
+        try {
+          s2Value = Integer.parseInt(s2Token);
+        } catch (NumberFormatException e) {
+          System.out.println("WARNING: Could not parse number from '" + s2Token + "' in version string '" + s2String + "' -- assuming -1");
+          return 1;
+        }
+      }
+
+      int cmp = s1Value.compareTo(s2Value);
+      if (cmp != 0) {
+        return cmp;
+      }
+
+      ++i;
+    }
+
+    // exhausted both strings with neither being greater; assume equal at this point
+    return 0;
+  }
 }

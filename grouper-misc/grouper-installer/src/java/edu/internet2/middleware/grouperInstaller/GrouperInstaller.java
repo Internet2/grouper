@@ -1021,7 +1021,7 @@ public class GrouperInstaller {
     
     final List<String> commands = new ArrayList<String>();
     
-    commands.add(GrouperInstallerUtils.javaCommand());
+    commands.add(getJavaCommand());
     commands.add("-XX:MaxPermSize=150m");
     commands.add("-Xmx640m");
     
@@ -1174,7 +1174,7 @@ public class GrouperInstaller {
 //    10          <arg line="stop"/>
 //    11      </java>
     
-    commands.add(GrouperInstallerUtils.javaCommand());
+    commands.add(getJavaCommand());
     commands.add("-XX:MaxPermSize=150m");
     commands.add("-Xmx640m");
     
@@ -1582,71 +1582,92 @@ public class GrouperInstaller {
     }
   }
 
+  private static String javaCommand = null;
+
   /**
-   * 
+   * When the installer starts, it tests and validates the java command. If found it will set the path to it for later use.
+   *
+   * @return path to java executable. Set by {@link #validJava()}
+   */
+  public static String getJavaCommand() {
+    if (javaCommand != null) {
+      return javaCommand;
+    } else {
+      throw new RuntimeException("Unable to determine \"java\" command to execute");
+    }
+  }
+
+  private static String getJavaCommand(boolean throwIfNull) {
+    if (throwIfNull) {
+      return getJavaCommand();
+    } else {
+      return javaCommand;
+    }
+  }
+
+  private static void setJavaCommand(String theJavaCommand) {
+    //System.out.println("INFO: external java command set to '" + theJavaCommand + "'");
+    javaCommand = theJavaCommand;
+  }
+
+  public static final String JAVA_MIN_VERSION = "1.7";
+
+  /**
+   * Validate java and javac commands through various methods - using JAVA_HOME/bin/(cmd) and shell path location
    */
   private static void validJava() {
-    //check that java7+
-    String versionString = System.getProperty("java.version");
-    // 1.7.03
-    int dotPos = versionString.indexOf('.');
-    if (dotPos <= 0) {
-      throw new RuntimeException("Expecting something like 1.7.03 but was: '" + versionString + "'");
-    }
-    //get the second dot
-    dotPos = versionString.indexOf('.', dotPos+1);
-    if (dotPos <= 0) {
-      throw new RuntimeException("Expecting something like 1.7.03 but was: '" + versionString + "'");
-    }
-    versionString = versionString.substring(0, dotPos);
-    double versionDouble = GrouperInstallerUtils.doubleValue(versionString);
-    
     boolean hadError = false;
-    
-    if (versionDouble < 1.7) {
-
-      System.out.println("Non-fatal ERROR: grouperInstaller requires to be invoked with at least Java 1.7, but was: " + versionString);
-      hadError = true;
-
-    }
-    
-    //we need a JAVA_HOME of at least java7 too...
-    String javaHome = System.getenv("JAVA_HOME");
-    
-    boolean javaHomeError = false;
-    
-    if (GrouperInstallerUtils.isBlank(javaHome)) {
-      System.out.println("Non-fatal ERROR: you should have the environment variable JAVA_HOME set to a 1.7+ JDK (currently not set)");
-      javaHomeError = true;
-      hadError = hadError || javaHomeError;
-    }
-
+    boolean cmdHadError = false;
     String command = null;
-    
-    if (!javaHomeError) {
+
+    // the most important check is the JAVA_HOME is set properly; this will be needed for any ant or maven commands, etc.
+    String javaHome = System.getenv("JAVA_HOME");
+
+    if (GrouperInstallerUtils.isBlank(javaHome)) {
+      System.out.println("Non-fatal ERROR: you should have the environment variable JAVA_HOME set to a " + JAVA_MIN_VERSION + "+ JDK (currently not set)");
+      hadError = true;
+    } else {
+      // try JAVA_HOME/bin/java
       command = javaHome + File.separator + "bin" + File.separator + "java";
-      javaHomeError = validJavaOutput(command, "the environment variable JAVA_HOME", false, false);
-      hadError = hadError || javaHomeError;
-    }
-    
-    if (!javaHomeError) {
+      cmdHadError = validJavaOutput(command, "$JAVA_HOME/bin/java", false, false);
+      if (getJavaCommand(false) == null && !cmdHadError) {
+        setJavaCommand(command);
+      }
+      hadError = hadError || cmdHadError;
+
+      // try JAVA_HOME/bin/javac
       command = javaHome + File.separator + "bin" + File.separator + "javac";
-      javaHomeError = validJavaOutput(command, "the environment variable JAVA_HOME", true, false);
-      hadError = hadError || javaHomeError;
+      cmdHadError = validJavaOutput(command, "$JAVA_HOME/bin/javac", true, false);
+      hadError = hadError || cmdHadError;
     }
 
-    javaHomeError = false;
+    // try bare "java" with shell path resolver
     command = "java";
-    javaHomeError = validJavaOutput(command, "java command in the PATH", false, false);
-
-    hadError = hadError || javaHomeError;
-    
-    if (!javaHomeError) {
-      command = "javac";
-      hadError = validJavaOutput(command, "javac command in the PATH", true, false) || hadError;
+    cmdHadError = validJavaOutput(command, "java command in the PATH", false, false);
+    if (getJavaCommand(false) == null && !cmdHadError) {
+      setJavaCommand(command);
     }
-    
+    hadError = hadError || cmdHadError;
+
+    // try bare "javac" with shell path resolver
+    command = "javac";
+    cmdHadError = validJavaOutput(command, "javac command in the PATH", true, false);
+    hadError = hadError || cmdHadError;
+
+    // if nothing else works, the effective home for the java command running the installer is a minimal catch-all, suitable
+    // for running simple tasks like starting Tomcat
+    if (getJavaCommand(false) == null) {
+      command = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+      cmdHadError = validJavaOutput(command, "the current java command running the installer", false, false);
+      if (!cmdHadError) {
+        setJavaCommand(command);
+      }
+      hadError = hadError || cmdHadError;
+    }
+
     if (hadError) {
+      // assume all the above checks output something on error, otherwise the line below won't make sense
+      System.out.println("WARNING: JAVA_HOME or Java path errors may cause issues when running external commands - these should be fixed before continuing.");
       System.out.print("Press <enter> to continue... ");
       readFromStdIn("grouperInstaller.autorun.javaInvalid");
     }
@@ -1654,9 +1675,9 @@ public class GrouperInstaller {
  
   /**
    * take a java command (e.g. java, or javac, or %JAVA_HOME%/bin/java and make sure version is valid
-   * @param what
    * @param command
-   * @param jdkTest 
+   * @param what
+   * @param jdkTest
    * @param fatal
    * @return if error
    */
@@ -1668,12 +1689,7 @@ public class GrouperInstaller {
     
       List<String> commands = new ArrayList<String>();
       
-      if (GrouperInstallerUtils.isWindows()) {
-        commands.add(command);
-      } else {
-        commands.add(command);
-      }
-      
+      commands.add(command);
       commands.add("-version");
         
       CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
@@ -1681,8 +1697,9 @@ public class GrouperInstaller {
       
       //note this is printed view stderr not stdout
       String output = commandResult.getErrorText();
-      
-      Pattern javaVersionPattern = Pattern.compile(".*?[^\\d]+(\\d+\\.\\d+).*", Pattern.DOTALL);
+
+      // find the first numeric match of a.b or a.b.c*
+      Pattern javaVersionPattern = Pattern.compile(".*?[^\\d]*(\\d+\\.\\d+(\\.\\d+)?).*", Pattern.DOTALL);
       Matcher javaVersionMatcher = javaVersionPattern.matcher(output);
       if (!javaVersionMatcher.matches()) {
         output = commandResult.getOutputText();
@@ -1693,8 +1710,8 @@ public class GrouperInstaller {
             System.out.println((fatal ? "" : "Non-fatal ") + "ERROR: can't find 'javac' command in " + what + ", Java needs to be a JDK not a JRE!");
           }
           System.out.println((fatal ? "" : "Non-fatal ") + "ERROR trying to check java output, make sure you have " + what 
-              + " set to Java JDK (not JRE) 1.7+\n"
-              + "" + commandResult.getErrorText() + "\n" + commandResult.getOutputText());
+              + " set to Java " + (jdkTest ? "JDK (not JRE) " : "") + JAVA_MIN_VERSION + "+\n"
+              + commandResult.getErrorText() + "\n" + commandResult.getOutputText());
           if (!fatal) {
             return true;
           }
@@ -1705,10 +1722,11 @@ public class GrouperInstaller {
       }
       
       String versionString = javaVersionMatcher.group(1);
-      
-      double versionDouble = GrouperInstallerUtils.doubleValue(versionString);
-      if (versionDouble < 1.7) {
-        System.out.println((fatal ? "" : "Non-fatal ") + "ERROR: " + what + " requires to be invoked with Java 1.7+ JDK (not JRE), but was: " + versionString);
+
+      if (GrouperInstallerUtils.compareVersions(versionString, JAVA_MIN_VERSION) < 0) {
+        System.out.println((fatal ? "" : "Non-fatal ") + "ERROR: " + what
+          + (jdkTest ? " requires to be" : " should be") + " invoked with Java " + JAVA_MIN_VERSION + "+"
+          + (jdkTest ? " JDK" : "") + ", but was: " + versionString);
         if (!fatal) {
           return true;
         }
@@ -1724,7 +1742,7 @@ public class GrouperInstaller {
       }
 
       System.out.println((fatal ? "" : "Non-fatal ") + "ERROR trying to check java output, make sure you have " + what 
-          + " set to Java JDK (not JRE) 1.7+  " + re.getMessage());
+          + " set to Java " + (jdkTest ? "JDK (not JRE) " : "") + JAVA_MIN_VERSION + "+\n" + re.getMessage());
       return true;
     }
   }
@@ -3625,7 +3643,7 @@ public class GrouperInstaller {
 
         adminManageDatabase(grouperInstallerAdminManageServiceAction);
         break;
-      case tomcat:
+       case tomcat:
 
         adminManageTomcat(grouperInstallerAdminManageServiceAction);
         
@@ -9478,10 +9496,6 @@ public class GrouperInstaller {
     //####################################
     //check to see if listening on port?
 
-    //####################################
-    //lets get the java command
-    validJavaVersion();
-
     //#####################################
     //add driver to classpath
     //note, we are note really doing this now, we are using drivers already on classpath since this doesnt work
@@ -12078,7 +12092,7 @@ public class GrouperInstaller {
       
       final List<String> command = new ArrayList<String>();
 
-      command.add(GrouperInstallerUtils.javaCommand());
+      command.add(getJavaCommand());
       command.add("-cp");
       command.add(this.untarredApiDir + File.separator + "lib" + File.separator + "jdbcSamples" + File.separator 
           + "*");
@@ -12636,13 +12650,13 @@ public class GrouperInstaller {
   private void runClientCommand() {
     System.out.println("##################################");
     System.out.println("Running client command:");
-    System.out.println(this.untarredClientDir.getAbsolutePath() + "> " + GrouperInstallerUtils.javaCommand() 
+    System.out.println(this.untarredClientDir.getAbsolutePath() + "> " + getJavaCommand()
         + " -jar grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers");
     
     try {
       final List<String> command = new ArrayList<String>();
   
-      command.add(GrouperInstallerUtils.javaCommand());
+      command.add(getJavaCommand());
       command.add("-jar");
       command.addAll(GrouperInstallerUtils.splitTrimToList(
           "grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers", " "));
@@ -12897,38 +12911,6 @@ public class GrouperInstaller {
 
   /** untarred dir, this does NOT end in file.separator */
   private File untarredClientDir;
-  
-  /**
-   * 
-   */
-  private static void validJavaVersion() {
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(
-        GrouperInstallerUtils.javaCommand(), 
-        new String[]{"-version"}, true);
-    String javaResult = commandResult.getOutputText();
-    if (GrouperInstallerUtils.isBlank(javaResult)) {
-      javaResult = commandResult.getErrorText();
-    }
-    if (!validJava(javaResult)) {
-      throw new RuntimeException("Expecting Java 6+, but received: " + javaResult + ", run the installer jar with a jdk v6");
-    }
-    
-    //try javac
-    try {
-      commandResult = GrouperInstallerUtils.execCommand(
-          GrouperInstallerUtils.javaCommand() + "c", 
-          new String[]{"-version"}, true);
-      javaResult = commandResult.getOutputText();
-      if (GrouperInstallerUtils.isBlank(javaResult)) {
-        javaResult = commandResult.getErrorText();
-      }
-      if (!validJava(javaResult)) {
-        throw new RuntimeException("Expecting Java 6+, but received: " + javaResult + ", run the installer jar with a jdk v6");
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("This needs to be run from a jdk, but it is detected to be running from a JRE...  run the installed from a JDK!");
-    }
-  }
 
   /**
    * see if install, upgrade, patch, etc
@@ -13169,29 +13151,6 @@ public class GrouperInstaller {
     return appToUpgradeLocal;
   }
 
-  /**
-   * 
-   * @param javaResult
-   * @return if valid
-   */
-  private static boolean validJava(String javaResult) {
-    //C:\mchyzer\grouper\trunk\grouper\bin>java -version
-    //java version "1.6.0_21"
-    //Java(TM) SE Runtime Environment (build 1.6.0_21-b07)
-    //Java HotSpot(TM) Client VM (build 17.0-b17, mixed mode, sharing)
-    Pattern pattern = Pattern.compile("(\\d+)\\.(\\d+)\\.\\d+_?\\d*");
-    Matcher matcher = pattern.matcher(javaResult);
-    if (matcher.find()) {
-      int majorVersion = GrouperInstallerUtils.intValue(matcher.group(1));
-      int minorVersion = GrouperInstallerUtils.intValue(matcher.group(2));
-      if (majorVersion == 1 && minorVersion >= 6) {
-        return true;
-      }
-      return majorVersion >= 6;
-    }
-    return false;
-  }
-  
   /**
    * add something to an xml file
    * @param file
