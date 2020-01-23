@@ -95,6 +95,50 @@ public class GcDbAccess {
    */
   private List<List<Object>> batchBindVars;
 
+  /**
+   * If you are executing a statement as a batch, this is the batch size
+   */
+  private int batchSize = -1;
+
+  /**
+   * batch size
+   * @param theBatchSize
+   * @return this for chaining
+   */
+  public GcDbAccess batchSize(int theBatchSize) {
+    this.batchSize = theBatchSize;
+    return this;
+  }
+  
+  /**
+   * keep a query count in this thread
+   */
+  private static InheritableThreadLocal<Integer> queryCount = new InheritableThreadLocal<Integer>();
+
+  /**
+   * reset the query count
+   */
+  public static void threadLocalQueryCountReset() {
+    queryCount.set(0);
+  }
+  
+  /**
+   * get the query count
+   * @return query count
+   */
+  public static int threadLocalQueryCountRetrieve() {
+    Integer queryCountInteger = queryCount.get();
+    return queryCountInteger == null ? 0 : queryCountInteger;
+  }
+
+  /**
+   * 
+   * @param queriesToAdd
+   */
+  public synchronized static void threadLocalQueryCountIncrement(int queriesToAdd) {
+    Integer queryCountInteger = queryCount.get();
+    queryCount.set((queryCountInteger == null ? 0 : queryCountInteger) + queriesToAdd);
+  }
 
   /**
    * The sql to execute.s
@@ -2049,6 +2093,8 @@ public class GcDbAccess {
    */
   public  <T> T callbackResultSet (GcResultSetCallback<T> resultSetCallback){
 
+    threadLocalQueryCountIncrement(1);
+    
     // At very least, we have to have sql and a connection.
     if (this.sql == null){
       throw new RuntimeException("You must set sql!");
@@ -2153,11 +2199,31 @@ public class GcDbAccess {
    * @return anything return from the callback object.
    */
   public int[] executeBatchSql(){
-    if (this.bindVars != null){
-      throw new RuntimeException("Use batchBindVars with executeBatchSql(), not bindVars!");
+    
+    if (this.batchSize <= 0 || GrouperClientUtils.length(this.batchBindVars) <= this.batchSize) {
+      
+      if (this.bindVars != null){
+        throw new RuntimeException("Use batchBindVars with executeBatchSql(), not bindVars!");
+      }
+      callbackResultSet(null);
+      return this.numberOfBatchRowsAffected;
+
     }
-    callbackResultSet(null);
-    return this.numberOfBatchRowsAffected;
+    
+    // we are batching
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(this.batchBindVars, this.batchSize);
+    int[] result = new int[GrouperClientUtils.length(this.batchBindVars)];
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<List<Object>> batchOfBindVars = GrouperClientUtils.batchList(this.batchBindVars, this.batchSize, i);
+      GcDbAccess gcDbAccess = this.cloneDbAccess();
+      gcDbAccess.batchBindVars(batchOfBindVars);
+      gcDbAccess.batchSize(-1);
+      int[] batchResult = gcDbAccess.executeBatchSql();
+      System.arraycopy(batchResult, 0, result, i*this.batchSize, batchResult.length);
+      
+    }
+    return result;
   }
 
 
@@ -2215,6 +2281,21 @@ public class GcDbAccess {
       Map<Object, Object> results = new LinkedHashMap<Object, Object>();
       for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
         results.put(resultSet.getMetaData().getColumnName(columnNumber), resultSet.getObject(columnNumber));
+      }
+      @SuppressWarnings("unchecked")
+      T t = (T)results;
+      if (theList != null){
+        theList.add(t);
+      }
+      return t;
+    }
+
+    // If someone is selecting a list of Map then we are just going to put the object and column name in the map.
+    if (clazz.isAssignableFrom(Object[].class)){
+      int columnCount = resultSet.getMetaData().getColumnCount();
+      Object[] results = new Object[columnCount];
+      for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
+        results[columnNumber-1] = resultSet.getObject(columnNumber);
       }
       @SuppressWarnings("unchecked")
       T t = (T)results;

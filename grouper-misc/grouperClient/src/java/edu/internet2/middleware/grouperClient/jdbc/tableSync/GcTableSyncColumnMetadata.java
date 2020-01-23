@@ -6,7 +6,9 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -65,6 +67,28 @@ public class GcTableSyncColumnMetadata {
       public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
         return resultSet.getBigDecimal(gcTableSyncColumnMetadata.getColumnName());
       }
+      
+      /**
+       * convert to type
+       */
+      @Override
+      public Object convertToType(Object input) {
+        
+        if (input == null) {
+          return null;
+        }
+        
+        if (input instanceof String) {
+          return GrouperClientUtils.longValue(input);
+        }
+        
+        if (input instanceof Timestamp) {
+          return ((Timestamp)input).getTime();
+        }
+        
+        return GrouperClientUtils.longValue(input);
+      }
+
     },
     
     /**
@@ -75,6 +99,31 @@ public class GcTableSyncColumnMetadata {
       @Override
       public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
         return resultSet.getString(gcTableSyncColumnMetadata.getColumnName());
+      }
+
+      /**
+       * convert to type
+       */
+      @Override
+      public Object convertToType(Object input) {
+        
+        if (input == null) {
+          return null;
+        }
+        
+        if (input instanceof String) {
+          return (String) input;
+        }
+        
+        if (input instanceof Number) {
+          return input.toString();
+        }
+        
+        if (input instanceof Timestamp) {
+          return Long.toString(((Timestamp)input).getTime());
+        }
+        
+        return input.toString();
       }
     },
     
@@ -87,6 +136,33 @@ public class GcTableSyncColumnMetadata {
       public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
         return resultSet.getTimestamp(gcTableSyncColumnMetadata.getColumnName());
       }
+      
+      /**
+       * convert to type
+       */
+      @Override
+      public Object convertToType(Object input) {
+        
+        if (input == null) {
+          return null;
+        }
+        
+        if (input instanceof String) {
+          return new Timestamp(GrouperClientUtils.longValue(input));
+        }
+        
+        if (input instanceof Timestamp) {
+          return (Timestamp)input;
+        }
+        
+        if (input instanceof Number) {
+          return new Timestamp(GrouperClientUtils.longValue(input));
+        }
+        
+        return new Timestamp(GrouperClientUtils.longValue(input));
+      }
+
+
     };
 
     /**
@@ -97,6 +173,13 @@ public class GcTableSyncColumnMetadata {
      * @throws SQLException
      */
     public abstract Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException;
+    
+    /**
+     * convert an object to another type
+     * @param input
+     * @return the object
+     */
+    public abstract Object convertToType(Object input);
     
   }
   

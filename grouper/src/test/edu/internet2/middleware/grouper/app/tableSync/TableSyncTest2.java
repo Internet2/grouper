@@ -9,7 +9,6 @@ import java.sql.ResultSetMetaData;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcResultSetCallback;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /**

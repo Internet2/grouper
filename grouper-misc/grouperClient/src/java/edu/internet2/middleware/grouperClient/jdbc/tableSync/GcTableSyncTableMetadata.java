@@ -27,11 +27,92 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
  */
 public class GcTableSyncTableMetadata {
 
+  /**
+   * append the primary key where clause
+   * @param sql
+   */
+  public String queryWherePrimaryKey() {
+    
+    if (GrouperClientUtils.length(this.getPrimaryKey()) == 0) {
+      throw new RuntimeException("No primary key for '" + this.tableName + "'!");
+    }
+    boolean first = true;
+    StringBuilder result = new StringBuilder();
+    
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : this.getPrimaryKey()) {
+      
+      if (!first) {
+        result.append(" and ");
+      }
+      
+      result.append(" ").append(gcTableSyncColumnMetadata.getColumnName()).append(" = ? ");
+      
+      first = false;
+    }
+    
+    return result.toString();
+  }
+
+  /**
+   * append the nonprimary key update clause
+   * @param sql
+   */
+  public String queryUpdateNonPrimaryKey() {
+    
+    if (GrouperClientUtils.length(this.getNonPrimaryKey()) == 0) {
+      throw new RuntimeException("No non-primary key for '" + this.tableName + "'!");
+    }
+    boolean first = true;
+    StringBuilder result = new StringBuilder();
+    
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : this.getNonPrimaryKey()) {
+      
+      if (!first) {
+        result.append(" , ");
+      }
+      
+      result.append(" ").append(gcTableSyncColumnMetadata.getColumnName()).append(" = ? ");
+      
+      first = false;
+    }
+    
+    return result.toString();
+  }
 
   /**
    * non primary key col(s), which is sync'ed columns with primary key removed
    */
   private List<GcTableSyncColumnMetadata> nonPrimaryKey;
+
+  /**
+   * column in progress table which increments as integer or timestamp
+   */
+  private GcTableSyncColumnMetadata incrementalProgressColumn;
+  
+  /**
+   * column in progress table which increments as integer or timestamp
+   * @return column
+   */
+  public GcTableSyncColumnMetadata getIncrementalProgressColumn() {
+    return this.incrementalProgressColumn;
+  }
+
+  /**
+   * column in progress table which increments as integer or timestamp
+   * @param incrementalProgressColumn1
+   */
+  public void setIncrementalProgressColumn(
+      GcTableSyncColumnMetadata incrementalProgressColumn1) {
+    this.incrementalProgressColumn = incrementalProgressColumn1;
+  }
+
+  /**
+   * 
+   * @param incrementalProgressColumnName
+   */
+  public void assignIncrementalProgressColumn(String incrementalProgressColumnName) {
+    this.incrementalProgressColumn = this.lookupColumn(incrementalProgressColumnName, true);
+  }
 
   /**
    * "primary key" col(s), as assigned by configuration
@@ -60,7 +141,7 @@ public class GcTableSyncTableMetadata {
     } else {
       
       for (String columnName : GrouperClientUtils.splitTrim(columnNames, ",")) {
-        GcTableSyncColumnMetadata gcTableSyncColumnMetadata = lookupColumn(columnName);
+        GcTableSyncColumnMetadata gcTableSyncColumnMetadata = lookupColumn(columnName, true);
         result.add(gcTableSyncColumnMetadata);
       }
     }
@@ -71,9 +152,10 @@ public class GcTableSyncTableMetadata {
   /**
    * lookup a column by name (case insensitive)
    * @param columnName
+   * @param exceptionOnNotFound
    * @return the column metadata
    */
-  public GcTableSyncColumnMetadata lookupColumn(String columnName) {
+  public GcTableSyncColumnMetadata lookupColumn(String columnName, boolean exceptionOnNotFound) {
     
     if (this.columnUpperNameToGcColumnMetadata == null) {
       
@@ -92,7 +174,7 @@ public class GcTableSyncTableMetadata {
     
     GcTableSyncColumnMetadata gcTableSyncColumnMetadata = this.columnUpperNameToGcColumnMetadata.get(columnName.toUpperCase());
     
-    if (gcTableSyncColumnMetadata == null) {
+    if (gcTableSyncColumnMetadata == null && exceptionOnNotFound) {
       throw new RuntimeException("Cant find " + this.connectionName + " -> " + this.tableName + " -> " + columnName);
     }
     
@@ -276,6 +358,27 @@ public class GcTableSyncTableMetadata {
   private String connectionName;
   
   /**
+   * database connection name or readonly
+   */
+  private String connectionNameOrReadonly;
+  
+  /**
+   * database connection name or readonly
+   * @return connection name
+   */
+  public String getConnectionNameOrReadonly() {
+    return this.connectionNameOrReadonly;
+  }
+
+  /**
+   * database connection name or readonly
+   * @param connectionNameOrReadonly1
+   */
+  public void setConnectionNameOrReadonly(String connectionNameOrReadonly1) {
+    this.connectionNameOrReadonly = connectionNameOrReadonly1;
+  }
+
+  /**
    * table name (could include schema at front)
    */
   private String tableName;
@@ -301,7 +404,28 @@ public class GcTableSyncTableMetadata {
    */
   private GcTableSyncColumnMetadata groupColumn;
 
+  /**
+   * if full sync with change flag this is the column
+   */
+  private GcTableSyncColumnMetadata changeFlagColumn;
+
   
+  /**
+   * if full sync with change flag this is the column
+   * @return change flag
+   */
+  public GcTableSyncColumnMetadata getChangeFlagColumn() {
+    return this.changeFlagColumn;
+  }
+
+  /**
+   * if full sync with change flag this is the column
+   * @param changeFlagColumn1
+   */
+  public void setChangeFlagColumn(GcTableSyncColumnMetadata changeFlagColumn1) {
+    this.changeFlagColumn = changeFlagColumn1;
+  }
+
   /**
    * columns in table
    * @return the columnMetadata
@@ -366,6 +490,63 @@ public class GcTableSyncTableMetadata {
   }
 
   /**
+   * get comma separated list of all columns
+   * @return the columns
+   */
+  public String columnListAll() {
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GrouperClientUtils.nonNull(this.columns)) {
+      if (!first) {
+        result.append(", ");
+      }
+      result.append(gcTableSyncColumnMetadata.getColumnName());
+      
+      first = false;
+    }
+    return result.toString();
+  }
+  
+  /**
+   * get comma separated list of primary key and change flag, and optional incremental change column
+   * @return the columns
+   */
+  public String columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress() {
+    StringBuilder result = new StringBuilder();
+
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GrouperClientUtils.nonNull(this.columns)) {
+
+      result.append(gcTableSyncColumnMetadata.getColumnName());
+      
+      result.append(", ");
+    }
+    result.append(this.getChangeFlagColumn().getColumnName());
+    
+    if (this.getIncrementalProgressColumn() != null) {
+      result.append(", ");
+      this.getIncrementalProgressColumn().getColumnName();
+    }
+    return result.toString();
+  }
+  
+  /**
+   * get comma separated list of primary key and change flag
+   * @return the columns
+   */
+  public String columnListPrimaryKeyAndIncrementalProgressColumn() {
+    StringBuilder result = new StringBuilder();
+
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GrouperClientUtils.nonNull(this.columns)) {
+
+      result.append(gcTableSyncColumnMetadata.getColumnName());
+      
+      result.append(", ");
+    }
+    result.append(this.getIncrementalProgressColumn().getColumnName());
+    return result.toString();
+  }
+  
+  /**
    * mtadata for columns synced
    * @param columns1 the columns to set
    */
@@ -378,7 +559,15 @@ public class GcTableSyncTableMetadata {
    * @param groupColumnName
    */
   public void assignGroupColumn(String groupColumnName) {
-    this.groupColumn = this.lookupColumn(groupColumnName);
+    this.groupColumn = this.lookupColumn(groupColumnName, true);
+  }
+
+  /**
+   * 
+   * @param changeFlagColumnName
+   */
+  public void assignChangeFlagColumn(String changeFlagColumnName) {
+    this.changeFlagColumn = this.lookupColumn(changeFlagColumnName, true);
   }
 
   /**

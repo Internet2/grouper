@@ -31,31 +31,32 @@ public class TableSyncOtherJob extends OtherJobBase {
    */
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
-    
-    String jobName = otherJobInput.getJobName();
-    
-    // grouperClientTableSyncConfigKey = OTHER_JOB_personSourceSync
-    jobName = jobName.substring("OTHER_JOB_".length(), jobName.length());
-    final String grouperClientConfigKeyName = "otherJob." + jobName + ".grouperClientTableSyncConfigKey";
-    
-    String grouperClientTableSyncConfigKey = GrouperLoaderConfig.retrieveConfig().propertyValueString(grouperClientConfigKeyName);
-    
-    if (StringUtils.isBlank(grouperClientTableSyncConfigKey)) {
-      grouperClientTableSyncConfigKey = jobName;
-    }
-    
-    GcTableSync gcTableSync = new GcTableSync();
-    gcTableSync.setKey(grouperClientTableSyncConfigKey);
-    
-    GcTableSyncOutput gcTableSyncOutput = new GcTableSyncOutput();
-    
-    //gcTableSync.sync(new GcTableSyncOutput[]{gcTableSyncOutput}); TODO
-    
-    otherJobInput.getHib3GrouperLoaderLog().setDeleteCount(gcTableSyncOutput.getDelete());
-    otherJobInput.getHib3GrouperLoaderLog().setInsertCount(gcTableSyncOutput.getInsert());
-    otherJobInput.getHib3GrouperLoaderLog().setUpdateCount(gcTableSyncOutput.getUpdate());
-    // otherJobInput.getHib3GrouperLoaderLog().setTotalCount(gcTableSyncOutput.getRowsSelectedFrom()); TODO
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage(gcTableSyncOutput.getMessage());
+
+// TODO
+//    String jobName = otherJobInput.getJobName();
+//    
+//    // grouperClientTableSyncConfigKey = OTHER_JOB_personSourceSync
+//    jobName = jobName.substring("OTHER_JOB_".length(), jobName.length());
+//    final String grouperClientConfigKeyName = "otherJob." + jobName + ".grouperClientTableSyncConfigKey";
+//    
+//    String grouperClientTableSyncConfigKey = GrouperLoaderConfig.retrieveConfig().propertyValueString(grouperClientConfigKeyName);
+//    
+//    if (StringUtils.isBlank(grouperClientTableSyncConfigKey)) {
+//      grouperClientTableSyncConfigKey = jobName;
+//    }
+//    
+//    GcTableSync gcTableSync = new GcTableSync();
+//    gcTableSync.setKey(grouperClientTableSyncConfigKey);
+//    
+//    GcTableSyncOutput gcTableSyncOutput = new GcTableSyncOutput();
+//    
+//    //gcTableSync.sync(new GcTableSyncOutput[]{gcTableSyncOutput}); TODO
+//    
+//    otherJobInput.getHib3GrouperLoaderLog().setDeleteCount(gcTableSyncOutput.getDelete());
+//    otherJobInput.getHib3GrouperLoaderLog().setInsertCount(gcTableSyncOutput.getInsert());
+//    otherJobInput.getHib3GrouperLoaderLog().setUpdateCount(gcTableSyncOutput.getUpdate());
+//    // otherJobInput.getHib3GrouperLoaderLog().setTotalCount(gcTableSyncOutput.getRowsSelectedFrom()); TODO
+//    otherJobInput.getHib3GrouperLoaderLog().setJobMessage(gcTableSyncOutput.getMessage());
     
     return null;
   }

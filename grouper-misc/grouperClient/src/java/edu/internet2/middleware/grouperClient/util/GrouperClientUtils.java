@@ -33,7 +33,6 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.digest.DigestUtils;
@@ -70,6 +69,17 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    * configure jdk14 logs once
    */
   private static boolean configuredLogs = false;
+
+  /**
+   * append a certain number of question marks to a query
+   * @param query
+   * @param numberOfMarks
+   */
+  public static String appendQuestions(int numberOfMarks) {
+    StringBuilder result = new StringBuilder();
+    appendQuestions(result, numberOfMarks);
+    return result.toString();
+  }
 
   /**
    * append a certain number of question marks to a query
@@ -342,6 +352,19 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     
   }
   
+  /**
+   * wait for a thread to end
+   * @param thread
+   */
+  public static void join(Thread thread) {
+    if (thread != null) {
+      try {
+        thread.join();
+      } catch (InterruptedException ie) {
+        throw new RuntimeException("error", ie);
+      }
+    }
+  }
 
   /**
    * substitute an EL for objects

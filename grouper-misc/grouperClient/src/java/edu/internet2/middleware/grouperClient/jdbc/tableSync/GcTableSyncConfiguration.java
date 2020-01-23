@@ -53,6 +53,14 @@ public class GcTableSyncConfiguration {
   }
   
   /**
+   * database to or readonly
+   * @return the databaseToReadonly if exists or databaseTo
+   */
+  public String getDatabaseToOrReadonly() {
+    return GrouperClientUtils.defaultIfBlank(this.databaseToReadonly, this.databaseTo);
+  }
+  
+  /**
    * database to key (readonly) if large queries should be performed against a different database
    * @param databaseToReadonly1 the databaseToReadonly to set
    */
@@ -64,6 +72,7 @@ public class GcTableSyncConfiguration {
    * database to key
    */
   private String databaseTo;
+
   /**
    * subtype which also implies which type (full | incremental)
    */
@@ -94,6 +103,28 @@ public class GcTableSyncConfiguration {
    */
   private String groupColumnString;
  
+  /**
+   * number of bind vars in select
+   */
+  private int maxBindVarsInSelect;
+
+  
+  /**
+   * number of bind vars in select
+   * @return number of bind vars in select
+   */
+  public int getMaxBindVarsInSelect() {
+    return this.maxBindVarsInSelect;
+  }
+
+  /**
+   * 
+   * @param maxBindVarsInSelect1
+   */
+  public void setMaxBindVarsInSelect(int maxBindVarsInSelect1) {
+    this.maxBindVarsInSelect = maxBindVarsInSelect1;
+  }
+
   /**
    * batch size when batching data
    */
@@ -137,70 +168,44 @@ public class GcTableSyncConfiguration {
   /**
    * if doing fullSyncChangeFlag (look for a col that says if the rows are equal, e.g. a timestamp or a checksum)
    */
-  private String fullSyncChangeFlagColumnString;
+  private String changeFlagColumnString;
   
   /**
    * if doing fullSyncChangeFlag (look for a col that says if the rows are equal, e.g. a timestamp or a checksum)
    * @return col
    */
-  public String getFullSyncChangeFlagColumnString() {
-    return this.fullSyncChangeFlagColumnString;
+  public String getChangeFlagColumnString() {
+    return this.changeFlagColumnString;
   }
 
   /**
    * if doing fullSyncChangeFlag (look for a col that says if the rows are equal, e.g. a timestamp or a checksum)
    * @param fullSyncChangeFlagColumnString1
    */
-  public void setFullSyncChangeFlagColumnString(String fullSyncChangeFlagColumnString1) {
-    this.fullSyncChangeFlagColumnString = fullSyncChangeFlagColumnString1;
+  public void setChangeFlagColumnString(String fullSyncChangeFlagColumnString1) {
+    this.changeFlagColumnString = fullSyncChangeFlagColumnString1;
   }
 
   /**
    * name of a column that has a sequence or last updated date
    */
-  private String incrementalAllColumnsColumnString;
+  private String incrementalProgressColumnString;
 
   /**
    * name of a column that has a sequence or last updated date
    * @return incremental col
    */
-  public String getIncrementalAllColumnsColumnString() {
-    return this.incrementalAllColumnsColumnString;
+  public String getIncrementalProgressColumnString() {
+    return this.incrementalProgressColumnString;
   }
 
   /**
    * name of a column that has a sequence or last updated date
    * @param incrementalAllColumnsColumnString1
    */
-  public void setIncrementalAllColumnsColumnString(
+  public void setIncrementalProgressColumnString(
       String incrementalAllColumnsColumnString1) {
-    this.incrementalAllColumnsColumnString = incrementalAllColumnsColumnString1;
-  }
-
-  /**
-   * realTimeLastUpdatedColumn column
-   */
-  private String realTimeLastUpdatedColumnString;
-
-  /**
-   * realTimeColumnsString comma separated list of column names to select from real time table
-   */
-  private String realTimeColumnsString;
-  
-  /**
-   * realTimeColumnsString comma separated list of column names to select from real time table
-   * @return the realTimeColumnsString
-   */
-  public String getRealTimeColumnsString() {
-    return this.realTimeColumnsString;
-  }
-  
-  /**
-   * realTimeColumnsString comma separated list of column names to select from real time table
-   * @param realTimeColumnsString1 the realTimeColumnsString to set
-   */
-  public void setRealTimeColumnsString(String realTimeColumnsString1) {
-    this.realTimeColumnsString = realTimeColumnsString1;
+    this.incrementalProgressColumnString = incrementalAllColumnsColumnString1;
   }
 
   /**
@@ -211,10 +216,6 @@ public class GcTableSyncConfiguration {
    * grouperClient.syncTable.personSource.statusDatabase = awsDev
    */
   private String statusDatabase;
-  /**
-   * grouperClient.syncTable.personSource.statusTable = 
-   */
-  private String statusTable;
   /**
    * table name from
    */
@@ -259,9 +260,6 @@ public class GcTableSyncConfiguration {
    * @return the config
    */
   public String retrieveConfigString(String configName, boolean required) {
-    //  grouperClient.syncTable.personSource.configName = pcom
-    
-    change this to part of config
     
     String value = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + this.configKey + "." + configName);
     if (!StringUtils.isBlank(value)) {
@@ -336,8 +334,12 @@ public class GcTableSyncConfiguration {
       throw new RuntimeException("Why is config key blank?");
     }
 
+    if (this.gcTableSyncSubtype == null) {
+      throw new RuntimeException("Why is table sync subtype blank?");
+    }
+
     if (debugMap == null) {
-      debugMap = new LinkedHashMap();
+      debugMap = new LinkedHashMap<String, Object>();
     }
     
     //  grouperClient.syncTable.personSource.databaseFrom = pcom
@@ -362,12 +364,6 @@ public class GcTableSyncConfiguration {
     this.tableTo = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("tableTo", false), this.tableFrom);
     debugMap.put("configTableTo", this.tableTo);
     
-    {
-      // note this is not inherited from other configs, each config needs a subtype
-      String tableSyncSubType = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.syncTable." + this.configKey + ".tableSyncSubtype");
-      this.gcTableSyncSubtype = GcTableSyncSubtype.valueOfIgnoreCase(tableSyncSubType, true);
-    }
-
     //  grouperClient.syncTable.personSource.columns = *
     this.columnsString = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("columns", false), "*");
     debugMap.put("configColumns", this.columnsString);
@@ -377,22 +373,25 @@ public class GcTableSyncConfiguration {
     debugMap.put("configPrimaryKeyColumns", this.primaryKeyColumnsString);
 
     // grouperClient.syncTable.personSource.fullSyncChangeFlagColumn = check_sum
-    this.fullSyncChangeFlagColumnString = this.retrieveConfigString("fullSyncChangeFlagColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.fullSyncChangeFlag);
-    if (!GrouperClientUtils.isBlank(this.fullSyncChangeFlagColumnString)) {
-      debugMap.put("fullSyncChangeFlagColumn", this.fullSyncChangeFlagColumnString);
+    this.changeFlagColumnString = this.retrieveConfigString("fchangeFlagColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.fullSyncChangeFlag);
+    if (!GrouperClientUtils.isBlank(this.changeFlagColumnString)) {
+      debugMap.put("changeFlagColumn", this.changeFlagColumnString);
     }
     
     // grouperClient.syncTable.personSource.incrementalAllColumnsColumn = last_updated
-    this.incrementalAllColumnsColumnString = this.retrieveConfigString("incrementalAllColumnsColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalAllColumns);
-    if (!GrouperClientUtils.isBlank(this.incrementalAllColumnsColumnString)) {
-      debugMap.put("incrementalAllColumnsColumn", this.incrementalAllColumnsColumnString);
+    this.incrementalProgressColumnString = this.retrieveConfigString("incrementalAllColumnsColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalAllColumns);
+    if (!GrouperClientUtils.isBlank(this.incrementalProgressColumnString)) {
+      debugMap.put("incrementalAllColumnsColumn", this.incrementalProgressColumnString);
     }
     
     //  grouperClient.syncTable.personSource.groupColumn = penn_id
     this.groupColumnString = this.retrieveConfigString("groupColumn", false);
     if (this.gcTableSyncSubtype.isNeedsGroupColumn() ) {
-      if (GrouperClientUtils.isBlank(this.groupColumnString)) {
+      if (GrouperClientUtils.isBlank(this.groupColumnString) && !this.primaryKeyColumnsString.contains(",") && !this.primaryKeyColumnsString.equals("*")) {
         this.groupColumnString = this.primaryKeyColumnsString;
+      }
+      if (GrouperClientUtils.isBlank(this.groupColumnString)) {
+        throw new RuntimeException("groupColumn is required for " + this.configKey);
       }
     }
     if (!GrouperClientUtils.isBlank(this.groupColumnString)) {
@@ -404,6 +403,16 @@ public class GcTableSyncConfiguration {
     this.batchSize = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("batchSize", false), 1000);
     if (this.batchSize != 1000) {
       debugMap.put("configBatchSize", this.batchSize);
+    }
+    
+    // grouperClient.syncTable.personSource.maxBindVarsInSelect = 900
+    // number of bind vars in select
+    this.maxBindVarsInSelect = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("maxBindVarsInSelect", false), 900);
+    if (this.maxBindVarsInSelect < 1) {
+      throw new RuntimeException("Cant have less than one maxBindVarsInSelect! " + this.maxBindVarsInSelect );
+    }
+    if (this.maxBindVarsInSelect != 900) {
+      debugMap.put("maxBindVarsInSelect", this.maxBindVarsInSelect);
     }
     
     // grouperClient.syncTable.personSource.groupingSize = 10000
@@ -420,25 +429,10 @@ public class GcTableSyncConfiguration {
       debugMap.put("configStatusDatabase", this.statusDatabase);
     }
     
-    // grouperClient.syncTable.personSource.statusTable = awsDev
-    this.statusTable = GrouperClientUtils.defaultIfNull(this.retrieveConfigString("statusTable", false), "grouper_sync_status");
-    if (!StringUtils.equals("grouper_sync_status", this.statusTable)) {
-      debugMap.put("configStatusTable", this.statusTable);
-    }
-
     // grouperClient.syncTable.personSource.incrementalPrimaryKeyTable = real_time_table
     this.incrementalPrimaryKeyTable = GrouperClientUtils.defaultIfNull(this.retrieveConfigString("incrementalPrimaryKeyTable", false), this.tableFrom);
     if (!GrouperClientUtils.isBlank(this.incrementalPrimaryKeyTable)) {
       debugMap.put("incrementalPrimaryKeyTable", this.incrementalPrimaryKeyTable);
-    }
-
-    // grouperClient.syncTable.personSource.realTimeLastUpdatedColumn = last_updated
-    this.realTimeLastUpdatedColumnString = this.retrieveConfigString("realTimeLastUpdatedColumn", false);
-
-    // realTimeColumnsString comma separated list of column names to select from real time table
-    this.realTimeColumnsString = GrouperClientUtils.defaultIfNull(this.retrieveConfigString("realTimeColumnsString", false), "*");
-    if (!StringUtils.equals(this.realTimeColumnsString, "*")) {
-      debugMap.put("realTimeColumnsString", this.realTimeColumnsString);
     }
 
     
@@ -468,14 +462,6 @@ public class GcTableSyncConfiguration {
   }
 
   /**
-   * grouperClient.syncTable.personSource.statusTable = grouper_chance_log_consumer
-   * @return the statusTable
-   */
-  public String getStatusTable() {
-    return this.statusTable;
-  }
-
-  /**
    * table name from
    * @return the tableName
    */
@@ -497,14 +483,6 @@ public class GcTableSyncConfiguration {
    */
   public String getGroupColumnString() {
     return this.groupColumnString;
-  }
-
-  /**
-   * real time last updated column
-   * @return if real time last updated
-   */
-  public String getRealTimeLastUpdatedColumnString() {
-    return this.realTimeLastUpdatedColumnString;
   }
 
   /**
@@ -546,13 +524,6 @@ public class GcTableSyncConfiguration {
   }
 
   /**
-   * @param b
-   */
-  public void setRealTimeLastUpdatedColumnString(String b) {
-    this.realTimeLastUpdatedColumnString = b;
-  }
-
-  /**
    * table where real time primary key and last_updated col is
    * @param realTimeTable1 the realTimeTable to set
    */
@@ -566,14 +537,6 @@ public class GcTableSyncConfiguration {
    */
   public void setStatusDatabase(String statusDatabase1) {
     this.statusDatabase = statusDatabase1;
-  }
-
-  /**
-   * grouperClient.syncTable.personSource.statusTable = grouper_chance_log_consumer
-   * @param statusTable1 the statusTable to set
-   */
-  public void setStatusTable(String statusTable1) {
-    this.statusTable = statusTable1;
   }
 
   /**

@@ -4,9 +4,12 @@
  */
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -17,6 +20,91 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public class GcTableSyncTableData {
 
+  /**
+   * take the data and find the max incremental progress value
+   * @return the max value
+   */
+  public Object maxIncrementalProgressValue() {
+    
+    if (GrouperClientUtils.length(this.rows) == 0) {
+      return null;
+    }
+    
+    Object maxIncrementalProgressValue = null;
+    
+    GcTableSyncColumnMetadata incrementalProgressValueMetadata = this.getGcTableSyncTableBean().getTableMetadata().getIncrementalProgressColumn();
+    
+    for (GcTableSyncRowData gcTableSyncRowData : this.rows) {
+      Object currentIncrementalProgressValue = gcTableSyncRowData.incrementalProgressValue(incrementalProgressValueMetadata);
+      if (maxIncrementalProgressValue == null || ((Comparable)currentIncrementalProgressValue).compareTo(maxIncrementalProgressValue) > 0) {
+        maxIncrementalProgressValue = currentIncrementalProgressValue;
+      }
+    }
+    return maxIncrementalProgressValue;
+  }
+  
+  /**
+   * column metadata (might be a subset of all columns)
+   */
+  private List<GcTableSyncColumnMetadata> columnMetadata;
+  
+  /**
+   * column metadata (might be a subset of all columns)
+   * @return columns
+   */
+  public List<GcTableSyncColumnMetadata> getColumnMetadata() {
+    return this.columnMetadata;
+  }
+
+  /**
+   * column metadata (might be a subset of all columns)
+   * @param columnMetadata1
+   */
+  public void setColumnMetadata(List<GcTableSyncColumnMetadata> columnMetadata1) {
+    this.columnMetadata = columnMetadata1;
+  }
+
+  /**
+   * construct
+   * @param gcTableSyncTableBean1
+   * @param data
+   */
+  public void init(GcTableSyncTableBean gcTableSyncTableBean1, List<GcTableSyncColumnMetadata> columnMetadata1, List<Object[]> data) {
+    this.gcTableSyncTableBean = gcTableSyncTableBean1;
+    this.columnMetadata = columnMetadata1;
+    this.indexByPrimaryKey = null;
+    this.rows = new ArrayList<GcTableSyncRowData>();
+    
+    for (Object[] row : GrouperClientUtils.nonNull(data)) {
+      
+      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
+      gcTableSyncRowData.setGcTableSyncTableData(this);
+      gcTableSyncRowData.setData(row);
+      this.rows.add(gcTableSyncRowData);
+      
+    }
+    
+  }
+  
+  /**
+   * construct
+   * @param gcTableSyncTableBean1
+   * @param data
+   */
+  public void init(GcTableSyncTableBean gcTableSyncTableBean1, List<GcTableSyncColumnMetadata> columnMetadata1, Map<MultiKey, GcTableSyncRowData> data) {
+    this.gcTableSyncTableBean = gcTableSyncTableBean1;
+    this.columnMetadata = columnMetadata1;
+    this.indexByPrimaryKey = null;
+    this.rows = new ArrayList<GcTableSyncRowData>();
+    this.indexByPrimaryKey = data;
+    
+    for (MultiKey primaryKey : data.keySet()) {
+      GcTableSyncRowData gcTableSyncRowData = data.get(primaryKey);
+      this.rows.add(gcTableSyncRowData);
+    }
+    
+  }
+  
   /**
    * link back up to table bean
    */
@@ -45,6 +133,34 @@ public class GcTableSyncTableData {
   private Map<MultiKey, GcTableSyncRowData> indexByPrimaryKey = null;
 
   /**
+   * 
+   * @return the multikeys
+   */
+  public Set<MultiKey> allPrimaryKeys() {
+    
+    if (this.indexByPrimaryKey == null) {
+      this.indexData();
+    }
+    
+    return this.indexByPrimaryKey.keySet();
+    
+  }
+  
+  /**
+   * 
+   * @return the multikeys
+   */
+  public Map<MultiKey, GcTableSyncRowData> allIndexByPrimaryKey() {
+    
+    if (this.indexByPrimaryKey == null) {
+      this.indexData();
+    }
+    
+    return this.indexByPrimaryKey;
+    
+  }
+  
+  /**
    * index the data by primary key
    */
   public void indexData() {
@@ -58,10 +174,39 @@ public class GcTableSyncTableData {
   }
 
   /**
+   * if just selecting groups, these are the groupings
+   * @return the multikeys
+   */
+  public Set<Object> allGroupings() {
+    
+    Set<Object> groupings = new HashSet<Object>();
+    
+    for (GcTableSyncRowData row : GrouperClientUtils.nonNull(this.rows)) {
+      Object[] rowData = row.getData();
+      
+      if (GrouperClientUtils.length(rowData) > 1) {
+        throw new RuntimeException("Expecting 1 column for groupings, but was: " + GrouperClientUtils.length(rowData));
+      }
+      Object grouping = rowData[0];
+      if (grouping == null) {
+        throw new RuntimeException("Expecting non null grouping but was null");
+      }
+      groupings.add(grouping);
+    }
+    
+    return groupings;
+    
+  }
+  
+
+  /**
    * @param primaryKey
    * @return the row
    */
   public GcTableSyncRowData findRowFromPrimaryKey(MultiKey primaryKey) {
+    if (this.indexByPrimaryKey == null) {
+      this.indexData();
+    }
     return this.indexByPrimaryKey.get(primaryKey);
   }
   

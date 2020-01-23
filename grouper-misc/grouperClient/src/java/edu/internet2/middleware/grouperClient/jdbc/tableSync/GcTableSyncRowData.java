@@ -49,6 +49,21 @@ public class GcTableSyncRowData {
   private Object[] data;
 
   /**
+   * multikey of the data
+   */
+  private MultiKey multiKey;
+  
+  public MultiKey multiKey() {
+    if (this.data == null) {
+      throw new RuntimeException("Why is data null????");
+    }
+    if (this.multiKey == null) {
+      this.multiKey = new MultiKey(this.data);
+    }
+    return this.multiKey;
+  }
+  
+  /**
    * column data
    * @return the data
    */
@@ -123,7 +138,7 @@ public class GcTableSyncRowData {
    * @return the primary key
    */
   public MultiKey getPrimaryKey() {
-    List<GcTableSyncColumnMetadata> primaryKeyMetadata = this.gcTableSyncTableData.getGcTableSyncTableBean().getGcTableSync().getTableMetadata().getPrimaryKey();
+    List<GcTableSyncColumnMetadata> primaryKeyMetadata = this.gcTableSyncTableData.getGcTableSyncTableBean().getTableMetadata().getPrimaryKey();
     Object[] primaryKeyValues = new Object[primaryKeyMetadata.size()];
     int i=0;
     for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : primaryKeyMetadata) {
@@ -132,13 +147,38 @@ public class GcTableSyncRowData {
     MultiKey multiKey = new MultiKey(primaryKeyValues);
     return multiKey;
   }
+
+  /**
+   * get the incremental progress value column
+   * @param incrementalProgressValueMetadata
+   * @return the value
+   */
+  public Object incrementalProgressValue(GcTableSyncColumnMetadata incrementalProgressValueMetadata) {
+    
+    if (incrementalProgressValueMetadata == null) {
+      throw new RuntimeException("Incremental progress column is required!");
+    }
+    
+    return this.data[incrementalProgressValueMetadata.getColumnIndexZeroIndexed()];
+    
+  }
+  
+  /**
+   * get the incremental progress value column
+   * @param incrementalProgressValueMetadata
+   * @return the value
+   */
+  public Object incrementalProgressValue() {
+    return incrementalProgressValue(this.getGcTableSyncTableData().getGcTableSyncTableBean().getTableMetadata().getIncrementalProgressColumn());
+    
+  }
   
   /**
    * get the non primary key
    * @return the non primary key
    */
   public MultiKey getNonPrimaryKey() {
-    List<GcTableSyncColumnMetadata> nonPrimaryKeyMetadata = this.gcTableSyncTableData.getGcTableSyncTableBean().getGcTableSync().getTableMetadata().getNonPrimaryKey();
+    List<GcTableSyncColumnMetadata> nonPrimaryKeyMetadata = this.gcTableSyncTableData.getGcTableSyncTableBean().getTableMetadata().getNonPrimaryKey();
     Object[] nonPrimaryKeyValues = new Object[nonPrimaryKeyMetadata.size()];
     int i=0;
     for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : nonPrimaryKeyMetadata) {

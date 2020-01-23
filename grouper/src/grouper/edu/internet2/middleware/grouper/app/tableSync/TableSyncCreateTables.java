@@ -94,7 +94,7 @@ public class TableSyncCreateTables {
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "job_took_millis", Types.INTEGER, "10", false, false);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "server", Types.INTEGER, "200", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "server", Types.VARCHAR, "200", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", Types.TIMESTAMP, "10", false, true);
   
@@ -422,6 +422,9 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_time_work_was_done", 
         Types.TIMESTAMP, null, false, false);
   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "heartbeat", 
+        Types.TIMESTAMP, null, false, false);
+  
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
         Types.TIMESTAMP, "10", false, true);
   
@@ -439,12 +442,14 @@ public class TableSyncCreateTables {
             
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "sync_type", "type of sync, e.g. for sql sync this is the job subtype");
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "job_state", "running, waitingForAnotherJobToFinish (if waiting for another job to finish), notRunning");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "job_state", "running, pending (if waiting for another job to finish), notRunning");
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_index_or_millis", "either an int of last record checked, or an int of millis since 1970 of last record processed");
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_timestamp", "when last record processed if timestamp and not integer");
     
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "heartbeat", "when a job is running this must be updated every 60 seconds in a thread or the job will be deemed not running by other jobs");
+
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_time_work_was_done", "last time a record was processed");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");

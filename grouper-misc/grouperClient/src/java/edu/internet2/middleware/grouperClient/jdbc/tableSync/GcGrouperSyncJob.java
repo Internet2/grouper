@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -76,6 +77,35 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
   }
 
   /**
+   * log for this sync job
+   */
+  @GcPersistableField(persist=GcPersist.dontPersist)
+  private GcGrouperSyncLog grouperSyncLog;
+  
+  /**
+   * 
+   * @return sync
+   */
+  public GcGrouperSyncLog retrieveGrouperSyncLogOrCreate() {
+    if (this.grouperSyncLog == null) {
+      if (this.id == null) {
+        if (this.grouperSyncId == null || GrouperClientUtils.isBlank(this.syncType)) {
+          throw new RuntimeException("Cant get a log on a blank job");
+        }
+        // get an id
+        this.store();
+      }
+      this.grouperSyncLog = GcGrouperSyncLog.retrieveByJobAndOwner(this.connectionName, this.id, this.id);
+      if (this.grouperSyncLog == null) {
+        this.grouperSyncLog = new GcGrouperSyncLog();
+        this.grouperSyncLog.setGrouperSyncJob(this);
+        this.grouperSyncLog.setGrouperSyncOwnerId(this.id);
+      }
+    }
+    return this.grouperSyncLog;
+  }
+
+  /**
    * 
    */
   @GcPersistableField(persist=GcPersist.dontPersist)
@@ -96,6 +126,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
   public void setGrouperSync(GcGrouperSync gcGrouperSync) {
     this.grouperSync = gcGrouperSync;
     this.grouperSyncId = gcGrouperSync == null ? null : gcGrouperSync.getId();
+    this.connectionName = gcGrouperSync == null ? this.connectionName : gcGrouperSync.getConnectionName();
   }
   
   /**
@@ -150,7 +181,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
     
     GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
     gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
-    gcGrouperSyncJob.setJobState("success");
+    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.running);
     gcGrouperSyncJob.setLastSyncIndexOrMillis(135L);
     gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
     gcGrouperSyncJob.setSyncType("testSyncType");
@@ -161,7 +192,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
     gcGrouperSyncJob = gcGrouperSync.retrieveJobBySyncType("testSyncType");
     System.out.println(gcGrouperSyncJob);
     
-    gcGrouperSyncJob.setJobState("success1");
+    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.notRunning);
     gcGrouperSyncJob.store();
 
     System.out.println("updated");
@@ -171,16 +202,113 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
     }
 
     gcGrouperSyncJob.delete();
-    gcGrouperSync.delete();
     
     System.out.println("deleted");
 
     for (GcGrouperSyncJob theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncJob.class)) {
       System.out.println(theGcGrouperSyncStatus.toString());
     }
-}
+    
+    System.out.println("retrieveOrCreate");
+    gcGrouperSyncJob = gcGrouperSync.retrieveJobOrCreateBySyncType("testSyncType");    
+    System.out.println(gcGrouperSyncJob);
+
+    System.out.println("retrieve");
+    gcGrouperSyncJob = gcGrouperSync.retrieveJobBySyncType("testSyncType");
+    System.out.println(gcGrouperSyncJob);
+
+    System.out.println("retrieveOrCreate");
+    gcGrouperSyncJob = gcGrouperSync.retrieveJobOrCreateBySyncType("testSyncType");    
+    System.out.println(gcGrouperSyncJob);
+
+    System.out.println("deleted");
+    gcGrouperSyncJob.delete();
+    gcGrouperSync.delete();
+
+    for (GcGrouperSyncJob theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncJob.class)) {
+      System.out.println(theGcGrouperSyncStatus.toString());
+    }
+
+  }
   
+  /**
+   * get the job from a list
+   * @param gcGrouperSyncJobs
+   * @param syncType
+   * @return job or null
+   */
+  public static GcGrouperSyncJob retrieveJobBySyncType(List<GcGrouperSyncJob> gcGrouperSyncJobs, String syncType) {
+    for (GcGrouperSyncJob gcGrouperSyncJob : GrouperClientUtils.nonNull(gcGrouperSyncJobs)) {
+      if (GrouperClientUtils.equals(syncType, gcGrouperSyncJob.getSyncType())) {
+        return gcGrouperSyncJob;
+      }
+    }
+    return null;
+  }
   
+  /**
+   * assign heartbeat and see if other jobs are pending or running
+   * @param provisionerName
+   * @param isLargeJob is if this is a  big job and has precendence
+   * @return false if should stop and true if should run
+   */
+  public boolean assignHeartbeatAndCheckForPendingJobs(boolean isLargeJob) {
+    
+    List<GcGrouperSyncJob> allGcGrouperSyncJobs = this.getGrouperSync().retrieveAllJobs();
+
+    GcGrouperSyncJob gcGrouperSyncJob = GcGrouperSyncJob.retrieveJobBySyncType(allGcGrouperSyncJobs, syncType);
+    
+    // if doesnt exist, 
+    if (gcGrouperSyncJob == null) {
+      throw new RuntimeException("Why is this job not found????");
+    }
+    
+    gcGrouperSyncJob.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+
+    // should already be running but just in case
+    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.running);
+
+    gcGrouperSyncJob.store();
+    
+    for (GcGrouperSyncJob currentGrouperSyncJob : GrouperClientUtils.nonNull(allGcGrouperSyncJobs)) {
+      if (GrouperClientUtils.equals(currentGrouperSyncJob.getSyncType(), syncType)) {
+        continue;
+      }
+      
+      //if the heartbeat is bad dontw worry about it
+      if (currentGrouperSyncJob.getHeartbeat() == null || System.currentTimeMillis() - currentGrouperSyncJob.getHeartbeat().getTime() > 90000) {
+        // dont worry about it
+        continue;
+      }
+      
+      if (GcGrouperSyncJobState.running == currentGrouperSyncJob.getJobState() && !isLargeJob) {
+        return false;
+      }
+      
+      // dont run if we are a small job
+      if (GcGrouperSyncJobState.pending == currentGrouperSyncJob.getJobState() && !isLargeJob) {
+        return false;
+      }
+    }
+
+    // large jobs always keep going
+    return true;
+  }
+
+  /**
+   * assign heartbeat and end job
+   */
+  public void assignHeartbeatAndEndJob() {
+    
+    this.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+
+    // should already be running but just in case
+    this.setJobState(GcGrouperSyncJobState.notRunning);
+
+    this.store();
+    
+  }
+
   /**
    * 
    */
@@ -191,13 +319,34 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
         .append("grouperSyncId", this.grouperSyncId)
         .append("syncType", this.syncType)
         .append("lastUpdated", this.lastUpdated)
-        .append("jobState", this.jobState)
+        .append("jobState", this.jobStateDb)
         .append("lastSyncIndexOrMillis", this.lastSyncIndexOrMillis)
         .append("lastTimeWorkWasDone", this.lastTimeWorkWasDone).build();
   }
 
-
+  /**
+   * heartbeat updated every minute
+   */
+  private Timestamp heartbeat;
   
+  
+  
+  /**
+   * heartbeat updated every minute
+   * @return heartbeat
+   */
+  public Timestamp getHeartbeat() {
+    return this.heartbeat;
+  }
+
+  /**
+   * heatbeat updated every minute
+   * @param heartbeat1
+   */
+  public void setHeartbeat(Timestamp heartbeat1) {
+    this.heartbeat = heartbeat1;
+  }
+
   /**
    * 
    */
@@ -276,24 +425,40 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
   /**
    * running, waitingForAnotherJobToFinish (if waiting for another job to finish), notRunning
    */
-  private String jobState;
+  @GcPersistableField(columnName="job_state")
+  private String jobStateDb;
   
   
   /**
    * running, waitingForAnotherJobToFinish (if waiting for another job to finish), notRunning
    * @return the jobState
    */
-  public String getJobState() {
-    return this.jobState;
+  public String getJobStateDb() {
+    return this.jobStateDb;
   }
 
+  /**
+   * 
+   * @return the state or null if not there
+   */
+  public GcGrouperSyncJobState getJobState() {
+    return GcGrouperSyncJobState.valueOfIgnoreCase(this.jobStateDb);
+  }
+  
+  /**
+   * 
+   * @param gcGrouperSyncJobState
+   */
+  public void setJobState(GcGrouperSyncJobState gcGrouperSyncJobState) {
+    this.jobStateDb = gcGrouperSyncJobState == null ? null : gcGrouperSyncJobState.name();
+  }
   
   /**
    * running, waitingForAnotherJobToFinish (if waiting for another job to finish), notRunning
    * @param jobState1 the jobState to set
    */
-  public void setJobState(String jobState1) {
-    this.jobState = jobState1;
+  public void setJobStateDb(String jobState1) {
+    this.jobStateDb = jobState1;
   }
 
   /**

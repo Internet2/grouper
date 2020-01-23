@@ -34,6 +34,7 @@ public class GcTableSyncOutput {
    * @param rowsSelectedFrom1 the rowsSelectedFrom to set
    */
   public void setRowsSelectedFrom(int rowsSelectedFrom1) {
+    System.out.println("set rows selected from: " + rowsSelectedFrom1);
     this.rowsSelectedFrom = rowsSelectedFrom1;
   }
 

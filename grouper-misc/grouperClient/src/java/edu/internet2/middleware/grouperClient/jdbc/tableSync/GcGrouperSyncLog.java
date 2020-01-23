@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.net.InetAddress;
 import java.sql.Timestamp;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -55,7 +56,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey {
     
     GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
     gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
-    gcGrouperSyncJob.setJobState("success");
+    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.notRunning);
     gcGrouperSyncJob.setLastSyncIndexOrMillis(135L);
     gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
     gcGrouperSyncJob.setSyncType("testSyncType");
@@ -264,25 +265,41 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey {
   /**
    * SUCCESS, ERROR, WARNING, CONFIG_ERROR
    */
-  private String status;
-
+  @GcPersistableField(columnName="status")
+  private String statusDb;
 
   /**
    * SUCCESS, ERROR, WARNING, CONFIG_ERROR
    * @return status
    */
-  public String getStatus() {
-    return this.status;
+  public String getStatusDb() {
+    return this.statusDb;
   }
 
   /**
    * SUCCESS, ERROR, WARNING, CONFIG_ERROR
    * @param status1
    */
-  public void setStatus(String status1) {
-    this.status = status1;
+  public void setStatusDb(String status1) {
+    this.statusDb = status1;
   }
   
+  /**
+   * 
+   * @return the state or null if not there
+   */
+  public GcGrouperSyncLogState getStatus() {
+    return GcGrouperSyncLogState.valueOfIgnoreCase(this.statusDb);
+  }
+  
+  /**
+   * 
+   * @param gcGrouperSyncLogState
+   */
+  public void setStatus(GcGrouperSyncLogState gcGrouperSyncLogState) {
+    this.statusDb = gcGrouperSyncLogState == null ? null : gcGrouperSyncLogState.name();
+  }
+
   /**
    * when the last sync started
    */
@@ -522,8 +539,18 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey {
    */
   public void store() {
     try {
+      if (GrouperClientUtils.isBlank(this.server)) {
+        try {
+          this.server = InetAddress.getLocalHost().getHostName();
+        } catch (Exception e) {
+          //dont worry about it
+          LOG.info(e);
+        }
+      }
       this.lastUpdated = new Timestamp(System.currentTimeMillis());
       this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
+      //abbrev this to below 4k in case of special chars
+      this.description = GrouperClientUtils.abbreviate(this.description, 3700);
       new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
     } catch (RuntimeException re) {
 
@@ -559,7 +586,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey {
         .append("recordsProcessed", this.recordsProcessed)
         .append("server", this.server)
         .append("lastUpdated", this.lastUpdated)
-        .append("status", this.status)
+        .append("status", this.statusDb)
         .append("description", this.description).build();
   }
 

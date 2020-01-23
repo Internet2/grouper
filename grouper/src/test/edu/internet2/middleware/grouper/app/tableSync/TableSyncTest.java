@@ -12,9 +12,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import junit.textui.TestRunner;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 import org.hibernate.ObjectNotFoundException;
@@ -28,13 +25,11 @@ import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import junit.textui.TestRunner;
 
 
 /**
@@ -44,6 +39,13 @@ public class TableSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
     TestRunner.run(new TableSyncTest("testPersonSyncFull"));
+    
+//    List<Object[]> results = new GcDbAccess().connectionName("grouper")
+//        .sql("select PERSON_ID, HIBERNATE_VERSION_NUMBER, NET_ID, SOME_INT, SOME_FLOAT, SOME_DATE, SOME_TIMESTAMP from testgrouper_sync_subject_from")
+//        .selectList(Object[].class);
+//    for (Object[] result : results) {
+//      System.out.println(GrouperClientUtils.toStringForLog(result));
+//    }
   }
   
   /**
@@ -87,26 +89,26 @@ public class TableSyncTest extends GrouperTest {
    */
   @Override
   protected void setUp() {
-    super.setUp();
+    //super.setUp();
     
     try {
 
       this.grouperSession = GrouperSession.startRootSession();
       
-      dropTableSyncTables();
+      //dropTableSyncTables();
 
-      ensureTableSyncTables();
+      //ensureTableSyncTables();
   
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectFrom").executeUpdate();
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectTo").executeUpdate();
       
-      GrouperStartup.initLoaderType();
-      
-      setupTestConfigForIncludeExclude();
-      
-      GrouperStartup.initIncludeExcludeType();
-
-      GrouperCheckConfig.checkObjects();
+//      GrouperStartup.initLoaderType();
+//      
+//      setupTestConfigForIncludeExclude();
+//      
+//      GrouperStartup.initIncludeExcludeType();
+//
+//      GrouperCheckConfig.checkObjects();
       
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -298,6 +300,55 @@ public class TableSyncTest extends GrouperTest {
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
 
+// TODO    
+//    # grouper client or loader database key (readonly) if large queries should be performed against a different database
+//    # {valueType: "string"}
+//    #grouperClient.syncTable.personSource.databaseToReadonly = 
+
+ // TODO    
+//    # if doing fullSyncChangeFlag (look for a col that says if the rows are equal, e.g. a timestamp or a checksum)
+//    # {valueType: "string"}
+//    # grouperClient.syncTable.personSource.fullSyncChangeFlagColumn = check_sum
+
+// TODO    
+//    # the grouping column is what is uniquely selected, and then batched through to get data.  Optional.
+//    # for groups this should be the group uuid
+//    # {valueType: "string"}
+//    # grouperClient.syncTable.personSource.groupingColumn = penn_id
+
+// TODO    
+//    # the grouping column is what is uniquely selected, and then batched through to get data, defaults to 10000
+//    # {valueType: "integer"}
+//    # grouperClient.syncTable.personSource.groupingSize = 10000
+
+// TODO    
+//    # size of jdbc batches
+//    # {valueType: "integer"}
+//    # grouperClient.syncTable.personSource.batchSize = 800
+
+// TODO    
+//    # if querying a real time table, this is the table, needs to have primary key columns.
+//    # each record will check the source and destination and see what to do
+//    # {valueType: "string"}
+//    # grouperClient.syncTable.personSource.incrementalPrimaryKeyTable = real_time_table
+
+// TODO    
+//    # name of a column that has a sequence or last updated date
+//    # {valueType: "string", multiple: true}
+//    # grouperClient.syncTable.personSource.incrementalAllColumnsColumn = lastUpdated
+
+// TODO    
+//    # database where status table is.  defaults to "grouper"
+//    # {valueType: "string"}
+//    # grouperClient.syncTable.personSource.statusDatabase = grouper
+
+// TODO    
+//    # dont run if has run in last X minutes (e.g. for full syncs maybe set to 6 hours = 360 minutes)
+//    # {valueType: "string"}
+//    # grouperClient.syncTable.personSource.dontRunIfHasRunInLastMinutes = 
+    
+    
+    
     int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
     
     assertEquals(0, countFrom);
@@ -322,7 +373,8 @@ public class TableSyncTest extends GrouperTest {
     timestamp.add(Calendar.HOUR_OF_DAY, 1);
     timestamp.add(Calendar.MINUTE, 1);
     
-    int recordsSize = 25000;
+    //int recordsSize = 25000; TODO
+    int recordsSize = 250;
     
     for (int i=0;i<recordsSize;i++) {
       TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
@@ -357,31 +409,30 @@ public class TableSyncTest extends GrouperTest {
     //lets sync these over
     
     GcTableSync gcTableSync = new GcTableSync();
-    gcTableSync.setKey("personSourceTest");
+    gcTableSync.configure("personSourceTest", GcTableSyncSubtype.fullSyncFull);
+
     GcTableSyncOutput gcTableSyncOutput = new GcTableSyncOutput();
-        
-    //gcTableSync.sync(new GcTableSyncOutput[]{gcTableSyncOutput}); TODO
+    gcTableSync.sync(gcTableSyncOutput); 
 
     assertEquals(0, gcTableSyncOutput.getDelete());
     assertEquals(0, gcTableSyncOutput.getUpdate());
-    //assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom()); TODO
+    assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
     assertEquals(recordsSize, gcTableSyncOutput.getInsert());
 
     countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
-    
+
     assertEquals(recordsSize, countTo);
 
     //do it again should do nothing
     gcTableSync = new GcTableSync();
-    gcTableSync.setKey("personSourceTest");
+    gcTableSync.configure("personSourceTest", GcTableSyncSubtype.fullSyncFull);
     
     gcTableSyncOutput = new GcTableSyncOutput();
-    
-    //gcTableSync.sync(new GcTableSyncOutput[]{gcTableSyncOutput}); TODO
+    gcTableSync.sync(gcTableSyncOutput); 
 
     assertEquals(0, gcTableSyncOutput.getDelete());
     assertEquals(0, gcTableSyncOutput.getUpdate());
-    //assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom()); TODO
+    assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
     assertEquals(0, gcTableSyncOutput.getInsert());
     
     TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, "0");
@@ -407,14 +458,14 @@ public class TableSyncTest extends GrouperTest {
     HibernateSession.byObjectStatic().saveOrUpdate(testgrouperSyncSubjectFrom);
 
     gcTableSync = new GcTableSync();
-    gcTableSync.setKey("personSourceTest");
+    gcTableSync.configure("personSourceTest", GcTableSyncSubtype.fullSyncFull);
+    
     gcTableSyncOutput = new GcTableSyncOutput();
-    
-    // gcTableSync.sync(new GcTableSyncOutput[]{gcTableSyncOutput}); TODO
-    
+    gcTableSync.sync(gcTableSyncOutput); 
+        
     assertEquals(1, gcTableSyncOutput.getDelete());
     assertEquals(1, gcTableSyncOutput.getUpdate());
-    // assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom()); TODO
+    assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
     assertEquals(1, gcTableSyncOutput.getInsert());
     
     try {

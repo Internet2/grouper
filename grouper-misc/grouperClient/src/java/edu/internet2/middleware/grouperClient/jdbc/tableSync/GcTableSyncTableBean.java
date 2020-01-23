@@ -7,9 +7,11 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+
 
 /**
- *
+ * info about the table.  columns, typees, metadata, data.
  */
 public class GcTableSyncTableBean {
 
@@ -33,39 +35,6 @@ public class GcTableSyncTableBean {
     this.gcTableSync = gcTableSync1;
   }
 
-  /**
-   * 
-   * @param sqlBuilder
-   * @param gcTableSyncColumnMetadataList 
-   */
-  public static void appendColumns(StringBuilder sqlBuilder, List<GcTableSyncColumnMetadata> gcTableSyncColumnMetadataList) {
-    boolean isFirst = true;
-    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : gcTableSyncColumnMetadataList) {
-      
-      if (!isFirst) {
-        sqlBuilder.append(", ");
-      }
-      sqlBuilder.append(gcTableSyncColumnMetadata.getColumnName());
-      isFirst = false;
-    }
-  }
-  
-  /**
-   * 
-   * @param sqlBuilder
-   */
-  public void appendQuestionsAllCols(StringBuilder sqlBuilder, List<GcTableSyncColumnMetadata> gcTableSyncColumnMetadatas) {
-    boolean isFirst = true;
-    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : gcTableSyncColumnMetadatas) {
-      
-      if (!isFirst) {
-        sqlBuilder.append(", ");
-      }
-      sqlBuilder.append("?");
-      isFirst = false;
-    }
-  }
-
 
   /**
    * 
@@ -73,6 +42,15 @@ public class GcTableSyncTableBean {
   public GcTableSyncTableBean() {
   }
 
+  /**
+   * get the metadata for this table
+   * @param databaseFrom
+   * @param tableFrom
+   */
+  public void configureMetadata(String databaseFrom, String tableFrom) {
+    this.tableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase(databaseFrom, tableFrom);
+  }
+  
   /**
    * 
    */
@@ -104,7 +82,7 @@ public class GcTableSyncTableBean {
   /**
    * data in the table
    */
-  private GcTableSyncTableData dataAllNeededColumns;
+  private GcTableSyncTableData dataInitialQuery;
 
   
   /**
@@ -116,8 +94,8 @@ public class GcTableSyncTableBean {
    * data in the table
    * @return the data
    */
-  public GcTableSyncTableData getDataAllNeededColumns() {
-    return this.dataAllNeededColumns;
+  public GcTableSyncTableData getDataInitialQuery() {
+    return this.dataInitialQuery;
   }
 
   
@@ -125,8 +103,8 @@ public class GcTableSyncTableBean {
    * data in the table
    * @param data1 the data to set
    */
-  public void setDataAllNeededColumns(GcTableSyncTableData data1) {
-    this.dataAllNeededColumns = data1;
+  public void setDataInitialQuery(GcTableSyncTableData data1) {
+    this.dataInitialQuery = data1;
   }
 
   /**
