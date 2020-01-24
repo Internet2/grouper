@@ -2396,7 +2396,7 @@ public enum GrouperDdl implements DdlVersionable {
      * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#recreateViewsAndForeignKeys()
      */
     public boolean recreateViewsAndForeignKeys() {
-      return false;
+      return true;
     }
   };
   
@@ -6236,6 +6236,9 @@ public enum GrouperDdl implements DdlVersionable {
             "TYPE_OF_GROUP", 
             "GROUP_ID", 
             "PARENT_STEM_ID", 
+            "ENABLED",
+            "ENABLED_TIMESTAMP",
+            "DISABLED_TIMESTAMP",
             "MODIFIER_SOURCE", 
             "MODIFIER_SUBJECT_ID", 
             "CREATOR_SOURCE", 
@@ -6256,6 +6259,9 @@ public enum GrouperDdl implements DdlVersionable {
             "TYPE_OF_GROUP: group if it is a group, role if it is a role", 
             "GROUP_ID: uuid unique id of the group", 
             "PARENT_STEM_ID: uuid unique id of the stem this group is in", 
+            "ENABLED: T or F to indicate if this group is enabled",
+            "ENABLED_TIMESTAMP: when the group will be enabled if the time is in the future",
+            "DISABLED_TIMESTAMP: when the group will be disabled if the time is in the future",
             "MODIFIER_SOURCE: source name of the subject who last modified this group, e.g. schoolPersonSource", 
             "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this group, e.g. 12345", 
             "CREATOR_SOURCE: source name of the subject who created this group, e.g. schoolPersonSource", 
@@ -6278,6 +6284,9 @@ public enum GrouperDdl implements DdlVersionable {
             + "gg.type_of_group, "
             + "gg.id as group_id, "
             + "gs.ID as parent_stem_id, "
+            + "gg.enabled, "
+            + "gg.enabled_timestamp, "
+            + "gg.disabled_timestamp, "
             + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
             + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
             + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
@@ -6301,6 +6310,9 @@ public enum GrouperDdl implements DdlVersionable {
             "PARENT_STEM_NAME", 
             "ROLE_ID", 
             "PARENT_STEM_ID", 
+            "ENABLED",
+            "ENABLED_TIMESTAMP",
+            "DISABLED_TIMESTAMP",
             "MODIFIER_SOURCE", 
             "MODIFIER_SUBJECT_ID", 
             "CREATOR_SOURCE", 
@@ -6320,6 +6332,9 @@ public enum GrouperDdl implements DdlVersionable {
             "PARENT_STEM_NAME: name of the stem this role is in, e.g. school:stem1", 
             "ROLE_ID: uuid unique id of the role", 
             "PARENT_STEM_ID: uuid unique id of the stem this role is in", 
+            "ENABLED: T or F to indicate if this role is enabled",
+            "ENABLED_TIMESTAMP: when the role will be enabled if the time is in the future",
+            "DISABLED_TIMESTAMP: when the role will be disabled if the time is in the future",
             "MODIFIER_SOURCE: source name of the subject who last modified this role, e.g. schoolPersonSource", 
             "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this role, e.g. 12345", 
             "CREATOR_SOURCE: source name of the subject who created this role, e.g. schoolPersonSource", 
@@ -6341,6 +6356,9 @@ public enum GrouperDdl implements DdlVersionable {
             + "gs.NAME as parent_stem_name, "
             + "gg.id as role_id, "
             + "gs.ID as parent_stem_id, "
+            + "gg.enabled, "
+            + "gg.enabled_timestamp, "
+            + "gg.disabled_timestamp, "
             + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
             + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
             + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
