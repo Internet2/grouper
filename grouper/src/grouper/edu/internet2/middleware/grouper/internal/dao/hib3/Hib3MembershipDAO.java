@@ -865,9 +865,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           
           if (customCompositeGroup != null) {
             if (customCompositeType == CompositeType.INTERSECTION) {
-              sql.append(" and 1 in ");
+              sql.append(" and exists ");
             } else {
-              sql.append(" and not 1 in ");
+              sql.append(" and not exists ");
             }
             
             sql.append("(select 1 from MembershipEntry mscc " +
@@ -3512,14 +3512,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     		"and ms.fieldId = :fieldId " +
     		"and ms.enabledDb = 'T' " +
     		"and ms.memberUuid = m.uuid " +
-    		"and NOT m.subjectSourceIdDb = 'g:gsa' " +
-    		"and not 1 in " +
+    		"and m.subjectSourceIdDb <> 'g:gsa' " +
+    		"and not exists " +
     		"    (select 1 from MembershipEntry ms2 " +
     		"     where ms2.ownerGroupId = c.rightFactorUuid " +
     		"     and ms2.memberUuid = m.uuid " +
     		"     and ms2.fieldId = :fieldId " +
     		"     and ms2.enabledDb = 'T') " +
-        "and not 1 in " +
+        "and not exists " +
         "    (select 1 from ImmediateMembershipEntry ms3 " +
         "     where ms3.ownerGroupId = c.factorOwnerUuid " +
         "     and ms3.memberUuid = m.uuid " +
@@ -3546,8 +3546,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "and ms.fieldId = :fieldId " +
         "and ms.enabledDb = 'T' " +
         "and ms.memberUuid = m.uuid " +
-        "and NOT m.subjectSourceIdDb = 'g:gsa' " +
-        "and not 1 in " +
+        "and m.subjectSourceIdDb <> 'g:gsa' " +
+        "and not exists " +
         "    (select 1 from ImmediateMembershipEntry ms2 " +
         "     where ms2.ownerGroupId = c.factorOwnerUuid " +
         "     and ms2.memberUuid = m.uuid " +
@@ -3574,14 +3574,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "and ms.fieldId = :fieldId " +
         "and ms.enabledDb = 'T' " +
         "and ms.memberUuid = m.uuid " +
-        "and NOT m.subjectSourceIdDb = 'g:gsa' " +
-        "and 1 in " +
+        "and m.subjectSourceIdDb <> 'g:gsa' " +
+        "and exists " +
         "    (select 1 from MembershipEntry ms2 " +
         "     where ms2.ownerGroupId = c.rightFactorUuid " +
         "     and ms2.memberUuid = m.uuid " +
         "     and ms2.fieldId = :fieldId " +
         "     and ms2.enabledDb = 'T') " +
-        "and not 1 in " +
+        "and not exists " +
         "    (select 1 from ImmediateMembershipEntry ms3 " +
         "     where ms3.ownerGroupId = c.factorOwnerUuid " +
         "     and ms3.memberUuid = m.uuid " +
@@ -3609,13 +3609,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "and ms.enabledDb = 'T' " +
         "and ms.memberUuid = m.uuid " +
         "and ms.type = 'composite' " +
-        "and (1 in " +
+        "and (exists " +
         "    (select 1 from MembershipEntry ms2 " +
         "     where ms2.ownerGroupId = c.rightFactorUuid " +
         "     and ms2.memberUuid = m.uuid " +
         "     and ms2.fieldId = :fieldId " +
         "     and ms2.enabledDb = 'T') " +
-        "  or not 1 in " +
+        "  or not exists " +
         "    (select 1 from MembershipEntry ms3 " +
         "     where ms3.ownerGroupId = c.leftFactorUuid " +
         "     and ms3.memberUuid = m.uuid " +
@@ -3642,13 +3642,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "and ms.enabledDb = 'T' " +
         "and ms.memberUuid = m.uuid " +
         "and ms.type = 'composite' " +
-        "and not 1 in " +
+        "and not exists " +
         "    (select 1 from MembershipEntry ms2 " +
         "     where ms2.ownerGroupId = c.rightFactorUuid " +
         "     and ms2.memberUuid = m.uuid " +
         "     and ms2.fieldId = :fieldId " +
         "     and ms2.enabledDb = 'T') " +
-        "and not 1 in " +
+        "and not exists " +
         "    (select 1 from MembershipEntry ms3 " +
         "     where ms3.ownerGroupId = c.leftFactorUuid " +
         "     and ms3.memberUuid = m.uuid " +
@@ -3675,13 +3675,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "and ms.enabledDb = 'T' " +
         "and ms.memberUuid = m.uuid " +
         "and ms.type = 'composite' " +
-        "and (not 1 in " +
+        "and (not exists " +
         "    (select 1 from MembershipEntry ms2 " +
         "     where ms2.ownerGroupId = c.rightFactorUuid " +
         "     and ms2.memberUuid = m.uuid " +
         "     and ms2.fieldId = :fieldId " +
         "     and ms2.enabledDb = 'T') " +
-        "  or not 1 in " +
+        "  or not exists " +
         "    (select 1 from MembershipEntry ms3 " +
         "     where ms3.ownerGroupId = c.leftFactorUuid " +
         "     and ms3.memberUuid = m.uuid " +
@@ -3705,7 +3705,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "where c.factorOwnerUuid = ms.ownerGroupId " +
         "and ms.fieldId = :fieldId " +
         "and ms.enabledDb = 'T' " +
-        "and (ms.type = 'immediate' or ms.viaCompositeId is null or NOT c.uuid = ms.viaCompositeId) ";
+        "and (ms.type = 'immediate' or ms.viaCompositeId is null or c.uuid <> ms.viaCompositeId) ";
     
     Set<Membership> results = HibernateSession.byHqlStatic()
       .createQuery(sql)
@@ -3723,7 +3723,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     String sql = "select distinct ms from ImmediateMembershipEntry ms, Member m " +
         "where ms.memberUuid = m.uuid " +
         "and m.subjectSourceIdDb = 'g:gsa' " +
-        "and not 1 in (select 1 from Group g where g.uuid=m.subjectIdDb) ";
+        "and not exists (select 1 from Group g where g.uuid=m.subjectIdDb) ";
     
     Set<Membership> results = HibernateSession.byHqlStatic()
       .createQuery(sql)
@@ -3993,9 +3993,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           
           if (customCompositeGroup != null) {
             if (customCompositeType == CompositeType.INTERSECTION) {
-              sql.append(" and 1 in ");
+              sql.append(" and exists ");
             } else {
-              sql.append(" and not 1 in ");
+              sql.append(" and not exists ");
             }
 
             sql.append("(select 1 from MembershipEntry mscc " +
@@ -4541,9 +4541,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           
           if (customCompositeGroup != null) {
             if (customCompositeType == CompositeType.INTERSECTION) {
-              sql.append(" and 1 in ");
+              sql.append(" and exists ");
             } else {
-              sql.append(" and not 1 in ");
+              sql.append(" and not exists ");
             }
             
             sql.append("(select 1 from MembershipEntry mscc " +
