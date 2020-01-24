@@ -74,7 +74,7 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     Set<PITGroupSet> pitGroupSets = HibernateSession
       .byHqlStatic()
       .createQuery("select distinct gs from PITGroupSet as gs where memberId = :gsMemberId and memberFieldId = :gsMemberFieldId and activeDb = 'T' " +
-          "and not 1 in (select 1 from PITMembershipView ms where ms.ownerId=gs.ownerId and ms.memberId = :msMemberId and ms.fieldId=gs.fieldId and ms.groupSetActiveDb = 'T' and ms.membershipActiveDb = 'T')")
+          "and not exists (select 1 from PITMembershipView ms where ms.ownerId=gs.ownerId and ms.memberId = :msMemberId and ms.fieldId=gs.fieldId and ms.groupSetActiveDb = 'T' and ms.membershipActiveDb = 'T')")
       .setCacheable(false).setCacheRegion(KLASS + ".FindPITGroupSetsJoinedWithNewPITMembership")
       .setString("gsMemberId", pitMembership.getOwnerId())
       .setString("gsMemberFieldId", pitMembership.getFieldId())
@@ -91,7 +91,7 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     Set<PITGroupSet> pitGroupSets = HibernateSession
       .byHqlStatic()
       .createQuery("select distinct gs from PITGroupSet as gs where memberId = :gsMemberId and memberFieldId = :gsMemberFieldId and activeDb = 'T' " +
-          "and not 1 in (select 1 from PITMembershipView ms where ms.ownerId=gs.ownerId and ms.memberId = :msMemberId and ms.fieldId=gs.fieldId and ms.groupSetActiveDb = 'T' and ms.membershipActiveDb = 'T' and NOT ms.membershipId = :msMembershipId)")
+          "and not exists (select 1 from PITMembershipView ms where ms.ownerId=gs.ownerId and ms.memberId = :msMemberId and ms.fieldId=gs.fieldId and ms.groupSetActiveDb = 'T' and ms.membershipActiveDb = 'T' and ms.membershipId <> :msMembershipId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindPITGroupSetsJoinedWithOldPITMembership")
       .setString("gsMemberId", pitMembership.getOwnerId())
       .setString("gsMemberFieldId", pitMembership.getFieldId())
@@ -109,7 +109,7 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     Set<Object[]> mships = HibernateSession
       .byHqlStatic()
       .createQuery("select distinct ms, m from PITMembership as ms, PITMember as m where ms.ownerId = :msOwnerId and ms.fieldId = :msFieldId and ms.activeDb = 'T' " +
-          "and not 1 in (select 1 from PITMembershipView ms2 where ms2.ownerId = :ms2OwnerId and ms2.memberId = ms.memberId and ms2.fieldId = :ms2FieldId and ms2.groupSetActiveDb = 'T' and ms2.membershipActiveDb = 'T')" +
+          "and not exists (select 1 from PITMembershipView ms2 where ms2.ownerId = :ms2OwnerId and ms2.memberId = ms.memberId and ms2.fieldId = :ms2FieldId and ms2.groupSetActiveDb = 'T' and ms2.membershipActiveDb = 'T')" +
           "and ms.memberId = m.id")
       .setCacheable(false).setCacheRegion(KLASS + ".FindPITMembershipsJoinedWithNewPITGroupSet")
       .setString("msOwnerId", pitGroupSet.getMemberId())
@@ -128,7 +128,7 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     Set<Object[]> mships = HibernateSession
       .byHqlStatic()
       .createQuery("select distinct ms, m from PITMembership as ms, PITMember as m where ms.ownerId = :msOwnerId and ms.fieldId = :msFieldId and ms.activeDb = 'T' " +
-          "and not 1 in (select 1 from PITMembershipView ms2 where ms2.ownerId = :ms2OwnerId and ms2.memberId = ms.memberId and ms2.fieldId = :ms2FieldId and ms2.groupSetActiveDb = 'T' and ms2.membershipActiveDb = 'T' and NOT ms2.groupSetId = :ms2GroupSetId)" +
+          "and not exists (select 1 from PITMembershipView ms2 where ms2.ownerId = :ms2OwnerId and ms2.memberId = ms.memberId and ms2.fieldId = :ms2FieldId and ms2.groupSetActiveDb = 'T' and ms2.membershipActiveDb = 'T' and ms2.groupSetId <> :ms2GroupSetId)" +
           "and ms.memberId = m.id")
       .setCacheable(false).setCacheRegion(KLASS + ".FindPITMembershipsJoinedWithOldPITGroupSet")
       .setString("msOwnerId", pitGroupSet.getMemberId())
