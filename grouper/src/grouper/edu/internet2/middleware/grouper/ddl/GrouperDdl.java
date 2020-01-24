@@ -1471,6 +1471,9 @@ public enum GrouperDdl implements DdlVersionable {
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
             "composite_right_factor_idx", false, "right_factor");
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
+            "composite_type_idx", false, "type");
 
         versionNumberColumnFindOrCreate(compositeTable);
 
@@ -2389,6 +2392,15 @@ public enum GrouperDdl implements DdlVersionable {
             column.setSize("40");
           }
         }
+        
+        Table attributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, true);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+            "attr_asgn_type_idx", false, 
+            AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE);
+        
+        Table compositeTable = GrouperDdlUtils.ddlutilsFindTable(database, Composite.TABLE_GROUPER_COMPOSITES, true);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
+            "composite_type_idx", false, "type");
       }
     }
 
@@ -14051,7 +14063,10 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attr_asgn_own_stem_idx", false, 
           AttributeAssign.COLUMN_OWNER_STEM_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
-
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+          "attr_asgn_type_idx", false, 
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE);
     }
 
     {
