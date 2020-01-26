@@ -57,6 +57,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.authentication.GrouperPassword;
+import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
@@ -2390,6 +2392,12 @@ public enum GrouperDdl implements DdlVersionable {
           }
         }
       }
+      
+      {
+        addGrouperPasswordTables(ddlVersionBean, database);
+        addGrouperPasswordIndexes(ddlVersionBean, database);
+      }
+      
     }
 
     /**
@@ -5632,6 +5640,95 @@ public enum GrouperDdl implements DdlVersionable {
 
     }
     
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          "entries for grouper usernames passwords");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD,
+          GrouperPassword.COLUMN_ID, 
+            "uuid of this entry (one user could have ui and ws credential)");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD,  
+          GrouperPassword.COLUMN_USER_NAME,
+            "username or local entity system name");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD,  
+          GrouperPassword.COLUMN_MEMBER_ID,
+            "this is a reference to the grouper members table");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD,  
+          GrouperPassword.COLUMN_ENTITY_TYPE,
+            "username or localEntity");
+      
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD,  
+          GrouperPassword.COLUMN_IS_HASHED,
+            "T for is hashed, F for is public key");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_ENCRYPTION_TYPE, 
+          "key type. eg: SHA-256 or RS-256");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_SALT, 
+          "secure random prepended to hashed pass");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_PASSWORD, 
+          "encrypted public key or encrypted hashed salted password");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_APPLICATION, 
+          "ws (includes scim) or ui");
+      
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_ALLOWED_FROM_CIDRS, 
+          "network cidrs where credential is allowed from");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_RECENT_SOURCE_ADDRESSES, 
+          "json with timestamps");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_FAILED_SOURCE_ADDRESSES, 
+          "if restricted by cidr, this was failed IPs (json with timestamp)");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_LAST_AUTHENTICATED, 
+          "when last authenticated");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_LAST_EDITED, 
+          "when last edited");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_FAILED_LOGINS, 
+          "json of failed attempts");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperPassword.TABLE_GROUPER_PASSWORD, 
+          GrouperPassword.COLUMN_HIBERNATE_VERSION_NUMBER,
+          "hibernate uses this to version rows");
+  
+    }
+    
     String groupIdCol = "id";
     
     String stemIdCol = "id";
@@ -5938,6 +6035,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, StemSet.TABLE_GROUPER_STEM_SET, 
         "fk_stem_set_then", Stem.TABLE_GROUPER_STEMS, 
         StemSet.COLUMN_THEN_HAS_STEM_ID, Stem.COLUMN_ID);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, GrouperPasswordRecentlyUsed.TABLE_GROUPER_PASSWORD_RECENTLY_USED,
+        "fk_grouper_password_id", GrouperPassword.TABLE_GROUPER_PASSWORD, GrouperPasswordRecentlyUsed.COLUMN_GROUPER_PASSWORD_ID, GrouperPassword.COLUMN_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_QZ_TRIGGERS", "qrtz_trigger_to_jobs_fk", "grouper_QZ_JOB_DETAILS", 
         Arrays.asList(new String[]{"sched_name", "job_name", "job_group"}),
@@ -11061,6 +11161,105 @@ public enum GrouperDdl implements DdlVersionable {
           Types.BIGINT, null, false, true);
     }
   }
+  
+  /**
+   * add grouper password tables
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addGrouperPasswordTables(DdlVersionBean ddlVersionBean, Database database) {
+    
+    {
+      Table grouperPasswordTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperPassword.TABLE_GROUPER_PASSWORD);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_ID,
+          Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_USER_NAME, 
+          Types.VARCHAR, "255", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_MEMBER_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_ENTITY_TYPE, 
+          Types.VARCHAR, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_IS_HASHED, 
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_ENCRYPTION_TYPE, 
+          Types.VARCHAR, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_SALT, 
+          Types.VARCHAR, "255", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_PASSWORD, 
+          Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_APPLICATION, 
+          Types.VARCHAR, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_ALLOWED_FROM_CIDRS, 
+          Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_RECENT_SOURCE_ADDRESSES, 
+          Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_FAILED_SOURCE_ADDRESSES, 
+          Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_LAST_AUTHENTICATED, 
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_LAST_EDITED, 
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_FAILED_LOGINS, 
+          Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+    }
+    
+    {
+      Table grouperPasswordRecentlyUsedTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperPasswordRecentlyUsed.TABLE_GROUPER_PASSWORD_RECENTLY_USED);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordRecentlyUsedTable, GrouperPasswordRecentlyUsed.COLUMN_ID,
+          Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordRecentlyUsedTable, GrouperPasswordRecentlyUsed.COLUMN_GROUPER_PASSWORD_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordRecentlyUsedTable, GrouperPasswordRecentlyUsed.COLUMN_JWT_JTI, 
+          Types.VARCHAR, "100", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordRecentlyUsedTable, GrouperPasswordRecentlyUsed.COLUMN_JWT_IAT, 
+          Types.INTEGER, "11", false, true);
+      
+    }
+    
+  }
+  
+  /**
+   * Add grouper password indexes
+   * @param ddlVersionBean 
+   * @param database
+   */
+  private static void addGrouperPasswordIndexes(DdlVersionBean ddlVersionBean, Database database) {
+    
+    {
+      Table grouperPasswordTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperPassword.TABLE_GROUPER_PASSWORD);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperPasswordTable.getName(), 
+          "grppassword_username_idx", true, GrouperPassword.COLUMN_USER_NAME, GrouperPassword.COLUMN_APPLICATION);
+      
+    }
+  }
+  
   /**
    * Add PIT tables
    * @param ddlVersionBean 
@@ -12472,6 +12671,8 @@ public enum GrouperDdl implements DdlVersionable {
     
     addGroupSetTable(database, ddlVersionBean);
   }
+  
+  
 
   /**
    * 
@@ -13353,7 +13554,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(tableIndexTable, 
           TableIndex.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableIndexTable.getName(), 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableIndexTable.getName(),
           "table_index_type_idx", true, 
           TableIndex.COLUMN_TYPE);
       

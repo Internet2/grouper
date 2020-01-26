@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class CommonServletContainerInitializer implements ServletContainerInitializer {
@@ -25,16 +26,16 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
     
     try {
       
-      boolean runGrouperUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
-      boolean runGrouperUiWithBasicAuth = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui.basicAuthn", false);
+      boolean runGrouperUi = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
+      boolean runGrouperUiWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui.basicAuthn", false);
       
-      boolean runGrouperWs = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws", false);
-      boolean runGrouperWsWithBasicAuth = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.basicAuthn", false);
+      boolean runGrouperWs = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws", false);
+      boolean runGrouperWsWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.basicAuthn", false);
       
-      boolean runGrouperScim = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
-      boolean runGrouperScimWithBasicAuth = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim.basicAuthn", false);
+      boolean runGrouperScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
+      boolean runGrouperScimWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim.basicAuthn", false);
       
-      boolean runGrouperDaemon = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.is.daemon", false);
+      boolean runGrouperDaemon = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.daemon", false);
       
       {
         String statusServletName = "StatusServlet";
@@ -114,22 +115,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       }
       
       if (runGrouperScim) {
-        String baseScimServletName = "edu.internet2.middleware.grouper.ws.scim.RestApplication";
-        Class baseScimServletClass = Class.forName("edu.internet2.middleware.grouper.ws.scim.RestApplication");
-        javax.servlet.ServletRegistration.Dynamic baseScimServlet = context.addServlet(baseScimServletName, baseScimServletClass);
-        baseScimServlet.addMapping("/v2/*");
-        baseScimServlet.setInitParameter("javax.ws.rs.Application", "edu.internet2.middleware.grouper.ws.scim.RestApplication");
-        
-        Class scimConfiguratorListener = Class.forName("edu.internet2.middleware.grouper.ws.scim.ScimConfigurator");
-        context.addListener(scimConfiguratorListener);
-        
-        Class swaggerJaxrsConfigListener = Class.forName("edu.internet2.middleware.grouper.ws.scim.SwaggerJaxrsConfig");
-        context.addListener(swaggerJaxrsConfigListener);
-        
-        String tierFilterName = "TierFilter";
-        Class tierFilterClass = Class.forName("edu.internet2.middleware.grouper.ws.scim.TierFilter");
-        Dynamic tierFilter = context.addFilter(tierFilterName, tierFilterClass);
-        tierFilter.addMappingForUrlPatterns(null, false, "/v2/*");
+        // logic to enable/disable filters, web listeners is in the grouper ws scim project itself. One eg. is RestApplication.java
       }
       
       if (runGrouperDaemon) {
@@ -147,8 +133,6 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
         
         thread.start();
       }
-      
-      
       
       
     } catch (Exception e) {

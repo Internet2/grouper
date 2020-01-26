@@ -11,6 +11,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 
@@ -20,22 +21,28 @@ public class SwaggerJaxrsConfig implements ServletContextListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerJaxrsConfig.class);
 
   public void contextInitialized(ServletContextEvent event) {
-    LOGGER.debug("Initializing swagger...");
-    System.out.println("Initializing Swagger");
+    
+    boolean runGrouperWsScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
+    
+    if (runGrouperWsScim) {
+      LOGGER.debug("Initializing swagger...");
+      System.out.println("Initializing Swagger");
 
-    try {
-    	Json.mapper().registerModule(new JaxbAnnotationModule());
-        Json.mapper().registerModule(new JavaTimeModule());
-        Json.mapper().registerModule(new Jdk8Module());
-        Json.mapper().findAndRegisterModules();
-        
-        Yaml.mapper().registerModule(new JaxbAnnotationModule());
-        Yaml.mapper().registerModule(new JavaTimeModule());
-        Yaml.mapper().registerModule(new Jdk8Module());
+      try {
+        Json.mapper().registerModule(new JaxbAnnotationModule());
+          Json.mapper().registerModule(new JavaTimeModule());
+          Json.mapper().registerModule(new Jdk8Module());
+          Json.mapper().findAndRegisterModules();
+          
+          Yaml.mapper().registerModule(new JaxbAnnotationModule());
+          Yaml.mapper().registerModule(new JavaTimeModule());
+          Yaml.mapper().registerModule(new Jdk8Module());
 
-    } catch (Exception e) {
-      LOGGER.error("Error initializing swagger", e);
+      } catch (Exception e) {
+        LOGGER.error("Error initializing swagger", e);
+      }
     }
+    
   }
 
   public void contextDestroyed(ServletContextEvent event) {

@@ -508,6 +508,7 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject\")");
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.authentication.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.loader.ldap.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.assign.*;");

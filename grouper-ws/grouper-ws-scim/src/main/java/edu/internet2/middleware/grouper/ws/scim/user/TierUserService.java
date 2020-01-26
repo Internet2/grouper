@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.logging.Log;
@@ -33,6 +35,8 @@ import edu.psu.swe.scim.spec.protocol.search.PageRequest;
 import edu.psu.swe.scim.spec.protocol.search.SortRequest;
 import edu.psu.swe.scim.spec.resources.ScimUser;
 
+@Named
+@ApplicationScoped
 public class TierUserService implements Provider<ScimUser> {
   
   private static final Log LOG = LogFactory.getLog(TierUserService.class);

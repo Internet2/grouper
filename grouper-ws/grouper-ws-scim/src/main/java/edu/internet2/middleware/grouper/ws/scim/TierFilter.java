@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -102,26 +103,30 @@ public class TierFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
       throws IOException, ServletException {
     
-    try {
-      if (((HttpServletRequest) request).getMethod().equals("OPTIONS")) {
-        ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS");
-        ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", "*");
-        ((HttpServletResponse) response).addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        ((HttpServletResponse) response).setStatus(SC_OK);
-        return;
+    boolean runGrouperWsScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
+    
+    if (runGrouperWsScim) {
+      try {
+        if (((HttpServletRequest) request).getMethod().equals("OPTIONS")) {
+          ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS");
+          ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", "*");
+          ((HttpServletResponse) response).addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+          ((HttpServletResponse) response).setStatus(SC_OK);
+          return;
+        }
+        threadLocalRequestStartMillis.set(System.currentTimeMillis());
+        threadLocalRequest.set((HttpServletRequest)request);
+        
+        if (retrieveSubjectFromRemoteUser() == null) {
+          ((HttpServletResponse) response).setStatus(SC_UNAUTHORIZED);
+          return;
+        }
+        
+        chain.doFilter(request, response);
+      } finally {
+        threadLocalRequestStartMillis.remove();
+        threadLocalRequest.remove();
       }
-      threadLocalRequestStartMillis.set(System.currentTimeMillis());
-      threadLocalRequest.set((HttpServletRequest)request);
-      
-      if (retrieveSubjectFromRemoteUser() == null) {
-        ((HttpServletResponse) response).setStatus(SC_UNAUTHORIZED);
-        return;
-      }
-      
-      chain.doFilter(request, response);
-    } finally {
-      threadLocalRequestStartMillis.remove();
-      threadLocalRequest.remove();
     }
     
   }
