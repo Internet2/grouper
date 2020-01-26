@@ -13,6 +13,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupService;
 import edu.internet2.middleware.grouper.ws.scim.membership.MembershipResource;
 import edu.internet2.middleware.grouper.ws.scim.membership.TierMembershipService;
@@ -42,22 +43,29 @@ public class ScimConfigurator implements ServletContextListener {
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
-    try {
-      Json.mapper().registerModule(new JaxbAnnotationModule());
-      Json.mapper().registerModule(new JavaTimeModule());
-      Json.mapper().registerModule(new Jdk8Module());
-      Json.mapper().findAndRegisterModules();
-      
-      Yaml.mapper().registerModule(new JaxbAnnotationModule());
-      Yaml.mapper().registerModule(new JavaTimeModule());
-      Yaml.mapper().registerModule(new Jdk8Module());
+    
+    boolean runGrouperWsScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
+    
+    if (runGrouperWsScim) {
+      try {
+        Json.mapper().registerModule(new JaxbAnnotationModule());
+        Json.mapper().registerModule(new JavaTimeModule());
+        Json.mapper().registerModule(new Jdk8Module());
+        Json.mapper().findAndRegisterModules();
+        
+        Yaml.mapper().registerModule(new JaxbAnnotationModule());
+        Yaml.mapper().registerModule(new JavaTimeModule());
+        Yaml.mapper().registerModule(new Jdk8Module());
 
-      providerRegistry.registerProvider(ScimGroup.class, groupProviderInstance);
-      providerRegistry.registerProvider(ScimUser.class, userProviderInstance);
-      providerRegistry.registerProvider(MembershipResource.class, membershipProviderInstance);
-    } catch (Exception e) {
-      e.printStackTrace();
+        providerRegistry.registerProvider(ScimGroup.class, groupProviderInstance);
+        providerRegistry.registerProvider(ScimUser.class, userProviderInstance);
+        providerRegistry.registerProvider(MembershipResource.class, membershipProviderInstance);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
+    
+    
   }
 
   @Override

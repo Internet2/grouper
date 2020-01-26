@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -64,6 +65,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
+import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -932,6 +934,72 @@ public class GrouperServiceJ2ee implements Filter {
       //make sure nulls are not returned for params for Axis bug where
       //empty strings work, but nulls make things off a bit
       request = new WsHttpServletRequest((HttpServletRequest) request);
+      
+      String authHeader = ((HttpServletRequest) request).getHeader("authentication");
+          
+      ((HttpServletRequest) request).getRemoteAddr();
+      
+      /**
+       * 
+       * add a property in grouper.ui.properties: basic.grouper.ui.auth = true|false (false)
+       * add a property in grouper.ws.properties: basic.grouper.ws.auth = true|false (false)
+       * add a property in grouper.ws.properties: basic.grouper.ws-scim.auth = true|false (false)
+       * 
+       * we get the base64 encoded username:password in authHeader above
+       * select * from grouper_password where username = $username and type = 'ui';
+       * if (nonNull) {
+       *  
+       *  val someValue = hash(take the salt column + password that was passed in)
+       *   
+       *   val encryptedPassword = encrypt(someValue); // encrypt with morphString
+       *   
+       *   if (encryptedPassword === the_password from db) {
+       *    // we are good.
+       *   }
+       *  
+       * }
+       *  
+       *  
+       *  
+       *  
+       * 
+       * assignUserPassword(userName, password, wsOrUi ) {
+       *  
+       *  SecureRandom random = new SecureRandom(); 
+       *  byte[] salt = new byte[64]; 
+       *  random.nextBytes(salt);
+       *  String saltString = new String(salt);  
+
+       *  String password = saltString + password
+       *  
+       *  String encryptionType = get it from grouper.properties;
+       *  
+       *  String hashedPassword = hash the password using hash type - sha 256
+       *  
+       *  String encryptedPassword = encrypt(hashedPassword) using morphString 
+       *  
+       *  
+       *  insert into grouper_password (userName, type, is_hashed, encryption_type, 
+       *  the_salt, the_password, )
+       *   values (userName, 'username', 'T', encryptionType, salt, encryptedPassword )
+       *  
+       * }
+       * 
+       *  
+       * 
+       * 
+       * 
+       */
+      
+      boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.UI);
+      
+      if (!isValid) {
+        throw new RuntimeException("Could not authenticate");
+      }
+      
+//      if (StringUtils.isNotBlank(userName)) {
+//        ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
+//      }
   
       request.setAttribute("debugMap", debugMap);
       

@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ws.scim.membership.MembershipRestResourceImpl;
 import edu.psu.swe.scim.server.rest.ScimResourceHelper;
 
@@ -16,10 +17,14 @@ public class RestApplication extends Application {
   public Set<Class<?>> getClasses() {
     Set<Class<?>> clazzes = new HashSet<Class<?>>();
     
-    clazzes.addAll(ScimResourceHelper.getScimClassesToLoad());
-    clazzes.addAll(ScimResourceHelper.getSwaggerClassesToLoad());
-    clazzes.add(MembershipRestResourceImpl.class);
-
+    boolean runGrouperWsScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
+    
+    if (runGrouperWsScim) {
+      clazzes.addAll(ScimResourceHelper.getScimClassesToLoad());
+      clazzes.addAll(ScimResourceHelper.getSwaggerClassesToLoad());
+      clazzes.add(MembershipRestResourceImpl.class);
+    }
+    
     return clazzes;
   }
 

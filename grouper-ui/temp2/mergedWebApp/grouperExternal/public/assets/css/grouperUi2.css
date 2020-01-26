@@ -1,0 +1,138 @@
+
+/* move the text next to group icons over a little bit
+   note, shouldnt there be a space here?  Myabe not used? */
+.dijitTreeIcon.fa-group {
+  
+  margin-right: 2px;
+  
+}
+
+.grouperUiTooltip {
+  /*white-space: nowrap; */
+  word-wrap: break-word;
+}
+
+table.attributeDefAssignToTable td {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.compositeInfo {
+  margin-bottom: 1.3em;
+}
+
+.compositeInfo .compositeFactors {
+  
+  padding-left: 3em;
+  
+}
+
+.description {
+  font-size: 90%;
+}
+
+.requiredField {
+  font-size: 200%;
+  color: #CE3031;
+  font-weight: bold;
+  vertical-align: middle;
+  margin-left: 0.2em;
+}
+
+.requiredIndicator {
+  font-weight: bold;
+  color: #931100;
+}
+
+.control-label.no-padding {
+	padding: 0px;
+}
+
+.table-condensed td.top-vertical-align {
+	vertical-align: top;
+}
+
+.deprovisioning-more-actions {
+	margin-bottom: 10px;
+}
+
+/* Visualization frame for the SVG canvas */
+.vis-graph-svg-outer {
+  display: none;
+  background: white;
+  border: 1px solid gray;
+  height: 500px;
+  width: 100%;
+}
+
+.vis-fullscreen-open {
+  float: right;
+}
+
+/* Visualization lightbox */
+.vis-graph-modal {
+  display: none;
+  position: fixed;
+  z-index: 101; /* the breadcrumb menu has z-index 100 so we need a higher number to push it behind */
+  padding-top: 50px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: black;
+}
+
+.vis-graph-modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  width: 95%;
+  // max-width: 1200px;
+}
+
+.vis-fullscreen-close {
+  color: white;
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+.vis-fullscreen-close:hover,
+.vis-fullscreen-close:focus {
+  color: #999;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Visualization text mode formatting */
+div.visualization-text-node {
+	margin-bottom: 10px;
+}
+
+/*
+.table-striped4 tbody > tr:nth-child(odd) > td,
+.table-striped4 tbody > tr:nth-child(odd) > th {
+  background-color: #f5f5f5;
+}
+.table-striped4 tbody > tr:nth-child(even) > td,
+.table-striped4 tbody > tr:nth-child(even) > th {
+  background-color: #ffffff;
+}
+*/
+/*.table-striped4 tbody > tr:nth-child(4n+1) > td,
+.table-striped4 tbody > tr:nth-child(4n+1) > th,
+.table-striped4 tbody > tr:nth-child(4n+2) > td,
+.table-striped4 tbody > tr:nth-child(4n+2) > th {
+  background-color: #f5f5f5;
+}
+
+.table-striped4 tbody > tr:nth-child(4n+3) > td,
+.table-striped4 tbody > tr:nth-child(4n+3) > th,
+.table-striped4 tbody > tr:nth-child(4n+4) > td,
+.table-striped4 tbody > tr:nth-child(4n+4) > th {
+  background-color: #cccccc;
+}*/

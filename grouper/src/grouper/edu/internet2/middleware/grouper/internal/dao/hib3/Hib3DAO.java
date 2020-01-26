@@ -189,6 +189,7 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3ServiceRoleViewDAO.class);
       addClass(CFG, Hib3StemSetDAO.class);
       addClass(CFG, Hib3TableIndexDAO.class);
+      addClass(CFG, Hib3GrouperPasswordDAO.class);
       CFG.setInterceptor(new Hib3SessionInterceptor());
       
       //if we are testing, map these classes to the table (which may or may not exist)

@@ -1,0 +1,97 @@
+
+
+<!DOCTYPE html>
+<html>
+  <!-- start index.jsp -->
+  <head><title>Grouper UI v2.2</title>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Le styles -->
+<link href="../../grouperExternal/public/assets/dojo/dijit/themes/claro/claro.css" rel="stylesheet" type="text/css" />
+<link href="../../grouperExternal/public/assets/dojo/dojo/resources/dojo.css" rel="stylesheet" type="text/css" />
+<link href="../../grouperExternal/public/assets/css/grouperTooltip.css" rel="stylesheet">
+<link href="../../grouperExternal/public/assets/css/grouperUi2.css" rel="stylesheet">
+
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<link rel="shortcut icon" href="../../grouperExternal/public/assets/images/favicon.ico">
+
+<script>
+    dojoConfig= {
+        parseOnLoad: false,
+        async: false
+    };
+</script>
+
+<script src="../../grouperExternal/public/assets/dojo/dojo/dojo.js"></script>
+ 
+<script type="text/javascript" >
+
+require(["dojo/ready", "dijit/registry", "dojo/parser", "dojo/json", 
+         "dojo/_base/config", "dijit/Dialog", "dojo/domReady!", "dijit/form/FilteringSelect", 
+         "dojox/data/QueryReadStore", "dojo/dom-attr", "dijit/Tree", "dojo/data/ItemFileReadStore", 
+         "dojo/store/JsonRest", "dojo/_base/declare", "dijit/form/ComboBox"]);
+
+
+</script>
+
+<script src="../../grouperExternal/public/assets/js/jquery.js"></script>
+
+<script src="../../grouperExternal/public/assets/js/bootstrap.js"></script>
+<script src="../../grouperExternal/public/assets/js/tree.jquery.js"></script>
+<script src="../../grouperExternal/public/assets/js/jquery.dataTables.min.js"></script>
+<script src="../../grouperExternal/public/assets/js/footable-0.1.js"></script>
+<script src="../../grouperExternal/public/assets/js/jquery.cookie.js"></script>
+<script src="../../grouperExternal/public/assets/js/grouper.js"></script>
+<script src="../../grouperExternal/public/assets/js/native.history.js"></script>
+<script src="../../grouperExternal/public/assets/js/grouperUi.js"></script>
+<script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
+<script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
+<script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
+
+
+
+<script>
+$( document ).ready(function() {
+  dojo.parser.parse();
+});
+
+</script>
+
+    <script type="text/javascript">
+        $().ajaxStop($.unblockUI); 
+        $.blockUI.defaults.message = "<img src='../../grouperExternal/public/assets/images/busy.gif' alt='busy'/>";
+        $.blockUI.defaults.css.border = 'none';
+        $.blockUI.defaults.css.backgroundColor = 'transparent';
+        $.blockUI.defaults.overlayCSS.opacity = '0.02';
+        $.blockUI.defaults.fadeIn = '200';
+        $.blockUI.defaults.fadeOut = '400';
+        $.blockUI.defaults.timeout = '180000';
+    </script>
+
+  </head>
+  <body>
+
+    <div data-dojo-type="dojox.data.QueryReadStore" id="groupAddMemberComboStoreId"  
+    data-dojo-props="url:'../app/UiV2Group.addMemberFilter'" data-dojo-id="groupAddMemberComboStoreDojoId" style="display: none"></div>
+    <input id="groupAddMemberComboId" name="groupAddMemberComboName"  searchDelay="500"  required="false" 
+    data-dojo-props="store:groupAddMemberComboStoreDojoId"  style="width: 30em" 
+    autocomplete="false" data-dojo-type="dijit/form/FilteringSelect" hasDownArrow="false" /><img 
+     style="position: relative; top: 5px; left: -18px; display: none; " alt="busy..."  id="groupAddMemberComboThrobberId"
+     src="../../grouperExternal/public/assets/images/busy.gif" class="comboThrobber" />
+
+    <br /><br /><br />
+
+<select data-dojo-type="dijit/form/ComboBox" id="fruit" name="fruit">
+    <option>Apples</option>
+    <option selected>Oranges</option>
+    <option>Pears</option>
+</select>
+
+<br /><br />
+  </body>
+  <!-- end index.jsp -->
+</html>

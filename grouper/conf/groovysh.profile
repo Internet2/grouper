@@ -351,6 +351,8 @@ import edu.internet2.middleware.subject.provider.*
 import edu.internet2.middleware.grouper.userData.*
 import edu.internet2.middleware.grouper.messaging.*
 import edu.internet2.middleware.grouper.filter.*
+import edu.internet2.middleware.grouper.authentication.*
+import edu.internet2.middleware.grouper.j2ee.*
 
 :set verbosity INFO
 :set interpreterMode true

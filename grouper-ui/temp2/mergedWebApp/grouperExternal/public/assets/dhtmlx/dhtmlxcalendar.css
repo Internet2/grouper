@@ -1,0 +1,482 @@
+/*SilverLight skin. default*/
+/* Appearance calendar standart view */
+.dhtmlxcalendar{
+	background: url(imgs/cal_bg_single.gif) no-repeat;
+	border: 0px solid green;
+	font-family: Arial;
+	z-index:99;
+	height:146px;
+	width:146px;
+  padding:16px;
+}
+/* Style for iframe (must have same values as real dimensions of calendar) */
+.dhtmlxcalendar_ifr,
+.dhtmlxcalendar_mini_ifr,
+.dhtmlxcalendar_maxi_ifr,
+.dhtmlxcalendar_long_ifr {
+  height:173px;
+  width:178px;
+}
+                                                                                                                                                                     
+.dhtmlxcalendar_maxi_ifr {
+  height: 176px;
+}
+/* Appearance for calendar with time */
+.dhtmlxcalendar_long {
+  background: url(imgs/cal_bg_single_long.gif) no-repeat;
+  height: 190px;
+}
+.dhtmlxcalendar_long_ifr{
+  height: 190px;
+}
+/* Appearance minimized maximized */
+.dhtmlxcalendar_mini{
+	background: url(imgs/cal_bg_single_mini.gif) no-repeat;
+	height:25px;
+	width:146px;
+}
+.dhtmlxcalendar_mini_ifr{
+  height: 25px;
+}
+/* Appearance header of calendar in minimized view */
+.dhtmlxcalendar_mini .winHeader{
+  margin-top:0px;
+  -moz-user-select:none;
+}
+/* Appearance header of calendar in standard view */
+.dhtmlxcalendar .winHeader {
+	height: 13px;
+	width:146px;
+  -moz-user-select:none;
+  border: 0;
+  margin-top:-11px;
+  margin-bottom: 12px;
+}
+/* Appearance header title */
+.dhtmlxcalendar .winTitle {
+	color:black;
+	font-size:11px;
+	float:left;
+	cursor: move;	
+	width: 100px;
+}
+/* Common appearance headers buttons */
+.dhtmlxcalendar .btn_maxi, 
+.dhtmlxcalendar .btn_mini,
+.dhtmlxcalendar .btn_close,
+.dhtmlxcalendar .btn_today,
+.dhtmlxcalendar .btn_clear {
+  background: url(imgs/btns.gif);
+  float:right;
+  height:12px;
+  width:12px;	
+  margin-left: 1px;
+  font-size: 0;
+}
+/* Button close*/
+.dhtmlxcalendar .btn_close {
+  background-position: 0 0;
+}
+/* Button today */
+.dhtmlxcalendar .btn_today {
+  background-position: -12px 0;
+}
+/* Button clear */
+.dhtmlxcalendar .btn_clear {
+  background-position: -24px 0;
+}
+/* Button mini in minimized view */
+.dhtmlxcalendar .btn_maxi {
+  background-position: -36px 0;
+}
+/* Button mini */
+.dhtmlxcalendar .btn_mini {
+  background-position: -48px 0;
+}
+/* Calendar body */
+.dhtmlxcalendar .entbox{
+	width:145px;
+	clear:both;
+}
+/* Common style for each cell of calendar */
+.dhtmlxcalendar td {
+	font-size: 10px;
+	font-family: Tahoma;
+	text-align:center;
+}
+
+/* Month left button */
+.dhtmlxcalendar .dxcalmonth td.month_btn_left,
+.dhtmlxcalendar .dxcalmonth td.month_btn_right {
+	background: url(imgs/btns.gif) no-repeat;
+	background-position:-60px;
+	width:8px;
+}
+/* Month right button */
+.dhtmlxcalendar .dxcalmonth td.month_btn_right {
+	background-position:-68px;
+}
+
+.dhtmlxcalendar .dxcalmonth td.month_btn_left span,
+.dhtmlxcalendar .dxcalmonth td.month_btn_right span{
+	visibility: hidden;
+}
+
+.dhtmlxcalendar .dxcalmonth table {
+  margin: auto;
+}
+/* Appearance months shorts labels */
+.dhtmlxcalendar .dxcaldlabel {
+	border-bottom: 1px solid #7e7e7e;
+	color:#7e7e7e;
+	border-top: 0px;
+	padding-left:2px;
+
+}
+/* Common styles for months and days labels */
+.dhtmlxcalendar .dxcaldlabel td,
+.dhtmlxcalendar .dxcaldays td,
+.dhtmlxcalendar .dxcaldays_ie td{
+	font-size: 10px;
+	font-family: Tahoma;
+	text-align: center;
+	vertical-align: middle;
+	width: 18px;
+	height: 18px;
+	color: #7e7e7e;
+}
+
+/* Appearance days */
+.dhtmlxcalendar .dxcaldays td,
+.dhtmlxcalendar .dxcaldays_ie td{
+	border: 0px;
+	cursor: pointer;
+}
+/* Appearance days for IE */
+.dhtmlxcalendar .dxcaldays_ie td{
+	height:16px;
+}
+/* Comma between month and year */
+.dhtmlxcalendar td.comma{
+	visibility:visible;
+}
+/* Common style for month and year labels */
+.dhtmlxcalendar div.planeMonth,
+.dhtmlxcalendar div.planeYear {
+	height: auto;
+	overflow: hidden;
+}
+/* Appearance year */
+div.dhtmlxcalendar div.planeYear{
+	display:inline;
+	width:28px;
+}
+
+/* begin: days colors */
+/* Days of this month */
+.dhtmlxcalendar td.thismonth{
+	color:black;
+	padding:1px;
+}
+/* Days of other months */
+.dhtmlxcalendar td.othermonth{
+	visibility:hidden;
+	
+}
+/* Weekend */
+.dhtmlxcalendar td.weekend{
+	color:#a70000;
+	padding:1px;
+}
+/* Insensitive days*/
+.dhtmlxcalendar td.insensitive{
+	color:#b5b5b5;
+	cursor: default;
+	padding:1px;
+}
+/* Selected day */
+.dhtmlxcalendar td.selected{
+	background-color: #36b1df;
+	color:white !important;
+}
+/* Current day */
+.dhtmlxcalendar td.current{
+	font-weight:bold  !important;
+	color:black;
+}
+/* Hovered day */
+.dhtmlxcalendar td.hover{
+	border:1px solid #b5b5b5;
+	color: #000000;
+	padding:0px;
+}
+/* Holidays */
+.dhtmlxcalendar td.holiday{ 
+	font-weight:bold;
+	color:#a70000;
+}
+
+/* end: silverlight */
+
+/* begin: dhtmlxDblCalendarObject */
+.dhtmlxdblcalendar {
+	background: url(imgs/cal_bg_double.gif) no-repeat;
+  z-index:100;
+	padding: 0px;
+}
+.dhtmlxdblcalendar .dhtmlxcalendar {
+	background-image: url(imgs/blank.gif);
+}
+/* end: dhtmlxDblCalendarObject */
+
+/* begin: dhtmlxRichSelector */
+.dhtmlxcalendar div.dhtmlxRichSelector {
+	position: relative;
+	background-color:#ffffff;
+	display: block;
+	width: 1px;
+	height: 1px;
+}
+.dhtmlxcalendar textarea.dhtmlxRichSelector,
+.dhtmlxcalendar select.dhtmlxRichSelector {
+	font-family: Tahoma;
+	position: absolute;
+	font-size: 10px;
+	overflow: hidden;
+	border-width: 0px;
+	z-index:100;
+	left: 0px;
+	top: 0px;
+}
+.dhtmlxcalendar select.dhtmlxRichSelector {
+	border: 1px solid #555555;
+}
+/* end: dhtmlxRichSelector */
+
+.dhtmlxcalendar_yahoolike {
+	background: url(../imgs/__dhxCal_skin_Yahoolike/cal_bg_single.gif) no-repeat;
+	border: 1px solid gray;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size:small;
+	background-color: #f7f9fb;
+	width:178px;
+	height:166px;
+	padding:5px;
+	z-index:99;
+}
+
+.dhtmlxcalendar_yahoolike_mini {
+  background-color: #f7f9fb;
+  height:13px;
+}
+
+.dhtmlxcalendar_yahoolike_maxi {
+  height:178px;
+}
+
+.dhtmlxcalendar_yahoolike_ifr,
+.dhtmlxcalendar_yahoolike_mini_ifr,
+.dhtmlxcalendar_yahoolike_maxi_ifr {
+  height:184px;
+  width:188px
+}
+
+.dhtmlxcalendar_yahoolike_maxi_ifr {
+  height:195px;
+}
+
+.dhtmlxcalendar_yahoolike_mini_ifr {
+  height:26px;
+}
+
+.dhtmlxcalendar_yahoolike_mini .winHeader{
+  -moz-user-select: none;
+}
+
+.dhtmlxcalendar_yahoolike .winHeader {
+  height: 16px;
+
+  margin-bottom: 3px;
+  width:178px;
+  -moz-user-select:none;
+}
+
+.dhtmlxcalendar_yahoolike .winTitle {
+  color:#575757;
+  font-size:12px;
+  float:left;
+  cursor: move;  
+  width: 100px;
+  margin-top: -1px;
+  overflow: hidden;
+}
+
+.dhtmlxcalendar_yahoolike .btn_mini,
+.dhtmlxcalendar_yahoolike .btn_maxi,
+.dhtmlxcalendar_yahoolike .btn_close,
+.dhtmlxcalendar_yahoolike .btn_today,
+.dhtmlxcalendar_yahoolike .btn_clear {
+  background: url(../imgs/__dhxCal_skin_Yahoolike/btns.gif) no-repeat;
+  float:right;
+  height:12px;
+  width:12px;  
+  margin-left: 1px;
+}
+
+.dhtmlxcalendar_yahoolike .btn_close {
+    background-position: 0 0;
+}
+
+.dhtmlxcalendar_yahoolike .btn_today {
+    background-position: -12px 0;
+}
+
+.dhtmlxcalendar_yahoolike .btn_clear {
+    background-position: -24px 0;
+}
+.dhtmlxcalendar_yahoolike .btn_maxi {
+    background-position: -36px 0;
+}
+
+.dhtmlxcalendar_yahoolike .btn_mini {
+    background-position: -48px 0;
+}
+.dhtmlxcalendar_yahoolike .entbox{
+	margin:3px 3px 3px 3px;
+	width:172px;
+}
+
+.dhtmlxcalendar_yahoolike td {
+	font-size: 9px;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.dhtmlxcalendar_yahoolike .dxcalmonth {
+	background-color: #f7f9fb;
+	border: 0px solid #e0e0e0;
+  height: 16px;
+}
+
+.dhtmlxcalendar_yahoolike .dxcalmonth td.month_btn_left,
+.dhtmlxcalendar_yahoolike .dxcalmonth td.month_btn_right {
+	background: url(../imgs/__dhxCal_skin_Yahoolike/btns.gif) no-repeat;
+	background-position: -60px 0;
+	width: 9px;
+}
+.dhtmlxcalendar_yahoolike .dxcalmonth td.month_btn_right {
+  background-position: -69px 0;
+}
+
+.dhtmlxcalendar_yahoolike .dxcaldlabel {
+	border-width: 0px;
+}
+.dhtmlxcalendar_yahoolike .dxcaldlabel td,
+.dhtmlxcalendar_yahoolike .dxcaldays td,
+.dhtmlxcalendar_yahoolike .dxcaldays_ie td{
+	font-size: 10pt;
+	text-align: left;
+	vertical-align: middle;
+	width: 20px;
+	height: 17px;
+	color: #666;
+  padding: 1px;
+}
+.dhtmlxcalendar_yahoolike .dxcaldays_ie td{
+	height: 18px;
+}
+.dhtmlxcalendar_yahoolike .dxcaldays td,
+.dhtmlxcalendar_yahoolike .dxcaldays_ie td{
+	border: 1px solid #e0e0e0;
+	background-color: #fff;
+	text-align: center;
+	cursor: pointer;
+}
+
+
+.dhtmlxcalendar_yahoolike td.comma{
+	visibility:hidden;
+}
+
+.dhtmlxcalendar_yahoolike .dxcalmonth table {
+  margin: auto;
+}
+
+.dhtmlxcalendar_yahoolike div.planeMonth,
+.dhtmlxcalendar_yahoolike div.planeYear {
+	height: auto;
+	overflow: auto;
+	font-size:12px;
+	font-weight: bold;
+}
+/* begin: days colors */
+.dhtmlxcalendar_yahoolike td.thismonth{
+	color:#003db8;
+}
+
+.dhtmlxcalendar_yahoolike td.othermonth{
+	color:#999;
+	background-color:#eee;
+	visibility: visible;
+}
+
+.dhtmlxcalendar_yahoolike td.weekend{
+	color:#003db8;
+}
+
+.dhtmlxcalendar_yahoolike td.insensitive{
+	color:#ccc;
+	font-style:italic;
+	cursor: default;
+}
+
+.dhtmlxcalendar_yahoolike td.selected{
+	border:1px solid white;
+	background-color: lightblue;
+	color: #ffffff;
+}
+
+
+.dhtmlxcalendar_yahoolike td.current{
+	color: #00c;
+	font-weight:bold !important;
+}
+
+.dhtmlxcalendar_yahoolike td.hover{
+	border:1px solid #426FD9;
+	background-color: #426FD9;
+	color: white;
+}
+
+.dhtmlxcalendar_yahoolike td.holiday{ 
+	font-weight:bold;
+	color:#00c;
+	text-decoration:underline;
+}
+
+/* end: days colors */
+
+/* begin: dhtmlxRichSelector */
+.dhtmlxcalendar_yahoolike div.dhtmlxRichSelector {
+  position: relative;
+  background-color:#ffffff;
+  display: block;
+  width: 1px;
+  height: 1px;
+}
+
+.dhtmlxcalendar_yahoolike textarea.dhtmlxRichSelector,
+.dhtmlxcalendar_yahoolike select.dhtmlxRichSelector {
+  position: absolute;
+  font-family: Arial;
+  font-size: 10pt;
+  overflow: hidden;
+  border-width: 0px;
+  z-index:100;
+  left: 0px;
+  top: 0px;
+}
+
+.dhtmlxcalendar_yahoolike select.dhtmlxRichSelector {
+	border: 1px solid #7b9ebd;
+}
+/* end: dhtmlxRichSelector */

@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.MessageDAO;
@@ -449,5 +450,10 @@ public abstract class GrouperDAOFactory {
    * @return table index
    */
   public abstract TableIndexDAO getTableIndex();
+  
+  /**
+   * @return grouper password dao
+   */
+  public abstract GrouperPasswordDAO getGrouperPassword();
 } 
 
