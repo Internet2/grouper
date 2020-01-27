@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringBuilder;
@@ -23,6 +24,21 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 @GcPersistableClass(tableName="grouper_sync", defaultFieldPersist=GcPersist.doPersist)
 public class GcGrouperSync implements GcSqlAssignPrimaryKey {
+
+  /**
+   * delete all data if table is here
+   */
+  public static void reset() {
+    
+    try {
+      // if its not there forget about it... TODO remove this in 2.5+
+      new GcDbAccess().connectionName("grouper").sql("select * from " + GcPersistableHelper.tableName(GcGrouperSync.class) + " where 1 != 1").select(Integer.class);
+    } catch (Exception e) {
+      return;
+    }
+
+    new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GcGrouperSync.class)).executeSql();
+  }
 
   /**
    * use this for sql engine sync
@@ -224,6 +240,50 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
     
   }
   
+  /**
+   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   */
+  private Long incrementalIndexOrMillis;
+  
+  /**
+   * when last record processed if timestamp and not integer
+   */
+  private Timestamp incrementalTimestamp;
+
+  
+  
+  /**
+   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   * @return number
+   */
+  public Long getIncrementalIndexOrMillis() {
+    return this.incrementalIndexOrMillis;
+  }
+
+  /**
+   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   * @param incrementalIndexOrMillis1
+   */
+  public void setIncrementalIndexOrMillis(Long incrementalIndexOrMillis1) {
+    this.incrementalIndexOrMillis = incrementalIndexOrMillis1;
+  }
+
+  /**
+   * when last record processed if timestamp and not integer
+   * @return timestamp
+   */
+  public Timestamp getIncrementalTimestamp() {
+    return this.incrementalTimestamp;
+  }
+
+  /**
+   * when last record processed if timestamp and not integer
+   * @param incrementalTimestamp1
+   */
+  public void setIncrementalTimestamp(Timestamp incrementalTimestamp1) {
+    this.incrementalTimestamp = incrementalTimestamp1;
+  }
+
   /**
    * select grouper sync by id
    * @param theConnectionName
@@ -449,6 +509,8 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
         .append("lastUpdated", this.lastUpdated)
         .append("recordsCount", this.recordsCount)
         .append("groupCount", this.groupCount)
+        .append("incrementalIndexOrMillis", this.incrementalIndexOrMillis)
+        .append("incrementalTimestamp", this.incrementalTimestamp)
         .append("userCount", this.userCount).build();
   }
 

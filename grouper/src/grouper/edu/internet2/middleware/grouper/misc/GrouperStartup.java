@@ -299,7 +299,7 @@ public class GrouperStartup {
         if (started) {
           return false;
         }
-  //      GcDbAccess.setGrouperIsStarted(false);  TODO
+        GcDbAccess.setGrouperIsStarted(false);
         started = true;
         finishedStartupSuccessfully = false;
         
@@ -384,7 +384,7 @@ public class GrouperStartup {
         verifyUtf8andTransactions();
         
         finishedStartupSuccessfully = true;
-  //      GcDbAccess.setGrouperIsStarted(true); TODO
+        GcDbAccess.setGrouperIsStarted(true);
 
         //uncache config settings
         GrouperConfig.retrieveConfig().clearCachedCalculatedValues();

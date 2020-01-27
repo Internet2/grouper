@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouperClient.jdbc;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -2164,7 +2165,7 @@ public class GcDbAccess {
       return resultSetCallback.callback(rs);
       
     } catch (Exception e){
-      GrouperClientUtils.injectInException(e, "sql: " + this.sql);
+      GrouperClientUtils.injectInException(e, "sql: " + this.sql + ", " + (GrouperClientUtils.length(this.bindVars) > 1 ? ("args: " + GrouperClientUtils.toStringForLog(this.bindVars)) : ""));
       throw new RuntimeException(e);
     } finally {
       if (preparedStatement != null){
@@ -2412,6 +2413,9 @@ public class GcDbAccess {
   private GcDbAccess cloneDbAccess(){
     GcDbAccess dbAccess = new GcDbAccess();
     for (Field field : GcDbAccess.class.getDeclaredFields()){
+      if (Modifier.isStatic(field.getModifiers())) {
+        continue;
+      }
       try {
         field.setAccessible(true);
         field.set(dbAccess, field.get(this));

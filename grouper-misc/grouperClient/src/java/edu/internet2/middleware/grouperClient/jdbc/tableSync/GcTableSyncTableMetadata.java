@@ -249,7 +249,7 @@ public class GcTableSyncTableMetadata {
       public Object callback(ResultSet resultSet) throws Exception {
         
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-        
+
         for (int i=0;i<resultSetMetaData.getColumnCount();i++) {
           GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
           gcTableSyncColumnMetadatas.add(gcTableSyncColumnMetadata);
@@ -409,7 +409,28 @@ public class GcTableSyncTableMetadata {
    */
   private GcTableSyncColumnMetadata changeFlagColumn;
 
+  /**
+   * column in FROM table which has incrementing timestamp or integer
+   */
+  private GcTableSyncColumnMetadata incrementalAllCoumnsColumn;
   
+  /**
+   * column in FROM table which has incrementing timestamp or integer
+   * @return metadata
+   */
+  public GcTableSyncColumnMetadata getIncrementalAllCoumnsColumn() {
+    return this.incrementalAllCoumnsColumn;
+  }
+
+  /**
+   * column in FROM table which has incrementing timestamp or integer
+   * @param incrementalAllCoumnsColumn1
+   */
+  public void setIncrementalAllCoumnsColumn(
+      GcTableSyncColumnMetadata incrementalAllCoumnsColumn1) {
+    this.incrementalAllCoumnsColumn = incrementalAllCoumnsColumn1;
+  }
+
   /**
    * if full sync with change flag this is the column
    * @return change flag
@@ -468,7 +489,7 @@ public class GcTableSyncTableMetadata {
       List<GcTableSyncColumnMetadata> result = new ArrayList();
       result.addAll(this.getColumns());
       result.removeAll(this.getPrimaryKey());
-      
+      this.nonPrimaryKey = result;
     }
     
     return this.nonPrimaryKey;
@@ -522,9 +543,9 @@ public class GcTableSyncTableMetadata {
     }
     result.append(this.getChangeFlagColumn().getColumnName());
     
-    if (this.getIncrementalProgressColumn() != null) {
+    if (this.getIncrementalAllCoumnsColumn() != null) {
       result.append(", ");
-      this.getIncrementalProgressColumn().getColumnName();
+      this.getIncrementalAllCoumnsColumn().getColumnName();
     }
     return result.toString();
   }
@@ -533,12 +554,12 @@ public class GcTableSyncTableMetadata {
    * get comma separated list of primary key and change flag
    * @return the columns
    */
-  public String columnListPrimaryKeyAndIncrementalProgressColumn() {
+  public String columnListPrimaryKeyAndIncrementalProgressColumn(List<GcTableSyncColumnMetadata> otherTablePrimaryKey) {
     StringBuilder result = new StringBuilder();
 
-    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GrouperClientUtils.nonNull(this.columns)) {
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : otherTablePrimaryKey) {
 
-      result.append(gcTableSyncColumnMetadata.getColumnName());
+      result.append(this.g);
       
       result.append(", ");
     }
@@ -575,7 +596,15 @@ public class GcTableSyncTableMetadata {
    * @return the metadata
    */
   public GcTableSyncColumnMetadata getGroupColumnMetadata() {
-    return this.getGroupColumnMetadata();
+    return this.groupColumn;
+  }
+
+  /**
+   * 
+   * @param incrementalAllColumnsColumnName
+   */
+  public void assignIncrementalAllCoumnsColumn(String incrementalAllColumnsColumnName) {
+    this.incrementalAllCoumnsColumn = this.lookupColumn(incrementalAllColumnsColumnName, true);
   }
   
 }

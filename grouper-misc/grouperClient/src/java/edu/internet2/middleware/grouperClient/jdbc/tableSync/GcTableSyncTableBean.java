@@ -43,6 +43,13 @@ public class GcTableSyncTableBean {
   }
 
   /**
+   * construct with gcTableSync
+   */
+  public GcTableSyncTableBean(GcTableSync theGcTableSync) {
+    this.gcTableSync = theGcTableSync;
+  }
+
+  /**
    * get the metadata for this table
    * @param databaseFrom
    * @param tableFrom

@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringBuilder;
@@ -19,6 +20,21 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 @GcPersistableClass(tableName="grouper_sync_log", defaultFieldPersist=GcPersist.doPersist)
 public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey {
+
+  /**
+   * delete all data if table is here
+   */
+  public static void reset() {
+    
+    try {
+      // if its not there forget about it... TODO remove this in 2.5+
+      new GcDbAccess().connectionName("grouper").sql("select * from " + GcPersistableHelper.tableName(GcGrouperSyncLog.class) + " where 1 != 1").select(Integer.class);
+    } catch (Exception e) {
+      return;
+    }
+
+    new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GcGrouperSyncLog.class)).executeSql();
+  }
 
   /**
    * select grouper sync log by id

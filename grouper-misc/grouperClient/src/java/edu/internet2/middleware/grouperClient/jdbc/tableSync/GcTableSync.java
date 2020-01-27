@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -18,6 +19,86 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * sync a table
  */
 public class GcTableSync {
+
+
+  /**
+   * delete all data if table is here
+   */
+  public static void reset() {
+    
+    try {
+      // if its not there forget about it... TODO remove this in 2.5+
+      new GcDbAccess().connectionName("grouper").sql("select * from " + GcPersistableHelper.tableName(GcGrouperSync.class) + " where 1 != 1").select(Integer.class);
+    } catch (Exception e) {
+      return;
+    }
+
+    new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GcGrouperSync.class)).executeSql();
+  }
+
+  /**
+   * keep the latest incremental value when started on full
+   */
+  private Long latestIncrementalValueBeforeStarted;
+  
+  /**
+   * keep the latest incremental value when started on full
+   * @return the number
+   */
+  public Long getLatestIncrementalValueBeforeStarted() {
+    return this.latestIncrementalValueBeforeStarted;
+  }
+
+  /**
+   * keep the latest incremental value when started on full
+   * @param latestIncrementalValueBeforeStarted1
+   */
+  public void setLatestIncrementalValueBeforeStarted(
+      Long latestIncrementalValueBeforeStarted1) {
+    this.latestIncrementalValueBeforeStarted = latestIncrementalValueBeforeStarted1;
+  }
+
+  /**
+   * millis since 1970 when the sync started
+   */
+  private long millisWhenSyncStarted = -1;
+
+  /**
+   * millis since 1970 when the sync started
+   * @return when started
+   */
+  public long getMillisWhenSyncStarted() {
+    return this.millisWhenSyncStarted;
+  }
+
+  /**
+   * millis since 1970 when the sync started
+   * @param millisWhenSyncStarted1
+   */
+  public void setMillisWhenSyncStarted(long millisWhenSyncStarted1) {
+    this.millisWhenSyncStarted = millisWhenSyncStarted1;
+  }
+
+  /**
+   * output object
+   */
+  private GcTableSyncOutput gcTableSyncOutput;
+  
+  /**
+   * output object
+   * @return output
+   */
+  public GcTableSyncOutput getGcTableSyncOutput() {
+    return this.gcTableSyncOutput;
+  }
+
+  /**
+   * output object
+   * @param gcTableSyncOutput1
+   */
+  public void setGcTableSyncOutput(GcTableSyncOutput gcTableSyncOutput1) {
+    this.gcTableSyncOutput = gcTableSyncOutput1;
+  }
 
   /**
    * log every minute
@@ -167,12 +248,12 @@ public class GcTableSync {
    * @param configKey
    * @param gcTableSyncSubtype
    */
-  public void configure(String configKey, GcTableSyncSubtype gcTableSyncSubtype) {
+  private void configure(String configKey, GcTableSyncSubtype gcTableSyncSubtype) {
     try {
       this.gcTableSyncConfiguration = new GcTableSyncConfiguration();
       this.gcTableSyncConfiguration.setConfigKey(configKey);
       this.gcTableSyncConfiguration.setGcTableSyncSubtype(gcTableSyncSubtype);
-      this.gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName("grouper", "sqlTableSync", configKey);
+      this.gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName("grouper", GcGrouperSync.SQL_SYNC_ENGINE, configKey);
       this.gcGrouperSyncJob = this.gcGrouperSync.retrieveJobOrCreateBySyncType(gcTableSyncSubtype.name());
       this.gcGrouperSyncLog = this.gcGrouperSyncJob.retrieveGrouperSyncLogOrCreate();
       this.gcGrouperSyncLog.setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
@@ -180,8 +261,12 @@ public class GcTableSync {
       this.gcTableSyncConfiguration.configureTableSync(this.debugMap);
     } catch (RuntimeException re) {
       if (this.gcGrouperSyncLog != null) {
-        this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.CONFIG_ERROR);
-        this.gcGrouperSyncLog.store();
+        try {
+          this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.CONFIG_ERROR);
+          this.gcGrouperSyncLog.store();
+        } catch (RuntimeException re2) {
+          GrouperClientUtils.injectInException(re, "***** START ANOTHER EXCEPTON *******" + GrouperClientUtils.getFullStackTrace(re2) + "***** END ANOTHER EXCEPTON *******");
+        }
       }
       throw re;
     }
@@ -205,12 +290,14 @@ public class GcTableSync {
    * @param gcTableSyncOutputArray 
    * 
    */
-  public void sync(final GcTableSyncOutput gcTableSyncOutput) {
+  public GcTableSyncOutput sync(String configKey, GcTableSyncSubtype gcTableSyncSubtype) {
     
-    if (this.gcTableSyncConfiguration == null) {
-      throw new RuntimeException("Table sync is not configured, call configure before sync");
-    }
-
+    this.millisWhenSyncStarted = System.currentTimeMillis();
+    
+    this.gcTableSyncOutput = new GcTableSyncOutput();
+    
+    this.configure(configKey, gcTableSyncSubtype);
+    
     final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
     long now = System.nanoTime();
@@ -252,13 +339,18 @@ public class GcTableSync {
                   return;
                 }
               }
-              // its been a minute, update the heartbeat, see if a more important job is running
-              boolean shouldKeepRunning = GcTableSync.this.gcGrouperSyncJob.assignHeartbeatAndCheckForPendingJobs(GcTableSync.this.gcTableSyncConfiguration.getGcTableSyncSubtype().isFullSync());
-              if (!shouldKeepRunning) {
-                interrupted[0]=true;
-                debugMap.put("interrupted", true);
+              synchronized (GcTableSync.this) {
+                if (done[0]) {
+                  return;
+                }
+                // its been a minute, update the heartbeat, see if a more important job is running
+                boolean shouldKeepRunning = GcTableSync.this.gcGrouperSyncJob.assignHeartbeatAndCheckForPendingJobs(GcTableSync.this.gcTableSyncConfiguration.getGcTableSyncSubtype().isFullSync());
+                if (!shouldKeepRunning) {
+                  interrupted[0]=true;
+                  debugMap.put("interrupted", true);
+                }
               }
-              logPeriodically(debugMap, gcTableSyncOutput);
+              logPeriodically(debugMap, GcTableSync.this.gcTableSyncOutput);
             }
           } catch (InterruptedException ie) {
             
@@ -272,38 +364,46 @@ public class GcTableSync {
       
       heartbeatThread.start();
       
-      this.dataBeanFrom = new GcTableSyncTableBean();
+      this.dataBeanFrom = new GcTableSyncTableBean(this);
       this.dataBeanFrom.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getTableFrom());
+      this.dataBeanFrom.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
       this.dataBeanFrom.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getColumnsString());
       this.dataBeanFrom.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
-      this.dataBeanFrom.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getChangeFlagColumnString());
+      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getChangeFlagColumnString())) {
+        this.dataBeanFrom.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getChangeFlagColumnString());
+      }
       if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getGroupColumnString())) {
         this.dataBeanFrom.getTableMetadata().assignGroupColumn(this.gcTableSyncConfiguration.getGroupColumnString());
       }
-      // if the incremental is there, use it, otherwise it might be in the real time table
-      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalProgressColumnString())) {
-        if (this.dataBeanFrom.getTableMetadata().lookupColumn(this.gcTableSyncConfiguration.getIncrementalProgressColumnString(), false) != null) {
-          this.dataBeanFrom.getTableMetadata().assignIncrementalProgressColumn(this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
-        }
+      // if the incremental is there, use it
+      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalAllColumnsColumnString())) {
+        this.dataBeanFrom.getTableMetadata().assignIncrementalAllCoumnsColumn(this.gcTableSyncConfiguration.getIncrementalAllColumnsColumnString());
       }
       
-      this.dataBeanTo = new GcTableSyncTableBean();
+      this.dataBeanTo = new GcTableSyncTableBean(this);
       this.dataBeanTo.configureMetadata(this.gcTableSyncConfiguration.getDatabaseTo(), this.gcTableSyncConfiguration.getTableTo());
       this.dataBeanTo.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseToOrReadonly());
       this.dataBeanTo.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getColumnsString());
       this.dataBeanTo.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
-      this.dataBeanTo.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getChangeFlagColumnString());
+      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getChangeFlagColumnString())) {
+        this.dataBeanTo.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getChangeFlagColumnString());
+      }
       if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getGroupColumnString())) {
         this.dataBeanTo.getTableMetadata().assignGroupColumn(this.gcTableSyncConfiguration.getGroupColumnString());
       }
 
       if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalPrimaryKeyTable())) {
-        this.dataBeanRealTime = new GcTableSyncTableBean();
+        this.dataBeanRealTime = new GcTableSyncTableBean(this);
         this.dataBeanRealTime.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getIncrementalPrimaryKeyTable());
+        this.dataBeanRealTime.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
         this.dataBeanRealTime.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString() + ", " + this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
-        this.dataBeanRealTime.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
+        //this.dataBeanRealTime.getTableMetadata().assignPrimaryKeyColumns("*");
+        this.dataBeanRealTime.getTableMetadata().assignIncrementalProgressColumn(this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
       }
       
+      debugMap.put("sync", GcGrouperSync.SQL_SYNC_ENGINE);
+      debugMap.put("provisionerName", this.getGcTableSyncConfiguration().getConfigKey());
+      debugMap.put("syncType", this.getGcTableSyncConfiguration().getGcTableSyncSubtype());
       debugMap.put("databaseFrom", this.getDataBeanFrom().getTableMetadata().getConnectionName());
       debugMap.put("tableFrom", this.getDataBeanFrom().getTableMetadata().getTableName());
       debugMap.put("databaseTo", this.getDataBeanTo().getTableMetadata().getConnectionName());
@@ -312,13 +412,11 @@ public class GcTableSync {
       // step 1
       this.gcTableSyncConfiguration.getGcTableSyncSubtype().retrieveData(debugMap, this);
       
-      gcTableSyncOutput.setRowsSelectedFrom(GrouperClientUtils.length(this.dataBeanFrom.getDataInitialQuery().getRows()));
-      gcTableSyncOutput.setRowsSelectedTo(GrouperClientUtils.length(this.dataBeanTo.getDataInitialQuery().getRows()));
-      this.gcGrouperSyncLog.setRecordsProcessed(Math.max(gcTableSyncOutput.getRowsSelectedFrom(), gcTableSyncOutput.getRowsSelectedTo()));
+      this.gcGrouperSyncLog.setRecordsProcessed(Math.max(this.gcTableSyncOutput.getRowsSelectedFrom(), this.gcTableSyncOutput.getRowsSelectedTo()));
 
       if (done[0]) {
         gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.INTERRUPTED);
-        return;
+        return this.gcTableSyncOutput;
       }
       
       // step 2
@@ -327,12 +425,24 @@ public class GcTableSync {
         Integer recordsChanged = this.gcTableSyncConfiguration.getGcTableSyncSubtype().syncData(debugMap, this);
         if (recordsChanged != null) {
           this.gcGrouperSyncLog.setRecordsChanged(recordsChanged);
+          this.gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis()));
+          this.gcGrouperSyncJob.store();
+        }
+      }
+
+      debugMap.put("state", "done");
+
+      // change micros to millis in the logs
+      for (String label : debugMap.keySet()) {
+        if (label.endsWith("Millis")) {
+          Object value = debugMap.get(label);
+          if (value instanceof Long) {
+            debugMap.put(label, ((Long)value)/1000);
+          }
         }
       }
       
-      gcTableSyncOutput.setRowsSelectedFrom(GrouperClientUtils.length(this.dataBeanFrom.getDataInitialQuery().getRows()));
-      gcTableSyncOutput.setRowsSelectedTo(GrouperClientUtils.length(this.dataBeanTo.getDataInitialQuery().getRows()));
-      this.gcGrouperSyncLog.setRecordsProcessed(Math.max(gcTableSyncOutput.getRowsSelectedFrom(), gcTableSyncOutput.getRowsSelectedTo()));
+      this.gcGrouperSyncLog.setRecordsProcessed(Math.max(this.gcTableSyncOutput.getRowsSelectedFrom(), this.gcTableSyncOutput.getRowsSelectedTo()));
 
       if (GrouperClientUtils.isBlank(gcGrouperSyncLog.getStatus())) {
         gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
@@ -345,22 +455,25 @@ public class GcTableSync {
       GrouperClientUtils.join(heartbeatThread);
       
       debugMap.put("finalLog", true);
-
-      try {
-        if (this.gcGrouperSyncJob != null) {
-          this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
+      
+      synchronized (this) {
+        try {
+          if (this.gcGrouperSyncJob != null) {
+            this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
+          }
+        } catch (RuntimeException re2) {
+          if (this.gcGrouperSyncLog != null) {
+            this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+          }
+          debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
         }
-      } catch (RuntimeException re2) {
-        if (this.gcGrouperSyncLog != null) {
-          this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
-        }
-        debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
       }
+
+      this.gcTableSyncOutput.setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
+      debugMap.put("queryCount", this.gcTableSyncOutput.getQueryCount());
       
-      gcTableSyncOutput.setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
-      debugMap.put("queryCount", gcTableSyncOutput.getQueryCount());
-      
-      int durationMillis = (int)((System.currentTimeMillis()-now)/1000000);
+      int durationMillis = (int)((System.nanoTime()-now)/1000000);
+      debugMap.put("tookMillis", durationMillis);
       debugMap.put("took", DurationFormatUtils.formatDurationHMS(durationMillis));
       
       String debugString = GrouperClientUtils.mapToString(debugMap);
@@ -380,7 +493,7 @@ public class GcTableSync {
 
       // already set total
       //gcTableSyncOutput.setTotal();
-      gcTableSyncOutput.setMessage(debugString);
+      this.gcTableSyncOutput.setMessage(debugString);
 
       // this isnt good
       if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
@@ -388,6 +501,7 @@ public class GcTableSync {
       }
       
     }
+    return this.gcTableSyncOutput;
   }
 
   /**
@@ -417,19 +531,7 @@ public class GcTableSync {
    * @param args
    */
   public static void main(String[] args) {
-
-    
-//    GcTableSync gcTableSync = new GcTableSync();
-//    gcTableSync.setKey("personSource");
-//    gcTableSync.selectStuffTest();
+    new GcTableSync().sync(args[0], GcTableSyncSubtype.valueOfIgnoreCase(args[1], true));
   }
 
-  /**
-   * 
-   */
-  public void selectStuffTest() {
-
-  }
-
-  
 }

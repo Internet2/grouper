@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,25 +23,24 @@ public class GcTableSyncTableData {
 
   /**
    * take the data and find the max incremental progress value
+   * @param progressColumn
    * @return the max value
    */
-  public Object maxIncrementalProgressValue() {
+  public Object maxProgressValue(GcTableSyncColumnMetadata progressColumnMetadata) {
     
     if (GrouperClientUtils.length(this.rows) == 0) {
       return null;
     }
     
-    Object maxIncrementalProgressValue = null;
-    
-    GcTableSyncColumnMetadata incrementalProgressValueMetadata = this.getGcTableSyncTableBean().getTableMetadata().getIncrementalProgressColumn();
+    Object maxIncrementalAllColumnsValue = null;
     
     for (GcTableSyncRowData gcTableSyncRowData : this.rows) {
-      Object currentIncrementalProgressValue = gcTableSyncRowData.incrementalProgressValue(incrementalProgressValueMetadata);
-      if (maxIncrementalProgressValue == null || ((Comparable)currentIncrementalProgressValue).compareTo(maxIncrementalProgressValue) > 0) {
-        maxIncrementalProgressValue = currentIncrementalProgressValue;
+      Object currentIncrementalAllColumnsValue = gcTableSyncRowData.incrementalProgressValue(progressColumnMetadata);
+      if (maxIncrementalAllColumnsValue == null || ((Comparable)currentIncrementalAllColumnsValue).compareTo(maxIncrementalAllColumnsValue) > 0) {
+        maxIncrementalAllColumnsValue = currentIncrementalAllColumnsValue;
       }
     }
-    return maxIncrementalProgressValue;
+    return maxIncrementalAllColumnsValue;
   }
   
   /**
@@ -143,6 +143,40 @@ public class GcTableSyncTableData {
     }
     
     return this.indexByPrimaryKey.keySet();
+    
+  }
+  
+  /**
+   * 
+   * @return the multikeys
+   */
+  public Set<MultiKey> allDataInColumns(List<GcTableSyncColumnMetadata> gcTableSyncColumnMetadatas) {
+
+    Set<MultiKey> results = new LinkedHashSet<MultiKey>();
+    
+    GcTableSyncColumnMetadata[] gcTableSyncColumnMetadataThises = new GcTableSyncColumnMetadata[GrouperClientUtils.length(gcTableSyncColumnMetadatas)];
+    for (int i=0; i<GrouperClientUtils.length(gcTableSyncColumnMetadatas); i++) {
+      
+      GcTableSyncColumnMetadata gcTableSyncColumnMetadataOther = gcTableSyncColumnMetadatas.get(i);
+
+      GcTableSyncColumnMetadata gcTableSyncColumnMetadataThis = 
+          this.getGcTableSyncTableBean().getTableMetadata().lookupColumn(gcTableSyncColumnMetadataOther.getColumnName(), true);
+      
+      gcTableSyncColumnMetadataThises[i] = gcTableSyncColumnMetadataThis;
+      
+    }
+
+    for (GcTableSyncRowData row : GrouperClientUtils.nonNull(this.rows)) {
+      Object[] values = new Object[GrouperClientUtils.length(gcTableSyncColumnMetadatas)];
+      int i=0;
+      for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : gcTableSyncColumnMetadataThises) {
+        values[i++] = row.getData()[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()];
+      }
+      MultiKey multiKey = new MultiKey(values);
+      results.add(multiKey);
+    }
+
+    return results;
     
   }
   

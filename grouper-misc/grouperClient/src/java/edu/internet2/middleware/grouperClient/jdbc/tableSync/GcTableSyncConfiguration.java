@@ -187,7 +187,7 @@ public class GcTableSyncConfiguration {
   }
 
   /**
-   * name of a column that has a sequence or last updated date
+   * name of a column in progress table that has a sequence or last updated date
    */
   private String incrementalProgressColumnString;
 
@@ -285,10 +285,29 @@ public class GcTableSyncConfiguration {
    * all columns, could be * which means all, or list of comma separated values, default to *
    */
   private String columnsString;
+
+  /**
+   * name of a column in "FROM" table that has a sequence or last updated date
+   */
+  private String incrementalAllColumnsColumnString;
   
-  
-  
-  
+  /**
+   * name of a column in "FROM" table that has a sequence or last updated date
+   * @return column
+   */
+  public String getIncrementalAllColumnsColumnString() {
+    return this.incrementalAllColumnsColumnString;
+  }
+
+  /**
+   * name of a column in "FROM" table that has a sequence or last updated date
+   * @param incrementalAllColumnsColumnString1
+   */
+  public void setIncrementalAllColumnsColumnString(
+      String incrementalAllColumnsColumnString1) {
+    this.incrementalAllColumnsColumnString = incrementalAllColumnsColumnString1;
+  }
+
   /**
    * primary key columns, * means all columns, or list of comma separated values, default to *
    * @return the primaryKeyColumnsString
@@ -369,33 +388,40 @@ public class GcTableSyncConfiguration {
     debugMap.put("configColumns", this.columnsString);
 
     //  grouperClient.syncTable.personSource.primaryKeyColumns = penn_id
-    this.primaryKeyColumnsString = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("primaryKeyColumns", false), "*");
+    this.primaryKeyColumnsString = this.retrieveConfigString("primaryKeyColumns", true);
     debugMap.put("configPrimaryKeyColumns", this.primaryKeyColumnsString);
 
     // grouperClient.syncTable.personSource.fullSyncChangeFlagColumn = check_sum
-    this.changeFlagColumnString = this.retrieveConfigString("fchangeFlagColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.fullSyncChangeFlag);
+    this.changeFlagColumnString = this.retrieveConfigString("changeFlagColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.fullSyncChangeFlag);
     if (!GrouperClientUtils.isBlank(this.changeFlagColumnString)) {
       debugMap.put("changeFlagColumn", this.changeFlagColumnString);
     }
-    
+
     // grouperClient.syncTable.personSource.incrementalAllColumnsColumn = last_updated
-    this.incrementalProgressColumnString = this.retrieveConfigString("incrementalAllColumnsColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalAllColumns);
+    this.incrementalAllColumnsColumnString = this.retrieveConfigString("incrementalAllColumnsColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalAllColumns);
     if (!GrouperClientUtils.isBlank(this.incrementalProgressColumnString)) {
       debugMap.put("incrementalAllColumnsColumn", this.incrementalProgressColumnString);
     }
     
+    
+    // grouperClient.syncTable.personSource.incrementalAllColumnsColumn = last_updated
+    this.incrementalProgressColumnString = this.retrieveConfigString("incrementalProgressColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalPrimaryKey);
+    if (!GrouperClientUtils.isBlank(this.incrementalProgressColumnString)) {
+      debugMap.put("incrementalProgressColumn", this.incrementalProgressColumnString);
+    }
+    
     //  grouperClient.syncTable.personSource.groupColumn = penn_id
-    this.groupColumnString = this.retrieveConfigString("groupColumn", false);
+    this.groupColumnString = this.retrieveConfigString("groupingColumn", false);
     if (this.gcTableSyncSubtype.isNeedsGroupColumn() ) {
-      if (GrouperClientUtils.isBlank(this.groupColumnString) && !this.primaryKeyColumnsString.contains(",") && !this.primaryKeyColumnsString.equals("*")) {
-        this.groupColumnString = this.primaryKeyColumnsString;
-      }
+//      if (GrouperClientUtils.isBlank(this.groupColumnString) && !this.primaryKeyColumnsString.contains(",") && !this.primaryKeyColumnsString.equals("*")) {
+//        this.groupColumnString = this.primaryKeyColumnsString;
+//      }
       if (GrouperClientUtils.isBlank(this.groupColumnString)) {
-        throw new RuntimeException("groupColumn is required for " + this.configKey);
+        throw new RuntimeException("groupingColumn is required for " + this.configKey);
       }
     }
     if (!GrouperClientUtils.isBlank(this.groupColumnString)) {
-      debugMap.put("configGroupColumn", this.groupColumnString);
+      debugMap.put("configGroupingColumn", this.groupColumnString);
     }
     
     // grouperClient.syncTable.personSource.batchSize = 50
@@ -430,7 +456,7 @@ public class GcTableSyncConfiguration {
     }
     
     // grouperClient.syncTable.personSource.incrementalPrimaryKeyTable = real_time_table
-    this.incrementalPrimaryKeyTable = GrouperClientUtils.defaultIfNull(this.retrieveConfigString("incrementalPrimaryKeyTable", false), this.tableFrom);
+    this.incrementalPrimaryKeyTable = this.retrieveConfigString("incrementalPrimaryKeyTable", false);
     if (!GrouperClientUtils.isBlank(this.incrementalPrimaryKeyTable)) {
       debugMap.put("incrementalPrimaryKeyTable", this.incrementalPrimaryKeyTable);
     }

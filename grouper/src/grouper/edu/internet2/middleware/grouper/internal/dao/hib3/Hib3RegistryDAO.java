@@ -59,6 +59,12 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
@@ -171,6 +177,13 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3FieldDAO.reset(hibernateSession);
             Hib3MessageDAO.reset(hibernateSession);
 
+            GcGrouperSyncLog.reset();
+            GcGrouperSyncMembership.reset();
+            GcGrouperSyncGroup.reset();
+            GcGrouperSyncMember.reset();
+            GcGrouperSyncJob.reset();
+            GcGrouperSync.reset();
+            
             //we need to flush since the next query will run a sql
             hibernateSession.getSession().flush();
             Hib3MemberDAO.reset(hibernateSession);

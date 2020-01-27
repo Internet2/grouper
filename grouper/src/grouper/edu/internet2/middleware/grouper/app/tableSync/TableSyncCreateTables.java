@@ -60,7 +60,7 @@ public class TableSyncCreateTables {
     
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
       
@@ -82,7 +82,7 @@ public class TableSyncCreateTables {
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_job_id", Types.VARCHAR, "40", false, false);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "status", Types.VARCHAR, "10", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "status", Types.VARCHAR, "20", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "sync_timestamp", Types.TIMESTAMP, "10", false, false);
   
@@ -148,7 +148,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync_group";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
       
@@ -262,7 +262,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync_member";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
       
@@ -392,7 +392,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync_job";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
     }
@@ -414,7 +414,7 @@ public class TableSyncCreateTables {
         Types.VARCHAR, "50", false, false);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_sync_index_or_millis", 
-        Types.INTEGER, "10", false, false);
+        Types.BIGINT, "15", false, false);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_sync_timestamp", 
         Types.TIMESTAMP, null, false, false);
@@ -463,7 +463,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
     }
@@ -490,6 +490,13 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "records_count", 
         Types.INTEGER, "10", false, false);
   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "incremental_index_or_millis", 
+        Types.BIGINT, "15", false, false);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "incremental_timestamp", 
+        Types.TIMESTAMP, null, false, false);
+  
+
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
         Types.TIMESTAMP, "10", false, true);
   
@@ -513,6 +520,11 @@ public class TableSyncCreateTables {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "records_count", "number of records including users, groups, etc");
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_index_or_millis", "either an int of last record checked, or an int of millis since 1970 of last record processed");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_timestamp", "when last record processed if timestamp and not integer");
+    
+
   }
 
   /**
@@ -522,7 +534,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync_membership";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
       
