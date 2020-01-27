@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sun.org.apache.bcel.internal.classfile.Code;
+
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -170,7 +172,7 @@ public class GcTableSyncTableData {
       Object[] values = new Object[GrouperClientUtils.length(gcTableSyncColumnMetadatas)];
       int i=0;
       for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : gcTableSyncColumnMetadataThises) {
-        values[i++] = row.getData()[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()];
+        values[i++] = row.getData()[row.lookupColumnToIndexZeroIndexed(gcTableSyncColumnMetadata.getColumnName(), true)];
       }
       MultiKey multiKey = new MultiKey(values);
       results.add(multiKey);

@@ -364,6 +364,10 @@ public class GcTableSync {
       
       heartbeatThread.start();
       
+      debugMap.put("sync", GcGrouperSync.SQL_SYNC_ENGINE);
+      debugMap.put("provisionerName", this.getGcTableSyncConfiguration().getConfigKey());
+      debugMap.put("syncType", this.getGcTableSyncConfiguration().getGcTableSyncSubtype());
+
       this.dataBeanFrom = new GcTableSyncTableBean(this);
       this.dataBeanFrom.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getTableFrom());
       this.dataBeanFrom.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
@@ -379,6 +383,8 @@ public class GcTableSync {
       if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalAllColumnsColumnString())) {
         this.dataBeanFrom.getTableMetadata().assignIncrementalAllCoumnsColumn(this.gcTableSyncConfiguration.getIncrementalAllColumnsColumnString());
       }
+      debugMap.put("databaseFrom", this.getDataBeanFrom().getTableMetadata().getConnectionName());
+      debugMap.put("tableFrom", this.getDataBeanFrom().getTableMetadata().getTableName());
       
       this.dataBeanTo = new GcTableSyncTableBean(this);
       this.dataBeanTo.configureMetadata(this.gcTableSyncConfiguration.getDatabaseTo(), this.gcTableSyncConfiguration.getTableTo());
@@ -391,6 +397,8 @@ public class GcTableSync {
       if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getGroupColumnString())) {
         this.dataBeanTo.getTableMetadata().assignGroupColumn(this.gcTableSyncConfiguration.getGroupColumnString());
       }
+      debugMap.put("databaseTo", this.getDataBeanTo().getTableMetadata().getConnectionName());
+      debugMap.put("tableTo", this.getDataBeanTo().getTableMetadata().getTableName());
 
       if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalPrimaryKeyTable())) {
         this.dataBeanRealTime = new GcTableSyncTableBean(this);
@@ -399,15 +407,8 @@ public class GcTableSync {
         this.dataBeanRealTime.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString() + ", " + this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
         //this.dataBeanRealTime.getTableMetadata().assignPrimaryKeyColumns("*");
         this.dataBeanRealTime.getTableMetadata().assignIncrementalProgressColumn(this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
+        debugMap.put("tableIncremental", this.getDataBeanRealTime().getTableMetadata().getTableName());
       }
-      
-      debugMap.put("sync", GcGrouperSync.SQL_SYNC_ENGINE);
-      debugMap.put("provisionerName", this.getGcTableSyncConfiguration().getConfigKey());
-      debugMap.put("syncType", this.getGcTableSyncConfiguration().getGcTableSyncSubtype());
-      debugMap.put("databaseFrom", this.getDataBeanFrom().getTableMetadata().getConnectionName());
-      debugMap.put("tableFrom", this.getDataBeanFrom().getTableMetadata().getTableName());
-      debugMap.put("databaseTo", this.getDataBeanTo().getTableMetadata().getConnectionName());
-      debugMap.put("tableTo", this.getDataBeanTo().getTableMetadata().getTableName());
       
       // step 1
       this.gcTableSyncConfiguration.getGcTableSyncSubtype().retrieveData(debugMap, this);
@@ -426,7 +427,6 @@ public class GcTableSync {
         if (recordsChanged != null) {
           this.gcGrouperSyncLog.setRecordsChanged(recordsChanged);
           this.gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis()));
-          this.gcGrouperSyncJob.store();
         }
       }
 
@@ -447,6 +447,8 @@ public class GcTableSync {
       if (GrouperClientUtils.isBlank(gcGrouperSyncLog.getStatus())) {
         gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
       }
+      this.getGcGrouperSync().store();
+
     } catch (RuntimeException re) {
       gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

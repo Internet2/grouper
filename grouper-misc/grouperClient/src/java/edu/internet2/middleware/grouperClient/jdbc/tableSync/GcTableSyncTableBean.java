@@ -82,11 +82,6 @@ public class GcTableSyncTableBean {
 
 
   /**
-   * data in the table e.g. for group or whatever
-   */
-  private GcTableSyncTableData dataPartialColumns;
-
-  /**
    * data in the table
    */
   private GcTableSyncTableData dataInitialQuery;

@@ -53,9 +53,9 @@ public class TableSyncTest extends GrouperTest {
     GrouperStartup.startup();
 //    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
 //    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
-//    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalAllColumns"));
+    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalAllColumns"));
 //    TestRunner.run(new TableSyncTest("testPersonSyncFullChangeFlag"));
-    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalPrimaryKey"));
+//    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalPrimaryKey"));
     
 //    List<Object[]> results = new GcDbAccess().connectionName("grouper")
 //        .sql("select PERSON_ID, HIBERNATE_VERSION_NUMBER, NET_ID, SOME_INT, SOME_FLOAT, SOME_DATE, SOME_TIMESTAMP from testgrouper_sync_subject_from")
@@ -1186,7 +1186,7 @@ public class TableSyncTest extends GrouperTest {
     gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.incrementalPrimaryKey); 
   
     // these dont happen on incremental all columns
-    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(numberOfDeletes, gcTableSyncOutput.getDelete());
     assertEquals(numberOfUpdates, gcTableSyncOutput.getUpdate());
     assertEquals(numberOfUpdates + numberOfInserts, gcTableSyncOutput.getRowsSelectedFrom());
     assertEquals(numberOfInserts, gcTableSyncOutput.getInsert());
@@ -1199,28 +1199,24 @@ public class TableSyncTest extends GrouperTest {
       TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, i + "");
       assertEquals("newnetId_" + i, testgrouperSyncSubjectTo.getNetId());
     }
-    // these are still there until full sync
-    for (int i=numberOfUpdates;i<numberOfUpdates + numberOfDeletes;i++) {
-      TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, i + "");
-      assertEquals("netId_" + i, testgrouperSyncSubjectTo.getNetId());
-      
-    }
-    
-    // ######################
-    // do a full and see deletes work
-    gcTableSync = new GcTableSync();
-    
-    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
-        
-    assertEquals(numberOfDeletes, gcTableSyncOutput.getDelete());
-    assertEquals(0, gcTableSyncOutput.getUpdate());
-    assertEquals(0, gcTableSyncOutput.getInsert());
-    
     for (int i=numberOfUpdates;i<numberOfUpdates + numberOfDeletes;i++) {
       int rows = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to where person_id = ?", 
           HibUtils.listObject(i), HibUtils.listType(StringType.INSTANCE));
       assertEquals(0, rows);
     }
+    
+    // ######################
+    // do a full and nothing
+    gcTableSync = new GcTableSync();
+    
+    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
+        
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(0, gcTableSyncOutput.getUpdate());
+    assertEquals(recordsSize + numberOfInserts - numberOfDeletes, gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(0, gcTableSyncOutput.getInsert());
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    
   
     // ######################
     // incremental should do nothing
@@ -1232,18 +1228,6 @@ public class TableSyncTest extends GrouperTest {
     assertEquals(0, gcTableSyncOutput.getDelete());
     assertEquals(0, gcTableSyncOutput.getUpdate());
     assertEquals(0, gcTableSyncOutput.getRowsSelectedFrom());
-    assertEquals(0, gcTableSyncOutput.getInsert());
-  
-    // ######################
-    // full should do nothing
-    gcTableSync = new GcTableSync();
-  
-    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
-  
-    // these dont happen on incremental all columns
-    assertEquals(0, gcTableSyncOutput.getDelete());
-    assertEquals(0, gcTableSyncOutput.getUpdate());
-    assertEquals(recordsSize + numberOfInserts - numberOfDeletes, gcTableSyncOutput.getRowsSelectedFrom());
     assertEquals(0, gcTableSyncOutput.getInsert());
   
     // ######################

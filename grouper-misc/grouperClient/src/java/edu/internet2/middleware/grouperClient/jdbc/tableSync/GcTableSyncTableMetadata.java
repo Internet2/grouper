@@ -554,12 +554,13 @@ public class GcTableSyncTableMetadata {
    * get comma separated list of primary key and change flag
    * @return the columns
    */
-  public String columnListPrimaryKeyAndIncrementalProgressColumn(List<GcTableSyncColumnMetadata> otherTablePrimaryKey) {
+  public String columnListInputtedColumnsAndIncrementalProgressColumn(List<GcTableSyncColumnMetadata> otherTablePrimaryKey) {
     StringBuilder result = new StringBuilder();
 
-    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : otherTablePrimaryKey) {
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadataOther : otherTablePrimaryKey) {
 
-      result.append(this.g);
+      GcTableSyncColumnMetadata gcTableSyncColumnMetadataThis = this.lookupColumn(gcTableSyncColumnMetadataOther.getColumnName(), true);
+      result.append(gcTableSyncColumnMetadataThis.getColumnName());
       
       result.append(", ");
     }

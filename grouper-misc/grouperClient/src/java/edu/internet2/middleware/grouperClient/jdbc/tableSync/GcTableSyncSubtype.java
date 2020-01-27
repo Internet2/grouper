@@ -53,7 +53,9 @@ public enum GcTableSyncSubtype {
       String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll() + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
       String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().columnListAll() + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
 
-      GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, sqlTo, "retrieveData", null);
+      GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
+          gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), sqlTo, gcTableSync.getDataBeanTo().getTableMetadata().columnListAll(), 
+          "retrieveData", null);
       gcTableSync.getDataBeanFrom().setDataInitialQuery(gcTableSyncTableDatas[0]);
       gcTableSync.getDataBeanTo().setDataInitialQuery(gcTableSyncTableDatas[1]);
 
@@ -122,7 +124,9 @@ public enum GcTableSyncSubtype {
       String sqlFrom = "select distinct " + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
       String sqlTo = "select distinct " + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
 
-      GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, sqlTo, "retrieveGroups", null);
+      GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
+          gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName(), sqlTo, 
+          gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName(), "retrieveGroups", null);
       gcTableSync.getDataBeanFrom().setDataInitialQuery(gcTableSyncTableDatas[0]);
       gcTableSync.getDataBeanTo().setDataInitialQuery(gcTableSyncTableDatas[1]);
 
@@ -177,7 +181,9 @@ public enum GcTableSyncSubtype {
       String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress() + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
       String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress() + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
 
-      GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, sqlTo, "retrieveChangeFlag", null);
+      GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
+          gcTableSync.getDataBeanFrom().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress(), sqlTo, 
+          gcTableSync.getDataBeanTo().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress(), "retrieveChangeFlag", null);
       gcTableSync.getDataBeanFrom().setDataInitialQuery(gcTableSyncTableDatas[0]);
       gcTableSync.getDataBeanTo().setDataInitialQuery(gcTableSyncTableDatas[1]);
 
@@ -254,7 +260,9 @@ public enum GcTableSyncSubtype {
     @Override
     public void retrieveData(Map<String, Object> debugMap, GcTableSync gcTableSync) {
       
-      retrieveIncrementalDataHelper(debugMap, gcTableSync, gcTableSync.getDataBeanFrom(), gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll());
+      retrieveIncrementalDataHelper(debugMap, gcTableSync, gcTableSync.getDataBeanFrom(), 
+          gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(),
+          gcTableSync.getDataBeanFrom().getTableMetadata().getIncrementalAllCoumnsColumn(), true);
 
     }
 
@@ -295,7 +303,6 @@ public enum GcTableSyncSubtype {
       int recordsChanged = results[0] + results[1] + results[2];
       
       gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
-      gcTableSync.getGcGrouperSync().store();
 
       // update the real time incremented col...
       assignIncrementalIndex(gcTableSync.getDataBeanRealTime().getDataInitialQuery(), gcTableSync.getDataBeanRealTime().getTableMetadata().getIncrementalProgressColumn());
@@ -314,8 +321,10 @@ public enum GcTableSyncSubtype {
       
       retrieveIncrementalDataHelper(debugMap, gcTableSync, 
           gcTableSync.getDataBeanRealTime(), 
-          use the primar key of from table!
-          gcTableSync.getDataBeanRealTime().getTableMetadata().columnListPrimaryKeyAndIncrementalProgressColumn(gcTableSync.getDataBeanFrom().getTableMetadata().getPrimaryKey()));
+          gcTableSync.getDataBeanRealTime().getTableMetadata()
+            .columnListInputtedColumnsAndIncrementalProgressColumn(
+                 gcTableSync.getDataBeanFrom().getTableMetadata().getPrimaryKey()), 
+            gcTableSync.getDataBeanRealTime().getTableMetadata().getIncrementalProgressColumn() , null);
 
     }
 
@@ -330,9 +339,10 @@ public enum GcTableSyncSubtype {
    * @param columnTypeProgressColumn
    * @param sqlGetIncrementals
    * @param gcTableSyncTableBeanSelectFrom
+   * @param isFrom true if from, false if "to", and null if neither
    */
   private static void retrieveIncrementalDataHelper(Map<String, Object> debugMap, GcTableSync gcTableSync, 
-      GcTableSyncTableBean gcTableSyncTableBeanSelectFrom, String columnsToSelect) {
+      GcTableSyncTableBean gcTableSyncTableBeanSelectFrom, String columnsToSelect, GcTableSyncColumnMetadata incrementalColumn, Boolean isFrom) {
     
     // where are we in the list?  do the whole list if we dont know where we are?
     Long lastRetrievedLong = gcTableSync.getGcGrouperSync().getIncrementalIndexOrMillis();
@@ -340,7 +350,7 @@ public enum GcTableSyncSubtype {
 
     Object lastRetrieved = null;
 
-    ColumnType columnTypeProgressColumn = gcTableSyncTableBeanSelectFrom.getTableMetadata().getIncrementalProgressColumn().getColumnType();
+    ColumnType columnTypeProgressColumn = incrementalColumn.getColumnType();
     
     switch(columnTypeProgressColumn) {
       
@@ -369,11 +379,11 @@ public enum GcTableSyncSubtype {
       String sqlGetIncrementals = "select " 
           + columnsToSelect
           + " from " + gcTableSyncTableBeanSelectFrom.getTableMetadata().getTableName() 
-          + " where " + gcTableSyncTableBeanSelectFrom.getTableMetadata().getIncrementalProgressColumn().getColumnName()
+          + " where " + incrementalColumn.getColumnName()
           + " > ?";
   
       GcTableSyncTableData gcTableSyncTableData = runQuery(debugMap, gcTableSyncTableBeanSelectFrom, 
-          sqlGetIncrementals, "incrementalChanges", new Object[] {lastRetrieved}, true );
+          sqlGetIncrementals, columnsToSelect, "incrementalChanges", new Object[] {lastRetrieved}, isFrom );
   
       gcTableSyncTableBeanSelectFrom.setDataInitialQuery(gcTableSyncTableData);
     }      
@@ -497,7 +507,7 @@ public enum GcTableSyncSubtype {
    * return the data
    * 
    */
-  private static GcTableSyncTableData runQuery(final Map<String, Object> debugMap, GcTableSyncTableBean gcTableSyncTableBean, String sql, 
+  private static GcTableSyncTableData runQuery(final Map<String, Object> debugMap, GcTableSyncTableBean gcTableSyncTableBean, String sql, String columns,
       String queryLogLabel, Object[] bindVars, Boolean isFrom) {
     long start = System.nanoTime();
     //
@@ -512,7 +522,7 @@ public enum GcTableSyncSubtype {
       List<Object[]> results = gcDbAccess.sql(sql).selectList(Object[].class);
 
       GcTableSyncTableData gcTableSyncTableData = new GcTableSyncTableData();
-      gcTableSyncTableData.init(gcTableSyncTableBean, gcTableSyncTableMetadata.getColumnMetadata(), results);
+      gcTableSyncTableData.init(gcTableSyncTableBean, gcTableSyncTableMetadata.lookupColumns(columns), results);
       logIncrement(debugMap, queryLogLabel + "Count", GrouperClientUtils.length(results));
 
       if (isFrom != null) { 
@@ -898,7 +908,8 @@ public enum GcTableSyncSubtype {
    * @return two table datas (from is 0 to is 1)
    */
   private static GcTableSyncTableData[] runQueryFromAndTo(final Map<String, Object> debugMap, 
-      final GcTableSync gcTableSync, final String sqlFrom, final String sqlTo, final String queryLogLabel, final Object[] bindVars) {
+      final GcTableSync gcTableSync, final String sqlFrom, final String columnsFrom, final String sqlTo, final String columnsTo, 
+      final String queryLogLabel, final Object[] bindVars) {
 
     final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
     final GcTableSyncTableData[] result = new GcTableSyncTableData[2];
@@ -908,7 +919,7 @@ public enum GcTableSyncSubtype {
       @Override
       public void run() {
         try {
-          result[0] = runQuery(debugMap, gcTableSync.getDataBeanFrom(), sqlFrom, queryLogLabel + "From", bindVars, true );
+          result[0] = runQuery(debugMap, gcTableSync.getDataBeanFrom(), sqlFrom, columnsFrom, queryLogLabel + "From", bindVars, true );
         } catch (RuntimeException re) {
           if (RUNTIME_EXCEPTION[0] != null) {
             LOG.error("error", RUNTIME_EXCEPTION[0]);
@@ -920,7 +931,7 @@ public enum GcTableSyncSubtype {
     
     selectFromThread.start();
     try {
-      result[1] = runQuery(debugMap, gcTableSync.getDataBeanTo(), sqlTo, queryLogLabel + "To", bindVars, false );
+      result[1] = runQuery(debugMap, gcTableSync.getDataBeanTo(), sqlTo, columnsTo, queryLogLabel + "To", bindVars, false );
     } catch (RuntimeException re) {
       if (RUNTIME_EXCEPTION[0] != null) {
         LOG.error("error", RUNTIME_EXCEPTION[0]);
@@ -1176,8 +1187,6 @@ public enum GcTableSyncSubtype {
       results[1] = updates;
     }
 
-    gcTableSync.getGcGrouperSync().store();
-
     return results ;
   }
 
@@ -1340,7 +1349,9 @@ public enum GcTableSyncSubtype {
             + " where " + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + " >= ? "
             + " and " + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + " <= ? ";
   
-        GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, sqlTo, 
+        GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
+            gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), sqlTo, 
+            gcTableSync.getDataBeanTo().getTableMetadata().columnListAll(),
             "retrieveData", new Object[] {groupingsBatch.get(0), groupingsBatch.get(groupingsBatch.size()-1)});
         
         results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSyncTableDatas[0], 
@@ -1422,7 +1433,7 @@ public enum GcTableSyncSubtype {
         }
 
         GcTableSyncTableData gcTableSyncTableData = runQuery(debugMap, gcTableSyncTableBean, 
-            sql.toString(), "selectAllColumns", bindVars, isFrom );
+            sql.toString(), gcTableSyncTableBean.getTableMetadata().columnListAll(), "selectAllColumns", bindVars, isFrom );
         for (GcTableSyncRowData gcTableSyncRowData : gcTableSyncTableData.getRows()) {
           results.put(gcTableSyncRowData.getPrimaryKey(), gcTableSyncRowData);
         }
