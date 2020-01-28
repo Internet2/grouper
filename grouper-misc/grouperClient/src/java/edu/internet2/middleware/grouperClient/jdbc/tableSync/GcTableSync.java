@@ -432,7 +432,13 @@ public class GcTableSync {
       gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
     } finally {
+
       done[0]=true;
+      try {
+        heartbeatThread.interrupt();
+      } catch (Exception e) {
+        
+      }
       GrouperClientUtils.join(heartbeatThread);
       
       debugMap.put("finalLog", true);
