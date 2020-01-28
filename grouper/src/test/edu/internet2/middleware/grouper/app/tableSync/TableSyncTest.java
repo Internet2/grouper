@@ -111,34 +111,17 @@ public class TableSyncTest extends GrouperTest {
    */
   @Override
   protected void setUp() {
-    //super.setUp();  TODO switch these
+    super.setUp();
     
-    GcGrouperSyncLog.reset();
-    GcGrouperSyncMembership.reset();
-    GcGrouperSyncGroup.reset();
-    GcGrouperSyncMember.reset();
-    GcGrouperSyncJob.reset();
-    GcGrouperSync.reset();
-
     try {
 
       this.grouperSession = GrouperSession.startRootSession();
       
-//      dropTableSyncTables();
-
-//      ensureTableSyncTables();
+      ensureTableSyncTables();
   
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectFrom").executeUpdate();
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectTo").executeUpdate();
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncChangeLog").executeUpdate();
-      
-//      GrouperStartup.initLoaderType();
-//      
-//      setupTestConfigForIncludeExclude();
-//      
-//      GrouperStartup.initIncludeExcludeType();
-//
-//      GrouperCheckConfig.checkObjects();
       
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -155,7 +138,7 @@ public class TableSyncTest extends GrouperTest {
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
-    //dropTableSyncTables();
+    dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
 
   }
