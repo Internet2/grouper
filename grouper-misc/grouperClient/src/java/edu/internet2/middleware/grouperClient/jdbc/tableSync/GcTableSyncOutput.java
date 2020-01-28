@@ -4,11 +4,55 @@
  */
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.util.Set;
 
 /**
  *
  */
 public class GcTableSyncOutput {
+
+  /**
+   * groups that were switched to
+   */
+  private Set<String> switchedToGroups = null;
+  
+  /**
+   * groups that were switched to
+   * @return groups
+   */
+  public Set<String> getSwitchedToGroups() {
+    return this.switchedToGroups;
+  }
+
+  /**
+   * groups that were switched to
+   * @param switchedToGroups1
+   */
+  public void setSwitchedToGroups(Set<String> switchedToGroups1) {
+    this.switchedToGroups = switchedToGroups1;
+  }
+
+  /**
+   * if there were so many records that switched to full sync
+   */
+  private boolean switchedToFull = false;
+  
+  /**
+   * if there were so many records that switched to full sync
+   * switchFromIncrementalToFullIfOverRecords
+   * @return if switched to full
+   */
+  public boolean isSwitchedToFull() {
+    return this.switchedToFull;
+  }
+
+  /**
+   * if there were so many records that switched to full sync
+   * @param switchedToFull1
+   */
+  public void setSwitchedToFull(boolean switchedToFull1) {
+    this.switchedToFull = switchedToFull1;
+  }
 
   /**
    * 

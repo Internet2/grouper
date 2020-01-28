@@ -53,7 +53,7 @@ public class TableSyncTest extends GrouperTest {
     GrouperStartup.startup();
 //    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
 //    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
-    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalAllColumns"));
+    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalSwitchToGroup"));
 //    TestRunner.run(new TableSyncTest("testPersonSyncFullChangeFlag"));
 //    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalPrimaryKey"));
     
@@ -124,9 +124,9 @@ public class TableSyncTest extends GrouperTest {
 
       this.grouperSession = GrouperSession.startRootSession();
       
-      dropTableSyncTables();
+//      dropTableSyncTables();
 
-      ensureTableSyncTables();
+//      ensureTableSyncTables();
   
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectFrom").executeUpdate();
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectTo").executeUpdate();
@@ -152,6 +152,8 @@ public class TableSyncTest extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
+    
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
     //dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
@@ -290,29 +292,6 @@ public class TableSyncTest extends GrouperTest {
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.changeFlagColumn", "change_flag");
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.batchSize", "5");
-
-// TODO    
-//    # grouper client or loader database key (readonly) if large queries should be performed against a different database
-//    # {valueType: "string"}
-//    #grouperClient.syncTable.personSource.databaseToReadonly = 
-
-// TODO    
-//    # if querying a real time table, this is the table, needs to have primary key columns.
-//    # each record will check the source and destination and see what to do
-//    # {valueType: "string"}
-//    # grouperClient.syncTable.personSource.incrementalPrimaryKeyTable = real_time_table
-
-// TODO    
-//    # database where status table is.  defaults to "grouper"
-//    # {valueType: "string"}
-//    # grouperClient.syncTable.personSource.statusDatabase = grouper
-
-// TODO    
-//    # dont run if has run in last X minutes (e.g. for full syncs maybe set to 6 hours = 360 minutes)
-//    # {valueType: "string"}
-//    # grouperClient.syncTable.personSource.dontRunIfHasRunInLastMinutes = 
-    
-    
     
     int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
     
@@ -338,7 +317,6 @@ public class TableSyncTest extends GrouperTest {
     timestamp.add(Calendar.HOUR_OF_DAY, 1);
     timestamp.add(Calendar.MINUTE, 1);
     
-    //int recordsSize = 25000; TODO
     int recordsSize = 250;
     
     for (int i=0;i<recordsSize;i++) {
@@ -469,6 +447,8 @@ public class TableSyncTest extends GrouperTest {
       
       assertEquals(0, countTo);
   
+      GrouperUtil.sleep(100);
+      
       List<TestgrouperSyncSubjectFrom> testgrouperSyncSubjectFroms = new ArrayList<TestgrouperSyncSubjectFrom>();
       
       long now = System.currentTimeMillis();
@@ -487,8 +467,7 @@ public class TableSyncTest extends GrouperTest {
       timestamp.add(Calendar.MINUTE, 0);
       timestamp.add(Calendar.SECOND, 0);
       
-      //int recordsSize = 25000; TODO
-      int recordsSize = 250;
+      int recordsSize = 25000;
       
       for (int i=0;i<recordsSize;i++) {
         TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
@@ -503,11 +482,7 @@ public class TableSyncTest extends GrouperTest {
         testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
         testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
         
-        calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(timestamp.getTimeInMillis());
-        calendar.add(Calendar.MILLISECOND, i);
-        
-        testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(calendar.getTimeInMillis()));
+        testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
         testgrouperSyncSubjectFroms.add(testgrouperSyncSubjectFrom);
         
         if (testgrouperSyncSubjectFroms.size() == 1000) {
@@ -519,6 +494,7 @@ public class TableSyncTest extends GrouperTest {
       if (testgrouperSyncSubjectFroms.size() > 0) {
         HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
       }
+      GrouperUtil.sleep(100);
   
       // ######################
       //lets sync these over
@@ -536,6 +512,8 @@ public class TableSyncTest extends GrouperTest {
       countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
   
       assertEquals(recordsSize, countTo);
+      
+      GrouperUtil.sleep(100);
 
       // do some inserts and some updates and some deletes
       int numberOfInserts = 4;
@@ -572,8 +550,10 @@ public class TableSyncTest extends GrouperTest {
         HibernateSession.byObjectStatic().delete(testgrouperSyncSubjectFrom);
       }
 
+      GrouperUtil.sleep(100);
+
       // ######################
-      //do it again should do nothing
+      //do it again should do some things
       gcTableSync = new GcTableSync();
 
       gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.incrementalAllColumns); 
@@ -599,6 +579,9 @@ public class TableSyncTest extends GrouperTest {
         
       }
       
+      GrouperUtil.sleep(100);
+
+      
       // ######################
       // do a full and see deletes work
       gcTableSync = new GcTableSync();
@@ -615,6 +598,8 @@ public class TableSyncTest extends GrouperTest {
         assertEquals(0, rows);
       }
      
+      GrouperUtil.sleep(100);
+
       // ######################
       // incremental should do nothing
       gcTableSync = new GcTableSync();
@@ -627,6 +612,8 @@ public class TableSyncTest extends GrouperTest {
       assertEquals(0, gcTableSyncOutput.getRowsSelectedFrom());
       assertEquals(0, gcTableSyncOutput.getInsert());
 
+      GrouperUtil.sleep(100);
+
       // ######################
       // full should do nothing
       gcTableSync = new GcTableSync();
@@ -638,6 +625,8 @@ public class TableSyncTest extends GrouperTest {
       assertEquals(0, gcTableSyncOutput.getUpdate());
       assertEquals(recordsSize + numberOfInserts - numberOfDeletes, gcTableSyncOutput.getRowsSelectedFrom());
       assertEquals(0, gcTableSyncOutput.getInsert());
+
+      GrouperUtil.sleep(100);
 
       // ######################
       // make changes, do a full and then an incremental, shouldnt do anything
@@ -727,18 +716,6 @@ public class TableSyncTest extends GrouperTest {
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
   
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
-  
-  // TODO    
-  //    # grouper client or loader database key (readonly) if large queries should be performed against a different database
-  //    # {valueType: "string"}
-  //    #grouperClient.syncTable.personSource.databaseToReadonly = 
-  
-  // TODO    
-  //    # dont run if has run in last X minutes (e.g. for full syncs maybe set to 6 hours = 360 minutes)
-  //    # {valueType: "string"}
-  //    # grouperClient.syncTable.personSource.dontRunIfHasRunInLastMinutes = 
-      
-      
       
       int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
       
@@ -764,8 +741,7 @@ public class TableSyncTest extends GrouperTest {
       timestamp.add(Calendar.HOUR_OF_DAY, 1);
       timestamp.add(Calendar.MINUTE, 1);
       
-      //int recordsSize = 25000; TODO
-      int recordsSize = 250;
+      int recordsSize = 25000;
       
       for (int i=0;i<recordsSize;i++) {
         TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
@@ -888,29 +864,6 @@ public class TableSyncTest extends GrouperTest {
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.groupingColumn", "the_group");
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.groupingSize", "5");
-  
-  // TODO    
-  //    # grouper client or loader database key (readonly) if large queries should be performed against a different database
-  //    # {valueType: "string"}
-  //    #grouperClient.syncTable.personSource.databaseToReadonly = 
-  
-  // TODO    
-  //    # if querying a real time table, this is the table, needs to have primary key columns.
-  //    # each record will check the source and destination and see what to do
-  //    # {valueType: "string"}
-  //    # grouperClient.syncTable.personSource.incrementalPrimaryKeyTable = real_time_table
-  
-  // TODO    
-  //    # database where status table is.  defaults to "grouper"
-  //    # {valueType: "string"}
-  //    # grouperClient.syncTable.personSource.statusDatabase = grouper
-  
-  // TODO    
-  //    # dont run if has run in last X minutes (e.g. for full syncs maybe set to 6 hours = 360 minutes)
-  //    # {valueType: "string"}
-  //    # grouperClient.syncTable.personSource.dontRunIfHasRunInLastMinutes = 
-      
-      
       
       int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
       
@@ -936,8 +889,7 @@ public class TableSyncTest extends GrouperTest {
       timestamp.add(Calendar.HOUR_OF_DAY, 1);
       timestamp.add(Calendar.MINUTE, 1);
       
-      //int recordsSize = 25000; TODO
-      int recordsSize = 250;
+      int recordsSize = 25000;
       
       for (int i=0;i<recordsSize;i++) {
         TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
@@ -1092,8 +1044,8 @@ public class TableSyncTest extends GrouperTest {
     timestamp.add(Calendar.MINUTE, 0);
     timestamp.add(Calendar.SECOND, 0);
     
-    //int recordsSize = 25000; TODO
-    int recordsSize = 250;
+    //int recordsSize = 25000; 
+    int recordsSize = 25000;
     
     for (int i=0;i<recordsSize;i++) {
       TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
@@ -1332,6 +1284,480 @@ public class TableSyncTest extends GrouperTest {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_sync_change_log", "person_id", "person_id");
     
+  }
+
+  /**
+   * 
+   */
+  public void testPersonSyncIncrementalSwitchToFull() {
+    
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "testgrouper_sync_subject_from");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableTo", "testgrouper_sync_subject_to");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
+    
+    // https://stackoverflow.com/questions/40841078/how-to-get-primary-keys-for-all-tables-in-jdbc
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.incrementalAllColumnsColumn", "some_timestamp");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.switchFromIncrementalToFullIfOverRecords", "100");
+    
+    int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
+    
+    assertEquals(0, countFrom);
+  
+    int countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+    
+    assertEquals(0, countTo);
+  
+    GrouperUtil.sleep(100);
+    
+    List<TestgrouperSyncSubjectFrom> testgrouperSyncSubjectFroms = new ArrayList<TestgrouperSyncSubjectFrom>();
+    
+    long now = System.currentTimeMillis();
+    Calendar date = new GregorianCalendar();
+    date.setTimeInMillis(now);
+    date.set(Calendar.YEAR, 2019);
+    date.set(Calendar.HOUR_OF_DAY, 0);
+    date.set(Calendar.MINUTE, 0);
+    date.set(Calendar.MILLISECOND, 0);
+    date.set(Calendar.SECOND, 0);
+  
+    Calendar timestamp = new GregorianCalendar();
+    timestamp.setTimeInMillis(now);
+    timestamp.set(Calendar.MILLISECOND, 0);
+    timestamp.add(Calendar.HOUR_OF_DAY, 0);
+    timestamp.add(Calendar.MINUTE, 0);
+    timestamp.add(Calendar.SECOND, 0);
+    
+    int recordsSize = 25000;
+    
+    for (int i=0;i<recordsSize;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
+      testgrouperSyncSubjectFrom.setPersonId(i+"");
+      testgrouperSyncSubjectFrom.setNetId("netId_" + i);
+      testgrouperSyncSubjectFrom.setSomeInt(1+i);
+      
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(date.getTimeInMillis());
+      calendar.add(Calendar.MILLISECOND, i);
+  
+      testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
+      testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
+      
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      testgrouperSyncSubjectFroms.add(testgrouperSyncSubjectFrom);
+      
+      if (testgrouperSyncSubjectFroms.size() == 1000) {
+        HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
+        testgrouperSyncSubjectFroms.clear();
+      }
+      
+    }
+    if (testgrouperSyncSubjectFroms.size() > 0) {
+      HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
+    }
+    GrouperUtil.sleep(100);
+  
+    // ######################
+    //lets sync these over
+    
+    GcTableSync gcTableSync = new GcTableSync();
+  
+    GcTableSyncOutput gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
+  
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(0, gcTableSyncOutput.getUpdate());
+    assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(recordsSize, gcTableSyncOutput.getInsert());
+    assertEquals(recordsSize, gcTableSync.getGcGrouperSync().getRecordsCount().intValue());
+  
+    countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+  
+    assertEquals(recordsSize, countTo);
+    
+    GrouperUtil.sleep(100);
+  
+    // do some inserts and some updates and some deletes
+    int numberOfInserts = 4;
+    int numberOfDeletes = 2;
+    int numberOfUpdates = 3;
+    for (int i=recordsSize;i<recordsSize + numberOfInserts;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
+      testgrouperSyncSubjectFrom.setPersonId(i+"");
+      testgrouperSyncSubjectFrom.setNetId("newnetId_" + i);
+      testgrouperSyncSubjectFrom.setSomeInt(1+i);
+      
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(date.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, i);
+  
+      testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
+      testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
+      
+      calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(timestamp.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, i);
+      
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      HibernateSession.byObjectStatic().save(testgrouperSyncSubjectFrom);
+    }
+    for (int i=0;i<numberOfUpdates;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, i + "");
+      testgrouperSyncSubjectFrom.setNetId("newnetId_" + i);
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      HibernateSession.byObjectStatic().update(testgrouperSyncSubjectFrom);
+    }
+    for (int i=numberOfUpdates;i<numberOfUpdates + numberOfDeletes;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, i + "");
+      HibernateSession.byObjectStatic().delete(testgrouperSyncSubjectFrom);
+    }
+  
+    GrouperUtil.sleep(100);
+  
+    // ######################
+    //do it again should do some things
+    gcTableSync = new GcTableSync();
+  
+    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.incrementalAllColumns); 
+  
+    // these dont happen on incremental all columns
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(numberOfUpdates, gcTableSyncOutput.getUpdate());
+    assertEquals(numberOfUpdates + numberOfInserts, gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(numberOfInserts, gcTableSyncOutput.getInsert());
+    
+    for (int i=0;i<numberOfUpdates;i++) {
+      TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, i + "");
+      assertEquals("newnetId_" + i, testgrouperSyncSubjectTo.getNetId());
+    }
+    for (int i=recordsSize;i<recordsSize + numberOfInserts;i++) {
+      TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, i + "");
+      assertEquals("newnetId_" + i, testgrouperSyncSubjectTo.getNetId());
+    }
+    // these are still there until full sync
+    for (int i=numberOfUpdates;i<numberOfUpdates + numberOfDeletes;i++) {
+      TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, i + "");
+      assertEquals("netId_" + i, testgrouperSyncSubjectTo.getNetId());
+      
+    }
+    
+    assertFalse(gcTableSyncOutput.isSwitchedToFull());
+    
+    GrouperUtil.sleep(100);
+  
+    
+    // ######################
+    // make changes, do a fan incremental, should fix these with full sync
+    GrouperUtil.sleep(100);
+    
+    int numberOfNewInserts = 105;
+    int numberOfNewDeletes = 6;
+    int numberOfNewUpdates = 7;
+    for (int i=recordsSize + numberOfInserts;i<recordsSize + numberOfInserts + numberOfNewInserts;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
+      testgrouperSyncSubjectFrom.setPersonId(i+"");
+      testgrouperSyncSubjectFrom.setNetId("newnetId_" + i);
+      testgrouperSyncSubjectFrom.setSomeInt(1+i);
+      
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(date.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, i);
+  
+      testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
+      testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
+      
+      calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(timestamp.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, i);
+      
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      HibernateSession.byObjectStatic().save(testgrouperSyncSubjectFrom);
+    }
+    for (int i=numberOfUpdates + numberOfDeletes;i<numberOfUpdates + numberOfDeletes+ numberOfNewUpdates;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, i + "");
+      testgrouperSyncSubjectFrom.setNetId("newnetId_" + i);
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      HibernateSession.byObjectStatic().update(testgrouperSyncSubjectFrom);
+    }
+    for (int i=numberOfUpdates + numberOfDeletes + numberOfNewUpdates;i<numberOfUpdates + numberOfDeletes + numberOfNewUpdates + numberOfNewDeletes;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, i + "");
+      HibernateSession.byObjectStatic().delete(testgrouperSyncSubjectFrom);
+    }
+    GrouperUtil.sleep(100);
+
+    //do another incremental, nothing to do
+    gcTableSync = new GcTableSync();
+  
+    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.incrementalAllColumns); 
+  
+    // these dont happen on incremental all columns
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(0, gcTableSyncOutput.getUpdate());
+    assertEquals(numberOfNewInserts + numberOfNewUpdates, gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(0, gcTableSyncOutput.getInsert());
+    assertTrue(gcTableSyncOutput.isSwitchedToFull());
+
+    
+    GrouperUtil.sleep(100);
+  
+    // ######################
+    // incremental should select nothing
+    gcTableSync = new GcTableSync();
+  
+    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.incrementalAllColumns); 
+  
+    // these dont happen on incremental all columns
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(0, gcTableSyncOutput.getUpdate());
+    assertEquals(0, gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(0, gcTableSyncOutput.getInsert());
+  
+  
+  }
+
+  /**
+   * 
+   */
+  public void testPersonSyncIncrementalSwitchToGroup() {
+    
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "testgrouper_sync_subject_from");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableTo", "testgrouper_sync_subject_to");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
+    
+    // https://stackoverflow.com/questions/40841078/how-to-get-primary-keys-for-all-tables-in-jdbc
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.groupingColumn", "the_group");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.groupingSize", "5");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.incrementalAllColumnsColumn", "some_timestamp");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.switchFromIncrementalToFullIfOverRecords", "100");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.switchFromIncrementalToGroupIfOverRecordsInGroup", "5");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.switchFromIncrementalToFullIfOverGroupCount", "100");
+
+    int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
+    
+    assertEquals(0, countFrom);
+  
+    int countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+    
+    assertEquals(0, countTo);
+  
+    GrouperUtil.sleep(100);
+    
+    List<TestgrouperSyncSubjectFrom> testgrouperSyncSubjectFroms = new ArrayList<TestgrouperSyncSubjectFrom>();
+    
+    long now = System.currentTimeMillis();
+    Calendar date = new GregorianCalendar();
+    date.setTimeInMillis(now);
+    date.set(Calendar.YEAR, 2019);
+    date.set(Calendar.HOUR_OF_DAY, 0);
+    date.set(Calendar.MINUTE, 0);
+    date.set(Calendar.MILLISECOND, 0);
+    date.set(Calendar.SECOND, 0);
+  
+    Calendar timestamp = new GregorianCalendar();
+    timestamp.setTimeInMillis(now);
+    timestamp.set(Calendar.MILLISECOND, 0);
+    timestamp.add(Calendar.HOUR_OF_DAY, 0);
+    timestamp.add(Calendar.MINUTE, 0);
+    timestamp.add(Calendar.SECOND, 0);
+    
+    int recordsSize = 25000;
+    
+    for (int i=0;i<recordsSize;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
+      testgrouperSyncSubjectFrom.setPersonId(i+"");
+      testgrouperSyncSubjectFrom.setNetId("netId_" + i);
+      testgrouperSyncSubjectFrom.setSomeInt(1+i);
+      
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(date.getTimeInMillis());
+      calendar.add(Calendar.MILLISECOND, i);
+  
+      testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
+      testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
+      
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      
+      testgrouperSyncSubjectFrom.setTheGroup("group_" + ((int)((i+1)/10)));
+
+      testgrouperSyncSubjectFroms.add(testgrouperSyncSubjectFrom);
+      
+      if (testgrouperSyncSubjectFroms.size() == 1000) {
+        HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
+        testgrouperSyncSubjectFroms.clear();
+      }
+      
+    }
+    if (testgrouperSyncSubjectFroms.size() > 0) {
+      HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
+    }
+    GrouperUtil.sleep(100);
+  
+    // ######################
+    //lets sync these over
+    
+    GcTableSync gcTableSync = new GcTableSync();
+  
+    GcTableSyncOutput gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
+
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(0, gcTableSyncOutput.getUpdate());
+    assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(recordsSize, gcTableSyncOutput.getInsert());
+    assertEquals(recordsSize, gcTableSync.getGcGrouperSync().getRecordsCount().intValue());
+
+    countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+
+    assertEquals(recordsSize, countTo);
+
+    GrouperUtil.sleep(100);
+
+    // do some inserts and some updates and some deletes
+    int numberOfInserts = 4;
+    int numberOfDeletes = 2;
+    int numberOfUpdates = 3;
+    for (int i=recordsSize;i<recordsSize + numberOfInserts;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
+      testgrouperSyncSubjectFrom.setPersonId(i+"");
+      testgrouperSyncSubjectFrom.setNetId("newnetId_" + i);
+      testgrouperSyncSubjectFrom.setSomeInt(1+i);
+      
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(date.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, i);
+  
+      testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
+      testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
+      
+      calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(timestamp.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, i);
+      
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      
+      testgrouperSyncSubjectFrom.setTheGroup("group_" + ((int)((i+1)/10)));
+
+      HibernateSession.byObjectStatic().save(testgrouperSyncSubjectFrom);
+    }
+    for (int i=0;i<numberOfUpdates;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, i + "");
+      testgrouperSyncSubjectFrom.setNetId("newnetId_" + i);
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      HibernateSession.byObjectStatic().update(testgrouperSyncSubjectFrom);
+    }
+    for (int i=numberOfUpdates;i<numberOfUpdates + numberOfDeletes;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, i + "");
+      HibernateSession.byObjectStatic().delete(testgrouperSyncSubjectFrom);
+    }
+  
+    GrouperUtil.sleep(100);
+  
+    // ######################
+    //do it again should do some things
+    gcTableSync = new GcTableSync();
+  
+    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.incrementalAllColumns); 
+  
+    // these dont happen on incremental all columns
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(numberOfUpdates, gcTableSyncOutput.getUpdate());
+    assertEquals(numberOfUpdates + numberOfInserts, gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(numberOfInserts, gcTableSyncOutput.getInsert());
+    
+    for (int i=0;i<numberOfUpdates;i++) {
+      TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, i + "");
+      assertEquals("newnetId_" + i, testgrouperSyncSubjectTo.getNetId());
+    }
+    for (int i=recordsSize;i<recordsSize + numberOfInserts;i++) {
+      TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, i + "");
+      assertEquals("newnetId_" + i, testgrouperSyncSubjectTo.getNetId());
+    }
+    // these are still there until full sync
+    for (int i=numberOfUpdates;i<numberOfUpdates + numberOfDeletes;i++) {
+      TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, i + "");
+      assertEquals("netId_" + i, testgrouperSyncSubjectTo.getNetId());
+      
+    }
+    
+    assertFalse(gcTableSyncOutput.isSwitchedToFull());
+    
+    GrouperUtil.sleep(100);
+  
+    
+    // ######################
+    // make changes, do a fan incremental, should fix these with full sync
+    GrouperUtil.sleep(100);
+    
+    int numberOfNewInserts = 105;
+    int numberOfNewDeletes = 6;
+    int numberOfNewUpdates = 7;
+    for (int i=recordsSize + numberOfInserts;i<recordsSize + numberOfInserts + numberOfNewInserts;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
+      testgrouperSyncSubjectFrom.setPersonId(i+"");
+      testgrouperSyncSubjectFrom.setNetId("newnetId_" + i);
+      testgrouperSyncSubjectFrom.setSomeInt(1+i);
+      
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(date.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, i);
+  
+      testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
+      testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
+      
+      calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(timestamp.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, i);
+      
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      
+      testgrouperSyncSubjectFrom.setTheGroup("group_" + ((int)((i+1)/10)));
+
+      HibernateSession.byObjectStatic().save(testgrouperSyncSubjectFrom);
+    }
+    for (int i=numberOfUpdates + numberOfDeletes;i<numberOfUpdates + numberOfDeletes+ numberOfNewUpdates;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, i + "");
+      testgrouperSyncSubjectFrom.setNetId("newnetId_" + i);
+      testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(System.currentTimeMillis()));
+      HibernateSession.byObjectStatic().update(testgrouperSyncSubjectFrom);
+    }
+    for (int i=numberOfUpdates + numberOfDeletes + numberOfNewUpdates;i<numberOfUpdates + numberOfDeletes + numberOfNewUpdates + numberOfNewDeletes;i++) {
+      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, i + "");
+      HibernateSession.byObjectStatic().delete(testgrouperSyncSubjectFrom);
+    }
+    GrouperUtil.sleep(100);
+  
+    //do another incremental, nothing to do
+    gcTableSync = new GcTableSync();
+  
+    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.incrementalAllColumns); 
+  
+    // these dont happen on incremental all columns
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(7, gcTableSyncOutput.getUpdate());
+    assertTrue(numberOfNewInserts + numberOfNewUpdates < gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(numberOfNewInserts, gcTableSyncOutput.getInsert());
+    assertFalse(gcTableSyncOutput.isSwitchedToFull());
+    assertEquals(10, GrouperUtil.length(gcTableSyncOutput.getSwitchedToGroups()));
+  
+    
+    GrouperUtil.sleep(100);
+  
+    // ######################
+    // incremental should select nothing
+    gcTableSync = new GcTableSync();
+  
+    gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.incrementalAllColumns); 
+  
+    // these dont happen on incremental all columns
+    assertEquals(0, gcTableSyncOutput.getDelete());
+    assertEquals(0, gcTableSyncOutput.getUpdate());
+    assertEquals(0, gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(0, gcTableSyncOutput.getInsert());
+  
+  
   }
 
 }

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 /**
  * table sync log
@@ -13,7 +14,7 @@ public class GcTableSyncLog {
   /**
    * log object
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(GcTableSyncLog.class);
+  private static final Log LOG = LogFactory.getLog(GcTableSyncLog.class);
   
   /**
    * debug log

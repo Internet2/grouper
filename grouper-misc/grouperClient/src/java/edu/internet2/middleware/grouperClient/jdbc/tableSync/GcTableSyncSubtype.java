@@ -6,9 +6,11 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -60,7 +62,6 @@ public enum GcTableSyncSubtype {
       gcTableSync.getDataBeanTo().setDataInitialQuery(gcTableSyncTableDatas[1]);
 
       gcTableSync.getGcGrouperSync().setRecordsCount(GrouperClientUtils.length(gcTableSyncTableDatas[0].getRows()));
-      gcTableSync.getGcGrouperSync().store();
 
     }
     
@@ -130,11 +131,9 @@ public enum GcTableSyncSubtype {
       gcTableSync.getDataBeanFrom().setDataInitialQuery(gcTableSyncTableDatas[0]);
       gcTableSync.getDataBeanTo().setDataInitialQuery(gcTableSyncTableDatas[1]);
 
-
       String sqlCountFrom = "select count(1) from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
       int count = new GcDbAccess().connectionName(gcTableSync.getDataBeanFrom().getTableMetadata().getConnectionName()).sql(sqlCountFrom).select(int.class);
       gcTableSync.getGcGrouperSync().setRecordsCount(count);
-      gcTableSync.getGcGrouperSync().store();
       
     }
 
@@ -188,7 +187,6 @@ public enum GcTableSyncSubtype {
       gcTableSync.getDataBeanTo().setDataInitialQuery(gcTableSyncTableDatas[1]);
 
       gcTableSync.getGcGrouperSync().setRecordsCount(GrouperClientUtils.length(gcTableSyncTableDatas[0].getRows()));
-      gcTableSync.getGcGrouperSync().store();
 
     }
 
@@ -238,13 +236,14 @@ public enum GcTableSyncSubtype {
       // get all data from destination based on primary key
       Set<MultiKey> primaryKeysToRetrieve = gcTableSync.getDataBeanFrom().getDataInitialQuery().allPrimaryKeys();
       
+      int recordsChanged = handleLotsOfChangesAnotherWay(debugMap, gcTableSync, primaryKeysToRetrieve, gcTableSync.getDataBeanFrom().getDataInitialQuery());
+      
       GcTableSyncTableData gcTableSyncTableDataTo = runQueryForAllDataFromPrimaryKeys(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToRetrieve, false);
       
       int[] results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSync.getDataBeanFrom().getDataInitialQuery(), gcTableSyncTableDataTo);
-      int recordsChanged = results[0] + results[1] + results[2];
+      recordsChanged += results[0] + results[1] + results[2];
 
       gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
-      gcTableSync.getGcGrouperSync().store();
 
       // update the real time incremented col...
       assignIncrementalIndex(gcTableSync.getDataBeanFrom().getDataInitialQuery(), 
@@ -294,13 +293,15 @@ public enum GcTableSyncSubtype {
       // get all data from destination based on primary key
       Set<MultiKey> primaryKeysToRetrieve = gcTableSync.getDataBeanRealTime().getDataInitialQuery().allDataInColumns(gcTableSync.getDataBeanFrom().getTableMetadata().getPrimaryKey());
       
+      int recordsChanged = handleLotsOfChangesAnotherWay(debugMap, gcTableSync, primaryKeysToRetrieve, gcTableSync.getDataBeanRealTime().getDataInitialQuery());
+
       GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndToForAllDataFromPrimaryKeys(debugMap, gcTableSync, primaryKeysToRetrieve);
       
       GcTableSyncTableData gcTableSyncTableDataFrom = gcTableSyncTableDatas[0];
       GcTableSyncTableData gcTableSyncTableDataTo = gcTableSyncTableDatas[1];
       
       int[] results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSyncTableDataFrom, gcTableSyncTableDataTo);   
-      int recordsChanged = results[0] + results[1] + results[2];
+      recordsChanged += results[0] + results[1] + results[2];
       
       gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
 
@@ -331,6 +332,197 @@ public enum GcTableSyncSubtype {
     
   };
   
+  /**
+   * sync groupings in full
+   * @param debugMap
+   * @param gcTableSync
+   * @param groupings
+   * @return records changed
+   */
+  private static int syncGroupings(Map<String, Object> debugMap, GcTableSync gcTableSync, Collection<String> groupings) {
+    
+    if (GrouperClientUtils.length(groupings) == 0) {
+      return 0;
+    }
+    
+    int groupingsBatchSize = Math.min(gcTableSync.getGcTableSyncConfiguration().getMaxBindVarsInSelect(), 
+        gcTableSync.getGcTableSyncConfiguration().getGroupingSize());
+
+    int groupingsNumberOfBatches = GrouperClientUtils.batchNumberOfBatches(groupings, groupingsBatchSize);
+    int recordsChanged = 0;
+    for (int currentBatchIndex = 0; currentBatchIndex < groupingsNumberOfBatches; currentBatchIndex++) {
+      
+      List<String> groupingsBatch = GrouperClientUtils.batchList(groupings, groupingsBatchSize, currentBatchIndex);
+      
+      String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll()  
+          + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName() + " where " 
+          + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() 
+          + " in (" + GrouperClientUtils.appendQuestions(groupingsBatch.size()) + ")";
+      String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().columnListAll() 
+          + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName() + " where " 
+              + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() 
+              + " in (" + GrouperClientUtils.appendQuestions(groupingsBatch.size()) + ")";
+
+      GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
+          gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), sqlTo, 
+          gcTableSync.getDataBeanTo().getTableMetadata().columnListAll(), "retrieveGroups", GrouperClientUtils.toArray(groupingsBatch, Object.class));
+      
+      int[] results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSyncTableDatas[0], 
+          gcTableSyncTableDatas[1]);   
+
+      gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
+
+      recordsChanged += results[0] + results[1] + results[2];
+    }
+    return recordsChanged;
+  }
+  
+  /**
+   * use a full or group sync instead of purely incremental.  pop the affects primary keys off the stack if so...
+   * @param debugMap
+   * @param gcTableSync
+   * @param primaryKeysToRetrieve
+   * @return changes
+   */
+  private static int handleLotsOfChangesAnotherWay(Map<String, Object> debugMap, GcTableSync gcTableSync, Set<MultiKey> primaryKeysToRetrieve,
+      GcTableSyncTableData fullDataOfQuery) {
+
+    // we dont need to group or do full sync
+    if (GrouperClientUtils.length(primaryKeysToRetrieve) == 0) {
+      return 0;
+    }
+    
+    //  # switch from incremental to full if the number of incrementals is over this threshold
+    //  # if this is less than 0, then it will not switch from incremental to full
+    //  # {valueType: "integer"}
+    //  # grouperClient.syncTable.personSource.switchFromIncrementalToFullIfOverRecords = 300000
+    //
+    //  # switch from incremental to full if the number of incrementals is over the threshold, this is full sync to switch to
+    //  # fullSyncChangeFlag, fullSyncFull, fullSyncGroups
+    //  # {valueType: "string"}
+    //  # grouperClient.syncTable.personSource.switchFromIncrementalToFullSubtype = fullSyncFull
+    //
+    //  # switch from incremental to group (if theres a grouping col) if the number of incrementals for a certain group
+    //  # if this is less than 0, then it will not switch from incremental to group
+    //  # {valueType: "integer"}
+    //  # grouperClient.syncTable.personSource.switchFromIncrementalToGroupIfOverRecordsInGroup = 50000
+    //
+    //  # switch from incremental to full if the number of groups (and records over threshold) is over this threshold
+    //  # i.e. needs to be over 100 groups and over 300000 records
+    //  # {valueType: "integer"}
+    //  # grouperClient.syncTable.personSource.switchFromIncrementalToFullIfOverGroupCount = 100
+
+    int switchFromIncrementalToFullIfOverRecords = gcTableSync.getGcTableSyncConfiguration().getSwitchFromIncrementalToFullIfOverRecords();
+    GcTableSyncSubtype switchFromIncrementalToFullSubtype = gcTableSync.getGcTableSyncConfiguration().getSwitchFromIncrementalToFullSubtype();
+    int switchFromIncrementalToGroupIfOverRecordsInGroup = gcTableSync.getGcTableSyncConfiguration().getSwitchFromIncrementalToGroupIfOverRecordsInGroup();
+    int switchFromIncrementalToFullIfOverGroupCount = gcTableSync.getGcTableSyncConfiguration().getSwitchFromIncrementalToFullIfOverGroupCount();
+
+    boolean needsFullSyncBasedOnRecords = (switchFromIncrementalToFullIfOverRecords > 0 && switchFromIncrementalToFullSubtype != null
+        && GrouperClientUtils.length(primaryKeysToRetrieve) > switchFromIncrementalToFullIfOverRecords);
+
+    boolean needsFullSyncBasedOnGroups = false;
+    // figure out the group count
+
+    String groupingColumnName = gcTableSync.getGcTableSyncConfiguration().getGroupColumnString();
+    if (!GrouperClientUtils.isBlank(groupingColumnName)) {
+      
+      Integer groupingColumnZeroIndex = fullDataOfQuery.getRows().iterator().next().lookupColumnToIndexZeroIndexed(groupingColumnName, false);
+      
+      if (groupingColumnZeroIndex != null) {
+
+        Map<String, Set<MultiKey>> groupPrimaryKeys = new HashMap<String, Set<MultiKey>>();
+
+        for (GcTableSyncRowData gcTableSyncRowData : fullDataOfQuery.getRows()) {
+
+          String groupLabel = (String)gcTableSyncRowData.getData()[groupingColumnZeroIndex];
+          Set<MultiKey> currentPrimaryKeys = groupPrimaryKeys.get(groupLabel);
+          if (currentPrimaryKeys == null) {
+            currentPrimaryKeys = new HashSet<MultiKey>();
+            groupPrimaryKeys.put(groupLabel, currentPrimaryKeys);
+          }
+          currentPrimaryKeys.add(gcTableSyncRowData.getPrimaryKey());
+
+        }
+        
+        if (needsFullSyncBasedOnRecords) {
+          // see if we really want to do full sync still
+          if (switchFromIncrementalToFullIfOverGroupCount > 0 && groupPrimaryKeys.size() > switchFromIncrementalToFullIfOverGroupCount) {
+            needsFullSyncBasedOnGroups = true;
+          }
+        }
+        
+        if (!needsFullSyncBasedOnGroups) {
+          // lets tackle this based on groups
+          needsFullSyncBasedOnRecords = false;
+          // take out groups that have fewer members than the limit
+          for (String grouping : new HashSet<String>(groupPrimaryKeys.keySet())) {
+            Set<MultiKey> primaryKeys = groupPrimaryKeys.get(grouping);
+            if (primaryKeys.size() <= switchFromIncrementalToGroupIfOverRecordsInGroup) {
+              groupPrimaryKeys.remove(grouping);
+            }
+          }
+        
+          if (groupPrimaryKeys.size() > 0) {
+            // lets see what we got
+            Set<String> switchedToGroups = new HashSet<String>(groupPrimaryKeys.keySet());
+            gcTableSync.getGcTableSyncOutput().setSwitchedToGroups(switchedToGroups);
+            debugMap.put("switchedToGroupsCount", switchedToGroups.size());
+            
+            if (switchedToGroups.size() < 10) {
+              boolean isFirst = true;
+              int i=0;
+              for (String switchedToGroup : switchedToGroups) { 
+                debugMap.put("switchedToGroup_" + i++, switchedToGroup);
+                isFirst = false;
+              }
+            }
+            
+            // sync groups
+            int recordsChanged = syncGroupings(debugMap, gcTableSync, switchedToGroups);
+            
+            // now we need to go through records and remove ones that are part of this group
+            for (Set<MultiKey> currentPrimaryKeys : groupPrimaryKeys.values()) {
+              primaryKeysToRetrieve.removeAll(currentPrimaryKeys);
+            }
+            
+            return recordsChanged;
+          }
+        }
+      }
+    }
+    
+    if (needsFullSyncBasedOnGroups || needsFullSyncBasedOnRecords) {
+        
+      // lets pause this guy
+      debugMap.put("switchedToFullSync", true);
+      debugMap.put("switchedToFullSyncSubtype", switchFromIncrementalToFullSubtype.name());
+      debugMap.put("paused", true);
+      
+      gcTableSync.getGcGrouperSyncJob().setJobState(GcGrouperSyncJobState.pending);
+      gcTableSync.getGcGrouperSyncJob().store();
+
+      // wait a sec
+      GrouperClientUtils.sleep(1000);
+      
+      // run a full
+      GcTableSync newFull = new GcTableSync();
+      newFull.sync(gcTableSync.getGcTableSyncConfiguration().getConfigKey(), switchFromIncrementalToFullSubtype);
+
+      // wait a sec
+      GrouperClientUtils.sleep(1000);
+
+      gcTableSync.getGcGrouperSyncJob().setJobState(GcGrouperSyncJobState.running);
+      gcTableSync.getGcGrouperSyncJob().store();
+      debugMap.put("paused", false);
+
+      gcTableSync.getGcTableSyncOutput().setSwitchedToFull(true);
+      // we dont need to do any records anymore
+      primaryKeysToRetrieve.clear();
+
+    }
+    return 0;
+  }
+
   /**
    * get incremental data either from FROM table or from real time table
    * @param debugMap
@@ -539,7 +731,7 @@ public enum GcTableSyncSubtype {
       throw re;
     } finally {
       //temporarily store as micros, then divide in the end
-      logIncrement(debugMap, queryLogLabel + "Millis", (int)((System.nanoTime() - start)/1000));
+      logIncrement(debugMap, queryLogLabel + "Millis", (long)((System.nanoTime() - start)/1000));
     }
   }
 
@@ -549,12 +741,12 @@ public enum GcTableSyncSubtype {
    * @param label
    * @param amountToAdd
    */
-  private static void logIncrement(final Map<String, Object> debugMap, String label, int amountToAdd) {
+  private static void logIncrement(final Map<String, Object> debugMap, String label, long amountToAdd) {
 
-    Integer currentValue = (Integer)debugMap.get(label);
+    Number currentValue = (Number)debugMap.get(label);
     
     if (currentValue != null) {
-      amountToAdd += currentValue;
+      amountToAdd += currentValue.longValue();
     }
     
     debugMap.put(label, amountToAdd);
@@ -641,10 +833,6 @@ public enum GcTableSyncSubtype {
         }
       }
 
-      if (madeProgress) {
-        gcTableSync.getGcGrouperSyncJob().store();
-        gcTableSync.getGcGrouperSync().store();
-      }
     }
 
   }
@@ -941,7 +1129,7 @@ public enum GcTableSyncSubtype {
     
     GrouperClientUtils.join(selectFromThread);
     if (RUNTIME_EXCEPTION[0] != null) {
-      throw RUNTIME_EXCEPTION[0];
+      throw new RuntimeException("error", RUNTIME_EXCEPTION[0]);
     }
 
     return result;

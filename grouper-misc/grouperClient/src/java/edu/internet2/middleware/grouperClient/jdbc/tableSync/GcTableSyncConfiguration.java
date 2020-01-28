@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -344,124 +345,314 @@ public class GcTableSyncConfiguration {
   }
 
   /**
-   * @param debugMap
+   * gc table sync
    */
-  public void configureTableSync(Map<String, Object> debugMap) {
+  private GcTableSync gcTableSync;
+  
+  /**
+   * gc table sync
+   * @return table sync
+   */
+  public GcTableSync getGcTableSync() {
+    return this.gcTableSync;
+  }
 
-    // must have key
-    if (StringUtils.isBlank(this.configKey)) {
-      throw new RuntimeException("Why is config key blank?");
-    }
+  /**
+   * gc table sync
+   * @param gcTableSync1
+   */
+  public void setGcTableSync(GcTableSync gcTableSync1) {
+    this.gcTableSync = gcTableSync1;
+  }
 
-    if (this.gcTableSyncSubtype == null) {
-      throw new RuntimeException("Why is table sync subtype blank?");
-    }
+  /**
+   * @param debugMap
+   * @param configKey
+   * @param gcTableSyncSubtype
+   */
+  public void configureTableSync(Map<String, Object> debugMap, GcTableSync theGcTableSync, String theConfigKey, GcTableSyncSubtype theGcTableSyncSubtype) {
 
-    if (debugMap == null) {
-      debugMap = new LinkedHashMap<String, Object>();
-    }
-    
-    //  grouperClient.syncTable.personSource.databaseFrom = pcom
-    this.databaseFrom = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("databaseFrom", false), "grouper");
-    debugMap.put("configDatabaseFrom", this.databaseFrom);
+    try {
+      this.gcTableSync = theGcTableSync;
+      
+      this.setConfigKey(theConfigKey);
+      this.setGcTableSyncSubtype(theGcTableSyncSubtype);
 
-    //  grouperClient.syncTable.personSource.databaseTo = awsDev
-    this.databaseTo = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("databaseTo", false), "grouper");
-    debugMap.put("configDatabaseTo", this.databaseTo);
-    
-    // grouper client or loader database key where copying data to, large queries go against different database
-    this.databaseToReadonly = this.retrieveConfigString("databaseToReadonly", false);
-    if (!StringUtils.isBlank(this.databaseToReadonly)) {
-      debugMap.put("configDatabaseToReadonly", this.databaseToReadonly);
-    }
-
-    //  grouperClient.syncTable.personSource.tableFrom = PERSON_SOURCE_TEMP
-    this.tableFrom = this.retrieveConfigString("tableFrom", true);
-    debugMap.put("configTableFrom", this.tableFrom);
-
-    //  grouperClient.syncTable.personSource.tableTo = PERSON_SOURCE_TEMP
-    this.tableTo = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("tableTo", false), this.tableFrom);
-    debugMap.put("configTableTo", this.tableTo);
-    
-    //  grouperClient.syncTable.personSource.columns = *
-    this.columnsString = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("columns", false), "*");
-    debugMap.put("configColumns", this.columnsString);
-
-    //  grouperClient.syncTable.personSource.primaryKeyColumns = penn_id
-    this.primaryKeyColumnsString = this.retrieveConfigString("primaryKeyColumns", true);
-    debugMap.put("configPrimaryKeyColumns", this.primaryKeyColumnsString);
-
-    // grouperClient.syncTable.personSource.fullSyncChangeFlagColumn = check_sum
-    this.changeFlagColumnString = this.retrieveConfigString("changeFlagColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.fullSyncChangeFlag);
-    if (!GrouperClientUtils.isBlank(this.changeFlagColumnString)) {
-      debugMap.put("changeFlagColumn", this.changeFlagColumnString);
-    }
-
-    // grouperClient.syncTable.personSource.incrementalAllColumnsColumn = last_updated
-    this.incrementalAllColumnsColumnString = this.retrieveConfigString("incrementalAllColumnsColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalAllColumns);
-    if (!GrouperClientUtils.isBlank(this.incrementalProgressColumnString)) {
-      debugMap.put("incrementalAllColumnsColumn", this.incrementalProgressColumnString);
-    }
-    
-    
-    // grouperClient.syncTable.personSource.incrementalAllColumnsColumn = last_updated
-    this.incrementalProgressColumnString = this.retrieveConfigString("incrementalProgressColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalPrimaryKey);
-    if (!GrouperClientUtils.isBlank(this.incrementalProgressColumnString)) {
-      debugMap.put("incrementalProgressColumn", this.incrementalProgressColumnString);
-    }
-    
-    //  grouperClient.syncTable.personSource.groupColumn = penn_id
-    this.groupColumnString = this.retrieveConfigString("groupingColumn", false);
-    if (this.gcTableSyncSubtype.isNeedsGroupColumn() ) {
-//      if (GrouperClientUtils.isBlank(this.groupColumnString) && !this.primaryKeyColumnsString.contains(",") && !this.primaryKeyColumnsString.equals("*")) {
-//        this.groupColumnString = this.primaryKeyColumnsString;
-//      }
-      if (GrouperClientUtils.isBlank(this.groupColumnString)) {
-        throw new RuntimeException("groupingColumn is required for " + this.configKey);
+      String defaultStatusDatabase = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTableDefault.statusDatabase", "grouper");
+      // grouperClient.syncTable.personSource.statusDatabase = awsDev
+      this.statusDatabase = GrouperClientUtils.defaultIfNull(this.retrieveConfigString("statusDatabase", false), defaultStatusDatabase);
+      if (!StringUtils.equals(defaultStatusDatabase, this.statusDatabase)) {
+        debugMap.put("configStatusDatabase", this.statusDatabase);
       }
-    }
-    if (!GrouperClientUtils.isBlank(this.groupColumnString)) {
-      debugMap.put("configGroupingColumn", this.groupColumnString);
-    }
+      
+      this.gcTableSync.setGcGrouperSync(GcGrouperSync.retrieveOrCreateByProvisionerName(defaultStatusDatabase, GcGrouperSync.SQL_SYNC_ENGINE, configKey));
+      this.gcTableSync.setGcGrouperSyncJob(this.gcTableSync.getGcGrouperSync().retrieveJobOrCreateBySyncType(gcTableSyncSubtype.name()));
+      this.gcTableSync.setGcGrouperSyncLog(this.gcTableSync.getGcGrouperSyncJob().retrieveGrouperSyncLogOrCreate());
+      this.gcTableSync.getGcGrouperSyncLog().setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
     
-    // grouperClient.syncTable.personSource.batchSize = 50
-    // size of jdbc batches
-    this.batchSize = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("batchSize", false), 1000);
-    if (this.batchSize != 1000) {
-      debugMap.put("configBatchSize", this.batchSize);
-    }
-    
-    // grouperClient.syncTable.personSource.maxBindVarsInSelect = 900
-    // number of bind vars in select
-    this.maxBindVarsInSelect = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("maxBindVarsInSelect", false), 900);
-    if (this.maxBindVarsInSelect < 1) {
-      throw new RuntimeException("Cant have less than one maxBindVarsInSelect! " + this.maxBindVarsInSelect );
-    }
-    if (this.maxBindVarsInSelect != 900) {
-      debugMap.put("maxBindVarsInSelect", this.maxBindVarsInSelect);
-    }
-    
-    // grouperClient.syncTable.personSource.groupingSize = 10000
-    // the group column is what is uniquely selected, and then batched through to get data, defaults to 10000
-    // size of jdbc batches
-    this.groupingSize = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("groupingSize", false), 10000);
-    if (this.groupingSize != 10000) {
-      debugMap.put("configGroupingSize", this.groupingSize);
-    }
+      // must have key
+      if (StringUtils.isBlank(this.configKey)) {
+        throw new RuntimeException("Why is config key blank?");
+      }
+  
+      if (this.gcTableSyncSubtype == null) {
+        throw new RuntimeException("Why is table sync subtype blank?");
+      }
+  
+      if (debugMap == null) {
+        debugMap = new LinkedHashMap<String, Object>();
+      }
+      
+      //  grouperClient.syncTable.personSource.databaseFrom = pcom
+      this.databaseFrom = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("databaseFrom", false), "grouper");
+      debugMap.put("configDatabaseFrom", this.databaseFrom);
+  
+      //  grouperClient.syncTable.personSource.databaseTo = awsDev
+      this.databaseTo = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("databaseTo", false), "grouper");
+      debugMap.put("configDatabaseTo", this.databaseTo);
+      
+      // grouper client or loader database key where copying data to, large queries go against different database
+      this.databaseToReadonly = this.retrieveConfigString("databaseToReadonly", false);
+      if (!StringUtils.isBlank(this.databaseToReadonly)) {
+        debugMap.put("configDatabaseToReadonly", this.databaseToReadonly);
+      }
+  
+      //  grouperClient.syncTable.personSource.tableFrom = PERSON_SOURCE_TEMP
+      this.tableFrom = this.retrieveConfigString("tableFrom", true);
+      debugMap.put("configTableFrom", this.tableFrom);
+  
+      //  grouperClient.syncTable.personSource.tableTo = PERSON_SOURCE_TEMP
+      this.tableTo = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("tableTo", false), this.tableFrom);
+      debugMap.put("configTableTo", this.tableTo);
+      
+      //  grouperClient.syncTable.personSource.columns = *
+      this.columnsString = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("columns", false), "*");
+      debugMap.put("configColumns", this.columnsString);
+  
+      //  grouperClient.syncTable.personSource.primaryKeyColumns = penn_id
+      this.primaryKeyColumnsString = this.retrieveConfigString("primaryKeyColumns", true);
+      debugMap.put("configPrimaryKeyColumns", this.primaryKeyColumnsString);
+  
+      // grouperClient.syncTable.personSource.fullSyncChangeFlagColumn = check_sum
+      this.changeFlagColumnString = this.retrieveConfigString("changeFlagColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.fullSyncChangeFlag);
+      if (!GrouperClientUtils.isBlank(this.changeFlagColumnString)) {
+        debugMap.put("changeFlagColumn", this.changeFlagColumnString);
+      }
+  
+      // grouperClient.syncTable.personSource.incrementalAllColumnsColumn = last_updated
+      this.incrementalAllColumnsColumnString = this.retrieveConfigString("incrementalAllColumnsColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalAllColumns);
+      if (!GrouperClientUtils.isBlank(this.incrementalProgressColumnString)) {
+        debugMap.put("incrementalAllColumnsColumn", this.incrementalProgressColumnString);
+      }
+      
+      
+      // grouperClient.syncTable.personSource.incrementalAllColumnsColumn = last_updated
+      this.incrementalProgressColumnString = this.retrieveConfigString("incrementalProgressColumn", this.gcTableSyncSubtype == GcTableSyncSubtype.incrementalPrimaryKey);
+      if (!GrouperClientUtils.isBlank(this.incrementalProgressColumnString)) {
+        debugMap.put("incrementalProgressColumn", this.incrementalProgressColumnString);
+      }
+      
+      //  grouperClient.syncTable.personSource.groupColumn = penn_id
+      this.groupColumnString = this.retrieveConfigString("groupingColumn", false);
+      if (this.gcTableSyncSubtype.isNeedsGroupColumn() ) {
+  //      if (GrouperClientUtils.isBlank(this.groupColumnString) && !this.primaryKeyColumnsString.contains(",") && !this.primaryKeyColumnsString.equals("*")) {
+  //        this.groupColumnString = this.primaryKeyColumnsString;
+  //      }
+        if (GrouperClientUtils.isBlank(this.groupColumnString)) {
+          throw new RuntimeException("groupingColumn is required for " + this.configKey);
+        }
+      }
+      if (!GrouperClientUtils.isBlank(this.groupColumnString)) {
+        debugMap.put("configGroupingColumn", this.groupColumnString);
+      }
+      
+  
+      int defaultBatchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.batchSize", 800);
+      // grouperClient.syncTable.personSource.batchSize = 50
+      // size of jdbc batches
+      this.batchSize = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("batchSize", false), defaultBatchSize);
+      if (this.batchSize != defaultBatchSize) {
+        debugMap.put("configBatchSize", this.batchSize);
+      }
+      
+      
+      int defaultMaxBindVarsInSelect = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+      // grouperClient.syncTable.personSource.maxBindVarsInSelect = 900
+      // number of bind vars in select
+      this.maxBindVarsInSelect = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("maxBindVarsInSelect", false), defaultMaxBindVarsInSelect);
+      if (this.maxBindVarsInSelect < 1) {
+        throw new RuntimeException("Cant have less than one maxBindVarsInSelect! " + this.maxBindVarsInSelect );
+      }
+      if (this.maxBindVarsInSelect != defaultMaxBindVarsInSelect) {
+        debugMap.put("maxBindVarsInSelect", this.maxBindVarsInSelect);
+      }
+      
+      // grouperClient.syncTable.personSource.groupingSize = 10000
+      // the group column is what is uniquely selected, and then batched through to get data, defaults to 10000
+      // size of jdbc batches
+      int defaultGroupingSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.groupingSize", 10000);
+      this.groupingSize = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("groupingSize", false), defaultGroupingSize);
+      if (this.groupingSize != defaultGroupingSize) {
+        debugMap.put("configGroupingSize", this.groupingSize);
+      }
+  
+      // grouperClient.syncTable.personSource.incrementalPrimaryKeyTable = real_time_table
+      this.incrementalPrimaryKeyTable = this.retrieveConfigString("incrementalPrimaryKeyTable", false);
+      if (!GrouperClientUtils.isBlank(this.incrementalPrimaryKeyTable)) {
+        debugMap.put("incrementalPrimaryKeyTable", this.incrementalPrimaryKeyTable);
+      }
+  
+      // grouperClient.syncTableDefault.switchFromIncrementalToFullIfOverRecords = 300000
+      // if this is less than 0, then it will not switch from incremental to full
+      // default switch from incremental to full if the number of incrementals is over this threshold
+      int defaultSwitchFromIncrementalToFullIfOverRecords = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.switchFromIncrementalToFullIfOverRecords", 300000);
+      this.switchFromIncrementalToFullIfOverRecords = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt("switchFromIncrementalToFullIfOverRecords", false), defaultSwitchFromIncrementalToFullIfOverRecords);
+      if (this.switchFromIncrementalToFullIfOverRecords != defaultSwitchFromIncrementalToFullIfOverRecords) {
+        debugMap.put("configSwitchFromIncrementalToFullIfOverRecords", this.switchFromIncrementalToFullIfOverRecords);
+      }
 
-    // grouperClient.syncTable.personSource.statusDatabase = awsDev
-    this.statusDatabase = GrouperClientUtils.defaultIfNull(this.retrieveConfigString("statusDatabase", false), "grouper");
-    if (!StringUtils.equals("grouper", this.statusDatabase)) {
-      debugMap.put("configStatusDatabase", this.statusDatabase);
-    }
-    
-    // grouperClient.syncTable.personSource.incrementalPrimaryKeyTable = real_time_table
-    this.incrementalPrimaryKeyTable = this.retrieveConfigString("incrementalPrimaryKeyTable", false);
-    if (!GrouperClientUtils.isBlank(this.incrementalPrimaryKeyTable)) {
-      debugMap.put("incrementalPrimaryKeyTable", this.incrementalPrimaryKeyTable);
-    }
+      // # switch from incremental to full if the number of incrementals is over the threshold, this is full sync to switch to
+      // # fullSyncChangeFlag, fullSyncFull, fullSyncGroups
+      GcTableSyncSubtype defaultSwitchFromIncrementalToFullSubtype = GcTableSyncSubtype.valueOfIgnoreCase(
+          GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTableDefault.switchFromIncrementalToFullSubtype", "fullSyncFull"), false);
+      this.switchFromIncrementalToFullSubtype = GcTableSyncSubtype.valueOfIgnoreCase(
+          GrouperClientUtils.defaultIfNull(this.retrieveConfigString("switchFromIncrementalToFullSubtype", false), 
+              defaultSwitchFromIncrementalToFullSubtype == null ? null : defaultSwitchFromIncrementalToFullSubtype.name()), false);
+      if (defaultSwitchFromIncrementalToFullSubtype != this.switchFromIncrementalToFullSubtype) {
+        debugMap.put("configSwitchFromIncrementalToFullSubtype", this.switchFromIncrementalToFullSubtype);
+      }
+      if (this.switchFromIncrementalToFullSubtype != null && !this.switchFromIncrementalToFullSubtype.isFullSync()) {
+        
+        throw new RuntimeException("defaultSwitchFromIncrementalToFullSubtype is not a full sync! " + this.switchFromIncrementalToFullSubtype);
+        
+      }
 
+      // switch from incremental to group (if theres a grouping col) if the number of incrementals for a certain group
+      // if this is less than 0, then it will not switch from incremental to full
+      int defaultSwitchFromIncrementalToGroupIfOverRecordsInGroup = GrouperClientConfig.retrieveConfig()
+          .propertyValueInt("grouperClient.syncTableDefault.switchFromIncrementalToGroupIfOverRecordsInGroup", 50000);
+      this.switchFromIncrementalToGroupIfOverRecordsInGroup = GrouperClientUtils.defaultIfNull(
+          this.retrieveConfigInt("switchFromIncrementalToGroupIfOverRecordsInGroup", false), defaultSwitchFromIncrementalToGroupIfOverRecordsInGroup);
+      if (this.switchFromIncrementalToGroupIfOverRecordsInGroup != defaultSwitchFromIncrementalToGroupIfOverRecordsInGroup) {
+        debugMap.put("configSwitchFromIncrementalToGroupIfOverRecordsInGroup", this.switchFromIncrementalToGroupIfOverRecordsInGroup);
+      }
+
+      // switch from incremental to full if the number of groups (and records over threshold) is over this threshold
+      // i.e. needs to be over 100 groups and over 300000 records
+      int defaultSwitchFromIncrementalToFullIfOverGroupCount = GrouperClientConfig.retrieveConfig()
+          .propertyValueInt("grouperClient.syncTableDefault.switchFromIncrementalToFullIfOverGroupCount", 100);
+      this.switchFromIncrementalToFullIfOverGroupCount = GrouperClientUtils.defaultIfNull(
+          this.retrieveConfigInt("switchFromIncrementalToFullIfOverGroupCount", false), defaultSwitchFromIncrementalToFullIfOverGroupCount);
+      if (this.switchFromIncrementalToFullIfOverGroupCount != defaultSwitchFromIncrementalToFullIfOverGroupCount) {
+        debugMap.put("configSwitchFromIncrementalToFullIfOverGroupCount", this.switchFromIncrementalToFullIfOverGroupCount);
+      }
+      
+    } catch (RuntimeException re) {
+      if (this.gcTableSync != null && this.gcTableSync.getGcGrouperSyncLog() != null) {
+        try {
+          this.gcTableSync.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.CONFIG_ERROR);
+          this.gcTableSync.getGcGrouperSyncLog().store();
+        } catch (RuntimeException re2) {
+          GrouperClientUtils.injectInException(re, "***** START ANOTHER EXCEPTON *******" + GrouperClientUtils.getFullStackTrace(re2) + "***** END ANOTHER EXCEPTON *******");
+        }
+      }
+      throw re;
+    }
     
+  }
+
+  /**
+   * switch from incremental to full if the number of groups (and records over threshold) is over this threshold
+   * i.e. needs to be over 100 groups and over 300000 records
+   */
+  private int switchFromIncrementalToFullIfOverGroupCount;
+
+  /**
+   * switch from incremental to full if the number of groups (and records over threshold) is over this threshold
+   * i.e. needs to be over 100 groups and over 300000 records
+   * @return threshold
+   */
+  public int getSwitchFromIncrementalToFullIfOverGroupCount() {
+    return this.switchFromIncrementalToFullIfOverGroupCount;
+  }
+
+  /**
+   * switch from incremental to full if the number of groups (and records over threshold) is over this threshold
+   * i.e. needs to be over 100 groups and over 300000 records
+   * @param switchFromIncrementalToFullIfOverGroupCount1
+   */
+  public void setSwitchFromIncrementalToFullIfOverGroupCount(
+      int switchFromIncrementalToFullIfOverGroupCount1) {
+    this.switchFromIncrementalToFullIfOverGroupCount = switchFromIncrementalToFullIfOverGroupCount1;
+  }
+
+  /**
+   * switch from incremental to group (if theres a grouping col) if the number of incrementals for a certain group
+   */
+  private int switchFromIncrementalToGroupIfOverRecordsInGroup;
+  
+  /**
+   * switch from incremental to group (if theres a grouping col) if the number of incrementals for a certain group
+   * @return threshold
+   */
+  public int getSwitchFromIncrementalToGroupIfOverRecordsInGroup() {
+    return this.switchFromIncrementalToGroupIfOverRecordsInGroup;
+  }
+
+  /**
+   * switch from incremental to group (if theres a grouping col) if the number of incrementals for a certain group
+   * @param switchFromIncrementalToGroupIfOverRecordsInGroup1
+   */
+  public void setSwitchFromIncrementalToGroupIfOverRecordsInGroup(
+      int switchFromIncrementalToGroupIfOverRecordsInGroup1) {
+    this.switchFromIncrementalToGroupIfOverRecordsInGroup = switchFromIncrementalToGroupIfOverRecordsInGroup1;
+  }
+
+  /**
+   * switch from incremental to full if the number of incrementals is over the threshold, this is full sync to switch to
+   * fullSyncChangeFlag, fullSyncFull, fullSyncGroups
+   */
+  private GcTableSyncSubtype switchFromIncrementalToFullSubtype;
+
+  /**
+   * switch from incremental to full if the number of incrementals is over the threshold, this is full sync to switch to
+   * fullSyncChangeFlag, fullSyncFull, fullSyncGroups
+   * @return type
+   */
+  public GcTableSyncSubtype getSwitchFromIncrementalToFullSubtype() {
+    return this.switchFromIncrementalToFullSubtype;
+  }
+
+  /**
+   * switch from incremental to full if the number of incrementals is over the threshold, this is full sync to switch to
+   * fullSyncChangeFlag, fullSyncFull, fullSyncGroups
+   * @param switchFromIncrementalToFullSubtype1
+   */
+  public void setSwitchFromIncrementalToFullSubtype(
+      GcTableSyncSubtype switchFromIncrementalToFullSubtype1) {
+    this.switchFromIncrementalToFullSubtype = switchFromIncrementalToFullSubtype1;
+  }
+
+  /**
+   * switch from incremental to full if the number of incrementals is over this threshold
+   */
+  private int switchFromIncrementalToFullIfOverRecords;
+
+  /**
+   * switch from incremental to full if the number of incrementals is over this threshold
+   * @return threshold
+   */
+  public int getSwitchFromIncrementalToFullIfOverRecords() {
+    return this.switchFromIncrementalToFullIfOverRecords;
+  }
+
+  /**
+   * switch from incremental to full if the number of incrementals is over this threshold
+   * @param switchFromIncrementalToFullIfOverRecords1
+   */
+  public void setSwitchFromIncrementalToFullIfOverRecords(
+      int switchFromIncrementalToFullIfOverRecords1) {
+    this.switchFromIncrementalToFullIfOverRecords = switchFromIncrementalToFullIfOverRecords1;
   }
 
   /**

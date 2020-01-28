@@ -9,8 +9,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -535,17 +537,29 @@ public class GcTableSyncTableMetadata {
   public String columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress() {
     StringBuilder result = new StringBuilder();
 
+    Set<String> columnNames = new HashSet<String>();
+    boolean first = true;
     for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GrouperClientUtils.nonNull(this.columns)) {
 
+      if (!first) {
+        result.append(", ");
+      }
+
       result.append(gcTableSyncColumnMetadata.getColumnName());
-      
-      result.append(", ");
+      columnNames.add(gcTableSyncColumnMetadata.getColumnName());
+      first = false;
     }
-    result.append(this.getChangeFlagColumn().getColumnName());
-    
-    if (this.getIncrementalAllCoumnsColumn() != null) {
+    if (!columnNames.contains(this.getChangeFlagColumn().getColumnName())) {
       result.append(", ");
-      this.getIncrementalAllCoumnsColumn().getColumnName();
+      result.append(this.getChangeFlagColumn().getColumnName());
+      columnNames.add(this.getChangeFlagColumn().getColumnName());
+    }
+    if (this.getIncrementalAllCoumnsColumn() != null) {
+      if (!columnNames.contains(this.getIncrementalAllCoumnsColumn().getColumnName())) {
+        result.append(", ");
+        result.append(this.getIncrementalAllCoumnsColumn().getColumnName());
+        columnNames.add(this.getChangeFlagColumn().getColumnName());
+      }
     }
     return result.toString();
   }

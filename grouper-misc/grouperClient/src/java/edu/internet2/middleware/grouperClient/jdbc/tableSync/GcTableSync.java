@@ -9,10 +9,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
-import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -20,20 +20,25 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public class GcTableSync {
 
+  /**
+   * if this is paused
+   */
+  private boolean paused = false;
 
   /**
-   * delete all data if table is here
+   * if this is paused
+   * @return if paused
    */
-  public static void reset() {
-    
-    try {
-      // if its not there forget about it... TODO remove this in 2.5+
-      new GcDbAccess().connectionName("grouper").sql("select * from " + GcPersistableHelper.tableName(GcGrouperSync.class) + " where 1 != 1").select(Integer.class);
-    } catch (Exception e) {
-      return;
-    }
+  public boolean isPaused() {
+    return this.paused;
+  }
 
-    new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GcGrouperSync.class)).executeSql();
+  /**
+   * if this is paused
+   * @param paused1
+   */
+  public void setPaused(boolean paused1) {
+    this.paused = paused1;
   }
 
   /**
@@ -242,35 +247,6 @@ public class GcTableSync {
    * debug map for this table sync
    */
   private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-  
-  /**
-   * configure the table sync for a certain type of sync
-   * @param configKey
-   * @param gcTableSyncSubtype
-   */
-  private void configure(String configKey, GcTableSyncSubtype gcTableSyncSubtype) {
-    try {
-      this.gcTableSyncConfiguration = new GcTableSyncConfiguration();
-      this.gcTableSyncConfiguration.setConfigKey(configKey);
-      this.gcTableSyncConfiguration.setGcTableSyncSubtype(gcTableSyncSubtype);
-      this.gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName("grouper", GcGrouperSync.SQL_SYNC_ENGINE, configKey);
-      this.gcGrouperSyncJob = this.gcGrouperSync.retrieveJobOrCreateBySyncType(gcTableSyncSubtype.name());
-      this.gcGrouperSyncLog = this.gcGrouperSyncJob.retrieveGrouperSyncLogOrCreate();
-      this.gcGrouperSyncLog.setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
-
-      this.gcTableSyncConfiguration.configureTableSync(this.debugMap);
-    } catch (RuntimeException re) {
-      if (this.gcGrouperSyncLog != null) {
-        try {
-          this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.CONFIG_ERROR);
-          this.gcGrouperSyncLog.store();
-        } catch (RuntimeException re2) {
-          GrouperClientUtils.injectInException(re, "***** START ANOTHER EXCEPTON *******" + GrouperClientUtils.getFullStackTrace(re2) + "***** END ANOTHER EXCEPTON *******");
-        }
-      }
-      throw re;
-    }
-  }
 
   /**
    * configuration for this table sync
@@ -296,7 +272,8 @@ public class GcTableSync {
     
     this.gcTableSyncOutput = new GcTableSyncOutput();
     
-    this.configure(configKey, gcTableSyncSubtype);
+    this.gcTableSyncConfiguration = new GcTableSyncConfiguration();
+    this.gcTableSyncConfiguration.configureTableSync(this.debugMap, this, configKey, gcTableSyncSubtype);
     
     final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -339,15 +316,17 @@ public class GcTableSync {
                   return;
                 }
               }
-              synchronized (GcTableSync.this) {
-                if (done[0]) {
-                  return;
-                }
-                // its been a minute, update the heartbeat, see if a more important job is running
-                boolean shouldKeepRunning = GcTableSync.this.gcGrouperSyncJob.assignHeartbeatAndCheckForPendingJobs(GcTableSync.this.gcTableSyncConfiguration.getGcTableSyncSubtype().isFullSync());
-                if (!shouldKeepRunning) {
-                  interrupted[0]=true;
-                  debugMap.put("interrupted", true);
+              if (!GcTableSync.this.isPaused()) {
+                synchronized (GcTableSync.this) {
+                  if (done[0]) {
+                    return;
+                  }
+                  // its been a minute, update the heartbeat, see if a more important job is running
+                  boolean shouldKeepRunning = GcTableSync.this.gcGrouperSyncJob.assignHeartbeatAndCheckForPendingJobs(GcTableSync.this.gcTableSyncConfiguration.getGcTableSyncSubtype().isFullSync());
+                  if (!shouldKeepRunning) {
+                    interrupted[0]=true;
+                    debugMap.put("interrupted", true);
+                  }
                 }
               }
               logPeriodically(debugMap, GcTableSync.this.gcTableSyncOutput);
@@ -436,8 +415,8 @@ public class GcTableSync {
       for (String label : debugMap.keySet()) {
         if (label.endsWith("Millis")) {
           Object value = debugMap.get(label);
-          if (value instanceof Long) {
-            debugMap.put(label, ((Long)value)/1000);
+          if (value instanceof Number) {
+            debugMap.put(label, ((Number)value).longValue()/1000);
           }
         }
       }
@@ -527,7 +506,7 @@ public class GcTableSync {
   /**
    * log object
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(GcTableSync.class);
+  private static final Log LOG = LogFactory.getLog(GcTableSync.class);
 
   /**
    * @param args
