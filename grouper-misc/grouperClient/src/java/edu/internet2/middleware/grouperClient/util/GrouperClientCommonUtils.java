@@ -5069,25 +5069,6 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
-   * 
-   * @param file
-   *          is the file to read into a string
-   * 
-   * @return String
-   */
-  public static String readFileIntoStringUtf8(File file) {
-  
-    if (file == null) {
-      return null;
-    }
-    try {
-      return readFileToString(file, "UTF-8");
-    } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
-    }
-  }
-  
-  /**
    * @param file
    *          is the file to read into a string
    * 
