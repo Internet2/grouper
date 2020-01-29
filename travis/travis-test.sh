@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ -z "$TRAVIS_COMMIT_RANGE" ]; then
   echo "No commit range for this build (missing TRAVIS_COMMIT_RANGE) -- skipping tests" >&2
@@ -7,10 +7,6 @@ fi
 
 # Note, prettier version of emails is --format='%an <%ae>'
 # apt install mailx
-# mailx [-BDdEFintv~] [-s subject] [-a attachment ] [-c cc-addr] [-b bcc-addr] [-r from-addr] [-h hops] [-A account] [-S variable[=value]] to-addr . . .
-# mailx [-BDdeEHiInNRv~] [-T name] [-A account] [-S variable[=value]] -f [name]
-# mailx [-BDdeEinNRv~] [-A account] [-S variable[=value]] [-u user] 
-# What should it be? mailx -s "Travis test results" -a $LOGFILE $COMMITTER_EMAILS
 
 COMMITTER_EMAILS=$(git --no-pager show -s --format=%ae $TRAVIS_COMMIT_RANGE | sort -u)
 
@@ -21,8 +17,10 @@ fi
 
 
 # grep -q returns 0 if found and 1 if not, so flag is the opposite of expected
+echo "Checking for [skip tests]"
 git --no-pager show -s --format="%s %b" $TRAVIS_COMMIT_RANGE | grep -q '\[skip tests\]'
-if [ $? -eq 0 ]; then
+exit_code=$?
+if [ $exit_code -eq 0 ]; then
   echo "Found '[skip tests]' within $TRAVIS_COMMIT_RANGE -- skipping tests" >&2
   exit 1
 fi
@@ -32,16 +30,26 @@ BASEDIR=.
 LOGFILE=$(mktemp)
 
 # Start up postgres container compatible with the travis confForTest hibernate login
+echo "Starting Docker database container"
 docker run -d -e "POSTGRES_USER=grouper" -e "POSTGRES_PASSWORD=password" -e "POSTGRES_DB=grouper" -p 5432:5432  postgres
+exit_code=$?
+if [ $exit_code -ne 0 ]; then
+  echo "docker database container startup failed (exit $exit_code)" >&2
+  exit 1
+fi
+echo "Sleeping for 10 seconds to let db start"
+sleep 10
 
 
 # Set up Maven environment. Install artifacts locally so further usage can be built per package
+echo "Installing Maven settings"
 if [ ! -f $BASEDIR/travis/mvn.settings.xml ]; then
     cp -p $BASEDIR/travis/mvn.settings.xml $HOME/.m2/settings.xml
 fi
 
 
 # Build (all projects) and copy dependencies for grouper subproject, so all can be run from the target/ directory
+echo "Building Maven projects"
 mvn -f $BASEDIR/grouper-parent clean package install
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
@@ -49,6 +57,7 @@ if [ $exit_code -ne 0 ]; then
   exit 1
 fi
 
+echo "Downloading Grouper api dependencies"
 mvn -f $BASEDIR/grouper dependency:copy-dependencies
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
@@ -60,7 +69,7 @@ fi
 # Set up the classpath to use the newly created artifacts
 
 CP="$BASEDIR/travis/confForTest"
-CP="$CP":$(echo $BASEDIR/grouper/target/grouper-*.jar | tr ' ' ':')
+CP="$CP":$(compgen -G "$BASEDIR/grouper/target/grouper-[0-9].[0-9].[0-9]*.jar" | grep -v -- '-sources.jar' | tr '\n' ':' | sed -e 's/::/:/')
 CP="$CP":"$BASEDIR/grouper/target/dependency/*"
 CP="$CP":"$BASEDIR/grouper/conf"
 #  RESULT:
@@ -71,8 +80,8 @@ CP="$CP":"$BASEDIR/grouper/conf"
 #./grouper/conf
 
 # Init the grouper database
-#   - even though everything gsh needs is in the classpath, gsh still complains if GROUPER_HOME/dist/lib/grouper.jar is missing
-chmod u+x $BASEDIR/grouper/bin/gsh.sh && CLASSPATH="$CP" GROUPER_HOME=$BASEDIR/grouper $BASEDIR/grouper/bin/gsh.sh -registry -runscript -noprompt
+echo "Initializing the Grouper database"
+chmod u+x $BASEDIR/grouper/bin/gsh.sh && CLASSPATH="$CP" GROUPER_CONF="$BASEDIR/travis/confForTest" $BASEDIR/grouper/bin/gsh.sh -registry -runscript -noprompt
 
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
@@ -91,9 +100,10 @@ echo $(date) " | START"
 #echo $(date) " | START" > $LOGFILE
 
 # make sure this runs with Java 8
-which java #TODO debug
+which java #TODO debugging
 JAVA=java
 
+echo "Executing edu.internet2.middleware.grouper.AllTests"
 $JAVA -classpath "$CP" \
   -Dgrouper.allow.db.changes=true \
   -Dgrouper.home=./ \

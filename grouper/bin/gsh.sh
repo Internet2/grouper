@@ -11,6 +11,13 @@ isApiHome() {
 	[ -f "$1/dist/lib/grouper.jar" ]
 }
 
+# Returns true if $1/dist/lib/grouper.jar exists
+isApiMvnHome() {
+	# undefined is failure
+	if [ -z "$1" ]; then return 1; fi
+	compgen -G "grouper/target/grouper-[0-9].[0-9].[0-9]*.jar" -X "@(*-tests.jar|*-sources.jar)" > /dev/null 2>&1
+}
+
 # Returns true if exists in $1/lib: grouper.jar or grouper-a.b.c*.jar
 isWebappHome() {
 	# undefined is failure
@@ -30,6 +37,8 @@ checkGrouperHome() {
 		_grouperHomeType=api
 	elif isWebappHome "$1"; then
 		_grouperHomeType=webapp
+	elif isApiMvnHome "$1"; then
+		_grouperHomeType=apiMvn
 	fi
 
 	[ -n "$_grouperHomeType" ]
@@ -67,13 +76,14 @@ else
 fi
 
 if [ -z "$GSH_QUIET" ]; then
-	echo "Detected Grouper directory structure '$_grouperHomeType' (valid is api or webapp)"
+	echo "Detected Grouper directory structure '$_grouperHomeType' (valid is api, apiMvn, webapp)"
 fi
 
 # Check conf directory
 if [ "$GROUPER_CONF" = "" ]; then
 	case $_grouperHomeType in
 		api) GROUPER_CONF="$GROUPER_HOME/conf";;
+		apiMvn) GROUPER_CONF="$GROUPER_HOME/conf";;
 		webapp) GROUPER_CONF="$GROUPER_HOME/classes";;
 	esac
 fi
@@ -127,6 +137,13 @@ if [ $_grouperHomeType = api ]; then
 	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/src/resources
 elif [ $_grouperHomeType = webapp ]; then
 	GROUPER_CP="${GROUPER_CONF}:${GROUPER_HOME}/lib/*"
+elif [ $_grouperHomeType = apiMvn ]; then
+	# compgen -X filter works from the command line; not working in this script for some reason
+	#GROUPER_CP="${GROUPER_CP}":$(compgen -G "${GROUPER_HOME}/target/grouper-[0-9].[0-9].[0-9]*.jar" -X "@(*-tests.jar|*-sources.jar)" | tr '\n' ':')
+	GROUPER_CP="${GROUPER_CP}":$(compgen -G "${GROUPER_HOME}/target/grouper-[0-9].[0-9].[0-9]*.jar" | grep -v -- '-tests.jar' | grep -v -- '-sources.jar' | tr '\n' ':')
+	GROUPER_CP="${GROUPER_CP}:${GROUPER_HOME}/target/dependency/*"
+	GROUPER_CP="${GROUPER_CP}:${GROUPER_HOME}/target/classes"
+	GROUPER_CP="${GROUPER_CP}:${GROUPER_HOME}/conf"
 else
 	echo "Could not determine Grouper directory structure (should be api or webapp)"
 	return 1 2>/dev/null || exit 1
