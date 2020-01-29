@@ -14,6 +14,7 @@ conf/grouper-ui.properties
 conf/grouper-ws.properties
 conf/penn*
 conf/grouperText/grouper.text.en.us.properties
+conf/grouperText/grouper.text.fr.fr.properties
 ddlScripts
 dist
 misc/server/i2midev1

@@ -456,9 +456,12 @@ public enum GrouperLoaderType {
         GrouperLoaderStatus[] statusOverall = new GrouperLoaderStatus[]{GrouperLoaderStatus.SUCCESS};
         
         try {
+          
+          boolean orderByGroupName = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.loader.auto.order.by", false);
+
           //get a resultset from the db
           final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset(grouperLoaderDb, 
-              query + " order by group_name", loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+              query + (orderByGroupName ? " order by group_name" : ""), loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
               loaderJobBean.getHib3GrouploaderLogOverall());
           
           if (LOG.isDebugEnabled()) {
@@ -480,9 +483,10 @@ public enum GrouperLoaderType {
           if (!StringUtils.isBlank(groupQuery)) {
             
             groupNamesFromGroupQuery = new LinkedHashSet<String>();
+            
             //get a resultset from the db
             final GrouperLoaderResultset grouperLoaderGroupsResultset = new GrouperLoaderResultset(
-                grouperLoaderDb, groupQuery + " order by group_name", hib3GrouploaderLogOverall.getJobName(), 
+                grouperLoaderDb, groupQuery + (orderByGroupName ? " order by group_name" : ""), hib3GrouploaderLogOverall.getJobName(), 
                 hib3GrouploaderLogOverall);
             
             groupMetadataNumberOfRows = grouperLoaderGroupsResultset.numberOfRows();
