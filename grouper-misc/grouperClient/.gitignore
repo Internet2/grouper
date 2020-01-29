@@ -13,3 +13,4 @@ javadoc
 /temp/
 .classpath
 .project
+/bin/
