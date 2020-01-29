@@ -26,7 +26,8 @@
 # TODO if you commit first, and tag later, does it trigger two separate steps
 
 language: java
-sudo: false
+os: linux
+# (DEPRECATED) sudo: false
 branches:
   only:
   - master
@@ -43,11 +44,16 @@ jobs:
   include:
     - stage: test
       script: docker run -d -e "POSTGRES_USER=grouper" -e "POSTGRES_PASSWORD=password" -e "POSTGRES_DB=grouper" -p 5432:5432  postgres
+    -
       script: cp travis/mvn.settings.xml $HOME/.m2/settings.xml
+    -
       script: mvn -f ./grouper-parent clean install
+    -
       script: mvn -f ./grouper copy-dependencies
-      script: "chmod u+x grouper/bin/gsh.sh && CLASSPATH=travis/confForTest grouper/bin/gsh.sh -registry -runscript -noprompt"
-      script: "chmod u+x travis/travis-test.sh && travis/travis-test.sh
+    -
+      script: chmod u+x grouper/bin/gsh.sh && CLASSPATH=travis/confForTest grouper/bin/gsh.sh -registry -runscript -noprompt
+    -
+      script: chmod u+x travis/travis-test.sh && travis/travis-test.sh
     - stage: deploy_release
       #script: travis/deploy-to-sonatype.sh
       script: /bin/false
@@ -56,7 +62,7 @@ jobs:
 #before_script:
 # - export JAVA_OPTS="-Xmx2048m"
 #install:
-#- mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=true -Dlicense.skip=true -B -V -q 
+#- mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=true -Dlicense.skip=true -B -V -q
 #script:
 #- mvn -f ./grouper-parent clean package -DskipTests=true -Dlicense.skip=true
 #before_install:
@@ -75,7 +81,9 @@ env:
     - secure: "kJDUzde56X0epK70R9e2hN7Q6nfHyk0ixDOynPYJh01hREyLl/7Zm3V6dv5nfGhFbCoJDcqkTlUsl26ixrmmr4AUhh+fKkQVO8Pjj8z9fR6Y1lukJ2v2RVDRzN0sR5cCqKGd2yr9VW9s+4JinfcBQNj2dxwhCKddj+NPPM9o0CE="
 deploy:
   provider: script
-  script: "chmod u+x travis/deploy-to-sonatype.sh && travis/deploy-to-sonatype.sh"
-  skip_cleanup: true
+  script: chmod u+x travis/deploy-to-sonatype.sh && travis/deploy-to-sonatype.sh
+  #(DEPRECATED) skip_cleanup: true
   on:
+    #TODO set to true once deploy script works
+    #tags: true
     tags: false
