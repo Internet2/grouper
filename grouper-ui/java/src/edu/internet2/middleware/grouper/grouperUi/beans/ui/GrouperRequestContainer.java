@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSource;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -310,20 +311,38 @@ public class GrouperRequestContainer {
   /**
    * use static request container for gsh
    */
-  private static boolean useStaticRequestContainer = false;
+  private static ThreadLocal<Boolean> useStaticRequestContainer = new InheritableThreadLocal<Boolean>();
   
   /**
    * use static request container for gsh or testing
    * @param theUseStaticRequestContainer1
+   * @return if newly assigned, otherwise false if already set to that value
    */
-  public static void assignUseStaticRequestContainer(boolean theUseStaticRequestContainer1) {
-    useStaticRequestContainer = theUseStaticRequestContainer1;
+  public static boolean assignUseStaticRequestContainer(boolean theUseStaticRequestContainer1) {
+    if (useStaticRequestContainer.get() != null && useStaticRequestContainer.get() == theUseStaticRequestContainer1) {
+      return false;
+    }
+    useStaticRequestContainer.set(theUseStaticRequestContainer1);
+    GrouperTextContainer.grouperRequestContainerThreadLocalClear();
+    clearStaticRequestContainer();
+    if (theUseStaticRequestContainer1) {
+      GrouperTextContainer.grouperRequestContainerThreadLocalAssign(GrouperRequestContainer.retrieveFromRequestOrCreate());
+    }
+    return true;
   }
-  
+
   /**
-   * grouper request container
+   * use static request container for gsh
    */
-  private static GrouperRequestContainer staticGrouperRequestContainer;
+  private static ThreadLocal<GrouperRequestContainer> staticGrouperRequestContainer 
+    = new InheritableThreadLocal<GrouperRequestContainer>();
+
+  /**
+   * clear out the static request container
+   */
+  public static void clearStaticRequestContainer() {
+    staticGrouperRequestContainer.remove();
+  }
   
   /**
    * retrieveFromSession, cannot be null
@@ -331,11 +350,13 @@ public class GrouperRequestContainer {
    */
   public static GrouperRequestContainer retrieveFromRequestOrCreate() {
     
-    if (useStaticRequestContainer) {
-      if (staticGrouperRequestContainer == null) {
-        staticGrouperRequestContainer = new GrouperRequestContainer();
+    if (useStaticRequestContainer.get() != null && useStaticRequestContainer.get()) {
+      GrouperRequestContainer grouperRequestContainer = staticGrouperRequestContainer.get();
+      if (grouperRequestContainer == null) {
+        grouperRequestContainer = new GrouperRequestContainer();
+        staticGrouperRequestContainer.set(grouperRequestContainer);
       }
-      return staticGrouperRequestContainer;
+      return grouperRequestContainer;
     }
     
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
