@@ -36,7 +36,7 @@ docker run -d -e "POSTGRES_USER=grouper" -e "POSTGRES_PASSWORD=password" -e "POS
 
 
 # Set up Maven environment. Install artifacts locally so further usage can be built per package
-if [ ! -f $BASEDIR/travis/mvn.settings.xml]; then
+if [ ! -f $BASEDIR/travis/mvn.settings.xml ]; then
     cp -p $BASEDIR/travis/mvn.settings.xml $HOME/.m2/settings.xml
 fi
 
@@ -71,7 +71,14 @@ CP="$CP":"$BASEDIR/grouper/conf"
 #./grouper/conf
 
 # Init the grouper database
-chmod u+x $BASEDIR/grouper/bin/gsh.sh && CLASSPATH="$CP" $BASEDIR/grouper/bin/gsh.sh -registry -runscript -noprompt
+#   - even though everything gsh needs is in the classpath, gsh still complains if GROUPER_HOME/dist/lib/grouper.jar is missing
+chmod u+x $BASEDIR/grouper/bin/gsh.sh && CLASSPATH="$CP" GROUPER_HOME=$BASEDIR/grouper $BASEDIR/grouper/bin/gsh.sh -registry -runscript -noprompt
+
+exit_code=$?
+if [ $exit_code -ne 0 ]; then
+  echo "Failed to init the database (exit $exit_code)" >&2
+  exit 1
+fi
 
 
 # Run the tests
@@ -80,7 +87,8 @@ for var in PWD TRAVIS_COMMIT_RANGE COMMITTER_EMAILS BASEDIR LOGFILE CP; do
   echo "$var = ${!var}"
 done
 
-echo $(date) " | START" > $LOGFILE
+echo $(date) " | START"
+#echo $(date) " | START" > $LOGFILE
 
 # make sure this runs with Java 8
 which java #TODO debug
@@ -91,12 +99,14 @@ $JAVA -classpath "$CP" \
   -Dgrouper.home=./ \
   -XX:MaxPermSize=300m -Xms80m -Xmx640m \
   edu.internet2.middleware.grouper.AllTests \
-  -all -noprompt \
-  >> $LOGFILE 2>&1
+  -all -noprompt
+#  -all -noprompt \
+#  >> $LOGFILE 2>&1
 
 exit_code=$?
 
-echo $(date) " | END (exit code $exit_code)" >> $LOGFILE
+echo $(date) " | END (exit code $exit_code)"
+#echo $(date) " | END (exit code $exit_code)" >> $LOGFILE
 
 
 # Travis probably isn't allowing mail. Just output to stdout instead
@@ -107,7 +117,7 @@ echo $(date) " | END (exit code $exit_code)" >> $LOGFILE
 #
 #echo "Travis completed tests" | echo mailx -s "Travis test results" -a $LOGFILE -a $GROUPER_ATTACH $COMMITTER_EMAILS
 
-cat $LOGFILE
+#cat $LOGFILE
 
 # Exit with the result from the test run
 exit $exit_code
