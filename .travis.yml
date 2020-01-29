@@ -37,26 +37,16 @@ jdk:
 stages:
   - compile
   - test
-  - name: deploy_release
-    if: tag =~ ^GROUPER_RELEASE/(\d+\.)+\d+
+  #- deploy_release
+  ##- name: deploy_release
+  ##  if: tag =~ ^GROUPER_RELEASE_(\d+\.)+\d+$
 
 jobs:
   include:
     - stage: test
-      script: docker run -d -e "POSTGRES_USER=grouper" -e "POSTGRES_PASSWORD=password" -e "POSTGRES_DB=grouper" -p 5432:5432  postgres
-    -
-      script: cp travis/mvn.settings.xml $HOME/.m2/settings.xml
-    -
-      script: mvn -f ./grouper-parent clean install
-    -
-      script: mvn -f ./grouper copy-dependencies
-    -
-      script: chmod u+x grouper/bin/gsh.sh && CLASSPATH=travis/confForTest grouper/bin/gsh.sh -registry -runscript -noprompt
-    -
       script: chmod u+x travis/travis-test.sh && travis/travis-test.sh
     - stage: deploy_release
-      #script: travis/deploy-to-sonatype.sh
-      script: /bin/false
+      script: chmod u+x travis/deploy-to-sonatype.sh && travis/deploy-to-sonatype.sh
 
 
 #before_script:
