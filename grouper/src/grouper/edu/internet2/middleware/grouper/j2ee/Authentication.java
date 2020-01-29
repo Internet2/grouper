@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.j2ee;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.StringTokenizer;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
@@ -28,27 +29,77 @@ public class Authentication {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Authentication.class);
   
-  public boolean authenticate(String authHeader, GrouperPassword.Application application) {
+  
+  public static final String retrieveUsername(final String authHeader) {
     
-    byte[] decodedUserPassword = Base64.getDecoder().decode(authHeader);
-    String userPassword = new String(decodedUserPassword);
+    if (StringUtils.isBlank(authHeader)) {
+      return null;
+    }
     
-    String[] userPasswordArray = userPassword.split(":");
+    try {
+      StringTokenizer st = new StringTokenizer(authHeader);
+      
+      if (st.hasMoreTokens()) {
+        String basic = st.nextToken();
+        if (basic.equalsIgnoreCase("Basic")) {
+          
+          String credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
+          int p = credentials.indexOf(":");
+          if (p != -1) {
+            String user = credentials.substring(0, p).trim();
+            return user;
+          }
+          
+        }
+        
+      }
+    } catch (Exception e) {
+      LOG.error("Error retrieving username from authHeader");
+      return null;
+    }
+    return null;
+  }
+  
+  public boolean authenticate(final String authHeader, GrouperPassword.Application application) {
     
-    String user = userPasswordArray[0];
-    
-    GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(user, application.name());
-    
-    if (grouperPassword == null) {
+    if (StringUtils.isBlank(authHeader)) {
       return false;
     }
     
-    String generatedHash = grouperPassword.getEncryptionType()
-        .generateHash(grouperPassword.getTheSalt()+userPasswordArray[1]);
+    try {
+      StringTokenizer st = new StringTokenizer(authHeader);
+      if (st.hasMoreTokens()) {
+        String basic = st.nextToken();
+
+        if (basic.equalsIgnoreCase("Basic")) {
+          String credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
+          int p = credentials.indexOf(":");
+          if (p != -1) {
+            String user = credentials.substring(0, p).trim();
+            String password = credentials.substring(p + 1).trim();
+                
+            GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(user, application.name());
+                
+            if (grouperPassword == null) {
+              return false;
+            }
+                
+            String generatedHash = grouperPassword.getEncryptionType().generateHash(grouperPassword.getTheSalt()+password);
+                
+            String encryptedPassword = Morph.encrypt(generatedHash);
+                
+            return StringUtils.equals(encryptedPassword, grouperPassword.getThePassword());
+
+          }
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("Error authenticating");
+      return false;
+    }
     
-    String encryptedPassword = Morph.encrypt(generatedHash);
+    return false;
     
-    return StringUtils.equals(encryptedPassword, grouperPassword.getThePassword());
   }
   
   public boolean assignUserPassword(GrouperPasswordSave grouperPasswordSave) {

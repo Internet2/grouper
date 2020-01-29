@@ -18,6 +18,8 @@
  */
 package edu.internet2.middleware.grouper.ws;
 
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+
 import java.io.IOException;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
@@ -59,6 +61,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -921,6 +924,7 @@ public class GrouperServiceJ2ee implements Filter {
    */
   private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
   
+  @Override
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 
@@ -935,72 +939,21 @@ public class GrouperServiceJ2ee implements Filter {
       //empty strings work, but nulls make things off a bit
       request = new WsHttpServletRequest((HttpServletRequest) request);
       
-      String authHeader = ((HttpServletRequest) request).getHeader("authentication");
-          
-      ((HttpServletRequest) request).getRemoteAddr();
-      
-      /**
-       * 
-       * add a property in grouper.ui.properties: basic.grouper.ui.auth = true|false (false)
-       * add a property in grouper.ws.properties: basic.grouper.ws.auth = true|false (false)
-       * add a property in grouper.ws.properties: basic.grouper.ws-scim.auth = true|false (false)
-       * 
-       * we get the base64 encoded username:password in authHeader above
-       * select * from grouper_password where username = $username and type = 'ui';
-       * if (nonNull) {
-       *  
-       *  val someValue = hash(take the salt column + password that was passed in)
-       *   
-       *   val encryptedPassword = encrypt(someValue); // encrypt with morphString
-       *   
-       *   if (encryptedPassword === the_password from db) {
-       *    // we are good.
-       *   }
-       *  
-       * }
-       *  
-       *  
-       *  
-       *  
-       * 
-       * assignUserPassword(userName, password, wsOrUi ) {
-       *  
-       *  SecureRandom random = new SecureRandom(); 
-       *  byte[] salt = new byte[64]; 
-       *  random.nextBytes(salt);
-       *  String saltString = new String(salt);  
-
-       *  String password = saltString + password
-       *  
-       *  String encryptionType = get it from grouper.properties;
-       *  
-       *  String hashedPassword = hash the password using hash type - sha 256
-       *  
-       *  String encryptedPassword = encrypt(hashedPassword) using morphString 
-       *  
-       *  
-       *  insert into grouper_password (userName, type, is_hashed, encryption_type, 
-       *  the_salt, the_password, )
-       *   values (userName, 'username', 'T', encryptionType, salt, encryptedPassword )
-       *  
-       * }
-       * 
-       *  
-       * 
-       * 
-       * 
-       */
-      
-      boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.UI);
-      
-      if (!isValid) {
-        throw new RuntimeException("Could not authenticate");
+      boolean runGrouperWsWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.basicAuthn", false);
+      if (runGrouperWsWithBasicAuth) {
+        String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
+        
+        boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
+        
+        if (!isValid) {
+          ((HttpServletResponse) response).setStatus(SC_UNAUTHORIZED);
+        } else {
+          String userName = Authentication.retrieveUsername(authHeader);
+          ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
+        }
+        
       }
       
-//      if (StringUtils.isNotBlank(userName)) {
-//        ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
-//      }
-  
       request.setAttribute("debugMap", debugMap);
       
       NDC.clear();

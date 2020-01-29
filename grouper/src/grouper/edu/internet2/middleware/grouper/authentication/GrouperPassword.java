@@ -530,6 +530,7 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned 
    */
   public void setEncryptionTypeDb(String encryptionTypeDb) {
     this.encryptionTypeDb = encryptionTypeDb;
+    this.encryptionType = EncryptionType.valueOf(encryptionTypeDb);
   }
 
 

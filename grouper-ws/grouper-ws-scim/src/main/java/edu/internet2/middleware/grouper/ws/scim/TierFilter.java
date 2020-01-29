@@ -23,8 +23,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -116,6 +118,20 @@ public class TierFilter implements Filter {
         }
         threadLocalRequestStartMillis.set(System.currentTimeMillis());
         threadLocalRequest.set((HttpServletRequest)request);
+        
+        boolean runGrouperScimWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim.basicAuthn", false);
+        if (runGrouperScimWithBasicAuth) {
+          String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
+          
+          boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
+          
+          if (!isValid) {
+            ((HttpServletResponse) response).setStatus(SC_UNAUTHORIZED);
+          } else {
+            String userName = Authentication.retrieveUsername(authHeader);
+            ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
+          }
+        }
         
         if (retrieveSubjectFromRemoteUser() == null) {
           ((HttpServletResponse) response).setStatus(SC_UNAUTHORIZED);

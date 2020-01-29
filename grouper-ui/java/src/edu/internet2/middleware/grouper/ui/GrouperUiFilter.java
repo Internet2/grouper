@@ -79,6 +79,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.authentication.GrouperPassword;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ContextContainer;
@@ -94,6 +96,7 @@ import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
+import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
@@ -233,7 +236,6 @@ public class GrouperUiFilter implements Filter {
    * @param prefix
    * @return the set, never null
    */
-  @SuppressWarnings("unchecked")
   public static Set<String> requestParameterNamesByPrefix(String prefix) {
     HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
     Set<String> result = new LinkedHashSet<String>();
@@ -1051,7 +1053,7 @@ public class GrouperUiFilter implements Filter {
     GrouperContext.deleteDefaultContext();
     GrouperThreadLocalState.removeCurrentThreadLocals();
   }
-
+  
   /**
    * 
    * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
@@ -1077,7 +1079,25 @@ public class GrouperUiFilter implements Filter {
 
       // belt and suspenders
       ((HttpServletResponse)response).setHeader("Expires", "0");
-
+      
+      HttpSession session = httpServletRequest.getSession();
+      
+      boolean runGrouperUiWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui.basicAuthn", false);
+      
+      if (runGrouperUiWithBasicAuth && session.getAttribute("REMOTE_USER") == null) {
+        String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        
+        boolean isValid = new Authentication().authenticate(authorizationHeader, GrouperPassword.Application.UI);
+        if (isValid) {
+          String userName = Authentication.retrieveUsername(authorizationHeader);
+          session.setAttribute("REMOTE_USER", userName);
+        } else {
+          httpServletResponse.setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
+          httpServletResponse.sendError(401, "Unauthorized");
+          return;
+        }
+      }
+      
       httpServletRequest = initRequest(httpServletRequest, response);
   
       try {
