@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
   version="2.4">
   
-  <security-constraint>
+ <!--  <security-constraint>
     <web-resource-collection>
       <web-resource-name>UI</web-resource-name>
       <url-pattern>/grouperUi/app/*</url-pattern>
@@ -81,10 +81,10 @@
       <url-pattern>/servicesRest/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
-      <!-- NOTE:  This role is not present in the default users file -->
+      NOTE:  This role is not present in the default users file
       <role-name>grouper_user</role-name>
     </auth-constraint>
-  </security-constraint>
+  </security-constraint> -->
 
 <!-- TODO: add session invalidate to the scim. look at GrouperRestServlet.java -->
   
