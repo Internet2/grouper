@@ -32,7 +32,7 @@ branches:
   only:
   - master
   - travis
-  - /^GROUPER_RELEASE_(\d+\.)+\d+$/
+  - /^GROUPER_RELEASE_(\d+\.)+\d+(rc\d+)?$/
 jdk:
   - openjdk8
 
@@ -56,7 +56,8 @@ before_script:
   - export JAVA_OPTS="-Xmx2048m"
 script:
   - mvn -f ./grouper-parent clean package
-  - mvn -f ./grouper-parent install -B -V -q
+  # Uncomment the install if resuming snapshot deployments
+  #- mvn -f ./grouper-parent install -B -V -q
 ##after_success:
 ##- chmod -R 777 travis/deploy-to-sonatype.sh
 ##- travis/deploy-to-sonatype.sh
@@ -72,9 +73,8 @@ deploy:
   script: travis/deploy-to-sonatype.sh
   #(DEPRECATED) skip_cleanup: true
   on:
-    #TODO set to true once deploy script works
-    #tags: true
-    tags: false
+    #branch: travis
+    tags: true
 
 env:
   global:

@@ -12,13 +12,13 @@ fi
 #  exit 0
 #fi
 
-GROUPER_VERSION=$(perl -e '$_ = $ENV{q~TRAVIS_TAG~}; print $1 if /^GROUPER_RELEASE_((\d+\.)+\d+)$/')
+GROUPER_VERSION=$(perl -e '$_ = $ENV{q~TRAVIS_TAG~}; print $1 if /^GROUPER_RELEASE_((\d+\.)+\d+(rc\d+)?)$/')
 if [ $? -ne 0 ]; then
-  echo -e "Failed to parse travis tag '$TRAVIS_TAG' against /^GROUPER_RELEASE_((\d+\.)+\d+)$/"
+  echo -e "Failed to parse travis tag '$TRAVIS_TAG' against /^GROUPER_RELEASE_((\d+\.)+\d+(rc\d+)?)$/"
   exit 129
 fi
 if [ -z "$GROUPER_VERSION" ]; then
-  echo -e "Travis tag '$TRAVIS_TAG' did not match pattern /^GROUPER_RELEASE_((\d+\.)+\d+)$/"
+  echo -e "Travis tag '$TRAVIS_TAG' did not match pattern /^GROUPER_RELEASE_((\d+\.)+\d+(rc\d+)?)$/"
   exit 130
 fi
 
