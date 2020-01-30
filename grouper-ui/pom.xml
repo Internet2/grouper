@@ -192,9 +192,6 @@
             <resource>
                 <directory>conf</directory>
             </resource>
-			<resource>
-                <directory>misc</directory>
-            </resource>
         </resources>
 		
         <plugins>
@@ -205,24 +202,6 @@
                     <meminitial>128m</meminitial>
                     <maxmem>256m</maxmem>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>srcPoc</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

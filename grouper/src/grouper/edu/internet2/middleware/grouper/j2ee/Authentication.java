@@ -102,7 +102,7 @@ public class Authentication {
     
   }
   
-  public boolean assignUserPassword(GrouperPasswordSave grouperPasswordSave) {
+  public void assignUserPassword(GrouperPasswordSave grouperPasswordSave) {
     
     try {
       
@@ -140,11 +140,8 @@ public class Authentication {
       
       GrouperDAOFactory.getFactory().getGrouperPassword().saveOrUpdate(grouperPassword);
       
-      return true;
-      
     } catch (Exception e) {
-      LOG.error("Error occurred while saving grouperPassword", e);
-      return false;
+      throw new RuntimeException("error", e);
     }
     
   }

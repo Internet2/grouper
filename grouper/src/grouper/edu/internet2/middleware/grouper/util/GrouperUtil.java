@@ -94,6 +94,7 @@ import net.sf.json.util.PropertyFilter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
@@ -119,6 +120,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -728,6 +730,40 @@ public class GrouperUtil {
   private static boolean logDirsCreated = false;
 
 
+  public static void fileCopy(File src, File dest) {
+    try {
+      FileUtils.copyFile(src, dest);
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem copying: " + (src == null ? null : src.getAbsolutePath()) + " to: " + (dest == null ? null : dest.getAbsolutePath()));
+    }
+  }
+  
+  /**
+   * 
+   * @param exampleResource
+   * @param resource
+   */
+  public static void fileCopyExampleResourceIfNotExist(String exampleResource, String resource) {
+    try {
+      File fileResource = GrouperUtil.fileFromResourceName(resource);
+      if (!fileResource.exists()) {
+        throw new RuntimeException("File doesnt exist: " + resource);
+      }
+      // works, we good
+    } catch (RuntimeException re) {
+      try {
+        // copy example?
+        File exampleFile = GrouperUtil.fileFromResourceName(exampleResource);
+        
+        fileCopy(exampleFile, new File(exampleFile.getParentFile() + File.separator + resource));
+      } catch (RuntimeException re2) {
+        //ignore and rethrow
+        throw re;
+      }
+    }
+
+  }
+  
   /**
    * auto-create log dirs if not done yet
    */
@@ -738,6 +774,8 @@ public class GrouperUtil {
     logDirsCreated = true;
 
     String location = "log4j.properties";
+    
+    fileCopyExampleResourceIfNotExist("log4j.example.properties", location);
     Properties properties = propertiesFromResourceName(location);
     Set<String> keySet = (Set<String>)(Object)properties.keySet();
     for (String key : keySet) {

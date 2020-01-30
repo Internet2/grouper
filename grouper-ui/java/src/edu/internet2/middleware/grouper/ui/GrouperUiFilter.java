@@ -1097,6 +1097,10 @@ public class GrouperUiFilter implements Filter {
           return;
         }
       }
+
+      if (runGrouperUiWithBasicAuth && session.getAttribute("REMOTE_USER") != null) {
+        httpServletRequest.setAttribute("REMOTE_USER", session.getAttribute("REMOTE_USER"));
+      }
       
       httpServletRequest = initRequest(httpServletRequest, response);
   

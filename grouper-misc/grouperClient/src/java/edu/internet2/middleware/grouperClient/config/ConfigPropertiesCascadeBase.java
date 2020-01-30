@@ -948,8 +948,27 @@ public abstract class ConfigPropertiesCascadeBase {
       ConfigFile configFile = new ConfigFile(overrideConfigString);
       result.configFiles.add(configFile);
       
+      boolean replaceWithBlank = false;
       //lets append the properties
-      String configFileContents = configFile.retrieveContents(this);
+      if (configFile.getConfigFileType() == ConfigFileType.CLASSPATH) {
+        if (GrouperClientUtils.equals(overrideConfigString, "classpath:grouper.properties")
+            || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper-loader.properties")
+            || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper-ui.properties")
+            || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper-ws.properties")
+            || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper.cache.properties")
+            || GrouperClientUtils.equals(overrideConfigString, "classpath:subject.properties")
+            || GrouperClientUtils.equals(overrideConfigString, "classpath:grouperText/grouper.text.en.us.properties")
+            || GrouperClientUtils.equals(overrideConfigString, "classpath:grouperText/grouper.text.fr.fr.properties")
+            
+            ) {
+          String resource = GrouperClientUtils.stripPrefix(overrideConfigString, "classpath:");
+          File fileResource = GrouperClientUtils.fileFromResourceName(resource);
+          if (fileResource == null || !fileResource.exists()) {
+            replaceWithBlank = true;
+          }
+        }
+      }
+      String configFileContents = replaceWithBlank ? "" : configFile.retrieveContents(this);
       configFile.setContents(configFileContents);
       
       try {
