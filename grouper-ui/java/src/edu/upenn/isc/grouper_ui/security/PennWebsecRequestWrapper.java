@@ -36,9 +36,9 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.subject.Subject;
-import edu.upenn.isc.fast.websec.WebsecClient;
-import edu.upenn.isc.fast.websec.WebsecException;
-import edu.upenn.isc.fast.websec.WebsecOutput;
+//import edu.upenn.isc.fast.websec.WebsecClient;
+//import edu.upenn.isc.fast.websec.WebsecException;
+//import edu.upenn.isc.fast.websec.WebsecOutput;
 
 
 /**
@@ -124,17 +124,17 @@ public class PennWebsecRequestWrapper extends HttpServletRequestWrapper {
               "c:\\websec\\websec_client.exe" : "/usr/local/lib/websec/websec_client");
       
       StringBuffer logBuffer = new StringBuffer();
-      WebsecOutput websecOutput = null;
+//      WebsecOutput websecOutput = null;
       
-      try {
-        websecOutput = WebsecClient.callWebsecClient(newToken, appName, logBuffer, false, websecBinary);
-      } catch (WebsecException we) {
-        //not sure if this is in exception or not
-        LOG.error(logBuffer.toString(), we);
-        throw we;
-      }
+//      try {
+//        websecOutput = WebsecClient.callWebsecClient(newToken, appName, logBuffer, false, websecBinary);
+//      } catch (WebsecException we) {
+//        //not sure if this is in exception or not
+//        LOG.error(logBuffer.toString(), we);
+//        throw we;
+//      }
       
-      user = websecOutput.getPennid();
+ //     user = websecOutput.getPennid();
       
       //if configured to be in group, make sure
       String uiGroupName = (String)mediaProperties.get("penn.uiGroup");

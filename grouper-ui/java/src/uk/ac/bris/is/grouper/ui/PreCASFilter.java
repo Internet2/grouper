@@ -45,7 +45,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import edu.yale.its.tp.cas.client.filter.CASFilter;
+//TODO import edu.yale.its.tp.cas.client.filter.CASFilter;
 
 /**
  * Integrates CAS with Grouper ui
@@ -108,7 +108,7 @@ public class PreCASFilter implements Filter {
 	  	
 		String authUser = (String) session.getAttribute("authUser");
 		if(authUser==null) {
-			authUser=(String)session.getAttribute(CASFilter.CAS_FILTER_USER);
+// TODO			authUser=(String)session.getAttribute(CASFilter.CAS_FILTER_USER);
 		}
 		
 		//Convince CAS to work properly with populateIndex.do
@@ -118,10 +118,10 @@ public class PreCASFilter implements Filter {
 		if(authUser==null) {
 			if(remoteUser !=null) {
 				//defer to container
-				session.setAttribute(CASFilter.CAS_FILTER_USER,remoteUser);
+// TODO				session.setAttribute(CASFilter.CAS_FILTER_USER,remoteUser);
 			}else{
 				//Our session may have been killed - so make sure CAS does login check
-				session.removeAttribute(CASFilter.CAS_FILTER_USER);
+// TODO				session.removeAttribute(CASFilter.CAS_FILTER_USER);
 			}
 			chain.doFilter(req,renewRespnse);
 		}else {
