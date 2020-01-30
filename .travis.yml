@@ -10,20 +10,20 @@
 #
 # 1) For every commit in master, shallow git clone
 # 2) Build the whole project with Maven against the build matrix expansion. If any build fails, email committer and abort remaining steps
-# 3) Run tests
+# 3) Run tests (CAN'T DO THIS - THERE IS A 50 MINUTE TIME LIMIT FOR ANY STAGE)
 #      - Start a local hsql db (todo or postgres via docker container?)
 #      - use gsh to boostrap the initial database
 #      - execute tests (capture output to a file?)
-#      - mail the test results to the committer
-#      - abort if any tests fail?
-# 4) Abort if not a tagged build
-# 5) Parse version number out of tag (GROUPER_RELEASE/2.5.x)
-# 6) mvn versions:set the pom versions to this version
-# 7) Rebuild project. If fails, email committer and abort remaining steps
-# 8) Deploy to the Maven release-stage repo
-# 9) Email all output to the committer
+#      - abort if any tests fail
+# 4) Deploy
+#      - Abort if not a tagged build
+#      - Parse version number out of tag (GROUPER_RELEASE_a.b.c...)
+#      - mvn versions:set the pom versions to this version
+#      - Rebuild project. If fails, abort remaining steps
+#      - Deploy to the Maven release-stage repo
+#      - Return success
 #
-# TODO if you commit first, and tag later, does it trigger two separate steps
+# Note, it needs to be tagged at the time of deployment, so the window for tagging is small
 
 language: java
 os: linux
@@ -32,48 +32,52 @@ branches:
   only:
   - master
   - travis
+  - /^GROUPER_RELEASE_(\d+\.)+\d+$/
 jdk:
   - openjdk8
-stages:
-  - compile
-  - test
-  #- deploy_release
-  ##- name: deploy_release
-  ##  if: tag =~ ^GROUPER_RELEASE_(\d+\.)+\d+$
 
-jobs:
-  include:
-    - stage: test
-      script: chmod u+x travis/travis-test.sh && travis/travis-test.sh
-    - stage: deploy_release
-      script: chmod u+x travis/deploy-to-sonatype.sh && travis/deploy-to-sonatype.sh
+  #stages:
+#  - compile
+#  - test
+#  #- deploy_release
+#  ##- name: deploy_release
+#  ##  if: tag =~ ^GROUPER_RELEASE_(\d+\.)+\d+$
 
+#jobs:
+#  include:
+#    - stage: test
+#      script: chmod u+x travis/travis-test.sh && travis/travis-test.sh
+#    - stage: deploy_release
+#      script: chmod u+x travis/deploy-to-sonatype.sh && travis/deploy-to-sonatype.sh
 
-#before_script:
-# - export JAVA_OPTS="-Xmx2048m"
-#install:
-#- mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=true -Dlicense.skip=true -B -V -q
-#script:
-#- mvn -f ./grouper-parent clean package -DskipTests=true -Dlicense.skip=true
-#before_install:
-#- chmod -R 777 ./travis/init-travis-build.sh
-#- ./travis/init-travis-build.sh
+install: skip
+before_script:
+  - ./travis/init-travis-build.sh
+  - export JAVA_OPTS="-Xmx2048m"
+script:
+  - mvn -f ./grouper-parent clean package
+  - mvn -f ./grouper-parent install -B -V -q
 ##after_success:
 ##- chmod -R 777 travis/deploy-to-sonatype.sh
 ##- travis/deploy-to-sonatype.sh
 ##- mvn -f ./grouper-parent clean test cobertura:cobertura coveralls:cobertura -Dlicense.skip=true -DskipTests=true
 ##- chmod -R 777 travis/javadocs-ghpages.sh
 ##- travis/javadocs-ghpages.sh
-env:
-  global:
-    - secure: "XmmxnbDo/FeIE2O5M6YMSKjULOgLPDDx79mcfRTf79Fvjiqw2yJBrheLwR2sYs4+6uw7Pe0FkKUXtyRrcK31JvWTuqvwTs08MgMt42VPx7xGX+96i8hN6QTF8D1B1YYRJnnXrtOrhqSbpm+jffw3PiK4f5fcKDntSaMbPUiVRDg="
-    - secure: "MjJBfBqMpetCZ0PmcISetMxHAEcC83EawXmJuCW/F7RrCk8tBY+YglYSRHFqj/LDcwLHdDPuPOLHEv/RKPyqQvjYfJICwpQugMRrIUPuoXsg57xoSP36DBNG8qVCa5rS1qLaUb42fsvYXd9ufjKu8c0Eihq8pbz+yrXxKgvSpIU="
-    - secure: "kJDUzde56X0epK70R9e2hN7Q6nfHyk0ixDOynPYJh01hREyLl/7Zm3V6dv5nfGhFbCoJDcqkTlUsl26ixrmmr4AUhh+fKkQVO8Pjj8z9fR6Y1lukJ2v2RVDRzN0sR5cCqKGd2yr9VW9s+4JinfcBQNj2dxwhCKddj+NPPM9o0CE="
+before_deploy:
+  # deployment script will change the version from snapshot, so clean first
+  - mvn -f ./grouper-parent clean
+  - cp -p travis/mvn.settings.xml $HOME/.m2/settings.xml
 deploy:
   provider: script
-  script: chmod u+x travis/deploy-to-sonatype.sh && travis/deploy-to-sonatype.sh
+  script: travis/deploy-to-sonatype.sh
   #(DEPRECATED) skip_cleanup: true
   on:
     #TODO set to true once deploy script works
     #tags: true
     tags: false
+
+env:
+  global:
+    - secure: "XmmxnbDo/FeIE2O5M6YMSKjULOgLPDDx79mcfRTf79Fvjiqw2yJBrheLwR2sYs4+6uw7Pe0FkKUXtyRrcK31JvWTuqvwTs08MgMt42VPx7xGX+96i8hN6QTF8D1B1YYRJnnXrtOrhqSbpm+jffw3PiK4f5fcKDntSaMbPUiVRDg="
+    - secure: "MjJBfBqMpetCZ0PmcISetMxHAEcC83EawXmJuCW/F7RrCk8tBY+YglYSRHFqj/LDcwLHdDPuPOLHEv/RKPyqQvjYfJICwpQugMRrIUPuoXsg57xoSP36DBNG8qVCa5rS1qLaUb42fsvYXd9ufjKu8c0Eihq8pbz+yrXxKgvSpIU="
+    - secure: "kJDUzde56X0epK70R9e2hN7Q6nfHyk0ixDOynPYJh01hREyLl/7Zm3V6dv5nfGhFbCoJDcqkTlUsl26ixrmmr4AUhh+fKkQVO8Pjj8z9fR6Y1lukJ2v2RVDRzN0sR5cCqKGd2yr9VW9s+4JinfcBQNj2dxwhCKddj+NPPM9o0CE="

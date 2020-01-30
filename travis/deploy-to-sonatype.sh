@@ -29,12 +29,18 @@ case "${TRAVIS_JOB_NUMBER}" in
     echo -e "Setting Grouper version to $GROUPER_VERSION in Maven pom files"
     cp travis/mvn.settings.xml $HOME/.m2/settings.xml
     mvn -f ./grouper-parent versions:set -DnewVersion=$GROUPER_VERSION
+    if [ $? -ne 0 ]; then
+      echo -e "Failed to set pom versions to $GROUPER_VERSION"
+      exit 131
+    fi
 
     echo -e "building and deploying release artifacts to Sonatype for Travis job ${TRAVIS_JOB_NUMBER}"
-    mvn -f ./grouper-parent clean compile package deploy
+    mvn -f ./grouper-parent clean compile package deploy -Prelease
+    if [ $? -ne 0 ]; then
+      echo -e "Failed to build or deploy the release version"
+      exit 132
+    fi
     echo -e "Successfully deployed release artifacts to Sonatype under Travis job ${TRAVIS_JOB_NUMBER}";;
   *)
     echo -e "Skipping Sonatype deployment because job ${TRAVIS_JOB_NUMBER} does not match *.1"
 esac
-
-
