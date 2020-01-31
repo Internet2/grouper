@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#mch***@isc.upenn.edu
+GPG_KEY=1D3F3E9E30C7F312
+
 # Only invoke the deployment to Sonatype when it's not a PR and only for master
 if [ "$TRAVIS_PULL_REQUEST" == "true" ]; then
   echo -e "Skipping Sonatype deployment because this is a pull request"
@@ -35,7 +38,13 @@ case "${TRAVIS_JOB_NUMBER}" in
     fi
 
     echo -e "building and deploying release artifacts to Sonatype for Travis job ${TRAVIS_JOB_NUMBER}"
-    mvn -f ./grouper-parent clean compile package deploy -Prelease
+    mvn -f ./grouper-parent clean compile package deploy -Prelease \
+      -Dgpg.keyname=$GPG_KEY \
+      -Dgpg.publicKeyring=$TRAVIS_BUILD_DIR/pubring.gpg -Dgpg.secretKeyring=$TRAVIS_BUILD_DIR/secring.gpg
+
+      # not needed
+      #-Dgpg.passphrase=$PASSPHRASE
+
     if [ $? -ne 0 ]; then
       echo -e "Failed to build or deploy the release version"
       exit 132
