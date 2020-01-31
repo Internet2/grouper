@@ -71,6 +71,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoStemNameScope();
       wsQueryFilter.validateNoGroupTypeName();
       wsQueryFilter.validateShouldHavePagingSorting(false);
+      wsQueryFilter.validateNoEnabled();
 
     }
 
@@ -111,6 +112,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoStemNameScope();
       wsQueryFilter.validateNoGroupTypeName();
       wsQueryFilter.validateShouldHavePagingSorting(false);
+      wsQueryFilter.validateNoEnabled();
 
     }
 
@@ -151,6 +153,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoStemNameScope();
       wsQueryFilter.validateNoGroupTypeName();
       wsQueryFilter.validateShouldHavePagingSorting(true);
+      // optional wsQueryFilter.validateNoEnabled();
 
     }
 
@@ -172,9 +175,10 @@ public enum WsQueryFilterType {
       Boolean retrieveAscending = wsQueryFilter.retrieveAscending();
       Integer retrievePageNumber = wsQueryFilter.retrievePageNumber();
       Integer retrievePageSize = wsQueryFilter.retrievePageSize();
+      Boolean enabled = wsQueryFilter.getEnabledAsBoolean();
       return new GroupNameFilter(groupName, stem, 
           sortString, retrieveAscending, 
-          retrievePageNumber, retrievePageSize, wsQueryFilter.retrieveTypeOfGroups());
+          retrievePageNumber, retrievePageSize, wsQueryFilter.retrieveTypeOfGroups(), enabled);
 
     }
 
@@ -205,6 +209,7 @@ public enum WsQueryFilterType {
       // optional wsQueryFilter.validateNoStemNameScope();
       wsQueryFilter.validateNoGroupTypeName();
       wsQueryFilter.validateShouldHavePagingSorting(true);
+      // optional wsQueryFilter.validateNoEnabled();
 
     }
 
@@ -217,12 +222,13 @@ public enum WsQueryFilterType {
     public QueryFilter retrieveQueryFilter(WsQueryFilter wsQueryFilter) {
 
       Scope scope = wsQueryFilter.retrieveStemScope(StemScope.ONE_LEVEL).convertToScope();
+      Boolean enabled = wsQueryFilter.getEnabledAsBoolean();
 
       //fail if the stem is not found, that is probably bad
       return new GroupsInStemFilter(wsQueryFilter.getStemName(), scope, false, 
           wsQueryFilter.getSortString(), wsQueryFilter.retrieveAscending(), 
           wsQueryFilter.retrievePageNumber(), wsQueryFilter.retrievePageSize(), 
-          wsQueryFilter.retrieveTypeOfGroups());
+          wsQueryFilter.retrieveTypeOfGroups(), enabled);
     }
 
   },
@@ -251,6 +257,7 @@ public enum WsQueryFilterType {
         wsQueryFilter.validateNoStemNameScope();
         wsQueryFilter.validateNoGroupTypeName();
         wsQueryFilter.validateShouldHavePagingSorting(false);
+        // optional wsQueryFilter.validateNoEnabled();
       }
   
       /**
@@ -265,11 +272,13 @@ public enum WsQueryFilterType {
           //if not passed in, then use root
           stem = StemFinder.findRootStem(wsQueryFilter.retrieveGrouperSession());
         }
+        Boolean enabled = wsQueryFilter.getEnabledAsBoolean();
+
         if (!StringUtils.isBlank(wsQueryFilter.getGroupAttributeName())) {
           return new GroupAttributeFilter(wsQueryFilter.getGroupAttributeName(),
-              wsQueryFilter.getGroupAttributeValue(), stem);
+              wsQueryFilter.getGroupAttributeValue(), stem, enabled);
         }
-        return new GroupAnyAttributeFilter(wsQueryFilter.getGroupAttributeValue(), stem);
+        return new GroupAnyAttributeFilter(wsQueryFilter.getGroupAttributeValue(), stem, enabled);
       }
   
     }, 
@@ -298,6 +307,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoStemNameScope();
       wsQueryFilter.validateNoGroupTypeName();
       wsQueryFilter.validateShouldHavePagingSorting(false);
+      // optional wsQueryFilter.validateNoEnabled();
     }
 
     /**
@@ -312,8 +322,9 @@ public enum WsQueryFilterType {
         //if not passed in, then use root
         stem = StemFinder.findRootStem(wsQueryFilter.retrieveGrouperSession());
       }
+      Boolean enabled = wsQueryFilter.getEnabledAsBoolean();
       return new GroupAttributeExactFilter(wsQueryFilter.getGroupAttributeName(),
-          wsQueryFilter.getGroupAttributeValue(), stem);
+          wsQueryFilter.getGroupAttributeValue(), stem, enabled);
     }
 
   },
@@ -343,7 +354,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoStemNameScope();
       wsQueryFilter.validateHasGroupTypeName();
       wsQueryFilter.validateShouldHavePagingSorting(false);
-
+      wsQueryFilter.validateNoEnabled();
     }
 
     /**
@@ -391,6 +402,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoStemNameScope();
       wsQueryFilter.validateNoGroupTypeName();
       wsQueryFilter.validateShouldHavePagingSorting(false);
+      wsQueryFilter.validateNoEnabled();
 
     }
 
@@ -433,6 +445,8 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoGroupTypeName();
 
       wsQueryFilter.validateShouldHavePagingSorting(false);
+      wsQueryFilter.validateNoEnabled();
+
     }
 
     /**
@@ -474,6 +488,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoStemNameScope();
       wsQueryFilter.validateNoGroupTypeName();
       wsQueryFilter.validateShouldHavePagingSorting(false);
+      wsQueryFilter.validateNoEnabled();
 
     }
 

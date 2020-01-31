@@ -373,4 +373,22 @@ public class WsQueryFilter {
     this.sortString = sortString1;
   }
 
+  /** 
+   * enabled is A for all, T or null for enabled only, F for disabled
+   */
+  private String enabled;
+
+  /**
+   * @return the enabled
+   */
+  public String getEnabled() {
+    return this.enabled;
+  }
+
+  /**
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabled(String enabled1) {
+    this.enabled = enabled1;
+  }
 }

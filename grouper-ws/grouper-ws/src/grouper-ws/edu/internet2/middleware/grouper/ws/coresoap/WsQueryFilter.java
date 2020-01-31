@@ -210,6 +210,13 @@ public class WsQueryFilter {
   public void validateNoTypeOfGroups() {
     this.validateBlank("typeOfGroups", this.typeOfGroups);
   }
+  
+  /**
+   * if there is an enabled name, there shouldnt be
+   */
+  public void validateNoEnabled() {
+    this.validateBlank("enabled", this.enabled);
+  }
 
   /**
    * stemName will return groups only in this stem
@@ -849,4 +856,18 @@ public class WsQueryFilter {
     this.enabled = enabled1;
   }
 
+  /**
+   * @return true if enabled only, false if disabled only, null if everything
+   */
+  public Boolean getEnabledAsBoolean() {
+    if (StringUtils.isBlank(this.enabled)) {
+      return true;
+    }
+    
+    if (!StringUtils.equalsIgnoreCase("A", this.enabled)) {
+      return GrouperUtil.booleanValue(this.enabled);
+    }
+
+    return null;
+  }
 }

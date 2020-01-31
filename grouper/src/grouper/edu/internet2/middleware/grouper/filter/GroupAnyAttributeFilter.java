@@ -53,6 +53,9 @@ public class GroupAnyAttributeFilter extends BaseQueryFilter {
   private String  val;
 
 
+  /** true if enabled only, false if disabled only, null if everything */
+  private Boolean enabled = true;
+
   // Constructors
 
   /**
@@ -70,6 +73,22 @@ public class GroupAnyAttributeFilter extends BaseQueryFilter {
     this.val  = value;
   } // public GroupAnyAttributeFilter(value, ns)
 
+  /**
+   * {@link QueryFilter} that returns groups matching the specified
+   * attribute specification.
+   * <p>
+   * This performs a substring, lowercased query against all
+   * attributes.
+   * </p>
+   * @param   value Search for this value.
+   * @param   ns    Restrict results to within this stem.
+   * @param enabled
+   */
+  public GroupAnyAttributeFilter(String value, Stem ns, Boolean enabled) {
+    this.ns   = ns;
+    this.val  = value;
+    this.enabled = enabled;
+  }
 
   // Public Instance Methods
 
@@ -81,12 +100,27 @@ public class GroupAnyAttributeFilter extends BaseQueryFilter {
     Set results;
 
     if (ns.isRootStem()) {
-      results = GrouperDAOFactory.getFactory().getGroup().findAllByAnyApproximateAttr(this.val, null, true);
+      results = GrouperDAOFactory.getFactory().getGroup().findAllByAnyApproximateAttr(this.val, null, true, enabled);
     } else {
-      results = GrouperDAOFactory.getFactory().getGroup().findAllByAnyApproximateAttr(this.val, getStringForScope(ns), true);
+      results = GrouperDAOFactory.getFactory().getGroup().findAllByAnyApproximateAttr(this.val, getStringForScope(ns), true, enabled);
     }
     return results;
   } // public Set getResults(s)
 
+
+  /**
+   * @return true if enabled only, false if disabled only, null if everything
+   */
+  public Boolean getEnabled() {
+    return enabled;
+  }
+
+  
+  /**
+   * @param enabled true if enabled only, false if disabled only, null if everything
+   */
+  public void setEnabled(Boolean enabled) {
+    this.enabled = enabled;
+  }
 }
 

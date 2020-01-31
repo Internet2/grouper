@@ -196,6 +196,8 @@ public class WsGroupToSave {
       groupSave.assignDisplayExtension(this.getWsGroup().getDisplayExtension());
       groupSave.assignDescription(this.getWsGroup().getDescription());
       groupSave.assignAlternateName(this.getWsGroup().getAlternateName());
+      groupSave.assignEnabledTimestamp(GrouperServiceUtils.stringToTimestamp(this.getWsGroup().getEnabledTime()));
+      groupSave.assignDisabledTimestamp(GrouperServiceUtils.stringToTimestamp(this.getWsGroup().getDisabledTime()));
       
       if (renameAssignAlternateName != null) {
         groupSave.assignSetAlternateNameIfRename(renameAssignAlternateName);

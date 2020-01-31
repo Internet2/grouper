@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper;
 
+import java.sql.Timestamp;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -284,6 +286,58 @@ public class GroupSave {
     return this;
   }
   
+  /**
+   * if there is a date here, and it is in the past, this group is disabled
+   */
+  private Long disabledTimeDb;
+
+  /**
+   * if there is a date here, and it is in the past, this group is disabled
+   * @param theDisabledTime
+   * @return this for chaining
+   */
+  public GroupSave assignDisabledTime(Long theDisabledTime) {
+    this.disabledTimeDb = theDisabledTime;
+    return this;
+  }
+
+  /**
+   * if there is a date here, and it is in the past, this group is disabled
+   * @param theDisabledTimestamp
+   * @return this for chaining
+   */
+  public GroupSave assignDisabledTimestamp(Timestamp theDisabledTimestamp) {
+    this.disabledTimeDb = theDisabledTimestamp == null ? null : theDisabledTimestamp.getTime();
+    return this;
+  }
+  
+  /**
+   * if there is a date here, and it is in the future, this group is disabled
+   * until that time
+   */
+  private Long enabledTimeDb;
+
+  /**
+   * if there is a date here, and it is in the future, this group is disabled
+   * until that time
+   * @param theEnabledTimeDb
+   * @return this for chaining
+   */
+  public GroupSave assignEnabledTime(Long theEnabledTimeDb) {
+    this.enabledTimeDb = theEnabledTimeDb;
+    return this;
+  }
+
+  /**
+   * if there is a date here, and it is in the future, this group is disabled
+   * until that time
+   * @param theEnabledTimestamp
+   * @return this for chaining
+   */
+  public GroupSave assignEnabledTimestamp(Timestamp theEnabledTimestamp) {
+    this.enabledTimeDb = theEnabledTimestamp == null ? null : theEnabledTimestamp.getTime();
+    return this;
+  }
 
   /** id index */
   private Long idIndex;
@@ -630,6 +684,22 @@ public class GroupSave {
                     GroupSave.this.saveResultType = SaveResultType.UPDATE;
                   }
                   theGroup.setTypeOfGroup(GroupSave.this.typeOfGroup);
+                }
+                
+                if (!GrouperUtil.equals(GroupSave.this.disabledTimeDb, theGroup.getDisabledTimeDb())) {
+                  needsSave = true;
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                  theGroup.setDisabledTime(GroupSave.this.disabledTimeDb == null ? null : new Timestamp(GroupSave.this.disabledTimeDb));
+                }
+                
+                if (!GrouperUtil.equals(GroupSave.this.enabledTimeDb, theGroup.getEnabledTimeDb())) {
+                  needsSave = true;
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                  theGroup.setEnabledTime(GroupSave.this.enabledTimeDb == null ? null : new Timestamp(GroupSave.this.enabledTimeDb));
                 }
 
                 //only store once

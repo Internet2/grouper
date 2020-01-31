@@ -106,6 +106,20 @@ public interface GroupDAO extends GrouperDAO {
             IllegalStateException
             ;
   
+  /**
+   * @param val
+   * @param scope
+   * @param secureQuery
+   * @param enabled 
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  Set<Group> findAllByAnyApproximateAttr(String val, String scope, boolean secureQuery, Boolean enabled) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+  
 
   /**
    * @since   1.2.0
@@ -139,6 +153,22 @@ public interface GroupDAO extends GrouperDAO {
             ;
 
   /**
+   * @param attr attribute name
+   * @param val value
+   * @param scope some folder or null for all
+   * @param enabled 
+   * @return  the grops
+   * @throws GrouperDAOException 
+   * @throws IllegalStateException 
+   * @since   2.0.2
+   * 
+   */
+  Set<Group> findAllByApproximateAttrSecure(String attr, String val, String scope, Boolean enabled) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+  
+  /**
    * @since   1.3
    */
   Set<Group> findAllByAttr(String attr, String val) 
@@ -168,6 +198,21 @@ public interface GroupDAO extends GrouperDAO {
             IllegalStateException
             ;
 
+  /**
+   * @param attr
+   * @param val
+   * @param scope
+   * @param secureQuery
+   * @param enabled
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  Set<Group> findAllByAttr(String attr, String val, String scope, boolean secureQuery, Boolean enabled) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+  
   /**
    * @since   1.2.0
    */
@@ -462,6 +507,23 @@ public interface GroupDAO extends GrouperDAO {
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
     throws  GrouperDAOException;
 
+  
+  /**
+   * 
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @param typeOfGroups type of groups to return, or null for all
+   * @param enabled
+   * @return groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsSecure(GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Boolean enabled)
+    throws  GrouperDAOException;
+
   /**
    * 
    * @param scope
@@ -491,6 +553,23 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
+    throws  GrouperDAOException;
+  
+  /**
+   * 
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @param typeOfGroups type of groups to return or null for all
+   * @param enabled
+   * @return the groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Boolean enabled)
     throws  GrouperDAOException;
 
 
@@ -523,6 +602,23 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> getImmediateChildrenSecure(GrouperSession grouperSession, 
       Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
+    throws  GrouperDAOException;
+  
+  /**
+   * get immediate children secure
+   * @param grouperSession
+   * @param stem
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @param typeOfGroups type of groups to return, or null for all
+   * @param enabled
+   * @return the set of groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getImmediateChildrenSecure(GrouperSession grouperSession, 
+      Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Boolean enabled)
     throws  GrouperDAOException;
 
   /**
@@ -578,6 +674,20 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> findAllByApproximateNameSecure(String name, String scope, 
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
+    throws  GrouperDAOException;
+  
+  /**
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @param typeOfGroups 
+   * @param enabled 
+   * @return the set of groups
+   * @throws GrouperDAOException 
+   * @since   2.1.0
+   */
+  Set<Group> findAllByApproximateNameSecure(String name, String scope, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Boolean enabled) 
     throws  GrouperDAOException;
 
   /**

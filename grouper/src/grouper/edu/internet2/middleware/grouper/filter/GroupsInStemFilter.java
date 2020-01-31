@@ -80,6 +80,9 @@ public class GroupsInStemFilter extends BaseQueryFilter {
 
   /** if querying by group, role, entity */
   private Set<TypeOfGroup> typeOfGroups;
+  
+  /** true if enabled only, false if disabled only, null if everything */
+  private Boolean enabled = true;
 
   /**
    * {@link QueryFilter} that returns stems matching the specified
@@ -129,6 +132,37 @@ public class GroupsInStemFilter extends BaseQueryFilter {
   }
   
   /**
+   * {@link QueryFilter} that returns stems matching the specified
+   * <i>name</i> value.
+   * <p>
+   * This performs a substring, lowercased query on <i>name</i>.
+   * </p>
+   * @param theStemName is the name (exact) of the stem to search
+   * @param theScope is the type of children to return (all or immediate)
+   * @param theFailOnStemNotFound true if GrouperException should be thrown on StemNotFoundException
+   * @param theSortString 
+   * @param theAscending 
+   * @param thePageNumber 
+   * @param thePageSize 
+   * @param typeOfGroups1
+   * @param enabled1 true if enabled only, false if disabled only, null if everything
+   */
+  public GroupsInStemFilter(String theStemName, Scope theScope,
+      boolean theFailOnStemNotFound, String theSortString, 
+      Boolean theAscending, Integer thePageNumber, Integer thePageSize, Set<TypeOfGroup> typeOfGroups1, Boolean enabled1) {
+    this.stemName = theStemName;
+    this.scope = GrouperUtil.defaultIfNull(theScope, 
+        Scope.ONE);
+    this.failOnStemNotFound = theFailOnStemNotFound;
+    this.sortString = theSortString;
+    this.ascending = theAscending;
+    this.pageNumber = thePageNumber;
+    this.pageSize = thePageSize;
+    this.typeOfGroups = typeOfGroups1;
+    this.enabled = enabled1;
+  }
+  
+  /**
    * 
    * @see edu.internet2.middleware.grouper.filter.BaseQueryFilter#getResults(edu.internet2.middleware.grouper.GrouperSession)
    */
@@ -156,7 +190,7 @@ public class GroupsInStemFilter extends BaseQueryFilter {
           throws GrouperSessionException {
         
         //based on which children, find them
-        Set<Group> groups = stem.getChildGroups(GroupsInStemFilter.this.scope, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GroupsInStemFilter.this.typeOfGroups);
+        Set<Group> groups = stem.getChildGroups(GroupsInStemFilter.this.scope, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GroupsInStemFilter.this.typeOfGroups, GroupsInStemFilter.this.enabled);
         return groups;
       }
       
@@ -247,5 +281,20 @@ public class GroupsInStemFilter extends BaseQueryFilter {
     this.typeOfGroups = typeOfGroups1;
   }
 
+  
+  /**
+   * @return true if enabled only, false if disabled only, null if everything
+   */
+  public Boolean getEnabled() {
+    return enabled;
+  }
+
+  
+  /**
+   * @param enabled true if enabled only, false if disabled only, null if everything
+   */
+  public void setEnabled(Boolean enabled) {
+    this.enabled = enabled;
+  }
 }
 

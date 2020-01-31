@@ -3861,6 +3861,8 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param typeOfGroup type of group can be an enum of TypeOfGroup, e.g. group, role, entity
    * @param alternateName the alternate name of the group
+   * @param disabledTime 
+   * @param enabledTime 
    * @return the result of one member add
    */
   public static WsGroupSaveLiteResult groupSaveLite(final GrouperVersion clientVersion,
@@ -3868,7 +3870,8 @@ public class GrouperServiceLogic {
       String displayExtension, String description, SaveMode saveMode,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, TypeOfGroup typeOfGroup, String alternateName) {
+      String paramName1, String paramValue1, TypeOfGroup typeOfGroup, String alternateName, 
+      Timestamp disabledTime, Timestamp enabledTime) {
   
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
     GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
@@ -3883,7 +3886,15 @@ public class GrouperServiceLogic {
     wsGroup.setUuid(groupUuid);
     wsGroup.setTypeOfGroup(typeOfGroup == null ? null : typeOfGroup.name());
     wsGroup.setAlternateName(alternateName);
-  
+    
+    if (disabledTime != null) {
+      wsGroup.setDisabledTime(GrouperServiceUtils.dateToString(disabledTime));
+    }
+    
+    if (enabledTime != null) {
+      wsGroup.setEnabledTime(GrouperServiceUtils.dateToString(enabledTime));
+    }
+    
     wsGroupToSave.setWsGroup(wsGroup);
   
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupLookupName, groupLookupUuid);

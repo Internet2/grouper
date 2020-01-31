@@ -858,7 +858,7 @@ public class AttributeAssignSave {
 
                 if (!GrouperUtil.equals(THIS.disabledTimeDb, THIS.attributeAssign.getDisabledTimeDb())) {
                   needsSave = true;
-                  THIS.attributeAssign.setDisabledTimeDb(THIS.disabledTimeDb);
+                  THIS.attributeAssign.setDisabledTime(THIS.disabledTimeDb == null ? null : new Timestamp(THIS.disabledTimeDb));
                 }
 
                 if (THIS.disallowed != THIS.attributeAssign.isDisallowed()) {
@@ -868,7 +868,7 @@ public class AttributeAssignSave {
 
                 if (!GrouperUtil.equals(THIS.enabledTimeDb, THIS.attributeAssign.getEnabledTimeDb())) {
                   needsSave = true;
-                  THIS.attributeAssign.setEnabledTimeDb(THIS.enabledTimeDb);
+                  THIS.attributeAssign.setEnabledTime(THIS.enabledTimeDb == null ? null : new Timestamp(THIS.enabledTimeDb));
                 }
 
                 if (!StringUtils.equals(GrouperUtil.defaultIfEmpty(THIS.notes, ""), GrouperUtil.defaultIfEmpty(THIS.attributeAssign.getNotes(), ""))) {

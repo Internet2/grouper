@@ -34,18 +34,13 @@ package edu.internet2.middleware.grouper.filter;
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 
@@ -71,6 +66,9 @@ public class GroupNameFilter extends BaseQueryFilter {
 
   /** if querying by group, role, entity */
   private Set<TypeOfGroup> typeOfGroups;
+  
+  /** true if enabled only, false if disabled only, null if everything */
+  private Boolean enabled = true;
 
   // Constructors
 
@@ -117,6 +115,34 @@ public class GroupNameFilter extends BaseQueryFilter {
     this.typeOfGroups = typeOfGroups1;
   } // public GroupNameFilter(name, ns)
 
+  /**
+   * {@link QueryFilter} that returns groups matching the specified
+   * name.
+   * <p>
+   * This performs a substring, lowercased query against <i>name</i>, <i>alternateName</i>,
+   * <i>displayName</i>, <i>extension</i> and <i>displayExtension</i>.
+   * </p>
+   * <p><b>NOTE:</b> This query will perform a full table scan.</p>
+   * @param   name  Find groups matching this name.
+   * @param   ns    Restrict results to within this stem.
+   * @param theSortString 
+   * @param theAscending 
+   * @param thePageNumber 
+   * @param thePageSize 
+   * @param typeOfGroups1 
+   * @param enabled1 true if enabled only, false if disabled only, null if everything
+   */
+  public GroupNameFilter(String name, Stem ns, String theSortString, Boolean theAscending, 
+      Integer thePageNumber, Integer thePageSize, Set<TypeOfGroup> typeOfGroups1, Boolean enabled1) {
+    this.name = name;
+    this.ns   = ns;
+    this.sortString = theSortString;
+    this.ascending = theAscending;
+    this.pageNumber = thePageNumber;
+    this.pageSize = thePageSize;
+    this.typeOfGroups = typeOfGroups1;
+    this.enabled = enabled1;
+  }
 
   // Public Instance Methods
 
@@ -146,9 +172,9 @@ public class GroupNameFilter extends BaseQueryFilter {
     QueryOptions queryOptions = QueryOptions.create(this.sortString, this.ascending, this.pageNumber, this.pageSize);
     
     if (ns.isRootStem()) {
-      results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(this.name, null, queryOptions, this.typeOfGroups);
+      results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(this.name, null, queryOptions, this.typeOfGroups, this.enabled);
     } else {
-      results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(this.name, getStringForScope(this.ns), queryOptions, this.typeOfGroups);
+      results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(this.name, getStringForScope(this.ns), queryOptions, this.typeOfGroups, this.enabled);
     }
     return results;
   } // public Set getResults(s)
@@ -225,5 +251,20 @@ public class GroupNameFilter extends BaseQueryFilter {
     this.sortString = sortString1;
   }
 
+  
+  /**
+   * @return true if enabled only, false if disabled only, null if everything
+   */
+  public Boolean getEnabled() {
+    return enabled;
+  }
+
+  
+  /**
+   * @param enabled true if enabled only, false if disabled only, null if everything
+   */
+  public void setEnabled(Boolean enabled) {
+    this.enabled = enabled;
+  }
 }
 

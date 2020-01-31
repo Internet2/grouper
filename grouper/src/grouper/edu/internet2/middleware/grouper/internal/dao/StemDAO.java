@@ -254,6 +254,27 @@ public interface StemDAO extends GrouperDAO {
       Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, 
       Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
     throws  GrouperDAOException;
+  
+  /**
+   * Find all child groups within specified scope, and make sure the
+   * grouper session can see them
+   * @param ns 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  AccessPrivilege
+   * has some pre-baked set constants available
+   * @param typeOfGroups type of groups to return or null for all
+   * @param enabled
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Group> findAllChildGroupsSecure(
+      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, 
+      Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Boolean enabled)
+    throws  GrouperDAOException;
 
   /**
    * Find all child groups within specified scope, and make sure the

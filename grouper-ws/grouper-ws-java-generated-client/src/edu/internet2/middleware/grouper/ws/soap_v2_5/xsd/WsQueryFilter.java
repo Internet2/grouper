@@ -67,6 +67,48 @@
                             
 
                         /**
+                        * field for Enabled
+                        */
+
+                        
+                                    protected java.lang.String localEnabled ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localEnabledTracker = false ;
+
+                           public boolean isEnabledSpecified(){
+                               return localEnabledTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getEnabled(){
+                               return localEnabled;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Enabled
+                               */
+                               public void setEnabled(java.lang.String param){
+                            localEnabledTracker = true;
+                                   
+                                            this.localEnabled=param;
+                                    
+
+                               }
+                            
+
+                        /**
                         * field for GroupAttributeName
                         */
 
@@ -772,6 +814,24 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localEnabledTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "enabled", xmlWriter);
+                             
+
+                                          if (localEnabled==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localEnabled);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              } if (localGroupAttributeNameTracker){
                                     namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "groupAttributeName", xmlWriter);
@@ -1221,6 +1281,12 @@
                                  
                                          elementList.add(localAscending==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAscending));
+                                    } if (localEnabledTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "enabled"));
+                                 
+                                         elementList.add(localEnabled==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEnabled));
                                     } if (localGroupAttributeNameTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "groupAttributeName"));
@@ -1400,6 +1466,33 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setAscending(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","enabled").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setEnabled(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

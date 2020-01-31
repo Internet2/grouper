@@ -781,6 +781,90 @@
                                }
                             
 
+                        /**
+                        * field for DisabledTime
+                        */
+
+                        
+                                    protected java.util.Calendar localDisabledTime ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localDisabledTimeTracker = false ;
+
+                           public boolean isDisabledTimeSpecified(){
+                               return localDisabledTimeTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.util.Calendar
+                           */
+                           public  java.util.Calendar getDisabledTime(){
+                               return localDisabledTime;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param DisabledTime
+                               */
+                               public void setDisabledTime(java.util.Calendar param){
+                            localDisabledTimeTracker = true;
+                                   
+                                            this.localDisabledTime=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for EnabledTime
+                        */
+
+                        
+                                    protected java.util.Calendar localEnabledTime ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localEnabledTimeTracker = false ;
+
+                           public boolean isEnabledTimeSpecified(){
+                               return localEnabledTimeTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.util.Calendar
+                           */
+                           public  java.util.Calendar getEnabledTime(){
+                               return localEnabledTime;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param EnabledTime
+                               */
+                               public void setEnabledTime(java.util.Calendar param){
+                            localEnabledTimeTracker = true;
+                                   
+                                            this.localEnabledTime=param;
+                                    
+
+                               }
+                            
+
      
      
         /**
@@ -1163,6 +1247,42 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localDisabledTimeTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "disabledTime", xmlWriter);
+                             
+
+                                          if (localDisabledTime==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localDisabledTime));
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localEnabledTimeTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "enabledTime", xmlWriter);
+                             
+
+                                          if (localEnabledTime==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEnabledTime));
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              }
                     xmlWriter.writeEndElement();
                
@@ -1456,6 +1576,18 @@
                                  
                                          elementList.add(localAlternateName==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAlternateName));
+                                    } if (localDisabledTimeTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "disabledTime"));
+                                 
+                                         elementList.add(localDisabledTime==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localDisabledTime));
+                                    } if (localEnabledTimeTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "enabledTime"));
+                                 
+                                         elementList.add(localEnabledTime==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEnabledTime));
                                     }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -2003,6 +2135,60 @@
                                     
                                               object.setAlternateName(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","disabledTime").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setDisabledTime(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToDateTime(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","enabledTime").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setEnabledTime(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToDateTime(content));
                                             
                                        } else {
                                            

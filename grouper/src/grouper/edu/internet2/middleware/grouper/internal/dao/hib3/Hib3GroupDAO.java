@@ -59,7 +59,6 @@ import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -274,6 +273,22 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByAnyApproximateAttr(final String val, final String scope, final boolean secureQuery)
     throws  GrouperDAOException,
             IllegalStateException {
+    return findAllByAnyApproximateAttr(val, scope, secureQuery, true);
+  }
+  
+  /**
+   * @param val 
+   * @param scope
+   * @param secureQuery
+   * @param enabled
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByAnyApproximateAttr(final String val, final String scope, final boolean secureQuery, final Boolean enabled)
+    throws  GrouperDAOException,
+            IllegalStateException {
 
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
@@ -349,6 +364,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               hql.append(" and theGroup.nameDb like :scope");
               byHql.setString("scope", scope + "%");
             }
+            
+            if (enabled != null && enabled) {
+              hql.append(" and theGroup.enabledDb = 'T' ");
+            }
+            if (enabled != null && !enabled) {
+              hql.append(" and theGroup.enabledDb = 'F' ");
+            }
 
             byHql.createQuery(hql.toString());
             Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateAttr")
@@ -375,7 +397,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException
   {
-    return findAllByApproximateAttrHelper(attr, val, null, false);
+    return findAllByApproximateAttrHelper(attr, val, null, false, true);
   }
 
   /**
@@ -391,7 +413,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByApproximateAttr(final String attr, final String val, final String scope)
     throws  GrouperDAOException,
             IllegalStateException {
-    return findAllByApproximateAttrHelper(attr, val, scope, false);
+    return findAllByApproximateAttrHelper(attr, val, scope, false, true);
   }
 
   /**
@@ -405,9 +427,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param val value
    * @param scope folder to search in
    * @param secureQuery if restrict to who can view
+   * @param enabled
    * @return  groups
    */
-  private Set<Group> findAllByApproximateAttrHelper(final String attr, final String val, final String scope, final boolean secureQuery) {
+  private Set<Group> findAllByApproximateAttrHelper(final String attr, final String val, final String scope, final boolean secureQuery, final Boolean enabled) {
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
@@ -479,6 +502,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               hql.append(" and theGroup.nameDb like :scope");
               byHql.setString("scope", scope + "%");
             }
+            
+            if (enabled != null && enabled) {
+              hql.append(" and theGroup.enabledDb = 'T' ");
+            }
+            if (enabled != null && !enabled) {
+              hql.append(" and theGroup.enabledDb = 'F' ");
+            }
 
             byHql.createQuery(hql.toString());
             Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateAttr")
@@ -540,7 +570,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> findAllByApproximateNameSecure(final String name, final String scope, QueryOptions queryOptions)
       throws GrouperDAOException {
-    return findAllByApproximateNameSecureHelper(name, scope, true, true, queryOptions, null);
+    return findAllByApproximateNameSecureHelper(name, scope, true, true, queryOptions, null, true);
   }
 
   /**
@@ -560,7 +590,28 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @since   @HEAD@
    */
   public Set<Group> findAllByApproximateNameSecure(final String name, final String scope, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
-    return findAllByApproximateNameSecureHelper(name, scope, true, true, queryOptions, typeOfGroups);
+    return findAllByApproximateNameSecureHelper(name, scope, true, true, queryOptions, typeOfGroups, true);
+  }
+  
+  /**
+   * <p><b>Implementation Notes.</b></p>
+   * <ol>
+   * <li>This method will generate a full table scan of the groups table.  It will not
+   * perform well if there are a large number of groups.</li>
+   * <li>Hibernate caching is <b>not</b> enabled.</li>
+   * </ol>
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @param typeOfGroups
+   * @param enabled
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @see     GroupDAO#findAllByApproximateName(String, String)
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByApproximateNameSecure(final String name, final String scope, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Boolean enabled) {
+    return findAllByApproximateNameSecureHelper(name, scope, true, true, queryOptions, typeOfGroups, enabled);
   }
 
   /**
@@ -1890,6 +1941,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> findAllByAttr(final String attr, final String val, final String scope, final boolean secureQuery) throws GrouperDAOException,
     IllegalStateException {
+    return findAllByAttr(attr, val, scope, secureQuery, true);
+  }
+  
+  /**
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findAllByAttr(java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.Boolean)
+   */
+  public Set<Group> findAllByAttr(final String attr, final String val, final String scope, final boolean secureQuery, final Boolean enabled) throws GrouperDAOException,
+    IllegalStateException {
     
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
@@ -1963,6 +2023,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               byHql.setString("scope", scope + "%");
             }
             
+            if (enabled != null && enabled) {
+              hql.append(" and theGroup.enabledDb = 'T' ");
+            }
+            if (enabled != null && !enabled) {
+              hql.append(" and theGroup.enabledDb = 'F' ");
+            }
+            
             byHql.createQuery(hql.toString());
             Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByAttr")
               .setString("value", val).listSet(Group.class);
@@ -2015,9 +2082,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       throws GrouperDAOException {
     return getAllGroupsSecure(grouperSession, subject, inPrivSet, queryOptions, null);
   }
-
-
-
+  
   /**
    * In this case, send in the attribute name to sort by (default is displayName).
    * Make sure the grouperSession can see the groups
@@ -2032,6 +2097,26 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> getAllGroupsSecure(GrouperSession grouperSession, Subject subject, 
       Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
       throws  GrouperDAOException {
+    return getAllGroupsSecure(grouperSession, subject, inPrivSet, queryOptions, typeOfGroups, true);
+  }
+
+
+  /**
+   * In this case, send in the attribute name to sort by (default is displayName).
+   * Make sure the grouperSession can see the groups
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @param enabled
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Group> getAllGroupsSecure(GrouperSession grouperSession, Subject subject, 
+      Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups,
+      Boolean enabled)
+      throws  GrouperDAOException {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -2044,8 +2129,21 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     //see if we are adding more to the query
-    grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", inPrivSet);
+    
+    if (changedQuery && sql.toString().contains(" where ")) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
+    }
+        
+    if (enabled != null && enabled) {
+      sql.append(" and theGroup.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and theGroup.enabledDb = 'F' ");
+    }
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
     
@@ -2084,7 +2182,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions) throws GrouperDAOException {
     return getAllGroupsSecure(scope, grouperSession, subject, inPrivSet, queryOptions, null);
   }
-
+  
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, Set)
@@ -2092,6 +2190,16 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> getAllGroupsSecure(final String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups)
+    throws  GrouperDAOException {
+    return getAllGroupsSecure(scope, grouperSession, subject, inPrivSet, queryOptions, typeOfGroups, true);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set, java.lang.Boolean)
+   */
+  public Set<Group> getAllGroupsSecure(final String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
+      Set<TypeOfGroup> typeOfGroups, Boolean enabled)
     throws  GrouperDAOException {
 
     if (queryOptions == null) {
@@ -2117,6 +2225,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     //this should be lower to make it easier to search for stuff
     sql.append("  lower(theGroup.nameDb) like :scope");
+    
+    if (enabled != null && enabled) {
+      sql.append(" and theGroup.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and theGroup.enabledDb = 'F' ");
+    }
     
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
     
@@ -2156,7 +2271,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions) throws GrouperDAOException {
     return getImmediateChildrenSecure(grouperSession, stem, subject, inPrivSet, queryOptions, null);
   }
-
+  
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getImmediateChildrenSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, Set)
@@ -2164,6 +2279,16 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> getImmediateChildrenSecure(GrouperSession grouperSession, 
       final Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups)
+    throws  GrouperDAOException {
+    return getImmediateChildrenSecure(grouperSession, stem, subject, inPrivSet, queryOptions, typeOfGroups, true);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getImmediateChildrenSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set, java.lang.Boolean)
+   */
+  public Set<Group> getImmediateChildrenSecure(GrouperSession grouperSession, 
+      final Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
+      Set<TypeOfGroup> typeOfGroups, Boolean enabled)
     throws  GrouperDAOException {
 
     if (queryOptions == null) {
@@ -2188,6 +2313,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     
     sql.append(" theGroup.parentUuid = :parent ");
+    
+    if (enabled != null && enabled) {
+      sql.append(" and theGroup.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and theGroup.enabledDb = 'F' ");
+    }
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
     
@@ -3437,12 +3569,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param alternateNames
    * @param queryOptions 
    * @param typeOfGroups
+   * @param enabled
    * @return set
    * @throws GrouperDAOException
    * @throws IllegalStateException
    */
   private Set<Group> findAllByApproximateNameSecureHelper(final String name, final String scope,
-      final boolean currentNames, final boolean alternateNames, final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups)
+      final boolean currentNames, final boolean alternateNames, final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups, final Boolean enabled)
       throws GrouperDAOException {
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
@@ -3507,7 +3640,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               hql.append(" and theGroup.nameDb like :theStemScope ");
               byHqlStatic.setString("theStemScope", scope + "%");
             }
-
+            
+            if (enabled != null && enabled) {
+              hql.append(" and theGroup.enabledDb = 'T' ");
+            }
+            if (enabled != null && !enabled) {
+              hql.append(" and theGroup.enabledDb = 'F' ");
+            }
+            
             //add in the typeOfGroups part
             TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
             
@@ -3535,11 +3675,19 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findAllByApproximateAttrSecure(java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean)
+   */
+  public Set<Group> findAllByApproximateAttrSecure(String attr, String val, String scope, Boolean enabled)
+      throws GrouperDAOException, IllegalStateException {
+    return findAllByApproximateAttrHelper(attr, val, scope, true, enabled);
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findAllByApproximateAttrSecure(java.lang.String, java.lang.String, java.lang.String)
    */
   public Set<Group> findAllByApproximateAttrSecure(String attr, String val, String scope)
       throws GrouperDAOException, IllegalStateException {
-    return findAllByApproximateAttrHelper(attr, val, scope, true);
+    return findAllByApproximateAttrHelper(attr, val, scope, true, true);
   }
 
   /**
