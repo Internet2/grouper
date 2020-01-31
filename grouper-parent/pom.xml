@@ -1073,6 +1073,9 @@
                             <maxmemory>1g</maxmemory>
                             <!-- (for version < 3) <additionalparam>-Xdoclint:none</additionalparam>-->
                             <doclint>none</doclint>
+                            <quiet>true</quiet>
+                            <author>false</author>
+                            <version>true</version>
                         </configuration>
                     </plugin>
                     <plugin>
