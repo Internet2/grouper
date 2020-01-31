@@ -978,10 +978,7 @@
                             </goals>
                             <configuration>
                                 <sources>
-                                    <source>src/custom</source>
                                     <source>src/ext</source>
-                                    <source>src/extCustom</source>
-                                    <source>src/extMore</source>
                                 </sources>
                             </configuration>
                         </execution>
