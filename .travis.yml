@@ -53,8 +53,7 @@ jdk:
 before_install:
   # Import gpg keys
   - openssl aes-256-cbc -K $encrypted_42099b4af021_key -iv $encrypted_42099b4af021_iv -in ./travis/gpg-signingkey.asc.enc -out ./travis/gpg-signingkey.asc -d
-  - gpg --keyring=$TRAVIS_BUILD_DIR/pubring.gpg --no-default-keyring --import ./travis/gpg-signingkey.asc
-  - gpg --allow-secret-key-import --keyring=$TRAVIS_BUILD_DIR/secring.gpg --no-default-keyring --import ./travis/gpg-signingkey.asc
+  - gpg --import ./travis/gpg-signingkey.asc
 install: skip
 before_script:
   - cp -p travis/mvn.settings.xml $HOME/.m2/settings.xml

@@ -38,12 +38,11 @@ case "${TRAVIS_JOB_NUMBER}" in
     fi
 
     echo -e "building and deploying release artifacts to Sonatype for Travis job ${TRAVIS_JOB_NUMBER}"
-    mvn -f ./grouper-parent clean compile package deploy -Prelease \
-      -Dgpg.keyname=$GPG_KEY \
-      -Dgpg.publicKeyring=$TRAVIS_BUILD_DIR/pubring.gpg -Dgpg.secretKeyring=$TRAVIS_BUILD_DIR/secring.gpg
+    mvn -f ./grouper-parent clean compile package deploy -Prelease -Dgpg.keyname=$GPG_KEY
 
-      # not needed
-      #-Dgpg.passphrase=$PASSPHRASE
+    # not needed
+    #-Dgpg.publicKeyring=$TRAVIS_BUILD_DIR/pubring.gpg -Dgpg.secretKeyring=$TRAVIS_BUILD_DIR/secring.gpg
+    #-Dgpg.passphrase=$PASSPHRASE
 
     if [ $? -ne 0 ]; then
       echo -e "Failed to build or deploy the release version"
