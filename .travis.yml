@@ -6,38 +6,82 @@
 # Encrypt the token: travis encrypt GH_TOKEN=[OAUTH-TOKEN] -r Intenet2/grouper --add env.global
 #
 
+# Grouper CI pipeline:
+#
+# 1) For every commit in master, shallow git clone
+# 2) Build the whole project with Maven against the build matrix expansion. If any build fails, email committer and abort remaining steps
+# 3) Run tests (CAN'T DO THIS - THERE IS A 50 MINUTE TIME LIMIT FOR ANY STAGE)
+#      - Start a local hsql db (todo or postgres via docker container?)
+#      - use gsh to boostrap the initial database
+#      - execute tests (capture output to a file?)
+#      - abort if any tests fail
+# 4) Deploy
+#      - Abort if not a tagged build
+#      - Parse version number out of tag (GROUPER_RELEASE_a.b.c...)
+#      - mvn versions:set the pom versions to this version
+#      - Rebuild project. If fails, abort remaining steps
+#      - Deploy to the Maven release-stage repo
+#      - Return success
+#
+# Note, it needs to be tagged at the time of deployment, so the window for tagging is small
+
 language: java
-sudo: false
+os: linux
+# (DEPRECATED) sudo: false
 branches:
   only:
   - master
-  - GROUPER_2_3_BRANCH
+  - travis
+  - /^GROUPER_RELEASE_(\d+\.)+\d+(rc\d+)?$/
 jdk:
-- openjdk8
-- oraclejdk11
-before_script:
- - export JAVA_OPTS="-Xmx2048m"
-install:
-- mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=true -Dlicense.skip=true -B -V -q 
-script:
-- mvn -f ./grouper-parent clean package -DskipTests=true -Dlicense.skip=true
+  - openjdk8
+
+  #stages:
+#  - compile
+#  - test
+#  #- deploy_release
+#  ##- name: deploy_release
+#  ##  if: tag =~ ^GROUPER_RELEASE_(\d+\.)+\d+$
+
+#jobs:
+#  include:
+#    - stage: test
+#      script: chmod u+x travis/travis-test.sh && travis/travis-test.sh
+#    - stage: deploy_release
+#      script: chmod u+x travis/deploy-to-sonatype.sh && travis/deploy-to-sonatype.sh
+
 before_install:
-- chmod -R 777 ./travis/init-travis-build.sh
-- ./travis/init-travis-build.sh
-#after_success:
-#- chmod -R 777 travis/deploy-to-sonatype.sh
-#- travis/deploy-to-sonatype.sh
-#- mvn -f ./grouper-parent clean test cobertura:cobertura coveralls:cobertura -Dlicense.skip=true -DskipTests=true
-#- chmod -R 777 travis/javadocs-ghpages.sh
-#- travis/javadocs-ghpages.sh
+  # Import gpg keys
+  - openssl aes-256-cbc -K $encrypted_42099b4af021_key -iv $encrypted_42099b4af021_iv -in ./travis/gpg-signingkey.asc.enc -out ./travis/gpg-signingkey.asc -d
+  - gpg --import ./travis/gpg-signingkey.asc
+install: skip
+before_script:
+  - cp -p travis/mvn.settings.xml $HOME/.m2/settings.xml
+  - ./travis/init-travis-build.sh
+  - export JAVA_OPTS="-Xmx2048m"
+script:
+  - mvn -f ./grouper-parent clean package
+  # Uncomment the install if resuming snapshot deployments
+  #- mvn -f ./grouper-parent install -B -V -q
+##after_success:
+##- chmod -R 777 travis/deploy-to-sonatype.sh
+##- travis/deploy-to-sonatype.sh
+##- mvn -f ./grouper-parent clean test cobertura:cobertura coveralls:cobertura -Dlicense.skip=true -DskipTests=true
+##- chmod -R 777 travis/javadocs-ghpages.sh
+##- travis/javadocs-ghpages.sh
+before_deploy:
+  # deployment script will change the version from snapshot, so clean first
+  - mvn -f ./grouper-parent clean
+deploy:
+  provider: script
+  script: travis/deploy-to-sonatype.sh
+  #(DEPRECATED) skip_cleanup: true
+  on:
+    #branch: travis
+    tags: true
+
 env:
   global:
     - secure: "XmmxnbDo/FeIE2O5M6YMSKjULOgLPDDx79mcfRTf79Fvjiqw2yJBrheLwR2sYs4+6uw7Pe0FkKUXtyRrcK31JvWTuqvwTs08MgMt42VPx7xGX+96i8hN6QTF8D1B1YYRJnnXrtOrhqSbpm+jffw3PiK4f5fcKDntSaMbPUiVRDg="
     - secure: "MjJBfBqMpetCZ0PmcISetMxHAEcC83EawXmJuCW/F7RrCk8tBY+YglYSRHFqj/LDcwLHdDPuPOLHEv/RKPyqQvjYfJICwpQugMRrIUPuoXsg57xoSP36DBNG8qVCa5rS1qLaUb42fsvYXd9ufjKu8c0Eihq8pbz+yrXxKgvSpIU="
     - secure: "kJDUzde56X0epK70R9e2hN7Q6nfHyk0ixDOynPYJh01hREyLl/7Zm3V6dv5nfGhFbCoJDcqkTlUsl26ixrmmr4AUhh+fKkQVO8Pjj8z9fR6Y1lukJ2v2RVDRzN0sR5cCqKGd2yr9VW9s+4JinfcBQNj2dxwhCKddj+NPPM9o0CE="
-deploy:
-  provider: script
-  script: "chmod u+x travis/deploy-to-sonatype.sh && travis/deploy-to-sonatype.sh"
-  skip_cleanup: true
-  on:
-    tags: false

@@ -8,6 +8,8 @@ echo -e "Job id: ${TRAVIS_JOB_ID}"
 echo -e "Job number: ${TRAVIS_JOB_NUMBER}"
 echo -e "Repo slug: ${TRAVIS_REPO_SLUG}"
 echo -e "OS name: ${TRAVIS_OS_NAME}"
+echo -e "Pull request? ${TRAVIS_PULL_REQUEST}"
+echo -e "Tag: ${TRAVIS_TAG}"
 
 if [ "$TRAVIS_SECURE_ENV_VARS" == "false" ]
 then
