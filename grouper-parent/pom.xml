@@ -71,6 +71,7 @@
         <maven-taglist-plugin.version>2.4</maven-taglist-plugin.version>
         <maven-versions-plugin.version>2.7</maven-versions-plugin.version>
         <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
 
         <!-- the default checkstyle is more rigorous and has a lot of output during a full scan -->
         <!--<checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>-->
@@ -1026,6 +1027,11 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>${maven-checkstyle-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>${nexus-staging-maven-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -1090,6 +1096,24 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>sonatype-nexus-staging</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <!-- staging profile for edu.internet2.middleware.grouper -->
+                            <stagingProfileId>87a160186f8901</stagingProfileId>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
