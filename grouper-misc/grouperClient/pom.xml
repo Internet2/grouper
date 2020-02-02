@@ -112,6 +112,7 @@
                 <directory>conf</directory>
                 <includes>
                     <include>*example*</include>
+                    <include>grouper.client.base.properties</include>
                 </includes>
             </resource>
             <resource>
