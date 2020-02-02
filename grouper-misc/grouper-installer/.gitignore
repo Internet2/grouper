@@ -4,3 +4,5 @@
 /dist
 /target
 /conf/log4j.properties
+.classpath
+.project
