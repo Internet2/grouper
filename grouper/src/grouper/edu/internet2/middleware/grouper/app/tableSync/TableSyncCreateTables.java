@@ -60,7 +60,7 @@ public class TableSyncCreateTables {
     
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
       
@@ -148,7 +148,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync_group";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
       
@@ -194,6 +194,12 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
         Types.TIMESTAMP, "10", false, true);
 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_group_sync", 
+        Types.TIMESTAMP, "10", false, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_group_metadata_sync", 
+        Types.TIMESTAMP, "10", false, true);
+
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_from_id2", 
         Types.VARCHAR, "4000", false, false);
 
@@ -232,6 +238,10 @@ public class TableSyncCreateTables {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
   
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_group_sync", "when this group was last synced");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_group_metadata_sync", "when this groups name and description and metadata was synced");
+    
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_from_id2", "for groups this is the group idIndex");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_from_id3", "other metadata on groups");
@@ -262,7 +272,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync_member";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
       
@@ -314,6 +324,12 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
         Types.TIMESTAMP, "10", false, true);
 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_user_sync", 
+        Types.TIMESTAMP, "10", false, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_user_metadata_sync", 
+        Types.TIMESTAMP, "10", false, true);
+
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "member_from_id2", 
         Types.VARCHAR, "4000", false, false);
 
@@ -359,6 +375,10 @@ public class TableSyncCreateTables {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
   
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_user_sync", "when this user was last synced, includes metadata and memberships");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_user_metadata_sync", "when this users name and description and metadata was synced");
+
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "user_from_id2", "for users this is the user idIndex");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "user_from_id3", "other metadata on users");
@@ -392,7 +412,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync_job";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
     }
@@ -413,7 +433,7 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "job_state", 
         Types.VARCHAR, "50", false, false);
   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_sync_index_or_millis", 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_sync_index", 
         Types.BIGINT, "15", false, false);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_sync_timestamp", 
@@ -424,6 +444,9 @@ public class TableSyncCreateTables {
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "heartbeat", 
         Types.TIMESTAMP, null, false, false);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "quartz_job_name", 
+        Types.VARCHAR, "400", false, false);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
         Types.TIMESTAMP, "10", false, true);
@@ -444,7 +467,7 @@ public class TableSyncCreateTables {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "job_state", "running, pending (if waiting for another job to finish), notRunning");
   
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_index_or_millis", "either an int of last record checked, or an int of millis since 1970 of last record processed");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_index", "either an int of last record checked, or an int of millis since 1970 of last record processed");
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_timestamp", "when last record processed if timestamp and not integer");
     
@@ -452,8 +475,10 @@ public class TableSyncCreateTables {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_time_work_was_done", "last time a record was processed");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "quartz_job_name", "name of quartz job if applicable");
   
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
+    
   }
   
   /**
@@ -463,9 +488,10 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
+      e.printStackTrace();
     }
 
     Database database = ddlVersionBean.getDatabase();
@@ -490,18 +516,29 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "records_count", 
         Types.INTEGER, "10", false, false);
   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "incremental_index_or_millis", 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "incremental_index", 
         Types.BIGINT, "15", false, false);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "incremental_timestamp", 
         Types.TIMESTAMP, null, false, false);
   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_incremental_sync_run", 
+        Types.TIMESTAMP, null, false, false);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_full_sync_run", 
+        Types.TIMESTAMP, null, false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_full_metadata_sync_run", 
+        Types.TIMESTAMP, null, false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
         Types.TIMESTAMP, "10", false, true);
   
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_eng_idx", true, "sync_engine", "provisioner_name");
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
+        "grouper_sync_eng_prov_idx", true, "provisioner_name");
 
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
         tableName, "One record for every provisioner (not different records for full and real time)");
@@ -510,9 +547,7 @@ public class TableSyncCreateTables {
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "sync_engine", "e.g. for syncing sql, it sqlTableSync");
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "provisioner_name", "name of provisioner must be unique in combination with sync_engine.  this is the config key generally");
-  
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "provisioner_name", "name of provisioner must be unique.  this is the config key generally");
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_count", "if group this is the number of groups");
     
@@ -520,9 +555,17 @@ public class TableSyncCreateTables {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "records_count", "number of records including users, groups, etc");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_index_or_millis", "either an int of last record checked, or an int of millis since 1970 of last record processed");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "incremental_index", "int of last record processed");
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_sync_timestamp", "when last record processed if timestamp and not integer");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "incremental_timestamp", "timestamp of last record processed");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_incremental_sync_run", "when incremental sync ran");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_full_sync_run", "when last full sync ran");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_full_metadata_sync_run", "when last full metadata sync ran.  this needs to run when groups get renamed");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
     
 
   }
@@ -534,7 +577,7 @@ public class TableSyncCreateTables {
     final String tableName = "grouper_sync_membership";
     try {
       // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select * from " + tableName + " where 1 != 1");
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
       

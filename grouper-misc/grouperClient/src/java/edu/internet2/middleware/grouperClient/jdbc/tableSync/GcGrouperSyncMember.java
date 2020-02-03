@@ -23,6 +23,47 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 @GcPersistableClass(tableName="grouper_sync_member", defaultFieldPersist=GcPersist.doPersist)
 public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey {
 
+  /**
+   * when this user was last synced, includes metadata and memberships
+   */
+  private Timestamp lastUserSync;
+  
+  /**
+   * when this user was last synced, includes metadata and memberships
+   * @return when
+   */
+  public Timestamp getLastUserSync() {
+    return this.lastUserSync;
+  }
+
+  /**
+   * when this user was last synced, includes metadata and memberships
+   * @param lastUserSync1
+   */
+  public void setLastUserSync(Timestamp lastUserSync1) {
+    this.lastUserSync = lastUserSync1;
+  }
+
+  /**
+   * when this users name and description and metadata was synced
+   */
+  private Timestamp lastUserMetadataSync;
+  
+  /**
+   * when this users name and description and metadata was synced
+   * @return when
+   */
+  public Timestamp getLastUserMetadataSync() {
+    return this.lastUserMetadataSync;
+  }
+
+  /**
+   * when this users name and description and metadata was synced
+   * @param lastUserMetadataSync1
+   */
+  public void setLastUserMetadataSync(Timestamp lastUserMetadataSync1) {
+    this.lastUserMetadataSync = lastUserMetadataSync1;
+  }
 
   /**
    * delete all data if table is here

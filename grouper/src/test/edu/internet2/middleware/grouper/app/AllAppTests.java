@@ -53,7 +53,8 @@ public class AllAppTests {
       suite.addTest(AllLoaderTests.suite());
     }
     
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tableSync", true)) {
+    // TODO change to true in 2.5+
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tableSync", false)) {
       suite.addTest(AllTableSyncTests.suite());
     }
     

@@ -25,6 +25,27 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
 
   /**
+   * quartz job name if applicable
+   */
+  private String quartzJobName;
+  
+  /**
+   * quartz job name if applicable
+   * @return quartz job name
+   */
+  public String getQuartzJobName() {
+    return this.quartzJobName;
+  }
+
+  /**
+   * quartz job name if applicable
+   * @param quartzJobName1
+   */
+  public void setQuartzJobName(String quartzJobName1) {
+    this.quartzJobName = quartzJobName1;
+  }
+
+  /**
    * delete all data if table is here
    */
   public static void reset() {
@@ -69,14 +90,16 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
       this.lastUpdated = new Timestamp(System.currentTimeMillis());
       this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
       new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
-    } catch (RuntimeException e) {
-      LOG.info("GrouperSyncJob uuid potential mismatch: " + this.grouperSyncId + ", " + this.syncType, e);
+    } catch (RuntimeException re) {
+      LOG.info("GrouperSyncJob uuid potential mismatch: " + this.grouperSyncId + ", " + this.syncType, re);
       // maybe a different uuid is there
       GcGrouperSyncJob gcGrouperSyncJob = this.grouperSync.retrieveJobBySyncType(this.syncType);
       if (gcGrouperSyncJob != null) {
         this.id = gcGrouperSyncJob.getId();
         new GcDbAccess().connectionName(connectionName).storeToDatabase(this);
         LOG.warn("GrouperSyncJob uuid mismatch corrected: " + this.grouperSyncId + ", " + this.syncType);
+      } else {
+        throw re;
       }
     }
   }
@@ -198,7 +221,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
     GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
     gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
     gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.running);
-    gcGrouperSyncJob.setLastSyncIndexOrMillis(135L);
+    gcGrouperSyncJob.setLastSyncIndex(135L);
     gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
     gcGrouperSyncJob.setSyncType("testSyncType");
     gcGrouperSyncJob.store();
@@ -336,7 +359,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
         .append("syncType", this.syncType)
         .append("lastUpdated", this.lastUpdated)
         .append("jobState", this.jobStateDb)
-        .append("lastSyncIndexOrMillis", this.lastSyncIndexOrMillis)
+        .append("lastSyncIndexOrMillis", this.lastSyncIndex)
         .append("lastTimeWorkWasDone", this.lastTimeWorkWasDone).build();
   }
 
@@ -499,26 +522,26 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   * int of last record checked
    */
-  private Long lastSyncIndexOrMillis;
+  private Long lastSyncIndex;
   
   
   /**
-   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   * int of last record checked
    * @return the lastSyncIndexOrMillis
    */
-  public Long getLastSyncIndexOrMillis() {
-    return this.lastSyncIndexOrMillis;
+  public Long getLastSyncIndex() {
+    return this.lastSyncIndex;
   }
 
   
   /**
-   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   * int of last record checked
    * @param lastSyncIndexOrMillis1 the lastSyncIndexOrMillis to set
    */
-  public void setLastSyncIndexOrMillis(Long lastSyncIndexOrMillis1) {
-    this.lastSyncIndexOrMillis = lastSyncIndexOrMillis1;
+  public void setLastSyncIndex(Long lastSyncIndexOrMillis1) {
+    this.lastSyncIndex = lastSyncIndexOrMillis1;
   }
 
   /**

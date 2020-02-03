@@ -330,6 +330,62 @@ public enum GcTableSyncSubtype {
     }
 
     
+  }, 
+  /**
+   * full sync but do groups on single col primary key or single group col, and only do add or remove on groups
+   */
+  fullSyncMetadata{
+  
+    /**
+     * see if full sync
+     * @return true if full sync or false if incremental
+     */
+    @Override
+    public boolean isFullSync() {
+      return false;
+    }
+    
+    /**
+     * see if needs group column
+     * @return true if needs group column
+     */
+    @Override
+    public boolean isNeedsGroupColumn() { 
+      return true;
+    }
+  
+  
+    /**
+     * 
+     */
+    @Override
+    public void retrieveData(Map<String, Object> debugMap, GcTableSync gcTableSync) {
+      
+      String sqlFrom = "select distinct " + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
+      String sqlTo = "select distinct " + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
+  
+      GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
+          gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName(), sqlTo, 
+          gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName(), "retrieveGroups", null);
+      gcTableSync.getDataBeanFrom().setDataInitialQuery(gcTableSyncTableDatas[0]);
+      gcTableSync.getDataBeanTo().setDataInitialQuery(gcTableSyncTableDatas[1]);
+  
+    }
+  
+  
+    /**
+     * 
+     */
+    @Override
+    public Integer syncData(Map<String, Object> debugMap, GcTableSync gcTableSync) {
+      
+      Integer recordsChanged = runInsertsUpdatesDeletesGroupingsMetadata(debugMap, gcTableSync, gcTableSync.getDataBeanFrom().getDataInitialQuery().allGroupings(), 
+          gcTableSync.getDataBeanTo().getDataInitialQuery().allGroupings());      
+      
+      return recordsChanged;
+      
+    }
+  
   };
   
   /**
@@ -537,7 +593,7 @@ public enum GcTableSyncSubtype {
       GcTableSyncTableBean gcTableSyncTableBeanSelectFrom, String columnsToSelect, GcTableSyncColumnMetadata incrementalColumn, Boolean isFrom) {
     
     // where are we in the list?  do the whole list if we dont know where we are?
-    Long lastRetrievedLong = gcTableSync.getGcGrouperSync().getIncrementalIndexOrMillis();
+    Long lastRetrievedLong = gcTableSync.getGcGrouperSync().getIncrementalIndex();
     Timestamp lastRetrievedTimestamp = gcTableSync.getGcGrouperSync().getIncrementalTimestamp();
 
     Object lastRetrieved = null;
@@ -800,9 +856,9 @@ public enum GcTableSyncSubtype {
         
         if (gcTableSync.getGcGrouperSync().getIncrementalTimestamp() == null || gcTableSync.getGcGrouperSync().getIncrementalTimestamp().getTime() < maxProgressMillis ) {
           madeProgress = true;
-          gcTableSync.getGcGrouperSyncJob().setLastSyncIndexOrMillis(maxProgressMillis);
+          gcTableSync.getGcGrouperSyncJob().setLastSyncIndex(maxProgressMillis);
           gcTableSync.getGcGrouperSyncJob().setLastSyncTimestamp(new Timestamp(maxProgressMillis));
-          gcTableSync.getGcGrouperSync().setIncrementalIndexOrMillis(maxProgressMillis);
+          gcTableSync.getGcGrouperSync().setIncrementalIndex(maxProgressMillis);
           gcTableSync.getGcGrouperSync().setIncrementalTimestamp(new Timestamp(maxProgressMillis));
         }
 
@@ -814,10 +870,10 @@ public enum GcTableSyncSubtype {
         gcTableSync.getGcGrouperSync().setIncrementalTimestamp(new Timestamp(millisWhenJobStarted));
         madeProgress = true;
 
-        if (gcTableSync.getGcGrouperSyncJob().getLastSyncIndexOrMillis() == null || gcTableSync.getGcGrouperSyncJob().getLastSyncIndexOrMillis() < maxProgressLong ) {
+        if (gcTableSync.getGcGrouperSyncJob().getLastSyncIndex() == null || gcTableSync.getGcGrouperSyncJob().getLastSyncIndex() < maxProgressLong ) {
 
-          gcTableSync.getGcGrouperSyncJob().setLastSyncIndexOrMillis(maxProgressLong);
-          gcTableSync.getGcGrouperSync().setIncrementalIndexOrMillis(maxProgressLong);
+          gcTableSync.getGcGrouperSyncJob().setLastSyncIndex(maxProgressLong);
+          gcTableSync.getGcGrouperSync().setIncrementalIndex(maxProgressLong);
         }
       } else if (maxProgress instanceof String) {
 
@@ -827,9 +883,9 @@ public enum GcTableSyncSubtype {
         gcTableSync.getGcGrouperSync().setIncrementalTimestamp(new Timestamp(millisWhenJobStarted));
         madeProgress = true;
 
-        if (gcTableSync.getGcGrouperSyncJob().getLastSyncIndexOrMillis() == null || gcTableSync.getGcGrouperSyncJob().getLastSyncIndexOrMillis() < maxProgressLong ) {
+        if (gcTableSync.getGcGrouperSyncJob().getLastSyncIndex() == null || gcTableSync.getGcGrouperSyncJob().getLastSyncIndex() < maxProgressLong ) {
 
-          gcTableSync.getGcGrouperSync().setIncrementalIndexOrMillis(maxProgressLong);
+          gcTableSync.getGcGrouperSync().setIncrementalIndex(maxProgressLong);
         }
       }
 
@@ -1180,6 +1236,81 @@ public enum GcTableSyncSubtype {
   public abstract Integer syncData(Map<String, Object> debugMap, GcTableSync gcTableSync);
 
   /**
+   * find inserts/udpates/deletes based on queries for change flag
+   * @param debugMap
+   * @param gcTableSync
+   * @param groupingsFrom
+   * @param groupingsTo
+   * @return records changed
+   */
+  private static int runInsertsUpdatesDeletesGroupings(Map<String, Object> debugMap,
+      GcTableSync gcTableSync, Set<Object> groupingsFrom, Set<Object> groupingsTo) {
+    
+    // delete ones which arent there
+    int deletes = -1;
+    {
+      Set<Object> groupingsToDelete = new HashSet<Object>(groupingsTo);
+      groupingsToDelete.removeAll(groupingsFrom);
+      
+      deletes = runDeletesOfGroupings(debugMap, gcTableSync.getDataBeanTo(), groupingsToDelete, "deleteGroupings");
+    }      
+    
+    if (GrouperClientUtils.length(groupingsFrom) == 0) {
+      return deletes;
+    }
+    
+    // we need to batch these for the grouping size, need to be sorted
+    List<Object> groupings = new ArrayList<Object>(groupingsFrom);
+    Collections.sort(groupings, new Comparator<Object>() {
+  
+      @SuppressWarnings("rawtypes")
+      @Override
+      public int compare(Object o1, Object o2) {
+        return ((Comparable)o1).compareTo((Comparable)o2);
+      }
+    });
+  
+    int batchSize = gcTableSync.getGcTableSyncConfiguration().getGroupingSize();
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(groupings, batchSize);
+    
+    int recordsUpdated = 0;
+    
+    
+    
+    for (int currentBatchIndex=0;currentBatchIndex<numberOfBatches;currentBatchIndex++) {
+      List<Object> groupingsBatch = GrouperClientUtils.batchList(groupings, batchSize, currentBatchIndex);
+  
+      int[] results = null;
+      if (GrouperClientUtils.length(groupingsBatch) > 0) {
+        String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll() 
+            + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName()
+            + " where " + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + " >= ? "
+            + " and " + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + " <= ? ";
+        String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().columnListAll() 
+            + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName()
+            + " where " + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + " >= ? "
+            + " and " + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + " <= ? ";
+  
+        GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
+            gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), sqlTo, 
+            gcTableSync.getDataBeanTo().getTableMetadata().columnListAll(),
+            "retrieveData", new Object[] {groupingsBatch.get(0), groupingsBatch.get(groupingsBatch.size()-1)});
+        
+        results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSyncTableDatas[0], 
+            gcTableSyncTableDatas[1]);   
+      } else {
+        results = new int[] {0,0,0};
+      }
+  
+      
+      recordsUpdated +=  results[0] + results[1] + results[2];
+      
+    }
+    
+    return recordsUpdated;
+  }
+
+  /**
    * 
    * @param gcTableSyncTableBeanTo
    * return the data
@@ -1482,31 +1613,41 @@ public enum GcTableSyncSubtype {
   }
 
   /**
-   * find inserts/udpates/deletes based on queries for change flag
+   * find inserts/deletes based on queries for groupings
    * @param debugMap
    * @param gcTableSync
    * @param groupingsFrom
    * @param groupingsTo
    * @return records changed
    */
-  private static int runInsertsUpdatesDeletesGroupings(Map<String, Object> debugMap,
+  private static int runInsertsUpdatesDeletesGroupingsMetadata(Map<String, Object> debugMap,
       GcTableSync gcTableSync, Set<Object> groupingsFrom, Set<Object> groupingsTo) {
     
     // delete ones which arent there
-    int deletes = -1;
+    int deletes = 0;
     {
       Set<Object> groupingsToDelete = new HashSet<Object>(groupingsTo);
       groupingsToDelete.removeAll(groupingsFrom);
       
       deletes = runDeletesOfGroupings(debugMap, gcTableSync.getDataBeanTo(), groupingsToDelete, "deleteGroupings");
+      
     }      
+    
+    gcTableSync.getGcTableSyncOutput().setDelete(deletes);
     
     if (GrouperClientUtils.length(groupingsFrom) == 0) {
       return deletes;
     }
-    
+
+    Set<Object> groupingsToInsert = new HashSet<Object>(groupingsFrom);
+    groupingsToInsert.removeAll(groupingsTo);
+
+    if (GrouperClientUtils.length(groupingsToInsert) == 0) {
+      return deletes;
+    }
+
     // we need to batch these for the grouping size, need to be sorted
-    List<Object> groupings = new ArrayList<Object>(groupingsFrom);
+    List<Object> groupings = new ArrayList<Object>(groupingsToInsert);
     Collections.sort(groupings, new Comparator<Object>() {
 
       @SuppressWarnings("rawtypes")
@@ -1519,39 +1660,30 @@ public enum GcTableSyncSubtype {
     int batchSize = gcTableSync.getGcTableSyncConfiguration().getGroupingSize();
     int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(groupings, batchSize);
     
-    int recordsUpdated = 0;
-    
-    
-    
+    int recordsUpdated = deletes;
+    int inserts = 0;
     for (int currentBatchIndex=0;currentBatchIndex<numberOfBatches;currentBatchIndex++) {
       List<Object> groupingsBatch = GrouperClientUtils.batchList(groupings, batchSize, currentBatchIndex);
 
-      int[] results = null;
       if (GrouperClientUtils.length(groupingsBatch) > 0) {
         String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll() 
             + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName()
             + " where " + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + " >= ? "
             + " and " + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + " <= ? ";
-        String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().columnListAll() 
-            + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName()
-            + " where " + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + " >= ? "
-            + " and " + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + " <= ? ";
   
-        GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
-            gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), sqlTo, 
-            gcTableSync.getDataBeanTo().getTableMetadata().columnListAll(),
-            "retrieveData", new Object[] {groupingsBatch.get(0), groupingsBatch.get(groupingsBatch.size()-1)});
+        GcTableSyncTableData gcTableSyncTableDataFrom = runQuery(debugMap, gcTableSync.getDataBeanFrom(), sqlFrom, 
+            gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), 
+            "retrieveData", new Object[] {groupingsBatch.get(0), groupingsBatch.get(groupingsBatch.size()-1)}, true);
         
-        results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSyncTableDatas[0], 
-            gcTableSyncTableDatas[1]);   
-      } else {
-        results = new int[] {0,0,0};
-      }
+        Set<MultiKey> primaryKeysToInsert = new LinkedHashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
+        
+        inserts += runInserts(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToInsert, 
+            gcTableSyncTableDataFrom.allIndexByPrimaryKey(), "inserts");
 
-      
-      recordsUpdated +=  results[0] + results[1] + results[2];
-      
+      }      
     }
+    gcTableSync.getGcTableSyncOutput().setInsert(inserts);
+    recordsUpdated += inserts;
     
     return recordsUpdated;
   }

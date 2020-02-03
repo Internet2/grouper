@@ -73,7 +73,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey {
     GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
     gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
     gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.notRunning);
-    gcGrouperSyncJob.setLastSyncIndexOrMillis(135L);
+    gcGrouperSyncJob.setLastSyncIndex(135L);
     gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
     gcGrouperSyncJob.setSyncType("testSyncType");
     gcGrouperSyncJob.store();
