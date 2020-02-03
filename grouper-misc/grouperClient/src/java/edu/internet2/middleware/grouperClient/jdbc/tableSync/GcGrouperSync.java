@@ -241,9 +241,77 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
   }
   
   /**
-   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   * when incremental sync ran
    */
-  private Long incrementalIndexOrMillis;
+  private Timestamp lastIncrementalSyncRun;
+  
+  
+  
+  /**
+   * when incremental sync ran
+   * @return
+   */
+  public Timestamp getLastIncrementalSyncRun() {
+    return this.lastIncrementalSyncRun;
+  }
+
+  /**
+   * when incremental sync ran
+   * @param lastIncrementalSyncRun1
+   */
+  public void setLastIncrementalSyncRun(Timestamp lastIncrementalSyncRun1) {
+    this.lastIncrementalSyncRun = lastIncrementalSyncRun1;
+  }
+
+  /**
+   * when last full sync ran
+   */
+  private Timestamp lastFullSyncRun;
+  
+  
+  
+  /**
+   * when last full sync ran
+   * @return when
+   */
+  public Timestamp getLastFullSyncRun() {
+    return this.lastFullSyncRun;
+  }
+
+  /**
+   * when last full sync ran
+   * @param lastFullSyncRun1
+   */
+  public void setLastFullSyncRun(Timestamp lastFullSyncRun1) {
+    this.lastFullSyncRun = lastFullSyncRun1;
+  }
+
+  /**
+   * when last full metadata sync ran.  this needs to run when groups get renamed
+   */
+  private Timestamp lastFullMetadataSyncRun;
+  
+  
+  /**
+   * when last full metadata sync ran.  this needs to run when groups get renamed
+   * @return when
+   */
+  public Timestamp getLastFullMetadataSyncRun() {
+    return this.lastFullMetadataSyncRun;
+  }
+
+  /**
+   * when last full metadata sync ran.  this needs to run when groups get renamed
+   * @param lastFullMetadataSyncRun1
+   */
+  public void setLastFullMetadataSyncRun(Timestamp lastFullMetadataSyncRun1) {
+    this.lastFullMetadataSyncRun = lastFullMetadataSyncRun1;
+  }
+
+  /**
+   * int of last record processed
+   */
+  private Long incrementalIndex;
   
   /**
    * when last record processed if timestamp and not integer
@@ -253,19 +321,19 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
   
   
   /**
-   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   * int of last record processed
    * @return number
    */
-  public Long getIncrementalIndexOrMillis() {
-    return this.incrementalIndexOrMillis;
+  public Long getIncrementalIndex() {
+    return this.incrementalIndex;
   }
 
   /**
-   * either an int of last record checked, or an int of millis since 1970 of last record processed
+   * int of last record processed
    * @param incrementalIndexOrMillis1
    */
-  public void setIncrementalIndexOrMillis(Long incrementalIndexOrMillis1) {
-    this.incrementalIndexOrMillis = incrementalIndexOrMillis1;
+  public void setIncrementalIndex(Long incrementalIndexOrMillis1) {
+    this.incrementalIndex = incrementalIndexOrMillis1;
   }
 
   /**
@@ -509,7 +577,7 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
         .append("lastUpdated", this.lastUpdated)
         .append("recordsCount", this.recordsCount)
         .append("groupCount", this.groupCount)
-        .append("incrementalIndexOrMillis", this.incrementalIndexOrMillis)
+        .append("incrementalIndexOrMillis", this.incrementalIndex)
         .append("incrementalTimestamp", this.incrementalTimestamp)
         .append("userCount", this.userCount).build();
   }
@@ -568,13 +636,13 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * name of provisioner must be unique in combination with sync_engine.  this is the config key generally
+   * name of provisioner must be unique.  this is the config key generally
    */
   private String provisionerName;
 
 
   /**
-   * name of provisioner must be unique in combination with sync_engine.  this is the config key generally
+   * name of provisioner must be unique.  this is the config key generally
    * @return provisioner name
    */
   public String getProvisionerName() {
@@ -582,7 +650,7 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey {
   }
 
   /**
-   * name of provisioner must be unique in combination with sync_engine.  this is the config key generally
+   * name of provisioner must be unique.  this is the config key generally
    * @param provisionerName1
    */
   public void setProvisionerName(String provisionerName1) {

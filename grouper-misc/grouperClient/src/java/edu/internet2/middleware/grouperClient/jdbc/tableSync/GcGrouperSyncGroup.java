@@ -23,6 +23,48 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 @GcPersistableClass(tableName="grouper_sync_group", defaultFieldPersist=GcPersist.doPersist)
 public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey {
 
+  
+  /**
+   * when this group was last synced
+   */
+  private Timestamp lastGroupSync;
+  
+  
+  public Timestamp getLastGroupSync() {
+    return this.lastGroupSync;
+  }
+
+
+  /**
+   * when this group was last synced
+   * @param lastGroupSync1
+   */
+  public void setLastGroupSync(Timestamp lastGroupSync1) {
+    this.lastGroupSync = lastGroupSync1;
+  }
+
+  /**
+   * when this groups name and description and metadata was synced
+   */
+  private Timestamp lastGroupMetadataSync;
+  
+  /**
+   * when this groups name and description and metadata was synced
+   * @return when this group was last synced
+   */
+  public Timestamp getLastGroupMetadataSync() {
+    return this.lastGroupMetadataSync;
+  }
+
+  /**
+   * when this groups name and description and metadata was synced
+   * @param lastGroupMetadataSync
+   */
+  public void setLastGroupMetadataSync(Timestamp lastGroupMetadataSync) {
+    this.lastGroupMetadataSync = lastGroupMetadataSync;
+  }
+
+
   /**
    * delete all data if table is here
    */
