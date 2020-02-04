@@ -9538,6 +9538,9 @@ public class GrouperInstaller {
     // now download all the grouper project jars
     downloadGrouperJarsIntoLibDirectory(libDir);
     
+    // take care of conflicting jars
+    reportOnConflictingJars(libDir.getAbsolutePath());
+    
     // copy apache-tomee-webprofile-7.0.7 to tomee
     // why can't uncompressed directory has the same name??? :((
     File tomeeUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomee-webprofile-7.0.7");
