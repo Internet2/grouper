@@ -9488,6 +9488,7 @@ public class GrouperInstaller {
     File webAppDir = new File(containerDirString + "webapp");
     webAppDir.mkdirs();
     
+    // let's start with grouper-ui/webapp directory. We will copy everything else later
     GrouperInstallerUtils.copyDirectory(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui" + File.separator+"webapp"), webAppDir);
     
     File webInfDir = new File(webAppDir+File.separator+"WEB-INF");
