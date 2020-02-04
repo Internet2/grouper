@@ -1315,7 +1315,7 @@ public class GrouperInstaller {
   
   /** untarred tomee dir */
   private File untarredTomeeDir;
-
+  
   /** main install dir, must end in file separator */
   private String grouperTarballDirectoryString;
   
@@ -1553,7 +1553,19 @@ public class GrouperInstaller {
         grouperInstaller.mainPatchLogic();
 
       }
-    };
+    },
+    
+    /** build container */  
+    buildContainer {
+
+      @Override
+      public void logic(GrouperInstaller grouperInstaller) {
+        grouperInstaller.mainBuildContainerLogic();
+        
+      }
+      
+    }
+    ;
 
     /**
      * run the logic for the installer function
@@ -9393,6 +9405,154 @@ public class GrouperInstaller {
   /**
    * 
    */
+  private void mainBuildContainerLogic() {
+    
+    //Find out the working directory.  This ends in a file separator
+    this.grouperTarballDirectoryString = grouperUpgradeTempDirectory();
+    
+    //####################################
+    //get default ip address
+    System.out.print("Enter the default IP address for checking ports (just hit enter to accept the default unless on a machine with no network, might want to change to 127.0.0.1): [0.0.0.0]: ");
+    this.defaultIpAddress = readFromStdIn("grouperInstaller.autorun.defaultIpAddressForPorts");
+    
+    if (GrouperInstallerUtils.isBlank(this.defaultIpAddress)) {
+      this.defaultIpAddress = "0.0.0.0";
+    }
+
+    if (!GrouperInstallerUtils.equals("0.0.0.0", this.defaultIpAddress)) {
+      System.out.println("Note, you will probably need to change the hsql IP address, and tomcat server.xml IP addresses...");
+    }
+    
+    this.version = getClass().getPackage().getImplementationVersion();
+    if (this.version == null) {
+      // when you are running directly from eclipse without the jar file
+      this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    }
+    
+    System.out.println("Installing grouper version: " + this.version);
+    
+    downloadAndUnzipMaven();
+    
+    //####################################
+    //download apache tomee
+    File tomeeDir = downloadTomee();
+    File unzippedTomeeFile = unzip(tomeeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+    this.untarredTomeeDir = untar(unzippedTomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
+    
+    // download grouper tag from github
+    File grouperSourceCodeDir = downloadGrouperSourceTagFromGithub();
+    File unzippedGrouperSourceCodeFile = unzip(grouperSourceCodeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+    File untarredGrouperSourceCodeDir = untar(unzippedGrouperSourceCodeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
+    
+//    this.untarredMavenDir = new File("/Users/vsachdeva/git/i2-grouper-new/grouper/grouper-misc/grouper-installer/tarballs/apache-maven-3.6.3");
+//    this.untarredGrouperSourceCodeDir = new File("/Users/vsachdeva/git/i2-grouper-new/grouper/grouper-misc/grouper-installer/tarballs/grouper-GROUPER_RELEASE_2.5.0");
+    
+    // go in grouper, grouper-ws, grouper-ui and grouper-ws-scim directory and run mvn dependency:copy-dependencies
+    List<File> grouperProjects = new ArrayList<File>();
+    
+    String grouperUntarredReleaseDir = untarredGrouperSourceCodeDir.getAbsolutePath().substring(0, untarredGrouperSourceCodeDir.getAbsolutePath().lastIndexOf(File.separator));
+    grouperUntarredReleaseDir = grouperUntarredReleaseDir + File.separator + "grouper-" + untarredGrouperSourceCodeDir.getName() ;
+    
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper"));
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws"+File.separator+"grouper-ws"));
+    //grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws/grouper-ws-scim"));
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui"));
+    
+    List<String> commands = new ArrayList<String>();
+    
+    addMavenCommands(commands);
+    
+    commands.add("dependency:copy-dependencies");
+          
+    for (File file: grouperProjects) {
+      System.out.println("\n##################################");
+      System.out.println("Building "+ file.getName()+" with command:\n" 
+          + convertCommandsIntoCommand(commands) + "\n");
+      
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+          true, true, null, new File(file.getAbsolutePath()), null, true);
+      
+      if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+        System.out.println("stderr: " + commandResult.getErrorText());
+      }
+      if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+        System.out.println("stdout: " + commandResult.getOutputText());
+      }
+    }
+    
+    // now create an output directory (webapp) and tomee
+    String containerDirString = grouperContainerDirectory();
+    File containerTomeeDir = new File(containerDirString + "tomee");
+    containerTomeeDir.mkdirs();
+    
+    File webAppDir = new File(containerDirString + "webapp");
+    webAppDir.mkdirs();
+    
+    GrouperInstallerUtils.copyDirectory(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui" + File.separator+"webapp"), webAppDir);
+    
+    File webInfDir = new File(webAppDir+File.separator+"WEB-INF");
+    webInfDir.mkdirs(); // should already be there
+    File webInfConfDir = new File(webInfDir+File.separator+"conf");
+    webInfConfDir.mkdirs();
+    File libDir = new File(webInfDir+File.separator+"lib");
+    libDir.mkdirs();
+    File modulesDir = new File(webInfDir+File.separator+"modules");
+    modulesDir.mkdirs();
+    File servicesDir = new File(webInfDir+File.separator+"services");
+    servicesDir.mkdirs();
+    File classesDir = new File(webInfDir+File.separator+"classes");
+    classesDir.mkdirs();
+    
+    // now copy all dependency jars into container/webapp/WEB-INF/lib
+    try {
+      for (File file: grouperProjects) {
+        File jarsDirectory = new File(file.getAbsolutePath()+File.separator+"target"+File.separator+"dependency");
+        GrouperInstallerUtils.copyDirectory(jarsDirectory, libDir, null, true);
+      }
+    } catch (Exception e) {
+      //TODO handle it appropriately
+      throw new RuntimeException("Could not copy jars from dependency directories ", e);
+    }
+    
+    // now copy grouper/conf, grouper-ws/conf, grouper-ui/conf and grouperClient/conf to classesDir
+    try {
+      for (File file: grouperProjects) {
+        File confDir = new File(file.getAbsolutePath()+File.separator+"conf");
+        if (confDir.exists()) {
+          GrouperInstallerUtils.copyDirectory(confDir, classesDir, null, true);
+        }
+      }
+    } catch (Exception e) {
+      //TODO handle it appropriately
+      throw new RuntimeException("Could not copy files from conf directory to classes directory", e);
+    }
+    
+    // now copy all grouper-ws/webapp specific files into outputDir/webapp
+    File grouperWsWebinfDir = new File(grouperUntarredReleaseDir+File.separator+"grouper-ws"+File.separator+
+        "grouper-ws"+File.separator+"webapp"+File.separator+"WEB-INF");
+    
+    GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"modules"), modulesDir);
+    GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"services"), servicesDir);
+    GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"conf"), webInfConfDir);
+    
+    // now download all the grouper project jars
+    downloadGrouperJarsIntoLibDirectory(libDir);
+    
+    // copy apache-tomee-webprofile-7.0.7 to tomee
+    // why can't uncompressed directory has the same name??? :((
+    File tomeeUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomee-webprofile-7.0.7");
+    try {      
+      GrouperInstallerUtils.copyDirectory(tomeeUntarredDir, containerTomeeDir, null, true);
+    } catch (Exception e) {
+      // TODO: handle it appropriately
+      throw new RuntimeException("Could not copy untarred tomee into container/tomee", e);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
   private void mainInstallLogic() {
     
     //####################################
@@ -11616,9 +11776,9 @@ public class GrouperInstaller {
       urlToDownload += "/";
     }
 
-    urlToDownload += "downloads/tools/apache-maven-3.2.5-bin.tar.gz";
+    urlToDownload += "downloads/tools/apache-maven-3.6.3-bin.tar.gz";
     
-    File mavenFile = new File(this.grouperTarballDirectoryString + "apache-maven-3.2.5-bin.tar.gz");
+    File mavenFile = new File(this.grouperTarballDirectoryString + "apache-maven-3.6.3-bin.tar.gz");
     
     downloadFile(urlToDownload, mavenFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
 
@@ -11768,13 +11928,35 @@ public class GrouperInstaller {
       urlToDownload += "/";
     }
 
-    urlToDownload += "downloads/tools/apache-tomee-webprofile-7.0.0.tar.gz";
+    urlToDownload += "downloads/tools/apache-tomee-7.0.7-webprofile.tar.gz";
     
-    File tomeeFile = new File(this.grouperTarballDirectoryString + "apache-tomee-webprofile-7.0.0.tar.gz");
+    File tomeeFile = new File(this.grouperTarballDirectoryString + "apache-tomee-7.0.7-webprofile.tar.gz");
     
     downloadFile(urlToDownload, tomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
 
     return tomeeFile;
+  }
+  
+  private File downloadGrouperSourceTagFromGithub() {
+    
+    File grouperSourceCodeFile = new File(this.grouperTarballDirectoryString + "GROUPER_RELEASE_"+this.version+".tar.gz");
+    downloadFile("https://github.com/Internet2/grouper/archive/GROUPER_RELEASE_"+this.version+".tar.gz", grouperSourceCodeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+    return grouperSourceCodeFile;
+  }
+  
+  private void downloadGrouperJarsIntoLibDirectory(File destinationPath) {
+    
+    String basePath = "https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/";
+    
+    List<String> urlsToDownload = new ArrayList<String>();
+    urlsToDownload.add(basePath+"grouper-ws/"+this.version+"/grouper-ws-"+this.version+".jar");
+    urlsToDownload.add(basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar");
+    
+    for (String urlToDownload: urlsToDownload) {
+      String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
+      downloadFile(urlToDownload, destinationPath.getAbsolutePath() + File.separator+ fileName, "");
+    }
+    
   }
 
   /**
@@ -12921,8 +13103,8 @@ public class GrouperInstaller {
     GrouperInstallerMainFunction grouperInstallerMainFunctionLocal = 
         (GrouperInstallerMainFunction)promptForEnum(
             "Do you want to 'install' a new installation of grouper, 'upgrade' an existing installation,\n"
-                + "  'patch' an existing installation, 'admin' utilities, or 'createPatch' for Grouper developers\n" 
-                + "  (enter: 'install', 'upgrade', 'patch', 'admin', 'createPatch' or blank for the default) ",
+                + "  'patch' an existing installation, 'admin' utilities, 'buildContainer', or 'createPatch' for Grouper developers\n" 
+                + "  (enter: 'install', 'upgrade', 'patch', 'admin', 'createPatch', 'buildContainer', or blank for the default) ",
             "grouperInstaller.autorun.actionEgInstallUpgradePatch", GrouperInstallerMainFunction.class, 
             GrouperInstallerMainFunction.install, "grouperInstaller.default.installOrUpgrade");
     return grouperInstallerMainFunctionLocal;
@@ -12964,7 +13146,7 @@ public class GrouperInstaller {
     }
     return grouperInstallDirectoryString;
   }
-
+  
   /**
    * 
    * @return upgrade directory
@@ -12998,7 +13180,41 @@ public class GrouperInstaller {
     }
     return localGrouperInstallDirectoryString;
   }
-
+  
+  /**
+   * 
+   * @return grouper container directory
+   */
+  private String grouperContainerDirectory() {
+    String localGrouperContainerDirectoryString = null;
+    {
+      File grouperContainerDirectoryFile = new File(new File("").getAbsolutePath() + File.separator + "container");
+      if (!GrouperInstallerUtils.isBlank(this.grouperInstallDirectoryString)) {
+        grouperContainerDirectoryFile = new File(this.grouperInstallDirectoryString + "container");
+      }
+      String defaultDirectory = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.buildContainerDirectory", false);
+      if (GrouperInstallerUtils.isBlank(defaultDirectory)) {
+        defaultDirectory = grouperContainerDirectoryFile.getAbsolutePath();
+      }
+      System.out.print("Enter in a directory for output (note: better if no spaces or special chars) [" 
+          + defaultDirectory + "]: ");
+      localGrouperContainerDirectoryString = readFromStdIn("grouperInstaller.autorun.buildContainerDirectory");
+      if (!GrouperInstallerUtils.isBlank(localGrouperContainerDirectoryString)) {
+        grouperContainerDirectoryFile = new File(localGrouperContainerDirectoryString);
+        if (!grouperContainerDirectoryFile.exists() || !grouperContainerDirectoryFile.isDirectory()) {
+          System.out.println("Error: cant find directory: '" + grouperContainerDirectoryFile.getAbsolutePath() + "'");
+          System.exit(1);
+        }
+      } else {
+        localGrouperContainerDirectoryString = defaultDirectory;
+      }
+      if (!localGrouperContainerDirectoryString.endsWith(File.separator)) {
+        localGrouperContainerDirectoryString += File.separator;
+      }
+    }
+    return localGrouperContainerDirectoryString;
+  }
+  
   /**
    * 
    * @return see if operating on a source directory or deployed directory
