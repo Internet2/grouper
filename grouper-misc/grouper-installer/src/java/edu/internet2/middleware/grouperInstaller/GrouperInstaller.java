@@ -2097,7 +2097,7 @@ public class GrouperInstaller {
         continue;
       }
       
-      Set<String> fileKeys = new HashSet<String>(GrouperInstallerUtils.nonNull(
+      Set<String> fileKeys = new LinkedHashSet<String>(GrouperInstallerUtils.nonNull(
           GrouperInstallerUtils.splitTrimToList(filesToMakePatchFromCommaSeparated, ",")));
 
       for (String fileKey : fileKeys) {
@@ -2106,7 +2106,7 @@ public class GrouperInstaller {
           System.out.println("Do not specify .class files, only .java files (will be compiled): '" + fileKey + "'!!!  please re-enter the list");
           continue OUTER;
         }
-        
+
         GrouperInstallerIndexFile grouperInstallerIndexFile = indexOfFiles.get(fileKey);
         if (grouperInstallerIndexFile == null) {
           grouperInstallerIndexFile = indexOfTagFiles.get(fileKey);
