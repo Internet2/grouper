@@ -385,7 +385,12 @@ public class GcTableSyncConfiguration {
         debugMap.put("configStatusDatabase", this.statusDatabase);
       }
       
-      this.gcTableSync.setGcGrouperSync(GcGrouperSync.retrieveOrCreateByProvisionerName(defaultStatusDatabase, GcGrouperSync.SQL_SYNC_ENGINE, configKey));
+      this.gcTableSync.setGcGrouperSync(GcGrouperSync.retrieveOrCreateByProvisionerName(defaultStatusDatabase, configKey));
+      if (!GrouperClientUtils.equals(GcGrouperSync.SQL_SYNC_ENGINE, this.gcTableSync.getGcGrouperSync().getSyncEngine())) {
+        this.gcTableSync.getGcGrouperSync().setSyncEngine(GcGrouperSync.SQL_SYNC_ENGINE);
+        this.gcTableSync.getGcGrouperSync().store();
+      }
+
       this.gcTableSync.setGcGrouperSyncJob(this.gcTableSync.getGcGrouperSync().retrieveJobOrCreateBySyncType(gcTableSyncSubtype.name()));
       this.gcTableSync.setGcGrouperSyncLog(this.gcTableSync.getGcGrouperSyncJob().retrieveGrouperSyncLogOrCreate());
       this.gcTableSync.getGcGrouperSyncLog().setSyncTimestamp(new Timestamp(System.currentTimeMillis()));

@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperProvisioningAttributeNames {
   
@@ -120,6 +121,119 @@ public class GrouperProvisioningAttributeNames {
     }
     
     return attributeDef;
+  }
+
+  /** attribute def name cache */
+  private static ExpirableCache<String, AttributeDefName> attributeDefNameCache = new ExpirableCache<String, AttributeDefName>(5);
+
+  /**
+   * provisioning marker attribute def name
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameMarker() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperProvisioningSettings.provisioningConfigStemName() + ":" + PROVISIONING_ATTRIBUTE_NAME);
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant provisioning marker attribute def name be found?");
+    }
+    return attributeDefName;
+  
+  }
+
+  /**
+   * provisioning 'do provision' attribute def name
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameDoProvision() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperProvisioningSettings.provisioningConfigStemName() + ":" + PROVISIONING_DO_PROVISION);
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant provisioning 'do provision' attribute def name be found?");
+    }
+    return attributeDefName;
+  
+  }
+
+  /**
+   * cache this.  note, not sure if its necessary
+   */
+  private static AttributeDefName retrieveAttributeDefNameFromDbOrCache(final String name) {
+    
+    AttributeDefName attributeDefName = attributeDefNameCache.get(name);
+  
+    if (attributeDefName == null) {
+      
+      attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+  
+        @Override
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          
+          return AttributeDefNameFinder.findByName(name, false, new QueryOptions().secondLevelCache(false));
+          
+        }
+        
+      });
+      if (attributeDefName == null) {
+        return null;
+      }
+      attributeDefNameCache.put(name, attributeDefName);
+    }
+    
+    return attributeDefName;
+  }
+
+
+  /**
+   * provisioning 'target' attribute def name
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameTarget() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperProvisioningSettings.provisioningConfigStemName() + ":" + PROVISIONING_TARGET);
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant provisioning 'target' attribute def name be found?");
+    }
+    return attributeDefName;
+  
+  }
+
+  /**
+   * provisioning 'direct assignment' attribute def name
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameDirectAssignment() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperProvisioningSettings.provisioningConfigStemName() + ":" + PROVISIONING_DIRECT_ASSIGNMENT);
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant provisioning 'direct assignment' attribute def name be found?");
+    }
+    return attributeDefName;
+  
+  }
+
+  /**
+   * provisioning 'stem scope' attribute def name: sub or one
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameStemScope() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperProvisioningSettings.provisioningConfigStemName() + ":" + PROVISIONING_STEM_SCOPE);
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant provisioning 'stem scope' attribute def name be found?");
+    }
+    return attributeDefName;
+  
   }
 
 }

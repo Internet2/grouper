@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
@@ -21,23 +24,32 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.changeLog.consumer.PrintChangeLogConsumer;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
@@ -54,7 +66,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     GrouperStartup.startup();
 //    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
 //    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
-    TestRunner.run(new ProvisioningToSyncTest("testPersonSyncIncrementalSwitchToGroup"));
+    TestRunner.run(new ProvisioningToSyncTest("testProvisioningAttributesToGroupSyncFull"));
 //    TestRunner.run(new TableSyncTest("testPersonSyncFullChangeFlag"));
 //    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalPrimaryKey"));
     
@@ -79,6 +91,10 @@ public class ProvisioningToSyncTest extends GrouperTest {
    * grouper session
    */
   private GrouperSession grouperSession = null;
+  /**
+   * 
+   */
+  private final String JOB_NAME = "TEST_TARGET";
 
   /**
    * @param name
@@ -92,6 +108,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
    */
   @Override
   protected void setUp() {
+
     super.setUp();
     
     try {
@@ -100,14 +117,22 @@ public class ProvisioningToSyncTest extends GrouperTest {
       
       ensureTableSyncTables();
   
-      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectFrom").executeUpdate();
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncSubjectTo").executeUpdate();
-      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSyncChangeLog").executeUpdate();
       
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
     
+  }
+
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioning.target.testTarget.key", "testTarget");
+
+
   }
 
   /**
@@ -119,7 +144,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
-    dropTableSyncTables();
+// TODO    dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
 
   }
@@ -133,37 +158,28 @@ public class ProvisioningToSyncTest extends GrouperTest {
 
     Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "person_id", 
-        Types.VARCHAR, "8", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "member_id", 
+        Types.VARCHAR, "40", true, true);
  
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "hibernate_version_number", 
-        Types.INTEGER, "10", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", 
+        Types.VARCHAR, "40", true, true);
+ 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "list_name", 
+        Types.VARCHAR, "40", true, true);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", 
+        Types.VARCHAR, "400", false, false);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "net_id", 
-        Types.VARCHAR, "30", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", 
+        Types.VARCHAR, "400", false, false);
  
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_int", 
-        Types.INTEGER, "10", false, false);
-   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_float", 
-        Types.DOUBLE, null, false, false);
-   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_date", 
-        Types.DATE, null, false, false);
-   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "some_timestamp", 
-        Types.TIMESTAMP, null, false, false);
-   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "change_flag", 
-        Types.INTEGER, null, false, false);
-   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_group", 
-        Types.VARCHAR, "20", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_source", 
+        Types.VARCHAR, "40", false, false);
    
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
         tableName, tableName);
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "person_id", "person_id");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "member_id", "member_id");
     
   }
 
@@ -180,11 +196,10 @@ public class ProvisioningToSyncTest extends GrouperTest {
         
         Database database = ddlVersionBean.getDatabase();
   
-        createTable(ddlVersionBean, database, "testgrouper_sync_subject_from");
+        createView(ddlVersionBean, database, "testgrouper_mship_from_v");
 
         createTable(ddlVersionBean, database, "testgrouper_sync_subject_to");
 
-        createTableChangeLog(ddlVersionBean, database);
       }
       
     });
@@ -195,9 +210,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
    */
   public void dropTableSyncTables() {
     
-    dropTableSyncTable("testgrouper_sync_subject_from");
+    dropTableSyncTable("testgrouper_mship_from_v");
     dropTableSyncTable("testgrouper_sync_subject_to");
-    dropTableSyncTable("testgrouper_sync_change_log");
     
   }
 
@@ -211,10 +225,19 @@ public class ProvisioningToSyncTest extends GrouperTest {
     } catch (Exception e) {
       return;
     }
-    try {
-      HibernateSession.bySqlStatic().executeSql("drop table " + tableName);
-    } catch (Exception e) {
-      return;
+    if (tableName.toLowerCase().endsWith("_v")) {
+      try {
+        HibernateSession.bySqlStatic().executeSql("drop table " + tableName);
+      } catch (Exception e) {
+        return;
+      }
+      
+    } else {
+      try {
+        HibernateSession.bySqlStatic().executeSql("drop table " + tableName);
+      } catch (Exception e) {
+        return;
+      }
     }
     try {
       // if you cant connrc to it, its not there
@@ -254,49 +277,195 @@ public class ProvisioningToSyncTest extends GrouperTest {
     
     Group testGroup1 = new GroupSave(grouperSession).assignName("test:testGroup1").save();
     
-    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+    testGroup1.addMember(SubjectTestHelper.SUBJ0);
+    testGroup1.addMember(SubjectTestHelper.SUBJ1);
     
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+
+    testGroup2.addMember(SubjectTestHelper.SUBJ2);
+
     Group testGroup3 = new GroupSave(grouperSession).assignName("test:testGroup3").save();
+
+    testGroup3.addMember(SubjectTestHelper.SUBJ3);
 
     Group testGroup4 = new GroupSave(grouperSession).assignName("test:test2:testGroup4").assignCreateParentStemsIfNotExist(true).save();
 
+    testGroup4.addMember(SubjectTestHelper.SUBJ4);
+
+    // marker
+    AttributeDefName provisioningMarkerAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker();
+
+    // target name
+    AttributeDefName provisioningTargetAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget();
+
+    // direct name
+    AttributeDefName provisioningDirectAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment();
+
+    // direct name
+    AttributeDefName provisioningStemScopeAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameStemScope();
+
+    // do provision
+    AttributeDefName provisioningDoProvisionAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision();
     
-//    String provGrouperProvisioningSettings.provisioningConfigStemName();
-//    
-//    Stem grouperProvisioningStemName = StemFinder.findByName(grouperSession, grouperProvisioningUiRootStemName, false);
-//    if (grouperProvisioningStemName == null) {
-//      grouperProvisioningStemName = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-//        .assignDescription("folder to store attribute defs and names for provisioning in ui").assignName(grouperProvisioningUiRootStemName)
-//        .save();
-//    }
+    Set<Group> groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+    assertEquals(0, GrouperUtil.length(groups));
+    
+    AttributeAssign testStemAttributeAssign = testStem.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningStemScopeAttributeDefName.getName(), "sub");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
+
+    AttributeAssign testGroup2attributeAssign = testGroup2.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
+    
+    GrouperProvisioningJob.runDaemonStandalone();
+    
+    //Then - Most the children of stem0 should have metadata coming from parent
+    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup1, "testTarget");
+    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+    assertEquals(true, grouperProvisioningAttributeValue.isDoProvision());
+    
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup2, "testTarget");
+    assertNull(grouperProvisioningAttributeValue.getOwnerStemId());
+    assertTrue(grouperProvisioningAttributeValue.isDirectAssignment());
+    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup3, "testTarget");
+    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+    assertEquals(true, grouperProvisioningAttributeValue.isDoProvision());
+    
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup4, "testTarget");
+    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+    assertEquals(true, grouperProvisioningAttributeValue.isDoProvision());
+    
+    groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+    assertEquals(3, GrouperUtil.length(groups));
+
+    assertTrue(groups.contains(testGroup1));
+    assertTrue(groups.contains(testGroup3));
+    assertTrue(groups.contains(testGroup4));
+    
+    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+    
+    Map<String, Group> groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
+
+    assertEquals(3, groupIdToGroup.size());
+    assertTrue(groupIdToGroup.containsKey(testGroup1.getId()));
+    assertTrue(groupIdToGroup.containsKey(testGroup3.getId()));
+    assertTrue(groupIdToGroup.containsKey(testGroup4.getId()));
+
+    Map<String, Group> groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
+
+    assertEquals(3, groupIdToGcGrouperSyncGroup.size());
+    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup1.getId()));
+    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup3.getId()));
+    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup4.getId()));
+
+    GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName("grouper", "testTarget");
+    List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.retrieveAllGroups();
+    
+    Set<String> uuidsToProvision = new HashSet<String>();
+    
+    for (GcGrouperSyncGroup gcGrouperSyncGroup : gcGrouperSyncGroups) {
+      if (gcGrouperSyncGroup.isProvisionable()) {
+        uuidsToProvision.add(gcGrouperSyncGroup.getGroupId());
+      }
+    }
+    
+    assertEquals(3, uuidsToProvision.size());
+    assertTrue(uuidsToProvision.contains(testGroup1.getId()));
+    assertTrue(uuidsToProvision.contains(testGroup3.getId()));
+    assertTrue(uuidsToProvision.contains(testGroup4.getId()));
+
+    // ##########  Remove, then add
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
+
+    GrouperProvisioningJob.runDaemonStandalone();
+    
+    //Then - Most the children of stem0 should have metadata coming from parent
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup1, "testTarget");
+    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup2, "testTarget");
+    assertNull(grouperProvisioningAttributeValue.getOwnerStemId());
+    assertTrue(grouperProvisioningAttributeValue.isDirectAssignment());
+    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup3, "testTarget");
+    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup4, "testTarget");
+    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    
+    groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+    assertEquals(0, GrouperUtil.length(groups));
+
+    provisioningSyncResult = new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+    
+    groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
+
+    assertEquals(0, groupIdToGroup.size());
+
+    groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
+
+    assertEquals(0, groupIdToGcGrouperSyncGroup.size());
+
+    // ##########  Put back
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
+
+    GrouperProvisioningJob.runDaemonStandalone();
+    
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
+        "edu.internet2.middleware.grouper.changeLog.consumer.PrintChangeLogConsumer");
+    
+    //something that will never fire
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
+        "0 0 5 * * 2000");
+
+//    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 //
-//    //see if attributeDef is there
-//    String provisioningDefName = grouperProvisioningUiRootStemName + ":" + GrouperProvisioningAttributeNames.PROVISIONING_DEF;
-//    AttributeDef provisioningDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-//        provisioningDefName, false, new QueryOptions().secondLevelCache(false));
-//    if (provisioningDef == null) {
-//      provisioningDef = grouperProvisioningStemName.addChildAttributeDef(GrouperProvisioningAttributeNames.PROVISIONING_DEF, AttributeDefType.type);
-//      //assign once for each target
-//      provisioningDef.setMultiAssignable(true);
-//      provisioningDef.setAssignToGroup(true);
-//      provisioningDef.setAssignToStem(true);
-//      provisioningDef.store();
-//    }
-//    
-//    //add a name
-//    AttributeDefName attribute = checkAttribute(grouperProvisioningStemName, provisioningDef, GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME, "has provisioning attributes", wasInCheckConfig);
-//    
-//    //lets add some rule attributes
-//    String provisioningValueAttrDefName = grouperProvisioningUiRootStemName + ":" + GrouperProvisioningAttributeNames.PROVISIONING_VALUE_DEF
-    
-    
+//    assertEquals(2, PrintChangeLogConsumer.eventsProcessed.size());
+//    assertTrue(GrouperUtil.toStringForLog(PrintChangeLogConsumer.eventsProcessed), 
+//        PrintChangeLogConsumer.eventsProcessed.contains(JOB_NAME + " add group " + group1.getName() + " and memberships"));
+//    assertTrue(GrouperUtil.toStringForLog(PrintChangeLogConsumer.eventsProcessed), 
+//        PrintChangeLogConsumer.eventsProcessed.contains(JOB_NAME + " add group " + group2.getName() + " and memberships"));
+
   }
   
+  /**
+   * 
+   */
+  private Hib3GrouperLoaderLog runJobs() {
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+    hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+    hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_" + JOB_NAME);
+    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+    ChangeLogHelper.processRecords(JOB_NAME, hib3GrouploaderLog, new PrintChangeLogConsumer());
+
+    return hib3GrouploaderLog;
+  }
+
   /**
      * 
      */
     public void testPersonSyncFull() {
-      
+
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "testgrouper_sync_subject_from");
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
@@ -441,28 +610,25 @@ public class ProvisioningToSyncTest extends GrouperTest {
   /**
    * @param ddlVersionBean
    * @param database
-   * @param tableName
+   * @param viewName
    */
-  public void createTableChangeLog(DdlVersionBean ddlVersionBean, Database database) {
-
-    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "testgrouper_sync_change_log");
-
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", 
-        Types.VARCHAR, "40", true, true);
-
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "person_id", 
-        Types.VARCHAR, "8", false, true);
+  public void createView(DdlVersionBean ddlVersionBean, Database database, String viewName) {
   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "hibernate_version_number", 
-        Types.INTEGER, "10", false, true);
-  
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
-        Types.TIMESTAMP, null, false, true);
-  
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
-        "testgrouper_sync_change_log", "testgrouper_sync_change_log");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_sync_change_log", "person_id", "person_id");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, viewName, 
+        "test membership view",
+        GrouperUtil.toSet("MEMBER_ID", "GROUP_ID", "LIST_NAME", "SUBJECT_ID", "SUBJECT_SOURCE", "GROUP_NAME"),
+        GrouperUtil.toSet("MEMBER_ID: uuid of the member",
+            "GROUP_ID: uuid of the group",
+            "LIST_NAME: name of the list, e.g. members",
+            "SUBJECT_ID: of the member of the group", 
+            "SUBJECT_SOURCE: of the member of the group", 
+            "GROUP_NAME: system name of the group"
+            ),
+            "select ms.member_id, gg.id as group_id, gf.name as list_name, gg.name as group_name, gm.subject_id, gm.subject_source " + 
+            "from grouper_memberships ms, grouper_group_set gs, grouper_groups gg, grouper_sync gsync, grouper_sync_group gsg, grouper_members gm, grouper_fields gf " + 
+            "where ms.owner_id = gs.member_id and ms.field_id= gs.member_field_id and gs.owner_group_id = gg.id and gm.id = ms.member_id and gf.id = gs.field_id " + 
+            "and gsync.id = gsg.grouper_sync_id and gsg.group_id = gg.id and gm.subject_source = 'jdbc' and ms.enabled = 'T' and gsg.provisionable = 'T'" + 
+            "");
     
   }
 

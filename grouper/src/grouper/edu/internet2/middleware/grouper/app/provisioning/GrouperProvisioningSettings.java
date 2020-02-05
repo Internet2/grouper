@@ -8,19 +8,20 @@ import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperProvisioningSettings {
   
   private static final Pattern grouperProvisioningTargetKey = Pattern.compile("^provisioning\\.target\\.(\\w+)\\.key$");
   
-  private static Map<String, GrouperProvisioningTarget> targets = new HashMap<String, GrouperProvisioningTarget>();
   
-  static {
-    populateTargets();
-  }
-  
-  private static void populateTargets() {
+  /** attribute def name cache */
+  private static ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> targetsCache = new ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>>(5);
+
+  private static Map<String, GrouperProvisioningTarget> populateTargets() {
     
+    Map<String, GrouperProvisioningTarget> result = new HashMap<String, GrouperProvisioningTarget>();
+
     Map<String, String> propertiesMap = GrouperConfig.retrieveConfig().propertiesMap(grouperProvisioningTargetKey);
     
     for (Entry<String, String> entry: propertiesMap.entrySet()) {
@@ -44,11 +45,11 @@ public class GrouperProvisioningSettings {
         target.setGroupAllowedToAssign(groupAllowedToAssign);
         target.setAllowAssignmentsOnlyOnOneStem(allowAssignmentsOnlyOnOneStem);
         target.setReadOnly(readOnly);
-        targets.put(name, target);
+        result.put(name, target);
       }
       
     }
-    
+    return result;
   }
   
   /**
@@ -73,7 +74,12 @@ public class GrouperProvisioningSettings {
    * @return targets
    */
   public static Map<String, GrouperProvisioningTarget> getTargets() {
-    return targets;
+    Map<String, GrouperProvisioningTarget> result = targetsCache.get(Boolean.TRUE);
+    if (result == null) {
+      result = populateTargets();
+      targetsCache.put(Boolean.TRUE, result);
+    }
+    return result;
   }
 
 }

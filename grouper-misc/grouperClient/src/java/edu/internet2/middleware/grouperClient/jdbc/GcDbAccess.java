@@ -623,6 +623,10 @@ public class GcDbAccess {
       this.bindVars(primaryKey);
       this.executeSql();
 
+      if (o instanceof GcDbVersionable) {
+        ((GcDbVersionable)o).dbVersionDelete();
+      }
+
       return;
     }
 
@@ -652,6 +656,9 @@ public class GcDbAccess {
       this.executeSql();
     }
 
+    if (o instanceof GcDbVersionable) {
+      ((GcDbVersionable)o).dbVersionDelete();
+    }
   }
 
 
@@ -675,6 +682,15 @@ public class GcDbAccess {
    * @param t is the object to store to the database.
    */
   public <T> void storeToDatabase(T t){
+
+    if (t instanceof GcDbVersionable) {
+      
+      // dont store
+      if (!((GcDbVersionable)t).dbVersionDifferent()) {
+        return;
+      }
+
+    }
 
     if (!GrouperClientUtils.isBlank(this.sql)){
       throw new RuntimeException("Cannot use both sql and set an object to store.");
@@ -734,6 +750,11 @@ public class GcDbAccess {
           this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey);
         }
       }
+      
+      if (t instanceof GcDbVersionable) {
+        ((GcDbVersionable)t).dbVersionReset();
+      }
+
     } catch (Exception e){
       throw new RuntimeException(e);
     }
@@ -905,11 +926,28 @@ public class GcDbAccess {
    * @param omitPrimaryKeyPopulation if you DON'T need primary keys populated into your objects, you can set this and save some query time since
    * we will just set the primary key population as "some_sequence.nextval" instead of selecting it manually before storing the object.
    */
-  public <T> void storeBatchToDatabase(final List<T> objects, final int batchSize, final boolean omitPrimaryKeyPopulation){
+  public <T> void storeBatchToDatabase(List<T> objects, final int batchSize, final boolean omitPrimaryKeyPopulation){
 
     if (objects == null || objects.size() == 0){
       return;
     }
+
+    // if we are checking db version, check that
+    if (GrouperClientUtils.length(objects) > 0) {
+      List<T> newList = new ArrayList<T>();
+      for (T t : objects) {
+        if (t instanceof GcDbVersionable) {
+          if (((GcDbVersionable)t).dbVersionDifferent()) {
+            newList.add(t);
+          }
+        } else {
+          newList.add(t);
+        }
+      }
+      objects = newList;
+    }
+    
+    final List<T> OBJECTS = objects;
 
     final List<T> objectsToStore = new ArrayList<T>();
     final List<T> objectsToReturn = new ArrayList<T>();
@@ -919,13 +957,13 @@ public class GcDbAccess {
       @Override
       public Boolean callback(GcDbAccess dbAccessForStorage) {
 
-        for (int i=0; i < objects.size(); i++){
-
+        for (int i=0; i < OBJECTS.size(); i++){
+          
           // Add it.
-          objectsToStore.add(objects.get(i));
+          objectsToStore.add(OBJECTS.get(i));
 
           // If we have one batch or are at the end, store it.
-          if (objectsToStore.size() >= batchSize || i == objects.size() -1){
+          if (objectsToStore.size() >= batchSize || i == OBJECTS.size() -1){
             dbAccessForStorage.storeBatchToDatabase(objectsToStore, omitPrimaryKeyPopulation);
             objectsToReturn.addAll(objectsToStore);
             objectsToStore.clear();
@@ -956,7 +994,7 @@ public class GcDbAccess {
    * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
    * @param objects is the list of objects to store to the database.
    */
-  public <T> void storeBatchToDatabase(List<T> objects){
+  private <T> void storeBatchToDatabase(List<T> objects){
     storeBatchToDatabase(objects, false);
   }
 
@@ -973,7 +1011,7 @@ public class GcDbAccess {
    * @param omitPrimaryKeyPopulation if you DON'T need primary keys populated into your objects, you can set this and save some query time since
    * we will just set the primary key population as "some_sequence.nextval" instead of selecting it manually before storing the object.
    */
-  public <T> void storeBatchToDatabase(List<T> objects, boolean omitPrimaryKeyPopulation){
+  private <T> void storeBatchToDatabase(List<T> objects, boolean omitPrimaryKeyPopulation){
     
     if ((GrouperClientUtils.length(objects) > 0) && GcPersistableHelper.defaultUpdate(objects.get(0).getClass())) {
       
@@ -1061,6 +1099,15 @@ public class GcDbAccess {
         
         Map<String, Object> columnNamesAndValues = new HashMap<String, Object>();
                 
+        Boolean isInsert = null;
+        if (object instanceof GcSqlAssignPrimaryKey) {
+          Object primaryKeyValue = primaryKey.get(object);
+          isInsert = primaryKeyValue == null;
+          if (isInsert) {
+            ((GcSqlAssignPrimaryKey)object).gcSqlAssignNewPrimaryKeyForInsert();
+          }
+        }
+        
         // Get column names and values
         for (Field field : allFields){
           if (fieldAndIncludeStatuses.get(field)){
@@ -1072,7 +1119,7 @@ public class GcDbAccess {
         List<Object> bindVarstoUse = new ArrayList<Object>();
 
         // Update if we are already saved.
-        if (isPreviouslyPersisted(object)){
+        if (isPreviouslyPersisted(object) || (isInsert != null && !isInsert)){
 
           // Create the sql.
           if (!updateSqlInitialized){
@@ -1204,6 +1251,12 @@ public class GcDbAccess {
         boundDataConversion.setFieldValue(objects.get(objectIndexInList), primaryKey, indexOfObjectAndPrimaryKeyToSet.get(objectIndexInList));
       }
 
+      for (T t : objects) {
+        if (t instanceof GcDbVersionable) {
+          ((GcDbVersionable)t).dbVersionReset();
+        }
+      }
+      
     } catch (Exception e){
       throw new RuntimeException(e);
     }
@@ -1612,6 +1665,12 @@ public class GcDbAccess {
     });
     this.addQueryToQueriesAndMillis(sqlToRecord, startTime);
 
+    for (T t : GrouperClientUtils.nonNull(list)) {
+      if (t instanceof GcDbVersionable) {
+        ((GcDbVersionable)t).dbVersionReset();
+      }
+    }
+    
     return list;
   }
 
