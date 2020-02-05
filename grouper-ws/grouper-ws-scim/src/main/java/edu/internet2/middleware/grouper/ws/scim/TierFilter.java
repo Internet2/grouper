@@ -127,6 +127,7 @@ public class TierFilter implements Filter {
           
           if (!isValid) {
             ((HttpServletResponse) response).setStatus(SC_UNAUTHORIZED);
+            return;
           } else {
             String userName = Authentication.retrieveUsername(authHeader);
             ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);

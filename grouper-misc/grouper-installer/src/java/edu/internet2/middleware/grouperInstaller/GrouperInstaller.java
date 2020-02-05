@@ -9444,9 +9444,6 @@ public class GrouperInstaller {
     File unzippedGrouperSourceCodeFile = unzip(grouperSourceCodeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
     File untarredGrouperSourceCodeDir = untar(unzippedGrouperSourceCodeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
     
-//    this.untarredMavenDir = new File("/Users/vsachdeva/git/i2-grouper-new/grouper/grouper-misc/grouper-installer/tarballs/apache-maven-3.6.3");
-//    this.untarredGrouperSourceCodeDir = new File("/Users/vsachdeva/git/i2-grouper-new/grouper/grouper-misc/grouper-installer/tarballs/grouper-GROUPER_RELEASE_2.5.0");
-    
     // go in grouper, grouper-ws, grouper-ui and grouper-ws-scim directory and run mvn dependency:copy-dependencies
     List<File> grouperProjects = new ArrayList<File>();
     
@@ -9455,7 +9452,7 @@ public class GrouperInstaller {
     
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper"));
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws"+File.separator+"grouper-ws"));
-    //grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws/grouper-ws-scim"));
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws/grouper-ws-scim"));
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui"));
     
     List<String> commands = new ArrayList<String>();
@@ -9503,6 +9500,8 @@ public class GrouperInstaller {
     servicesDir.mkdirs();
     File classesDir = new File(webInfDir+File.separator+"classes");
     classesDir.mkdirs();
+    File binDir = new File(webInfDir+File.separator+"bin");
+    binDir.mkdirs();
     
     // now copy all dependency jars into container/webapp/WEB-INF/lib
     try {
@@ -9535,6 +9534,25 @@ public class GrouperInstaller {
     GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"modules"), modulesDir);
     GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"services"), servicesDir);
     GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"conf"), webInfConfDir);
+    
+    // now copy grouper/bin contents into outputDir/webapp/WEB-INF/bin
+    GrouperInstallerUtils.copyDirectory(new File(grouperUntarredReleaseDir + File.separator + "grouper" + File.separator + "bin"), binDir);
+    
+    // make gsh.sh executable
+    commands = GrouperInstallerUtils.toList("chmod", "+x", binDir.getAbsolutePath() + File.separator + "gsh.sh");
+
+    System.out.println("Making sure gsh.sh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(
+        GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+        binDir, null, true);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
     
     // now download all the grouper project jars
     downloadGrouperJarsIntoLibDirectory(libDir);
@@ -11955,6 +11973,7 @@ public class GrouperInstaller {
     List<String> urlsToDownload = new ArrayList<String>();
     urlsToDownload.add(basePath+"grouper-ws/"+this.version+"/grouper-ws-"+this.version+".jar");
     urlsToDownload.add(basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar");
+    urlsToDownload.add(basePath+"grouper-ws-scim/"+this.version+"/grouper-ws-scim-"+this.version+".jar");
     
     for (String urlToDownload: urlsToDownload) {
       String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
