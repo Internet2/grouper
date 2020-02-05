@@ -170,6 +170,9 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", 
         Types.VARCHAR, "4000", false, false);
 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id_index", 
+        Types.BIGINT, "12", false, false);
+
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "provisionable", 
         Types.VARCHAR, "1", false, false);
   
@@ -195,10 +198,10 @@ public class TableSyncCreateTables {
         Types.TIMESTAMP, "10", false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_group_sync", 
-        Types.TIMESTAMP, "10", false, true);
+        Types.TIMESTAMP, "10", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_group_metadata_sync", 
-        Types.TIMESTAMP, "10", false, true);
+        Types.TIMESTAMP, "10", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_from_id2", 
         Types.VARCHAR, "4000", false, false);
@@ -222,6 +225,8 @@ public class TableSyncCreateTables {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_name", "if this is groups, then this is the system name of the group");
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_id_index", "if this is groups, then this is the id index of the group");
+
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "provisionable", "T if provisionable and F is not");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target", "T if exists in target/destination and F is not.  blank if not sure");
@@ -242,7 +247,7 @@ public class TableSyncCreateTables {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_group_metadata_sync", "when this groups name and description and metadata was synced");
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_from_id2", "for groups this is the group idIndex");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_from_id2", "other metadata on groups");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_from_id3", "other metadata on groups");
 
@@ -502,7 +507,7 @@ public class TableSyncCreateTables {
         Types.VARCHAR, "40", true, true);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "sync_engine", 
-        Types.VARCHAR, "50", false, true);
+        Types.VARCHAR, "50", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "provisioner_name", 
         Types.VARCHAR, "100", false, true);

@@ -24,8 +24,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -42,6 +42,31 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperProvisioningService {
+  
+  /**
+   * find all groups provisionable in target
+   * @param target
+   * @return the groups
+   */
+  public static Set<Group> findAllGroupsForTarget(final String target) {
+    Set<Group> groups = (Set<Group>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        Set<Group> groups = new GroupFinder().assignIdOfAttributeDefName(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId())
+          .addAttributeValuesOnAssignment(target)
+          .assignIdOfAttributeDefName2(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getId())
+          .addAttributeValuesOnAssignment2("true")
+          .findGroups();
+        return groups;
+      }
+      
+    });
+
+    return groups;
+    
+  }
   
   /**
    * retrieve type setting for a given grouper object (group/stem) and target name.

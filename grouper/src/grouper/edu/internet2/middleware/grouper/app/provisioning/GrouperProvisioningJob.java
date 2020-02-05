@@ -19,7 +19,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 @DisallowConcurrentExecution
@@ -28,10 +30,15 @@ public class GrouperProvisioningJob extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
-    GrouperSession.startRootSession();
-    
-    updateMetadataOnDirectStemsChildren();
-    updateMetadataOnIndirectGrouperObjects();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        updateMetadataOnDirectStemsChildren();
+        updateMetadataOnIndirectGrouperObjects();
+        return null;
+      }
+    });
     
     return null;
   }
@@ -41,22 +48,29 @@ public class GrouperProvisioningJob extends OtherJobBase {
    */
   public static void runDaemonStandalone() {
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+        
+        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+        String jobName = "OTHER_JOB_grouperProvisioningDaemon";
     
-    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-    String jobName = "OTHER_JOB_grouperProvisioningDaemon";
-
-    hib3GrouperLoaderLog.setJobName(jobName);
-    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-    hib3GrouperLoaderLog.store();
-    
-    OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    otherJobInput.setGrouperSession(grouperSession);
-    new GrouperProvisioningJob().run(otherJobInput);
+        hib3GrouperLoaderLog.setJobName(jobName);
+        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+        hib3GrouperLoaderLog.store();
+        
+        OtherJobInput otherJobInput = new OtherJobInput();
+        otherJobInput.setJobName(jobName);
+        otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        otherJobInput.setGrouperSession(grouperSession);
+        new GrouperProvisioningJob().run(otherJobInput);
+        return null;
+      }
+    });
+      
   }
   
   
