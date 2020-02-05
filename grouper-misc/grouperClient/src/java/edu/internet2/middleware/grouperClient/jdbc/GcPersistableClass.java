@@ -32,4 +32,10 @@ public @interface GcPersistableClass {
 	 */
 	boolean hasNoPrimaryKey() default false;
 
+  /**
+   * If should try to update, and if error then insert
+   * @return true if so.
+   */
+  boolean defaultUpdate() default false;
+
 }

@@ -40,16 +40,16 @@
 <!-- $Id: TestgrouperLoader.hbm.xml,v 1.1 2008-11-08 08:15:34 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.app.tableSync" default-lazy="false">
-  <class name="TestgrouperSyncSubjectTo" table="testgrouper_sync_subject_to">
+  <class name="TestgrouperSyncChangeLog" table="testgrouper_sync_change_log">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
 
     <!-- id -->
-    <id name="personId" unsaved-value="none"
-        column="person_id"
+    <id name="uuid" unsaved-value="none"
+        column="uuid"
         type="string" 
-        length="128"
+        length="40"
     >
       <generator class="assigned" />
     </id>
@@ -60,19 +60,10 @@
               not-null="true"
       />
 
-    <property name="netId" type="string" column="net_id" />
+    <property name="personId" type="string" column="person_id" />
 
-    <property name="someDate" type="date" column="some_date" />
+    <property name="lastUpdated" type="timestamp" column="last_updated" />
 
-    <property name="someFloat" type="double" column="some_float" />
-
-    <property name="someInt" type="int" column="some_int" />
-
-    <property name="someTimestamp" type="timestamp" column="some_timestamp" />
-    
-    <property name="changeFlag" type="int" column="change_flag" />
-
-    <property name="theGroup" type="string" column="the_group" />
 
   </class>
 </hibernate-mapping>

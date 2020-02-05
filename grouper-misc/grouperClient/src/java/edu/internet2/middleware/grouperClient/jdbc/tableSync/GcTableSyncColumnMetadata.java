@@ -6,12 +6,61 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.HashCodeBuilder;
 
 
 /**
  *
  */
 public class GcTableSyncColumnMetadata {
+
+  /**
+   * 
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder()
+        .append(this.columnName)
+        .append(this.columnType)
+        .append(this.precision)
+        .append(this.scale).
+        append(this.columnDisplaySize).toHashCode();
+  }
+
+  /**
+   * 
+   */
+  @Override
+  public String toString() {
+    return this.columnName;
+  }
+
+
+  /**
+   * 
+   */
+  @Override
+  public boolean equals(Object obj) {
+    
+    if (obj == null || (!(obj instanceof GcTableSyncColumnMetadata))) {
+      return false;
+    }
+    
+    GcTableSyncColumnMetadata other = (GcTableSyncColumnMetadata)obj;
+    
+    return new EqualsBuilder()
+        .append(this.columnName, other.columnName)
+        .append(this.columnType, other.columnType)
+        .append(this.precision, other.precision)
+        .append(this.scale, other.scale)
+        .append(this.columnDisplaySize, other.columnDisplaySize).isEquals();
+
+  }
+
 
   /**
    * 
@@ -24,9 +73,31 @@ public class GcTableSyncColumnMetadata {
     NUMERIC {
 
       @Override
-      public Object readDataFromResultSet(int columnOneIndexed, ResultSet resultSet) throws SQLException {
-        return resultSet.getBigDecimal(columnOneIndexed);
+      public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
+        return resultSet.getBigDecimal(gcTableSyncColumnMetadata.getColumnName());
       }
+      
+      /**
+       * convert to type
+       */
+      @Override
+      public Object convertToType(Object input) {
+        
+        if (input == null) {
+          return null;
+        }
+        
+        if (input instanceof String) {
+          return GrouperClientUtils.longValue(input);
+        }
+        
+        if (input instanceof Timestamp) {
+          return ((Timestamp)input).getTime();
+        }
+        
+        return GrouperClientUtils.longValue(input);
+      }
+
     },
     
     /**
@@ -35,8 +106,33 @@ public class GcTableSyncColumnMetadata {
     STRING {
 
       @Override
-      public Object readDataFromResultSet(int columnOneIndexed, ResultSet resultSet) throws SQLException {
-        return resultSet.getString(columnOneIndexed);
+      public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
+        return resultSet.getString(gcTableSyncColumnMetadata.getColumnName());
+      }
+
+      /**
+       * convert to type
+       */
+      @Override
+      public Object convertToType(Object input) {
+        
+        if (input == null) {
+          return null;
+        }
+        
+        if (input instanceof String) {
+          return (String) input;
+        }
+        
+        if (input instanceof Number) {
+          return input.toString();
+        }
+        
+        if (input instanceof Timestamp) {
+          return Long.toString(((Timestamp)input).getTime());
+        }
+        
+        return input.toString();
       }
     },
     
@@ -46,9 +142,36 @@ public class GcTableSyncColumnMetadata {
     TIMESTAMP {
 
       @Override
-      public Object readDataFromResultSet(int columnOneIndexed, ResultSet resultSet) throws SQLException {
-        return resultSet.getTimestamp(columnOneIndexed);
+      public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
+        return resultSet.getTimestamp(gcTableSyncColumnMetadata.getColumnName());
       }
+      
+      /**
+       * convert to type
+       */
+      @Override
+      public Object convertToType(Object input) {
+        
+        if (input == null) {
+          return null;
+        }
+        
+        if (input instanceof String) {
+          return new Timestamp(GrouperClientUtils.longValue(input));
+        }
+        
+        if (input instanceof Timestamp) {
+          return (Timestamp)input;
+        }
+        
+        if (input instanceof Number) {
+          return new Timestamp(GrouperClientUtils.longValue(input));
+        }
+        
+        return new Timestamp(GrouperClientUtils.longValue(input));
+      }
+
+
     };
 
     /**
@@ -58,7 +181,14 @@ public class GcTableSyncColumnMetadata {
      * @return the object
      * @throws SQLException
      */
-    public abstract Object readDataFromResultSet(int columnOneIndexed, ResultSet resultSet) throws SQLException;
+    public abstract Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException;
+    
+    /**
+     * convert an object to another type
+     * @param input
+     * @return the object
+     */
+    public abstract Object convertToType(Object input);
     
   }
   
@@ -86,8 +216,75 @@ public class GcTableSyncColumnMetadata {
    * type of column
    */
   private ColumnType columnType;
+
+  /**
+   * precision of number in database
+   */
+  private int precision;
   
   
+  /**
+   * precision of number in database
+   * @return the precision
+   */
+  public int getPrecision() {
+    return this.precision;
+  }
+
+  
+  /**
+   * precision of number in database
+   * @param precision1 the precision to set
+   */
+  public void setPrecision(int precision1) {
+    this.precision = precision1;
+  }
+
+  /**
+   * scale of number in database
+   */
+  private int scale;
+
+  
+  /**
+   * scale of number in database
+   * @return the scale
+   */
+  public int getScale() {
+    return this.scale;
+  }
+  
+  /**
+   * scale of number in database
+   * @param scale1 the scale to set
+   */
+  public void setScale(int scale1) {
+    this.scale = scale1;
+  }
+
+
+  /**
+   * length of string cols
+   */
+  private int columnDisplaySize;
+  
+  /**
+   * length of string cols
+   * @return the stringLength
+   */
+  public int getColumnDisplaySize() {
+    return this.columnDisplaySize;
+  }
+
+  
+  /**
+   * length of string cols
+   * @param stringLength1 the stringLength to set
+   */
+  public void setColumnDisplaySize(int stringLength1) {
+    this.columnDisplaySize = stringLength1;
+  }
+
   /**
    * type of column
    * @return the columnType
@@ -136,64 +333,5 @@ public class GcTableSyncColumnMetadata {
     this.columnName = columnName1;
   }
 
-  /**
-   * if is primary key
-   */
-  private boolean primaryKey;
-  
-  /**
-   * if is primary key
-   * @return the primaryKey
-   */
-  public boolean isPrimaryKey() {
-    return this.primaryKey;
-  }
-  
-  /**
-   * @param primaryKey1 the primaryKey to set
-   */
-  public void setPrimaryKey(boolean primaryKey1) {
-    this.primaryKey = primaryKey1;
-  }
-
-  /**
-   * grouping column
-   */
-  private boolean groupingColumn;
-  
-  /**
-   * grouping column
-   * @return the groupingColumn
-   */
-  public boolean isGroupingColumn() {
-    return this.groupingColumn;
-  }
-  
-  /**
-   * @param groupingColumn1 the groupingColumn to set
-   */
-  public void setGroupingColumn(boolean groupingColumn1) {
-    this.groupingColumn = groupingColumn1;
-  }
-
-  /**
-   * realTimeLastUpdatedColumn column
-   */
-  private boolean realTimeLastUpdatedColumn;
-  
-  /**
-   * @param b
-   */
-  public void setRealTimeLastUpdatedColumn(boolean b) {
-    this.realTimeLastUpdatedColumn = b;
-  }
-
-  /**
-   * is it real time last updated column
-   * @return if real time last updated
-   */
-  public boolean isRealTimeLastUpdatedColumn() {
-    return this.realTimeLastUpdatedColumn;
-  }
   
 }
