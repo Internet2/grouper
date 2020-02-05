@@ -11,16 +11,16 @@
   </parent>
     
   <artifactId>grouper-ws-scim</artifactId>
-  <packaging>war</packaging>
-  <name>grouper-ws-scim Maven Webapp</name>
+  <packaging>jar</packaging>
+  <name>Grouper WS SCIM</name>
   
  <!--  <properties>
   	<webXmlPath>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXmlPath>
   </properties> -->
   
   <dependencies>
-  
-  
+
+
   <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>grouper</artifactId>
@@ -191,109 +191,6 @@
 	          <target>1.8</target>
 	        </configuration>
       	</plugin>
-      	<!-- <plugin>
-      		<groupId>org.apache.maven.plugins</groupId>
-      		<artifactId>maven-war-plugin</artifactId>
-      		<configuration>
-                <webXml>${webXmlPath}</webXml>
-            </configuration>
-      	</plugin> -->
-      	
-      	
-      <plugin>
-		    <artifactId>maven-resources-plugin</artifactId>
-		    <executions>
-		      <execution>
-		        <id>copy-appCtx</id>
-		        <phase>generate-resources</phase>
-		        <goals>
-		          <goal>copy-resources</goal>
-		        </goals>
-		        <configuration>
-		          <outputDirectory>${project.build.directory}/classes</outputDirectory>
-		          <overwrite>true</overwrite>
-		          <resources>
-		            <resource>
-		              <directory>../../grouper/conf</directory>
-		              <includes>
-		                <include>*.*</include>
-		              </includes>
-		            </resource>
-		          </resources>
-		        </configuration>
-		      </execution>
-		    </executions>
-      	</plugin>
-      	
-      	<!-- <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.1</version>
-        <executions>
-          <execution>
-            <id>copy-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy-dependencies</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/../src/main/webapp/WEB-INF/lib</outputDirectory>
-              <overWriteReleases>false</overWriteReleases>
-              <overWriteSnapshots>false</overWriteSnapshots>
-              <overWriteIfNewer>true</overWriteIfNewer>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin> -->
-				
-				
-				<!-- <plugin>
-				    <groupId>org.apache.maven.plugins</groupId>
-				    <artifactId>maven-dependency-plugin</artifactId>
-				    <configuration>
-				        <outputDirectory>
-				            ${project.build.directory}
-				        </outputDirectory>
-				    </configuration>
-				</plugin> -->
-				
-      	
     </plugins>
   </build>
-  
-  <!-- <profiles>
-  	<profile>
-  		<id>demo-server</id>
-  		<properties>
-  			<webXmlPath>${project.basedir}/src/main/webapp/WEB-INF/ext/web.xml</webXmlPath>
-  		</properties>
-  		<build>  
-		  <resources>  
-		  	<resource>  
-		    	<directory>${basedir}/src/main/resources_demo</directory>  
-		    </resource>  
-		   	<resource>  
-		    	<directory>${basedir}/src/main/resources</directory>  
-		   	</resource>  
-		  </resources>  
-		</build>  
-  	</profile>
-  	<profile>
-  		<id>local</id>
-  		<properties>
-  			<webXmlPath>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXmlPath>
-  		</properties>
-  		<build>  
-		  <resources>  
-		  	<resource>  
-		    	<directory>${basedir}/src/main/resources_local</directory>  
-		    </resource>  
-		   	<resource>  
-		    	<directory>${basedir}/src/main/resources</directory>  
-		   	</resource>  
-		  </resources>  
-		</build>  
-  	</profile>
-  </profiles> -->
- 
 </project>
