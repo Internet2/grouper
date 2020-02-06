@@ -9484,7 +9484,7 @@ public class GrouperInstaller {
     
     File webAppDir = new File(containerDirString + "webapp");
     webAppDir.mkdirs();
-    
+        
     // let's start with grouper-ui/webapp directory. We will copy everything else later
     GrouperInstallerUtils.copyDirectory(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui" + File.separator+"webapp"), webAppDir);
     
@@ -9569,6 +9569,9 @@ public class GrouperInstaller {
       // TODO: handle it appropriately
       throw new RuntimeException("Could not copy untarred tomee into container/tomee", e);
     }
+    
+    // point tomee to downloaded webpp
+    configureTomeeGrouperUberWebapp(containerTomeeDir, webAppDir);
     
   }
   
@@ -12446,6 +12449,75 @@ public class GrouperInstaller {
         }
         GrouperInstallerUtils.copyFile(fileToCopyFrom, destFile, false);
       }
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  private void configureTomeeGrouperUberWebapp(File tommeDir, File webAppDir) {
+    
+    //GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh");
+    Set<String> shFileNames = new HashSet<String>();
+
+    File binDir = new File(tommeDir.getAbsolutePath() + File.separator + "bin");
+
+    //get all sh files, doing wildcards doesnt work
+    for (File file : binDir.listFiles()) {
+      String fileName = GrouperInstallerUtils.defaultString(file.getName());
+      if (file.isFile() && fileName.endsWith(".sh")) {
+        shFileNames.add(fileName);
+      }
+    }
+
+    for (String command : shFileNames) {
+      List<String> commands = new ArrayList<String>();
+      
+      commands.add("chmod");
+      commands.add("+x");
+      //have to do * since all the  sh files need chmod
+      commands.add(tommeDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
+
+      System.out.println("Making tomee file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(
+          GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+          new File(tommeDir.getAbsolutePath() + File.separator + "bin"), null, true);
+      
+      if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+        System.out.println("stderr: " + commandResult.getErrorText());
+      }
+      if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+        System.out.println("stdout: " + commandResult.getOutputText());
+      }
+    }
+    
+    Set<File> shFiles = new LinkedHashSet<File>();
+    for (String shFileName : shFileNames) {
+      shFiles.add(new File(shFileName));
+    }
+    
+    // dos2unix(shFiles, "tomee sh files", "OnTomeeFiles");
+    
+    File serverXmlFile = new File(tommeDir.getAbsolutePath()
+        + File.separator + "conf" + File.separator + "server.xml");
+    
+    String tomeeGrouperPath = "grouper";
+    
+    String shouldBeDocBase = webAppDir.getAbsolutePath();
+
+    System.out.println("Editing tomee config file: " + serverXmlFile.getAbsolutePath());
+    
+    addToXmlFile(serverXmlFile, ">", new String[]{"<Host "}, 
+        "<Context docBase=\"" + shouldBeDocBase + "\" path=\"/" + tomeeGrouperPath + "\" reloadable=\"false\"/>", "tomee context for grouper webapp");
+    
+    String currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
+        "Server/Service/Engine/Host/Context[@path='/" + tomeeGrouperPath + "']", "docBase");
+    
+    if (!GrouperInstallerUtils.equals(currentDocBase, shouldBeDocBase)) {
+      System.out.println("Tried to edit server.xml but it didnt work, should have context of: '" 
+          + shouldBeDocBase + "', but was: '" + currentDocBase + "'");
     }
     
   }
