@@ -131,6 +131,19 @@ public class GcPersistableHelper {
 		return oracleStandardNameFromJava(clazz.getName());
 	}
 
+  /**
+   * If the table is like a status table and default to update
+   * @param clazz is the field to check.
+   * @return true if so.
+   */
+  public static boolean defaultUpdate(Class<? extends Object> clazz){
+    GcPersistableClass persistableClass = GcPersistableHelper.findPersistableClassAnnotation(clazz);
+    if (persistableClass != null){
+      return persistableClass.defaultUpdate();
+    }
+    return false;
+  }
+
 
 	/**
 	 * Whether the class has at least one Persistable(Field or Class) annnotation on the class itself or on any field.

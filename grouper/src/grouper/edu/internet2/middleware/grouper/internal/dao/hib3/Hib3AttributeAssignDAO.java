@@ -1444,17 +1444,20 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       }
 
       List<Object> theValuesList = new ArrayList<Object>(theValues);
-      sqlWhereClause.append(" in ( ");
-      for (int i=0; i<GrouperUtil.length(theValuesList); i++) {
-        if (i!=0) {
-          sqlWhereClause.append(", ");
+      if (GrouperUtil.length(theValues) == 1 ) {
+        sqlWhereClause.append(" = :").append(bindVariableName).append("0 ");
+      } else {
+        sqlWhereClause.append(" in ( ");
+        for (int i=0; i<GrouperUtil.length(theValuesList); i++) {
+          if (i!=0) {
+            sqlWhereClause.append(", ");
+          }
+          sqlWhereClause.append(" :" + bindVariableName);
+          sqlWhereClause.append(i);
+          
         }
-        sqlWhereClause.append(" :" + bindVariableName);
-        sqlWhereClause.append(i);
-        
-      }
-      sqlWhereClause.append(" ) ");
-      
+        sqlWhereClause.append(" ) ");
+      }      
       for (int i=0; i<GrouperUtil.length(theValuesList); i++) {
         Object theValueLocal = theValuesList.get(i);
         String alias = bindVariableName + i;

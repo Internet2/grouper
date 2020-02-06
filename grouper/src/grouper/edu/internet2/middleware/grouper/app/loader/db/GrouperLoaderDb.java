@@ -37,10 +37,10 @@ import com.mchange.v2.c3p0.WrapperConnectionPoolDataSource;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.morphString.Morph;
 
 
 /**
@@ -123,13 +123,62 @@ public class GrouperLoaderDb {
   }
   
   /**
+   * retrieve the config name for a url and user
+   * @param url
+   * @param user
+   * @return the config name from grouper-loader.properties or null if not there
+   */
+  static String retrieveConfigNameClient(String url, String user) {
+    
+    GrouperClientConfig grouperClientConfig = GrouperClientConfig.retrieveConfig();
+
+    Pattern pattern = Pattern.compile("^grouperClient.jdbc.([^.]+).user$");
+    
+    for (String propertyName : grouperClientConfig.propertyNames()) {
+      Matcher matcher = pattern.matcher(propertyName);
+      if (!matcher.matches()) {
+        continue;
+      }
+      String configName = matcher.group(1);
+      String configUser = grouperClientConfig.propertyValueString(propertyName);
+      String configUrl = grouperClientConfig.propertyValueString("grouperClient.jdbc." + configName + ".url");
+      if (StringUtils.equals(url, configUrl) && StringUtils.equals(user, configUser)) {
+        return configName;
+      }
+    }
+    return null;
+  }
+  
+  /**
    * get a connection from the db
+   * NOTE: this method is used by grouperClient, if you change it here, change it there
    * @return the connection
    */
   public Connection connection() {
 
     try {
 
+      // this things arent set, then set them and DONT use grouper hibernate as default (unless connection name is grouper)
+      if (StringUtils.isBlank(this.url) && !StringUtils.isBlank(this.connectionName)) {
+        
+        this.url = retrievePoolConfigOrDefaultString(null, this.connectionName, "url", StringUtils.equals(this.connectionName, "grouper"));
+        this.driver = retrievePoolConfigOrDefaultString(null, this.connectionName, "driver", StringUtils.equals(this.connectionName, "grouper"));
+        this.user = retrievePoolConfigOrDefaultString(null, this.connectionName, "user", StringUtils.equals(this.connectionName, "grouper"));
+        this.pass = retrievePoolConfigOrDefaultString(null, this.connectionName, "pass", StringUtils.equals(this.connectionName, "grouper"));
+            
+        this.pass = Morph.decryptIfFile(this.pass);
+        
+      }
+      
+      if (StringUtils.isBlank(this.url)) {
+        throw new RuntimeException("Cant find database url in config: " + this);
+      }
+      
+      if (StringUtils.isBlank(this.driver)) {
+        this.driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(this.url, this.driver);
+      }
+      Class.forName(this.driver);
+      
       if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouperLoader.db.connections.pool", true)) {
         
         //not pooling
@@ -154,6 +203,16 @@ public class GrouperLoaderDb {
       //find name in grouper-loader.properties
       String configName = retrieveConfigName(this.url, this.user);
       
+      boolean isClient = false;
+      
+      if (StringUtils.isBlank(configName)) {
+        configName = retrieveConfigNameClient(this.url, this.user);
+        if (!StringUtils.isBlank(configName)) {
+          isClient = true;
+        }
+        
+      }
+      
       ComboPooledDataSource comboPooledDataSource = StringUtils.isBlank(configName) ? new ComboPooledDataSource() : new ComboPooledDataSource(configName);
       
       comboPooledDataSource.setDriverClass(this.driver); //loads the jdbc driver
@@ -161,105 +220,71 @@ public class GrouperLoaderDb {
       comboPooledDataSource.setUser(this.user);
       comboPooledDataSource.setPassword(this.pass);
       
-      Integer minSize = null;
-      Integer maxSize = null;
-      Integer timeout = null;
-      Integer maxStatements = null;
-      Integer idleTestPeriod = null;
-      Integer acquireIncrement = null;
-      Boolean validate = null;
-      Boolean debugUnreturnedConnectionStackTraces = null;
-      Integer unreturnedConnectionTimeout = null;
+      {
+        Integer minSize = retrievePoolConfigOrDefaultInt(isClient, configName, "min_size");
+        if (minSize != null) {
+          comboPooledDataSource.setMinPoolSize(minSize);
+        }
+      }
       
-      //lets see whats in the loader config
-      //  ##optional pooling params, these will default to the grouper.hibernate(.base).properties pooling settings
-      //  #db.warehouse.c3p0.max_size = 100
-      //  #db.warehouse.c3p0.min_size = 0
-      //  ##seconds
-      //  #db.warehouse.c3p0.timeout = 100
-      //  #db.warehouse.c3p0.max_statements = 0
-      //  #db.warehouse.c3p0.idle_test_period = 100
-      //  #db.warehouse.c3p0.acquire_increment = 1
-      //  #db.warehouse.c3p0.validate = false
-      if (!StringUtils.isBlank(configName)) {
-        debugUnreturnedConnectionStackTraces = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("db." + configName + ".c3p0.debugUnreturnedConnectionStackTraces");
-        unreturnedConnectionTimeout = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.unreturnedConnectionTimeout");
-        minSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.min_size");
-        maxSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.max_size");
-        timeout = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.timeout");
-        maxStatements = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.max_statements");
-        idleTestPeriod = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.idle_test_period");
-        acquireIncrement = GrouperLoaderConfig.retrieveConfig().propertyValueInt("db." + configName + ".c3p0.acquire_increment");
-        validate = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("db." + configName + ".c3p0.validate");
+      {
+        Integer maxSize = retrievePoolConfigOrDefaultInt(isClient, configName, "max_size");
+        if (maxSize != null) {
+          comboPooledDataSource.setMaxPoolSize(maxSize);
+        }
+      }
+      
+      {
+        Integer timeout = retrievePoolConfigOrDefaultInt(isClient, configName, "timeout");
+        if (timeout != null) {
+          comboPooledDataSource.setMaxIdleTime(timeout);
+        }
+        
       }
 
-      //if null, then default to grouper.hibernate.properties
-      //  # Use c3p0 connection pooling (since dbcp not supported in hibernate anymore)
-      //  # http://www.hibernate.org/214.html, http://www.hibernate.org/hib_docs/reference/en/html/session-configuration.html
-      //  hibernate.c3p0.max_size = 100
-      //  hibernate.c3p0.min_size = 0
-      //  #seconds
-      //  hibernate.c3p0.timeout = 100
-      //  hibernate.c3p0.max_statements = 0
-      //  hibernate.c3p0.idle_test_period = 100
-      //  hibernate.c3p0.acquire_increment = 1
-      //  hibernate.c3p0.validate = false
-      if (debugUnreturnedConnectionStackTraces == null) {
-        debugUnreturnedConnectionStackTraces = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("hibernate.c3p0.debugUnreturnedConnectionStackTraces");
-      }
-      if (unreturnedConnectionTimeout == null) {
-        unreturnedConnectionTimeout = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.unreturnedConnectionTimeout");
-      }
-      if (minSize == null) {
-        minSize = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.min_size");
-      }
-      if (maxSize == null) {
-        maxSize = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.max_size");
-      }
-      if (timeout == null) {
-        timeout = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.timeout");
-      }
-      if (maxStatements == null) {
-        maxStatements = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.max_statements");
-      }
-      if (idleTestPeriod == null) {
-        idleTestPeriod = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.idle_test_period");
-      }
-      if (acquireIncrement == null) {
-        acquireIncrement = GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.c3p0.acquire_increment");
-      }
-      if (validate == null) {
-        validate = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("hibernate.c3p0.validate");
+      {
+        Integer maxStatements = retrievePoolConfigOrDefaultInt(isClient, configName, "max_statements");
+        if (maxStatements != null) {
+          comboPooledDataSource.setMaxStatements(maxStatements);
+        }
+
       }
 
-      //if set, set them, otherwise defaults
-      if (debugUnreturnedConnectionStackTraces != null) {
-        comboPooledDataSource.setDebugUnreturnedConnectionStackTraces(debugUnreturnedConnectionStackTraces);
+      {
+        Integer idleTestPeriod = retrievePoolConfigOrDefaultInt(isClient, configName, "idle_test_period");
+        if (idleTestPeriod != null) {
+          comboPooledDataSource.setIdleConnectionTestPeriod(idleTestPeriod);
+        }
       }
-      if (unreturnedConnectionTimeout != null) {
-        comboPooledDataSource.setUnreturnedConnectionTimeout(unreturnedConnectionTimeout);
+
+      {
+        Integer acquireIncrement = retrievePoolConfigOrDefaultInt(isClient, configName, "acquire_increment");
+        if (acquireIncrement != null) {
+          comboPooledDataSource.setAcquireIncrement(acquireIncrement);
+        }
       }
-      if (minSize != null) {
-        comboPooledDataSource.setMinPoolSize(minSize);
+      
+      {
+        Boolean validate = retrievePoolConfigOrDefaultBoolean(isClient, configName, "validate");
+        if (validate != null) {
+          //i assume this is the setting... hmmm
+          comboPooledDataSource.setTestConnectionOnCheckout(validate);
+        }
       }
-      if (maxSize != null) {
-        comboPooledDataSource.setMaxPoolSize(maxSize);
+      
+      {
+        Boolean debugUnreturnedConnectionStackTraces = retrievePoolConfigOrDefaultBoolean(isClient, configName, "debugUnreturnedConnectionStackTraces");
+        //if set, set them, otherwise defaults
+        if (debugUnreturnedConnectionStackTraces != null) {
+          comboPooledDataSource.setDebugUnreturnedConnectionStackTraces(debugUnreturnedConnectionStackTraces);
+        }
       }
-      if (timeout != null) {
-        comboPooledDataSource.setMaxIdleTime(timeout);
-      }
-      if (maxStatements != null) {
-        comboPooledDataSource.setMaxStatements(maxStatements);
-      }
-      if (idleTestPeriod != null) {
-        comboPooledDataSource.setIdleConnectionTestPeriod(idleTestPeriod);
-      }
-      if (acquireIncrement != null) {
-        comboPooledDataSource.setAcquireIncrement(acquireIncrement);
-      }
-      if (validate != null) {
-        //i assume this is the setting... hmmm
-        comboPooledDataSource.setTestConnectionOnCheckout(validate);
+      
+      {
+        Integer unreturnedConnectionTimeout = retrievePoolConfigOrDefaultInt(isClient, configName, "unreturnedConnectionTimeout");
+        if (unreturnedConnectionTimeout != null) {
+          comboPooledDataSource.setUnreturnedConnectionTimeout(unreturnedConnectionTimeout);
+        }
       }
 
       //is it there now????
@@ -272,6 +297,108 @@ public class GrouperLoaderDb {
     }
     
   }
+
+  /**
+   * look in config file for config entry if exists, if not then get the default
+   * @param isClient
+   * @param configName
+   * @param configItemName
+   * return the number or null
+   */
+  private static Integer retrievePoolConfigOrDefaultInt(boolean isClient, String configName, String configItemName) {
+    String configValueString = retrievePoolConfigOrDefaultString(isClient, configName, configItemName);
+    return GrouperUtil.intObjectValue(configValueString, true);
+  }
+
+  /**
+   * look in config file for config entry if exists, if not then get the default
+   * @param isClient
+   * @param configName
+   * @param configItemName
+   * return the boolean or null
+   */
+  private static Boolean retrievePoolConfigOrDefaultBoolean(boolean isClient, String configName, String configItemName) {
+    String configValueString = retrievePoolConfigOrDefaultString(isClient, configName, configItemName);
+    return GrouperUtil.booleanObjectValue(configValueString);
+  }
+
+  /**
+   * look in config file for config entry if exists, if not then get the default, this is for c3po stuff
+   * @param isClient
+   * @param configName
+   * @param configItemName
+   * @return the config value
+   */
+  private static String retrievePoolConfigOrDefaultString(boolean isClient, String configName, String configItemName) {
+    return retrievePoolConfigOrDefaultString(isClient, configName, configItemName, true);
+  }
+
+  
+  /**
+   * look in config file for config entry if exists, if not then get the default
+   * @param isClient
+   * @param configName
+   * @param configItemName
+   * @param useGrouperHibernateAsDefault
+   * @return the config value
+   */
+  private static String retrievePoolConfigOrDefaultString(Boolean isClient, String configName, String configItemName, boolean useGrouperHibernateAsDefault) {
+    if (StringUtils.isBlank(configItemName)) {
+      throw new RuntimeException("configItemName is null!");
+    }
+    String configValue = null;
+    if (StringUtils.isNotBlank(configName)) {
+      if (isClient == null || isClient) {
+        configValue = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + configName + ".c3p0." + configItemName);
+      } 
+      // if we are looking in both and havent found it yet, or if we are specifically not looking in client
+      if ((isClient == null && StringUtils.isBlank(configValue)) || (isClient != null && !isClient)) {
+      
+        //lets see whats in the loader config
+        //  ##optional pooling params, these will default to the grouper.hibernate(.base).properties pooling settings
+        //  #db.warehouse.c3p0.max_size = 100
+        //  #db.warehouse.c3p0.min_size = 0
+        //  ##seconds
+        //  #db.warehouse.c3p0.timeout = 100
+        //  #db.warehouse.c3p0.max_statements = 0
+        //  #db.warehouse.c3p0.idle_test_period = 100
+        //  #db.warehouse.c3p0.acquire_increment = 1
+        //  #db.warehouse.c3p0.validate = false
+
+        configValue = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + configName + ".c3p0." + configItemName);
+      }
+    }
+
+    // if we are looking in grouper hibernate as a default if not found and not found
+    if (useGrouperHibernateAsDefault && configValue == null) {
+      //if null, then default to grouper.hibernate.properties
+      //  # Use c3p0 connection pooling (since dbcp not supported in hibernate anymore)
+      //  # http://www.hibernate.org/214.html, http://www.hibernate.org/hib_docs/reference/en/html/session-configuration.html
+      //  hibernate.c3p0.max_size = 100
+      //  hibernate.c3p0.min_size = 0
+      //  #seconds
+      //  hibernate.c3p0.timeout = 100
+      //  hibernate.c3p0.max_statements = 0
+      //  hibernate.c3p0.idle_test_period = 100
+      //  hibernate.c3p0.acquire_increment = 1
+      //  hibernate.c3p0.validate = false
+
+      // translate some
+      String grouperConfigItemName = "hibernate.c3p0." + configItemName;
+      if (StringUtils.equals(configItemName, "url")) {
+        grouperConfigItemName = "hibernate.connection.url";
+      } else if (StringUtils.equals(configItemName, "user")) {
+        grouperConfigItemName = "hibernate.connection.username";
+      } else if (StringUtils.equals(configItemName, "pass")) {
+        grouperConfigItemName = "hibernate.connection.password";
+      } else if (StringUtils.equals(configItemName, "driver")) {
+        grouperConfigItemName = "hibernate.connection.driver_class";
+      }
+      configValue = GrouperHibernateConfig.retrieveConfig().propertyValueString(grouperConfigItemName);
+    }
+    
+    return configValue;
+  }
   
   /**
    * 
@@ -279,7 +406,8 @@ public class GrouperLoaderDb {
    */
   @Override
   public String toString() { 
-    return "DB: user: " + this.user + ", url: " + this.url + ", driver: " + this.driver;
+    return "DB: user: " + this.user + ", url: " + this.url + ", driver: " + this.driver + 
+        (StringUtils.isNotBlank(this.connectionName) ? (", connectionName: " + this.connectionName) : "");
   }
   
   /**
@@ -359,9 +487,25 @@ public class GrouperLoaderDb {
   public GrouperLoaderDb() {
     //empty  
   }
+
+  /**
+   * connection name in grouper loader config or grouper client config
+   */
+  private String connectionName;
   
   /**
    * construct with all fields
+   * NOTE: this constructor is used by grouperClient, if you change it here, change it there
+   * @param connectionName1 connection name in grouper loader or grouper client config
+   */
+  public GrouperLoaderDb(String connectionName1) {
+    super();
+    this.connectionName = connectionName1;
+  }
+
+  /**
+   * construct with all fields
+   * NOTE: this constructor is used by grouperClient, if you change it here, change it there
    * @param user1
    * @param pass1
    * @param url1
@@ -372,7 +516,7 @@ public class GrouperLoaderDb {
     this.user = user1;
     this.pass = pass1;
     this.url = url1;
-    this.driver = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(url1, driver1);
+    this.driver = driver1;
   }
 
   

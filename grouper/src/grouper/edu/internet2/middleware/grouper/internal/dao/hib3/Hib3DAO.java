@@ -232,6 +232,15 @@ public abstract class Hib3DAO {
       
       try {
         
+        hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.tableSync.TestgrouperSyncChangeLog");
+        addClass(CFG, hibernatableClass);
+        
+      } catch (ClassNotFoundException cnfe) {
+        //this is ok
+      }
+      
+      try {
+        
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.tableSync.TestgrouperSyncSubjectTo");
         addClass(CFG, hibernatableClass);
         

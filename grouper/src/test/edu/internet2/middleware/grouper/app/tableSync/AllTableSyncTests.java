@@ -34,6 +34,7 @@ public class AllTableSyncTests {
     //$JUnit-BEGIN$
 
     suite.addTestSuite(TableSyncTest.class);
+    suite.addTestSuite(ProvisioningToSyncTest.class);
     
     //$JUnit-END$
     return suite;

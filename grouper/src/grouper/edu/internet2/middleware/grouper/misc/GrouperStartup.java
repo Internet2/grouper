@@ -58,9 +58,9 @@ import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
-
 import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 
 
@@ -324,6 +324,7 @@ public class GrouperStartup {
         if (started) {
           return false;
         }
+        GcDbAccess.setGrouperIsStarted(false);
         started = true;
         finishedStartupSuccessfully = false;
         
@@ -402,7 +403,8 @@ public class GrouperStartup {
         verifyUtf8andTransactions();
         
         finishedStartupSuccessfully = true;
-        
+        GcDbAccess.setGrouperIsStarted(true);
+
         //uncache config settings
         GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
 

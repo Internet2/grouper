@@ -198,7 +198,6 @@ public class ConfigUtils {
         configurationContainer.setCurrentConfigFileName(current.getConfigFileName());
         
         message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesPropertyExistsInAnother")).append("<br />");
-        
       }
       
     }
