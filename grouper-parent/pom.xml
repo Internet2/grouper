@@ -41,6 +41,7 @@
         <module>../grouper-misc/grouper-messaging-rabbitmq</module>
         <module>../grouper-misc/grouper-messaging-aws</module>
         <module>../grouper-misc/grouper-pspng</module>
+        <module>../grouper-misc/grouper-box</module>
     </modules>
 
     <properties>
