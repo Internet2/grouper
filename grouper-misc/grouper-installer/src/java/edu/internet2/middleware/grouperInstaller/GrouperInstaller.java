@@ -571,7 +571,7 @@ public class GrouperInstaller {
    */
   public static void main(String[] args) {
     
-   
+    
     GrouperInstaller grouperInstaller = new GrouperInstaller();
 
     grouperInstaller.mainLogic();
@@ -9449,7 +9449,10 @@ public class GrouperInstaller {
     List<String> commands = new ArrayList<String>();
     addMavenCommands(commands);
     
-    commands.add("-DincludeScope=runtime -DexcludeArtifactIds=grouper,grouperClient dependency:copy-dependencies");
+    commands.add("-DincludeScope=runtime");
+    commands.add("-DexcludeArtifactIds=grouper,grouperClient");
+    
+    commands.add("dependency:copy-dependencies");
           
     for (File file: grouperProjects) {
       System.out.println("\n##################################");
