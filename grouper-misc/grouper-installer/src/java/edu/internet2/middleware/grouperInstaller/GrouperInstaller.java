@@ -570,7 +570,8 @@ public class GrouperInstaller {
    * @param args
    */
   public static void main(String[] args) {
-
+    
+    
     GrouperInstaller grouperInstaller = new GrouperInstaller();
 
     grouperInstaller.mainLogic();
@@ -9410,19 +9411,6 @@ public class GrouperInstaller {
     //Find out the working directory.  This ends in a file separator
     this.grouperTarballDirectoryString = grouperUpgradeTempDirectory();
     
-    //####################################
-    //get default ip address
-    System.out.print("Enter the default IP address for checking ports (just hit enter to accept the default unless on a machine with no network, might want to change to 127.0.0.1): [0.0.0.0]: ");
-    this.defaultIpAddress = readFromStdIn("grouperInstaller.autorun.defaultIpAddressForPorts");
-    
-    if (GrouperInstallerUtils.isBlank(this.defaultIpAddress)) {
-      this.defaultIpAddress = "0.0.0.0";
-    }
-
-    if (!GrouperInstallerUtils.equals("0.0.0.0", this.defaultIpAddress)) {
-      System.out.println("Note, you will probably need to change the hsql IP address, and tomcat server.xml IP addresses...");
-    }
-    
     this.version = getClass().getPackage().getImplementationVersion();
     if (this.version == null) {
       // when you are running directly from eclipse without the jar file
@@ -9452,18 +9440,23 @@ public class GrouperInstaller {
     
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper"));
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws"+File.separator+"grouper-ws"));
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws/grouper-ws-scim"));
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws" + File.separator + "grouper-ws-scim"));
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui"));
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"));
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"));
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
     
     List<String> commands = new ArrayList<String>();
-    
     addMavenCommands(commands);
+    
+    commands.add("-DincludeScope=runtime");
+    commands.add("-DexcludeArtifactIds=grouper,grouperClient");
     
     commands.add("dependency:copy-dependencies");
           
     for (File file: grouperProjects) {
       System.out.println("\n##################################");
-      System.out.println("Building "+ file.getName()+" with command:\n" 
+      System.out.println("Downloading third party jars for "+ file.getName()+" with command:\n" 
           + convertCommandsIntoCommand(commands) + "\n");
       
       CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
@@ -9510,8 +9503,16 @@ public class GrouperInstaller {
         GrouperInstallerUtils.copyDirectory(jarsDirectory, libDir, null, true);
       }
     } catch (Exception e) {
-      //TODO handle it appropriately
       throw new RuntimeException("Could not copy jars from dependency directories ", e);
+    }
+    
+    // delete all grouper snapshots jars from WEB-INF/lib
+    List<File> allLibraryJars = findAllLibraryFiles(libDir.getAbsolutePath());
+    
+    for (File file: allLibraryJars) {
+      if (file.getName().contains("grouper") && file.getName().contains("SNAPSHOT")) {
+        GrouperInstallerUtils.fileDelete(file);
+      }
     }
     
     // now copy grouper/conf, grouper-ws/conf, grouper-ui/conf and grouperClient/conf to classesDir
@@ -9523,7 +9524,6 @@ public class GrouperInstaller {
         }
       }
     } catch (Exception e) {
-      //TODO handle it appropriately
       throw new RuntimeException("Could not copy files from conf directory to classes directory", e);
     }
     
@@ -9566,7 +9566,6 @@ public class GrouperInstaller {
     try {      
       GrouperInstallerUtils.copyDirectory(tomeeUntarredDir, containerTomeeDir, null, true);
     } catch (Exception e) {
-      // TODO: handle it appropriately
       throw new RuntimeException("Could not copy untarred tomee into container/tomee", e);
     }
     
@@ -11974,9 +11973,14 @@ public class GrouperInstaller {
     String basePath = "https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/";
     
     List<String> urlsToDownload = new ArrayList<String>();
+    urlsToDownload.add(basePath+"grouper/"+this.version+"/grouper-"+this.version+".jar");
+    urlsToDownload.add(basePath+"grouperClient/"+this.version+"/grouperClient-"+this.version+".jar");
     urlsToDownload.add(basePath+"grouper-ws/"+this.version+"/grouper-ws-"+this.version+".jar");
     urlsToDownload.add(basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar");
     urlsToDownload.add(basePath+"grouper-ws-scim/"+this.version+"/grouper-ws-scim-"+this.version+".jar");
+    urlsToDownload.add(basePath+"grouper-messaging-aws/"+this.version+"/grouper-messaging-aws-"+this.version+".jar");
+    urlsToDownload.add(basePath+"grouper-messaging-rabbitmq/"+this.version+"/grouper-messaging-rabbitmq-"+this.version+".jar");
+    urlsToDownload.add(basePath+"grouper-activemq/"+this.version+"/grouper-activemq-"+this.version+".jar");
     
     for (String urlToDownload: urlsToDownload) {
       String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
