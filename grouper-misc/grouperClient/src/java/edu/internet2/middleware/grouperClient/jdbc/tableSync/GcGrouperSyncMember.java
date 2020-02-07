@@ -83,6 +83,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     gcGrouperSyncMember.memberId = this.memberId;
     gcGrouperSyncMember.memberToId2 = this.memberToId2;
     gcGrouperSyncMember.memberToId3 = this.memberToId3;
+    gcGrouperSyncMember.metadataUpdated = this.metadataUpdated;
     gcGrouperSyncMember.provisionableDb = this.provisionableDb;
     gcGrouperSyncMember.provisionableEnd = this.provisionableEnd;
     gcGrouperSyncMember.provisionableStart = this.provisionableStart;
@@ -130,6 +131,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
         .append(this.memberId, other.memberId)
         .append(this.memberToId2, other.memberToId2)
         .append(this.memberToId3, other.memberToId3)
+        .append(this.metadataUpdated, other.metadataUpdated)
         .append(this.provisionableDb, other.provisionableDb)
         .append(this.provisionableEnd, other.provisionableEnd)
         .append(this.provisionableStart, other.provisionableStart)
@@ -294,6 +296,29 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    */
   public void setSourceId(String sourceId1) {
     this.sourceId = sourceId1;
+  }
+
+  /**
+   * when metadata was last updated
+   */
+  private Timestamp metadataUpdated;
+  
+  
+  
+  /**
+   * when metadata was last updated
+   * @return
+   */
+  public Timestamp getMetadataUpdated() {
+    return this.metadataUpdated;
+  }
+
+  /**
+   * when metadata was last updated
+   * @param metadataUpdated1
+   */
+  public void setMetadataUpdated(Timestamp metadataUpdated1) {
+    this.metadataUpdated = metadataUpdated1;
   }
 
   /**
@@ -494,6 +519,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
         .append("memberFromId3", this.memberFromId3)
         .append("memberToId2", this.memberToId2)
         .append("memberToId3", this.memberFromId3)
+        .append("metadataUpdated", this.metadataUpdated)
         .append("inTarget", this.isInTarget())
         .append("inTargetInsertOrExists", this.isInTargetInsertOrExists())
         .append("inTargetStart", this.getInTargetStart())
