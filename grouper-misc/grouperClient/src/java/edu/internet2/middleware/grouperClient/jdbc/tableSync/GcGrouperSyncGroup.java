@@ -92,6 +92,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   gcGrouperSyncGroup.lastTimeWorkWasDone = this.lastTimeWorkWasDone;
   //lastUpdated  DONT CLONE
 
+  gcGrouperSyncGroup.metadataUpdated = this.metadataUpdated;
   gcGrouperSyncGroup.provisionableDb = this.provisionableDb;
   gcGrouperSyncGroup.provisionableEnd = this.provisionableEnd;
   gcGrouperSyncGroup.provisionableStart = this.provisionableStart;
@@ -141,6 +142,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
       .append(this.lastTimeWorkWasDone, other.lastTimeWorkWasDone)
       //lastUpdated  DONT EQUALS
 
+      .append(this.metadataUpdated, other.metadataUpdated)
       .append(this.provisionableDb, other.provisionableDb)
       .append(this.provisionableEnd, other.provisionableEnd)
       .append(this.provisionableStart, other.provisionableStart)
@@ -446,6 +448,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
         .append("inTargetInsertOrExists", this.isInTargetInsertOrExists())
         .append("inTargetStart", this.getInTargetStart())
         .append("inTargetEnd", this.getInTargetEnd())
+        .append("metadataUpdated", this.getMetadataUpdated())
         .append("provisionable", this.isProvisionable())
         .append("provisionableStart", this.getProvisionableStart())
         .append("provisionableEnd", this.getProvisionableEnd())
@@ -572,6 +575,30 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   public void setInTargetInsertOrExistsDb(String inTargetInsertOrExistsDb1) {
     this.inTargetInsertOrExistsDb = inTargetInsertOrExistsDb1;
   }
+
+  /**
+   * when metadata was last updated
+   */
+  private Timestamp metadataUpdated;
+  
+  
+  
+  /**
+   * when metadata was last updated
+   * @return
+   */
+  public Timestamp getMetadataUpdated() {
+    return this.metadataUpdated;
+  }
+
+  /**
+   * when metadata was last updated
+   * @param metadataUpdated1
+   */
+  public void setMetadataUpdated(Timestamp metadataUpdated1) {
+    this.metadataUpdated = metadataUpdated1;
+  }
+
 
   /**
    * T if inserted on the in_target_start date, or F if it existed then and not sure when inserted

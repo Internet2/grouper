@@ -215,6 +215,9 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_to_id3", 
         Types.VARCHAR, "4000", false, false);
 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "metadata_updated", 
+        Types.TIMESTAMP, "10", false, false);
+  
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_time_work_was_done", Types.TIMESTAMP, null, false, false);
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "id", "uuid of this record");
@@ -256,6 +259,8 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_to_id3", "other metadata on groups");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_time_work_was_done", "last time a record was processed");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "metadata_updated", "when the metadata was last updated (if it times out)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_gr_sync_id_idx", false, "grouper_sync_id", "provisionable");
@@ -347,6 +352,9 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "member_to_id3", 
         Types.VARCHAR, "4000", false, false);
     
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "metadata_updated", 
+        Types.TIMESTAMP, "10", false, false);
+  
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_time_work_was_done", 
         Types.TIMESTAMP, null, false, false);
 
@@ -393,6 +401,8 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "user_to_id3", "other metadata on users");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_time_work_was_done", "last time a record was processed");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "metadata_updated", "when the metadata was last updated (if it times out)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_us_sync_id_idx", false, "grouper_sync_id", "provisionable");
@@ -453,6 +463,9 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "quartz_job_name", 
         Types.VARCHAR, "400", false, false);
   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "percent_complete", 
+        Types.INTEGER, "8", false, false);
+  
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
         Types.TIMESTAMP, "10", false, true);
   
@@ -482,6 +495,8 @@ public class TableSyncCreateTables {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "quartz_job_name", "name of quartz job if applicable");
   
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "percent_complete", "0-100 percent complete of this job");
+    
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
     
   }
@@ -622,6 +637,9 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "membership_id2", 
         Types.VARCHAR, "4000", false, false);
   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "metadata_updated", 
+        Types.TIMESTAMP, "10", false, false);
+  
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "id", "uuid of this record");
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_group_id", "foreign key back to sync group table");
@@ -641,6 +659,8 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "membership_id", "other metadata on membership");
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "membership_id2", "other metadata on membership");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "metadata_updated", "when the metadata was last updated (if it times out)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_mship_gr_idx", true, "grouper_sync_group_id", "grouper_sync_member_id");
