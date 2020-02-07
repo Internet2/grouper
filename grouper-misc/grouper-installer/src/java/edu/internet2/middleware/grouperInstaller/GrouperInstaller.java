@@ -570,7 +570,8 @@ public class GrouperInstaller {
    * @param args
    */
   public static void main(String[] args) {
-
+    
+   
     GrouperInstaller grouperInstaller = new GrouperInstaller();
 
     grouperInstaller.mainLogic();
@@ -9445,38 +9446,17 @@ public class GrouperInstaller {
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"));
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
     
-    // run mvn install from grouper-parent pom
- 
     List<String> commands = new ArrayList<String>();
-    
     addMavenCommands(commands);
     
-    commands.add("install");
-    
-    File grouperParent = new File(grouperUntarredReleaseDir + File.separator + "grouper-parent");
-    
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, new File(grouperParent.getAbsolutePath()), null, true);
-    
-    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-      System.out.println("stderr: " + commandResult.getErrorText());
-    }
-    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-      System.out.println("stdout: " + commandResult.getOutputText());
-    }
-    
-    commands = new ArrayList<String>();
-    
-    addMavenCommands(commands);
-    
-    commands.add("dependency:copy-dependencies -DincludeScope=runtime");
+    commands.add("-DincludeScope=runtime -DexcludeArtifactIds=grouper,grouperClient dependency:copy-dependencies");
           
     for (File file: grouperProjects) {
       System.out.println("\n##################################");
       System.out.println("Downloading third party jars for "+ file.getName()+" with command:\n" 
           + convertCommandsIntoCommand(commands) + "\n");
       
-      commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
           true, true, null, new File(file.getAbsolutePath()), null, true);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
@@ -9560,7 +9540,7 @@ public class GrouperInstaller {
 
     System.out.println("Making sure gsh.sh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
 
-    commandResult = GrouperInstallerUtils.execCommand(
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(
         GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
         binDir, null, true);
     
