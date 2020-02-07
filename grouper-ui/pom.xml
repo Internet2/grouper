@@ -149,10 +149,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>edu.vt.middleware</groupId>
-            <artifactId>vt-ldap</artifactId>
-        </dependency>
-        <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
         </dependency>

@@ -56,6 +56,19 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- aws-java-sdk-core 1.11.529 has a transitive dep on jackson-databind 2.6.7.2,
+             which conflicts with grouper-ws-scim's dep on jackson-databind 2.9.6 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.6</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>

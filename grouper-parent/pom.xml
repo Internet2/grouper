@@ -131,7 +131,6 @@
         <apacheds.protocol.ldap.version>1.5.5</apacheds.protocol.ldap.version>
         <shared.ldap.version>0.9.15</shared.ldap.version>
         <bsh.version>2.0b5</bsh.version>
-        <bcprov.jdk16.version>1.46</bcprov.jdk16.version>
         <jettison.version>1.3.5</jettison.version>
         <hibernate.core.version>5.0.12.Final</hibernate.core.version>
         <hibernate.ehcache.version>5.0.12.Final</hibernate.ehcache.version>
@@ -552,11 +551,6 @@
                 <groupId>org.beanshell</groupId>
                 <artifactId>bsh</artifactId>
                 <version>${bsh.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk16</artifactId>
-                <version>${bcprov.jdk16.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>

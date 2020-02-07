@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-kernel</artifactId>
-            <version>1.6.1</version>
+            <version>1.6.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -102,7 +102,20 @@
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-transport-http</artifactId>
-            <version>1.6.1</version>
+            <version>1.6.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- axis2-transport-http pulls in org.apache.httpcomponents:httpclient 4.5.3 which pulls httpcore 4.4.6,
+             while aws-java-sdk-core pulls httpclient 4.5.5 -> httpcore 4.4.9 -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.axis2</groupId>
@@ -179,18 +192,23 @@
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-activation_1.1_spec</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <!-- rampart-core 1.6.3 depends on bcprov-jdk15on 1.49, while grouper-ws-scim
+             has a transitive dependency on bcprov-jdk15on 1.59 -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.59</version>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>1.3.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>oro</groupId>
-                    <artifactId>oro</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>3.6</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
