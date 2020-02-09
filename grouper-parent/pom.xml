@@ -40,6 +40,7 @@
         <module>../grouper-misc/grouperActivemq</module>
         <module>../grouper-misc/grouper-messaging-rabbitmq</module>
         <module>../grouper-misc/grouper-messaging-aws</module>
+        <module>../grouper-misc/grouper-messaging-activemq</module>
         <module>../grouper-misc/grouper-pspng</module>
         <module>../grouper-misc/grouper-box</module>
         <module>../grouper-misc/grouper-duo</module>
