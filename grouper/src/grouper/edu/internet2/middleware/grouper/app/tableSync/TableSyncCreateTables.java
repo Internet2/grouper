@@ -165,7 +165,7 @@ public class TableSyncCreateTables {
         Types.VARCHAR, "40", false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", 
-        Types.VARCHAR, "400", false, true);
+        Types.VARCHAR, "40", false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", 
         Types.VARCHAR, "4000", false, false);
