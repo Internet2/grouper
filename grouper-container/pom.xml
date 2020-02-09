@@ -16,6 +16,12 @@
       <id>nexus-releases</id>
       <url>https://oss.sonatype.org/content/repositories/releases/</url>
     </repository>
+    <repository>
+      <!-- there is a slight delay between releasing a staged repo and showing up in the release repo;
+           fall back to the local content repo which shows up sooner -->
+      <id>nexus-services</id>
+      <url>https://oss.sonatype.org/service/local/repositories/releases/content/</url>
+    </repository>
   </repositories>
   <!-- Pass in Maven command line parameter -Dgrouper.version=a.b.c ... -->
   <dependencies>
