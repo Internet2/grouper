@@ -87,6 +87,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.dev.env.allowMissingServlets", true)) {
             LOG.info("you can't access grouper ui because required classes are not on the classpath.");
           } else {
+            LOG.info("if you are developing and got this exception put grouper.dev.env.allowMissingServlets=true in config file grouper.properties.");
             throw new RuntimeException("required classes for grouper ui are not on the classpath", e);
           }
         }
@@ -124,6 +125,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.dev.env.allowMissingServlets", true)) {
             LOG.info("you can't access grouper ws because required classes are not on the classpath.");
           } else {
+            LOG.info("if you are developing and got this exception put grouper.dev.env.allowMissingServlets=true in config file grouper.properties.");
             throw new RuntimeException("required classes for grouper ws are not on the classpath", e);
           }
         }
