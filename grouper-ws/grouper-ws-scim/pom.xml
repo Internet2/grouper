@@ -58,6 +58,14 @@
 		<groupId>edu.psu.swe.scim</groupId>
 		<artifactId>scim-server-common</artifactId>
 		<version>2.22</version>
+		<exclusions>
+			<!-- swagger-jaxrs has dependency on jackson-dataformat-xml 2.4.2, which has a dependency
+			     on stax2-api 3.1.4. This is a different version than axis2-kernel needs -->
+			<exclusion>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-xml</artifactId>
+			</exclusion>
+		</exclusions>
 	</dependency>
 	
 	<dependency>
@@ -119,23 +127,6 @@
       	<artifactId>lombok</artifactId>
       	<version>1.14.8</version>
     </dependency>
-    
-	<dependency>
-	    <groupId>org.hibernate</groupId>
-	    <artifactId>hibernate-core</artifactId>
-	    <exclusions>
-	     <exclusion>
-	       <groupId>org.dom4j</groupId>
-	       <artifactId>dom4j</artifactId>
-	     </exclusion>
-	    </exclusions>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.hibernate</groupId>
-	    <artifactId>hibernate-ehcache</artifactId>
-	</dependency>
-	
 	<dependency>
     	<groupId>javax</groupId>
         <artifactId>javaee-api</artifactId>
