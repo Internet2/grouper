@@ -7,6 +7,16 @@
   <packaging>pom</packaging>
   <name>grouper-container</name>
 
+  <repositories>
+    <repository>
+      <id>central</id>
+      <url>https://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>nexus-releases</id>
+      <url>https://oss.sonatype.org/content/repositories/releases/</url>
+    </repository>
+  </repositories>
   <!-- Pass in Maven command line parameter -Dgrouper.version=a.b.c ... -->
   <dependencies>
     <dependency>
