@@ -9432,25 +9432,31 @@ public class GrouperInstaller {
     File unzippedGrouperSourceCodeFile = unzip(grouperSourceCodeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
     File untarredGrouperSourceCodeDir = untar(unzippedGrouperSourceCodeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
     
-    // go in grouper, grouper-ws, grouper-ui and grouper-ws-scim directory and run mvn dependency:copy-dependencies
-    List<File> grouperProjects = new ArrayList<File>();
     
     String grouperUntarredReleaseDir = untarredGrouperSourceCodeDir.getAbsolutePath().substring(0, untarredGrouperSourceCodeDir.getAbsolutePath().lastIndexOf(File.separator));
     grouperUntarredReleaseDir = grouperUntarredReleaseDir + File.separator + "grouper-" + untarredGrouperSourceCodeDir.getName() ;
     
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper"));
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws"+File.separator+"grouper-ws"));
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws" + File.separator + "grouper-ws-scim"));
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui"));
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"));
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"));
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
+    // go in grouper, grouper-ws, grouper-ui and grouper-ws-scim directory and run mvn dependency:copy-dependencies
+    List<File> grouperProjects = new ArrayList<File>();
+    
+    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-container"));
+//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper"));
+//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws"+File.separator+"grouper-ws"));
+//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws" + File.separator + "grouper-ws-scim"));
+//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui"));
+//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"));
+//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"));
+//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
     
     List<String> commands = new ArrayList<String>();
     addMavenCommands(commands);
     
     commands.add("-DincludeScope=runtime");
-    commands.add("-DexcludeArtifactIds=grouper,grouperClient");
+    //commands.add("-DexcludeArtifactIds=grouper,grouperClient");
+    commands.add("-Dgrouper.version="+this.version);
+    //commands.add("-DnewVersion="+this.version);
+    // versions:set -DnewVersion=1.0.3-SNAPSHOT
+    //commands.add("-Dproject.version="+this.version);
     
     commands.add("dependency:copy-dependencies");
           
@@ -9516,8 +9522,15 @@ public class GrouperInstaller {
     }
     
     // now copy grouper/conf, grouper-ws/conf, grouper-ui/conf and grouperClient/conf to classesDir
+    
+    List<File> projectsToGetConfFrom = new ArrayList<File>();
+    projectsToGetConfFrom.add(new File(grouperUntarredReleaseDir + File.separator + "grouper"));
+    projectsToGetConfFrom.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws"+File.separator+"grouper-ws"));
+    projectsToGetConfFrom.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui"));
+    projectsToGetConfFrom.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc"+File.separator+"grouperClient"));
+    
     try {
-      for (File file: grouperProjects) {
+      for (File file: projectsToGetConfFrom) {
         File confDir = new File(file.getAbsolutePath()+File.separator+"conf");
         if (confDir.exists()) {
           GrouperInstallerUtils.copyDirectory(confDir, classesDir, null, true);
