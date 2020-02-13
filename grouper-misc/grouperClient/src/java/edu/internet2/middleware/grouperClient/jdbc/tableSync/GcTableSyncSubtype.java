@@ -936,7 +936,7 @@ public enum GcTableSyncSubtype {
       
       if (GrouperClientUtils.length(results) > 0) {
         for (int result : results) {
-          actualInserts += result;
+          actualInserts += Math.max(result, 0);
           if (result == 0) {
             missedInserts++;
           }
@@ -1005,7 +1005,8 @@ public enum GcTableSyncSubtype {
       
       if (GrouperClientUtils.length(results) > 0) {
         for (int result : results) {
-          actualDeletes += result;
+          // issue with it being negative for some reason
+          actualDeletes += Math.max(result, 0);
           if (result == 0) {
             missedDeletes++;
           }
@@ -1579,7 +1580,7 @@ public enum GcTableSyncSubtype {
 
       if (GrouperClientUtils.length(results) > 0) {
         for (int result : results) {
-          actualUpdates += result;
+          actualUpdates += Math.max(result, 0);
           if (result == 0) {
             missedUpdates++;
           }
