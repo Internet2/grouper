@@ -4,12 +4,15 @@ package edu.internet2.middleware.grouperClient.jdbc;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -2221,12 +2225,15 @@ public class GcDbAccess {
 
       // Externally, it is used as a callback.
       ResultSet rs = preparedStatement.executeQuery();
+      this.resultSetMetaData = rs.getMetaData();
       return resultSetCallback.callback(rs);
       
     } catch (Exception e){
       GrouperClientUtils.injectInException(e, "sql: " + this.sql + ", " + (GrouperClientUtils.length(this.bindVars) > 1 ? ("args: " + GrouperClientUtils.toStringForLog(this.bindVars)) : ""));
       throw new RuntimeException(e);
     } finally {
+      this.resultSetMetaData = null;
+      this.resultSetMetadataColumnNameLowerToIndex = null;
       if (preparedStatement != null){
         try {
           preparedStatement.close();
@@ -2238,6 +2245,9 @@ public class GcDbAccess {
     }
   }
 
+  private Map<String, Integer> resultSetMetadataColumnNameLowerToIndex = null;
+  
+  private ResultSetMetaData resultSetMetaData;
 
   /**
    * Execute some sql.
@@ -2322,7 +2332,8 @@ public class GcDbAccess {
             }
           }
           if (columnInQueryResults){
-            Object value = resultSet.getObject(columnName);
+            int columnNumberOneIndexed = retrieveColumnNumberOneIndexed(columnName);
+            Object value = retrieveObjectFromResultSetByIndex(resultSet, columnNumberOneIndexed);
             boundDataConversion.setFieldValue(t, field, value);
           }
         }
@@ -2340,7 +2351,8 @@ public class GcDbAccess {
       int columnCount = resultSet.getMetaData().getColumnCount();
       Map<Object, Object> results = new LinkedHashMap<Object, Object>();
       for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
-        results.put(resultSet.getMetaData().getColumnName(columnNumber), resultSet.getObject(columnNumber));
+        Object value = retrieveObjectFromResultSetByIndex(resultSet, columnNumber);
+        results.put(resultSet.getMetaData().getColumnName(columnNumber), value);
       }
       @SuppressWarnings("unchecked")
       T t = (T)results;
@@ -2355,7 +2367,8 @@ public class GcDbAccess {
       int columnCount = resultSet.getMetaData().getColumnCount();
       Object[] results = new Object[columnCount];
       for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
-        results[columnNumber-1] = resultSet.getObject(columnNumber);
+        Object value = retrieveObjectFromResultSetByIndex(resultSet, columnNumber);
+        results[columnNumber-1] = value;
       }
       @SuppressWarnings("unchecked")
       T t = (T)results;
@@ -2365,9 +2378,9 @@ public class GcDbAccess {
       return t;
     }
 
-
     // Or we are just returning a primitive or single object such as Long, etc.
-    T t = boundDataConversion.getFieldValue(clazz, resultSet.getObject(1));
+    Object value = retrieveObjectFromResultSetByIndex(resultSet, 1);
+    T t = boundDataConversion.getFieldValue(clazz, value);
     if (theList != null){
       theList.add(t);
     }
@@ -2376,6 +2389,78 @@ public class GcDbAccess {
 
   }
 
+  /**
+   * get a column index (1 indexed) from columnName
+   * @param columnName
+   * @return
+   * @throws SQLException
+   */
+  private int retrieveColumnNumberOneIndexed(String columnName) throws SQLException {
+    if (this.resultSetMetadataColumnNameLowerToIndex == null) {
+      this.resultSetMetadataColumnNameLowerToIndex = new HashMap<String, Integer>();
+      for (int columnOneIndex=1;columnOneIndex<=this.resultSetMetaData.getColumnCount();columnOneIndex++) {
+        String columnLabel = this.resultSetMetaData.getColumnLabel(columnOneIndex);
+        columnLabel = columnLabel.toLowerCase();
+        this.resultSetMetadataColumnNameLowerToIndex.put(columnLabel, columnOneIndex);
+      }
+    }
+    columnName = columnName.toLowerCase();
+    if (!this.resultSetMetadataColumnNameLowerToIndex.containsKey(columnName)) {
+      throw new RuntimeException("Cant find column name '" + columnName + "' ! " + GrouperClientUtils.toStringForLog(this.resultSetMetadataColumnNameLowerToIndex));
+    }
+    return this.resultSetMetadataColumnNameLowerToIndex.get(columnName);
+  }
+  
+  /**
+   * get a cell value from database, will return string, long, double, timestamp
+   * @param resultSet
+   * @param columnNumberOneIndexed
+   * @return
+   * @throws SQLException
+   */
+  private Object retrieveObjectFromResultSetByIndex(ResultSet resultSet, int columnNumberOneIndexed) throws SQLException {
+    int type = this.resultSetMetaData.getColumnType(columnNumberOneIndexed);
+    switch (type) {
+      case Types.BIGINT: 
+      case Types.INTEGER:
+      case Types.SMALLINT:
+      case Types.TINYINT:
+        
+        BigDecimal bigDecimal = resultSet.getBigDecimal(columnNumberOneIndexed);
+        if (bigDecimal == null) {
+          return null;
+        }
+        return bigDecimal.longValue();
+        
+      case Types.DECIMAL:
+      case Types.DOUBLE:
+      case Types.FLOAT:
+      case Types.NUMERIC:
+      case Types.REAL:
+        
+        bigDecimal = resultSet.getBigDecimal(columnNumberOneIndexed);
+        if (bigDecimal == null) {
+          return null;
+        }
+        return bigDecimal.doubleValue();
+        
+      case Types.CHAR:
+      case Types.VARCHAR:
+      case Types.LONGVARCHAR:
+
+        return resultSet.getString(columnNumberOneIndexed);
+
+      case Types.DATE:
+      case Types.TIMESTAMP:
+        
+        return resultSet.getTimestamp(columnNumberOneIndexed);
+
+      default:
+        throw new RuntimeException("Not expecting column type: " + type);
+    }
+    
+  }
+  
   /**
    * Cached queries, exposed mostly for testing, you should not need direct access to this.
    * @return the dbQueryCacheMap
