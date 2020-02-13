@@ -31,8 +31,11 @@
 */
 
 package edu.internet2.middleware.grouper.filter;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
 import junit.textui.TestRunner;
@@ -43,6 +46,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -51,6 +55,7 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -87,6 +92,81 @@ public class TestGQGroupName extends GrouperTest {
   }
 
   // Tests
+  /**
+   * 
+   */
+  public void testGroupNameFilterEnabled() {
+    GrouperSession s = SessionHelper.getRootSession();
+
+    Stem root = StemHelper.findRootStem(s);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group group1 = edu.addChildGroup("testenabledisablegroup1", "testenabledisablegroup1");
+    Group group2 = edu.addChildGroup("testenabledisablegroup2", "testenabledisablegroup2");
+    Group group3 = edu.addChildGroup("testenabledisablegroup3", "testenabledisablegroup3");
+    Group group4 = edu.addChildGroup("testenabledisablegroup4", "testenabledisablegroup4");
+    
+    group1.setEnabledTime(new Timestamp(System.currentTimeMillis() + 100000L));
+    group1.setDescription("testenabledisable");
+    group1.store();
+    
+    group2.setDescription("testenabledisable");
+    group2.store();
+    
+    group3.setDescription("testenabledisable");
+    group3.store();
+    
+    group4.setDescription("testenabledisable");
+    group4.store();
+    
+    
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupNameFilter("testenabledisable", root, null, null, null, null, null, true)).getGroups().size());
+    assertEquals(4, GrouperQuery.createQuery(s, new GroupNameFilter("testenabledisable", root, null, null, null, null, null, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupNameFilter("testenabledisable", root, null, null, null, null, null, false)).getGroups().size());
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupNameFilter("testenabledisable", root)).getGroups().size());
+    
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupNameFilter("testenabledisable", edu, null, null, null, null, null, true)).getGroups().size());
+    assertEquals(4, GrouperQuery.createQuery(s, new GroupNameFilter("testenabledisable", edu, null, null, null, null, null, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupNameFilter("testenabledisable", edu, null, null, null, null, null, false)).getGroups().size());
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupNameFilter("testenabledisable", edu)).getGroups().size());
+  }
+  
+  /**
+   * 
+   */
+  public void testGroupsInStemFilterEnabled() {
+    GrouperSession s = SessionHelper.getRootSession();
+    
+    Set<TypeOfGroup> typeOfGroups = new HashSet<TypeOfGroup>();
+    typeOfGroups.add(TypeOfGroup.role);
+    
+    int initialRoleCount = GrouperQuery.createQuery(s, new GroupsInStemFilter(":", Scope.SUB, false, null, null, null, null, typeOfGroups)).getGroups().size();
+
+    Stem root = StemHelper.findRootStem(s);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Role group1 = edu.addChildRole("testenabledisablegroup1", "testenabledisablegroup1");
+    edu.addChildRole("testenabledisablegroup2", "testenabledisablegroup2");
+    edu.addChildRole("testenabledisablegroup3", "testenabledisablegroup3");
+    edu.addChildRole("testenabledisablegroup4", "testenabledisablegroup4");
+    
+    ((Group)group1).setEnabledTime(new Timestamp(System.currentTimeMillis() + 100000L));
+    ((Group)group1).store();
+    
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupsInStemFilter("edu", Scope.SUB, false, null, null, null, null, typeOfGroups, true)).getGroups().size());
+    assertEquals(4, GrouperQuery.createQuery(s, new GroupsInStemFilter("edu", Scope.SUB, false, null, null, null, null, typeOfGroups, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupsInStemFilter("edu", Scope.SUB, false, null, null, null, null, typeOfGroups, false)).getGroups().size());
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupsInStemFilter("edu", Scope.SUB, false, null, null, null, null, typeOfGroups)).getGroups().size());
+    
+
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupsInStemFilter("edu", Scope.ONE, false, null, null, null, null, typeOfGroups, true)).getGroups().size());
+    assertEquals(4, GrouperQuery.createQuery(s, new GroupsInStemFilter("edu", Scope.ONE, false, null, null, null, null, typeOfGroups, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupsInStemFilter("edu", Scope.ONE, false, null, null, null, null, typeOfGroups, false)).getGroups().size());
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupsInStemFilter("edu", Scope.ONE, false, null, null, null, null, typeOfGroups)).getGroups().size());
+    
+    assertEquals(initialRoleCount + 3, GrouperQuery.createQuery(s, new GroupsInStemFilter(":", Scope.SUB, false, null, null, null, null, typeOfGroups, true)).getGroups().size());
+    assertEquals(initialRoleCount + 4, GrouperQuery.createQuery(s, new GroupsInStemFilter(":", Scope.SUB, false, null, null, null, null, typeOfGroups, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupsInStemFilter(":", Scope.SUB, false, null, null, null, null, typeOfGroups, false)).getGroups().size());
+    assertEquals(initialRoleCount + 3, GrouperQuery.createQuery(s, new GroupsInStemFilter(":", Scope.SUB, false, null, null, null, null, typeOfGroups)).getGroups().size());
+  }
 
   public void testGroupNameFilterNothing() {
     GrouperSession  s     = SessionHelper.getRootSession();

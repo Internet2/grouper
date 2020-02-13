@@ -32,6 +32,9 @@
 
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
+
+import java.sql.Timestamp;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -73,6 +76,43 @@ public class TestGQGroupAttribute extends GrouperTest {
   }
 
   // Tests
+  /**
+   * 
+   */
+  public void testGroupAttributeFilterEnabled() {
+    GrouperSession s = SessionHelper.getRootSession();
+
+    Stem root = StemHelper.findRootStem(s);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group group1 = edu.addChildGroup("testenabledisablegroup1", "testenabledisablegroup1");
+    Group group2 = edu.addChildGroup("testenabledisablegroup2", "testenabledisablegroup2");
+    Group group3 = edu.addChildGroup("testenabledisablegroup3", "testenabledisablegroup3");
+    Group group4 = edu.addChildGroup("testenabledisablegroup4", "testenabledisablegroup4");
+    
+    group1.setEnabledTime(new Timestamp(System.currentTimeMillis() + 100000L));
+    group1.setDescription("testenabledisable");
+    group1.store();
+    
+    group2.setDescription("testenabledisable");
+    group2.store();
+    
+    group3.setDescription("testenabledisable");
+    group3.store();
+    
+    group4.setDescription("testenabledisable");
+    group4.store();
+    
+    
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupAttributeFilter("description", "testenabledisable", root, true)).getGroups().size());
+    assertEquals(4, GrouperQuery.createQuery(s, new GroupAttributeFilter("description", "testenabledisable", root, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupAttributeFilter("description", "testenabledisable", root, false)).getGroups().size());
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupAttributeFilter("description", "testenabledisable", root)).getGroups().size());
+    
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupAttributeFilter("description", "testenabledisable", edu, true)).getGroups().size());
+    assertEquals(4, GrouperQuery.createQuery(s, new GroupAttributeFilter("description", "testenabledisable", edu, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupAttributeFilter("description", "testenabledisable", edu, false)).getGroups().size());
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupAttributeFilter("description", "testenabledisable", edu)).getGroups().size());
+  }
 
   public void testGroupAttributeFilterNothing() {
     GrouperSession  s     = SessionHelper.getRootSession();

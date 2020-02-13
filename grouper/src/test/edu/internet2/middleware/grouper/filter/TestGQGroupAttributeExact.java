@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.filter;
+import java.sql.Timestamp;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -90,6 +91,44 @@ public class TestGQGroupAttributeExact extends GrouperTest {
   }
 
   // Tests
+  
+  /**
+   * 
+   */
+  public void testGroupAttributeExactFilterEnabled() {
+    GrouperSession s = SessionHelper.getRootSession();
+
+    Stem root = StemHelper.findRootStem(s);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group group1 = edu.addChildGroup("testenabledisablegroup1", "testenabledisablegroup1");
+    Group group2 = edu.addChildGroup("testenabledisablegroup2", "testenabledisablegroup2");
+    Group group3 = edu.addChildGroup("testenabledisablegroup3", "testenabledisablegroup3");
+    Group group4 = edu.addChildGroup("testenabledisablegroup4", "testenabledisablegroup4");
+    
+    group1.setEnabledTime(new Timestamp(System.currentTimeMillis() + 100000L));
+    group1.setDescription("testenabledisable");
+    group1.store();
+    
+    group2.setDescription("testenabledisable");
+    group2.store();
+    
+    group3.setDescription("testenabledisable");
+    group3.store();
+    
+    group4.setDescription("testenabledisable");
+    group4.store();
+    
+    
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupAttributeExactFilter("description", "testenabledisable", root, true)).getGroups().size());
+    assertEquals(4, GrouperQuery.createQuery(s, new GroupAttributeExactFilter("description", "testenabledisable", root, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupAttributeExactFilter("description", "testenabledisable", root, false)).getGroups().size());
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupAttributeExactFilter("description", "testenabledisable", root)).getGroups().size());
+    
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupAttributeExactFilter("description", "testenabledisable", edu, true)).getGroups().size());
+    assertEquals(4, GrouperQuery.createQuery(s, new GroupAttributeExactFilter("description", "testenabledisable", edu, null)).getGroups().size());
+    assertEquals(1, GrouperQuery.createQuery(s, new GroupAttributeExactFilter("description", "testenabledisable", edu, false)).getGroups().size());
+    assertEquals(3, GrouperQuery.createQuery(s, new GroupAttributeExactFilter("description", "testenabledisable", edu)).getGroups().size());
+  }
 
   public void testGroupAttributeExactFilterNothing() {
     GrouperSession  s     = SessionHelper.getRootSession();

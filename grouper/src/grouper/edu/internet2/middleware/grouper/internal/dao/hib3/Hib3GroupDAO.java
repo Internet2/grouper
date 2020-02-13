@@ -2139,10 +2139,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
         
     if (enabled != null && enabled) {
-      sql.append(" and theGroup.enabledDb = 'T' ");
+      sql.append(" theGroup.enabledDb = 'T' ");
     }
     if (enabled != null && !enabled) {
-      sql.append(" and theGroup.enabledDb = 'F' ");
+      sql.append(" theGroup.enabledDb = 'F' ");
     }
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
