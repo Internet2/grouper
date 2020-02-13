@@ -165,7 +165,7 @@ public class TableSyncCreateTables {
         Types.VARCHAR, "40", false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", 
-        Types.VARCHAR, "400", false, true);
+        Types.VARCHAR, "40", false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", 
         Types.VARCHAR, "4000", false, false);
@@ -392,13 +392,13 @@ public class TableSyncCreateTables {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_user_metadata_sync", "when this users name and description and metadata was synced");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "user_from_id2", "for users this is the user idIndex");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "member_from_id2", "for users this is the user idIndex");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "user_from_id3", "other metadata on users");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "member_from_id3", "other metadata on users");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "user_to_id2", "other metadat on users");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "member_to_id2", "other metadat on users");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "user_to_id3", "other metadata on users");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "member_to_id3", "other metadata on users");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_time_work_was_done", "last time a record was processed");
 
