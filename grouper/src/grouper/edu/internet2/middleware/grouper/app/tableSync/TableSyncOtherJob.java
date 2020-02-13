@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -57,67 +58,16 @@ public class TableSyncOtherJob extends OtherJobBase {
     GcTableSyncSubtype gcTableSyncSubtype = GcTableSyncSubtype.valueOfIgnoreCase(syncTypeKeyNameString, true);
     final GcTableSync gcTableSync = new GcTableSync();
 
-    // do a progress thread
-    // if the job finished (e.g. status thread should end)
-    final boolean[] done = new boolean[]{false};
+    gcTableSync.setHeartbeatLogic(new Runnable() {
 
-    Thread heartbeatThread = null;
-    try {
-      // thread to keep heartbeat updated 
-      heartbeatThread = new Thread(new Runnable() {
-  
-        public void run() {
-          
-          try {
-            while(true) {
-              long loopStarted = System.currentTimeMillis();
-              for (int i=0;i<60;i++) {
-                if (done[0]) {
-                  return;
-                }
-                // maybe 60 sleeps dont add up due to CPU
-                if (System.currentTimeMillis()-loopStarted > 60000) {
-                  break;
-                }
-                Thread.sleep(1000);
-                if (done[0]) {
-                  return;
-                }
-              }
-              synchronized (TableSyncOtherJob.this) {
-                if (done[0]) {
-                  return;
-                }
-                TableSyncOtherJob.this.updateHib3LoaderLog(otherJobInput.getHib3GrouperLoaderLog(), gcTableSync, true);
-              }
-            }
-          } catch (InterruptedException ie) {
-            
-          } catch (Exception e) {
-            LOG.error("Error assigning status and logging", e);
-          }
-          
-        }
-        
-      });
-      
-      heartbeatThread.start();
-  
-      gcTableSync.sync(grouperClientTableSyncConfigKey, gcTableSyncSubtype);
-    } finally {
-      done[0]=true;
-      try {
-        heartbeatThread.interrupt();
-      } catch (Exception e) {
-        
+      @Override
+      public void run() {
+        TableSyncOtherJob.this.updateHib3LoaderLog(otherJobInput.getHib3GrouperLoaderLog(), gcTableSync, true);
       }
-      GrouperClientUtils.join(heartbeatThread);
-      try {
-        this.updateHib3LoaderLog(otherJobInput.getHib3GrouperLoaderLog(), gcTableSync, false);
-      } catch (RuntimeException re) {
-        LOG.error("error", re);
-      }
-    }
+    });
+  
+    gcTableSync.sync(grouperClientTableSyncConfigKey, gcTableSyncSubtype);
+    this.updateHib3LoaderLog(otherJobInput.getHib3GrouperLoaderLog(), gcTableSync, false);
     
     return null;
   }
@@ -134,11 +84,16 @@ public class TableSyncOtherJob extends OtherJobBase {
       return;
     }
     
+    if (gcTableSync.getGcGrouperSync() != null) {
+      hib3GrouperLoaderLog.setJobDescription(gcTableSync.getGcGrouperSync().getSyncEngine() + "." + gcTableSync.getGcGrouperSync().getProvisionerName());
+    }
     hib3GrouperLoaderLog.setDeleteCount(gcTableSyncOutput.getDelete());
     hib3GrouperLoaderLog.setInsertCount(gcTableSyncOutput.getInsert());
     hib3GrouperLoaderLog.setUpdateCount(gcTableSyncOutput.getUpdate());
-    //hib3GrouperLoaderLog.setTotalCount(gcTableSyncOutput.get);  TODO
+    hib3GrouperLoaderLog.setTotalCount(gcTableSyncOutput.getTotalCount());
     hib3GrouperLoaderLog.setJobMessage(gcTableSyncOutput.getMessage());
+    hib3GrouperLoaderLog.setMillisGetData((int)gcTableSyncOutput.getMillisGetData());
+    hib3GrouperLoaderLog.setMillisLoadData((int)gcTableSyncOutput.getMillisLoadData());
     if (store) {
       hib3GrouperLoaderLog.store();
     }    
