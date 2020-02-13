@@ -2442,7 +2442,10 @@ public class GcDbAccess {
         if (bigDecimal == null) {
           return null;
         }
-        return bigDecimal.doubleValue();
+        if (this.resultSetMetaData.getScale(columnNumberOneIndexed) == 0) {
+          return bigDecimal.longValue();
+        }
+        return bigDecimal;
         
       case Types.CHAR:
       case Types.VARCHAR:
