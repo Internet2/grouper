@@ -41,6 +41,18 @@
                         class="help-block">${textContainer.text['groupCreateDescriptionDescription'] }</span>
                     </div>
                   </div>
+                  <div class="control-group">
+                    <label for="groupEnabledDate" class="control-label">${textContainer.text['localEntityCreateEnabledDateLabel'] }</label>
+                    <div class="controls">
+                      <input type="text" name="enabledDate" placeholder="${textContainer.text['localEntityCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.enabledDateLabel }" id="groupEnabledDate"><span class="help-block">${textContainer.text['localEntityCreateEnabledDateDescription'] }</span>
+                    </div>
+                  </div>
+                  <div class="control-group">
+                    <label for="groupDisabledDate" class="control-label">${textContainer.text['localEntityCreateDisabledDateLabel'] }</label>
+                    <div class="controls">
+                      <input type="text" name="disabledDate" placeholder="${textContainer.text['localEntityCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.disabledDateLabel }" id="groupDisabledDate"><span class="help-block">${textContainer.text['localEntityCreateDisabledDateDescription'] }</span>
+                    </div>
+                  </div>
                   <p class="shownAdvancedProperties"><a href="#" 
                     onclick="$('.hiddenAdvancedProperties').show('slow'); $('.shownAdvancedProperties').hide('slow'); return false;" 
                     >${textContainer.text['groupCreateAdvanced'] } <i class="fa fa-angle-down"></i></a></p>
