@@ -362,6 +362,7 @@ public class GcTableSync {
         
       });
       
+      heartbeatThread.setDaemon(true);
       heartbeatThread.start();
       
       debugMap.put("sync", GcGrouperSync.SQL_SYNC_ENGINE);
@@ -405,7 +406,7 @@ public class GcTableSync {
         this.dataBeanRealTime.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getIncrementalPrimaryKeyTable());
         this.dataBeanRealTime.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
         this.dataBeanRealTime.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString() + ", " + this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
-        //this.dataBeanRealTime.getTableMetadata().assignPrimaryKeyColumns("*");
+        this.dataBeanRealTime.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
         this.dataBeanRealTime.getTableMetadata().assignIncrementalProgressColumn(this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
         debugMap.put("tableIncremental", this.getDataBeanRealTime().getTableMetadata().getTableName());
       }
