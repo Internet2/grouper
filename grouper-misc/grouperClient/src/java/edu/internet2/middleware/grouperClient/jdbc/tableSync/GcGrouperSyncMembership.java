@@ -519,7 +519,7 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
   /**
    * uuid of this record in this table
    */
-  @GcPersistableField(primaryKey=true, primaryKeyManuallyAssigned=true)
+  @GcPersistableField(primaryKey=true, primaryKeyManuallyAssigned=false)
   private String id;
 
   
