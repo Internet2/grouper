@@ -522,7 +522,7 @@ public enum GcTableSyncSubtype {
             // lets see what we got
             Set<String> switchedToGroups = new HashSet<String>(groupPrimaryKeys.keySet());
             gcTableSync.getGcTableSyncOutput().setSwitchedToGroups(switchedToGroups);
-            debugMap.put("switchedToGroupsCount", switchedToGroups.size());
+            logIncrement(debugMap,"switchedToGroupsCount", switchedToGroups.size());
             
             if (switchedToGroups.size() < 10) {
               boolean isFirst = true;
@@ -727,11 +727,11 @@ public enum GcTableSyncSubtype {
     }
     
     if (maxProgress != null) {
-      debugMap.put("initialMaxProgress", maxProgress);
+      logIncrement(debugMap,"initialMaxProgress", maxProgress);
     }
     
     if (maxProgressAllColumns != null) {
-      debugMap.put("initialMaxProgressAllColumns", maxProgressAllColumns);
+      logIncrement(debugMap,"initialMaxProgressAllColumns", maxProgressAllColumns);
     }
     
     if (maxProgress == null && maxProgressAllColumns == null) {
@@ -896,69 +896,87 @@ public enum GcTableSyncSubtype {
   /**
    * 
    * @param debugMap
-   * @param dataBeanTo
-   * @param primaryKeysToInsert
+   * @param gcTableSyncTableBeanTo
+   * @param primaryKeysToInsertInput
    * @param allIndexByPrimaryKey
    * @param queryLogLabel
    * @return the number inserted
    */
   private static int runInserts(Map<String, Object> debugMap, GcTableSyncTableBean gcTableSyncTableBeanTo,
-      Set<MultiKey> primaryKeysToInsert,
+      Set<MultiKey> primaryKeysToInsertInput,
       Map<MultiKey, GcTableSyncRowData> allIndexByPrimaryKey, String queryLogLabel) {
     long start = System.nanoTime();
     String sql = null;
     try {
-      int[] results = null;
+
+      int totalInserts = 0;
+      logIncrement(debugMap,queryLogLabel + "Count", 0);
       
-      if (GrouperClientUtils.length(primaryKeysToInsert) > 0) {
-        //
-        GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanTo.getTableMetadata();
-        sql = "insert into " 
-            + gcTableSyncTableMetadata.getTableName() + " ( " 
-            + gcTableSyncTableMetadata.columnListAll() 
-            +  " ) values ( " + GrouperClientUtils.appendQuestions(GrouperClientUtils.length(gcTableSyncTableMetadata.getColumns())) +  " )" ;
-  
-        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gcTableSyncTableMetadata.getConnectionName());
-  
-        List<List<Object>> bindVars = convertToListOfBindVarsValues(primaryKeysToInsert, allIndexByPrimaryKey);
+      if (GrouperClientUtils.length(primaryKeysToInsertInput) > 0) {
         
-        gcDbAccess.batchBindVars(bindVars);
-  
-        gcDbAccess.batchSize(gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncConfiguration().getBatchSize());
+        // memory problems if doing too much at much
+        int batchSize = 10000;
         
-        results = gcDbAccess.sql(sql).executeBatchSql();
-      }
-      
-      int inserts = GrouperClientUtils.length(primaryKeysToInsert);
-      int actualInserts = 0;
-      int missedInserts = 0;
-      int multiInsertInstances = 0;
-      
-      if (GrouperClientUtils.length(results) > 0) {
-        for (int result : results) {
-          actualInserts += Math.max(result, 0);
-          if (result == 0) {
-            missedInserts++;
+        //List
+        List<MultiKey> primaryKeysToInsertList = new ArrayList<MultiKey>(primaryKeysToInsertInput);
+
+        int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(primaryKeysToInsertList, batchSize);
+        
+        for (int batchIndex = 0;batchIndex < numberOfBatches; batchIndex++) {
+
+          List<MultiKey> primaryKeysToInsertBatch = GrouperClientUtils.batchList(primaryKeysToInsertList, batchSize, batchIndex);
+        
+          //
+          GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanTo.getTableMetadata();
+          sql = "insert into " 
+              + gcTableSyncTableMetadata.getTableName() + " ( " 
+              + gcTableSyncTableMetadata.columnListAll() 
+              +  " ) values ( " + GrouperClientUtils.appendQuestions(GrouperClientUtils.length(gcTableSyncTableMetadata.getColumns())) +  " )" ;
+    
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gcTableSyncTableMetadata.getConnectionName());
+    
+          List<List<Object>> bindVars = convertToListOfBindVarsValues(primaryKeysToInsertBatch, allIndexByPrimaryKey);
+          
+          gcDbAccess.batchBindVars(bindVars);
+    
+          gcDbAccess.batchSize(gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncConfiguration().getBatchSize());
+          
+          int[] batchResults = gcDbAccess.sql(sql).executeBatchSql();
+          
+          int inserts = GrouperClientUtils.length(primaryKeysToInsertInput);
+          int actualInserts = 0;
+          int missedInserts = 0;
+          int multiInsertInstances = 0;
+          
+          if (GrouperClientUtils.length(batchResults) > 0) {
+            for (int result : batchResults) {
+              actualInserts += Math.max(result, 0);
+              if (result == 0) {
+                missedInserts++;
+              }
+              // why would this happen???
+              if (result>1) {
+                multiInsertInstances++;
+              }
+            }
           }
-          // why would this happen???
-          if (result>1) {
-            multiInsertInstances++;
+          totalInserts += actualInserts;
+          logIncrement(debugMap, queryLogLabel + "Count", actualInserts);
+          if (inserts != actualInserts) {
+            logIncrement(debugMap, queryLogLabel + "IntendedCount", inserts);
           }
+          if (missedInserts > 0) {
+            logIncrement(debugMap, queryLogLabel + "MissedInserts", missedInserts);
+          }
+          if (multiInsertInstances > 0) {
+            logIncrement(debugMap, queryLogLabel + "PrimaryKeyProblems", multiInsertInstances);
+          }
+          gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncOutput().addInsert(actualInserts);
+
         }
       }
-      logIncrement(debugMap, queryLogLabel + "Count", actualInserts);
-      if (inserts != actualInserts) {
-        logIncrement(debugMap, queryLogLabel + "IntendedCount", inserts);
-      }
-      if (missedInserts > 0) {
-        logIncrement(debugMap, queryLogLabel + "MissedInserts", missedInserts);
-      }
-      if (multiInsertInstances > 0) {
-        logIncrement(debugMap, queryLogLabel + "PrimaryKeyProblems", multiInsertInstances);
-      }
-      gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncOutput().addInsert(actualInserts);
 
-      return actualInserts;
+      return totalInserts;
       
     } catch (RuntimeException re) {
       GrouperClientUtils.injectInException(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
@@ -974,61 +992,80 @@ public enum GcTableSyncSubtype {
    * @param gcTableSyncTableBeanTo
    * return the data
    */
-  private static int runDeletes(final Map<String, Object> debugMap, GcTableSyncTableBean gcTableSyncTableBeanTo, Set<MultiKey> primaryKeysToDelete, 
+  private static int runDeletes(final Map<String, Object> debugMap, GcTableSyncTableBean gcTableSyncTableBeanTo, Set<MultiKey> primaryKeysToDeleteInput, 
       String queryLogLabel) {
     long start = System.nanoTime();
     String sql = null;
     try {
-      int[] results = null;
       
-      if (GrouperClientUtils.length(primaryKeysToDelete) > 0) {
-        //
-        GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanTo.getTableMetadata();
-        sql = "delete from " + gcTableSyncTableMetadata.getTableName() + " where "
-            + gcTableSyncTableMetadata.queryWherePrimaryKey();
-  
-        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gcTableSyncTableMetadata.getConnectionName());
-  
-        List<List<Object>> bindVars = convertToListOfBindVars(primaryKeysToDelete);
+      logIncrement(debugMap,queryLogLabel + "Count", 0);
+      int totalDeletes = 0;
+      
+      if (GrouperClientUtils.length(primaryKeysToDeleteInput) > 0) {
         
-        gcDbAccess.batchBindVars(bindVars);
-  
-        gcDbAccess.batchSize(gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncConfiguration().getBatchSize());
+        // memory problems if doing too much at much
+        int batchSize = 10000;
         
-        results = gcDbAccess.sql(sql).executeBatchSql();
-      }
-      
-      int deletes = GrouperClientUtils.length(primaryKeysToDelete);
-      int actualDeletes = 0;
-      int missedDeletes = 0;
-      int multiDeleteInstances = 0;
-      
-      if (GrouperClientUtils.length(results) > 0) {
-        for (int result : results) {
-          // issue with it being negative for some reason
-          actualDeletes += Math.max(result, 0);
-          if (result == 0) {
-            missedDeletes++;
-          }
-          if (result>1) {
-            multiDeleteInstances++;
-          }
-        }
-      }
-      logIncrement(debugMap,queryLogLabel + "Count", actualDeletes);
-      if (deletes != actualDeletes) {
-        logIncrement(debugMap,queryLogLabel + "IntendedCount", deletes);
-      }
-      if (missedDeletes > 0) {
-        logIncrement(debugMap,queryLogLabel + "MissedDeletes", missedDeletes);
-      }
-      if (multiDeleteInstances > 0) {
-        logIncrement(debugMap, queryLogLabel + "PrimaryKeyProblems", multiDeleteInstances);
-      }
+        //List
+        List<MultiKey> primaryKeysToDeleteList = new ArrayList<MultiKey>(primaryKeysToDeleteInput);
 
-      gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncOutput().addDelete(actualDeletes);
-      
-      return actualDeletes;
+        int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(primaryKeysToDeleteList, batchSize);
+        
+        for (int batchIndex = 0;batchIndex < numberOfBatches; batchIndex++) {
+
+          List<MultiKey> primaryKeysToDeleteBatch = GrouperClientUtils.batchList(primaryKeysToDeleteList, batchSize, batchIndex);
+              
+          GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanTo.getTableMetadata();
+          sql = "delete from " + gcTableSyncTableMetadata.getTableName() + " where "
+              + gcTableSyncTableMetadata.queryWherePrimaryKey();
+    
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gcTableSyncTableMetadata.getConnectionName());
+    
+          List<List<Object>> bindVars = convertToListOfBindVars(primaryKeysToDeleteBatch);
+          
+          gcDbAccess.batchBindVars(bindVars);
+    
+          gcDbAccess.batchSize(gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncConfiguration().getBatchSize());
+          
+          int[] batchResults = gcDbAccess.sql(sql).executeBatchSql();
+
+          int deletes = GrouperClientUtils.length(batchResults);
+          int actualDeletes = 0;
+          int missedDeletes = 0;
+          int multiDeleteInstances = 0;
+          
+          if (GrouperClientUtils.length(batchResults) > 0) {
+            for (int result : batchResults) {
+              // issue with it being negative for some reason
+              actualDeletes += Math.max(result, 0);
+              if (result == 0) {
+                missedDeletes++;
+              }
+              if (result>1) {
+                multiDeleteInstances++;
+              }
+            }
+          }
+          totalDeletes += actualDeletes;
+          logIncrement(debugMap,queryLogLabel + "Count", actualDeletes);
+          if (deletes != actualDeletes) {
+            logIncrement(debugMap,queryLogLabel + "IntendedCount", deletes);
+          }
+          if (missedDeletes > 0) {
+            logIncrement(debugMap,queryLogLabel + "MissedDeletes", missedDeletes);
+          }
+          if (multiDeleteInstances > 0) {
+            logIncrement(debugMap, queryLogLabel + "PrimaryKeyProblems", multiDeleteInstances);
+          }
+
+          gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncOutput().addDelete(actualDeletes);
+
+          
+        }
+        
+      }
+            
+      return totalDeletes;
       
     } catch (RuntimeException re) {
       GrouperClientUtils.injectInException(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
@@ -1046,7 +1083,7 @@ public enum GcTableSyncSubtype {
    * @return the list of bind vars
    */
   private static List<List<Object>> convertToListOfBindVarsValues (
-      Set<MultiKey> setOfMultiKeys, Map<MultiKey, GcTableSyncRowData> allIndexByPrimaryKey) {
+      Collection<MultiKey> setOfMultiKeys, Map<MultiKey, GcTableSyncRowData> allIndexByPrimaryKey) {
     List<List<Object>> bindVars = new ArrayList<List<Object>>();
     
     for (MultiKey multiKey : setOfMultiKeys) {
@@ -1069,7 +1106,7 @@ public enum GcTableSyncSubtype {
    * @return the list of bind vars
    */
   private static List<List<Object>> convertToListOfBindVars (
-      Set<MultiKey> setOfMultiKeys) {
+      Collection<MultiKey> setOfMultiKeys) {
     List<List<Object>> bindVars = new ArrayList<List<Object>>();
     
     for (MultiKey multiKey : setOfMultiKeys) {
@@ -1347,7 +1384,7 @@ public enum GcTableSyncSubtype {
 
       if (GrouperClientUtils.length(groupingsToDelete) > 0) {
         for (int result : results) {
-          actualDeletes += result;
+          actualDeletes += Math.max(result, 0);
           if (result == 0) {
             missedDeletes++;
           }
@@ -1516,7 +1553,7 @@ public enum GcTableSyncSubtype {
    * @return the list of bind vars
    */
   private static List<List<Object>> convertToListOfBindVarsUpdate (
-      Set<MultiKey> setOfMultiKeys, Map<MultiKey, GcTableSyncRowData> allIndexByPrimaryKey) {
+      Collection<MultiKey> setOfMultiKeys, Map<MultiKey, GcTableSyncRowData> allIndexByPrimaryKey) {
     List<List<Object>> bindVars = new ArrayList<List<Object>>();
     
     for (MultiKey multiKey : setOfMultiKeys) {
@@ -1539,77 +1576,93 @@ public enum GcTableSyncSubtype {
   /**
    * 
    * @param debugMap
-   * @param dataBeanTo
-   * @param primaryKeysToUpdate
+   * @param gcTableSyncTableBeanTo
+   * @param primaryKeysToUpdateInput
    * @param allIndexByPrimaryKey
    * @param queryLogLabel
    * @return the number inserted
    */
   private static int runUpdates(Map<String, Object> debugMap, GcTableSyncTableBean gcTableSyncTableBeanTo,
-      Set<MultiKey> primaryKeysToUpdate,
+      Set<MultiKey> primaryKeysToUpdateInput,
       Map<MultiKey, GcTableSyncRowData> allIndexByPrimaryKey, String queryLogLabel) {
     long start = System.nanoTime();
     String sql = null;
     try {
-
-      int[] results = null;
       
-      if (GrouperClientUtils.length(primaryKeysToUpdate) > 0) {
-        //
-        GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanTo.getTableMetadata();
-        sql = "update " 
-            + gcTableSyncTableMetadata.getTableName() + " set  " 
-            + gcTableSyncTableMetadata.queryUpdateNonPrimaryKey()
-            +  " where " + gcTableSyncTableMetadata.queryWherePrimaryKey() ;
-    
-        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gcTableSyncTableMetadata.getConnectionName());
-    
-        List<List<Object>> bindVars = convertToListOfBindVarsUpdate(primaryKeysToUpdate, allIndexByPrimaryKey);
-        
-        gcDbAccess.batchBindVars(bindVars);
-    
-        gcDbAccess.batchSize(gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncConfiguration().getBatchSize());
-        
-        results = gcDbAccess.sql(sql).executeBatchSql();
-      }
+      logIncrement(debugMap,queryLogLabel + "Count", 0);
+      int totalUpdates = 0;
       
-      int updates = GrouperClientUtils.length(primaryKeysToUpdate);
-      int actualUpdates = 0;
-      int missedUpdates = 0;
-      int multiUpdateInstances = 0;
+      if (GrouperClientUtils.length(primaryKeysToUpdateInput) > 0) {
+        
+        // memory problems if doing too much at much
+        int batchSize = 10000;
+        
+        //List
+        List<MultiKey> primaryKeysToUpdateList = new ArrayList<MultiKey>(primaryKeysToUpdateInput);
 
-      if (GrouperClientUtils.length(results) > 0) {
-        for (int result : results) {
-          actualUpdates += Math.max(result, 0);
-          if (result == 0) {
-            missedUpdates++;
+        int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(primaryKeysToUpdateList, batchSize);
+        
+        for (int batchIndex = 0;batchIndex < numberOfBatches; batchIndex++) {
+
+          List<MultiKey> primaryKeysToUpdateBatch = GrouperClientUtils.batchList(primaryKeysToUpdateList, batchSize, batchIndex);
+      
+          //
+          GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanTo.getTableMetadata();
+          sql = "update " 
+              + gcTableSyncTableMetadata.getTableName() + " set  " 
+              + gcTableSyncTableMetadata.queryUpdateNonPrimaryKey()
+              +  " where " + gcTableSyncTableMetadata.queryWherePrimaryKey() ;
+      
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gcTableSyncTableMetadata.getConnectionName());
+      
+          List<List<Object>> bindVars = convertToListOfBindVarsUpdate(primaryKeysToUpdateBatch, allIndexByPrimaryKey);
+          
+          gcDbAccess.batchBindVars(bindVars);
+      
+          gcDbAccess.batchSize(gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncConfiguration().getBatchSize());
+          
+          int[] batchResults = gcDbAccess.sql(sql).executeBatchSql();
+          
+          int updates = GrouperClientUtils.length(primaryKeysToUpdateBatch);
+          int actualUpdates = 0;
+          int missedUpdates = 0;
+          int multiUpdateInstances = 0;
+
+          if (GrouperClientUtils.length(batchResults) > 0) {
+            for (int result : batchResults) {
+              actualUpdates += Math.max(result, 0);
+              if (result == 0) {
+                missedUpdates++;
+              }
+              // why would this happen???
+              if (result>1) {
+                multiUpdateInstances++;
+              }
+            }
           }
-          // why would this happen???
-          if (result>1) {
-            multiUpdateInstances++;
+          totalUpdates += actualUpdates;
+          logIncrement(debugMap,queryLogLabel + "Count", actualUpdates);
+          if (updates != actualUpdates) {
+            logIncrement(debugMap,queryLogLabel + "IntendedCount", updates);
           }
+          if (missedUpdates > 0) {
+            logIncrement(debugMap,queryLogLabel + "MissedUpdates", missedUpdates);
+          }
+          if (multiUpdateInstances > 0) {
+            logIncrement(debugMap,queryLogLabel + "PrimaryKeyProblems", multiUpdateInstances);
+          }
+          gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncOutput().addUpdate(actualUpdates);
         }
       }
-      debugMap.put(queryLogLabel + "Count", actualUpdates);
-      if (updates != actualUpdates) {
-        debugMap.put(queryLogLabel + "IntendedCount", updates);
-      }
-      if (missedUpdates > 0) {
-        debugMap.put(queryLogLabel + "MissedUpdates", missedUpdates);
-      }
-      if (multiUpdateInstances > 0) {
-        debugMap.put(queryLogLabel + "PrimaryKeyProblems", multiUpdateInstances);
-      }
-      gcTableSyncTableBeanTo.getGcTableSync().getGcTableSyncOutput().addUpdate(actualUpdates);
 
-      return actualUpdates;
+      return totalUpdates;
       
     } catch (RuntimeException re) {
       GrouperClientUtils.injectInException(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
       throw re;
     } finally {
       //temporarily store as micros, then divide in the end
-      debugMap.put(queryLogLabel + "Millis", (System.nanoTime() - start)/1000);
+      logIncrement(debugMap,queryLogLabel + "Millis", (System.nanoTime() - start)/1000);
     }
   }
 
@@ -1633,8 +1686,6 @@ public enum GcTableSyncSubtype {
       deletes = runDeletesOfGroupings(debugMap, gcTableSync.getDataBeanTo(), groupingsToDelete, "deleteGroupings");
       
     }      
-    
-    gcTableSync.getGcTableSyncOutput().setDelete(deletes);
     
     if (GrouperClientUtils.length(groupingsFrom) == 0) {
       return deletes;
@@ -1683,7 +1734,6 @@ public enum GcTableSyncSubtype {
 
       }      
     }
-    gcTableSync.getGcTableSyncOutput().setInsert(inserts);
     recordsUpdated += inserts;
     
     return recordsUpdated;
