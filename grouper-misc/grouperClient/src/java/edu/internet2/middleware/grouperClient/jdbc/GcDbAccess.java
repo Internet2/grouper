@@ -532,6 +532,11 @@ public class GcDbAccess {
         return count > 0;
       }
 
+      // if field is string, it must be not null
+      if (fieldValue != null && fieldValue instanceof String) {
+        return true;
+      }
+      
       // If field is numeric, it must be > 0.
       try{
         Long theId = new Long(String.valueOf(fieldValue));
@@ -745,13 +750,13 @@ public class GcDbAccess {
           if (LOG.isDebugEnabled()) {
             LOG.debug("Error trying to update a defaultUpdate record: " + t, re);
           }
-          this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey);
+          this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey, keepPrimaryKeyColumns);
         }
       } else {
         if (previouslyPersisted){
           this.storeToDatabaseUpdateHelper(t, columnNamesAndValues, primaryKey);
         } else {
-          this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey);
+          this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey, keepPrimaryKeyColumns);
         }
       }
       
@@ -771,7 +776,7 @@ public class GcDbAccess {
    * @param <T> is the type to store.
    * @param t is the object to store to the database.
    */
-  private <T> void storeToDatabaseInsertHelper(T t, Map<String, Object> columnNamesAndValues, Field primaryKey){
+  private <T> void storeToDatabaseInsertHelper(T t, Map<String, Object> columnNamesAndValues, Field primaryKey, boolean keepPrimaryKeyColumns){
 
     Object primaryKeyValue = null;
     List<Object> bindVarstoUse = new ArrayList<Object>();
@@ -788,7 +793,7 @@ public class GcDbAccess {
       }
 
       // Get a primary key from the sequence if it is not manually assigned.
-      if (primaryKey != null && !GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) && !GcPersistableHelper.findPersistableClassAnnotation(t.getClass()).hasNoPrimaryKey()){
+      if (!keepPrimaryKeyColumns && primaryKey != null && !GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) && !GcPersistableHelper.findPersistableClassAnnotation(t.getClass()).hasNoPrimaryKey()){
 
         sqlToUse.append(GcPersistableHelper.columnName(primaryKey));
         sqlToUse.append(") ");
@@ -2427,24 +2432,26 @@ public class GcDbAccess {
       case Types.TINYINT:
         
         BigDecimal bigDecimal = resultSet.getBigDecimal(columnNumberOneIndexed);
-        if (bigDecimal == null) {
-          return null;
-        }
-        return bigDecimal.longValue();
+        //  if (bigDecimal == null) {
+        //    return null;
+        //  }
+        //  return bigDecimal.longValue();
+        return bigDecimal;
         
       case Types.DECIMAL:
       case Types.DOUBLE:
       case Types.FLOAT:
       case Types.NUMERIC:
       case Types.REAL:
-        
+       
         bigDecimal = resultSet.getBigDecimal(columnNumberOneIndexed);
-        if (bigDecimal == null) {
-          return null;
-        }
-        if (this.resultSetMetaData.getScale(columnNumberOneIndexed) == 0) {
-          return bigDecimal.longValue();
-        }
+        //  if (bigDecimal == null) {
+        //    return null;
+        //  }
+        //  if (this.resultSetMetaData.getScale(columnNumberOneIndexed) == 0) {
+        //    return bigDecimal.longValue();
+        //  }
+        // if we want to go down this path, need to check to see if has decimal and convert to long
         return bigDecimal;
         
       case Types.CHAR:

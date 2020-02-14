@@ -300,7 +300,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
   /**
    * uuid of this record in this table
    */
-  @GcPersistableField(primaryKey=true, primaryKeyManuallyAssigned=true)
+  @GcPersistableField(primaryKey=true, primaryKeyManuallyAssigned=false)
   private String id;
 
   
