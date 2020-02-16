@@ -22,6 +22,11 @@
                   </c:if>
                 </ul>
                 <p class="lead">${textContainer.text['subjectViewGroupsDescription'] }</p>
+                
+                <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.isLocalEntityDisabled()}">
+                  <p class="lead" style="color: red">${textContainer.text['localEntityViewLocalEntityDisabled'] }
+                </c:if>
+                
                 <form class="form-inline form-small form-filter" id="groupFilterFormId">
                   <div class="row-fluid">
                     <div class="span1">

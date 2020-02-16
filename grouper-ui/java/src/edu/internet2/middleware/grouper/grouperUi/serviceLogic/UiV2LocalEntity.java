@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -646,6 +647,28 @@ public class UiV2LocalEntity {
         return;
         
       }
+      
+      Timestamp enabledDate = null;
+      try {
+        String enabledDateString = request.getParameter("enabledDate");
+        enabledDate = GrouperUtil.stringToTimestamp(enabledDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupEnabledDate",
+            TextContainer.retrieveFromRequest().getText().get("localEntityCreateErrorEnabledDateInvalid")));
+        return;
+      }
+
+      Timestamp disabledDate = null;
+      try {
+        String disabledDateString = request.getParameter("disabledDate");
+        disabledDate = GrouperUtil.stringToTimestamp(disabledDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupDisabledDate",
+            TextContainer.retrieveFromRequest().getText().get("localEntityCreateErrorDisabledDateInvalid")));
+        return;
+      }
   
       try {
   
@@ -654,8 +677,11 @@ public class UiV2LocalEntity {
             .assignSaveMode(SaveMode.UPDATE)
             .assignName(group.getParentStemName() + ":" + extension)
             .assignDisplayExtension(displayExtension).assignDescription(description).assignTypeOfGroup(TypeOfGroup.entity)
+            .assignEnabledTimestamp(enabledDate)
+            .assignDisabledTimestamp(disabledDate)
             .assignPrivAllAttrRead(attrReadChecked)
             .assignPrivAllView(viewChecked);
+          
         group = groupSave.save();
   
         boolean madeChange = groupSave.getSaveResultType() != SaveResultType.NO_CHANGE;

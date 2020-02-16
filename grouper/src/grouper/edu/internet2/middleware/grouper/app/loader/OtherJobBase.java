@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.app.loader;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.Job;
@@ -185,15 +186,33 @@ public abstract class OtherJobBase implements Job {
         GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
         assignedContext = true;
       }
+      boolean madeChange = false;
       if (hib3GrouperLoaderLog == null) {
         hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+        madeChange = true;
+      }
+      if (StringUtils.isBlank(hib3GrouperLoaderLog.getJobName())) {
         hib3GrouperLoaderLog.setJobName(jobName);
+        madeChange = true;
+      }
+      if (StringUtils.isBlank(hib3GrouperLoaderLog.getHost())) {
         hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+        madeChange = true;
+      }
+      if (null == hib3GrouperLoaderLog.getStartedTime()) {
         hib3GrouperLoaderLog.setStartedTime(new Timestamp(startTime));
-        hib3GrouperLoaderLog.setJobType("OTHER_JOB");
+        madeChange = true;
+      }
+      if (StringUtils.isBlank(hib3GrouperLoaderLog.getJobType())) {
+        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+        madeChange = true;
+      }
+      if (StringUtils.isBlank(hib3GrouperLoaderLog.getStatus())) {
         hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+        madeChange = true;
+      }
+      if (madeChange) {
         hib3GrouperLoaderLog.store();
-        
       }
       
       OtherJobInput otherJobInput = new OtherJobInput();

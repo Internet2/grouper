@@ -79,6 +79,10 @@
 
                     <p class="lead">${textContainer.text['groupViewMembersDescription'] }</p>
                     
+                    <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.group.isEnabled()}">
+                      <p class="lead" style="color: red">${textContainer.text['groupViewGroupDisabled'] }
+                    </c:if>
+                    
                     <c:if test="${grouperRequestContainer.attestationContainer.hasAttestationConfigured && grouperRequestContainer.attestationContainer.canWriteAttestation}" >
                       <c:choose>
                         <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.needsRecertify}">

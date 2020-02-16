@@ -12,6 +12,71 @@ import java.util.Set;
 public class GcTableSyncOutput {
 
   /**
+   * millis get data
+   */
+  private long millisGetData = 0;
+  
+  /**
+   * millis load data
+   */
+  private long millisLoadData = 0;
+  
+  
+  
+  /**
+   * millis get data
+   * @return
+   */
+  public long getMillisGetData() {
+    return this.millisGetData;
+  }
+
+  /**
+   * millis get data
+   * @param millisGetData1
+   */
+  public void setMillisGetData(long millisGetData1) {
+    this.millisGetData = millisGetData1;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public long getMillisLoadData() {
+    return this.millisLoadData;
+  }
+
+  /**
+   * 
+   * @param millisLoadData1
+   */
+  public void setMillisLoadData(long millisLoadData1) {
+    this.millisLoadData = millisLoadData1;
+  }
+
+  /**
+   * total count of records
+   */
+  private int totalCount;
+  
+  /**
+   * total count of records
+   * @return the total count
+   */
+  public int getTotalCount() {
+    return this.totalCount;
+  }
+
+  /**
+   * total count of records
+   * @param totalCount1
+   */
+  public void setTotalCount(int totalCount1) {
+    this.totalCount = totalCount1;
+  }
+
+  /**
    * groups that were switched to
    */
   private Set<String> switchedToGroups = null;

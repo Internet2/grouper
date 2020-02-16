@@ -15,9 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,10 +59,6 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfi
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstance;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceService;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -97,11 +92,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperWorkflowConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiLoaderManagedGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.WorkflowContainer;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
@@ -2180,6 +2173,28 @@ public class UiV2Group {
         return;
         
       }
+      
+      Timestamp enabledDate = null;
+      try {
+        String enabledDateString = request.getParameter("enabledDate");
+        enabledDate = GrouperUtil.stringToTimestamp(enabledDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupEnabledDate",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateErrorEnabledDateInvalid")));
+        return;
+      }
+
+      Timestamp disabledDate = null;
+      try {
+        String disabledDateString = request.getParameter("disabledDate");
+        disabledDate = GrouperUtil.stringToTimestamp(disabledDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupDisabledDate",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateErrorDisabledDateInvalid")));
+        return;
+      }
   
       try {
   
@@ -2190,6 +2205,8 @@ public class UiV2Group {
             .assignAlternateName(alternateName)
             .assignSetAlternateNameIfRename(setAlternateNameIfRename)
             .assignDisplayExtension(displayExtension).assignDescription(description).assignTypeOfGroup(typeOfGroup)
+            .assignEnabledTimestamp(enabledDate)
+            .assignDisabledTimestamp(disabledDate)
             .assignPrivAllAdmin(adminChecked).assignPrivAllAttrRead(attrReadChecked)
             .assignPrivAllAttrUpdate(attrUpdateChecked).assignPrivAllOptin(optinChecked)
             .assignPrivAllOptout(optoutChecked).assignPrivAllRead(readChecked)

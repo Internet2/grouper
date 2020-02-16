@@ -832,4 +832,23 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
     return "";
   }
   
+  /**
+   * @return true if this is a local entity that is disabled
+   */
+  public boolean isLocalEntityDisabled() {
+    if (this.subject == null) {
+      return false;
+    }
+    
+    if (!this.subject.getSourceId().equals("grouperEntities")) {
+      return false;
+    }
+    
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.subject.getId(), false);
+    if (group == null) {
+      return false;
+    }
+    
+    return !group.isEnabled();
+  }
 }

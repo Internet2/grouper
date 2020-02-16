@@ -80,6 +80,7 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
 
     gcGrouperSyncMembership.membershipId = this.membershipId;
     gcGrouperSyncMembership.membershipId2 = this.membershipId2;
+    gcGrouperSyncMembership.metadataUpdated = this.metadataUpdated;
 
     return gcGrouperSyncMembership;
   }
@@ -118,6 +119,7 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
 
         .append(this.membershipId, other.membershipId)
         .append(this.membershipId2, other.membershipId2)
+        .append(this.metadataUpdated, other.metadataUpdated)
         .isEquals();
 
   }
@@ -138,61 +140,6 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
     new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GcGrouperSyncMembership.class)).executeSql();
   }
 
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", 
-//      Types.VARCHAR, "40", true, true);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_id", 
-//      Types.VARCHAR, "40", false, true);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_group_id", 
-//      Types.VARCHAR, "40", false, true);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_member_id", 
-//      Types.VARCHAR, "40", false, true);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_target", 
-//      Types.VARCHAR, "1", false, false);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_target_insert_or_exists", 
-//      Types.VARCHAR, "1", false, false);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_target_start", 
-//      Types.TIMESTAMP, "10", false, false);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_target_end", 
-//      Types.TIMESTAMP, "10", false, false);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
-//      Types.TIMESTAMP, "10", false, true);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "membership_id", 
-//      Types.VARCHAR, "800", false, false);
-//
-//  GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "membership_id2", 
-//      Types.VARCHAR, "800", false, false);
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "id", "uuid of this record");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_id", "foreign key back to the sync table");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_group_id", "foreign key back to group table");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_member_id", "foreign key back to user table");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target", "T if exists in target/destination and F is not.  blank if not sure");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target_insert_or_exists", "T if inserted on the in_target_start date, or F if it existed then and not sure when inserted");
-//  
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target_start", "when this was put in target");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target_end", "when this was taken out of target");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "membership_id", "other metadata on membership");
-//
-//  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "membership_id2", "other metadata on membership");
-//
 
   /**
    * other metadata on membership
@@ -251,6 +198,29 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
    */
   public void setMembershipId(String membershipId1_1) {
     this.membershipId = membershipId1_1;
+  }
+
+  /**
+   * when metadata was last updated
+   */
+  private Timestamp metadataUpdated;
+  
+  
+  
+  /**
+   * when metadata was last updated
+   * @return
+   */
+  public Timestamp getMetadataUpdated() {
+    return this.metadataUpdated;
+  }
+
+  /**
+   * when metadata was last updated
+   * @param metadataUpdated1
+   */
+  public void setMetadataUpdated(Timestamp metadataUpdated1) {
+    this.metadataUpdated = metadataUpdated1;
   }
 
   /**
@@ -535,7 +505,9 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
         .append("inTargetInsertOrExistsDb", this.inTargetInsertOrExistsDb)
         .append("lastUpdated", this.lastUpdated)
         .append("membershipId", this.membershipId)
-        .append("membershipId2", this.membershipId2).build();
+        .append("membershipId2", this.membershipId2)
+        .append("metadataUpdated", this.metadataUpdated)
+        .build();
   }
 
   /**

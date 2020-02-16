@@ -21,9 +21,30 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 public class GcTableSync {
 
   /**
+   * put heartbeat logic to kick off at heartbeat
+   */
+  private Runnable heartbeatLogic;
+  
+  /**
    * if this is paused
    */
   private boolean paused = false;
+
+  /**
+   * put heartbeat logic to kick off at heartbeat
+   * @return
+   */
+  public Runnable getHeartbeatLogic() {
+    return this.heartbeatLogic;
+  }
+
+  /**
+   * put heartbeat logic to kick off at heartbeat
+   * @param heartbeatLogic1
+   */
+  public void setHeartbeatLogic(Runnable heartbeatLogic1) {
+    this.heartbeatLogic = heartbeatLogic1;
+  }
 
   /**
    * if this is paused
@@ -416,8 +437,102 @@ public class GcTableSync {
         if (label.endsWith("Millis")) {
           Object value = debugMap.get(label);
           if (value instanceof Number) {
-            debugMap.put(label, ((Number)value).longValue()/1000);
+            long millis = ((Number)value).longValue()/1000;
+            debugMap.put(label, millis);
           }
+        }
+      }
+      
+      // try to get the retrieved and updated times
+      {  
+        long retrieveMillis = 0;
+        long syncMillis = 0;
+
+        {
+          //  retrieveDataFromMillis: 412, 
+          //  retrieveDataToMillis: 420
+          Long retrieveDataFromMillis = (Long)debugMap.get("retrieveDataFromMillis");
+          Long retrieveDataToMillis = (Long)debugMap.get("retrieveDataToMillis");
+
+          // if we have both then we did this in threads so just take the max
+          if (retrieveDataFromMillis != null && retrieveDataToMillis != null) {
+            retrieveMillis += Math.max(retrieveDataFromMillis, retrieveDataToMillis);
+          } else if (retrieveDataFromMillis != null) {
+            retrieveMillis += retrieveDataFromMillis;
+          } else if (retrieveDataToMillis != null) {
+            retrieveMillis += retrieveDataToMillis;
+          }
+        }
+        {          
+          //  selectAllColumnsMillis: 1,
+          Long selectAllColumnsMillis = (Long)debugMap.get("selectAllColumnsMillis");
+          if (selectAllColumnsMillis != null) {
+            retrieveMillis += selectAllColumnsMillis;
+          }
+        }
+        {
+          //  retrieveChangeFlagFromMillis: 1
+          //  retrieveChangeFlagToMillis: 0
+          Long retrieveChangeFlagFromMillis = (Long)debugMap.get("retrieveChangeFlagFromMillis");
+          Long retrieveChangeFlagToMillis = (Long)debugMap.get("retrieveChangeFlagToMillis");
+
+          // if we have both then we did this in threads so just take the max
+          if (retrieveChangeFlagToMillis != null && retrieveChangeFlagFromMillis != null) {
+            retrieveMillis += Math.max(retrieveChangeFlagToMillis, retrieveChangeFlagFromMillis);
+          } else if (retrieveChangeFlagToMillis != null) {
+            retrieveMillis += retrieveChangeFlagToMillis;
+          } else if (retrieveChangeFlagFromMillis != null) {
+            retrieveMillis += retrieveChangeFlagFromMillis;
+          }
+        }
+        {
+          //  retrieveGroupsFromMillis: 30
+          //  retrieveGroupsToMillis: 0
+          Long retrieveGroupsFromMillis = (Long)debugMap.get("retrieveGroupsFromMillis");
+          Long retrieveGroupsToMillis = (Long)debugMap.get("retrieveGroupsToMillis");
+
+          // if we have both then we did this in threads so just take the max
+          if (retrieveGroupsToMillis != null && retrieveGroupsFromMillis != null) {
+            retrieveMillis += Math.max(retrieveGroupsToMillis, retrieveGroupsFromMillis);
+          } else if (retrieveGroupsToMillis != null) {
+            retrieveMillis += retrieveGroupsToMillis;
+          } else if (retrieveGroupsFromMillis != null) {
+            retrieveMillis += retrieveGroupsFromMillis;
+          }
+        }
+        {          
+          //  incrementalChangesMillis: 6, 
+          Long incrementalChangesMillis = (Long)debugMap.get("incrementalChangesMillis");
+          if (incrementalChangesMillis != null) {
+            retrieveMillis += incrementalChangesMillis;
+          }
+        }
+        {          
+          //  deletesMillis
+          Long deletesMillis = (Long)debugMap.get("deletesMillis");
+          if (deletesMillis != null) {
+            syncMillis += deletesMillis;
+          }
+        }
+        {          
+          //  insertsMillis
+          Long insertsMillis = (Long)debugMap.get("insertsMillis");
+          if (insertsMillis != null) {
+            syncMillis += insertsMillis;
+          }
+        }
+        {          
+          //  updatesMillis
+          Long updatesMillis = (Long)debugMap.get("updatesMillis");
+          if (updatesMillis != null) {
+            syncMillis += updatesMillis;
+          }
+        }
+        this.gcTableSyncOutput.setMillisGetData(retrieveMillis);
+        this.gcTableSyncOutput.setMillisLoadData(syncMillis);
+        
+        if (this.gcGrouperSync != null && this.gcGrouperSync.getRecordsCount() != null) {
+          this.gcTableSyncOutput.setTotalCount(this.gcGrouperSync.getRecordsCount());
         }
       }
       

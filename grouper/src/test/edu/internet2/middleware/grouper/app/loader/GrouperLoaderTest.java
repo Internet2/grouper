@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.sql.Connection;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,8 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import junit.textui.TestRunner;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.ddlutils.model.Database;
@@ -48,6 +47,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -73,6 +74,10 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.morphString.Morph;
+import junit.textui.TestRunner;
 
 
 /**
@@ -98,7 +103,7 @@ public class GrouperLoaderTest extends GrouperTest {
    */
   public static void main(String[] args) {
 
-    GrouperSession grouperSession = GrouperSession.startRootSession();
+//    GrouperSession grouperSession = GrouperSession.startRootSession();
 
 //    Group loaderGroup = GroupFinder.findByName(grouperSession, "test:testLoader", true);
 //
@@ -118,7 +123,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //
 //    for (String groupName : new String[]{"test:testGroup1", "test:testGroup2"}) {
 //      Group group = GroupFinder.findByName(grouperSession, groupName, false);
-//      if (group != null) {
+//      if (group != null
 //        group.delete();
 //      }
 //    }
@@ -126,14 +131,70 @@ public class GrouperLoaderTest extends GrouperTest {
 //    GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
 
 
-//    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderListSubjectIdentifierWithAndGroups"));
+//    TestRunner.run(new GrouperLoaderTest("testConnectionsLoaderAndClient"));
 //    new GrouperLoaderTest("whatever").ensureTestgrouperLoaderTables();
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderListSubjectIdAndSourceIdCaseInsensitive"));
+    TestRunner.run(new GrouperLoaderTest("testConnectionsLoaderAndClient"));
   }
 
+  /**
+   * 
+   */
+  public void testConnectionsLoaderAndClient() {
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("test.db.connect.multiple.dbs", false)) {
+      
+    }
+    
+    String grouperUrl = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");
+    String grouperUser = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.username");
+    String grouperPass = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.password");
+    grouperPass = Morph.decryptIfFile(grouperPass);
+    
+    String postgresUrl = "jdbc:postgresql://localhost:5432/postgres?currentSchema=grouper";
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("db.loaderConnection.url", postgresUrl);
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("db.loaderConnection.user", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("db.loaderConnection.pass", "grouper1");
+
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.clientConnection.url", postgresUrl);
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.clientConnection.user", "grouper2");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.jdbc.clientConnection.pass", "grouper21");
+  
+    GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb("grouper");
+    Connection connection = grouperLoaderDb.connection();
+    GrouperUtil.closeQuietly(connection);
+    
+    assertEquals(grouperUrl, grouperLoaderDb.getUrl());
+    assertEquals(grouperUser, grouperLoaderDb.getUser());
+    assertEquals(grouperPass, grouperLoaderDb.getPass());
+
+    new GcDbAccess().sql("select count(1) from grouper_groups").select(int.class);
+    new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_groups").select(int.class);
+
+    grouperLoaderDb = new GrouperLoaderDb("loaderConnection");
+    connection = grouperLoaderDb.connection();
+    GrouperUtil.closeQuietly(connection);
+    
+    assertEquals(postgresUrl, grouperLoaderDb.getUrl());
+    assertEquals("grouper", grouperLoaderDb.getUser());
+    assertEquals("grouper1", grouperLoaderDb.getPass());
+
+    new GcDbAccess().connectionName("loaderConnection").sql("select count(1) from test1").select(int.class);
+    
+    grouperLoaderDb = new GrouperLoaderDb("clientConnection");
+    connection = grouperLoaderDb.connection();
+    GrouperUtil.closeQuietly(connection);
+    
+    assertEquals(postgresUrl, grouperLoaderDb.getUrl());
+    assertEquals("grouper2", grouperLoaderDb.getUser());
+    assertEquals("grouper21", grouperLoaderDb.getPass());
+
+    new GcDbAccess().connectionName("loaderConnection").sql("select count(1) from test1").select(int.class);
+        
+  }
+  
   /**
    * 
    */

@@ -19,6 +19,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -734,5 +735,35 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   
   public boolean isTypeRole() {
     return this.group.getTypeOfGroup() == TypeOfGroup.role;
+  }
+  
+  /**
+   * enabled date label string yyyy/mm/dd hh24:mi:ss
+   * @return the enabled date label string yyyy/mm/dd hh24:mi:ss
+   */
+  public String getEnabledDateLabel() {
+        
+    if (this.group == null || this.group.getEnabledTime() == null) {
+      return null;
+    }
+    
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    
+    return simpleDateFormat.format(this.group.getEnabledTime());
+  }
+  
+  /**
+   * disabled date label string yyyy/mm/dd hh24:mi:ss
+   * @return the disabled date label string yyyy/mm/dd hh24:mi:ss
+   */
+  public String getDisabledDateLabel() {
+        
+    if (this.group == null || this.group.getDisabledTime() == null) {
+      return null;
+    }
+    
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    
+    return simpleDateFormat.format(this.group.getDisabledTime());
   }
 }
