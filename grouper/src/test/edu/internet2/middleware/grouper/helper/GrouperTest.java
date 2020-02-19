@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -81,8 +82,10 @@ import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -1027,6 +1030,9 @@ public class GrouperTest extends TestCase {
     //remove any settings in testconfig
     GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().clear();
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().clear();
+    GrouperWsConfigInApi.retrieveConfig().propertiesOverrideMap().clear();
+    GrouperUiConfigInApi.retrieveConfig().propertiesOverrideMap().clear();
     SubjectFinder.internalClearSubjectCustomizerCache();
 
     for (int i=0;i<20;i++) {
