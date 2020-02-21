@@ -6207,6 +6207,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       Set<String> immediateMembershipIdsToDisable = new LinkedHashSet<String>();
       for (Membership membershipToDisable : membershipsToDisable) {
         if (this.uuid.equals(membershipToDisable.getOwnerGroupId())) {
+          // if this is an admin priv, skip
+          if (membershipToDisable.getField().equals(AccessPrivilege.ADMIN.getField())) {
+            continue;
+          }
+          
           membershipToDisable.setOwnerGroup(this);
         }
         membershipToDisable.setEnabled(false);
@@ -6303,6 +6308,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       Set<String> immediateMembershipIdsToEnable = new LinkedHashSet<String>();
       for (Membership membershipToEnable : membershipsToEnable) {
         if (this.uuid.equals(membershipToEnable.getOwnerGroupId())) {
+          // if this is an admin priv, skip
+          if (membershipToEnable.getField().equals(AccessPrivilege.ADMIN.getField())) {
+            continue;
+          }
+          
           membershipToEnable.setOwnerGroup(this);
         }
         

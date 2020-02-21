@@ -74,7 +74,7 @@ public class TestDisabledGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestDisabledGroup("testFixEnabledDisabledStatusOnAttributes"));
+    TestRunner.run(new TestDisabledGroup("testAdminPrivilege"));
   }
   
   /**
@@ -115,6 +115,129 @@ public class TestDisabledGroup extends GrouperTest {
    */
   public TestDisabledGroup(String name) {
     super(name);
+  }
+  
+  /**
+   * 
+   */
+  public void testAdminPrivilege() {
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = edu.addChildGroup("test2", "test2");
+    Group group3 = edu.addChildGroup("test3", "test3");
+    Group group4 = edu.addChildGroup("test4", "test4");
+    group1.addMember(group2.toSubject());
+    group2.addMember(group3.toSubject());
+    group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
+    group2.grantPriv(group1.toSubject(), AccessPrivilege.ADMIN);
+    group2.grantPriv(group2.toSubject(), AccessPrivilege.ADMIN);
+    group2.grantPriv(group4.toSubject(), AccessPrivilege.ADMIN);
+    group3.addMember(SubjectTestHelper.SUBJ0);
+    edu.grantPriv(group2.toSubject(), NamingPrivilege.STEM_ATTR_READ);
+    
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    group2.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group2.store();
+    assertFalse(group2.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+    
+    group4.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group4.store();
+    assertFalse(group4.isEnabled());
+    
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group1.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group4.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());    
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry set enabledDb='F' where ownerGroupId = '" + group2.getUuid() + "'").executeUpdate();
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group1.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertEquals(3, Membership.internal_fixEnabledDisabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group1.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    ChangeLogTempToEntity.convertRecords();
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    grouperSession = GrouperSession.startRootSession();
+
+    group2.setEnabledTime(null);
+    group2.store();
+    assertTrue(group2.isEnabled());
+
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+    assertEquals(0, Group.internal_fixEnabledDisabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+    assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(edu.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("stemAttrRead", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group1.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());  
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group4.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    
+    group4.setEnabledTime(null);
+    group4.store();
+    assertTrue(group4.isEnabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group4.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());    
+
+    group4.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group4.store();
+    assertFalse(group4.isEnabled());
+    
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+
+    group2.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
+    group2.store();
+    assertFalse(group2.isEnabled());
+    
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group4.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group4.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false);
+    ms.setEnabledDb("T");
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    assertEquals(1, Membership.internal_fixEnabledDisabled());
+    
+    group4.setEnabledTime(null);
+    group4.store();
+    assertTrue(group4.isEnabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group4.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
+
+    group2.setEnabledTime(null);
+    group2.store();
+    assertTrue(group2.isEnabled());
+    assertEquals(0, Membership.internal_fixEnabledDisabled());
+
+    assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group4.toSubject(), true).getUuid(), FieldFinder.find("admins", true), "immediate", true, false).isEnabled());
   }
 
   /**

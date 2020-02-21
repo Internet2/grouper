@@ -2681,6 +2681,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllEnabledDisabledMismatch() {
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     
+    String adminFieldId = AccessPrivilege.ADMIN.getField().getId();
     // dividing up into 4 queries instead of a single large query with outer joins
     
     long now = System.currentTimeMillis();
@@ -2689,9 +2690,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       // owner and member are both groups
       StringBuilder sql = new StringBuilder(
           "select ms from ImmediateMembershipEntry as ms, Group as g, Member as m, Group as mg where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("
-            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and g.enabledDb = 'T' and mg.enabledDb = 'T') "
-            + " or (ms.enabledDb = 'T' and g.enabledDb = 'F') "
-            + " or (ms.enabledDb = 'T' and mg.enabledDb = 'F') "
+            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and (g.enabledDb = 'T' or ms.fieldId = '" + adminFieldId + "') and (mg.enabledDb = 'T' or (g.uuid = mg.uuid and ms.fieldId = '" + adminFieldId + "'))) "
+            + " or (ms.enabledDb = 'T' and g.enabledDb = 'F' and ms.fieldId <> '" + adminFieldId + "') "
+            + " or (ms.enabledDb = 'T' and mg.enabledDb = 'F' and (g.uuid <> mg.uuid or ms.fieldId <> '" + adminFieldId + "') ) "
             + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
             + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :now) "
             + " or (ms.enabledDb <> 'T' and ms.enabledDb <> 'F') "
@@ -2709,8 +2710,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       // owner is a group, member is not a group
       StringBuilder sql = new StringBuilder(
           "select ms from ImmediateMembershipEntry as ms, Group as g, Member as m where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("
-            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and g.enabledDb = 'T') "
-            + " or (ms.enabledDb = 'T' and g.enabledDb = 'F') "
+            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and (g.enabledDb = 'T' or ms.fieldId = '" + adminFieldId + "')) "
+            + " or (ms.enabledDb = 'T' and g.enabledDb = 'F' and ms.fieldId <> '" + adminFieldId + "') "
             + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
             + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :now) "
             + " or (ms.enabledDb <> 'T' and ms.enabledDb <> 'F') "
