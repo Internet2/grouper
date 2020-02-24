@@ -442,6 +442,11 @@
                 <includes>
                     <include>**/*.hbm.xml</include>
                     <include>edu/internet2/middleware/grouper/app/gsh/*.gsh</include>
+                    <include>edu/internet2/middleware/grouper/cfg/dbConfig/grouperTest.base.properties</include>
+                    <include>edu/internet2/middleware/grouper/cfg/dbConfig/grouper.dbConfigTest.base.properties</include>
+                    <include>edu/internet2/middleware/grouper/cfg/dbConfig/grouper.dbConfigTest.properties</include>
+                    <!-- This file is no longer being used in unit tests -->
+                    <!--<include>edu/internet2/middleware/grouper/xml/importXml/xmlImport_v1_6_0.xml</include>-->
                 </includes>
             </testResource>
         </testResources>

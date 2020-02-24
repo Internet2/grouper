@@ -495,7 +495,7 @@ public class Membership extends GrouperAPI implements
     }
     
     // if owner is a group, check group status.
-    if (this.ownerGroupId != null && !this.getOwnerGroup().isEnabled()) {
+    if (this.ownerGroupId != null && !this.getOwnerGroup().isEnabled() && !this.getField().equals(AccessPrivilege.ADMIN.getField())) {
       return false;
     }
     
@@ -503,7 +503,11 @@ public class Membership extends GrouperAPI implements
     if ((this.getMember().getSubjectSourceId().equals("g:gsa") || this.getMember().getSubjectSourceId().equals("grouperEntities"))) {
       Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMember().getSubjectId(), true, null);
       if (!memberGroup.isEnabled()) {
-        return false;
+        if (this.ownerGroupId != null && this.getOwnerGroup().equals(memberGroup) && this.getField().equals(AccessPrivilege.ADMIN.getField())) {
+          // if group has admin to self then skip
+        } else {
+          return false;
+        }
       }
     }
     
