@@ -28,9 +28,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -9419,13 +9424,71 @@ public class GrouperInstaller {
    */
   private void mainInstallContainerLogic() {
     
-    this.version = getClass().getPackage().getImplementationVersion();
-    if (this.version == null) {
-      // when you are running directly from eclipse without the jar file
-      this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    System.out.print("Use default path for external mount /opt/grouperMount (t|f) [t]: ");
+    boolean useDefaultPath = readFromStdInBoolean(true, "Placeholder");
+    
+    String path = File.separator + "opt" + File.separator + "grouperMount";
+    if (useDefaultPath == false) {
+      System.out.print("Please enter the full absolute path to external mounted directory: ");
+      
+      path = readFromStdIn("Placeholder");
+      while (true) {
+        if (GrouperInstallerUtils.isBlank(path) || !new File(path).exists()) {
+          System.out.print("Path is invalid. Please try again ");
+          path = readFromStdIn("Placeholder");
+        } else {
+          break;
+        }
+      }
     }
     
-    this.version = "2.5.11-beta";
+    // create README.txt file at the path
+    File readmeFile = new File(path + File.separator + "README.txt");
+    while (readmeFile.exists()) {
+      System.out.print("README.txt already exists at "+path);
+      System.out.print("Please delete it first and then press any key ");
+      readFromStdIn("Placeholder");
+      readmeFile = new File(path + File.separator + "README.txt");
+    }
+        
+    GrouperInstallerUtils.fileCreate(readmeFile);
+    
+    String dockerImageVersion = GrouperInstallerUtils.propertiesValue("grouperInstaller.docker.image.version", false);
+    
+    if (GrouperInstallerUtils.isBlank(dockerImageVersion)) {
+      dockerImageVersion = getClass().getPackage().getImplementationVersion();
+    }
+    
+    if (GrouperInstallerUtils.isBlank(dockerImageVersion)) {
+      dockerImageVersion = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    }
+    
+    StringBuilder contentToWrite = new StringBuilder("Make sure docker is installed and running. Run the following command to check if docker is installed.");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("which docker");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("If docker is not installed, go to: https://docs.docker.com/install/ and select the correct platform and follow the instructions. ");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    contentToWrite.append("Run the following command to check if docker is running");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("docker info");
+    
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("Run the following command to start docker if it's not running already. Command might vary based on the platform.");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("sudo service docker start");
+    
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
     
     List<String> commands = new ArrayList<String>();
     commands.add(shCommand());
@@ -9447,37 +9510,51 @@ public class GrouperInstaller {
         if (GrouperInstallerUtils.isNotBlank(error)) {
           System.out.println("Received error message: "+error);
         }
-        System.out.println("If you have docker installed and the above error is a mistake, then ignore it and paste the full path to docker");
-        System.out.println("If you do not have docker installed. Please install docker and come back and hit T to continue.");
-        String value = readFromStdIn("Placeholder");
         
-        while(true) {
-          if (value.trim().equalsIgnoreCase("")) {
-            System.out.println("Enter full path to docker or T");
-            value = readFromStdIn("Placeholder");
-          } else {            
-            break;
+        System.out.print("If you have docker installed, enter 't' otherwise enter 'f' ");
+        boolean isDockerInstalled = readFromStdInBoolean(null, "Placeholder");
+        
+        if (isDockerInstalled) {
+          System.out.print("Please enter the full absolute path to docker. eg: /usr/local/bin/docker ");
+          dockerLocation = readFromStdIn("Placeholder");
+          
+          while (true) {
+            if (GrouperInstallerUtils.isBlank(dockerLocation) || !new File(dockerLocation).exists()) {
+              System.out.print("Path is invalid. Please try again. ");
+              dockerLocation = readFromStdIn("Placeholder");
+            } else {
+              break;
+            }
           }
-        }
-        
-       
-        if (value.trim().equalsIgnoreCase("T")) {
+          
+        } else {
+          System.out.print("Please install docker then come back and press any key to continue ");
+          readFromStdIn("Placeholder");
           commandResult = GrouperInstallerUtils.execCommand(
               GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
               new File("."), null, false, false, true);
           continue;
-        } else {
-          dockerLocation = value;
         }
+        
       } else {
         // docker is installed
         dockerLocation = commandResult.getOutputText();
         System.out.println("We detected docker is installed at: "+commandResult.getOutputText());
-        System.out.print("If the path above is correct, hit Enter to continue or provide the full path where docker is installed: ");
-        String dockerLocationOrEnter = readFromStdIn("nothing");
+        System.out.print("Is the path above correct? (t|f) [t]: ");
+        boolean correctDockerLocationDetected = readFromStdInBoolean(true, "Placeholder");
         
-        if (GrouperInstallerUtils.isNotBlank(dockerLocationOrEnter)) {
-            dockerLocation = dockerLocationOrEnter;
+        if (correctDockerLocationDetected == false) {
+          System.out.print("Please enter the full absolute path to docker. eg: /usr/local/bin/docker ");
+          dockerLocation = readFromStdIn("Placeholder");
+          
+          while (true) {
+            if (GrouperInstallerUtils.isBlank(dockerLocation) || !new File(dockerLocation).exists()) {
+              System.out.print("Path is invalid. Please try again. ");
+              dockerLocation = readFromStdIn("Placeholder");
+            } else {
+              break;
+            }
+          }
         }
         
       }
@@ -9488,31 +9565,128 @@ public class GrouperInstaller {
     
     dockerLocation = dockerLocation.trim();
     
+    // check if docker is running or not. 
+    
     System.out.println("Going to check if docker is running.");
     boolean dockerIsRunning = false;
+    
+    while (true) {
+      try {
+        commandResult = GrouperInstallerUtils.execCommand(
+            new String[] {shCommand(), "-c", dockerLocation + " info"}, true, true, null, 
+            new File("."), null, false, false, true);
+        if (commandResult.getExitCode() == 0) {
+          dockerIsRunning = true;
+        }
+      } catch (Exception e) {}
+      
+      if (dockerIsRunning == false) {
+        
+        System.out.print("Could not determine if docker is running. You can run 'docker info' to check if docker is running. Do you have docker running? (t|f): ");
+        boolean isDockerRunning = readFromStdInBoolean(null, "Placeholder");
+        
+        if (isDockerRunning) {
+          break;
+        } else {
+          System.out.print("Start docker and press any key to continue ");
+          readFromStdIn("Placeholder");
+          continue;
+        }
+        
+      } else {
+        System.out.println("docker is running.");
+        System.out.println(commandResult.getOutputText());
+        break;
+      }
+    }
+    
+    
+    // if there's a container with name gsh, ws, ui, etc is already running. ask user to stop them first
+    
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Run the following command to view the containers names");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("docker ps --all --format \"{{.Names}}\" ");
+    contentToWrite.append("\n");
+    contentToWrite.append("If you have gsh, ws, gsh-ui-password, gsh-ws-password, grouper or ui containers already there. Please stop them, remove them and then continue.");
+    contentToWrite.append("\n");
+    
+    contentToWrite.append("To stop a running container, run the following command. ");
+    contentToWrite.append("\n");
+    contentToWrite.append("docker kill <container name>");
+    contentToWrite.append("\n");
+    contentToWrite.append("You might want to add -f flag to docker kill command if unable to stop.");
+    contentToWrite.append("\n");
+    contentToWrite.append("To remove the container, run the following command.");
+    contentToWrite.append("\n");
+    contentToWrite.append("docker rm <container name>");
+    contentToWrite.append("\n");
+    contentToWrite.append("You might want to add -f flag to docker rm command if unable to remove.");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    System.out.println("Going to check if gsh, ws, gsh-ui-password, gsh-ws-password, grouper or ui containers already exist.");
+    List<String> conflictingNames = new ArrayList<String>();
+    boolean conflictingNamesRanSuccessfully = false;
     try {
       commandResult = GrouperInstallerUtils.execCommand(
-          new String[] {shCommand(), "-c", dockerLocation + " -v"}, true, true, null, 
+          new String[] {shCommand(), "-c", dockerLocation + " ps --all --format \"{{.Names}}\""}, true, true, null, 
           new File("."), null, false, false, true);
       if (commandResult.getExitCode() == 0) {
-        dockerIsRunning = true;
+        conflictingNamesRanSuccessfully = true;
+        String containerNamesString = commandResult.getOutputText();
+        if (GrouperInstallerUtils.isNotBlank(containerNamesString)) {
+          String[] containerNames = containerNamesString.split("\n");
+          
+          List<String> containersThatCanCauseConflict = Arrays.asList("gsh", "ui", "ws", "gsh-ui-password", "gsh-ws-password", "grouper");
+          
+          for (String containerName: containerNames) {
+            if (containersThatCanCauseConflict.contains(containerName)) {
+              conflictingNames.add(containerName);
+            }
+          }
+        }
       }
     } catch (Exception e) {}
     
-    if (dockerIsRunning == false) {
-      System.out.println("Could not determine if docker is running. Please make sure docker is running before continuing");
-      System.out.print("Once docker is running, press any key to continue: ");
-      readFromStdIn("Placeholder");
-    } else {
-      System.out.println("docker is running.");
-      System.out.println(commandResult.getOutputText());
+    if (conflictingNamesRanSuccessfully == false) {
+      System.out.println("There was an error trying to figure out if gsh, ui, or ws containers already exist.");
+      System.out.println("Run docker ps --all --format \"{{.Names}}\" to see if gsh, ws, or ui already exist. Please delete them before proceeding.");
+      System.out.println("Run docker rm -f <container name> to force remove a docker container");
     }
     
-    System.out.println("Going to pull grouper docker image: tier/grouper:"+this.version);
+    if (conflictingNames.size() > 0) {
+      System.out.println("We found that containers with names "+String.join(", ", conflictingNames) + " already exist. Please delete them before proceeding.");
+      System.out.println("Command to delete a docker container is 'docker rm <container name>'. Use -f flag to force remove. ");
+      System.out.print("Press any key once you have deleted the conflicting containers. ");
+      readFromStdIn("Placeholder");
+    }
+    
+    // pull grouper docker image
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Pull grouper docker image by running the following command. ");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("docker pull tier/grouper:"+dockerImageVersion);
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    System.out.println("Going to pull grouper docker image: tier/grouper:"+dockerImageVersion);
     boolean pulledDockerImage = false;
     try {
       
-      String dockerPullCommand = dockerLocation + " pull tier/grouper:"+this.version;
+      String dockerPullCommand = dockerLocation + " pull tier/grouper:"+dockerImageVersion;
       
       commandResult = GrouperInstallerUtils.execCommand(
           new String[] {shCommand(), "-c", dockerPullCommand}, true, true, null, 
@@ -9520,7 +9694,6 @@ public class GrouperInstaller {
       
       if (commandResult.getExitCode() == 0) {
         pulledDockerImage = true;
-        System.out.println("pulled grouper docker image successfully.");
       }
       
       if (commandResult.getOutputText() != null) {
@@ -9532,122 +9705,250 @@ public class GrouperInstaller {
     }
     
     if(pulledDockerImage == false) {
-      System.out.println("Could not pull grouper docker image. Pull it manually by running: docker pull tier/grouper:"+version);
-      System.out.println("Press any key when done");
+      System.out.println("Could not pull grouper docker image. Pull it manually by running: docker pull tier/grouper:"+dockerImageVersion);
+      System.out.print("Press any key when done ");
       readFromStdIn("Placeholder");
     }
     
-    System.out.println("Please provide the path to external mounted directory. default is /opt/grouperMount");
-    String path = readFromStdIn("grouperInstaller.autorun.externalMountedDirectory");
+    // create logs directory
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Create logs directory in "+path);
+    contentToWrite.append("\n\n");
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    File logsDirectory = new File(path+File.separator+"logs"+File.separator+"sample.log");
+    GrouperInstallerUtils.createParentDirectories(logsDirectory);
+    
+    // create grouper.hibernate.properties file
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Create grouper.hibernate.properties file in " +path+"/conf");
+    contentToWrite.append("\n");
+    contentToWrite.append("Add the following lines to grouper.hibernate.properties file. Replace the placeholders below with actual values");
+    contentToWrite.append("\n");
+    contentToWrite.append("hibernate.connection.url = <db url> eg: jdbc:mysql://localhost:3306/grouper");
+    contentToWrite.append("\n");
+    contentToWrite.append("hibernate.connection.username = <user> eg: root");
+    contentToWrite.append("\n");
+    contentToWrite.append("hibernate.connection.password = <password> eg: admin");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouper.is.ui = ${java.lang.System.getenv().get('GROUPER_UI')}");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouper.is.ws = ${java.lang.System.getenv().get('GROUPER_WS')}");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouper.is.scim = ${java.lang.System.getenv().get('GROUPER_SCIM')}");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouper.is.daemon = ${java.lang.System.getenv().get('GROUPER_DAEMON')}");
+    contentToWrite.append("\n");
+    
+    contentToWrite.append("grouper.is.ui.basicAuthn = true");
+    contentToWrite.append("\n");
+    
+    contentToWrite.append("grouper.is.ws.basicAuthn = true");
+    contentToWrite.append("\n");
+    
+    contentToWrite.append("grouper.is.scim.basicAuthn = true");
+    contentToWrite.append("\n");
+    contentToWrite.append("\n");
+    contentToWrite.append("\n");
+    
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    System.out.println("Going to create grouper.hibernate.properties file in "+path + File.separator+ "conf");
     
     File grouperHibernatePropertiesFile = new File(path+File.separator+"conf"+File.separator+"grouper.hibernate.properties");
-    
+    boolean reuseHibernatePropertiesFile = false;
     while(true) {
       GrouperInstallerUtils.createParentDirectories(grouperHibernatePropertiesFile);
       if (grouperHibernatePropertiesFile.exists()) {
-        System.out.print("grouper.hibernate.properties already exists at "+grouperHibernatePropertiesFile.getParent()+". Please delete it and hit any key: ");
-        readFromStdIn("nothing");
+        System.out.println("grouper.hibernate.properties already exists at "+grouperHibernatePropertiesFile.getParent()+" ");
+        System.out.print("Do you want to reuse it (t|f) [t]: ");
+        reuseHibernatePropertiesFile = readFromStdInBoolean(true, "Placeholder");
+        if (reuseHibernatePropertiesFile) {
+          System.out.println("Going to reuse existing grouper.hibernate.properties file. ");
+          break;
+        } else {
+          System.out.print("Delete grouper.hibernate.properties and press any key to continue ");
+          readFromStdIn("nothing");
+          grouperHibernatePropertiesFile = new File(path+File.separator+"conf"+File.separator+"grouper.hibernate.properties");
+          continue;
+        }
       } else {
+        GrouperInstallerUtils.fileCreate(grouperHibernatePropertiesFile);
         break;
       }
     }
-    
-    GrouperInstallerUtils.fileCreate(grouperHibernatePropertiesFile);
     
     
     //####################################
     //ask about database
+    if (reuseHibernatePropertiesFile == false) {
+      System.out.print("Database setup");
 
-    System.out.print("Database setup");
-
-    System.out.println("\n##################################\n");
-    System.out.println("Example mysql URL: jdbc:mysql://localhost:3306/grouper");
-    System.out.println("Example oracle URL: jdbc:oracle:thin:@server.school.edu:1521:sid");
-    System.out.println("Example postgres URL: jdbc:postgresql://localhost:5432/database");
-    System.out.print("\nEnter the database URL: ");
-    String newDbUrl = readFromStdIn("grouperInstaller.autorun.dbUrl");
-    if (!GrouperInstallerUtils.isBlank(newDbUrl)) {
-      this.dbUrl = newDbUrl;
-      if (newDbUrl.contains("postgresql")) {
-        System.out.println("Note: you need to change the search sql in the jdbc source in the grouperApi/conf/sources.xml... the change is in the comments in that file");
-        for (int i=0;i<3;i++) {
-          System.out.print("Ready to continue? (t|f)? [t] ");
-          boolean shouldContinue = readFromStdInBoolean(true, "grouperInstaller.autorun.dbContinueAfterChangeSourcesXmlForPostgresSqlServer");
-          if (shouldContinue) {
-            break;
+      System.out.println("\n##################################\n");
+      System.out.println("Example mysql URL: jdbc:mysql://localhost:3306/grouper");
+      System.out.println("Example oracle URL: jdbc:oracle:thin:@server.school.edu:1521:sid");
+      System.out.println("Example postgres URL: jdbc:postgresql://localhost:5432/database");
+      System.out.print("\nEnter the database URL: ");
+      String newDbUrl = readFromStdIn("grouperInstaller.autorun.dbUrl");
+      if (!GrouperInstallerUtils.isBlank(newDbUrl)) {
+        this.dbUrl = newDbUrl;
+        if (newDbUrl.contains("postgresql")) {
+          System.out.println("Note: you need to change the search sql in the jdbc source in the grouperApi/conf/sources.xml... the change is in the comments in that file");
+          for (int i=0;i<3;i++) {
+            System.out.print("Ready to continue? (t|f)? [t] ");
+            boolean shouldContinue = readFromStdInBoolean(true, "grouperInstaller.autorun.dbContinueAfterChangeSourcesXmlForPostgresSqlServer");
+            if (shouldContinue) {
+              break;
+            }
           }
         }
       }
-    }
-    System.out.print("Database user: ");
-    String newDbUser = readFromStdIn("grouperInstaller.autorun.dbUser");
-    if (!GrouperInstallerUtils.isBlank(newDbUser)) {
-      this.dbUser = newDbUser;
-    }
-    System.out.print("Database password (note, you aren't setting the pass here, you are using an existing pass, this will be echoed back) [" 
-        + GrouperInstallerUtils.defaultIfEmpty(this.dbPass, "<blank>") + "]: ");
-    String newDbPass = readFromStdIn("grouperInstaller.autorun.dbPass");
-    if (!GrouperInstallerUtils.isBlank(newDbPass)) {
-      this.dbPass = newDbPass;
-    }
-
-    editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.url", this.dbUrl, false);
-    editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.username", this.dbUser, false);
-    editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.password", this.dbPass, false);
-    
-    
-    System.out.print("Please enter morphString password. Minimum 8 characters required: ");
-    String morphStringPasswd = null;
-    while (true) {      
-      String morphStringPassword = readFromStdIn("nothing");
-      if (GrouperInstallerUtils.isNotBlank(morphStringPassword) && morphStringPassword.trim().length() > 8) {
-        morphStringPasswd = morphStringPassword.trim();
-        break;
-      } else {
-        System.out.print("Password is invalid. Please try again: ");
+      System.out.print("Database user: ");
+      String newDbUser = readFromStdIn("grouperInstaller.autorun.dbUser");
+      if (!GrouperInstallerUtils.isBlank(newDbUser)) {
+        this.dbUser = newDbUser;
       }
+      System.out.print("Database password (note, you aren't setting the pass here, you are using an existing pass, this will be echoed back) [" 
+          + GrouperInstallerUtils.defaultIfEmpty(this.dbPass, "<blank>") + "]: ");
+      String newDbPass = readFromStdIn("grouperInstaller.autorun.dbPass");
+      if (!GrouperInstallerUtils.isBlank(newDbPass)) {
+        this.dbPass = newDbPass;
+      }
+
+      editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.url", this.dbUrl, false);
+      editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.username", this.dbUser, false);
+      editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.password", this.dbPass, false);
+      
+      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ui", "${java.lang.System.getenv().get('GROUPER_UI')}", false);
+      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ws", "${java.lang.System.getenv().get('GROUPER_WS')}", false);
+      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.scim", "${java.lang.System.getenv().get('GROUPER_SCIM')}", false);
+      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.daemon", "${java.lang.System.getenv().get('GROUPER_DAEMON')}", false);
+          
+      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ui.basicAuthn", "true", false);
+      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ws.basicAuthn", "true", false);
+      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.scim.basicAuthn", "true", false);
+    } 
+    
+    // create morphString.properties file
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Create morphString.properties file in "+path+"/conf");
+    contentToWrite.append("\n");
+    contentToWrite.append("Add the following lines to morphString.properties file. Replace the placeholders below with actual values");
+    contentToWrite.append("\n");
+    contentToWrite.append("encrypt.key = <random alphanumeric key with minimum 8 characters>");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
     }
+    
     
     File morphStringPropertiesFile = new File(path+File.separator+"conf"+File.separator+"morphString.properties");
     
     GrouperInstallerUtils.createParentDirectories(morphStringPropertiesFile);
-    
+    boolean reuseMorphStringPropertiesFile = false;
     while(true) {
       if (morphStringPropertiesFile.exists()) {
-        System.out.print("morphString.properties already exists at "+morphStringPropertiesFile.getParent()+". Please delete it and hit any key: ");
-        readFromStdIn("nothing");
+        System.out.println("morphString.properties already exists at "+morphStringPropertiesFile.getParent()+" ");
+        System.out.print("Do you want to reuse it (t|f) [t]: ");
+        reuseMorphStringPropertiesFile = readFromStdInBoolean(true, "Placeholder");
+        if (reuseMorphStringPropertiesFile) {
+          System.out.println("Going to reuse existing morphString.properties file. ");
+          break;
+        } else {
+          System.out.print("Delete morphString.properties and press any key to continue ");
+          readFromStdIn("nothing");
+          morphStringPropertiesFile = new File(path+File.separator+"conf"+File.separator+"morphString.properties");
+          continue;
+        }
       } else {
+        GrouperInstallerUtils.fileCreate(morphStringPropertiesFile);
         break;
       }
     }
     
-    GrouperInstallerUtils.fileCreate(morphStringPropertiesFile);
+    if (reuseMorphStringPropertiesFile == false) {
+      
+      String validCharactersMorphString = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+      SecureRandom sr = new SecureRandom();
+      
+      StringBuilder morphStringBuilder = new StringBuilder(20);
+      for( int i = 0; i < 20; i++ ) {
+        morphStringBuilder.append( validCharactersMorphString.charAt(sr.nextInt(validCharactersMorphString.length())));
+      }
+      
+      System.out.print("Do you want to use the randomly generated morphString key? (" +  morphStringBuilder.toString()+") (t|f) [t]: ");
+      boolean useAutoGeneratedMorphKey = readFromStdInBoolean(true, "Placeholder");
+      String morphStringPasswd = null;
+      if (useAutoGeneratedMorphKey == false) {
+        System.out.print("Enter morphString key. Minimum 8 characters required: ");
+        while (true) {          
+          String manualMorphKey = readFromStdIn("Placeholder");
+          if (GrouperInstallerUtils.isNotBlank(manualMorphKey) && manualMorphKey.trim().length() >= 8) {
+            morphStringPasswd = manualMorphKey.trim();
+            break;
+          } else {
+            System.out.print("morphStringPassword is invalid. Minimum 8 characters required. Please try again: ");
+            continue;
+          } 
+        }
+        
+      } else {
+        morphStringPasswd = morphStringBuilder.toString();
+      }
+      
+      editPropertiesFile(morphStringPropertiesFile, "encrypt.key", morphStringPasswd, false);
+    }
     
-    editPropertiesFile(morphStringPropertiesFile, "encrypt.key", morphStringPasswd, false);
+    // init the database
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Run the following command to init the database. It is not a required step.");
+    contentToWrite.append("\n");
     
-    System.out.print("Would you like to init the database (t|f)? [f] ");
-    boolean initdb = readFromStdInBoolean(null, "grouperInstaller.autorun.deleteAndInitDatabase");
+    StringBuilder buildInitCommand = new StringBuilder();
+    buildInitCommand.append("docker run --detach --mount type=bind,src=");
+    buildInitCommand.append(path+File.separator);
+    buildInitCommand.append("conf,dst=/opt/grouper/conf ");
+    buildInitCommand.append("--mount type=bind,src=");
+    buildInitCommand.append(path+File.separator);
+    buildInitCommand.append("logs,dst=/opt/grouper/logs ");
+    buildInitCommand.append("--mount type=bind,src=");
+    buildInitCommand.append(path+File.separator);
+    buildInitCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
+    buildInitCommand.append("--name gsh ");
+    buildInitCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh ");
+    buildInitCommand.append("tier/grouper:"+dockerImageVersion );
+    buildInitCommand.append(" -registry -check -runscript -noprompt");
+    
+    contentToWrite.append(buildInitCommand.toString());
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    System.out.print("Would you like to init the database (t|f)? [f]: ");
+    boolean initdb = readFromStdInBoolean(false, "Placeholder");
     if (initdb) {
       boolean dbInitialized = false;
       try {
         commands = new ArrayList<String>();
         commands.add(shCommand());
         commands.add("-c");
-        
-        StringBuilder buildInitCommand = new StringBuilder();
-        buildInitCommand.append("docker run --detach --mount type=bind,src=");
-        buildInitCommand.append(path+File.separator);
-        buildInitCommand.append("conf,dst=/opt/grouper/conf ");
-        buildInitCommand.append("--mount type=bind,src=");
-        buildInitCommand.append(path+File.separator);
-        buildInitCommand.append("logs,dst=/opt/grouper/logs ");
-        buildInitCommand.append("--mount type=bind,src=");
-        buildInitCommand.append(path+File.separator);
-        buildInitCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
-        buildInitCommand.append("--name gsh ");
-        buildInitCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh ");
-        buildInitCommand.append("tier/grouper:"+this.version );
-        buildInitCommand.append(" -registry -check -runscript -noprompt");
         
         commands.add(buildInitCommand.toString());
         
@@ -9662,26 +9963,51 @@ public class GrouperInstaller {
       } catch (Exception e) {}
       
       if (dbInitialized == false) {
-        System.out.println("Could not initialize db. Run the following command manually.");
-        System.out.println("docker run --detach \\\n" + 
-            "   --mount type=bind,src="+path+"/conf,dst=/opt/grouper/conf \\\n" + 
-            "   --mount type=bind,src="+path+"/logs,dst=/opt/grouper/logs \\\n" + 
-            "   --mount type=bind,src="+path+"/slashRoot,dst=/opt/grouper/slashRoot \\\n" + 
-            "   --name gsh \\\n" + 
-            "   --entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh \\\n" + 
-            "   tier/grouper:"+version+" \\\n" + 
-            "   -registry -check -runscript -noprompt");
-        System.out.print("Press any key to continue: ");
+        System.out.println("Could not initialize db. Run the following command manually in another terminal window/tab.");
+        System.out.println(buildInitCommand.toString());
+        System.out.print("Press any key to continue once the command has been run: ");
         readFromStdIn("Placeholder");
       } 
       
     }
     
-    System.out.print("Do you want to use grouper authenitcation for UI? (t|f)? [t]: ");
-    boolean useGrouperAuthenticationUi = readFromStdInBoolean(true, "grouperInstaller.autorun.useBuiltInGrouperAuthenticationUI");
+    // Add passwords for grouper ui
+    contentToWrite = new StringBuilder();    
+    contentToWrite.append("If you want to use grouper basic authentication for UI, follow the instructions below.");
+    contentToWrite.append("\n");
+    contentToWrite.append("Create createGrouperSystemPasswordUi.gsh file in "+path+File.separator+"slashRoot"+File.separator+"opt"+
+        File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin");
+    contentToWrite.append("\n");
+    contentToWrite.append("Add the following lines to createGrouperSystemPasswordUi.gsh. Replace placeholder with actual values below.");
+    contentToWrite.append("\n");
+    contentToWrite.append("GrouperSession grouperSession = GrouperSession.startRootSession();");
+    contentToWrite.append("\n");
+    contentToWrite.append("GrouperPasswordSave grouperPasswordSave = new GrouperPasswordSave();");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouperPasswordSave.assignUsername(\"GrouperSystem\");");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouperPasswordSave.assignEntityType(\"username\");");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouperPasswordSave.assignPassword(\"<password>\");");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouperPasswordSave.assignApplication(GrouperPassword.Application.UI);");
+    contentToWrite.append("\n");
+    contentToWrite.append("new Authentication().assignUserPassword(grouperPasswordSave);");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    try {
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    //System.out.print("Do you want to use grouper authenitcation for UI? (t|f)? [t]: ");
+    //boolean useGrouperAuthenticationUi = readFromStdInBoolean(true, "grouperInstaller.autorun.useBuiltInGrouperAuthenticationUI");
+    boolean useGrouperAuthenticationUi = true;
     
     if (useGrouperAuthenticationUi) {
-      System.out.print("Please enter the password for user GrouperSystem: ");
+      System.out.print("Enter the password for user GrouperSystem for grouper UI: ");
       String uiPassword = readFromStdIn("Placeholder");
       
       while (true) {
@@ -9695,55 +10021,78 @@ public class GrouperInstaller {
       
       File grouperUiSystemPasswordSh = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
           File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin"+File.separator+"createGrouperSystemPasswordUi.sh");
-      
+      GrouperInstallerUtils.createParentDirectories(grouperUiSystemPasswordSh);
+      boolean reuseCreateGrouperSystemPasswordUiFile = false;
       while(true) {
-        GrouperInstallerUtils.createParentDirectories(grouperUiSystemPasswordSh);
         if (grouperUiSystemPasswordSh.exists()) {
-          System.out.print("createGrouperSystemPasswordUi.sh already exists at "+grouperUiSystemPasswordSh.getParent()+". Please delete it and hit any key: ");
-          readFromStdIn("nothing");
+          System.out.println("createGrouperSystemPasswordUi.sh already exists at "+grouperUiSystemPasswordSh.getParent()+" ");
+          System.out.print("Do you want to reuse it (t|f) [t]: ");
+          reuseCreateGrouperSystemPasswordUiFile = readFromStdInBoolean(true, "Placeholder");
+          if (reuseCreateGrouperSystemPasswordUiFile) {
+            System.out.println("Going to reuse existing createGrouperSystemPasswordUi.sh file. ");
+            break;
+          } else {
+            System.out.print("Delete createGrouperSystemPasswordUi.sh and press any key to continue ");
+            readFromStdIn("nothing");
+            grouperUiSystemPasswordSh = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
+                File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin"+File.separator+"createGrouperSystemPasswordUi.sh");
+            continue;
+          }
         } else {
+          GrouperInstallerUtils.fileCreate(grouperUiSystemPasswordSh);
           break;
         }
       }
       
-      GrouperInstallerUtils.fileCreate(grouperUiSystemPasswordSh);
+      if (reuseCreateGrouperSystemPasswordUiFile == false) {
+        StringBuilder createPasswordCommands = new StringBuilder();
+        createPasswordCommands.append("GrouperSession grouperSession = GrouperSession.startRootSession(); \n");
+        createPasswordCommands.append("GrouperPasswordSave grouperPasswordSave = new GrouperPasswordSave(); \n");
+        createPasswordCommands.append("grouperPasswordSave.assignUsername(\"GrouperSystem\"); \n");
+        createPasswordCommands.append("grouperPasswordSave.assignEntityType(\"username\"); \n");
+        createPasswordCommands.append("grouperPasswordSave.assignPassword(\""+uiPassword+"\");");
+        createPasswordCommands.append("\n");
+        
+        createPasswordCommands.append("grouperPasswordSave.assignApplication(GrouperPassword.Application.UI); \n");
+        createPasswordCommands.append("new Authentication().assignUserPassword(grouperPasswordSave); \n");
+        
+        GrouperInstallerUtils.writeStringToFile(grouperUiSystemPasswordSh, createPasswordCommands.toString());
+      }
       
-      StringBuilder createPasswordCommands = new StringBuilder();
-      createPasswordCommands.append("GrouperSession grouperSession = GrouperSession.startRootSession(); \n");
-      createPasswordCommands.append("GrouperPasswordSave grouperPasswordSave = new GrouperPasswordSave(); \n");
-      createPasswordCommands.append("grouperPasswordSave.assignUsername(\"GrouperSystem\"); \n");
-      createPasswordCommands.append("grouperPasswordSave.assignEntityType(\"username\"); \n");
-      createPasswordCommands.append("grouperPasswordSave.assignPassword(\""+uiPassword+"\");");
-      createPasswordCommands.append("\n");
+      // run docker command to add UI password to grouper
+      contentToWrite = new StringBuilder();
+      contentToWrite.append("Run the following command to add UI password to grouper.");
+      contentToWrite.append("\n");
+      StringBuilder uiPasswordDockerCommand = new StringBuilder();
+      uiPasswordDockerCommand.append("docker run --detach --mount type=bind,src=");
+      uiPasswordDockerCommand.append(path+File.separator);
+      uiPasswordDockerCommand.append("conf,dst=/opt/grouper/conf ");
+      uiPasswordDockerCommand.append("--mount type=bind,src=");
+      uiPasswordDockerCommand.append(path+File.separator);
+      uiPasswordDockerCommand.append("logs,dst=/opt/grouper/logs ");
+      uiPasswordDockerCommand.append("--mount type=bind,src=");
+      uiPasswordDockerCommand.append(path+File.separator);
+      uiPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
+      uiPasswordDockerCommand.append("--name gsh-ui-password ");
+      uiPasswordDockerCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh ");
+      uiPasswordDockerCommand.append("tier/grouper:"+dockerImageVersion );
+      uiPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordUi.gsh");
+      contentToWrite.append(uiPasswordDockerCommand.toString());
+      contentToWrite.append("\n\n");
+      contentToWrite.append("\n\n");
+      try {
+        Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+      } catch (Exception e) {
+        System.out.println("Could not write to README.txt file.");
+      }
       
-      createPasswordCommands.append("grouperPasswordSave.assignApplication(GrouperPassword.Application.UI); \n");
-      createPasswordCommands.append("new Authentication().assignUserPassword(grouperPasswordSave); \n");
-      
-      GrouperInstallerUtils.writeStringToFile(grouperUiSystemPasswordSh, createPasswordCommands.toString());
       
       boolean uiPasswordCreated = false;
       try {
         commands = new ArrayList<String>();
         commands.add(shCommand());
         commands.add("-c");
-        
-        StringBuilder uiPasswordDockerCommand = new StringBuilder();
-        uiPasswordDockerCommand.append("docker run --detach --mount type=bind,src=");
-        uiPasswordDockerCommand.append(path+File.separator);
-        uiPasswordDockerCommand.append("conf,dst=/opt/grouper/conf ");
-        uiPasswordDockerCommand.append("--mount type=bind,src=");
-        uiPasswordDockerCommand.append(path+File.separator);
-        uiPasswordDockerCommand.append("logs,dst=/opt/grouper/logs ");
-        uiPasswordDockerCommand.append("--mount type=bind,src=");
-        uiPasswordDockerCommand.append(path+File.separator);
-        uiPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
-        uiPasswordDockerCommand.append("--name gsh ");
-        uiPasswordDockerCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh ");
-        uiPasswordDockerCommand.append("tier/grouper:"+version );
-        uiPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordUi.gsh");
-        
         commands.add(uiPasswordDockerCommand.toString());
-        
         commandResult = GrouperInstallerUtils.execCommand(
             GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
             new File("."), null, false, false, true);
@@ -9755,27 +10104,68 @@ public class GrouperInstaller {
       } catch (Exception e) {}
       
       if (uiPasswordCreated == false) {
-        System.out.println("Could not create password fro UI. Run the following command manually.");
-        System.out.println("docker run --detach \\\n" + 
-            "   --mount type=bind,src="+path+"/conf,dst=/opt/grouper/conf \\\n" + 
-            "   --mount type=bind,src="+path+"/logs,dst=/opt/grouper/logs \\\n" + 
-            "   --mount type=bind,src="+path+"/slashRoot,dst=/opt/grouper/slashRoot \\\n" + 
-            "   --name gsh \\\n" + 
-            "   --entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh \\\n" + 
-            "   tier/grouper:"+version+" \\\n" + 
-            "   /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordUi.gsh");
+        System.out.println("Could not create password for grouper UI. Run the following command manually.");
+        System.out.println(uiPasswordDockerCommand.toString());
         System.out.print("Press any key to continue");
         readFromStdIn("Placeholder");
-      } 
+      }
+      
+      // remove createGrouperSystemPasswordUi.sh file
+      contentToWrite = new StringBuilder();    
+      contentToWrite.append("Delete createGrouperSystemPasswordUi.sh file from "+path+File.separator+"slashRoot"+File.separator+"opt"+
+          File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin");
+      contentToWrite.append(" because it contains password in plain text.");
+      contentToWrite.append("\n\n");
+      try {
+        Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+      } catch (Exception e) {
+        System.out.println("Could not write to README.txt file.");
+      }
+      
+      grouperUiSystemPasswordSh.delete();
       
     }
     
     
-    System.out.print("Do you want to use grouper authenitcation for WS? (t|f)? [t]: ");
-    boolean useGrouperAuthenticationWs = readFromStdInBoolean(true, "grouperInstaller.autorun.useBuiltInGrouperAuthenticationWS");
+    
+    
+    
+    // Add passwords for grouper ws
+    contentToWrite = new StringBuilder();    
+    contentToWrite.append("If you want to use grouper basic authentication for grouper web services, follow the instructions below.");
+    contentToWrite.append("\n");
+    contentToWrite.append("Create createGrouperSystemPasswordWs.gsh file in "+path+File.separator+"slashRoot"+File.separator+"opt"+
+        File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin");
+    contentToWrite.append("\n");
+    contentToWrite.append("Add the following lines to createGrouperSystemPasswordWs.gsh. Replace placeholder with actual values below.");
+    contentToWrite.append("\n");
+    contentToWrite.append("GrouperSession grouperSession = GrouperSession.startRootSession();");
+    contentToWrite.append("\n");
+    contentToWrite.append("GrouperPasswordSave grouperPasswordSave = new GrouperPasswordSave();");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouperPasswordSave.assignUsername(\"GrouperSystem\");");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouperPasswordSave.assignEntityType(\"username\");");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouperPasswordSave.assignPassword(\"<password>\");");
+    contentToWrite.append("\n");
+    contentToWrite.append("grouperPasswordSave.assignApplication(GrouperPassword.Application.WS);");
+    contentToWrite.append("\n");
+    contentToWrite.append("new Authentication().assignUserPassword(grouperPasswordSave);");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    try {
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+//    System.out.print("Do you want to use grouper authenitcation for WS? (t|f)? [t]: ");
+//    boolean useGrouperAuthenticationWs = readFromStdInBoolean(true, "grouperInstaller.autorun.useBuiltInGrouperAuthenticationWS");
+    boolean useGrouperAuthenticationWs = true;
     
     if (useGrouperAuthenticationWs) {
-      System.out.print("Please enter the password for user GrouperSystem: ");
+      System.out.print("Please enter the password for user GrouperSystem for grouper web services: ");
       String wsPassword = readFromStdIn("Placeholder");
       
       while (true) {
@@ -9789,52 +10179,76 @@ public class GrouperInstaller {
       
       File grouperWsSystemPasswordSh = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
           File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin"+File.separator+"createGrouperSystemPasswordWs.sh");
-      
+      GrouperInstallerUtils.createParentDirectories(grouperWsSystemPasswordSh);
+      boolean reuseCreateGrouperSystemPasswordWsFile = false;
       while(true) {
-        GrouperInstallerUtils.createParentDirectories(grouperWsSystemPasswordSh);
         if (grouperWsSystemPasswordSh.exists()) {
-          System.out.println("createGrouperSystemPasswordWs.sh already exists at "+grouperWsSystemPasswordSh.getParent()+". Please delete it and hit Enter");
-          readFromStdIn("nothing");
+          System.out.println("createGrouperSystemPasswordWs.sh already exists at "+grouperWsSystemPasswordSh.getParent()+" ");
+          System.out.print("Do you want to reuse it (t|f) [t]: ");
+          reuseCreateGrouperSystemPasswordWsFile = readFromStdInBoolean(true, "Placeholder");
+          if (reuseCreateGrouperSystemPasswordWsFile) {
+            System.out.println("Going to reuse existing createGrouperSystemPasswordWs.sh file. ");
+            break;
+          } else {
+            System.out.print("Delete createGrouperSystemPasswordWs.sh and press any key to continue ");
+            readFromStdIn("nothing");
+            grouperWsSystemPasswordSh = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
+                File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin"+File.separator+"createGrouperSystemPasswordWs.sh");
+            continue;
+          }
         } else {
+          GrouperInstallerUtils.fileCreate(grouperWsSystemPasswordSh);
           break;
         }
       }
       
-      GrouperInstallerUtils.fileCreate(grouperWsSystemPasswordSh);
+      if (reuseCreateGrouperSystemPasswordWsFile == false) {
+        StringBuilder createPasswordCommands = new StringBuilder();
+        createPasswordCommands.append("GrouperSession grouperSession = GrouperSession.startRootSession(); \n");
+        createPasswordCommands.append("GrouperPasswordSave grouperPasswordSave = new GrouperPasswordSave(); \n");
+        createPasswordCommands.append("grouperPasswordSave.assignUsername(\"GrouperSystem\"); \n");
+        createPasswordCommands.append("grouperPasswordSave.assignEntityType(\"username\"); \n");
+        createPasswordCommands.append("grouperPasswordSave.assignPassword(\""+wsPassword+"\"); \n");
+        createPasswordCommands.append("\n");
+        
+        createPasswordCommands.append("grouperPasswordSave.assignApplication(GrouperPassword.Application.WS); \n");
+        createPasswordCommands.append("new Authentication().assignUserPassword(grouperPasswordSave); \n");
+        
+        GrouperInstallerUtils.writeStringToFile(grouperWsSystemPasswordSh, createPasswordCommands.toString());
+      }
       
-      StringBuilder createPasswordCommands = new StringBuilder();
-      createPasswordCommands.append("GrouperSession grouperSession = GrouperSession.startRootSession(); \n");
-      createPasswordCommands.append("GrouperPasswordSave grouperPasswordSave = new GrouperPasswordSave(); \n");
-      createPasswordCommands.append("grouperPasswordSave.assignUsername(\"GrouperSystem\"); \n");
-      createPasswordCommands.append("grouperPasswordSave.assignEntityType(\"username\"); \n");
-      createPasswordCommands.append("grouperPasswordSave.assignPassword(\""+wsPassword+"\"); \n");
-      createPasswordCommands.append("\n");
-      
-      createPasswordCommands.append("grouperPasswordSave.assignApplication(GrouperPassword.Application.WS); \n");
-      createPasswordCommands.append("new Authentication().assignUserPassword(grouperPasswordSave); \n");
-      
-      GrouperInstallerUtils.writeStringToFile(grouperWsSystemPasswordSh, createPasswordCommands.toString());
+   // run docker command to add WS password to grouper
+      contentToWrite = new StringBuilder();
+      contentToWrite.append("Run the following command to add WS password to grouper.");
+      contentToWrite.append("\n");
+      StringBuilder wsPasswordDockerCommand = new StringBuilder();
+      wsPasswordDockerCommand.append("docker run --detach --mount type=bind,src=");
+      wsPasswordDockerCommand.append(path+File.separator);
+      wsPasswordDockerCommand.append("conf,dst=/opt/grouper/conf ");
+      wsPasswordDockerCommand.append("--mount type=bind,src=");
+      wsPasswordDockerCommand.append(path+File.separator);
+      wsPasswordDockerCommand.append("logs,dst=/opt/grouper/logs ");
+      wsPasswordDockerCommand.append("--mount type=bind,src=");
+      wsPasswordDockerCommand.append(path+File.separator);
+      wsPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
+      wsPasswordDockerCommand.append("--name gsh-ws-password ");
+      wsPasswordDockerCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh ");
+      wsPasswordDockerCommand.append("tier/grouper:"+dockerImageVersion );
+      wsPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordWs.gsh");
+      contentToWrite.append(wsPasswordDockerCommand.toString());
+      contentToWrite.append("\n\n");
+      contentToWrite.append("\n\n");
+      try {
+        Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+      } catch (Exception e) {
+        System.out.println("Could not write to README.txt file.");
+      }
       
       boolean wsPasswordCreated = false;
       try {
         commands = new ArrayList<String>();
         commands.add(shCommand());
         commands.add("-c");
-        
-        StringBuilder wsPasswordDockerCommand = new StringBuilder();
-        wsPasswordDockerCommand.append("docker run --detach --mount type=bind,src=");
-        wsPasswordDockerCommand.append(path+File.separator);
-        wsPasswordDockerCommand.append("conf,dst=/opt/grouper/conf ");
-        wsPasswordDockerCommand.append("--mount type=bind,src=");
-        wsPasswordDockerCommand.append(path+File.separator);
-        wsPasswordDockerCommand.append("logs,dst=/opt/grouper/logs ");
-        wsPasswordDockerCommand.append("--mount type=bind,src=");
-        wsPasswordDockerCommand.append(path+File.separator);
-        wsPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
-        wsPasswordDockerCommand.append("--name gsh ");
-        wsPasswordDockerCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh ");
-        wsPasswordDockerCommand.append("tier/grouper:"+version );
-        wsPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordWs.gsh");
         
         commands.add(wsPasswordDockerCommand.toString());
         
@@ -9849,51 +10263,60 @@ public class GrouperInstaller {
       } catch (Exception e) {}
       
       if (wsPasswordCreated == false) {
-        System.out.println("Could not create password fro UI. Run the following command manually.");
-        System.out.println("docker run --detach \\\n" + 
-            "   --mount type=bind,src="+path+"/conf,dst=/opt/grouper/conf \n" + 
-            "   --mount type=bind,src="+path+"/logs,dst=/opt/grouper/logs \\\n" + 
-            "   --mount type=bind,src="+path+"/slashRoot,dst=/opt/grouper/slashRoot \\\n" + 
-            "   --name gsh \\\n" + 
-            "   --entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh \\\n" + 
-            "   tier/grouper:"+version+" \\\n" + 
-            "   /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordWs.gsh");
+        System.out.println("Could not create password for WS. Run the following command manually.");
+        System.out.println(wsPasswordDockerCommand.toString());
         System.out.print("Press any key to continue");
         readFromStdIn("Placeholder");
       }
       
+      // remove createGrouperSystemPasswordWs.sh file
+      contentToWrite = new StringBuilder();    
+      contentToWrite.append("Delete createGrouperSystemPasswordWs.sh file from "+path+File.separator+"slashRoot"+File.separator+"opt"+
+          File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin");
+      contentToWrite.append(" because it contains password in plain text.");
+      contentToWrite.append("\n\n");
+      try {
+        Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+      } catch (Exception e) {
+        System.out.println("Could not write to README.txt file.");
+      }
+      
+      grouperWsSystemPasswordSh.delete();
+      
     }
     
+    // start the container
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Run the following command to start the container.");
+    contentToWrite.append("\n");
+    StringBuilder grouperContainerStartDockerCommand = new StringBuilder();
+    grouperContainerStartDockerCommand.append("docker run --detach --publish 443:443 --mount type=bind,src=");
+    grouperContainerStartDockerCommand.append(path+File.separator);
+    grouperContainerStartDockerCommand.append("conf,dst=/opt/grouper/conf ");
+    grouperContainerStartDockerCommand.append("--mount type=bind,src=");
+    grouperContainerStartDockerCommand.append(path+File.separator);
+    grouperContainerStartDockerCommand.append("logs,dst=/opt/grouper/logs ");
+    grouperContainerStartDockerCommand.append("--mount type=bind,src=");
+    grouperContainerStartDockerCommand.append(path+File.separator);
+    grouperContainerStartDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
+    grouperContainerStartDockerCommand.append("--restart always --name grouper ");
+    grouperContainerStartDockerCommand.append("tier/grouper:"+dockerImageVersion );
+    grouperContainerStartDockerCommand.append("-e GROUPER_UI = 'true' -e GROUPER_WS='true' -e GROUPER_DAEMON='true' -e GROUPER_SCIM='true' ");
+    grouperContainerStartDockerCommand.append("-e RUN_APACHE = 'true' -e RUN_SHIB_SP='false' -e RUN_TOMEE='true' ");
+    contentToWrite.append(grouperContainerStartDockerCommand.toString());
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    try {
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
     System.out.print("Press any key to start the container: ");
     boolean dockerGrouperContainerStarted = false;
     try {
       commands = new ArrayList<String>();
       commands.add(shCommand());
       commands.add("-c");
-      
-//      docker run --detach --publish 443:443 \
-//      --mount type=bind,src=</opt/grouperMount>/conf,dst=/opt/grouper/conf \
-//      --mount type=bind,src=</opt/grouperMount>/logs,dst=/opt/grouper/logs \
-//      --mount type=bind,src=</opt/grouperMount>/slashRoot=/opt/grouper/slashRoot \
-//      --restart always --name grouper \
-//      tier/grouper:2.5.x \
-//      -e GROUPER_UI='true' -e GROUPER_WS='true' -e GROUPER_DAEMON='true' -e GROUPER_SCIM='true' \
-//      -e RUN_APACHE='true' -e RUN_SHIB_SP='false' -e RUN_TOMEE='true'
-      
-      StringBuilder grouperContainerStartDockerCommand = new StringBuilder();
-      grouperContainerStartDockerCommand.append("docker run --detach --publish 443:443 --mount type=bind,src=");
-      grouperContainerStartDockerCommand.append(path+File.separator);
-      grouperContainerStartDockerCommand.append("conf,dst=/opt/grouper/conf ");
-      grouperContainerStartDockerCommand.append("--mount type=bind,src=");
-      grouperContainerStartDockerCommand.append(path+File.separator);
-      grouperContainerStartDockerCommand.append("logs,dst=/opt/grouper/logs ");
-      grouperContainerStartDockerCommand.append("--mount type=bind,src=");
-      grouperContainerStartDockerCommand.append(path+File.separator);
-      grouperContainerStartDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
-      grouperContainerStartDockerCommand.append("--restart always --name grouper ");
-      grouperContainerStartDockerCommand.append("tier/grouper:"+version );
-      grouperContainerStartDockerCommand.append("-e GROUPER_UI = 'true' -e GROUPER_WS='true' -e GROUPER_DAEMON='true' -e GROUPER_SCIM='true' ");
-      grouperContainerStartDockerCommand.append("-e RUN_APACHE = 'true' -e RUN_SHIB_SP='false' -e RUN_TOMEE='true' ");
       
       commands.add(grouperContainerStartDockerCommand.toString());
       
@@ -9908,19 +10331,14 @@ public class GrouperInstaller {
     } catch (Exception e) {}
     
     if (dockerGrouperContainerStarted == false) {
-      System.out.println("Could not create password fro UI. Run the following command manually.");
-      System.out.println("docker run --detach --publish 443:443 \\\n" + 
-          "   --mount type=bind,src="+path+"/conf,dst=/opt/grouper/conf \\\n" + 
-          "   --mount type=bind,src="+path+"/logs,dst=/opt/grouper/logs \\\n" + 
-          "   --mount type=bind,src="+path+"/slashRoot,dst=/opt/grouper/slashRoot \\\n" + 
-          "   --restart always --name grouper \\\n" + 
-          "   tier/grouper:"+version+" \\\n" + 
-          "   -e GROUPER_UI='true' -e GROUPER_WS='true' -e GROUPER_DAEMON='true' -e GROUPER_SCIM='true' \\\n" + 
-          "   -e RUN_APACHE='true' -e RUN_SHIB_SP='false' -e RUN_TOMEE='true'");
-      System.out.print("Press any key to continue");
-      readFromStdIn("Placeholder");
+      System.out.println("Could not start grouper container. Run the following command manually.");
+      System.out.println(grouperContainerStartDockerCommand.toString());
+    } else {
+      System.out.println("Inside container grouper runs on port 8080");
     }
     
+    System.out.print("Press any key to exit ");
+    readFromStdIn("Placeholder");
   }
     
   /**
@@ -9936,6 +10354,8 @@ public class GrouperInstaller {
       // when you are running directly from eclipse without the jar file
       this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
     }
+    
+    this.version = "2.5.11";
     
     System.out.println("Installing grouper version: " + this.version);
     
