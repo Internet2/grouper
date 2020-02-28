@@ -72,7 +72,7 @@ d3.gantt = function() {
     initAxis();
 
     var div = d3
-      .select(selector)
+      .select('body')
       .append('div')
       .attr('class', 'd3tooltip')
       .style('opacity', 0);
@@ -90,6 +90,7 @@ d3.gantt = function() {
 
     var bar = svg.selectAll(".chart")
       .data(tasks, keyFunction).enter()
+      .append("svg:a").attr("xlink:href", function(d){return d.hasOwnProperty("url") ? d.url : null;})
       .append("rect")
       .attr("class", function(d) {
         if (taskStatus[d.status] == null) {
@@ -112,7 +113,7 @@ d3.gantt = function() {
           .duration(200)
           .style('opacity', 0.9);
         div
-          .html('start date:' + d.startDate + '<br/>end date:' + d.endDate)
+          .html(d.hasOwnProperty('tooltip') ? d.tooltip : 'start date:' + d.startDate + '<br/>end date:' + d.endDate)
           .style('left', d3.event.pageX + 'px')
           .style('top', d3.event.pageY + 'px');
       })
@@ -121,7 +122,7 @@ d3.gantt = function() {
           .transition()
           .duration(500)
           .style('opacity', 0);
-      });;
+      });
 
     var gx = svg.append("g")
       .attr("class", "x axis")
