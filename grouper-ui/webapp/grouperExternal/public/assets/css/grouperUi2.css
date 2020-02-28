@@ -136,3 +136,55 @@ div.visualization-text-node {
 .table-striped4 tbody > tr:nth-child(4n+4) > th {
   background-color: #cccccc;
 }*/
+
+/* misc -> job history chart */
+#jobHistoryChartPaneDiv .chart {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+#jobHistoryChartPaneDiv .axis path, #jobHistoryChartPaneDiv .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+#jobHistoryChartPaneDiv .status-started {
+  fill: blue; //#33b5e5
+}
+
+#jobHistoryChartPaneDiv .status-running {
+  fill: purple; //#CC0000
+}
+
+#jobHistoryChartPaneDiv .status-config_error {
+  fill: red; //#669900
+}
+
+#jobHistoryChartPaneDiv .status-subject_problems {
+  fill: ; //#33b5e5
+}
+
+#jobHistoryChartPaneDiv .status-success {
+  fill: green; //#ffbb33
+}
+
+#jobHistoryChartPaneDiv .status-warning {
+  fill: orange; //#ffbb33
+}
+
+#jobHistoryChartPaneDiv .status-error {
+  fill: red;
+}
+
+/*#jobHistoryChartPaneDiv .d3tooltip {*/
+.d3tooltip {
+  color: white;
+  position: absolute;
+  text-align: center;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: rgba(0,0,0,.8);
+  border: 2px solid black;
+  pointer-events: none;
+}

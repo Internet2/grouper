@@ -5,6 +5,9 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +47,14 @@ public class AdminContainer {
   private boolean daemonJobsShowOnlyErrors = false;
   
   private List<GuiHib3GrouperLoaderLog> guiHib3GrouperLoaderLogs;
-  
+
+  private String guiJobHistoryDateFrom;
+  private String guiJobHistoryTimeFrom;
+  private String guiJobHistoryDateTo;
+  private String guiJobHistoryTimeTo;
+  private String guiJobHistoryMinimumElapsedSeconds;
+  private String guiJobHistoryNamesLikeFilter;
+
   /**
    * paging for daemon jobs
    */
@@ -392,5 +402,57 @@ public class AdminContainer {
    */
   public int getDaemonJobsViewLogsNumberOfRows() {
     return GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.loader.logs.maxSize", 400);
+  }
+
+  public String getGuiJobHistoryDateFrom() {
+    return guiJobHistoryDateFrom;
+  }
+
+  public void setGuiJobHistoryDateFrom(String guiJobHistoryDateFrom) {
+    //todo validate
+    this.guiJobHistoryDateFrom = guiJobHistoryDateFrom;
+  }
+
+  public String getGuiJobHistoryTimeFrom() {
+    return guiJobHistoryTimeFrom;
+  }
+
+  public void setGuiJobHistoryTimeFrom(String guiJobHistoryTimeFrom) {
+    //todo validate
+    this.guiJobHistoryTimeFrom = guiJobHistoryTimeFrom;
+  }
+
+  public String getGuiJobHistoryDateTo() {
+    return guiJobHistoryDateTo;
+  }
+
+  public void setGuiJobHistoryDateTo(String guiJobHistoryDateTo) {
+    //todo validate
+    this.guiJobHistoryDateTo = guiJobHistoryDateTo;
+  }
+
+  public String getGuiJobHistoryTimeTo() {
+    return guiJobHistoryTimeTo;
+  }
+
+  public void setGuiJobHistoryTimeTo(String guiJobHistoryTimeTo) {
+    //todo validate
+    this.guiJobHistoryTimeTo = guiJobHistoryTimeTo;
+  }
+
+  public String getGuiJobHistoryMinimumElapsedSeconds() {
+    return guiJobHistoryMinimumElapsedSeconds;
+  }
+
+  public void setGuiJobHistoryMinimumElapsedSeconds(String guiJobHistoryMinimumElapsedSeconds) {
+    this.guiJobHistoryMinimumElapsedSeconds = guiJobHistoryMinimumElapsedSeconds;
+  }
+
+  public String getGuiJobHistoryNamesLikeFilter() {
+    return guiJobHistoryNamesLikeFilter;
+  }
+
+  public void setGuiJobHistoryNamesLikeFilter(String guiJobHistoryNamesLikeFilter) {
+    this.guiJobHistoryNamesLikeFilter = guiJobHistoryNamesLikeFilter;
   }
 }

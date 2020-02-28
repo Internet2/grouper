@@ -24,6 +24,7 @@
 
 <script src="../../grouperExternal/public/assets/js/d3.min.js" charset="utf-8"></script>
 <script src="../../grouperExternal/public/assets/js/c3.min.js"></script>
+<!--<script src="../../grouperExternal/public/assets/js/gantt-chart-d3v21.js" charset="utf-8"></script>-->
 
 <script src="../../grouperExternal/public/assets/js/viz.v1.8.2.js"></script><!-- type="javascript/worker" -- errors since called by anonymous root-level blob (blob:http://localhost:8080/37783c21-4aad-4ab0-9ec4-c500040ac16e:4:21) -->
 <!--<script src="../../grouperExternal/public/assets/js/viz.js.v2.0.0.full.render.js" type="application/javascript"></script>-->

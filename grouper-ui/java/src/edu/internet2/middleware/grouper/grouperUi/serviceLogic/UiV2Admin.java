@@ -17,24 +17,22 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -96,7 +94,6 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class UiV2Admin extends UiServiceLogicBase {
 
-  
   /** logger */
   private static final Log LOG = LogFactory.getLog(UiV2Admin.class);
   
@@ -413,7 +410,189 @@ public class UiV2Admin extends UiServiceLogicBase {
       throw new RuntimeException(e);
     }
   }
-  
+
+  public void jobHistoryChart(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      //if the user is allowed
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      boolean canSeeLoader = grouperLoaderContainer.isCanSeeLoader();
+
+      // todo return message if can't view
+
+      jobHistoryChartHelper(request, response);
+
+    //todo move this to the helper
+    } catch (ParseException e) {
+      throw new RuntimeException("Unable to parse date: " + e.getMessage());
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  private void jobHistoryChartHelper(HttpServletRequest request, HttpServletResponse response) throws ParseException {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    //int maxLogs = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.loader.logs.maxSize", 400);
+
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+
+    String dateFrom;
+    if (!StringUtils.isEmpty(request.getParameter("dateFrom"))) {
+      dateFrom = request.getParameter("dateFrom");
+    } else {
+      final Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.DATE, -1);
+      DateFormat dateFormat = new SimpleDateFormat(GrouperUtil.DATE_FORMAT2);
+      dateFrom = dateFormat.format(cal.getTime());
+    }
+    adminContainer.setGuiJobHistoryDateFrom(dateFrom);
+
+    String timeFrom;
+    if (!StringUtils.isEmpty(request.getParameter("timeFrom"))) {
+      timeFrom = request.getParameter("timeFrom");
+    } else {
+      final Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.DATE, -1);
+      DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+      timeFrom = dateFormat.format(cal.getTime());
+    }
+    adminContainer.setGuiJobHistoryTimeFrom(timeFrom);
+
+    // (throws ParseException)
+    Date dateFromDate = new SimpleDateFormat(GrouperUtil.DATE_MINUTES_SECONDS_FORMAT).parse(dateFrom + " " + timeFrom);
+
+    String dateTo;
+    if (!StringUtils.isEmpty(request.getParameter("dateTo"))) {
+      dateTo = request.getParameter("dateTo");
+    } else {
+      final Calendar cal = Calendar.getInstance();
+      DateFormat dateFormat = new SimpleDateFormat(GrouperUtil.DATE_FORMAT2);
+      dateTo = dateFormat.format(cal.getTime());
+    }
+    adminContainer.setGuiJobHistoryDateTo(dateTo);
+
+    String timeTo;
+    if (!StringUtils.isEmpty(request.getParameter("dateTo"))) {
+      timeTo = request.getParameter("timeTo");
+    } else {
+      final Calendar cal = Calendar.getInstance();
+      DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+      timeTo = dateFormat.format(cal.getTime());
+    }
+    adminContainer.setGuiJobHistoryTimeTo(timeTo);
+
+    // (throws ParseException)
+    Date dateToDate = new SimpleDateFormat(GrouperUtil.DATE_MINUTES_SECONDS_FORMAT).parse(dateTo + " " + timeTo);
+
+    String minElapsedString = !StringUtils.isEmpty(request.getParameter("minElapsedSeconds"))
+      ? request.getParameter("minElapsedSeconds")
+      : "5";
+    adminContainer.setGuiJobHistoryMinimumElapsedSeconds(minElapsedString);
+    int minElapsed = Integer.parseInt(minElapsedString);
+
+    String namesLikeFilterString = request.getParameter("namesLikeFilter");
+    adminContainer.setGuiJobHistoryNamesLikeFilter(namesLikeFilterString);
+
+
+    List<Criterion> criterionList = new ArrayList<>();
+    //criterionList.add(Restrictions.not(Restrictions.in("jobType", new String[]{"CHANGE_LOG", "OTHER_JOB"})));
+    criterionList.add(Restrictions.ge("millis", minElapsed * 1000));
+    criterionList.add(Restrictions.isNull("parentJobId"));
+    criterionList.add(Restrictions.between("startedTime", dateFromDate, dateToDate));
+    if (!GrouperUtil.isEmpty(namesLikeFilterString)) {
+      String[] filterStrings = GrouperUtil.splitTrim(namesLikeFilterString, ",");
+      Criterion[] namesLikeCriteria = new Criterion[filterStrings.length];
+      for (int i = 0; i < filterStrings.length; ++i) {
+        namesLikeCriteria[i] = Restrictions.like("jobName", filterStrings[i]);
+      }
+      criterionList.add(Restrictions.and(Restrictions.or(namesLikeCriteria)));
+    }
+    Criterion allCriteria = HibUtils.listCrit(criterionList);
+
+    QueryOptions queryOptions = new QueryOptions().sort(new QuerySort("startedTime", true));
+
+    List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byCriteriaStatic().options(queryOptions).list(Hib3GrouperLoaderLog.class, allCriteria);
+
+    JSONArray ganttJobs = new JSONArray();
+
+    //add to the ordered array based on the first occurrence of the task, so it will be ordered by start time
+    Set<String> ganttJobNameSet = new HashSet<>();
+    List<String> ganttJobNameList = new ArrayList<>();
+
+    final DateFormat dateFormat = new SimpleDateFormat(GrouperUtil.DATE_MINUTES_SECONDS_FORMAT);
+
+    for (Hib3GrouperLoaderLog log : loaderLogs) {
+      String jobShortName = log.getGroupNameFromJobName();
+      Map<String, String> ganttJob = new HashMap<>();
+      ganttJob.put("startDateString", dateFormat.format(log.getStartedTime()));
+      ganttJob.put("endDateString", dateFormat.format(log.getEndedTime()));
+      ganttJob.put("taskName", jobShortName);
+      ganttJob.put("status", log.getStatus());
+
+      if (!GrouperUtil.isBlank(log.getGroupUuid())) {
+        ganttJob.put("url", "?operation=UiV2Group.viewGroup&groupId=" + log.getGroupUuid());
+      }
+
+      StringBuilder tooltipBuilder = new StringBuilder()
+        .append(log.getJobName())
+        .append("<br/>").append("Status: ").append(log.getStatus())
+        .append("<br/>").append("Started ").append(dateFormat.format(log.getStartedTime()));
+      if (log.getEndedTime() != null) {
+        tooltipBuilder.append("<br/>Finished " + dateFormat.format(log.getEndedTime()));
+        Duration duration = Duration.between(log.getStartedTime().toInstant(), log.getEndedTime().toInstant());
+        tooltipBuilder.append("<br/>Elapsed:" + duration.getSeconds() + " sec");
+      }
+      tooltipBuilder.append("<br/>i:" + log.getInsertCount())
+        .append(" u:" + log.getUpdateCount())
+        .append(" d:" + log.getDeleteCount())
+        .append(" t:" + log.getTotalCount());
+
+      ganttJob.put("tooltip", tooltipBuilder.toString());
+
+      ganttJobs.add(ganttJob);
+      if (!ganttJobNameSet.contains(jobShortName)) {
+        ganttJobNameList.add(jobShortName);
+      }
+    }
+
+    Map<String, String> jobHistorySettings = new HashMap<>();
+    jobHistorySettings.put("startDateString", dateFormat.format(dateFromDate));
+    jobHistorySettings.put("endDateString", dateFormat.format(dateToDate));
+    long hoursRange = TimeUnit.HOURS.convert(dateToDate.getTime() - dateFromDate.getTime(), TimeUnit.MILLISECONDS);
+    if (hoursRange > 24 * 10) {
+      jobHistorySettings.put("dateFormat", "%m-%d");
+//    } else if (hoursRange > 36) {
+//      jobHistorySettings.put("dateFormat", "%m-%d %H:%M");
+    } else {
+      jobHistorySettings.put("dateFormat", "%H:%M");
+    }
+
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminJobHistoryChart.jsp"));
+
+    JSONArray jsonGanttTasks = JSONArray.fromObject(ganttJobs);
+    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryTasks", jsonGanttTasks.toString()));
+
+    JSONArray jsonGanttTaskNames = JSONArray.fromObject(ganttJobNameList);
+    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryTaskNames", jsonGanttTaskNames.toString()));
+
+    JSONObject jsonJobHistorySettings = JSONObject.fromObject(jobHistorySettings);
+    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryChartSettings", jsonJobHistorySettings.toString()));
+
+    guiResponseJs.addAction(GuiScreenAction.newScript("jobHistoryChartInit()"));
+
+    //guiResponseJs.addAction(GuiScreenAction.newScript("gantt(tasks);"));
+  }
+
   /**
    * view the logs filter for the daemon job
    * @param request
