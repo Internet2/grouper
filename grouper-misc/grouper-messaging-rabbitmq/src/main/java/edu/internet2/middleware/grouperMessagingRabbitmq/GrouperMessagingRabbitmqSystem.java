@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouperMessagingRabbitmq;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.TimeoutException;
 
@@ -125,96 +127,141 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   @Override
   public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
     
-    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
-    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
-      throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
-    }
-    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(grouperMessageSystemParam.getMessageSystemName());
-    int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
-    int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 5);
-        
-    Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
-    
-    if (maxMessagesToReceiveAtOnce == null) {
-      maxMessagesToReceiveAtOnce = defaultPageSize;
-    }
-    
-    if (maxMessagesToReceiveAtOnce > maxPageSize) {
-      maxMessagesToReceiveAtOnce = maxPageSize;
-    }
-    
-    final Integer pageSize = maxMessagesToReceiveAtOnce;
-    
-    String queueOrTopicName = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
-    String exchangeType = grouperMessageReceiveParam.getExchangeType();
-    
-    if (StringUtils.isBlank(queueOrTopicName)) {
-      throw new IllegalArgumentException("queueOrTopicName is required.");
-    }
-    
-    Integer longPollMillis = grouperMessageReceiveParam.getLongPollMilis();
-    
-    if (longPollMillis == null || longPollMillis < 0) {
-      longPollMillis = 1000;
-    }
+    final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("method", "receive");
+    long startNanos = System.nanoTime();
     
     GrouperMessageReceiveResult result = new GrouperMessageReceiveResult();
-    final Collection<GrouperMessage> messages = new ArrayList<GrouperMessage>();
-    result.setGrouperMessages(messages);
-    
-    try {
+    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
 
+    try {
+    
+      if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
+        throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
+      }
+      GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(grouperMessageSystemParam.getMessageSystemName());
+      int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
+      int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 5);
+          
+      Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
+      
+      if (maxMessagesToReceiveAtOnce == null) {
+        maxMessagesToReceiveAtOnce = defaultPageSize;
+      }
+      
+      if (maxMessagesToReceiveAtOnce > maxPageSize) {
+        maxMessagesToReceiveAtOnce = maxPageSize;
+      }
+      
+      final Integer pageSize = maxMessagesToReceiveAtOnce;
+
+      String queueOrTopicName = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
+
+      String exchangeType = grouperMessageReceiveParam.getExchangeType();
+      
+      if (StringUtils.isBlank(queueOrTopicName)) {
+        throw new IllegalArgumentException("queueOrTopicName is required.");
+      }
+
+      debugMap.put("queueOrTopicName", queueOrTopicName);
+      debugMap.put("exchangeType", exchangeType);
+      debugMap.put("pageSize", pageSize);
+
+
+      Integer longPollMillis = grouperMessageReceiveParam.getLongPollMilis();
+      
+      if (longPollMillis == null || longPollMillis < 0) {
+        longPollMillis = 1000;
+      }
+
+      debugMap.put("longPollMillis", longPollMillis);
+
+      final Collection<GrouperMessage> messages = new ArrayList<GrouperMessage>();
+      result.setGrouperMessages(messages);
+      
       Connection connection = connectionFactory.getConnection(grouperMessageSystemParam.getMessageSystemName());
       final Channel channel = connection.createChannel();
+      
+      final Thread outerThread = Thread.currentThread();
+      final boolean[] longPollDone = new boolean[] {false};
       Consumer consumer = new DefaultConsumer(channel) {
         @Override
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
             throws IOException {
-          String message = new String(body, "UTF-8");
-          GrouperMessageRabbitmq rabbitmqMessage = new GrouperMessageRabbitmq(message, properties.getMessageId());
-          messages.add(rabbitmqMessage);
-          channel.basicAck(envelope.getDeliveryTag(), false);
-          if (messages.size() >= pageSize) {
-            try {
-              channel.close();
-            } catch (TimeoutException e) {
-              LOG.error("Error occurred while closing channel", e);
+          try {
+            
+            if (longPollDone[0]) {
+              return;
             }
+            
+            synchronized (outerThread) {
+              String message = new String(body, "UTF-8");
+              GrouperMessageRabbitmq rabbitmqMessage = new GrouperMessageRabbitmq(message, properties.getMessageId());
+              messages.add(rabbitmqMessage);
+              channel.basicAck(envelope.getDeliveryTag(), false);
+              if (messages.size() >= pageSize) {
+                if (channel.isOpen()) {
+                  channel.close();
+                }
+                // not sleep anymore
+                outerThread.interrupt();
+              }
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("message: " + message);
+              }
+            }
+          } catch (TimeoutException e) {
+            debugMap.put("receiveException", GrouperClientUtils.getFullStackTrace(e));
+            LOG.error("Error occurred while closing channel", e);
           }
-          LOG.info("Received: "+message);
         }
       };
       
       String error = createQueueOrExchange(grouperMessageSystemParam, channel, queueOrTopicName, 
           exchangeType, grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType());
       
+      debugMap.put("createQueueOrExchangeError", error);
+
       if (error != null) {
         throw new IllegalArgumentException(error);
       }
       
       if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
+        debugMap.put("topic", true);
         DeclareOk declareOk = channel.queueDeclare();
         channel.queueBind(declareOk.getQueue(), queueOrTopicName, StringUtils.defaultString(grouperMessageReceiveParam.getRoutingKey(), ""));
         channel.basicConsume(declareOk.getQueue(), false, consumer);
       } else if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.queue) {
+        debugMap.put("queue", true);
         channel.basicConsume(queueOrTopicName, false, consumer);
       }
+      try {
+        Thread.sleep(longPollMillis);
+        debugMap.put("finishedLongPoll", true);
+        
+      } catch (InterruptedException ie) {
+        debugMap.put("finishedLongPoll", false);
+        //messages were received
+      }
+      longPollDone[0] = true;
       
-      new Timer().schedule(
-        new java.util.TimerTask() {
-          @Override
-          public void run() {
-            try {
-              if (channel.isOpen()) {
-                channel.close();
-              }
-            } catch (Exception e) {
-              LOG.error("Error occurred while closing channel", e); 
-            }
-          }
-        }, longPollMillis);
-    } catch(IOException e) {
+      //if messages werent received
+      synchronized (outerThread) {
+        if (channel.isOpen()) {
+          channel.close();
+        }
+      }
+
+      debugMap.put("messageCount", messages.size());
+
+    } catch(Exception e) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(e));
       throw new RuntimeException("Error occurred while trying to receive messages for "+grouperMessageSystemParam.getMessageSystemName(), e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", ((System.nanoTime() - startNanos) / 1000000L));
+        LOG.debug(GrouperClientUtils.mapToString(debugMap));
+      }
     }
     
     return result;
