@@ -44,6 +44,7 @@
         <module>../grouper-misc/grouper-pspng</module>
         <module>../grouper-misc/grouper-box</module>
         <module>../grouper-misc/grouper-duo</module>
+        <module>../grouper-misc/googleapps-grouper-provisioner</module>
     </modules>
 
     <properties>

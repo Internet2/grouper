@@ -40,6 +40,13 @@
             </script>
             <div class="row-fluid">
               <div class="span12">
+                <div class="row-fluid">
+                  <div class="span1">
+                    <a href="#" onclick="return guiV2link('operation=UiV2Admin.jobHistoryChart');" style="white-space: nowrap;"
+                      >${textContainer.text['adminJobHistoryChart'] }</a>
+                  </div>
+                </div>
+
                 <form class="form-inline form-filter" id="daemonJobsFilterFormId"
                     onsubmit="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">
                   <div class="row-fluid">
