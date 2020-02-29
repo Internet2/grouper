@@ -71,6 +71,7 @@ import org.w3c.dom.NodeList;
 
 import edu.internet2.middleware.grouperInstaller.GrouperInstaller.GrouperDirectories.GrouperInstallType;
 import edu.internet2.middleware.grouperInstaller.GrouperInstallerIndexFile.PatchFileType;
+import edu.internet2.middleware.grouperInstaller.morphString.Crypto;
 import edu.internet2.middleware.grouperInstaller.util.GiDbUtils;
 import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils;
 import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils.CommandResult;
@@ -9672,7 +9673,7 @@ public class GrouperInstaller {
     contentToWrite = new StringBuilder();
     contentToWrite.append("Pull grouper docker image by running the following command. ");
     contentToWrite.append("\n\n");
-    contentToWrite.append("docker pull tier/grouper:"+dockerImageVersion);
+    contentToWrite.append("docker pull itap/grouper:"+dockerImageVersion);
     contentToWrite.append("\n\n");
     contentToWrite.append("\n\n");
     
@@ -9682,11 +9683,11 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
-    System.out.println("Going to pull grouper docker image: tier/grouper:"+dockerImageVersion);
+    System.out.println("Going to pull grouper docker image: itap/grouper:"+dockerImageVersion);
     boolean pulledDockerImage = false;
     try {
       
-      String dockerPullCommand = dockerLocation + " pull tier/grouper:"+dockerImageVersion;
+      String dockerPullCommand = dockerLocation + " pull itap/grouper:"+dockerImageVersion;
       
       commandResult = GrouperInstallerUtils.execCommand(
           new String[] {shCommand(), "-c", dockerPullCommand}, true, true, null, 
@@ -9705,7 +9706,7 @@ public class GrouperInstaller {
     }
     
     if(pulledDockerImage == false) {
-      System.out.println("Could not pull grouper docker image. Pull it manually by running: docker pull tier/grouper:"+dockerImageVersion);
+      System.out.println("Could not pull grouper docker image. Pull it manually by running: docker pull itap/grouper:"+dockerImageVersion);
       System.out.print("Press any key when done ");
       readFromStdIn("Placeholder");
     }
@@ -9723,6 +9724,82 @@ public class GrouperInstaller {
     File logsDirectory = new File(path+File.separator+"logs"+File.separator+"sample.log");
     GrouperInstallerUtils.createParentDirectories(logsDirectory);
     
+    // create morphString.properties file
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Create morphString.properties file in "+path+"/conf");
+    contentToWrite.append("\n");
+    contentToWrite.append("Add the following lines to morphString.properties file. Replace the placeholders below with actual values");
+    contentToWrite.append("\n");
+    contentToWrite.append("encrypt.key = <random alphanumeric key with minimum 8 characters>");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    
+    File morphStringPropertiesFile = new File(path+File.separator+"conf"+File.separator+"morphString.properties");
+    
+    GrouperInstallerUtils.createParentDirectories(morphStringPropertiesFile);
+    boolean reuseMorphStringPropertiesFile = false;
+    while(true) {
+      if (morphStringPropertiesFile.exists()) {
+        System.out.println("morphString.properties already exists at "+morphStringPropertiesFile.getParent()+" ");
+        System.out.print("Do you want to reuse it (t|f) [t]: ");
+        reuseMorphStringPropertiesFile = readFromStdInBoolean(true, "Placeholder");
+        if (reuseMorphStringPropertiesFile) {
+          System.out.println("Going to reuse existing morphString.properties file. ");
+          break;
+        } else {
+          System.out.print("Delete morphString.properties and press any key to continue ");
+          readFromStdIn("nothing");
+          morphStringPropertiesFile = new File(path+File.separator+"conf"+File.separator+"morphString.properties");
+          continue;
+        }
+      } else {
+        GrouperInstallerUtils.fileCreate(morphStringPropertiesFile);
+        break;
+      }
+    }
+    
+    if (reuseMorphStringPropertiesFile == false) {
+      
+      String validCharactersMorphString = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+      SecureRandom sr = new SecureRandom();
+      
+      StringBuilder morphStringBuilder = new StringBuilder(20);
+      for( int i = 0; i < 20; i++ ) {
+        morphStringBuilder.append( validCharactersMorphString.charAt(sr.nextInt(validCharactersMorphString.length())));
+      }
+      
+      System.out.print("Do you want to use the randomly generated morphString key? (" +  morphStringBuilder.toString()+") (t|f) [t]: ");
+      boolean useAutoGeneratedMorphKey = readFromStdInBoolean(true, "Placeholder");
+      String morphStringPasswd = null;
+      if (useAutoGeneratedMorphKey == false) {
+        System.out.print("Enter morphString key. Minimum 8 characters required: ");
+        while (true) {          
+          String manualMorphKey = readFromStdIn("Placeholder");
+          if (GrouperInstallerUtils.isNotBlank(manualMorphKey) && manualMorphKey.trim().length() >= 8) {
+            morphStringPasswd = manualMorphKey.trim();
+            break;
+          } else {
+            System.out.print("morphString key is invalid. Minimum 8 characters required. Please try again: ");
+            continue;
+          } 
+        }
+        
+      } else {
+        morphStringPasswd = morphStringBuilder.toString();
+      }
+      
+      editPropertiesFile(morphStringPropertiesFile, "encrypt.key", morphStringPasswd, false);
+    }
+    
+    Properties morphStringProperties = GrouperInstallerUtils.propertiesFromFile(morphStringPropertiesFile);
+    
     // create grouper.hibernate.properties file
     contentToWrite = new StringBuilder();
     contentToWrite.append("Create grouper.hibernate.properties file in " +path+"/conf");
@@ -9733,15 +9810,7 @@ public class GrouperInstaller {
     contentToWrite.append("\n");
     contentToWrite.append("hibernate.connection.username = <user> eg: root");
     contentToWrite.append("\n");
-    contentToWrite.append("hibernate.connection.password = <password> eg: admin");
-    contentToWrite.append("\n");
-    contentToWrite.append("grouper.is.ui = ${java.lang.System.getenv().get('GROUPER_UI')}");
-    contentToWrite.append("\n");
-    contentToWrite.append("grouper.is.ws = ${java.lang.System.getenv().get('GROUPER_WS')}");
-    contentToWrite.append("\n");
-    contentToWrite.append("grouper.is.scim = ${java.lang.System.getenv().get('GROUPER_SCIM')}");
-    contentToWrite.append("\n");
-    contentToWrite.append("grouper.is.daemon = ${java.lang.System.getenv().get('GROUPER_DAEMON')}");
+    contentToWrite.append("hibernate.connection.password = <morph string encrypted password> eg: 86asd9f87a9sdf87a9s78df97");
     contentToWrite.append("\n");
     
     contentToWrite.append("grouper.is.ui.basicAuthn = true");
@@ -9819,97 +9888,21 @@ public class GrouperInstaller {
       System.out.print("Database password (note, you aren't setting the pass here, you are using an existing pass, this will be echoed back) [" 
           + GrouperInstallerUtils.defaultIfEmpty(this.dbPass, "<blank>") + "]: ");
       String newDbPass = readFromStdIn("grouperInstaller.autorun.dbPass");
+      
+      String encryptedDbPassword =  "";
+      
       if (!GrouperInstallerUtils.isBlank(newDbPass)) {
-        this.dbPass = newDbPass;
+        encryptedDbPassword = new Crypto(morphStringProperties.getProperty("encrypt.key")).encrypt(newDbPass);
       }
 
       editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.url", this.dbUrl, false);
       editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.username", this.dbUser, false);
-      editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.password", this.dbPass, false);
+      editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.password", encryptedDbPassword, false);
       
-      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ui", "${java.lang.System.getenv().get('GROUPER_UI')}", false);
-      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ws", "${java.lang.System.getenv().get('GROUPER_WS')}", false);
-      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.scim", "${java.lang.System.getenv().get('GROUPER_SCIM')}", false);
-      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.daemon", "${java.lang.System.getenv().get('GROUPER_DAEMON')}", false);
-          
       editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ui.basicAuthn", "true", false);
       editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ws.basicAuthn", "true", false);
       editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.scim.basicAuthn", "true", false);
     } 
-    
-    // create morphString.properties file
-    contentToWrite = new StringBuilder();
-    contentToWrite.append("Create morphString.properties file in "+path+"/conf");
-    contentToWrite.append("\n");
-    contentToWrite.append("Add the following lines to morphString.properties file. Replace the placeholders below with actual values");
-    contentToWrite.append("\n");
-    contentToWrite.append("encrypt.key = <random alphanumeric key with minimum 8 characters>");
-    contentToWrite.append("\n\n");
-    contentToWrite.append("\n\n");
-    
-    try {      
-      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
-    } catch (Exception e) {
-      System.out.println("Could not write to README.txt file.");
-    }
-    
-    
-    File morphStringPropertiesFile = new File(path+File.separator+"conf"+File.separator+"morphString.properties");
-    
-    GrouperInstallerUtils.createParentDirectories(morphStringPropertiesFile);
-    boolean reuseMorphStringPropertiesFile = false;
-    while(true) {
-      if (morphStringPropertiesFile.exists()) {
-        System.out.println("morphString.properties already exists at "+morphStringPropertiesFile.getParent()+" ");
-        System.out.print("Do you want to reuse it (t|f) [t]: ");
-        reuseMorphStringPropertiesFile = readFromStdInBoolean(true, "Placeholder");
-        if (reuseMorphStringPropertiesFile) {
-          System.out.println("Going to reuse existing morphString.properties file. ");
-          break;
-        } else {
-          System.out.print("Delete morphString.properties and press any key to continue ");
-          readFromStdIn("nothing");
-          morphStringPropertiesFile = new File(path+File.separator+"conf"+File.separator+"morphString.properties");
-          continue;
-        }
-      } else {
-        GrouperInstallerUtils.fileCreate(morphStringPropertiesFile);
-        break;
-      }
-    }
-    
-    if (reuseMorphStringPropertiesFile == false) {
-      
-      String validCharactersMorphString = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-      SecureRandom sr = new SecureRandom();
-      
-      StringBuilder morphStringBuilder = new StringBuilder(20);
-      for( int i = 0; i < 20; i++ ) {
-        morphStringBuilder.append( validCharactersMorphString.charAt(sr.nextInt(validCharactersMorphString.length())));
-      }
-      
-      System.out.print("Do you want to use the randomly generated morphString key? (" +  morphStringBuilder.toString()+") (t|f) [t]: ");
-      boolean useAutoGeneratedMorphKey = readFromStdInBoolean(true, "Placeholder");
-      String morphStringPasswd = null;
-      if (useAutoGeneratedMorphKey == false) {
-        System.out.print("Enter morphString key. Minimum 8 characters required: ");
-        while (true) {          
-          String manualMorphKey = readFromStdIn("Placeholder");
-          if (GrouperInstallerUtils.isNotBlank(manualMorphKey) && manualMorphKey.trim().length() >= 8) {
-            morphStringPasswd = manualMorphKey.trim();
-            break;
-          } else {
-            System.out.print("morphStringPassword is invalid. Minimum 8 characters required. Please try again: ");
-            continue;
-          } 
-        }
-        
-      } else {
-        morphStringPasswd = morphStringBuilder.toString();
-      }
-      
-      editPropertiesFile(morphStringPropertiesFile, "encrypt.key", morphStringPasswd, false);
-    }
     
     // init the database
     contentToWrite = new StringBuilder();
@@ -9917,7 +9910,7 @@ public class GrouperInstaller {
     contentToWrite.append("\n");
     
     StringBuilder buildInitCommand = new StringBuilder();
-    buildInitCommand.append("docker run --detach --mount type=bind,src=");
+    buildInitCommand.append("docker run gsh -registry -check -runscript -noprompt --detach --mount type=bind,src=");
     buildInitCommand.append(path+File.separator);
     buildInitCommand.append("conf,dst=/opt/grouper/conf ");
     buildInitCommand.append("--mount type=bind,src=");
@@ -9927,9 +9920,7 @@ public class GrouperInstaller {
     buildInitCommand.append(path+File.separator);
     buildInitCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
     buildInitCommand.append("--name gsh ");
-    buildInitCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh ");
-    buildInitCommand.append("tier/grouper:"+dockerImageVersion );
-    buildInitCommand.append(" -registry -check -runscript -noprompt");
+    buildInitCommand.append("itap/grouper:"+dockerImageVersion );
     
     contentToWrite.append(buildInitCommand.toString());
     contentToWrite.append("\n\n");
@@ -10074,8 +10065,7 @@ public class GrouperInstaller {
       uiPasswordDockerCommand.append(path+File.separator);
       uiPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
       uiPasswordDockerCommand.append("--name gsh-ui-password ");
-      uiPasswordDockerCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh ");
-      uiPasswordDockerCommand.append("tier/grouper:"+dockerImageVersion );
+      uiPasswordDockerCommand.append("itap/grouper:"+dockerImageVersion );
       uiPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordUi.gsh");
       contentToWrite.append(uiPasswordDockerCommand.toString());
       contentToWrite.append("\n\n");
@@ -10232,8 +10222,7 @@ public class GrouperInstaller {
       wsPasswordDockerCommand.append(path+File.separator);
       wsPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
       wsPasswordDockerCommand.append("--name gsh-ws-password ");
-      wsPasswordDockerCommand.append("--entrypoint /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh ");
-      wsPasswordDockerCommand.append("tier/grouper:"+dockerImageVersion );
+      wsPasswordDockerCommand.append("itap/grouper:"+dockerImageVersion );
       wsPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordWs.gsh");
       contentToWrite.append(wsPasswordDockerCommand.toString());
       contentToWrite.append("\n\n");
@@ -10290,7 +10279,7 @@ public class GrouperInstaller {
     contentToWrite.append("Run the following command to start the container.");
     contentToWrite.append("\n");
     StringBuilder grouperContainerStartDockerCommand = new StringBuilder();
-    grouperContainerStartDockerCommand.append("docker run --detach --publish 443:443 --mount type=bind,src=");
+    grouperContainerStartDockerCommand.append("docker run --detach --publish 8443:8443 --mount type=bind,src=");
     grouperContainerStartDockerCommand.append(path+File.separator);
     grouperContainerStartDockerCommand.append("conf,dst=/opt/grouper/conf ");
     grouperContainerStartDockerCommand.append("--mount type=bind,src=");
@@ -10300,7 +10289,7 @@ public class GrouperInstaller {
     grouperContainerStartDockerCommand.append(path+File.separator);
     grouperContainerStartDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
     grouperContainerStartDockerCommand.append("--restart always --name grouper ");
-    grouperContainerStartDockerCommand.append("tier/grouper:"+dockerImageVersion );
+    grouperContainerStartDockerCommand.append("itap/grouper:"+dockerImageVersion );
     grouperContainerStartDockerCommand.append("-e GROUPER_UI = 'true' -e GROUPER_WS='true' -e GROUPER_DAEMON='true' -e GROUPER_SCIM='true' ");
     grouperContainerStartDockerCommand.append("-e RUN_APACHE = 'true' -e RUN_SHIB_SP='false' -e RUN_TOMEE='true' ");
     contentToWrite.append(grouperContainerStartDockerCommand.toString());
@@ -10355,8 +10344,6 @@ public class GrouperInstaller {
       this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
     }
     
-    this.version = "2.5.11";
-    
     System.out.println("Installing grouper version: " + this.version);
     
     downloadAndUnzipMaven();
@@ -10380,24 +10367,13 @@ public class GrouperInstaller {
     List<File> grouperProjects = new ArrayList<File>();
     
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-container"));
-//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper"));
-//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws"+File.separator+"grouper-ws"));
-//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws" + File.separator + "grouper-ws-scim"));
-//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui"));
-//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"));
-//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"));
-//    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
     
     List<String> commands = new ArrayList<String>();
     addMavenCommands(commands);
     
     commands.add("-DincludeScope=runtime");
-    //commands.add("-DexcludeArtifactIds=grouper,grouperClient");
     commands.add("-Dgrouper.version="+this.version);
-    //commands.add("-DnewVersion="+this.version);
-    // versions:set -DnewVersion=1.0.3-SNAPSHOT
-    //commands.add("-Dproject.version="+this.version);
-    
+ 
     commands.add("dependency:copy-dependencies");
           
     for (File file: grouperProjects) {
@@ -13465,6 +13441,12 @@ public class GrouperInstaller {
     String shouldBeDocBase = webAppDir.getAbsolutePath();
 
     System.out.println("Editing tomee config file: " + serverXmlFile.getAbsolutePath());
+    
+    String contextDocBase = GrouperInstallerUtils.propertiesValue("grouperInstaller.webAppWillBeInContainer", false);
+    
+    if (GrouperInstallerUtils.isNotBlank(contextDocBase)) {
+      shouldBeDocBase = contextDocBase;
+    }
     
     addToXmlFile(serverXmlFile, ">", new String[]{"<Host "}, 
         "<Context docBase=\"" + shouldBeDocBase + "\" path=\"/" + tomeeGrouperPath + "\" reloadable=\"false\"/>", "tomee context for grouper webapp");
