@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -310,6 +312,25 @@ public class GcTableSyncTableMetadata {
 
           }
         }
+        
+        Collections.sort(gcTableSyncColumnMetadatas, new Comparator<GcTableSyncColumnMetadata>() {
+
+          @Override
+          public int compare(GcTableSyncColumnMetadata o1, GcTableSyncColumnMetadata o2) {
+            
+            if (o1 == o2) {
+              return 0;
+            }
+            if (o1 == null) {
+              return -1;
+            }
+            if (o2 == null) {
+              return 1;
+            }
+            return o1.getColumnName().compareTo(o2.getColumnName());
+          }
+        });
+        
         return null;
       }
       

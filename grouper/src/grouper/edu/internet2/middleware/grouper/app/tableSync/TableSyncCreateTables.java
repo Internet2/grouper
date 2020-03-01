@@ -72,15 +72,9 @@ public class TableSyncCreateTables {
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", false, false);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_group_id", Types.VARCHAR, "40", false, false);
-
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_member_id", Types.VARCHAR, "40", false, false);
-
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_membership_id", Types.VARCHAR, "40", false, false);
-
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_owner_id", Types.VARCHAR, "40", false, false);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_job_id", Types.VARCHAR, "40", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_id", Types.VARCHAR, "40", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "status", Types.VARCHAR, "20", false, false);
 
@@ -97,20 +91,15 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "server", Types.VARCHAR, "200", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", Types.TIMESTAMP, "10", false, true);
+    
   
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,  tableName, "last log for this sync that affected this group");
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,  tableName, "last log for this sync that affected this group or member etc");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "id", "uuid of this record in this table");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_group_id", "foreign key to grouper_sync_group table");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_member_id", "foreign key to grouper_sync_member table");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_membership_id", "foreign key to grouper_sync_membership table");
-
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_owner_id", "either the grouper_sync_membership_id or the grouper_sync_member_id or the grouper_sync_group_id or grouper_sync_job_id (if log for job wide)");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_job_id", "foreign key to grouper_sync_job table");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_id", "foreign key to grouper_sync table");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "status", "SUCCESS, ERROR, WARNING, CONFIG_ERROR");
 
@@ -129,15 +118,12 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_log_sy_gr_idx", true, "grouper_sync_job_id", "grouper_sync_owner_id");
+        "grouper_sync_log_sy_idx", false, "grouper_sync_id", "sync_timestamp");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_log_ow_idx", false, "grouper_sync_owner_id", "sync_timestamp");
 
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(ddlVersionBean.getDatabase(), tableName, "grouper_sync_log_uid_fk", "grouper_sync_member", "grouper_sync_member_id", "id");
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(ddlVersionBean.getDatabase(), tableName, "grouper_sync_log_gid_fk", "grouper_sync_group", "grouper_sync_group_id", "id");
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(ddlVersionBean.getDatabase(), tableName, "grouper_sync_log_mid_fk", "grouper_sync_membership", "grouper_sync_membership_id", "id");
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(ddlVersionBean.getDatabase(), tableName, "grouper_sync_log_sid_fk", "grouper_sync_job", "grouper_sync_job_id", "id");
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(ddlVersionBean.getDatabase(), tableName, "grouper_sync_log_sy_fk", "grouper_sync", "grouper_sync_id", "id");
 
   }
   
@@ -217,7 +203,12 @@ public class TableSyncCreateTables {
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "metadata_updated", 
         Types.TIMESTAMP, "10", false, false);
-  
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_message", Types.VARCHAR, "4000", false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_timestamp", Types.TIMESTAMP, "10", false, false);
+
+
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_time_work_was_done", Types.TIMESTAMP, null, false, false);
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "id", "uuid of this record");
@@ -261,6 +252,11 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_time_work_was_done", "last time a record was processed");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "metadata_updated", "when the metadata was last updated (if it times out)");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_message", "if there was an error when syncing this object, this is the message");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_timestamp", "timestamp of error if there was an error when syncing this object");
+
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_gr_sync_id_idx", false, "grouper_sync_id", "provisionable");
@@ -335,10 +331,10 @@ public class TableSyncCreateTables {
         Types.TIMESTAMP, "10", false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_user_sync", 
-        Types.TIMESTAMP, "10", false, true);
+        Types.TIMESTAMP, "10", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_user_metadata_sync", 
-        Types.TIMESTAMP, "10", false, true);
+        Types.TIMESTAMP, "10", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "member_from_id2", 
         Types.VARCHAR, "4000", false, false);
@@ -357,6 +353,10 @@ public class TableSyncCreateTables {
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_time_work_was_done", 
         Types.TIMESTAMP, null, false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_message", Types.VARCHAR, "4000", false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_timestamp", Types.TIMESTAMP, "10", false, false);
 
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,  tableName, "user metadata for sync");
 
@@ -403,6 +403,10 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_time_work_was_done", "last time a record was processed");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "metadata_updated", "when the metadata was last updated (if it times out)");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_message", "if there was an error when syncing this object, this is the message");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_timestamp", "timestamp of error if there was an error when syncing this object");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_us_sync_id_idx", false, "grouper_sync_id", "provisionable");
@@ -469,6 +473,12 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
         Types.TIMESTAMP, "10", false, true);
   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_message", 
+        Types.VARCHAR, "4000", false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_timestamp", 
+        Types.TIMESTAMP, "10", false, false);
+
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_st_ty_idx", true, "grouper_sync_id", "sync_type");
 
@@ -498,7 +508,11 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "percent_complete", "0-100 percent complete of this job");
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
-    
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_message", "if there was an error when syncing this group, this is the message");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_timestamp", "timestamp of error if there was an error when syncing this group");
+
   }
   
   /**
@@ -511,7 +525,6 @@ public class TableSyncCreateTables {
       HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName + " where 1 != 1");
       return;
     } catch (Exception e) {
-      e.printStackTrace();
     }
 
     Database database = ddlVersionBean.getDatabase();
@@ -640,6 +653,10 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "metadata_updated", 
         Types.TIMESTAMP, "10", false, false);
   
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_message", Types.VARCHAR, "4000", false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_timestamp", Types.TIMESTAMP, "10", false, false);
+
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "id", "uuid of this record");
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_group_id", "foreign key back to sync group table");
@@ -661,6 +678,10 @@ public class TableSyncCreateTables {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "membership_id2", "other metadata on membership");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "metadata_updated", "when the metadata was last updated (if it times out)");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_message", "if there was an error when syncing this object, this is the message");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_timestamp", "timestamp of error if there was an error when syncing this object");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_mship_gr_idx", true, "grouper_sync_group_id", "grouper_sync_member_id");

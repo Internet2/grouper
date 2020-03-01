@@ -5,9 +5,13 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
@@ -19,48 +23,6 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
  * sync a table
  */
 public class GcTableSync {
-
-  /**
-   * put heartbeat logic to kick off at heartbeat
-   */
-  private Runnable heartbeatLogic;
-  
-  /**
-   * if this is paused
-   */
-  private boolean paused = false;
-
-  /**
-   * put heartbeat logic to kick off at heartbeat
-   * @return
-   */
-  public Runnable getHeartbeatLogic() {
-    return this.heartbeatLogic;
-  }
-
-  /**
-   * put heartbeat logic to kick off at heartbeat
-   * @param heartbeatLogic1
-   */
-  public void setHeartbeatLogic(Runnable heartbeatLogic1) {
-    this.heartbeatLogic = heartbeatLogic1;
-  }
-
-  /**
-   * if this is paused
-   * @return if paused
-   */
-  public boolean isPaused() {
-    return this.paused;
-  }
-
-  /**
-   * if this is paused
-   * @param paused1
-   */
-  public void setPaused(boolean paused1) {
-    this.paused = paused1;
-  }
 
   /**
    * keep the latest incremental value when started on full
@@ -283,11 +245,20 @@ public class GcTableSync {
   }
 
   /**
+   * dont re-use instances
+   */
+  private boolean done = false;
+  
+  /**
    * pass in the output which will update as it runs
    * @param gcTableSyncOutputArray 
    * 
    */
   public GcTableSyncOutput sync(String configKey, GcTableSyncSubtype gcTableSyncSubtype) {
+
+    if (this.done) {
+      throw new RuntimeException("Dont re-use instances of this class: " + GcTableSync.class.getName());
+    }
     
     this.millisWhenSyncStarted = System.currentTimeMillis();
     
@@ -300,71 +271,31 @@ public class GcTableSync {
     
     long now = System.nanoTime();
     
-    // if the job finished (e.g. status thread should end)
-    final boolean[] done = new boolean[]{false};
-    
-    // if a more important job is running
-    final boolean[] interrupted = new boolean[]{false};
-
     GcDbAccess.threadLocalQueryCountReset();
-    
-    Thread heartbeatThread = null;
     
     try {
 
       debugMap.put("finalLog", false);
       
-      debugMap.put("state", "retrieveData");
+      debugMap.put("state", "init");
 
-      // thread to keep heartbeat updated 
-      heartbeatThread = new Thread(new Runnable() {
+      this.gcGrouperSyncHeartbeat.setGcGrouperSyncJob(this.gcGrouperSyncJob);
+      this.gcGrouperSyncHeartbeat.setFullSync(gcTableSyncSubtype.isFullSync());
+      this.gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
 
+        @Override
         public void run() {
-          
-          try {
-            while(true) {
-              long loopStarted = System.currentTimeMillis();
-              for (int i=0;i<60;i++) {
-                if (done[0]) {
-                  return;
-                }
-                // maybe 60 sleeps dont add up due to CPU
-                if (System.currentTimeMillis()-loopStarted > 60000) {
-                  break;
-                }
-                Thread.sleep(1000);
-                if (done[0]) {
-                  return;
-                }
-              }
-              if (!GcTableSync.this.isPaused()) {
-                synchronized (GcTableSync.this) {
-                  if (done[0]) {
-                    return;
-                  }
-                  // its been a minute, update the heartbeat, see if a more important job is running
-                  boolean shouldKeepRunning = GcTableSync.this.gcGrouperSyncJob.assignHeartbeatAndCheckForPendingJobs(GcTableSync.this.gcTableSyncConfiguration.getGcTableSyncSubtype().isFullSync());
-                  if (!shouldKeepRunning) {
-                    interrupted[0]=true;
-                    debugMap.put("interrupted", true);
-                  }
-                }
-              }
-              logPeriodically(debugMap, GcTableSync.this.gcTableSyncOutput);
-            }
-          } catch (InterruptedException ie) {
-            
-          } catch (Exception e) {
-            LOG.error("Error assigning status and logging", e);
-          }
+
+          logPeriodically(debugMap, GcTableSync.this.gcTableSyncOutput);
+
           
         }
         
       });
-      
-      heartbeatThread.setDaemon(true);
-      heartbeatThread.start();
-      
+      if (!this.gcGrouperSyncHeartbeat.isStarted()) {
+        this.gcGrouperSyncHeartbeat.runHeartbeatThread();
+      }
+
       debugMap.put("sync", GcGrouperSync.SQL_SYNC_ENGINE);
       debugMap.put("provisionerName", this.getGcTableSyncConfiguration().getConfigKey());
       debugMap.put("syncType", this.getGcTableSyncConfiguration().getGcTableSyncSubtype());
@@ -411,12 +342,31 @@ public class GcTableSync {
         debugMap.put("tableIncremental", this.getDataBeanRealTime().getTableMetadata().getTableName());
       }
       
+      // step 0, do we have groups to do?
+      if (GrouperClientUtils.length(this.groupIdsToSync) > 0) {
+        GcTableSyncSubtype.syncGroupings(debugMap, this, this.groupIdsToSync);
+      }
+      
+      this.convertPrimaryKeysFromMembershipsToPrimaryKeys();
+      
+      if ((GrouperClientUtils.length(this.primaryKeysToSync) > 0 ) 
+          && (this.getGcTableSyncConfiguration().getGcTableSyncSubtype() != GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys)) {
+        throw new RuntimeException("If passing in primaryKeysToSync, then the sync subtype must be incrementalFromIdentifiedPrimaryKeys");
+      }
+      if ((GrouperClientUtils.length(this.primaryKeysToSync) == 0 ) 
+          && (this.getGcTableSyncConfiguration().getGcTableSyncSubtype() == GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys)) {
+        throw new RuntimeException("If incrementalFromIdentifiedPrimaryKeys, then you ust pass in primaryKeysToSync");
+      }
+      
       // step 1
+      debugMap.put("state", "retrieveData");
       this.gcTableSyncConfiguration.getGcTableSyncSubtype().retrieveData(debugMap, this);
       
       this.gcGrouperSyncLog.setRecordsProcessed(Math.max(this.gcTableSyncOutput.getRowsSelectedFrom(), this.gcTableSyncOutput.getRowsSelectedTo()));
 
-      if (done[0]) {
+      if (this.gcGrouperSyncHeartbeat.isInterrupted()) {
+        debugMap.put("interrupted", true);
+        debugMap.put("state", "done");
         gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.INTERRUPTED);
         return this.gcTableSyncOutput;
       }
@@ -542,6 +492,24 @@ public class GcTableSync {
       if (GrouperClientUtils.isBlank(gcGrouperSyncLog.getStatus())) {
         gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
       }
+
+      // make sure at least some time has passed
+      if (System.currentTimeMillis() - this.millisWhenSyncStarted < 20) {
+        GrouperClientUtils.sleep(20);
+      }
+      this.getGcGrouperSyncJob().setPercentComplete(100);
+      Timestamp milliswhenSyncStartedTimestamp = new Timestamp(this.millisWhenSyncStarted);
+      this.getGcGrouperSyncJob().setLastSyncTimestamp(milliswhenSyncStartedTimestamp);
+
+      if (gcTableSyncSubtype.isFullMetadataSync()) {
+        this.getGcGrouperSync().setLastFullMetadataSyncRun(milliswhenSyncStartedTimestamp);
+      }
+      if (gcTableSyncSubtype.isFullMetadataSync()) {
+        this.getGcGrouperSync().setLastFullSyncRun(milliswhenSyncStartedTimestamp);
+      }
+      if (gcTableSyncSubtype.isFullMetadataSync()) {
+        this.getGcGrouperSync().setLastIncrementalSyncRun(milliswhenSyncStartedTimestamp);
+      }
       this.getGcGrouperSync().store();
 
     } catch (RuntimeException re) {
@@ -550,14 +518,10 @@ public class GcTableSync {
       throw re;
     } finally {
 
-      done[0]=true;
-      try {
-        heartbeatThread.interrupt();
-      } catch (Exception e) {
-        
-      }
-      GrouperClientUtils.join(heartbeatThread);
+      this.done = true;
       
+      GcGrouperSyncHeartbeat.endAndWaitForThread(this.gcGrouperSyncHeartbeat);
+
       debugMap.put("finalLog", true);
       
       synchronized (this) {
@@ -586,7 +550,7 @@ public class GcTableSync {
         if (gcGrouperSyncLog != null) {
           gcGrouperSyncLog.setDescription(debugString);
           gcGrouperSyncLog.setJobTookMillis(durationMillis);
-          gcGrouperSyncLog.store();
+          gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
         }
       } catch (RuntimeException re3) {
         debugMap.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
@@ -609,6 +573,100 @@ public class GcTableSync {
   }
 
   /**
+   * goes from column name to index of passed in memberships array
+   */
+  @SuppressWarnings("unchecked")
+  private static Map<String, Integer> membershipsColumnToIndex = (Map<String, Integer>)(Object)GrouperClientUtils.toMap(
+      "group_id", 0, "member_id", 1, "field_id", 2);
+  
+  /**
+   * the memberships primary keys come in as 
+   * group_id, group_name, member_id, subject_source_id, subject_id, list_name
+   * need to convert that into the form of the primary key
+   */
+  private void convertPrimaryKeysFromMembershipsToPrimaryKeys() {
+    
+    if (GrouperClientUtils.length(this.primaryKeysToSyncFromMemberships) > 0) {
+      
+      if (this.primaryKeysToSync == null) {
+        this.primaryKeysToSync = new LinkedHashSet<MultiKey>();
+      }
+      
+      int primaryKeySize = GrouperClientUtils.length(this.dataBeanFrom.getTableMetadata().getPrimaryKey());
+
+      //make sure primary keys valid
+      int[] primaryKeyIndexes = new int[primaryKeySize];
+      int i=0;
+      
+      boolean hasGroupId = false;
+      boolean hasMemberId = false;
+      boolean hasFieldId = false;
+      
+      
+      for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : this.dataBeanFrom.getTableMetadata().getPrimaryKey()) {
+        String columnName = gcTableSyncColumnMetadata.getColumnName().toLowerCase();
+        Integer membershipIndex = membershipsColumnToIndex.get(columnName);
+        if (membershipIndex == null) {
+          throw new RuntimeException("Cant find membership column in primary key, should be one of: " 
+              + GrouperClientUtils.toStringForLog(membershipsColumnToIndex.keySet() + " -- primary key -- " + columnName));
+        }
+        primaryKeyIndexes[i++] = membershipIndex;
+        
+        if ("group_id".equals(columnName)) {
+          hasGroupId = true;
+        }
+        
+        if ("member_id".equals(columnName)) {
+          hasMemberId = true;
+        }
+        
+        if ("field_id".equals(columnName)) {
+          hasFieldId = true;
+        }
+        
+      }
+
+      boolean columnsOk = false;
+      if (primaryKeySize == 2 && hasGroupId && hasMemberId) {
+        columnsOk = true;
+      }
+      if (primaryKeySize == 3 && hasGroupId && hasMemberId && hasFieldId) {
+        columnsOk = true;
+      }
+      if (!columnsOk) {
+        throw new RuntimeException("Primary key of membership sync must have either group_id, member_id...  or group_id, member_id, field_id");
+      }
+      
+      boolean standardConfiguration = primaryKeySize == 3 && primaryKeyIndexes[0] == 0 
+          && primaryKeyIndexes[1] == 1 && primaryKeyIndexes[2] == 2;
+      
+      // group_id, group_name, member_id, subject_source_id, subject_id, list_name
+      for (MultiKey membershipArray : this.primaryKeysToSyncFromMemberships) {
+
+        if (standardConfiguration) {
+          this.primaryKeysToSync.add(membershipArray);
+          continue;
+        }
+        
+        Object[] primaryKey = new Object[primaryKeySize];
+        for (i=0;i<primaryKeySize;i++) {
+          
+          int primaryKeyIndex = primaryKeyIndexes[i];
+          primaryKey[i] = membershipArray.getKey(primaryKeyIndex);
+          if (primaryKey[i] == null || (primaryKey[i] instanceof String && "".equals((String)primaryKey[i]))) {
+            throw new RuntimeException("Cant have a null column here: " + GrouperClientUtils.toStringForLog(membershipArray));
+          }
+          
+        }
+        
+        this.primaryKeysToSync.add(new MultiKey(primaryKey));
+      }
+
+    }
+    
+  }
+  
+  /**
    * log periodically
    * @param debugMap
    * @param gcTableSyncOutput 
@@ -626,6 +684,113 @@ public class GcTableSync {
     
   }
   
+  /**
+   * if passing in primary keys to sync, these are them
+   */
+  private Set<MultiKey> primaryKeysToSync = null;
+  
+  /**
+   * if passing in primary keys to sync, these are them
+   * @return primary keys to syn
+   */
+  public Set<MultiKey> getPrimaryKeysToSync() {
+    return this.primaryKeysToSync;
+  }
+
+  /**
+   * if passing in primary keys to sync, these are them
+   * @param primaryKeysToSync1
+   */
+  public void setPrimaryKeysToSync(Set<MultiKey> primaryKeysToSync1) {
+    this.primaryKeysToSync = primaryKeysToSync1;
+  }
+
+  /**
+   * if passing in primary keys to sync, these are them in this format: group_id, member_id, field_id
+   */
+  private Set<MultiKey> primaryKeysToSyncFromMemberships = null;
+  
+  /**
+   * if passing in primary keys to sync, these are them in this format: group_id, member_id, field_id
+   * @return primary keys to syn
+   */
+  public Set<MultiKey> getPrimaryKeysToSyncFromMemberships() {
+    return this.primaryKeysToSyncFromMemberships;
+  }
+
+  /**
+   * if passing in primary keys to sync, these are them in this format: group_id, member_id, field_id
+   * @param primaryKeysToSyncFromMemberships1
+   */
+  public void setPrimaryKeysToSyncFromMemberships(Set<MultiKey> primaryKeysToSyncFromMemberships1) {
+    this.primaryKeysToSyncFromMemberships = primaryKeysToSyncFromMemberships1;
+  }
+
+  /**
+   * if we need to pass in some member ids to sync before the main sync
+   */
+  private Collection<Object> memberIdsToSync = null;
+  
+  /**
+   * if we need to pass in some member ids to sync before the main sync
+   * @return member ids
+   */
+  public Collection<Object> getMemberIdsToSync() {
+    return this.memberIdsToSync;
+  }
+
+  /**
+   * if we need to pass in some member ids to sync before the main sync
+   * @param memberIdsToSync1
+   */
+  public void setMemberIdsToSync(Collection<Object> memberIdsToSync1) {
+    this.memberIdsToSync = memberIdsToSync1;
+  }
+
+  /**
+   * if we need to pass in some group ids to sync before the main sync
+   */
+  private Collection<Object> groupIdsToSync = null;
+  
+  /**
+   * if we need to pass in some group ids to sync before the main sync
+   * @return
+   */
+  public Collection<Object> getGroupIdsToSync() {
+    return this.groupIdsToSync;
+  }
+
+  /**
+   * if we need to pass in some group ids to sync before the main sync
+   * @param groupIdsToSync1
+   */
+  public void setGroupIdsToSync(Collection<Object> groupIdsToSync1) {
+    this.groupIdsToSync = groupIdsToSync1;
+  }
+
+  /**
+   * heartbeat thread
+   */
+  private GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+  
+  
+  
+  /**
+   * heartbeat thread
+   * @return heartbeat
+   */
+  public GcGrouperSyncHeartbeat getGcGrouperSyncHeartbeat() {
+    return this.gcGrouperSyncHeartbeat;
+  }
+
+  /**
+   * heartbeat thread
+   * @param gcGrouperSyncHeartbeat1
+   */
+  public void setGcGrouperSyncHeartbeat(GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat1) {
+    this.gcGrouperSyncHeartbeat = gcGrouperSyncHeartbeat1;
+  }
+
   /**
    * log object
    */

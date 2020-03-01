@@ -5,6 +5,11 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -15,7 +20,6 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringBuilder;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -65,6 +69,8 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
     //connectionName  DONT CLONE
 
+    gcGrouperSyncMember.errorMessage = this.errorMessage;
+    gcGrouperSyncMember.errorTimestamp = this.errorTimestamp;
     //grouperSync  DONT CLONE
 
     gcGrouperSyncMember.grouperSyncId = this.grouperSyncId;
@@ -113,6 +119,8 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
 
         //connectionName  DONT EQUALS
 
+        .append(this.errorMessage, other.errorMessage)
+        .append(this.errorTimestamp, other.errorTimestamp)
         //grouperSync  DONT EQUALS
 
         .append(this.grouperSyncId, other.grouperSyncId)
@@ -354,24 +362,17 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    * @param connectionName
    */
   public void store() {
-    try {
-      this.lastUpdated = new Timestamp(System.currentTimeMillis());
-      this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
-      new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
-    } catch (RuntimeException re) {
-      
-      LOG.info("GrouperSyncUser uuid potential mismatch: " + this.grouperSyncId + ", " + this.memberId, re);
+    storePrepare();
+    new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
+  }
 
-      // maybe a different uuid is there
-      GcGrouperSyncMember gcGrouperSyncUser = this.grouperSync.retrieveMemberByMemberId(this.memberId);
-      if (gcGrouperSyncUser != null) {
-        this.id = gcGrouperSyncUser.getId();
-        new GcDbAccess().connectionName(connectionName).storeToDatabase(this);
-        LOG.warn("GrouperSyncUser uuid mismatch corrected: " + this.grouperSyncId + ", " + this.memberId);
-      } else {
-        throw re;
-      }
-    }
+  /**
+   * call this before storing
+   */
+  public void storePrepare() {
+    this.lastUpdated = new Timestamp(System.currentTimeMillis());
+    this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
+    this.errorMessage = GrouperClientUtils.abbreviate(this.errorMessage, 3700);
   }
 
   /**
@@ -480,7 +481,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     
     System.out.println("stored");
     
-    gcGrouperSyncMember = gcGrouperSync.retrieveMemberByMemberId("memId");
+    gcGrouperSyncMember = null; // TODO gcGrouperSync.retrieveMemberByMemberId("memId");
     System.out.println(gcGrouperSyncMember);
     
     gcGrouperSyncMember.setMemberToId2("from2a");
@@ -507,28 +508,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    */
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("id", this.id)
-        .append("connectionName", this.connectionName)
-        .append("memberId", this.memberId)
-        .append("sourceId", this.sourceId)
-        .append("subjectId", this.subjectId)
-        .append("subjectIdentifier", this.subjectIdentifier)
-        .append("grouperSyncId", this.grouperSyncId)
-        .append("memberFromId2", this.memberFromId2)
-        .append("memberFromId3", this.memberFromId3)
-        .append("memberToId2", this.memberToId2)
-        .append("memberToId3", this.memberFromId3)
-        .append("metadataUpdated", this.metadataUpdated)
-        .append("inTarget", this.isInTarget())
-        .append("inTargetInsertOrExists", this.isInTargetInsertOrExists())
-        .append("inTargetStart", this.getInTargetStart())
-        .append("inTargetEnd", this.getInTargetEnd())
-        .append("provisionable", this.isProvisionable())
-        .append("provisionableStart", this.getProvisionableStart())
-        .append("provisionableEnd", this.getProvisionableEnd())
-        .append("lastUpdated", this.lastUpdated)
-        .append("lastTimeWorkWasDone", this.lastTimeWorkWasDone).build();
+    return GrouperClientUtils.toStringReflection(this);
   }
 
   /**
@@ -550,6 +530,48 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    */
   public void setLastTimeWorkWasDone(Timestamp lastTimeWorkWasDone1) {
     this.lastTimeWorkWasDone = lastTimeWorkWasDone1;
+  }
+
+  /**
+   * if the last sync had an error, this is the error message
+   */
+  private String errorMessage; 
+
+  /**
+   * this the last sync had an error, this was the error timestamp
+   */
+  private Timestamp errorTimestamp;
+  
+  /**
+   * if the last sync had an error, this is the error message
+   * @return error message
+   */
+  public String getErrorMessage() {
+    return this.errorMessage;
+  }
+
+  /**
+   * if the last sync had an error, this is the error message
+   * @param errorMessage1
+   */
+  public void setErrorMessage(String errorMessage1) {
+    this.errorMessage = errorMessage1;
+  }
+
+  /**
+   * this the last sync had an error, this was the error timestamp
+   * @return error timestamp
+   */
+  public Timestamp getErrorTimestamp() {
+    return this.errorTimestamp;
+  }
+
+  /**
+   * this the last sync had an error, this was the error timestamp
+   * @param errorTimestamp1
+   */
+  public void setErrorTimestamp(Timestamp errorTimestamp1) {
+    this.errorTimestamp = errorTimestamp1;
   }
 
 
@@ -880,8 +902,12 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    * 
    */
   @Override
-  public void gcSqlAssignNewPrimaryKeyForInsert() {
+  public boolean gcSqlAssignNewPrimaryKeyForInsert() {
+    if (this.id != null) {
+      return false;
+    }
     this.id = GrouperClientUtils.uuid();
+    return true;
   }
 
   /**

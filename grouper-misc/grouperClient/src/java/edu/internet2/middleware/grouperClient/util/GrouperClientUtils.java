@@ -54,6 +54,8 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlCo
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlEngine;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlException;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.MapContext;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringBuilder;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringStyle;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.impl.Jdk14Logger;
@@ -64,6 +66,48 @@ import edu.internet2.middleware.morphString.MorphStringConfig;
  * utility methods specific to grouper client
  */
 public class GrouperClientUtils extends GrouperClientCommonUtils {
+
+  /**
+   * to string reflection
+   * @param object
+   * @return the string representation
+   */
+  public static String toStringReflection(Object object) {
+    return ToStringBuilder.reflectionToString(object, GrouperClientUtils.NotNullToStringStyle.NOT_NULL_STYLE);
+  }
+  
+  /**
+   * dont print null fields in reflection
+   * @author mchyzer
+   *
+   */
+  public static final class NotNullToStringStyle extends ToStringStyle {
+    
+    private static final long serialVersionUID = 1L;
+    
+    public static final ToStringStyle NOT_NULL_STYLE = new NotNullToStringStyle();
+
+    public NotNullToStringStyle() {
+      super();
+      this.setUseShortClassName(true);
+    }
+    
+    private Object readResolve() {
+      return NOT_NULL_STYLE;
+    }
+
+    private static Set<String> fieldsToIgnore = GrouperClientUtils.toSet("dbVersion");
+    
+    @Override
+    public void append(StringBuffer buffer, String fieldName, Object value,
+        Boolean fullDetail) {
+      if (value != null && !fieldsToIgnore.contains(fieldName) && !fieldName.startsWith("internal")
+          && !fieldName.endsWith("Dao")) {
+        super.append(buffer, fieldName, value, fullDetail);
+      }
+    }
+  }
+  
 
   /**
    * configure jdk14 logs once

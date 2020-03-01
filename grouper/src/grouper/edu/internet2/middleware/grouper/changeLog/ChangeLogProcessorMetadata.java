@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.changeLog;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 
 /**
  * metadata about the change log

@@ -119,7 +119,7 @@ public class TestgrouperSyncSubjectFrom extends GrouperAPI implements Hib3Groupe
    * @param someFloat
    * @param someTimestamp
    */
-  public TestgrouperSyncSubjectFrom(String personId, String netId, Integer someInt,
+  public TestgrouperSyncSubjectFrom(Integer personId, String netId, Integer someInt,
       Date someDate, Double someFloat, Timestamp someTimestamp, Integer changeFlag, String theGroup) {
     super();
     this.personId = personId;
@@ -141,13 +141,13 @@ public class TestgrouperSyncSubjectFrom extends GrouperAPI implements Hib3Groupe
   /**
    * person id: varchar 8
    */
-  private String personId;
+  private Integer personId;
 
   
   /**
    * @return the personId
    */
-  public String getPersonId() {
+  public Integer getPersonId() {
     return this.personId;
   }
 
@@ -155,7 +155,7 @@ public class TestgrouperSyncSubjectFrom extends GrouperAPI implements Hib3Groupe
   /**
    * @param personId the personId to set
    */
-  public void setPersonId(String personId) {
+  public void setPersonId(Integer personId) {
     this.personId = personId;
   }
   

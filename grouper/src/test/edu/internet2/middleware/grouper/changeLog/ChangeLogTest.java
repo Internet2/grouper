@@ -97,7 +97,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testPermissionChangeOnSubjectByGroupSet"));
+    TestRunner.run(new ChangeLogTest("testStemRenameOrder"));
     //TestRunner.run(ChangeLogTest.class);
   }
   

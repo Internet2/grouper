@@ -12,8 +12,8 @@ package edu.internet2.middleware.grouperClient.jdbc;
 public interface GcSqlAssignPrimaryKey {
 
   /**
-   * assign a new primary key for insert
+   * assign a new primary key for insert.  return true if assigned (insert) or false if not needed
    */
-  public void gcSqlAssignNewPrimaryKeyForInsert();
+  public boolean gcSqlAssignNewPrimaryKeyForInsert();
   
 }

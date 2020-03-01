@@ -58,7 +58,7 @@ public class TableSyncOtherJob extends OtherJobBase {
     GcTableSyncSubtype gcTableSyncSubtype = GcTableSyncSubtype.valueOfIgnoreCase(syncTypeKeyNameString, true);
     final GcTableSync gcTableSync = new GcTableSync();
 
-    gcTableSync.setHeartbeatLogic(new Runnable() {
+    gcTableSync.getGcGrouperSyncHeartbeat().addHeartbeatLogic(new Runnable() {
 
       @Override
       public void run() {

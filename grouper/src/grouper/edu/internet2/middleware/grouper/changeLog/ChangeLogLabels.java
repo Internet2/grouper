@@ -558,7 +558,13 @@ public class ChangeLogLabels {
     propertyOldValue,
     
     /** new value of the property */
-    propertyNewValue;
+    propertyNewValue,
+
+    /** new value of the property */
+    memberId,
+
+    /** new value of the property */
+    fieldId;
   };
 
   /**
@@ -669,7 +675,13 @@ public class ChangeLogLabels {
     ownerName,
     
     /** membershipType */
-    membershipType;
+    membershipType,
+    
+    /** member id */
+    memberId,
+    
+    /** field id */
+    fieldId;
   };
   
   /**

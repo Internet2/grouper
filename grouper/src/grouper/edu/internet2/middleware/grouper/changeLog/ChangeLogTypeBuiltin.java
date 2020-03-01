@@ -19,7 +19,10 @@
  */
 package edu.internet2.middleware.grouper.changeLog;
 
+import java.util.HashMap;
+import java.util.Map;
 
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  *
@@ -112,7 +115,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBERSHIP_UPDATE.groupName,
       ChangeLogLabels.MEMBERSHIP_UPDATE.propertyChanged, 
       ChangeLogLabels.MEMBERSHIP_UPDATE.propertyOldValue, 
-      ChangeLogLabels.MEMBERSHIP_UPDATE.propertyNewValue)),
+      ChangeLogLabels.MEMBERSHIP_UPDATE.propertyNewValue,
+      ChangeLogLabels.MEMBERSHIP_UPDATE.memberId,
+      ChangeLogLabels.MEMBERSHIP_UPDATE.fieldId)),
 
   /**
    * delete membership
@@ -530,6 +535,48 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId,
       ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
       
+  /**
+   * lookup change log type by category and action
+   */
+  private static Map<MultiKey, ChangeLogTypeBuiltin> categoryAndActionLookup = null;
+
+  /**
+   * lookup a change log type by category and action
+   * @param category
+   * @param action
+   * @return the builtin type
+   */
+  public static ChangeLogTypeBuiltin retrieveChangeLogTypeByChangeLogEntry(ChangeLogEntry changeLogEntry) {
+    ChangeLogType changeLogType = changeLogEntry.getChangeLogType();
+    if (changeLogType == null) {
+      return null;
+    }
+    return retrieveChangeLogTypeByCategoryAndAction(changeLogType.getChangeLogCategory(), changeLogType.getActionName());
+  }
+
+  /**
+   * lookup a change log type by category and action
+   * @param category
+   * @param action
+   * @return the builtin type
+   */
+  public static ChangeLogTypeBuiltin retrieveChangeLogTypeByCategoryAndAction(String category, String action) {
+    if (categoryAndActionLookup == null) {
+      Map<MultiKey, ChangeLogTypeBuiltin> theCategoryAndActionLookup = new HashMap<MultiKey, ChangeLogTypeBuiltin>();
+      
+      for (ChangeLogTypeBuiltin changeLogTypeBuiltin : ChangeLogTypeBuiltin.values()) {
+        
+        MultiKey multiKey = new MultiKey(changeLogTypeBuiltin.getChangeLogCategory(), changeLogTypeBuiltin.getActionName());
+        theCategoryAndActionLookup.put(multiKey, changeLogTypeBuiltin);
+        
+      }
+      
+      categoryAndActionLookup = theCategoryAndActionLookup;
+
+    }
+    return categoryAndActionLookup.get(new MultiKey(category, action));
+  }
+  
   /**
    * defaults for changelog type, though doesn't hold the id
    */

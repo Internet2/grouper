@@ -222,6 +222,8 @@ public class ChangeLogHelper {
       
       int batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.changeLogConsumerBatchSize", 1000);
 
+      batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer." + consumerName + ".changeLogConsumerBatchSize", batchSize);
+
       for (int i=0;i<1000;i++) {
         
         ChangeLogProcessorMetadata changeLogProcessorMetadata = new ChangeLogProcessorMetadata();
