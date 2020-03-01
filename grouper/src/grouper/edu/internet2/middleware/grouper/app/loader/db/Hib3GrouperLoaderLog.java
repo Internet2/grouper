@@ -86,7 +86,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   /** if this job gets and loads data, this is the load data part */
   private Integer millisLoadData;
   
-  /** enum value from GrouperLoaderJobType */
+  /** enum value from GrouperLoaderType */
   private String jobType;
   
   /** enum value from GrouperLoaderJobScheduleType */
@@ -494,7 +494,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
 
   
   /**
-   * enum value from GrouperLoaderJobType
+   * enum value from GrouperLoaderType
    * @return the jobType
    */
   public String getJobType() {
@@ -503,7 +503,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
 
   
   /**
-   * enum value from GrouperLoaderJobType
+   * enum value from GrouperLoaderType
    * @param jobType1 the jobType to set
    */
   public void setJobType(String jobType1) {

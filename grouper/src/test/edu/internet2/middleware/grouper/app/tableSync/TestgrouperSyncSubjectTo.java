@@ -10,8 +10,6 @@ import java.util.Date;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  *
@@ -102,7 +100,7 @@ public class TestgrouperSyncSubjectTo extends GrouperAPI implements Hib3GrouperV
    * @param someFloat
    * @param someTimestamp
    */
-  public TestgrouperSyncSubjectTo(String personId, String netId, Integer someInt,
+  public TestgrouperSyncSubjectTo(Long personId, String netId, Integer someInt,
       Date someDate, Double someFloat, Timestamp someTimestamp, Integer changeFlag, String theGroup) {
     super();
     this.personId = personId;
@@ -124,13 +122,13 @@ public class TestgrouperSyncSubjectTo extends GrouperAPI implements Hib3GrouperV
   /**
    * person id: varchar 8
    */
-  private String personId;
+  private Long personId;
 
   
   /**
    * @return the personId
    */
-  public String getPersonId() {
+  public Long getPersonId() {
     return this.personId;
   }
 
@@ -138,7 +136,7 @@ public class TestgrouperSyncSubjectTo extends GrouperAPI implements Hib3GrouperV
   /**
    * @param personId the personId to set
    */
-  public void setPersonId(String personId) {
+  public void setPersonId(Long personId) {
     this.personId = personId;
   }
   

@@ -7,9 +7,6 @@ package edu.internet2.middleware.grouper.app.tableSync;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +14,9 @@ import java.util.Set;
 
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
-import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
-import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
@@ -37,19 +32,22 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
-import edu.internet2.middleware.grouper.changeLog.consumer.PrintChangeLogConsumer;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
@@ -64,18 +62,10 @@ public class ProvisioningToSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
     GrouperStartup.startup();
-//    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
-//    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
-    TestRunner.run(new ProvisioningToSyncTest("testProvisioningAttributesToGroupSyncFull"));
-//    TestRunner.run(new TableSyncTest("testPersonSyncFullChangeFlag"));
-//    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalPrimaryKey"));
-    
-//    List<Object[]> results = new GcDbAccess().connectionName("grouper")
-//        .sql("select PERSON_ID, HIBERNATE_VERSION_NUMBER, NET_ID, SOME_INT, SOME_FLOAT, SOME_DATE, SOME_TIMESTAMP from testgrouper_sync_subject_from")
-//        .selectList(Object[].class);
-//    for (Object[] result : results) {
-//      System.out.println(GrouperClientUtils.toStringForLog(result));
-//    }
+    //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncLogStoreAndDelete"));
+    //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncJobStoreAndDelete"));
+    //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncGroupStoreAndDelete"));
+    TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncMemberStoreAndDelete"));
     
   }
   
@@ -156,12 +146,22 @@ public class ProvisioningToSyncTest extends GrouperTest {
    */
   public void createTable(DdlVersionBean ddlVersionBean, Database database, String tableName) {
 
+    try {
+      new GcDbAccess().sql("select count(1) from " + tableName).select(int.class);
+      return;
+    } catch (Exception e) {
+      //create the object
+    }
+    
     Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "member_id", 
         Types.VARCHAR, "40", true, true);
  
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", 
+        Types.VARCHAR, "40", true, true);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "field_id", 
         Types.VARCHAR, "40", true, true);
  
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "list_name", 
@@ -266,13 +266,257 @@ public class ProvisioningToSyncTest extends GrouperTest {
     });
   }
 
+  public void testGcGrouperSyncGroupStoreAndDelete() {
+
+    //try to store an insert
+    GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp123");
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("abc");
+    gcGrouperSync.storeAllObjects();
+    
+    assertNotNull(gcGrouperSyncGroup.getId());
+    
+    gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup.getId());
+
+    assertEquals("abc", gcGrouperSyncGroup.getGroupId());
+
+    //try to store an update
+    gcGrouperSyncGroup.setGroupFromId2("def");
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+
+    gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup.getId());
+    assertEquals("def", gcGrouperSyncGroup.getGroupFromId2());
+
+    //try to store a delete
+    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup, false, false);
+    
+    gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup.getId());
+
+    assertNull(gcGrouperSyncGroup);
+
+    
+    //try to store some inserts
+    GcGrouperSyncGroup gcGrouperSyncGroup1 = new GcGrouperSyncGroup();
+    gcGrouperSyncGroup1.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncGroup1.setGroupId("abc");
+    GcGrouperSyncGroup gcGrouperSyncGroup2 = new GcGrouperSyncGroup();
+    gcGrouperSyncGroup2.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncGroup2.setGroupId("def");
+
+    List<GcGrouperSyncGroup> gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
+    gcGrouperSyncGroups.add(gcGrouperSyncGroup1);
+    gcGrouperSyncGroups.add(gcGrouperSyncGroup2);
+    
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroups);
+    
+    assertNotNull(gcGrouperSyncGroup1.getId());
+    assertNotNull(gcGrouperSyncGroup2.getId());
+
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup1.getId());
+    gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup2.getId());
+
+    assertEquals("abc", gcGrouperSyncGroup1.getGroupId());
+    assertEquals("def", gcGrouperSyncGroup2.getGroupId());
+
+    //try to store an update
+    gcGrouperSyncGroup1.setGroupFromId2("mno");
+    gcGrouperSyncGroup2.setGroupFromId2("pqr");
+
+    gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
+    gcGrouperSyncGroups.add(gcGrouperSyncGroup1);
+    gcGrouperSyncGroups.add(gcGrouperSyncGroup2);
+    
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroups);
+    
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup1.getId());
+    gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup2.getId());
+
+    assertEquals("mno", gcGrouperSyncGroup1.getGroupFromId2());
+    assertEquals("pqr", gcGrouperSyncGroup2.getGroupFromId2());
+
+    gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
+    gcGrouperSyncGroups.add(gcGrouperSyncGroup1);
+    gcGrouperSyncGroups.add(gcGrouperSyncGroup2);
+    
+    //try to store a delete
+    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroups, true, true);
+    
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup1.getId());
+    assertNull(gcGrouperSyncGroup1);
+    gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup2.getId());
+    assertNull(gcGrouperSyncGroup2);
+    
+    gcGrouperSync.delete();
+
+    gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp124");
+    
+    //try some inserts, some updates, and some no changes
+    Map<String, GcGrouperSyncGroup> groupIdToGcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupIds(GrouperUtil.toList("abc", "def"));
+    gcGrouperSyncGroup1 = groupIdToGcGrouperSyncGroup.get("abc");
+    gcGrouperSyncGroup2 = groupIdToGcGrouperSyncGroup.get("def");
+    GcGrouperSyncGroup gcGrouperSyncGroup3 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("mno");
+    GcGrouperSyncGroup gcGrouperSyncGroup4 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("pqr");
+
+    int changes = gcGrouperSync.storeAllObjects();
+
+    assertEquals(4, changes);
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup5 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("stu");
+    GcGrouperSyncGroup gcGrouperSyncGroup6 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("vwx");
+
+    //try to store an update
+    gcGrouperSyncGroup3.setGroupFromId2("mno");
+    gcGrouperSyncGroup4.setGroupFromId2("pqr");
+
+    changes = gcGrouperSync.storeAllObjects();
+
+    assertEquals(4, changes);
+    
+    gcGrouperSyncGroup3 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup3.getId());
+    gcGrouperSyncGroup4 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup4.getId());
+
+    assertEquals("mno", gcGrouperSyncGroup3.getGroupFromId2());
+    assertEquals("pqr", gcGrouperSyncGroup4.getGroupFromId2());
+
+    gcGrouperSyncGroup3 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbByGroupId(gcGrouperSyncGroup3.getGroupId());
+    assertEquals("mno", gcGrouperSyncGroup3.getGroupFromId2());
+    
+    gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbAll();
+    assertEquals(6, gcGrouperSyncGroups.size());
+    
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup7 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("ghi");
+    assertNull(gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
+    assertEquals(1, gcGrouperSync.storeAllObjects());
+    assertNotNull(gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
+    
+    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup7, true, true);
+    assertNull(gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
+    assertNull(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncGroup7.getId()));
+
+    assertNotNull(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(gcGrouperSyncGroup6.getGroupId()));
+    
+    groupIdToGcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(GrouperUtil.toSet(gcGrouperSyncGroup1.getGroupId(), gcGrouperSyncGroup2.getGroupId()));
+
+    assertEquals(2, groupIdToGcGrouperSyncGroup.size());
+    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(gcGrouperSyncGroup1.getGroupId()));
+    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(gcGrouperSyncGroup2.getGroupId()));
+    
+    groupIdToGcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbByIds(GrouperUtil.toSet(gcGrouperSyncGroup1.getId(), gcGrouperSyncGroup2.getId()));
+
+    assertEquals(2, groupIdToGcGrouperSyncGroup.size());
+    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(gcGrouperSyncGroup1.getId()));
+    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(gcGrouperSyncGroup2.getId()));
+
+    GcDbAccess.threadLocalQueryCountReset();
+
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(gcGrouperSyncGroup1.getGroupId());
+    assertEquals("abc", gcGrouperSyncGroup1.getGroupId());
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncGroup1.getId());
+    assertEquals("abc", gcGrouperSyncGroup1.getGroupId());
+
+    assertEquals(0, GcDbAccess.threadLocalQueryCountRetrieve());
+
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupCacheDelete(gcGrouperSyncGroup1);
+    GcDbAccess.threadLocalQueryCountReset();
+
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(gcGrouperSyncGroup1.getGroupId());
+    assertEquals("abc", gcGrouperSyncGroup1.getGroupId());
+
+    assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncGroup1.getId());
+    assertEquals("abc", gcGrouperSyncGroup1.getGroupId());
+
+    assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupCacheDelete(gcGrouperSyncGroup1);
+    GcDbAccess.threadLocalQueryCountReset();
+
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncGroup1.getId());
+    assertEquals("abc", gcGrouperSyncGroup1.getGroupId());
+
+    assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+
+    gcGrouperSync.storeAllObjects();
+
+    int existingLogs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncGroup1.getId()).size();
+
+    assertEquals(0, existingLogs);
+    
+    GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateLog(gcGrouperSyncGroup1);
+    gcGrouperSyncLog.setDescription("hey");
+    assertEquals(1, gcGrouperSync.storeAllObjects());
+    
+    List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncGroup1.getId());
+    assertEquals(1, logs.size());
+    assertEquals("hey", logs.get(0).getDescription());
+    
+//    (Collection<String>)
+    
+    //  System.out.println("none");
+    //  
+    //  for (GcGrouperSyncGroup theGcGrouperSyncGroup : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGroup.class)) {
+    //    System.out.println(theGcGrouperSyncGroup.toString());
+    //  }
+    //  
+    //  // foreign key
+    //  GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    //  gcGrouperSync.setSyncEngine("temp");
+    //  gcGrouperSync.setProvisionerName("myJob");
+    //  gcGrouperSync.store();
+    //  
+    //  GcGrouperSyncGroup gcGrouperSyncGroup = new GcGrouperSyncGroup();
+    //  gcGrouperSyncGroup.setGrouperSync(gcGrouperSync);
+    //  gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    //  gcGrouperSyncGroup.groupFromId2 = "from2";
+    //  gcGrouperSyncGroup.groupFromId3 = "from3";
+    //  gcGrouperSyncGroup.groupId = "myId";
+    //  gcGrouperSyncGroup.groupIdIndex = 123L;
+    //  gcGrouperSyncGroup.groupName = "myName";
+    //  gcGrouperSyncGroup.groupToId2 = "toId2";
+    //  gcGrouperSyncGroup.groupToId3 = "toId3";
+    //  gcGrouperSyncGroup.inTargetDb = "T";
+    //  gcGrouperSyncGroup.inTargetInsertOrExistsDb = "T";
+    //  gcGrouperSyncGroup.inTargetEnd = new Timestamp(123L);
+    //  gcGrouperSyncGroup.inTargetStart = new Timestamp(234L);
+    //  gcGrouperSyncGroup.lastTimeWorkWasDone = new Timestamp(345L);
+    //  gcGrouperSyncGroup.provisionableDb = "T";
+    //  gcGrouperSyncGroup.provisionableEnd = new Timestamp(456L);
+    //  gcGrouperSyncGroup.provisionableStart = new Timestamp(567L);
+    //  gcGrouperSync.internal_groupStore(gcGrouperSyncGroup);
+    //  
+    //  System.out.println("stored");
+    //  
+    //  gcGrouperSyncGroup = gcGrouperSync.groupRetrieveByGroupId("myId");
+    //  System.out.println(gcGrouperSyncGroup);
+    //  
+    //  gcGrouperSyncGroup.setGroupToId2("toId2a");
+    //  gcGrouperSync.internal_groupStore(gcGrouperSyncGroup);
+    //
+    //  System.out.println("updated");
+    //
+    //  for (GcGrouperSyncGroup theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGroup.class)) {
+    //    System.out.println(theGcGrouperSyncStatus.toString());
+    //  }
+    //
+    //  gcGrouperSyncGroup.delete();
+    //  gcGrouperSync.delete();
+    //  
+    //  System.out.println("deleted");
+    //
+    //  for (GcGrouperSyncGroup theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncGroup.class)) {
+    //    System.out.println(theGcGrouperSyncStatus.toString());
+    //  }
+
+  }
+  
   /**
    * add provisioning attributes and see them transition to group sync attribute
    */
   public void testProvisioningAttributesToGroupSyncFull() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    
+        
     Stem testStem = new StemSave(grouperSession).assignName("test").save();
     
     Group testGroup1 = new GroupSave(grouperSession).assignName("test:testGroup1").save();
@@ -368,7 +612,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup4.getId()));
 
     GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName("grouper", "testTarget");
-    List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.retrieveAllGroups();
+    List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
     
     Set<String> uuidsToProvision = new HashSet<String>();
     
@@ -427,185 +671,35 @@ public class ProvisioningToSyncTest extends GrouperTest {
 
     GrouperProvisioningJob.runDaemonStandalone();
     
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
-        "edu.internet2.middleware.grouper.changeLog.consumer.PrintChangeLogConsumer");
-    
-    //something that will never fire
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-        "0 0 5 * * 2000");
-
-//    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
-//
-//    assertEquals(2, PrintChangeLogConsumer.eventsProcessed.size());
-//    assertTrue(GrouperUtil.toStringForLog(PrintChangeLogConsumer.eventsProcessed), 
-//        PrintChangeLogConsumer.eventsProcessed.contains(JOB_NAME + " add group " + group1.getName() + " and memberships"));
-//    assertTrue(GrouperUtil.toStringForLog(PrintChangeLogConsumer.eventsProcessed), 
-//        PrintChangeLogConsumer.eventsProcessed.contains(JOB_NAME + " add group " + group2.getName() + " and memberships"));
-
   }
+  
+  /**
+   * esb consumer
+   */
+  private EsbConsumer esbConsumer;
   
   /**
    * 
    */
-  private Hib3GrouperLoaderLog runJobs() {
+  private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
     
-    ChangeLogTempToEntity.convertRecords();
-    
-    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-    hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_" + JOB_NAME);
-    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-    ChangeLogHelper.processRecords(JOB_NAME, hib3GrouploaderLog, new PrintChangeLogConsumer());
-
-    return hib3GrouploaderLog;
-  }
-
-  /**
-     * 
-     */
-    public void testPersonSyncFull() {
-
-      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
-      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "testgrouper_sync_subject_from");
-      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
-      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableTo", "testgrouper_sync_subject_to");
-      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
-  
-      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
-      
-      int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
-      
-      assertEquals(0, countFrom);
-  
-      int countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
-      
-      assertEquals(0, countTo);
-  
-      List<TestgrouperSyncSubjectFrom> testgrouperSyncSubjectFroms = new ArrayList<TestgrouperSyncSubjectFrom>();
-      
-      long now = System.currentTimeMillis();
-      Calendar date = new GregorianCalendar();
-      date.setTimeInMillis(now);
-      date.set(Calendar.HOUR_OF_DAY, 0);
-      date.set(Calendar.MINUTE, 0);
-      date.set(Calendar.MILLISECOND, 0);
-      date.set(Calendar.SECOND, 0);
-  
-      Calendar timestamp = new GregorianCalendar();
-      timestamp.setTimeInMillis(now);
-      timestamp.set(Calendar.MILLISECOND, 0);
-      timestamp.add(Calendar.HOUR_OF_DAY, 1);
-      timestamp.add(Calendar.MINUTE, 1);
-      
-      int recordsSize = 25000;
-      
-      for (int i=0;i<recordsSize;i++) {
-        TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
-        testgrouperSyncSubjectFrom.setPersonId(i+"");
-        testgrouperSyncSubjectFrom.setNetId("netId_" + i);
-        testgrouperSyncSubjectFrom.setSomeInt(1+i);
-        
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(date.getTimeInMillis());
-        calendar.add(Calendar.DAY_OF_YEAR, i);
-  
-        testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
-        testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
-        
-        calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(timestamp.getTimeInMillis());
-        calendar.add(Calendar.DAY_OF_YEAR, i);
-        
-        testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(calendar.getTimeInMillis()));
-        testgrouperSyncSubjectFroms.add(testgrouperSyncSubjectFrom);
-        
-        if (testgrouperSyncSubjectFroms.size() == 1000) {
-          HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
-          testgrouperSyncSubjectFroms.clear();
-        }
-        
-      }
-      if (testgrouperSyncSubjectFroms.size() > 0) {
-        HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
-      }
-  
-      //lets sync these over
-      
-      GcTableSync gcTableSync = new GcTableSync();
-  
-      GcTableSyncOutput gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
-  
-      assertEquals(0, gcTableSyncOutput.getDelete());
-      assertEquals(0, gcTableSyncOutput.getUpdate());
-      assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
-      assertEquals(recordsSize, gcTableSyncOutput.getInsert());
-      assertEquals(recordsSize, gcTableSync.getGcGrouperSync().getRecordsCount().intValue());
-  
-      countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
-  
-      assertEquals(recordsSize, countTo);
-  
-      //do it again should do nothing
-      gcTableSync = new GcTableSync();
-      
-      gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
-  
-      assertEquals(0, gcTableSyncOutput.getDelete());
-      assertEquals(0, gcTableSyncOutput.getUpdate());
-      assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
-      assertEquals(0, gcTableSyncOutput.getInsert());
-      
-      TestgrouperSyncSubjectTo testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, "0");
-      assertEquals("0", testgrouperSyncSubjectTo.getPersonId());
-      assertEquals("netId_0", testgrouperSyncSubjectTo.getNetId());
-      assertEquals(new Date(date.getTimeInMillis()), testgrouperSyncSubjectTo.getSomeDate());
-      assertEquals(1.1d, testgrouperSyncSubjectTo.getSomeFloat());
-      assertEquals(new Integer(1), testgrouperSyncSubjectTo.getSomeInt());
-      assertEquals(new Timestamp(timestamp.getTimeInMillis()), testgrouperSyncSubjectTo.getSomeTimestamp());
-      
-      // this will be a delete
-      TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, "0");
-      HibernateSession.byObjectStatic().delete(testgrouperSyncSubjectFrom);
-  
-      // this will be an insert
-      testgrouperSyncSubjectFrom.setPersonId("-1");
-      testgrouperSyncSubjectFrom.setHibernateVersionNumber(GrouperAPI.INITIAL_VERSION_NUMBER);
-      HibernateSession.byObjectStatic().saveOrUpdate(testgrouperSyncSubjectFrom);
-    
-      // this will be an update
-      testgrouperSyncSubjectFrom = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectFrom.class, "1");
-      testgrouperSyncSubjectFrom.setNetId("55");
-      HibernateSession.byObjectStatic().saveOrUpdate(testgrouperSyncSubjectFrom);
-  
-      gcTableSync = new GcTableSync();
-      
-      gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
-          
-      assertEquals(1, gcTableSyncOutput.getDelete());
-      assertEquals(1, gcTableSyncOutput.getUpdate());
-      assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
-      assertEquals(1, gcTableSyncOutput.getInsert());
-      
-      int rows = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to where person_id = ?", 
-          HibUtils.listObject(0), HibUtils.listType(StringType.INSTANCE));
-      assertEquals(0, rows);
-      
-      testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, "-1");
-      assertNotNull(testgrouperSyncSubjectTo);
-      
-      assertEquals("-1", testgrouperSyncSubjectTo.getPersonId());
-      assertEquals("netId_0", testgrouperSyncSubjectTo.getNetId());
-      assertEquals(new Date(date.getTimeInMillis()), testgrouperSyncSubjectTo.getSomeDate());
-      assertEquals(1.1d, testgrouperSyncSubjectTo.getSomeFloat());
-      assertEquals(new Integer(1), testgrouperSyncSubjectTo.getSomeInt());
-      assertEquals(new Timestamp(timestamp.getTimeInMillis()), testgrouperSyncSubjectTo.getSomeTimestamp());
-    
-      testgrouperSyncSubjectTo = HibernateSession.byObjectStatic().load(TestgrouperSyncSubjectTo.class, "1");
-      assertNotNull(testgrouperSyncSubjectTo);
-      assertEquals("55", testgrouperSyncSubjectTo.getNetId());
-      
+    if (runChangeLog) {
+      ChangeLogTempToEntity.convertRecords();
     }
+    
+    if (runConsumer) {
+      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_" + JOB_NAME);
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+      this.esbConsumer = new EsbConsumer();
+      ChangeLogHelper.processRecords(JOB_NAME, hib3GrouploaderLog, this.esbConsumer);
+  
+      return hib3GrouploaderLog;
+    }
+    
+    return null;
+  }
 
   /**
    * @param ddlVersionBean
@@ -614,22 +708,691 @@ public class ProvisioningToSyncTest extends GrouperTest {
    */
   public void createView(DdlVersionBean ddlVersionBean, Database database, String viewName) {
   
+    try {
+      new GcDbAccess().sql("select count(1) from " + viewName).select(int.class);
+      return;
+    } catch (Exception e) {
+      //create the object
+    }
+
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, viewName, 
         "test membership view",
-        GrouperUtil.toSet("MEMBER_ID", "GROUP_ID", "LIST_NAME", "SUBJECT_ID", "SUBJECT_SOURCE", "GROUP_NAME"),
+        GrouperUtil.toSet("MEMBER_ID", "GROUP_ID", "FIELD_ID", "LIST_NAME", "SUBJECT_ID", "SUBJECT_SOURCE", "GROUP_NAME"),
         GrouperUtil.toSet("MEMBER_ID: uuid of the member",
             "GROUP_ID: uuid of the group",
+            "FIELD_ID: uuid of the field",
             "LIST_NAME: name of the list, e.g. members",
             "SUBJECT_ID: of the member of the group", 
             "SUBJECT_SOURCE: of the member of the group", 
             "GROUP_NAME: system name of the group"
             ),
-            "select ms.member_id, gg.id as group_id, gf.name as list_name, gg.name as group_name, gm.subject_id, gm.subject_source " + 
+            "select ms.member_id, gg.id as group_id, gf.id, gf.name as list_name, gg.name as group_name, gm.subject_id, gm.subject_source " + 
             "from grouper_memberships ms, grouper_group_set gs, grouper_groups gg, grouper_sync gsync, grouper_sync_group gsg, grouper_members gm, grouper_fields gf " + 
             "where ms.owner_id = gs.member_id and ms.field_id= gs.member_field_id and gs.owner_group_id = gg.id and gm.id = ms.member_id and gf.id = gs.field_id " + 
             "and gsync.id = gsg.grouper_sync_id and gsg.group_id = gg.id and gm.subject_source = 'jdbc' and ms.enabled = 'T' and gsg.provisionable = 'T'" + 
             "");
     
   }
+
+  /**
+     * add provisioning attributes and see them transition to group sync attribute
+     */
+    public void testEsbConsumer() {
+      
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Stem testStem = new StemSave(grouperSession).assignName("test").save();
+      
+      Group testGroup1 = new GroupSave(grouperSession).assignName("test:testGroup1").save();
+      
+      testGroup1.addMember(SubjectTestHelper.SUBJ0);
+      testGroup1.addMember(SubjectTestHelper.SUBJ1);
+      
+      Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+  
+      testGroup2.addMember(SubjectTestHelper.SUBJ2);
+  
+      Group testGroup3 = new GroupSave(grouperSession).assignName("test:testGroup3").save();
+  
+      testGroup3.addMember(SubjectTestHelper.SUBJ3);
+  
+      Group testGroup4 = new GroupSave(grouperSession).assignName("test:test2:testGroup4").assignCreateParentStemsIfNotExist(true).save();
+  
+      testGroup4.addMember(SubjectTestHelper.SUBJ4);
+  
+      // marker
+      AttributeDefName provisioningMarkerAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker();
+  
+      // target name
+      AttributeDefName provisioningTargetAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget();
+  
+      // direct name
+      AttributeDefName provisioningDirectAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment();
+  
+      // direct name
+      AttributeDefName provisioningStemScopeAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameStemScope();
+  
+      // do provision
+      AttributeDefName provisioningDoProvisionAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision();
+      
+      Set<Group> groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+      assertEquals(0, GrouperUtil.length(groups));
+      
+      AttributeAssign testStemAttributeAssign = testStem.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+      testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+      testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningStemScopeAttributeDefName.getName(), "sub");
+      testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+      testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
+  
+      AttributeAssign testGroup2attributeAssign = testGroup2.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+      testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+      testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+      testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
+      
+      // propagate the attributes to children
+      GrouperProvisioningJob.runDaemonStandalone();
+      
+      // create the sync stuff
+      new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+            
+      
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.databaseFrom", "grouper");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.tableFrom", "testgrouper_mship_from_v");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.databaseTo", "grouper");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.tableTo", "testgrouper_sync_subject_to");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.columns", "*");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.primaryKeyColumns", "group_id, member_id, field_id");
+      
+      
+      GcTableSync gcTableSync = new GcTableSync();
+      GcTableSyncOutput gcTableSyncOutput = gcTableSync.sync("testTarget", GcTableSyncSubtype.fullSyncFull); 
+
+      GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveByProvisionerName(null, "testTarget");
+      GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.jobRetrieveBySyncType(GcTableSyncSubtype.fullSyncFull.name());
+      
+      Timestamp lastSyncTimestamp = gcGrouperSyncJob.getLastSyncTimestamp();
+      
+      assertNotNull(lastSyncTimestamp);
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
+          EsbConsumer.class.getName());
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
+          TableSyncProvisioningConsumer.class.getName());
+      
+      //something that will never fire
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
+          "0 0 5 * * 2000");
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
+          "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
+
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "testTarget");
+
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
+          GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys.name());
+
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
+
+      
+      
+      // run the loader, initial run does nothing
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = runJobs(true, true);
+  
+      assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+  
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.changeLogEntryListSize);
+      
+      testGroup4.addMember(SubjectTestHelper.SUBJ5);
+
+      hib3GrouperLoaderLog = runJobs(true, true);
+      
+      assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+  
+      // theres an add member and an add membership
+      assertEquals(2, this.esbConsumer.internal_esbConsumerTestingData.changeLogEntryListSize);
+      assertEquals(2, this.esbConsumer.internal_esbConsumerTestingData.convertAllChangeLogEventsToEsbEventsSize);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.filterInvalidEventTypesSize);
+
+      assertEquals("testTarget", this.esbConsumer.internal_esbConsumerTestingData.provisionerTarget);
+      assertEquals("incrementalFromIdentifiedPrimaryKeys", this.esbConsumer.internal_esbConsumerTestingData.provisionerJobSyncType);
+      
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.skippedEventsDueToFullSync);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.groupIdCountToAddToTarget);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.groupIdCountToRemoveFromTarget);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.gcGrouperSyncGroupsCountInitial);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.eventsFilteredByGroupEvents);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.eventsWithAddedSubjectAttributes);
+      assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.skippedEventsDueToExpressionLanguageCount);
+      assertEquals("MEMBER_ADD", this.esbConsumer.internal_esbConsumerTestingData.skippedEventsDueToExpressionLanguage.get(0).getEsbEvent().getEventType());
+      assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.gcGrouperSyncGroupGroupIdsToRetrieveCount);
+      assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.gcGrouperSyncGroupsRetrievedByEventsSize);
+      assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.filterByNotProvisionablePreSize);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.eventsFilteredByNotProvisionable);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.eventsFilteredNotTrackedAtAll);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.eventsFilteredNotTrackedOrProvisionable);
+      assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.filterByNotProvisionablePostSize);
+      
+      // ####### That should add the member to the target
+      
+      
+      // #######  Full sync should remove events
+      testGroup4.deleteMember(SubjectTestHelper.SUBJ5);
+
+      GrouperUtil.sleep(100);
+      
+      gcTableSync = new GcTableSync();
+      gcTableSyncOutput = gcTableSync.sync("testTarget", GcTableSyncSubtype.fullSyncFull); 
+      
+      gcGrouperSync = GcGrouperSync.retrieveByProvisionerName(null, "testTarget");
+      gcGrouperSyncJob = gcGrouperSync.jobRetrieveBySyncType(GcTableSyncSubtype.fullSyncFull.name());
+      
+      assertTrue(gcGrouperSyncJob.getLastSyncTimestamp().getTime() > lastSyncTimestamp.getTime());
+            
+      assertEquals(1, gcTableSyncOutput.getDelete());
+      assertEquals(0, gcTableSyncOutput.getUpdate());
+      assertEquals(0, gcTableSyncOutput.getInsert());
+
+      hib3GrouperLoaderLog = runJobs(true, true);
+      
+      assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+  
+      assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.changeLogEntryListSize);
+      assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.convertAllChangeLogEventsToEsbEventsSize);
+      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.filterInvalidEventTypesSize);
+      assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.skippedEventsDueToFullSync);
+      
+  
+    }
+
+  public void testGcGrouperSyncLogStoreAndDelete() {
+  
+      //try to store an insert
+      GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp123");
+      GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("abc");
+      gcGrouperSync.storeAllObjects();
+      
+      assertNotNull(gcGrouperSyncLog.getId());
+      
+      gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog.getId());
+  
+      assertEquals("abc", gcGrouperSyncLog.getGrouperSyncOwnerId());
+  
+      //try to store an update
+      gcGrouperSyncLog.setDescription("def");
+      gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
+  
+      gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog.getId());
+      assertEquals("def", gcGrouperSyncLog.getDescription());
+  
+      //try to store a delete
+      gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncLog);
+      
+      gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog.getId());
+  
+      assertNull(gcGrouperSyncLog);
+  
+      
+      //try to store some inserts
+      GcGrouperSyncLog gcGrouperSyncLog1 = new GcGrouperSyncLog();
+      gcGrouperSyncLog1.setGrouperSync(gcGrouperSync);
+      gcGrouperSyncLog1.setGrouperSyncOwnerId("abc");
+      GcGrouperSyncLog gcGrouperSyncLog2 = new GcGrouperSyncLog();
+      gcGrouperSyncLog2.setGrouperSync(gcGrouperSync);
+      gcGrouperSyncLog2.setGrouperSyncOwnerId("def");
+  
+      List<GcGrouperSyncLog> gcGrouperSyncGroups = new ArrayList<GcGrouperSyncLog>();
+      gcGrouperSyncGroups.add(gcGrouperSyncLog1);
+      gcGrouperSyncGroups.add(gcGrouperSyncLog2);
+      
+      gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncGroups);
+      
+      assertNotNull(gcGrouperSyncLog1.getId());
+      assertNotNull(gcGrouperSyncLog2.getId());
+  
+      gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog1.getId());
+      gcGrouperSyncLog2 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog2.getId());
+  
+      assertEquals("abc", gcGrouperSyncLog1.getGrouperSyncOwnerId());
+      assertEquals("def", gcGrouperSyncLog2.getGrouperSyncOwnerId());
+  
+      //try to store an update
+      gcGrouperSyncLog1.setDescription("mno");
+      gcGrouperSyncLog2.setDescription("pqr");
+  
+      gcGrouperSyncGroups = new ArrayList<GcGrouperSyncLog>();
+      gcGrouperSyncGroups.add(gcGrouperSyncLog1);
+      gcGrouperSyncGroups.add(gcGrouperSyncLog2);
+      
+      gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncGroups);
+      
+      gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog1.getId());
+      gcGrouperSyncLog2 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog2.getId());
+  
+      assertEquals("mno", gcGrouperSyncLog1.getDescription());
+      assertEquals("pqr", gcGrouperSyncLog2.getDescription());
+  
+      gcGrouperSyncGroups = new ArrayList<GcGrouperSyncLog>();
+      gcGrouperSyncGroups.add(gcGrouperSyncLog1);
+      gcGrouperSyncGroups.add(gcGrouperSyncLog2);
+      
+      //try to store a delete
+      gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncGroups);
+      
+      gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog1.getId());
+      assertNull(gcGrouperSyncLog1);
+      gcGrouperSyncLog2 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog2.getId());
+      assertNull(gcGrouperSyncLog2);
+      
+      gcGrouperSync.delete();
+  
+      gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp124");
+      
+      //try some inserts, some updates, and some no changes
+      gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("abc");
+      gcGrouperSyncLog2 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("def");
+      GcGrouperSyncLog gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("mno");
+      GcGrouperSyncLog gcGrouperSyncLog4 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("pqr");
+  
+      int changes = gcGrouperSync.storeAllObjects();
+  
+      assertEquals(4, changes);
+      
+      GcGrouperSyncLog gcGrouperSyncGroup5 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("stu");
+      GcGrouperSyncLog gcGrouperSyncGroup6 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("vwx");
+  
+      //try to store an update
+      gcGrouperSyncLog3.setDescription("mno");
+      gcGrouperSyncLog4.setDescription("pqr");
+  
+      changes = gcGrouperSync.storeAllObjects();
+  
+      assertEquals(4, changes);
+      
+      gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog3.getId());
+      gcGrouperSyncLog4 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog4.getId());
+  
+      assertEquals("mno", gcGrouperSyncLog3.getDescription());
+      assertEquals("pqr", gcGrouperSyncLog4.getDescription());
+  
+      gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncLog3.getGrouperSyncOwnerId()).get(0);
+      assertEquals("mno", gcGrouperSyncLog3.getDescription());
+      
+      gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbAll();
+      assertEquals(6, gcGrouperSyncGroups.size());
+      
+      
+      GcGrouperSyncLog gcGrouperSyncGroup7 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("ghi");
+      assertNull(gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
+      assertEquals(1, gcGrouperSync.storeAllObjects());
+      assertNotNull(gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
+      
+      gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncGroup7);
+      assertNull(gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
+      assertNull(gcGrouperSync.getGcGrouperSyncLogDao().logRetrieveById(gcGrouperSyncGroup7.getId()));
+  
+      
+  
+    }
+
+  public void testGcGrouperSyncJobStoreAndDelete() {
+  
+      //try to store an insert
+      GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp123");
+      GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("abc");
+      gcGrouperSync.storeAllObjects();
+      
+      assertNotNull(gcGrouperSyncJob.getId());
+      
+      gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob.getId());
+  
+      assertEquals("abc", gcGrouperSyncJob.getSyncType());
+  
+      //try to store an update
+      gcGrouperSyncJob.setErrorMessage("def");
+      gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
+  
+      gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob.getId());
+      assertEquals("def", gcGrouperSyncJob.getErrorMessage());
+  
+      //try to store a delete
+      gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJob, false);
+      
+      gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob.getId());
+  
+      assertNull(gcGrouperSyncJob);
+  
+      
+      //try to store some inserts
+      GcGrouperSyncJob gcGrouperSyncJob1 = new GcGrouperSyncJob();
+      gcGrouperSyncJob1.setGrouperSync(gcGrouperSync);
+      gcGrouperSyncJob1.setSyncType("abc");
+      GcGrouperSyncJob gcGrouperSyncJob2 = new GcGrouperSyncJob();
+      gcGrouperSyncJob2.setGrouperSync(gcGrouperSync);
+      gcGrouperSyncJob2.setSyncType("def");
+  
+      List<GcGrouperSyncJob> gcGrouperSyncJobs = new ArrayList<GcGrouperSyncJob>();
+      gcGrouperSyncJobs.add(gcGrouperSyncJob1);
+      gcGrouperSyncJobs.add(gcGrouperSyncJob2);
+      
+      gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJobs);
+      
+      assertNotNull(gcGrouperSyncJob1.getId());
+      assertNotNull(gcGrouperSyncJob2.getId());
+  
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob1.getId());
+      gcGrouperSyncJob2 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob2.getId());
+  
+      assertEquals("abc", gcGrouperSyncJob1.getSyncType());
+      assertEquals("def", gcGrouperSyncJob2.getSyncType());
+  
+      //try to store an update
+      gcGrouperSyncJob1.setErrorMessage("mno");
+      gcGrouperSyncJob2.setErrorMessage("pqr");
+  
+      gcGrouperSyncJobs = new ArrayList<GcGrouperSyncJob>();
+      gcGrouperSyncJobs.add(gcGrouperSyncJob1);
+      gcGrouperSyncJobs.add(gcGrouperSyncJob2);
+      
+      gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJobs);
+      
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob1.getId());
+      gcGrouperSyncJob2 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob2.getId());
+  
+      assertEquals("mno", gcGrouperSyncJob1.getErrorMessage());
+      assertEquals("pqr", gcGrouperSyncJob2.getErrorMessage());
+  
+      gcGrouperSyncJobs = new ArrayList<GcGrouperSyncJob>();
+      gcGrouperSyncJobs.add(gcGrouperSyncJob1);
+      gcGrouperSyncJobs.add(gcGrouperSyncJob2);
+      
+      //try to store a delete
+      gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJobs, true);
+      
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob1.getId());
+      assertNull(gcGrouperSyncJob1);
+      gcGrouperSyncJob2 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob2.getId());
+      assertNull(gcGrouperSyncJob2);
+      
+      gcGrouperSync.delete();
+  
+      gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp124");
+      
+      //try some inserts, some updates, and some no changes
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("abc");
+      gcGrouperSyncJob2 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("def");
+      GcGrouperSyncJob gcGrouperSyncJob3 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("mno");
+      GcGrouperSyncJob gcGrouperSyncJob4 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("pqr");
+  
+      int changes = gcGrouperSync.storeAllObjects();
+  
+      assertEquals(4, changes);
+      
+      GcGrouperSyncJob gcGrouperSyncJob5 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("stu");
+      GcGrouperSyncJob gcGrouperSyncJob6 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("vwx");
+  
+      //try to store an update
+      gcGrouperSyncJob3.setErrorMessage("mno");
+      gcGrouperSyncJob4.setErrorMessage("pqr");
+  
+      changes = gcGrouperSync.storeAllObjects();
+  
+      assertEquals(4, changes);
+      
+      gcGrouperSyncJob3 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob3.getId());
+      gcGrouperSyncJob4 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob4.getId());
+  
+      assertEquals("mno", gcGrouperSyncJob3.getErrorMessage());
+      assertEquals("pqr", gcGrouperSyncJob4.getErrorMessage());
+  
+      gcGrouperSyncJob3 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbBySyncType(gcGrouperSyncJob3.getSyncType());
+      assertEquals("mno", gcGrouperSyncJob3.getErrorMessage());
+      
+      gcGrouperSyncJobs = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbAll();
+      assertEquals(6, gcGrouperSyncJobs.size());
+      
+      
+      GcGrouperSyncJob gcGrouperSyncJob7 = gcGrouperSync.getGcGrouperSyncJobDao().jobCreateBySyncType("ghi");
+      assertNull(gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob7.getId()));
+      assertEquals(1, gcGrouperSync.storeAllObjects());
+      assertNotNull(gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob7.getId()));
+      
+      gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJob7, true);
+      assertNull(gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob7.getId()));
+      assertNull(gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveById(gcGrouperSyncJob7.getId()));
+  
+      assertNotNull(gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType(gcGrouperSyncJob6.getSyncType()));
+      
+  //TODO    groupRetrieveOrCreateLog(GcGrouperSyncJob)
+  
+      GcDbAccess.threadLocalQueryCountReset();
+  
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType(gcGrouperSyncJob1.getSyncType());
+      assertEquals("abc", gcGrouperSyncJob1.getSyncType());
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveById(gcGrouperSyncJob1.getId());
+      assertEquals("abc", gcGrouperSyncJob1.getSyncType());
+  
+      assertEquals(0, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+      gcGrouperSync.getGcGrouperSyncJobDao().internal_jobCacheDelete(gcGrouperSyncJob1);
+      GcDbAccess.threadLocalQueryCountReset();
+  
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType(gcGrouperSyncJob1.getSyncType());
+      assertEquals("abc", gcGrouperSyncJob1.getSyncType());
+  
+      assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveById(gcGrouperSyncJob1.getId());
+      assertEquals("abc", gcGrouperSyncJob1.getSyncType());
+  
+      assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+      gcGrouperSync.getGcGrouperSyncJobDao().internal_jobCacheDelete(gcGrouperSyncJob1);
+      GcDbAccess.threadLocalQueryCountReset();
+  
+      gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveById(gcGrouperSyncJob1.getId());
+      assertEquals("abc", gcGrouperSyncJob1.getSyncType());
+  
+      assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+      gcGrouperSync.storeAllObjects();
+
+      GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId(gcGrouperSyncJob1.getId());
+      gcGrouperSyncLog.setDescription("hey");
+      assertEquals(1, gcGrouperSync.storeAllObjects());
+      
+      List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncJob1.getId());
+      assertEquals(1, logs.size());
+      assertEquals("hey", logs.get(0).getDescription());
+
+    }
+
+  public void testGcGrouperSyncMemberStoreAndDelete() {
+  
+      //try to store an insert
+      GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp123");
+      GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("abc");
+      gcGrouperSync.storeAllObjects();
+      
+      assertNotNull(gcGrouperSyncMember.getId());
+      
+      gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember.getId());
+  
+      assertEquals("abc", gcGrouperSyncMember.getMemberId());
+  
+      //try to store an update
+      gcGrouperSyncMember.setErrorMessage("def");
+      gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+  
+      gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember.getId());
+      assertEquals("def", gcGrouperSyncMember.getErrorMessage());
+  
+      //try to store a delete
+      gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember, false, false);
+      
+      gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember.getId());
+  
+      assertNull(gcGrouperSyncMember);
+  
+      
+      //try to store some inserts
+      GcGrouperSyncMember gcGrouperSyncMember1 = new GcGrouperSyncMember();
+      gcGrouperSyncMember1.setGrouperSync(gcGrouperSync);
+      gcGrouperSyncMember1.setMemberId("abc");
+      GcGrouperSyncMember gcGrouperSyncMember2 = new GcGrouperSyncMember();
+      gcGrouperSyncMember2.setGrouperSync(gcGrouperSync);
+      gcGrouperSyncMember2.setMemberId("def");
+  
+      List<GcGrouperSyncMember> gcGrouperSyncMembers = new ArrayList<GcGrouperSyncMember>();
+      gcGrouperSyncMembers.add(gcGrouperSyncMember1);
+      gcGrouperSyncMembers.add(gcGrouperSyncMember2);
+      
+      gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMembers);
+      
+      assertNotNull(gcGrouperSyncMember1.getId());
+      assertNotNull(gcGrouperSyncMember2.getId());
+  
+      gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember1.getId());
+      gcGrouperSyncMember2 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember2.getId());
+  
+      assertEquals("abc", gcGrouperSyncMember1.getMemberId());
+      assertEquals("def", gcGrouperSyncMember2.getMemberId());
+  
+      //try to store an update
+      gcGrouperSyncMember1.setErrorMessage("mno");
+      gcGrouperSyncMember2.setErrorMessage("pqr");
+  
+      gcGrouperSyncMembers = new ArrayList<GcGrouperSyncMember>();
+      gcGrouperSyncMembers.add(gcGrouperSyncMember1);
+      gcGrouperSyncMembers.add(gcGrouperSyncMember2);
+      
+      gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMembers);
+      
+      gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember1.getId());
+      gcGrouperSyncMember2 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember2.getId());
+  
+      assertEquals("mno", gcGrouperSyncMember1.getErrorMessage());
+      assertEquals("pqr", gcGrouperSyncMember2.getErrorMessage());
+  
+      gcGrouperSyncMembers = new ArrayList<GcGrouperSyncMember>();
+      gcGrouperSyncMembers.add(gcGrouperSyncMember1);
+      gcGrouperSyncMembers.add(gcGrouperSyncMember2);
+      
+      //try to store a delete
+      gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMembers, true, true);
+      
+      gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember1.getId());
+      assertNull(gcGrouperSyncMember1);
+      gcGrouperSyncMember2 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember2.getId());
+      assertNull(gcGrouperSyncMember2);
+      
+      gcGrouperSync.delete();
+  
+      gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp124");
+      
+      //try some inserts, some updates, and some no changes
+      Map<String, GcGrouperSyncMember> groupIdToGcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberIds(GrouperUtil.toList("abc", "def"));
+      gcGrouperSyncMember1 = groupIdToGcGrouperSyncMember.get("abc");
+      gcGrouperSyncMember2 = groupIdToGcGrouperSyncMember.get("def");
+      GcGrouperSyncMember gcGrouperSyncMember3 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("mno");
+      GcGrouperSyncMember gcGrouperSyncMember4 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("pqr");
+  
+      int changes = gcGrouperSync.storeAllObjects();
+  
+      assertEquals(4, changes);
+      
+      GcGrouperSyncMember gcGrouperSyncMember5 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("stu");
+      GcGrouperSyncMember gcGrouperSyncMember6 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("vwx");
+  
+      //try to store an update
+      gcGrouperSyncMember3.setErrorMessage("mno");
+      gcGrouperSyncMember4.setErrorMessage("pqr");
+  
+      changes = gcGrouperSync.storeAllObjects();
+  
+      assertEquals(4, changes);
+      
+      gcGrouperSyncMember3 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember3.getId());
+      gcGrouperSyncMember4 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember4.getId());
+  
+      assertEquals("mno", gcGrouperSyncMember3.getErrorMessage());
+      assertEquals("pqr", gcGrouperSyncMember4.getErrorMessage());
+  
+      gcGrouperSyncMember3 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbByMemberId(gcGrouperSyncMember3.getMemberId());
+      assertEquals("mno", gcGrouperSyncMember3.getErrorMessage());
+      
+      gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbAll();
+      assertEquals(6, gcGrouperSyncMembers.size());
+      
+      
+      GcGrouperSyncMember gcGrouperSyncMember7 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("ghi");
+      assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember7.getId()));
+      assertEquals(1, gcGrouperSync.storeAllObjects());
+      assertNotNull(gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember7.getId()));
+      
+      gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember7, true, true);
+      assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember7.getId()));
+      assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveById(gcGrouperSyncMember7.getId()));
+  
+      assertNotNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(gcGrouperSyncMember6.getMemberId()));
+      
+      groupIdToGcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(GrouperUtil.toSet(gcGrouperSyncMember1.getMemberId(), gcGrouperSyncMember2.getMemberId()));
+  
+      assertEquals(2, groupIdToGcGrouperSyncMember.size());
+      assertTrue(groupIdToGcGrouperSyncMember.containsKey(gcGrouperSyncMember1.getMemberId()));
+      assertTrue(groupIdToGcGrouperSyncMember.containsKey(gcGrouperSyncMember2.getMemberId()));
+      
+      groupIdToGcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbByIds(GrouperUtil.toSet(gcGrouperSyncMember1.getId(), gcGrouperSyncMember2.getId()));
+  
+      assertEquals(2, groupIdToGcGrouperSyncMember.size());
+      assertTrue(groupIdToGcGrouperSyncMember.containsKey(gcGrouperSyncMember1.getId()));
+      assertTrue(groupIdToGcGrouperSyncMember.containsKey(gcGrouperSyncMember2.getId()));
+  
+      GcDbAccess.threadLocalQueryCountReset();
+  
+      gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(gcGrouperSyncMember1.getMemberId());
+      assertEquals("abc", gcGrouperSyncMember1.getMemberId());
+      gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveById(gcGrouperSyncMember1.getId());
+      assertEquals("abc", gcGrouperSyncMember1.getMemberId());
+  
+      assertEquals(0, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+      gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberCacheDelete(gcGrouperSyncMember1);
+      GcDbAccess.threadLocalQueryCountReset();
+  
+      gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(gcGrouperSyncMember1.getMemberId());
+      assertEquals("abc", gcGrouperSyncMember1.getMemberId());
+  
+      assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+      gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveById(gcGrouperSyncMember1.getId());
+      assertEquals("abc", gcGrouperSyncMember1.getMemberId());
+  
+      assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+      gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberCacheDelete(gcGrouperSyncMember1);
+      GcDbAccess.threadLocalQueryCountReset();
+  
+      gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveById(gcGrouperSyncMember1.getId());
+      assertEquals("abc", gcGrouperSyncMember1.getMemberId());
+  
+      assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+      gcGrouperSync.storeAllObjects();
+  
+      int existingLogs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMember1.getId()).size();
+  
+      assertEquals(0, existingLogs);
+      
+      GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateLog(gcGrouperSyncMember1);
+      gcGrouperSyncLog.setDescription("hey");
+      assertEquals(1, gcGrouperSync.storeAllObjects());
+      
+      List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMember1.getId());
+      assertEquals(1, logs.size());
+      assertEquals("hey", logs.get(0).getDescription());
+      
+  
+    }
 
 }

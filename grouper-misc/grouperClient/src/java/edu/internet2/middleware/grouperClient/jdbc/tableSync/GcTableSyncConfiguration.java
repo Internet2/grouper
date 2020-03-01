@@ -384,15 +384,25 @@ public class GcTableSyncConfiguration {
       if (!StringUtils.equals(defaultStatusDatabase, this.statusDatabase)) {
         debugMap.put("configStatusDatabase", this.statusDatabase);
       }
-      
-      this.gcTableSync.setGcGrouperSync(GcGrouperSync.retrieveOrCreateByProvisionerName(defaultStatusDatabase, configKey));
+      if (this.gcTableSync.getGcGrouperSync() == null) {
+        this.gcTableSync.setGcGrouperSync(GcGrouperSync.retrieveOrCreateByProvisionerName(defaultStatusDatabase, configKey));
+      }
       if (!GrouperClientUtils.equals(GcGrouperSync.SQL_SYNC_ENGINE, this.gcTableSync.getGcGrouperSync().getSyncEngine())) {
         this.gcTableSync.getGcGrouperSync().setSyncEngine(GcGrouperSync.SQL_SYNC_ENGINE);
         this.gcTableSync.getGcGrouperSync().store();
       }
 
-      this.gcTableSync.setGcGrouperSyncJob(this.gcTableSync.getGcGrouperSync().retrieveJobOrCreateBySyncType(gcTableSyncSubtype.name()));
-      this.gcTableSync.setGcGrouperSyncLog(this.gcTableSync.getGcGrouperSyncJob().retrieveGrouperSyncLogOrCreate());
+      GcGrouperSyncJob gcGrouperSyncJob = this.gcTableSync.getGcGrouperSyncJob();
+      if (gcGrouperSyncJob == null) {
+        gcGrouperSyncJob = this.gcTableSync.getGcGrouperSync().jobRetrieveOrCreateBySyncType(gcTableSyncSubtype.name());
+      }
+      this.gcTableSync.getGcGrouperSync().waitForRelatedJobsToFinishThenRun(gcGrouperSyncJob, theGcTableSyncSubtype.isFullSync());
+      
+      this.gcTableSync.setGcGrouperSyncJob(gcGrouperSyncJob);
+      if (this.gcTableSync.getGcGrouperSyncLog() == null) {
+        this.gcTableSync.setGcGrouperSyncLog(this.gcTableSync.getGcGrouperSyncJob().retrieveGrouperSyncLogOrCreate());
+      }
+      
       this.gcTableSync.getGcGrouperSyncLog().setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
     
       // must have key
@@ -556,7 +566,7 @@ public class GcTableSyncConfiguration {
       if (this.gcTableSync != null && this.gcTableSync.getGcGrouperSyncLog() != null) {
         try {
           this.gcTableSync.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.CONFIG_ERROR);
-          this.gcTableSync.getGcGrouperSyncLog().store();
+          this.gcTableSync.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logStore(this.gcTableSync.getGcGrouperSyncLog());
         } catch (RuntimeException re2) {
           GrouperClientUtils.injectInException(re, "***** START ANOTHER EXCEPTON *******" + GrouperClientUtils.getFullStackTrace(re2) + "***** END ANOTHER EXCEPTON *******");
         }

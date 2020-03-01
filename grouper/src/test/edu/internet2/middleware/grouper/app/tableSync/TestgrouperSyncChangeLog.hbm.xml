@@ -60,7 +60,7 @@
               not-null="true"
       />
 
-    <property name="personId" type="string" column="person_id" />
+    <property name="personId" type="integer" column="person_id" />
 
     <property name="lastUpdated" type="timestamp" column="last_updated" />
 

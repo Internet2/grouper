@@ -79,13 +79,13 @@ public class GcTableSyncOutput {
   /**
    * groups that were switched to
    */
-  private Set<String> switchedToGroups = null;
+  private Set<Object> switchedToGroups = null;
   
   /**
    * groups that were switched to
    * @return groups
    */
-  public Set<String> getSwitchedToGroups() {
+  public Set<Object> getSwitchedToGroups() {
     return this.switchedToGroups;
   }
 
@@ -93,7 +93,7 @@ public class GcTableSyncOutput {
    * groups that were switched to
    * @param switchedToGroups1
    */
-  public void setSwitchedToGroups(Set<String> switchedToGroups1) {
+  public void setSwitchedToGroups(Set<Object> switchedToGroups1) {
     this.switchedToGroups = switchedToGroups1;
   }
 

@@ -24,7 +24,7 @@ public class TestgrouperSyncChangeLog extends GrouperAPI implements Hib3GrouperV
    * @param uuid
    * @param lastUpdated
    */
-  public TestgrouperSyncChangeLog(String uuid, String personId, Timestamp lastUpdated) {
+  public TestgrouperSyncChangeLog(String uuid, Integer personId, Timestamp lastUpdated) {
     super();
     this.personId = personId;
     this.uuid = uuid;
@@ -40,7 +40,7 @@ public class TestgrouperSyncChangeLog extends GrouperAPI implements Hib3GrouperV
   /**
    * person id: varchar 8
    */
-  private String personId;
+  private Integer personId;
 
   /**
    * uuid of this record
@@ -87,7 +87,7 @@ public class TestgrouperSyncChangeLog extends GrouperAPI implements Hib3GrouperV
   /**
    * @return the personId
    */
-  public String getPersonId() {
+  public Integer getPersonId() {
     return this.personId;
   }
 
@@ -95,7 +95,7 @@ public class TestgrouperSyncChangeLog extends GrouperAPI implements Hib3GrouperV
   /**
    * @param personId the personId to set
    */
-  public void setPersonId(String personId) {
+  public void setPersonId(Integer personId) {
     this.personId = personId;
   }
   

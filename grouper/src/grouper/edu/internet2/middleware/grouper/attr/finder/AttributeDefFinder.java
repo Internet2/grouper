@@ -122,7 +122,7 @@ public class AttributeDefFinder {
     
     if (attributeDef != null) {
       
-      LOG.info("AttributeDef found: " + name);
+      LOG.debug("AttributeDef found: " + name);
       
       return attributeDef;
     }

@@ -48,8 +48,7 @@
     <!-- id -->
     <id name="personId" unsaved-value="none"
         column="person_id"
-        type="string" 
-        length="128"
+        type="long" 
     >
       <generator class="assigned" />
     </id>

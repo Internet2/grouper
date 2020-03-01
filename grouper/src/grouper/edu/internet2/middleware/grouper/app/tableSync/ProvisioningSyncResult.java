@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.app.tableSync;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,45 +56,45 @@ public class ProvisioningSyncResult {
   /**
    * if a group name change, this is the old and new name
    */
-  private Map<String, GcGrouperSyncGroup> oldNameToGcGrouperSyncGroup;
+  private Set<String> groupIdsWithChangedNames;
   
   /**
    * if a group name change, this is the old and new name
    * @return map
    */
-  public Map<String, GcGrouperSyncGroup> getOldNameToGcGrouperSyncGroup() {
-    return this.oldNameToGcGrouperSyncGroup;
+  public Set<String> getGroupIdsWithChangedNames() {
+    return this.groupIdsWithChangedNames;
   }
 
   /**
    * if a group name change, this is the old and new name
    * @param oldNameToGcGrouperSyncGroup1
    */
-  public void setOldNameToGcGrouperSyncGroup(
-      Map<String, GcGrouperSyncGroup> oldNameToGcGrouperSyncGroup1) {
-    this.oldNameToGcGrouperSyncGroup = oldNameToGcGrouperSyncGroup1;
+  public void setGroupIdsWithChangedNames(
+      Set<String> oldNameToGcGrouperSyncGroup1) {
+    this.groupIdsWithChangedNames = oldNameToGcGrouperSyncGroup1;
   }
 
   /**
    * if an id index changes, this is the old and new
    */
-  private Map<Long, GcGrouperSyncGroup> oldIdIndexToGcGrouperSyncGroup;
+  private Set<String> groupIdsWithChangedIdIndexes;
   
   /**
    * if an id index changes, this is the old and new
    * @return the old index with the new metadata
    */
-  public Map<Long, GcGrouperSyncGroup> getOldIdIndexToGcGrouperSyncGroup() {
-    return this.oldIdIndexToGcGrouperSyncGroup;
+  public Set<String> getGroupIdsWithChangedIdIndexes() {
+    return this.groupIdsWithChangedIdIndexes;
   }
 
   /**
    * if an id index changes, this is the old and new
    * @param oldIndexToGcGrouperSyncGroup1
    */
-  public void setOldIdIndexToGcGrouperSyncGroup(
-      Map<Long, GcGrouperSyncGroup> oldIndexToGcGrouperSyncGroup1) {
-    this.oldIdIndexToGcGrouperSyncGroup = oldIndexToGcGrouperSyncGroup1;
+  public void setGroupIdsWithChangedIdIndexes(
+      Set<String> oldIndexToGcGrouperSyncGroup1) {
+    this.groupIdsWithChangedIdIndexes = oldIndexToGcGrouperSyncGroup1;
   }
 
   public ProvisioningSyncResult() {

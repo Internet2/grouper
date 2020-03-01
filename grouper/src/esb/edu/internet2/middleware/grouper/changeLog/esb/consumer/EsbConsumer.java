@@ -19,11 +19,15 @@
 
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -33,16 +37,25 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningProcessingResult;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogLabel;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
+import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.encryption.GcEncryptionInterface;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
@@ -75,648 +88,979 @@ public class EsbConsumer extends ChangeLogConsumerBase {
   private static final Log LOG = GrouperUtil.getLog(EsbConsumer.class);
 
   /**
+   * convert a change log entry to an esb event
+   * @param changeLogEntry
+   * @param debugMapForEvent
+   * @param sendCreatedOnMicros
+   * @return the event
+   */
+  private EsbEventContainer convertChangeLogEntryToEsbEvent(ChangeLogEntry changeLogEntry, Map<String, Object> debugMapForEvent, boolean sendCreatedOnMicros) {
+    Long currentId = changeLogEntry.getSequenceNumber();
+    debugMapForEvent.put("sequenceNumber", currentId);
+
+    EsbEventContainer esbEventContainer = new EsbEventContainer();
+    esbEventContainer.setSequenceNumber(changeLogEntry.getSequenceNumber());
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", changeLogEntry.getSequenceNumber());
+
+    EsbEvent event = new EsbEvent();
+    esbEventContainer.setEsbEvent(event);
+    esbEventContainer.setDebugMapForEvent(debugMapForEvent);
+
+    event.setSequenceNumber(Long.toString(currentId));
+    
+    if (sendCreatedOnMicros) {
+      event.setCreatedOnMicros(changeLogEntry.getCreatedOnDb());
+    }
+    
+    ChangeLogTypeBuiltin changeLogTypeBuiltin = ChangeLogTypeBuiltin.retrieveChangeLogTypeByChangeLogEntry(changeLogEntry);
+
+    if (changeLogTypeBuiltin != null) {
+      
+      // this is a shadow enum
+      EsbEventType esbEventType = EsbEventType.valueOfIgnoreCase(changeLogTypeBuiltin.name(), false);
+      
+      if (esbEventType != null) {
+        event.setEventType(esbEventType.name());
+        esbEventContainer.setEsbEventType(esbEventType);
+        esbEventType.processChangeLogEntry(esbEventContainer, changeLogEntry);
+      }
+    }
+
+    debugMapForEvent.put("eventType", event.getEventType());
+
+    if (!StringUtils.isBlank(event.getGroupName())) {
+      debugMapForEvent.put("groupName", event.getGroupName());
+    }
+    
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+    return esbEventContainer;
+  }
+  
+  /**
+   * add something to the log if its not zero (so we dont have noise).  Note, if it existed previously, then remove it
+   * @param debugMap
+   * @param label
+   * @param theInt
+   */
+  public static void logIntegerIfNotZero(Map<String, Object> debugMap, String label, Integer theInt) {
+    if (theInt == null || theInt == 0) {
+      debugMap.remove(label);
+    } else {
+      debugMap.put(label, theInt);
+    }
+  }
+  
+  /**
+   * add something to the log if its not null (so we dont have noise).  Note, if it existed previously, then remove it
+   * @param debugMap
+   * @param label
+   * @param theInt
+   */
+  public static void logObjectIfNotNull(Map<String, Object> debugMap, String label, Object theObject) {
+    if (theObject == null) {
+      debugMap.remove(label);
+    } else {
+      debugMap.put(label, theObject);
+    }
+  }
+  
+  /**
+   * 
+   * @param esbEventContainers
+   */
+  private void filterInvalidEventTypes(List<EsbEventContainer> esbEventContainers) {
+    
+    Iterator<EsbEventContainer> iterator = esbEventContainers.iterator();
+    int filterInvalidEventTypesSize = 0;
+    while (iterator.hasNext()) {
+      EsbEventContainer esbEventContainer = iterator.next();
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      if (event.getEventType() == null) {
+        
+        filterInvalidEventTypesSize++;
+        
+        Map<String, Object> debugMapForEvent = esbEventContainer.getDebugMapForEvent();
+
+        String unsupportedEventLabel = "unsupportedEvent_" + event.getType();
+        Integer unsupportedEventCount = (Integer)debugMapForEvent.get(unsupportedEventLabel);
+        if (unsupportedEventCount == null) {
+          unsupportedEventCount = 1;
+        } else {
+          unsupportedEventCount++;
+        }
+        debugMapForEvent.put("unsupportEventType", event.getType());
+        logIntegerIfNotZero(debugMapOverall, unsupportedEventLabel, unsupportedEventCount);
+        iterator.remove();
+      }
+
+    }
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+    logIntegerIfNotZero(debugMapOverall, "filterInvalidEventTypesSize", filterInvalidEventTypesSize);
+    this.internal_esbConsumerTestingData.filterInvalidEventTypesSize = filterInvalidEventTypesSize;
+
+    
+  }
+
+  /**
+   * filter events that happened after the last full sync
+   * @param esbEventContainers
+   * @param gcGrouperSync
+   */
+  private void filterByProvisioningFullSync(List<EsbEventContainer> esbEventContainers, GcGrouperSync gcGrouperSync) {
+
+    if (esbEventContainers.size() == 0) {
+      return;
+    }
+    
+    long firstChangeLogMicrosSince1970 = esbEventContainers.get(0).getEsbEvent().getCreatedOnMicros();
+
+    // check for full sync
+    Timestamp lastFullSync = gcGrouperSync.getLastFullSyncRun();
+//    Timestamp lastFullMetadataSync = gcGrouperSync.getLastFullMetadataSyncRun();
+    
+    // last full sync happened before these records
+    long lastFullSyncMicros1970 = lastFullSync == null ? -1 : (1000*lastFullSync.getTime());
+//    long lastFullSyncMetadataMicros1970 = lastFullMetadataSync == null ? -1 : (1000*lastFullMetadataSync.getTime());
+
+    // see if any applicable
+    if (lastFullSyncMicros1970 < firstChangeLogMicrosSince1970) {
+      return;
+    }
+
+    Iterator<EsbEventContainer> iterator = esbEventContainers.iterator();
+    
+    Integer skippedEventsDueToFullSync = GrouperUtil.defaultIfNull((Integer)debugMapOverall.get("skippedEventsDueToFullSync"), 0);
+
+    while (iterator.hasNext()) {
+      EsbEventContainer esbEventContainer = iterator.next();
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+//      boolean groupMetadataEvent = esbEventContainer.getEsbEventType() == EsbEventType.GROUP_ADD
+//          || esbEventContainer.getEsbEventType() == EsbEventType.GROUP_ADD
+//      
+      // we can skip anything that happened before the last full sync started
+      if (event.getCreatedOnMicros() < lastFullSyncMicros1970) {
+
+        Map<String, Object> debugMapForEvent = esbEventContainer.getDebugMapForEvent();
+
+        debugMapForEvent.put("skippingEventBeforeLastFullSync", lastFullSync);
+        skippedEventsDueToFullSync++;
+        iterator.remove();
+      }
+
+    }
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+    logIntegerIfNotZero(debugMapOverall, "skippedEventsDueToFullSync", skippedEventsDueToFullSync);
+    this.internal_esbConsumerTestingData.skippedEventsDueToFullSync = skippedEventsDueToFullSync;
+  }
+
+  /**
+   * filter events that dont match a certain EL
+   * @param esbEventContainers
+   * @param gcGrouperSync
+   */
+  private void setupRoutingKeys(List<EsbEventContainer> esbEventContainers) {
+
+    String regexRoutingKeyReplacementDefinition = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+        + consumerName + ".regexRoutingKeyReplacementDefinition");
+    logObjectIfNotNull(debugMapOverall, "regexRoutingKeyReplacementDefinition", regexRoutingKeyReplacementDefinition);
+
+    if (StringUtils.isBlank(regexRoutingKeyReplacementDefinition)) {
+      return;
+    }
+    
+    boolean replaceColonsWithPeriods = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer."
+        + consumerName + ".replaceRoutingKeyColonsWithPeriods", true);
+
+    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+      String routingKey = null;
+      String groupName = esbEventContainer.getEsbEvent().getGroupName();
+      
+      if (StringUtils.isNotBlank(groupName)) {
+        
+        if (StringUtils.isNotBlank(regexRoutingKeyReplacementDefinition)) {
+          
+          Map<String, Object> substituteMap = new HashMap<String, Object>();
+          substituteMap.put("groupName", groupName);
+    
+          routingKey = GrouperUtil.substituteExpressionLanguage(regexRoutingKeyReplacementDefinition, substituteMap, true, false, false);;
+          
+          if (replaceColonsWithPeriods) {
+            routingKey = routingKey.replaceAll(":", ".");
+          }
+
+          esbEventContainer.setRoutingKey(routingKey);
+        }
+      }
+    }
+    
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+  }  
+
+  /**
+   * filter events that dont match a certain EL
+   * @param esbEventContainers
+   * @param gcGrouperSync
+   */
+  private void filterByExpressionLanguage(List<EsbEventContainer> esbEventContainers) {
+
+    if (esbEventContainers.size() == 0) {
+      return;
+    }
+    
+    String elFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName + ".elfilter");
+
+    logObjectIfNotNull(debugMapOverall, "elFilter", elFilter);
+    
+    if (StringUtils.isBlank(elFilter)) {
+      return;
+    }
+    
+    Iterator<EsbEventContainer> iterator = esbEventContainers.iterator();
+    
+    int skippedEventsDueToExpressionLanguageCount = GrouperUtil.defaultIfNull((Integer)debugMapOverall.get("skippedEventsDueToExpressionLanguageCount"), 0);
+
+    if (this.internal_esbConsumerTestingData.skippedEventsDueToExpressionLanguage == null) {
+      this.internal_esbConsumerTestingData.skippedEventsDueToExpressionLanguage = new ArrayList<EsbEventContainer>();
+    }
+    while (iterator.hasNext()) {
+      EsbEventContainer esbEventContainer = iterator.next();
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+      Map<String, Object> debugMapForEvent = esbEventContainer.getDebugMapForEvent();
+      
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      boolean matchesFilter = matchesFilter(event, elFilter);
+
+      debugMapForEvent.put("matchesFilter", matchesFilter);
+      if (!matchesFilter) {
+        skippedEventsDueToExpressionLanguageCount++;
+        this.internal_esbConsumerTestingData.skippedEventsDueToExpressionLanguage.add(esbEventContainer);
+        iterator.remove();
+      }
+
+    }
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+    logIntegerIfNotZero(debugMapOverall, "skippedEventsDueToExpressionLanguageCount", skippedEventsDueToExpressionLanguageCount);
+    this.internal_esbConsumerTestingData.skippedEventsDueToExpressionLanguageCount = skippedEventsDueToExpressionLanguageCount;
+  }
+
+  /**
+   * 
+   * @param changeLogEntryList
+   * @return
+   */
+  private List<EsbEventContainer> convertAllChangeLogEventsToEsbEvents(List<ChangeLogEntry> changeLogEntryList, boolean sendCreatedOnMicros) {
+    
+
+    List<EsbEventContainer> result = new ArrayList<EsbEventContainer>();
+    for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", changeLogEntry.getSequenceNumber());
+      
+      Map<String, Object> debugMapForEvent = new LinkedHashMap<String, Object>();
+
+      debugMapForEvent.put("type", "event");
+      debugMapForEvent.put("consumerName", consumerName);
+      
+      EsbEventContainer esbEventContainer = convertChangeLogEntryToEsbEvent(changeLogEntry, debugMapForEvent, sendCreatedOnMicros);
+
+      result.add(esbEventContainer);
+      
+    }
+    
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+    this.internal_esbConsumerTestingData.convertAllChangeLogEventsToEsbEventsSize = GrouperUtil.length(result);
+    
+    return result;
+  }
+
+  /**
+   * 
+   * @param esbEventContainersToProcess
+   * @param gcGrouperSync
+   */
+  private GrouperProvisioningProcessingResult processProvisioningMetadata(List<EsbEventContainer> esbEventContainersToProcess, GcGrouperSync gcGrouperSync, GcGrouperSyncJob gcGrouperSyncJob) {
+    
+    // get group ids which need to be analyzed
+    Set<String> groupIds = groupIdsToQueryProvisioningAttributes(esbEventContainersToProcess);
+    
+    this.grouperProvisioningProcessingResult =
+        GrouperProvisioningService.processProvisioningMetadataForGroupIds(gcGrouperSync, groupIds);
+    
+    grouperProvisioningProcessingResult.setGcGrouperSyncJob(gcGrouperSyncJob);
+    
+    grouperProvisioningProcessingResult.setGcGrouperSyncLog(gcGrouperSyncJob.retrieveGrouperSyncLogOrCreate());
+
+    grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(null);
+    
+    logIntegerIfNotZero(debugMapOverall, "groupIdCountToAddToTarget", GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdsToAddToTarget()));
+    this.internal_esbConsumerTestingData.groupIdCountToAddToTarget = GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdsToAddToTarget());
+    logIntegerIfNotZero(debugMapOverall, "groupIdCountToRemoveFromTarget", GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdsToRemoveFromTarget()));
+    this.internal_esbConsumerTestingData.groupIdCountToRemoveFromTarget = GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdsToRemoveFromTarget());
+    logIntegerIfNotZero(debugMapOverall, "gcGrouperSyncGroupsCountInitial", GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap()));
+    this.internal_esbConsumerTestingData.gcGrouperSyncGroupsCountInitial = GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap());
+    
+    // setup heartbeat thread
+    GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+    gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
+    gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
+
+      @Override
+      public void run() {
+        EsbConsumer.this.changeLogProcessorMetadata.getHib3GrouperLoaderLog().store();
+        
+        // periodically log
+        if (LOG.isDebugEnabled()) {
+          String debugMapToString = GrouperUtil.mapToString(debugMapOverall);
+          LOG.debug(debugMapToString);
+        }
+      }
+      
+    });
+    this.grouperProvisioningProcessingResult.setGcGrouperSyncHeartbeat(gcGrouperSyncHeartbeat);
+    if (!gcGrouperSyncHeartbeat.isStarted()) {
+      gcGrouperSyncHeartbeat.runHeartbeatThread();
+    }
+    
+    return grouperProvisioningProcessingResult;
+  }
+
+  /**
+   * take out events that will be handled by provisioning metadata changes (i.e. group full sync)
+   * @param esbEventContainersToProcess
+   * @param grouperProvisioningProcessingResult
+   */
+  private void filterEventsCapturedByProvisioningMetadata(
+      List<EsbEventContainer> esbEventContainersToProcess, GrouperProvisioningProcessingResult grouperProvisioningProcessingResult) {
+    if (grouperProvisioningProcessingResult == null || GrouperUtil.length(esbEventContainersToProcess) == 0) {
+      return;
+    }
+    Set<String> groupIdsToIgnore = new HashSet<String>();
+    
+    groupIdsToIgnore.addAll(GrouperUtil.nonNull(grouperProvisioningProcessingResult.getGroupIdsToAddToTarget()));
+    groupIdsToIgnore.addAll(GrouperUtil.nonNull(grouperProvisioningProcessingResult.getGroupIdsToRemoveFromTarget()));
+    
+    if (GrouperUtil.length(groupIdsToIgnore) > 0) {
+      
+      int eventsFilteredByGroupEvents = 0;
+      
+      Iterator<EsbEventContainer> iterator = esbEventContainersToProcess.iterator();
+      while (iterator.hasNext()) {
+        
+        EsbEventContainer esbEventContainer = iterator.next();
+
+        // for logging
+        debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+        String groupId = esbEventContainer.getEsbEvent().getGroupId();
+
+        if (!StringUtils.isBlank(groupId)  && groupIdsToIgnore.contains(groupId)) {
+          esbEventContainer.getDebugMapForEvent().put("removeEventSinceProvisioningChangeOnGroup", groupId);
+          iterator.remove();
+          eventsFilteredByGroupEvents++;
+        }
+        
+      }
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", null);
+
+      logIntegerIfNotZero(debugMapOverall, "eventsFilteredByGroupEvents", eventsFilteredByGroupEvents);
+      this.internal_esbConsumerTestingData.eventsFilteredByGroupEvents = eventsFilteredByGroupEvents;
+
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  private GrouperProvisioningProcessingResult grouperProvisioningProcessingResult = null;
+  
+  /**
+   * 
+   * @return
+   */
+  public GrouperProvisioningProcessingResult getGrouperProvisioningProcessingResult() {
+    return grouperProvisioningProcessingResult;
+  }
+
+  /**
+   * if we are debugging this consumer
+   */
+  private boolean debugConsumer = false;
+  
+  /**
+   * 
+   * @return
+   */
+  public boolean isDebugConsumer() {
+    return this.debugConsumer;
+  }
+
+  /**
+   * consumer name
+   */
+  private String consumerName = null;
+
+  /**
+   * debug map
+   */
+  private Map<String, Object> debugMapOverall = null;
+
+  
+  public Map<String, Object> getDebugMapOverall() {
+    return debugMapOverall;
+  }
+
+  /**
+   * change log processor metadata
+   */
+  private ChangeLogProcessorMetadata changeLogProcessorMetadata;
+  
+  /**
+   * 
+   * @return metadata
+   */
+  public ChangeLogProcessorMetadata getChangeLogProcessorMetadata() {
+    return this.changeLogProcessorMetadata;
+  }
+
+  /**
+   * 
+   * @param changeLogProcessorMetadata1
+   */
+  public void setChangeLogProcessorMetadata(
+      ChangeLogProcessorMetadata changeLogProcessorMetadata1) {
+    this.changeLogProcessorMetadata = changeLogProcessorMetadata1;
+  }
+
+  public static class EsbConsumerTestingData {
+    public int changeLogEntryListSize;
+    public int convertAllChangeLogEventsToEsbEventsSize;
+    public int filterInvalidEventTypesSize;
+    public String provisionerTarget;
+    public String provisionerJobSyncType;
+    public int skippedEventsDueToFullSync;
+    public int groupIdCountToAddToTarget;
+    public int groupIdCountToRemoveFromTarget;
+    public int gcGrouperSyncGroupsCountInitial;
+    public int eventsFilteredByGroupEvents;
+    public int eventsWithAddedSubjectAttributes;
+    public int skippedEventsDueToExpressionLanguageCount;
+    public List<EsbEventContainer> skippedEventsDueToExpressionLanguage;
+    public int gcGrouperSyncGroupGroupIdsToRetrieveCount;
+    public int eventsFilteredByNotProvisionable;
+    public int eventsFilteredNotTrackedAtAll;
+    public int filterByNotProvisionablePreSize;
+    public int filterByNotProvisionablePostSize;
+    public int eventsFilteredNotTrackedOrProvisionable;
+    public int gcGrouperSyncGroupsRetrievedByEventsSize;
+  }
+
+  /**
+   * testing data for unit tests
+   */
+  public EsbConsumerTestingData internal_esbConsumerTestingData = new EsbConsumerTestingData();
+  
+  
+  /**
    * @see ChangeLogConsumerBase#processChangeLogEntries(List, ChangeLogProcessorMetadata)
    */
   @Override
   public long processChangeLogEntries(
       List<ChangeLogEntry> changeLogEntryList,
-      ChangeLogProcessorMetadata changeLogProcessorMetadata) {
-    String consumerName = changeLogProcessorMetadata.getConsumerName();
+      ChangeLogProcessorMetadata changeLogProcessorMetadata1) {
+    
+    this.internal_esbConsumerTestingData.changeLogEntryListSize = GrouperUtil.length(changeLogEntryList);
+    
+    this.changeLogProcessorMetadata = changeLogProcessorMetadata1;
+    this.consumerName = changeLogProcessorMetadata.getConsumerName();
     long currentId = -1;
 
-    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    long startNanos = System.nanoTime();
+    
+    this.debugMapOverall = new LinkedHashMap<String, Object>();
 
-    boolean sendCreatedOnMicros = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + consumerName
-        + ".publisher.sendCreatedOnMicros", true);
+    this.debugMapOverall.put("type", "consumer");
+    this.debugMapOverall.put("finalLog", false);
+    this.debugMapOverall.put("state", "init");
+
+    debugMapOverall.put("consumerName", this.consumerName);
+    
+    boolean hasError = false;
+
+    this.debugConsumer = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + consumerName
+        + ".publisher.debug", false);
+
+    this.grouperProvisioningProcessingResult = null;
+    
+    // all containers for logging or whatever
+    List<EsbEventContainer> allEsbEventContainers = new ArrayList<EsbEventContainer>();
 
     //try catch so we can track that we made some progress
     try {
-      for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
+      
+      List<EsbEventContainer> esbEventContainersToProcess = new ArrayList<EsbEventContainer>();
 
-        currentId = changeLogEntry.getSequenceNumber();
-        if (LOG.isDebugEnabled()) {
-          debugMap.put("eventNumber", currentId);
-        }
-        EsbEvent event = new EsbEvent();
-        event.setSequenceNumber(Long.toString(currentId));
+      debugMapOverall.put("totalCount", GrouperUtil.length(changeLogEntryList));
+
+      //####### STEP 1: convert to esb events
+      boolean sendCreatedOnMicros = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + this.consumerName
+          + ".publisher.sendCreatedOnMicros", true);
+
+      this.debugMapOverall.put("state", "convertAllChangeLogEventsToEsbEvents");
+      esbEventContainersToProcess = this.convertAllChangeLogEventsToEsbEvents(changeLogEntryList, sendCreatedOnMicros);
+      allEsbEventContainers = new ArrayList<EsbEventContainer>(esbEventContainersToProcess);
+      
+      //####### STEP 2: filter out event types not needed
+      this.debugMapOverall.put("state", "filterInvalidEventTypes");
+      this.filterInvalidEventTypes(esbEventContainersToProcess);
+
+      // lets see if we want to filter by provisioner target
+      String filterByProvisionerTarget = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueString("changeLog.consumer." + consumerName + ".provisionerTarget");
+      String filterByProvisionerJobSyncType = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueString("changeLog.consumer." + consumerName + ".provisionerJobSyncType");
+
+      GcGrouperSync gcGrouperSync = null;
+      GcGrouperSyncJob gcGrouperSyncJob = null;
+      
+      if (!StringUtils.isBlank(filterByProvisionerTarget)) {
+
+        this.internal_esbConsumerTestingData.provisionerTarget = filterByProvisionerTarget;
+        this.internal_esbConsumerTestingData.provisionerJobSyncType = filterByProvisionerJobSyncType;
         
-        if (sendCreatedOnMicros) {
-          event.setCreatedOnMicros(changeLogEntry.getCreatedOnDb());
+        logObjectIfNotNull(debugMapOverall, "filterByProvisionerTarget", filterByProvisionerTarget);
+
+        if (StringUtils.isBlank(filterByProvisionerJobSyncType)) {
+          throw new RuntimeException("Cant have a provisioner target and not: changeLog.consumer." + consumerName + ".provisionerJobSyncType");
         }
         
-        String groupName = null;
+        if (!sendCreatedOnMicros) {
+          throw new RuntimeException("Must send createdOnMicros for provisioning target!");
+        }
+
+        {
+          long startNanoTime = System.nanoTime();
+          // ######### STEP 3: wait for other jobs, and start thread
+          this.debugMapOverall.put("state", "waitForRelatedJobsToFinishThenRun");
+          gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, filterByProvisionerTarget);
+          gcGrouperSyncJob = gcGrouperSync.waitForRelatedJobsToFinishThenRun(filterByProvisionerJobSyncType, false);
+          int tookMillis = (int)((System.nanoTime()-startNanoTime) / 1000000);
+          if (tookMillis > 10) {
+            debugMapOverall.put("waitingForRelatedJobsMillis", tookMillis);
+          }
+        }
         
-        //if this is a group type add action and category
-        if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)) {
-          event.setEventType(EsbEvent.EsbEventType.GROUP_ADD.name());
-          event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.id));
-          event.setName(this
-              .getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_ADD.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_ADD.displayName));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_ADD.description));
-          
-          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.name);
+        // ######### STEP 4: see if we can skip some based on full sync
+        this.debugMapOverall.put("state", "filterByProvisioningFullSync");
+        this.filterByProvisioningFullSync(esbEventContainersToProcess, gcGrouperSync);
+        
+        // ######### STEP 5: update provisioning metadata based on attribute changes
+        this.debugMapOverall.put("state", "processProvisioningMetadata");
+        this.grouperProvisioningProcessingResult = this.processProvisioningMetadata(esbEventContainersToProcess, gcGrouperSync, gcGrouperSyncJob);
+        
+        // ######### STEP 6: filter out events that are captured in provisioning metadata changes
+        this.debugMapOverall.put("state", "filterEventsCapturedByProvisioningMetadata");
+        this.filterEventsCapturedByProvisioningMetadata(esbEventContainersToProcess, this.grouperProvisioningProcessingResult);
+        
+      }
 
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)) {
-          event.setEventType(EsbEvent.EsbEventType.GROUP_DELETE.name());
-          event
-          .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_DELETE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_DELETE.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_DELETE.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_DELETE.displayName));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_DELETE.description));
-          
-          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_DELETE.name);
+      // ######### STEP 7: add in subject attributes
+      this.debugMapOverall.put("state", "addSubjectAttributes");
+      this.addSubjectAttributes(esbEventContainersToProcess);
+      
+      // ######### STEP 8: filter by EL
+      this.debugMapOverall.put("state", "filterByExpressionLanguage");
+      this.filterByExpressionLanguage(esbEventContainersToProcess);
 
-        } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_ADD)) {
-          event.setEventType(EsbEvent.EsbEventType.ENTITY_ADD.name());
-          event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_ADD.id));
-          event.setName(this
-              .getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_ADD.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_ADD.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_ADD.displayName));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_ADD.description));
+      if (!StringUtils.isBlank(filterByProvisionerTarget)) {
+        
+        // ######### STEP 9: retrieve and create group sync objects
+        this.debugMapOverall.put("state", "retrieveProvisioningGroupSyncObjects");
+        this.retrieveAndCreateProvisioningGroupSyncObjects(esbEventContainersToProcess, gcGrouperSync);
+        
+        // ######### STEP 10: filter if not provisionable
+        this.debugMapOverall.put("state", "filterByNotProvisionable");
+        this.filterByNotProvisionable(esbEventContainersToProcess);
+        
+        // ######### STEP 11: filter by group sync
+        this.debugMapOverall.put("state", "filterByProvisioningGroupSync");
+        this.filterByProvisioningGroupSync(esbEventContainersToProcess, gcGrouperSync);
 
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_DELETE)) {
-          event.setEventType(EsbEvent.EsbEventType.ENTITY_DELETE.name());
-          event
-          .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_DELETE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_DELETE.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_DELETE.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_DELETE.displayName));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_DELETE.description));
+        // ######### STEP 12: retrieve member sync objects
+        this.debugMapOverall.put("state", "setupProvisioningMemberSyncObjects");
+        this.retrieveProvisioningMemberSyncObjects(esbEventContainersToProcess, gcGrouperSync);
 
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_ADD)) {
-          event.setEventType(EsbEvent.EsbEventType.GROUP_FIELD_ADD.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_ADD.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_ADD.name));
-          event.setGroupTypeId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_ADD.groupTypeId));
-          event.setGroupTypeName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_ADD.groupTypeName));
-          event.setType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_ADD.type));
+//        // ######### STEP 13: retrieve membership sync objects
+//        this.debugMapOverall.put("state", "retrieveProvisioningMembershipSyncObjects");
+//        this.retrieveProvisioningMembershipSyncObjects(esbEventContainersToProcess, gcGrouperSync);
 
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_DELETE)) {
-          event.setEventType(EsbEvent.EsbEventType.GROUP_FIELD_DELETE.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_DELETE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_DELETE.name));
-          event.setGroupTypeId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_DELETE.groupTypeId));
-          event.setGroupTypeName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_DELETE.groupTypeName));
-          event.setType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_DELETE.type));
+//        // ######### STEP 14: filter by membership sync objects
+//        this.debugMapOverall.put("state", "filterByProvisioningMembershipSyncObjects");
+//        this.filterByProvisioningMembershipSyncObjects(esbEventContainersToProcess, gcGrouperSync);
 
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_UPDATE)) {
-          event.setEventType(EsbEvent.EsbEventType.GROUP_FIELD_UPDATE.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.name));
-          event.setGroupTypeId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.groupTypeId));
-          event.setGroupTypeName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.groupTypeName));
-          event.setType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.type));
-          event.setReadPrivilege(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.readPrivilege));
-          event.setWritePrivilege(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.writePrivilege));
-          event.setPropertyChanged(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.propertyChanged));
-          event.setPropertyOldValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.propertyOldValue));
-          event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_FIELD_UPDATE.propertyNewValue));
+      }
 
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)) {
-          event.setEventType(EsbEvent.EsbEventType.GROUP_UPDATE.name());
-          event
-          .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_UPDATE.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_UPDATE.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_UPDATE.displayName));
-          event.setDisplayExtension(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_UPDATE.displayExtension));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_UPDATE.description));
-          event.setPropertyChanged(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_UPDATE.propertyChanged));
-          event.setPropertyOldValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_UPDATE.propertyOldValue));
-          event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_UPDATE.propertyNewValue));
-          
-          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.name);
+      // ######### STEP 15: setup routing key
+      this.debugMapOverall.put("state", "setupRoutingKeys");
+      this.setupRoutingKeys(esbEventContainersToProcess);
+      
+      // ######### STEP 16: fill in more data, e.g. membership update
+      this.fillInMoreData(esbEventContainersToProcess);
+      
+      // ######### STEP 17: send to the publisher
+      this.debugMapOverall.put("state", "sendToPublisher");
+      String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName
+          + ".publisher.class");
+      debugMapOverall.put("publisherClass", theClassName);
+      Class<?> theClass = GrouperUtil.forName(theClassName);
+      this.esbPublisherBase = (EsbListenerBase) GrouperUtil.newInstance(theClass);
+      
+      this.esbPublisherBase.setChangeLogProcessorMetadata(this.changeLogProcessorMetadata);
+      this.esbPublisherBase.setEsbConsumer(this);
+      long lastEventSequenceOverall = allEsbEventContainers.get(allEsbEventContainers.size()-1).getSequenceNumber();
 
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_UPDATE)) {
-          event.setEventType(EsbEvent.EsbEventType.ENTITY_UPDATE.name());
-          event
-          .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_UPDATE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_UPDATE.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_UPDATE.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_UPDATE.displayName));
-          event.setDisplayExtension(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_UPDATE.displayExtension));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_UPDATE.description));
-          event.setPropertyChanged(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_UPDATE.propertyChanged));
-          event.setPropertyOldValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_UPDATE.propertyOldValue));
-          event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.ENTITY_UPDATE.propertyNewValue));
+      if (GrouperUtil.length(esbEventContainersToProcess) > 0) {
+        long lastEventSequenceToProcess = esbEventContainersToProcess.get(esbEventContainersToProcess.size()-1).getSequenceNumber();
+        ProvisioningSyncConsumerResult provisioningSyncConsumerResult = this.esbPublisherBase.dispatchEventList(esbEventContainersToProcess, this.grouperProvisioningProcessingResult);
+        currentId = GrouperUtil.defaultIfNull(provisioningSyncConsumerResult.getLastProcessedSequenceNumber(), -1L);
 
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD)) {
-
-          event.setEventType(EsbEvent.EsbEventType.MEMBER_ADD.name());
-          // throws error
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.id));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectSourceId));
-          event.setSubjectIdentifier0(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
-
-          event.setEventType(EsbEvent.EsbEventType.MEMBER_DELETE.name());
-          // throws error
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.id));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectSourceId));
-          event.setSubjectIdentifier0(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_UPDATE)) {
-
-          event.setEventType(EsbEvent.EsbEventType.MEMBER_UPDATE.name());
-          // throws error
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.id));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectSourceId));
-          event.setSubjectIdentifier0(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
-          event.setEventType(EsbEvent.EsbEventType.MEMBERSHIP_ADD.name());
-          // throws error
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_ADD.id));
-          event.setFieldName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
-          // throws error
-          event.setMembershipType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
-          event.setGroupId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_ADD.groupId));
-          event.setGroupName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_ADD.groupName));
-          
-          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.groupName);
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
-          event.setEventType(EsbEvent.EsbEventType.MEMBERSHIP_DELETE.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_DELETE.id));
-          event.setFieldName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_DELETE.fieldName));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
-          event.setMembershipType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
-          event.setGroupId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
-          event.setGroupName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
-          
-          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_UPDATE)) {
-          event.setEventType(EsbEvent.EsbEventType.MEMBERSHIP_UPDATE.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.id));
-          event.setFieldName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.fieldName));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId));
-          event.setMembershipType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.membershipType));
-          event.setGroupId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.groupId));
-          event.setGroupName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.groupName));
-          event.setPropertyChanged(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.propertyChanged));
-          event.setPropertyOldValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.propertyOldValue));
-          event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.MEMBERSHIP_UPDATE.propertyNewValue));
-          
-          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.MEMBERSHIP_UPDATE.propertyNewValue);
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD)) {
-          event.setEventType(EsbEvent.EsbEventType.PRIVILEGE_ADD.name());
-          // next line throws error, so removed
-          //event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.id));
-          event.setPrivilegeName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_ADD.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_ADD.sourceId));
-          event.setPrivilegeType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_ADD.privilegeType));
-          event.setOwnerType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_ADD.ownerType));
-          event.setOwnerId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_ADD.ownerId));
-          event.setOwnerName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_ADD.ownerName));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
-          event.setEventType(EsbEvent.EsbEventType.PRIVILEGE_DELETE.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_DELETE.id));
-          event.setPrivilegeName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_DELETE.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_DELETE.sourceId));
-          event.setPrivilegeType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_DELETE.privilegeType));
-          event.setOwnerType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
-          event.setOwnerId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
-          event.setOwnerName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_UPDATE)) {
-          event.setEventType(EsbEvent.EsbEventType.PRIVILEGE_UPDATE.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_UPDATE.id));
-          event.setPrivilegeName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_UPDATE.privilegeName));
-          event.setSubjectId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_UPDATE.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_UPDATE.sourceId));
-          event.setPrivilegeType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_UPDATE.privilegeType));
-          event.setOwnerType(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_UPDATE.ownerType));
-          event.setOwnerId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_UPDATE.ownerId));
-          event.setOwnerName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.PRIVILEGE_UPDATE.ownerName));
-
-        } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_ADD)) {
-          event.setEventType(EsbEvent.EsbEventType.STEM_ADD.name());
-          event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.STEM_ADD.id));
-          event
-          .setName(this.getLabelValue(changeLogEntry, ChangeLogLabels.STEM_ADD.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_ADD.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_ADD.displayName));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_ADD.description));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_DELETE)) {
-          event.setEventType(EsbEvent.EsbEventType.STEM_DELETE.name());
-          event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.STEM_DELETE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_DELETE.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_DELETE.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_DELETE.displayName));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_DELETE.description));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_UPDATE)) {
-
-          event.setEventType(EsbEvent.EsbEventType.STEM_UPDATE.name());
-          event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.STEM_UPDATE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_UPDATE.name));
-          event.setParentStemId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_UPDATE.parentStemId));
-          event.setDisplayName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_UPDATE.displayName));
-          event.setDisplayExtension(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_UPDATE.displayExtension));
-          event.setDescription(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_UPDATE.description));
-          event.setPropertyChanged(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_UPDATE.propertyChanged));
-          event.setPropertyOldValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_UPDATE.propertyOldValue));
-          event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.STEM_UPDATE.propertyNewValue));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_SUBJECT)) {
-
-          event.setEventType(EsbEvent.EsbEventType.PERMISSION_CHANGE_ON_SUBJECT.name());
-          event.setSubjectId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectId));
-          event.setSourceId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId));
-          event.setRoleId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId));
-          event.setRoleName(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
-          event.setMemberId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId));
+        // if we processed all the records available, then we processed them all
+        if (currentId == lastEventSequenceToProcess) {
+          currentId = lastEventSequenceOverall;
         }
-        if (LOG.isDebugEnabled()) {
-          debugMap.put("eventType", event.getEventType());
-        }
-
-        if (event.getEventType() != null) {
-          // convert to JSON and process
-
-          if (!GrouperLoaderConfig.retrieveConfig().propertyValueString(
-              "changeLog.consumer." + consumerName + ".publisher.addSubjectAttributes",
-              "").equals("")) {
-            // add subject attributes if configured
-            event = this.addSubjectAttributes(event, GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName
-                + ".publisher.addSubjectAttributes"));
-          }
-          // add event to array, only one event supported for now
-          EsbEvents events = new EsbEvents();
-          events.addEsbEvent(event);
-
-          //System.out.println(eventJsonString);
-          if (this.esbPublisherBase == null) {
-            String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName
-                + ".publisher.class");
-            Class<?> theClass = GrouperUtil.forName(theClassName);
-            if (LOG.isDebugEnabled()) {
-              debugMap.put("publisherClass", theClassName);
-            }
-            esbPublisherBase = (EsbListenerBase) GrouperUtil.newInstance(theClass);
-          }
-          String elFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
-              + consumerName + ".elfilter", "");
-          if (LOG.isDebugEnabled()) {
-            debugMap.put("elFilter", elFilter);
-          }
-          boolean processEvent = true;
-
-          if (!StringUtils.isBlank(elFilter)) {
-            boolean matchesFilter = matchesFilter(event, elFilter);
-            if (LOG.isDebugEnabled()) {
-              debugMap.put("matchesFilter", matchesFilter);
-            }
-            if (!matchesFilter) {
-              processEvent = false;
-            }
-          }
-          
-          String routingKey = null;
-          if (StringUtils.isNotBlank(groupName)) {
-            String regexRoutingKeyReplacementDefinition = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
-                + consumerName + ".regexRoutingKeyReplacementDefinition", "");
-            if (LOG.isDebugEnabled()) {
-              debugMap.put("regexRoutingKeyReplacementDefinition", regexRoutingKeyReplacementDefinition);
-            }
-            
-            boolean replaceColonsWithPeriods = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer."
-                + consumerName + ".replaceRoutingKeyColonsWithPeriods", true);
-            
-            if (StringUtils.isNotBlank(regexRoutingKeyReplacementDefinition)) {
-              
-              Map<String, Object> substituteMap = new HashMap<String, Object>();
-              substituteMap.put("groupName", groupName);
-
-              routingKey = GrouperUtil.substituteExpressionLanguage(regexRoutingKeyReplacementDefinition, substituteMap, true, false, false);;
-              
-              if (replaceColonsWithPeriods) {
-                routingKey = routingKey.replaceAll(":", ".");
-              }
-              
-            }
-          }
-          
-          if (processEvent) {
-
-            String eventJsonString = null;
-
-            // changeLog.consumer.awsJira.noSensitiveData
-            boolean noSensitiveData = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + consumerName
-                + ".noSensitiveData", false);
-
-            //if no sensitive data, then just send over that a change occurred and the event type and the id
-            if (noSensitiveData) {
-              if (LOG.isDebugEnabled()) {
-                debugMap.put("noSensitiveData", true);
-              }
-              EsbEvents tempEsbEvents = new EsbEvents();
-              List<EsbEvent> tempEsbEventList = new ArrayList<EsbEvent>();
-              for (EsbEvent esbEvent : GrouperUtil.nonNull(events.getEsbEvent(), EsbEvent.class)) {
-                EsbEvent tempEvent = new EsbEvent();
-                //copy over non sensitive data
-                tempEvent.setSequenceNumber(esbEvent.getSequenceNumber());
-                tempEvent.setEventType(esbEvent.getEventType());
-                tempEvent.setChangeOccurred(true);
-                tempEsbEventList.add(tempEvent);
-              }
-              tempEsbEvents.setEsbEvent(GrouperUtil.toArray(tempEsbEventList, EsbEvent.class));
-              events = tempEsbEvents;
-            }
-            eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
-            //String eventJsonString = gson.toJson(event);
-            // add indenting for debugging
-            // add subject attributes if configured
-
-            if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + consumerName
-                + ".publisher.debug", false)) {
-              eventJsonString = GrouperUtil.indent(eventJsonString, false);
-            }
-
-
-
-            //lets see if we are encrypting
-            //    # if you want to encrypt messages, set this to an implementation of edu.internet2.middleware.grouperClient.encryption.GcEncryptionInterface
-            //changeLog.consumer.awsJira.encryptionImplementation = edu.internet2.middleware.grouperClient.encryption.GcSymmetricEncryptAesCbcPkcs5Padding
-            //    # this is a key or could be encrypted in a file as well like other passwords
-            //    changeLog.consumer.awsJira.encryptionKey = Mdxabc123zouRykg==
-            String encryptionImplName = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName
-                + ".encryptionImplementation", false);
-            if (!StringUtils.isBlank(encryptionImplName)) {
-              
-              String encryptionKey = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName
-                  + ".encryptionKey", true);
-              encryptionKey = GrouperClientUtils.decryptFromFileIfFileExists(encryptionKey, null);
-              
-              Class<GcEncryptionInterface> encryptionImplClass = GrouperUtil.forName(encryptionImplName);
-              GcEncryptionInterface gcEncryptionInterface = GrouperUtil.newInstance(encryptionImplClass);
-              String encryptedPayload = gcEncryptionInterface.encrypt(encryptionKey, eventJsonString);
-              
-              events = new EsbEvents();
-              events.setEncrypted(true);
-              events.setEncryptedPayload(encryptedPayload);
-              
-              boolean dontSendFirst4 = GrouperLoaderConfig.getPropertyBoolean("changeLog.consumer." + consumerName
-                  + ".dontSendShaBase64secretFirst4", false);
-              
-              if (!dontSendFirst4) {
-                String secretFirst4 = GrouperClientUtils.encryptSha(encryptionKey).substring(0,4);
-                events.setEncryptionKeySha1First4(secretFirst4);
-              }
-
-              eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
-
-              if (GrouperLoaderConfig.getPropertyBoolean("changeLog.consumer." + consumerName
-                  + ".publisher.debug", false)) {
-                eventJsonString = GrouperUtil.indent(eventJsonString, false);
-              }
-
-            }
-            
-            if (esbPublisherBase instanceof EsbMessagingPublisher) {
-              EsbMessagingPublisher esbMessagingPublisher = (EsbMessagingPublisher) esbPublisherBase;
-              esbMessagingPublisher.dispatchEvent(eventJsonString, consumerName, routingKey);
-            } else {
-              if (esbPublisherBase.dispatchEvent(eventJsonString, consumerName)) {
-                //OK;
-                if (LOG.isDebugEnabled()) {
-                  debugMap.put("processed", true);
-                }
-              } else {
-                if (LOG.isDebugEnabled()) {
-                  debugMap.put("processed", false);
-                }
-                // error, need to retry
-                changeLogProcessorMetadata.registerProblem(null,
-                    "Error processing record " + event.getSequenceNumber(), currentId);
-                //we made it to this -1
-                return currentId - 1;
-              }
-            }
-            
-          }
+      } else {
+        
+        // no records to process, we good
+        currentId = lastEventSequenceOverall;
+        
+      }
+      
+      this.debugMapOverall.put("state", "done");
+      
+      if (grouperProvisioningProcessingResult != null && grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null){
+        if (currentId == lastEventSequenceOverall) {
+          grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.SUCCESS);        
         } else {
-          if (LOG.isDebugEnabled()) {
-            debugMap.put("unsupportedEvent", event.getType());
+          grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);        
+        }
+      }
+
+    } catch (RuntimeException re) {
+      if (grouperProvisioningProcessingResult != null && grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null) {
+        grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);        
+      }
+      hasError = true;
+      debugMapOverall.put("exception", GrouperUtil.getFullStackTrace(re));
+      
+      changeLogProcessorMetadata.registerProblem(re, "Error processing record " + currentId, currentId);
+      if (currentId != -1) {
+        currentId--;
+      }
+
+      
+    } finally {
+
+      if (this.grouperProvisioningProcessingResult != null) {
+        GcGrouperSyncHeartbeat.endAndWaitForThread(this.grouperProvisioningProcessingResult.getGcGrouperSyncHeartbeat());
+
+        synchronized (this) {
+          try {
+            if (this.grouperProvisioningProcessingResult.getGcGrouperSyncJob() != null) {
+              this.grouperProvisioningProcessingResult.getGcGrouperSyncJob().assignHeartbeatAndEndJob();
+            }
+          } catch (RuntimeException re2) {
+            if (this.grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null) {
+              this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);
+            }
+            this.debugMapOverall.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
           }
         }
-
       }
-      //we successfully processed this record
 
-    } catch (Exception e) {
-      LOG.error("problem", e);
-      changeLogProcessorMetadata.registerProblem(e, "Error processing record " + currentId, currentId);
-      //we made it to this -1
-      return currentId - 1;
-    } finally {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(GrouperUtil.mapToString(debugMap));
+      long tookMillis = (System.nanoTime() - startNanos) / 1000000;
+      debugMapOverall.put("tookMillis", tookMillis);
+      String debugMapToString = GrouperUtil.mapToString(debugMapOverall);
+
+      if (this.changeLogProcessorMetadata != null && this.changeLogProcessorMetadata.getHib3GrouperLoaderLog() != null) {
+        this.changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage(debugMapToString);
+      }
+      
+      try {
+        if (this.grouperProvisioningProcessingResult != null && this.grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null) {
+          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setDescription(debugMapToString);
+          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setJobTookMillis((int)tookMillis);
+          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setRecordsProcessed(GrouperUtil.length(allEsbEventContainers));
+          // TODO this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().store();
+        }
+      } catch (RuntimeException re3) {
+        debugMapOverall.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
+        debugMapToString = GrouperUtil.mapToString(debugMapOverall);
+      }
+
+      this.debugMapOverall.put("finalLog", true);
+
+      if (LOG.isDebugEnabled() || hasError) {
+
+        if (hasError) {
+          LOG.error(debugMapToString);
+        } else {
+          LOG.debug(debugMapToString);
+        }
+      }
+
+      if (hasError) {
+        Long sequenceNumber = (Long)debugMapOverall.get("currentSequenceNumber");
+        if (sequenceNumber!=null) {
+          // find this sequence
+          for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(allEsbEventContainers)) {
+            if (GrouperUtil.equals(sequenceNumber, esbEventContainer.getSequenceNumber())) {
+              esbEventContainer.getDebugMapForEvent().put("event", esbEventContainer.getEsbEvent().toString());
+              LOG.error("debugMapForEventForError: " + GrouperUtil.mapToString(esbEventContainer.getDebugMapForEvent()));
+            }
+          }
+        }
+            
+      }
+      
+      if (this.debugConsumer && LOG.isDebugEnabled()) {
+        for (EsbEventContainer esbEventContainer : allEsbEventContainers) {
+          Map<String, Object> eventDebugMap = esbEventContainer.getDebugMapForEvent();
+          if (eventDebugMap != null && eventDebugMap.size() > 0) {
+            if (esbEventContainer.getEsbEvent() != null) {
+              eventDebugMap.put("esbEvent", esbEventContainer.getEsbEvent().toString());
+            }
+            LOG.debug(GrouperUtil.mapToString(eventDebugMap));
+          }
+        }
+      }
+      
+      try {
+        if (this.esbPublisherBase != null) {
+          this.esbPublisherBase.disconnect();
+        }
+
+      } catch (RuntimeException re) {
+        LOG.error("Error disconnecting", re);
       }
     }
 
+    // not sure why this would happen
     if (currentId == -1) {
-      throw new RuntimeException("Couldn't process any records");
-    }
-    if (this.esbPublisherBase != null) {
-      this.esbPublisherBase.disconnect();
+      throw new RuntimeException("Couldn't process any records: " + GrouperUtil.mapToString(debugMapOverall));
     }
     return currentId;
   }
 
   /**
-   * 
-   * @param changeLogEntry
-   * @param changeLogLabel
-   * @return label value
+   * might need this method later
+   * @param esbEventContainersToProcess
    */
-  private String getLabelValue(ChangeLogEntry changeLogEntry,
-      ChangeLogLabel changeLogLabel) {
-    try {
-      return changeLogEntry.retrieveValueForLabel(changeLogLabel);
-    } catch (Exception e) {
-      //cannot get value for label
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Cannot get value for label: " + changeLogLabel.name());
-      }
-      return null;
+  private void fillInMoreData(List<EsbEventContainer> esbEventContainersToProcess) {
+    
+    if (esbEventContainersToProcess.size() == 0) {
+      return;
     }
+
+//    MemberFind
+    
+    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainersToProcess)) {
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+      
+      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
+      
+      if (EsbEventType.MEMBERSHIP_UPDATE == esbEventContainer.getEsbEventType()) {
+        
+        
+//        event.setMemberId(retrieveLabelValue(changeLogEntry,
+//            ChangeLogLabels.MEMBERSHIP_UPDATE.memberId));
+//        event.setFieldId(retrieveLabelValue(changeLogEntry,
+//            ChangeLogLabels.MEMBERSHIP_UPDATE.fieldId));
+//
+        
+        
+      }
+      
+    }
+    debugMapOverall.put("currentSequenceNumber", null);
+
+    
   }
 
+  /**
+   * go through esb event containers and 
+   * @param esbEventContainers
+   * @return groupIds to investigate
+   */
+  private Set<String> groupIdsToQueryProvisioningAttributes(List<EsbEventContainer> esbEventContainers) {
+    
+    Set<String> groupIdsToInvestigate = new HashSet<String>();
+    
+    Set<String> attributeAssignIdsToInvestigate = new HashSet<String>();
+    
+    // target name
+    String provisioningTargetAttributeDefNameId = GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId();
+
+    // do provision
+    String provisioningDoProvisionAttributeDefNameId = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getId();
+
+    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+      EsbEventType esbEventType = esbEventContainer.getEsbEventType();
+      
+      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
+
+      Map<String, Object> debugMapForEvent = esbEventContainer.getDebugMapForEvent();
+      
+      switch (esbEventType) {
+        
+        
+        case ATTRIBUTE_ASSIGN_ADD:
+        case ATTRIBUTE_ASSIGN_DELETE:
+          
+          String attributeAssignType = esbEvent.getAttributeAssignType();
+          if (!AttributeAssignType.group_asgn.name().equals(attributeAssignType)) {
+            
+            debugMapForEvent.put("ignoreProvisioningUpdatesDueToAssignType", attributeAssignType);
+            
+            continue;
+          }
+
+          // fall through
+          
+        case ATTRIBUTE_ASSIGN_VALUE_ADD:
+        case ATTRIBUTE_ASSIGN_VALUE_DELETE:
+          
+          String esbEventAttributeDefNameId = esbEvent.getAttributeDefNameId();
+          
+          if (!StringUtils.equals(provisioningTargetAttributeDefNameId, esbEventAttributeDefNameId)
+              && !StringUtils.equals(provisioningDoProvisionAttributeDefNameId, esbEventAttributeDefNameId)) {
+            
+            debugMapForEvent.put("ignoreProvisioningUpdatesDueToAttributeDefName", esbEvent.getAttributeDefNameName());
+            
+            continue;
+            
+          }
+
+          debugMapForEvent.put("processProvisioningUpdatesForAssignId", esbEvent.getAttributeAssignId());
+
+          //lets look at attributeAssignOnAssignIds
+          attributeAssignIdsToInvestigate.add(esbEvent.getAttributeAssignId());
+          
+          break;
+          
+        case GROUP_DELETE:
+        case GROUP_ADD:
+          
+          debugMapForEvent.put("processProvisioningUpdatesForGroupId", esbEvent.getGroupId());
+          groupIdsToInvestigate.add(esbEvent.getGroupId());
+          
+          break;
+          
+      }
+      
+    }
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+    logIntegerIfNotZero(debugMapOverall, "groupIdCountAddOrDelete", GrouperUtil.length(groupIdsToInvestigate));
+
+    
+    if (GrouperUtil.length(attributeAssignIdsToInvestigate) > 0) {
+      logIntegerIfNotZero(debugMapOverall, "attributeAssignIdsToInvestigate", GrouperUtil.length(attributeAssignIdsToInvestigate));
+      Set<String> groupIds = GrouperProvisioningService.findAllGroupIdsFromAttributeAssignIdsOnIds(attributeAssignIdsToInvestigate);
+      logIntegerIfNotZero(debugMapOverall, "groupIdCountFromAttributeAssignIds", GrouperUtil.length(groupIds));
+      groupIdsToInvestigate.addAll(GrouperUtil.nonNull(groupIds));
+    }
+    
+    return groupIdsToInvestigate;
+  }
+  
+  /**
+   * add subject attributes to all events
+   * @param esbEventContainersToProcess
+   */
+  private void addSubjectAttributes(List<EsbEventContainer> esbEventContainersToProcess) {
+    
+    String subjectAttributesToAdd = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "changeLog.consumer." + consumerName + ".publisher.addSubjectAttributes");
+
+    int eventsWithAddedSubjectAttributes = 0;
+    
+    if (!StringUtils.isBlank(subjectAttributesToAdd)) {
+      for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainersToProcess)) {
+        
+        // for logging
+        debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+        // add subject attributes if configured
+        boolean addedAttributes = this.addSubjectAttributes(esbEventContainer, subjectAttributesToAdd);
+        
+        if (addedAttributes) {
+          eventsWithAddedSubjectAttributes++;
+        }
+
+      }
+    }
+
+    this.internal_esbConsumerTestingData.eventsWithAddedSubjectAttributes = eventsWithAddedSubjectAttributes;
+    
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+  }
+  
   /**
    * Add subject attributes to event
    * @param esbEvent
    * @param attributes (comma delimited)
-   * @return esbEvent 
+   * @return if attributes were added 
    */
-  private EsbEvent addSubjectAttributes(EsbEvent esbEvent, String attributes) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Adding subject attributes to event");
-    }
+  private boolean addSubjectAttributes(EsbEventContainer esbEventContainer, String attributes) {
+    EsbEvent esbEvent = esbEventContainer.getEsbEvent();
+    Map<String, Object> debugMapForEvent = esbEventContainer.getDebugMapForEvent();
+    boolean addedAttributes = false;
     Subject subject = esbEvent.retrieveSubject();
     if (subject != null) {
       String[] attributesArray = GrouperUtil.splitTrim(attributes, ",");
       for (int i = 0; i < attributesArray.length; i++) {
+        addedAttributes = true;
         String attributeName = attributesArray[i];
         String attributeValue = subject.getAttributeValueOrCommaSeparated(attributeName);
         if (GrouperUtil.isBlank(attributeValue)) {
@@ -727,16 +1071,280 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           } 
         }
         if (!StringUtils.isBlank(attributeValue)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Adding subject attribute " + attributeName + " value "
-                + attributeValue);
-          }
+          debugMapForEvent.put("attr_" + attributeName + "_value", "'" + attributeValue + "'");
           esbEvent.addSubjectAttribute(attributeName, attributeValue);
         }
       }
     }
-    return esbEvent;
+    return addedAttributes;
+  }
+  
+  /**
+   * filter events that happened after the last group sync
+   * @param esbEventContainers
+   * @param gcGrouperSync
+   */
+  private void filterByProvisioningGroupSync(List<EsbEventContainer> esbEventContainersToProcess, GcGrouperSync gcGrouperSync) {
 
+    if (GrouperUtil.length(esbEventContainersToProcess) == 0) {
+      return;
+    }
+    int eventsFilteredBeforeGroupSync = 0;
+    
+    Iterator<EsbEventContainer> iterator = esbEventContainersToProcess.iterator();
+    while (iterator.hasNext()) {
+      
+      EsbEventContainer esbEventContainer = iterator.next();
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+      GcGrouperSyncGroup gcGrouperSyncGroup = esbEventContainer.getGcGrouperSyncGroup();
+      
+      String groupId = esbEventContainer.getEsbEvent().getGroupId();
+
+      // if this is a group based event
+      if (!StringUtils.isBlank(groupId)) {
+        
+        // we can ignore these...
+        Timestamp lastGroupSync = gcGrouperSyncGroup.getLastGroupSync();
+        if (lastGroupSync == null) {
+          continue;
+        }
+        
+        if (lastGroupSync.getTime() * 1000 > esbEventContainer.getEsbEvent().getCreatedOnMicros()) {
+          
+          iterator.remove();
+          eventsFilteredBeforeGroupSync++;
+          esbEventContainer.getDebugMapForEvent().put("eventFilteredBeforeGroupSync", true);
+          continue;
+        }
+      }
+      
+    }
+
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+    logIntegerIfNotZero(debugMapOverall, "eventsFilteredBeforeGroupSync", eventsFilteredBeforeGroupSync);
+
+  }
+
+  /**
+   * retrieve events that happened after the last group sync
+   * @param esbEventContainers
+   * @param gcGrouperSync
+   */
+  private void retrieveAndCreateProvisioningGroupSyncObjects(List<EsbEventContainer> esbEventContainers, GcGrouperSync gcGrouperSync) {
+
+    // we need all the groupIds
+    Set<String> groupIdsToRetrieve = new HashSet<String>();
+
+    if (this.grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap() == null) {
+      this.grouperProvisioningProcessingResult.setGroupIdToGcGrouperSyncGroupMap(new HashMap<String, GcGrouperSyncGroup>());
+    }
+    
+    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
+      
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+      String groupId = esbEventContainer.getEsbEvent().getGroupId();
+      
+      // dont worry if there is no group id
+      if (StringUtils.isBlank(groupId)) {
+        continue;
+      }
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap().get(groupId);
+      
+      // if this is there, when we done
+      if (gcGrouperSyncGroup != null) {
+        esbEventContainer.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+      } else {
+        groupIdsToRetrieve.add(groupId);
+      }
+      
+    }
+    this.internal_esbConsumerTestingData.gcGrouperSyncGroupGroupIdsToRetrieveCount = GrouperUtil.length(groupIdsToRetrieve);
+    
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+    // lets retrieve all those
+    Map<String, GcGrouperSyncGroup> groupIdToSyncGroupMap = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIdsToRetrieve);
+    logIntegerIfNotZero(debugMapOverall, "gcGrouperSyncGroupsRetrievedByEvents", GrouperUtil.length(groupIdToSyncGroupMap));
+
+    this.internal_esbConsumerTestingData.gcGrouperSyncGroupsRetrievedByEventsSize = GrouperUtil.length(GrouperUtil.length(groupIdToSyncGroupMap));
+        
+    this.grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap().putAll(groupIdToSyncGroupMap);
+
+    //setup in the event objects
+    for (EsbEventContainer esbEventContainer : esbEventContainers) {
+      
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+      
+      String groupId = esbEventContainer.getEsbEvent().getGroupId();
+      
+      // dont worry if there is no group id or if we already have it
+      if (esbEventContainer.getGcGrouperSyncGroup() != null || StringUtils.isBlank(groupId)) {
+        continue;
+      }
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap().get(groupId);
+      
+      // if this is there, when we done
+      if (gcGrouperSyncGroup != null) {
+        esbEventContainer.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+      }
+      
+    }
+    
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+    
+    
+  }
+
+  /**
+   * take out events that are not provisionable to this target
+   * @param esbEventContainersToProcess
+   * @param grouperProvisioningProcessingResult
+   */
+  private void filterByNotProvisionable(List<EsbEventContainer> esbEventContainersToProcess) {
+    if (GrouperUtil.length(esbEventContainersToProcess) == 0) {
+      return;
+      
+    }
+
+    this.internal_esbConsumerTestingData.filterByNotProvisionablePreSize = GrouperUtil.length(esbEventContainersToProcess);
+
+    int eventsFilteredNotTrackedAtAll = 0;
+    int eventsFilteredByNotProvisionable = 0;
+    
+    Iterator<EsbEventContainer> iterator = esbEventContainersToProcess.iterator();
+    while (iterator.hasNext()) {
+      
+      EsbEventContainer esbEventContainer = iterator.next();
+
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+      GcGrouperSyncGroup gcGrouperSyncGroup = esbEventContainer.getGcGrouperSyncGroup();
+      
+      String groupId = esbEventContainer.getEsbEvent().getGroupId();
+
+      // if this is a group based event
+      if (!StringUtils.isBlank(groupId)) {
+        
+        // this is not even on our radar
+        if (gcGrouperSyncGroup == null) {
+          iterator.remove();
+          eventsFilteredNotTrackedAtAll++;
+          esbEventContainer.getDebugMapForEvent().put("eventFilteredNotTrackedAtAll", true);
+          continue;
+        }
+        
+        // we can ignore these...
+        if (!gcGrouperSyncGroup.isInTarget() && !gcGrouperSyncGroup.isProvisionable()) {
+          iterator.remove();
+          eventsFilteredByNotProvisionable++;
+          esbEventContainer.getDebugMapForEvent().put("eventFilteredByNotProvisionable", true);
+          continue;
+        }
+      }
+      
+    }
+
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+
+    logIntegerIfNotZero(debugMapOverall, "eventsFilteredByNotProvisionable", eventsFilteredByNotProvisionable);
+    logIntegerIfNotZero(debugMapOverall, "eventsFilteredNotTrackedAtAll", eventsFilteredNotTrackedAtAll);
+
+    this.internal_esbConsumerTestingData.eventsFilteredByNotProvisionable = eventsFilteredByNotProvisionable;
+    this.internal_esbConsumerTestingData.eventsFilteredNotTrackedAtAll = eventsFilteredNotTrackedAtAll;
+    this.internal_esbConsumerTestingData.eventsFilteredNotTrackedOrProvisionable = eventsFilteredNotTrackedAtAll + eventsFilteredByNotProvisionable;
+    this.internal_esbConsumerTestingData.filterByNotProvisionablePostSize = GrouperUtil.length(esbEventContainersToProcess);
+  }
+
+  /**
+   * get the member objects currently in the db
+   * @param esbEventContainers
+   * @param gcGrouperSync
+   */
+  private void retrieveProvisioningMemberSyncObjects(List<EsbEventContainer> esbEventContainers, GcGrouperSync gcGrouperSync) {
+  
+    // we need all the memberIds
+    Set<String> memberIdsToRetrieve = new HashSet<String>();
+
+    if (this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap() == null) {
+      this.grouperProvisioningProcessingResult.setMemberIdToGcGrouperSyncMemberMap(new HashMap<String, GcGrouperSyncMember>());
+    }
+
+    for (EsbEventContainer esbEventContainer : esbEventContainers) {
+      
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+  
+      String memberId = esbEventContainer.getEsbEvent().getMemberId();
+      
+      // dont worry if there is no group id
+      if (StringUtils.isBlank(memberId)) {
+        continue;
+      }
+      
+      GcGrouperSyncMember gcGrouperSyncMember = this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap().get(memberId);
+      
+      // if this is there, when we done
+      if (gcGrouperSyncMember != null) {
+        esbEventContainer.setGcGrouperSyncMember(gcGrouperSyncMember);
+      } else {
+        memberIdsToRetrieve.add(memberId);
+      }
+      
+    }
+    
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+  
+    // lets retrieve all those
+    Map<String, GcGrouperSyncMember> memberIdToSyncMemberMap = null; // TODO GcGrouperSyncMember.retrieveBySyncIdAndMemberId(null, gcGrouperSync.getId(), memberIdsToRetrieve);
+    logIntegerIfNotZero(debugMapOverall, "gcGrouperSyncMembersRetrievedByEvents", GrouperUtil.length(memberIdToSyncMemberMap));
+
+    if (this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap() == null) {
+      this.grouperProvisioningProcessingResult.setMemberIdToGcGrouperSyncMemberMap(new HashMap<String, GcGrouperSyncMember>());
+    }
+
+    this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap().putAll(memberIdToSyncMemberMap);
+  
+    //setup in the event objects
+    for (EsbEventContainer esbEventContainer : esbEventContainers) {
+      
+      // for logging
+      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+      
+      String memberId = esbEventContainer.getEsbEvent().getMemberId();
+      
+      // dont worry if there is no group id or if we already have it
+      if (esbEventContainer.getGcGrouperSyncMember() != null || StringUtils.isBlank(memberId)) {
+        continue;
+      }
+      
+      GcGrouperSyncMember gcGrouperSyncMember = this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap().get(memberId);
+      
+      // if this is there, when we done
+      if (gcGrouperSyncMember != null) {
+        esbEventContainer.setGcGrouperSyncMember(gcGrouperSyncMember);
+      }
+      
+    }
+    
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", null);
+    
+    
   }
 
   /**

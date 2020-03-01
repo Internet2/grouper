@@ -41,7 +41,7 @@ public class EsbConsumerTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new EsbConsumerTest("testFilter"));
+    TestRunner.run(new EsbConsumerTest("testJsonSubject"));
   }
   
   /**

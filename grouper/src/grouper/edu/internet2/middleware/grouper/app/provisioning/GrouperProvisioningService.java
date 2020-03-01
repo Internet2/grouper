@@ -11,13 +11,19 @@ import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvision
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_TARGET;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings.provisioningConfigStemName;
-import static edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -26,6 +32,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -37,8 +44,12 @@ import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperProvisioningService {
@@ -65,6 +76,278 @@ public class GrouperProvisioningService {
     });
 
     return groups;
+    
+  }
+
+  /**
+   * 
+   * @param gcGrouperSync
+   * @param groupIds
+   * @return the map of group id to group sync for use later on
+   */
+  public static GrouperProvisioningProcessingResult processProvisioningMetadataForGroupIds(GcGrouperSync gcGrouperSync, Collection<String> groupIds) {
+    
+    GrouperProvisioningProcessingResult grouperProvisioningProcessingResult = new GrouperProvisioningProcessingResult();
+    
+    grouperProvisioningProcessingResult.setGcGrouperSync(gcGrouperSync);
+    
+    if (GrouperUtil.length(groupIds) == 0) {
+      return grouperProvisioningProcessingResult;
+    }
+    
+    // get the provisioned groups from these group ids
+    Map<String, Group> groupIdToProvisionedGroupMap = GrouperProvisioningService.findAllGroupsForTargetAndGroupIds(gcGrouperSync.getProvisionerName(), groupIds);
+    grouperProvisioningProcessingResult.setGroupIdGroupMap(groupIdToProvisionedGroupMap);
+    
+    Map<String, GcGrouperSyncGroup> groupIdToGroupSyncMap = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIds);
+    grouperProvisioningProcessingResult.setGroupIdToGcGrouperSyncGroupMap(groupIdToGroupSyncMap);
+    
+    List<GcGrouperSyncGroup> gcGrouperSyncGroupsToUpdate = new ArrayList<GcGrouperSyncGroup>();
+    List<GcGrouperSyncGroup> gcGrouperSyncGroupsToInsert = new ArrayList<GcGrouperSyncGroup>();
+    
+    List<String> groupIdsToAddToTarget = new ArrayList<String>();
+    grouperProvisioningProcessingResult.setGroupIdsToAddToTarget(groupIdsToAddToTarget);
+
+    List<String> groupIdsToRemoveFromTarget = new ArrayList<String>();
+    grouperProvisioningProcessingResult.setGroupIdsToRemoveFromTarget(groupIdsToRemoveFromTarget);
+
+    for (String groupId : groupIdToGroupSyncMap.keySet()) {
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = groupIdToGroupSyncMap.get(groupId);
+
+      Group group = groupIdToProvisionedGroupMap.get(groupId);
+      if (group == null) {
+        //the group is not supposed to be provisioned
+        
+        // its in target and shouldnt be
+        if (gcGrouperSyncGroup.isInTarget()) {
+          groupIdsToRemoveFromTarget.add(groupId);
+        }
+        
+        //it should not be provisioned
+        if (gcGrouperSyncGroup.isProvisionable()) {
+          gcGrouperSyncGroup.setProvisionable(false);
+          gcGrouperSyncGroup.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
+          gcGrouperSyncGroupsToUpdate.add(gcGrouperSyncGroup);
+        }
+      } else {
+        
+        // the group should be provisionable
+        // its not in target and should be
+        if (!gcGrouperSyncGroup.isInTarget()) {
+          groupIdsToAddToTarget.add(groupId);
+        }
+        
+        boolean needsUpdate = false;
+        
+        // update some metadata
+        if (!StringUtils.equals(group.getName(), gcGrouperSyncGroup.getGroupName())) {
+          gcGrouperSyncGroup.setGroupName(group.getName());
+          needsUpdate = true;
+        }
+        // update some metadata
+        if (!GrouperUtil.equals(group.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex())) {
+          gcGrouperSyncGroup.setGroupIdIndex(group.getIdIndex());
+          needsUpdate = true;
+        }
+        
+        //it is not be provisioned, but should be
+        if (!gcGrouperSyncGroup.isProvisionable()) {
+          gcGrouperSyncGroup.setProvisionable(true);
+          gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
+          gcGrouperSyncGroup.setProvisionableEnd(null);
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          gcGrouperSyncGroupsToUpdate.add(gcGrouperSyncGroup);
+        }
+      }
+    }
+    
+    // find the ones where tracking objects dont exist
+    for (String groupId : groupIdToProvisionedGroupMap.keySet()) {
+
+      Group group = groupIdToProvisionedGroupMap.get(groupId);
+
+      GcGrouperSyncGroup gcGrouperSyncGroup = groupIdToGroupSyncMap.get(groupId);
+
+      // these are not tracked... start tracking them
+      if (gcGrouperSyncGroup == null) {
+    
+        // this is not provisionable or in target
+        gcGrouperSyncGroup = new GcGrouperSyncGroup();
+        gcGrouperSyncGroup.setGrouperSync(gcGrouperSync);
+        gcGrouperSyncGroup.setGroupId(groupId);
+        gcGrouperSyncGroup.setGroupIdIndex(group.getIdIndex());
+        gcGrouperSyncGroup.setGroupName(group.getName());
+        gcGrouperSyncGroup.setProvisionable(true);
+        gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
+        groupIdToGroupSyncMap.put(groupId, gcGrouperSyncGroup);
+        gcGrouperSyncGroupsToInsert.add(gcGrouperSyncGroup);
+        groupIdsToAddToTarget.add(groupId);
+      }
+      
+    }
+    
+    return grouperProvisioningProcessingResult;
+  }
+  
+  /**
+   * find all groups provisionable in target
+   * @param target
+   * @param groupIds
+   * @return the groupId to group map
+   */
+  public static Map<String, Group> findAllGroupsForTargetAndGroupIds(final String target, final Collection<String> groupIds) {
+
+    Map<String, Group> result = new HashMap<String, Group>();
+
+    // we need some group ids
+    if (GrouperUtil.length(groupIds) == 0) {
+      return result;
+    }
+    
+    Set<Group> groups = (Set<Group>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        Set<Group> groups = new GroupFinder().assignGroupIds(groupIds)
+          .assignIdOfAttributeDefName(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId())
+          .addAttributeValuesOnAssignment(target)
+          .assignIdOfAttributeDefName2(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getId())
+          .addAttributeValuesOnAssignment2("true")
+          .findGroups();
+        return groups;
+      }
+      
+    });
+
+    for (Group group : groups) {
+      result.put(group.getId(), group);
+    }
+    
+    return result;
+  }
+  
+  /**
+   * link up attribute ids to group ids to investigate
+   */
+  private static ExpirableCache<String, String> attributeAssignIdToGroupId = new ExpirableCache<String, String>(20);
+  
+  /**
+   * find all groups provisionable in target
+   * @param target
+   * @param attributeAssignIdsOnId
+   * @return the groups
+   */
+  public static Set<String> findAllGroupIdsFromAttributeAssignIdsOnIds (Set<String> attributeAssignIdsOnIdInput) {
+    
+    Set<String> groupIds = new HashSet<String>();
+
+    Set<String> attributeAssignIdsOnIdToLookup = new HashSet<String>(attributeAssignIdsOnIdInput);
+    
+    // step 1, look in cache to see if we already know
+    Iterator<String> attributeAssignIdsOnIdToLookupIterator = attributeAssignIdsOnIdToLookup.iterator();
+    
+    while (attributeAssignIdsOnIdToLookupIterator.hasNext()) {
+      String attributeAssignId = attributeAssignIdsOnIdToLookupIterator.next();
+      String groupId = attributeAssignIdToGroupId.get(attributeAssignId);
+      if (groupId != null) {
+        
+        // empty string means not there
+        if (!StringUtils.isBlank(groupId)) {
+          groupIds.add(groupId);
+        }
+        // otherwise its the empty string, and that assign is not found to be associated with a groupId, just dont look
+        attributeAssignIdsOnIdToLookupIterator.remove();
+      }
+    }
+    
+    if (GrouperUtil.length(attributeAssignIdsOnIdToLookup) == 0) {
+      return groupIds;
+    }
+    
+    // step 2, look for existing attribute assignments
+    List<String> attributeAssignIdsOnIdList = new ArrayList<String>(attributeAssignIdsOnIdToLookup);
+    
+    int batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("provisioningAttributeAssignIdsBatchSize", 900);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignIdsOnIdList, batchSize);
+    
+    for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
+
+      List<String> attributeAssignIdsOnIdsBatch = GrouperUtil.batchList(attributeAssignIdsOnIdList, batchSize, batchIndex);
+
+      //  select gaa1.owner_group_id, gaa2.id from grouper_attribute_assign gaa2, grouper_attribute_assign gaa1 
+      //  where gaa1.id = gaa2.owner_attribute_assign_id  and gaa1.owner_group_id is not null and gaa2.id = '421ab5e6525f46429fa667849f2634cf';
+      String sql = "select gaa1.owner_group_id, gaa2.id from grouper_attribute_assign gaa2, grouper_attribute_assign gaa1 " + 
+          " where gaa1.id = gaa2.owner_attribute_assign_id  and gaa1.owner_group_id is not null "
+          + " and gaa1.enabled = 'T' and gaa2.enabled = 'T' "
+          + "and gaa2.id in (" 
+          + GrouperClientUtils.appendQuestions(GrouperUtil.length(attributeAssignIdsOnIdsBatch)) + ")";
+      List<Object[]> results = new GcDbAccess().sql(sql).bindVars(GrouperUtil.toArray(attributeAssignIdsOnIdsBatch, Object.class)).selectList(Object[].class);
+      
+      for (Object[] row : GrouperUtil.nonNull(results)) {
+
+        String ownerGroupId = (String)row[0];
+        String attributeAssignOnAssignId = (String)row[1];
+        groupIds.add(ownerGroupId);
+
+        // no longer need to lookup
+        attributeAssignIdsOnIdToLookup.remove(attributeAssignOnAssignId);
+        // cache this
+        attributeAssignIdToGroupId.put(attributeAssignOnAssignId, ownerGroupId);
+      }
+
+    }
+
+    if (GrouperUtil.length(attributeAssignIdsOnIdToLookup) == 0) {
+      return groupIds;
+    }
+
+    
+    // step 3, look in point in time
+    attributeAssignIdsOnIdList = new ArrayList<String>(attributeAssignIdsOnIdToLookup);
+    
+    numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignIdsOnIdList, batchSize);
+    
+    for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
+
+      List<String> attributeAssignIdsOnIdsBatch = GrouperUtil.batchList(attributeAssignIdsOnIdList, batchSize, batchIndex);
+
+      //  select gpg.source_id, gpaa2.source_id from grouper_pit_attribute_assign gpaa2, grouper_pit_attribute_assign gpaa1, grouper_pit_groups gpg 
+      //  where gpg.id = gpaa1.owner_group_id and gpaa1.id = gpaa2.owner_attribute_assign_id and gpaa2.source_id = '70761e3ce3204e5888d09a33c1c49246' ;
+      String sql = "select gpg.source_id, gpaa2.source_id from grouper_pit_attribute_assign gpaa2, grouper_pit_attribute_assign gpaa1, grouper_pit_groups gpg \n" + 
+          "    where gpg.id = gpaa1.owner_group_id and gpaa1.id = gpaa2.owner_attribute_assign_id and gpaa2.source_id in (" 
+          + GrouperClientUtils.appendQuestions(GrouperUtil.length(attributeAssignIdsOnIdsBatch)) + ")";
+
+      List<Object[]> results = new GcDbAccess().sql(sql).bindVars(GrouperUtil.toArray(attributeAssignIdsOnIdsBatch, Object.class)).selectList(Object[].class);
+      
+      for (Object[] row : GrouperUtil.nonNull(results)) {
+
+        String ownerGroupId = (String)row[0];
+        String attributeAssignOnAssignId = (String)row[1];
+        groupIds.add(ownerGroupId);
+
+        // no longer need to lookup
+        attributeAssignIdsOnIdToLookup.remove(attributeAssignOnAssignId);
+        // cache this
+        attributeAssignIdToGroupId.put(attributeAssignOnAssignId, ownerGroupId);
+      }
+
+    }
+
+    // cant find some of them
+    for (String attributeAssignOnAssignId : GrouperUtil.nonNull(attributeAssignIdsOnIdToLookup)) {
+
+      // empty string means cant find
+      attributeAssignIdToGroupId.put(attributeAssignOnAssignId, "");
+      
+    }
+    
+    return groupIds;
     
   }
   
@@ -210,13 +493,13 @@ public class GrouperProvisioningService {
     }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_DIRECT_ASSIGNMENT, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(grouperProvisioningAttributeValue.isDirectAssignment()));
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), BooleanUtils.toStringTrueFalse(grouperProvisioningAttributeValue.isDirectAssignment()));
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_TARGET, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.getTargetName());
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_DO_PROVISION, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(grouperProvisioningAttributeValue.isDoProvision()));
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), BooleanUtils.toStringTrueFalse(grouperProvisioningAttributeValue.isDoProvision()));
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_OWNER_STEM_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.isDirectAssignment() ? null: grouperProvisioningAttributeValue.getOwnerStemId());

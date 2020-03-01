@@ -22,9 +22,8 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
 /**
- * 
+ * Sync up provisioning attributes with grouper group sync provisionable attributes
  * @author mchyzer
- *
  */
 public class ProvisioningSyncIntegration {
 
@@ -48,6 +47,7 @@ public class ProvisioningSyncIntegration {
   
   /**
    * target of provisioning attribute must match provisioner in GcGrouperSync
+   * sync up provisioning attributes to gcGrouperSync objects
    * @param target
    * @return the gcGrouperSyncGroup objects which have provisioning information
    */
@@ -65,9 +65,6 @@ public class ProvisioningSyncIntegration {
     if (!GrouperProvisioningSettings.getTargets().containsKey(target)) {
       throw new RuntimeException("Target '" + target + "' is not configured in grouper.properties: provisioning.target." + target + ".key");
     }
-    // batch these up
-    int defaultBatchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.batchSize", 800);
-    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTable." + target + ".batchSize", defaultBatchSize);
     
     // groups with provisioning attributes
     Set<Group> groupsProvisioned = GrouperProvisioningService.findAllGroupsForTarget(target);
@@ -84,7 +81,7 @@ public class ProvisioningSyncIntegration {
     
     // get or create the grouper sync object
     GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName("grouper", target);
-    List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.retrieveAllGroups();
+    List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
 
     // lets remove ones that dont need to be there
     if (GrouperUtil.length(gcGrouperSyncGroups) > 0) {
@@ -98,11 +95,11 @@ public class ProvisioningSyncIntegration {
       Set<GcGrouperSyncGroup> gcGrouperSyncGroupsNoChange = new LinkedHashSet<GcGrouperSyncGroup>();
       provisioningSyncGroupResult.setGcGrouperSyncGroupsNoChange(gcGrouperSyncGroupsNoChange);
       
-      Map<String, GcGrouperSyncGroup> oldNameToGcGrouperSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
-      provisioningSyncGroupResult.setOldNameToGcGrouperSyncGroup(oldNameToGcGrouperSyncGroup);
+      Set<String> groupIdsWithChangedIdIndexes = new HashSet<String>();
+      provisioningSyncGroupResult.setGroupIdsWithChangedIdIndexes(groupIdsWithChangedIdIndexes);
 
-      Map<Long, GcGrouperSyncGroup> oldIdIndexToGcGrouperSyncGroup = new HashMap<Long, GcGrouperSyncGroup>();
-      provisioningSyncGroupResult.setOldIdIndexToGcGrouperSyncGroup(oldIdIndexToGcGrouperSyncGroup);
+      Set<String> groupIdsWithChangedNames = new HashSet<String>();
+      provisioningSyncGroupResult.setGroupIdsWithChangedNames(groupIdsWithChangedNames);
       
       while (gcGrouperSyncGroupsIterator.hasNext()) {
         
@@ -116,16 +113,14 @@ public class ProvisioningSyncIntegration {
           
           // see if needs to update
           if (StringUtils.equals(gcGrouperSyncGroup.getGroupName(), group == null ? null : group.getName())) {
-            oldNameToGcGrouperSyncGroup.put(gcGrouperSyncGroup.getGroupName(), gcGrouperSyncGroup);
+            groupIdsWithChangedNames.add(gcGrouperSyncGroup.getGroupId());
             hasChange = true;
-            gcGrouperSyncGroup.setGroupName(group.getName());
           }
           
           // see if needs to update
           if (GrouperUtil.equals(gcGrouperSyncGroup.getGroupIdIndex(), group == null ? null : group.getIdIndex())) {
-            oldIdIndexToGcGrouperSyncGroup.put(gcGrouperSyncGroup.getGroupIdIndex(), gcGrouperSyncGroup);
+            groupIdsWithChangedIdIndexes.add(gcGrouperSyncGroup.getGroupId());
             hasChange = true;
-            gcGrouperSyncGroup.setGroupName(group.getName());
           }
           
           // see if not provisionable
@@ -158,8 +153,8 @@ public class ProvisioningSyncIntegration {
         }
       }
 
-      GcGrouperSyncGroup.deleteBatch(gcGrouperSyncRowsToDeleteFromDatabase, batchSize);
-      GcGrouperSyncGroup.storeBatch(gcGrouperSyncGroupsToUpdate, batchSize);
+      gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncRowsToDeleteFromDatabase, true, true);
+      //gcGrouperSync.internal_groupStoreBatch(gcGrouperSyncGroupsToUpdate, batchSize);
     }
     
     provisioningSyncGroupResult.setGcGrouperSyncGroups(gcGrouperSyncGroups);
@@ -188,7 +183,7 @@ public class ProvisioningSyncIntegration {
           throw new RuntimeException("why is group null???");
         }
         
-        GcGrouperSyncGroup gcGrouperSyncGroup = new GcGrouperSyncGroup();
+        GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId(groupIdToInsert);
         gcGrouperSyncGroup.setGrouperSync(gcGrouperSync);
         gcGrouperSyncGroup.setGroupId(groupIdToInsert);
         gcGrouperSyncGroup.setGroupName(group.getName());
@@ -198,7 +193,6 @@ public class ProvisioningSyncIntegration {
         gcGrouperSyncGroupsToInsert.add(gcGrouperSyncGroup);
       }
       
-      GcGrouperSyncGroup.storeBatch(gcGrouperSyncGroupsToInsert, batchSize);
     }
     
     Set<String> groupIdsToDelete = new HashSet<String>(mapGroupIdToGcGrouperSyncGroup.keySet());
