@@ -579,6 +579,10 @@ public class GrouperInstaller {
     
     
     GrouperInstaller grouperInstaller = new GrouperInstaller();
+//    String str1 = new Crypto("Urg4lyLGawLdwEvByGmf").encrypt("admin123");
+//    System.out.println(str1);
+//    String str = new Crypto("Urg4lyLGawLdwEvByGmf").decrypt("Y8iDZWF8RdowIiCgVKNg9Q==");
+//    System.out.println(str);
 
     grouperInstaller.mainLogic();
 
@@ -9721,8 +9725,22 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
-    File logsDirectory = new File(path+File.separator+"logs"+File.separator+"sample.log");
+    File logsDirectory = new File(path+File.separator+"logs"+File.separator+"nothing");
     GrouperInstallerUtils.createParentDirectories(logsDirectory);
+    
+    
+    // create slashRoot directory
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Create slashRoot directory in "+path);
+    contentToWrite.append("\n\n");
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    File slashRootDirectory = new File(path+File.separator+"slashRoot"+File.separator+"nothing");
+    GrouperInstallerUtils.createParentDirectories(slashRootDirectory);
     
     // create morphString.properties file
     contentToWrite = new StringBuilder();
@@ -9910,7 +9928,7 @@ public class GrouperInstaller {
     contentToWrite.append("\n");
     
     StringBuilder buildInitCommand = new StringBuilder();
-    buildInitCommand.append("docker run gsh -registry -check -runscript -noprompt --detach --mount type=bind,src=");
+    buildInitCommand.append("docker run --detach --mount type=bind,src=");
     buildInitCommand.append(path+File.separator);
     buildInitCommand.append("conf,dst=/opt/grouper/conf ");
     buildInitCommand.append("--mount type=bind,src=");
@@ -9921,6 +9939,7 @@ public class GrouperInstaller {
     buildInitCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
     buildInitCommand.append("--name gsh ");
     buildInitCommand.append("itap/grouper:"+dockerImageVersion );
+    buildInitCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh -registry -check -runscript -noprompt" );
     
     contentToWrite.append(buildInitCommand.toString());
     contentToWrite.append("\n\n");
