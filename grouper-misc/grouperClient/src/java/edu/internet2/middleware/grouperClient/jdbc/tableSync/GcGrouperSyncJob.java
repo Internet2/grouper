@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Random;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -16,7 +17,6 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringBuilder;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -202,36 +202,6 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
   }
 
   /**
-   * 
-   */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSyncJob.class);
-
-  /**
-   * select grouper sync job by id
-   * @param theConnectionName
-   * @param id
-   * @return the sync job
-   */
-  public static GcGrouperSyncJob retrieveById(String theConnectionName, String id) {
-    theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
-    GcGrouperSyncJob gcGrouperSyncJob = new GcDbAccess().connectionName(theConnectionName)
-        .sql("select * from grouper_sync_job where id = ?").addBindVar(id).select(GcGrouperSyncJob.class);
-    if (gcGrouperSyncJob != null) {
-      gcGrouperSyncJob.connectionName = theConnectionName;
-    }
-    return gcGrouperSyncJob;
-  }
-
-  /**
-   * 
-   * @param connectionName
-   */
-  public void store() {
-    storePrepare();
-    new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
-  }
-
-  /**
    * run this before storing
    */
   public void storePrepare() {
@@ -239,20 +209,6 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
     this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
     this.errorMessage = GrouperClientUtils.abbreviate(this.errorMessage, 3700);
   }
-  
-  /**
-   * 
-   * @return sync
-   */
-  public GcGrouperSync retrieveGrouperSync() {
-    return this.grouperSync;
-  }
-
-  /**
-   * log for this sync job
-   */
-  @GcPersistableField(persist=GcPersist.dontPersist)
-  private GcGrouperSyncLog grouperSyncLog;
   
   /**
    * if the last sync had an error, this is the error message
@@ -294,28 +250,6 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
    */
   public void setErrorTimestamp(Timestamp errorTimestamp1) {
     this.errorTimestamp = errorTimestamp1;
-  }
-
-  /**
-   * 
-   * @return sync
-   */
-  public GcGrouperSyncLog retrieveGrouperSyncLogOrCreate() {
-    if (this.grouperSyncLog == null) {
-      if (this.id == null) {
-        if (this.grouperSyncId == null || GrouperClientUtils.isBlank(this.syncType)) {
-          throw new RuntimeException("Cant get a log on a blank job");
-        }
-        // get an id
-        this.store();
-      }
-      this.grouperSyncLog = null; //TODO GcGrouperSyncLog.retrieveByJobAndOwner(this.connectionName, this.id, this.id);
-      if (this.grouperSyncLog == null) {
-        this.grouperSyncLog = new GcGrouperSyncLog();
-        this.grouperSyncLog.setGrouperSyncOwnerId(this.id);
-      }
-    }
-    return this.grouperSyncLog;
   }
 
   /**
@@ -366,15 +300,6 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
 
   /**
    * 
-   * @param connectionName
-   */
-  public void delete() {
-    this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
-    new GcDbAccess().connectionName(this.connectionName).deleteFromDatabase(this);
-  }
-  
-  /**
-   * 
    * @param args
    */
   public static void main(String[] args) {
@@ -389,7 +314,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
     GcGrouperSync gcGrouperSync = new GcGrouperSync();
     gcGrouperSync.setSyncEngine("temp");
     gcGrouperSync.setProvisionerName("myJob");
-    gcGrouperSync.store();
+    gcGrouperSync.getGcGrouperSyncDao().store();
 
     
     GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
@@ -398,15 +323,15 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
     gcGrouperSyncJob.setLastSyncIndex(135L);
     gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
     gcGrouperSyncJob.setSyncType("testSyncType");
-    gcGrouperSyncJob.store();
+    gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
     
     System.out.println("stored");
     
-    gcGrouperSyncJob = gcGrouperSync.jobRetrieveBySyncType("testSyncType");
+    gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("testSyncType");
     System.out.println(gcGrouperSyncJob);
     
     gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.notRunning);
-    gcGrouperSyncJob.store();
+    gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
 
     System.out.println("updated");
 
@@ -414,7 +339,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
       System.out.println(theGcGrouperSyncStatus.toString());
     }
 
-    gcGrouperSyncJob.delete();
+    gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJob, false);
     
     System.out.println("deleted");
 
@@ -423,20 +348,20 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
     }
     
     System.out.println("retrieveOrCreate");
-    gcGrouperSyncJob = gcGrouperSync.jobRetrieveOrCreateBySyncType("testSyncType");    
+    gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("testSyncType");    
     System.out.println(gcGrouperSyncJob);
 
     System.out.println("retrieve");
-    gcGrouperSyncJob = gcGrouperSync.jobRetrieveBySyncType("testSyncType");
+    gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("testSyncType");
     System.out.println(gcGrouperSyncJob);
 
     System.out.println("retrieveOrCreate");
-    gcGrouperSyncJob = gcGrouperSync.jobRetrieveOrCreateBySyncType("testSyncType");    
+    gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("testSyncType");    
     System.out.println(gcGrouperSyncJob);
 
     System.out.println("deleted");
-    gcGrouperSyncJob.delete();
-    gcGrouperSync.delete();
+    gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJob, false);
+    gcGrouperSync.getGcGrouperSyncDao().delete();
 
     for (GcGrouperSyncJob theGcGrouperSyncStatus : new GcDbAccess().connectionName("grouper").selectList(GcGrouperSyncJob.class)) {
       System.out.println(theGcGrouperSyncStatus.toString());
@@ -450,7 +375,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
    * @param syncType
    * @return job or null
    */
-  public static GcGrouperSyncJob retrieveJobBySyncType(List<GcGrouperSyncJob> gcGrouperSyncJobs, String syncType) {
+  private static GcGrouperSyncJob retrieveJobBySyncType(List<GcGrouperSyncJob> gcGrouperSyncJobs, String syncType) {
     for (GcGrouperSyncJob gcGrouperSyncJob : GrouperClientUtils.nonNull(gcGrouperSyncJobs)) {
       if (GrouperClientUtils.equals(syncType, gcGrouperSyncJob.getSyncType())) {
         return gcGrouperSyncJob;
@@ -459,69 +384,6 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
     return null;
   }
   
-  /**
-   * assign heartbeat and see if other jobs are pending or running
-   * @param provisionerName
-   * @param isLargeJob is if this is a  big job and has precendence
-   * @return false if should stop and true if should run
-   */
-  public boolean assignHeartbeatAndCheckForPendingJobs(boolean isLargeJob) {
-    
-    List<GcGrouperSyncJob> allGcGrouperSyncJobs = this.getGrouperSync().jobRetrieveAll();
-
-    GcGrouperSyncJob gcGrouperSyncJob = GcGrouperSyncJob.retrieveJobBySyncType(allGcGrouperSyncJobs, syncType);
-    
-    // if doesnt exist, 
-    if (gcGrouperSyncJob == null) {
-      throw new RuntimeException("Why is this job not found????");
-    }
-    
-    gcGrouperSyncJob.setHeartbeat(new Timestamp(System.currentTimeMillis()));
-
-    // should already be running but just in case
-    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.running);
-
-    gcGrouperSyncJob.store();
-    
-    for (GcGrouperSyncJob currentGrouperSyncJob : GrouperClientUtils.nonNull(allGcGrouperSyncJobs)) {
-      if (GrouperClientUtils.equals(currentGrouperSyncJob.getSyncType(), syncType)) {
-        continue;
-      }
-      
-      //if the heartbeat is bad dontw worry about it
-      if (currentGrouperSyncJob.getHeartbeat() == null || System.currentTimeMillis() - currentGrouperSyncJob.getHeartbeat().getTime() > 90000) {
-        // dont worry about it
-        continue;
-      }
-      
-      if (GcGrouperSyncJobState.running == currentGrouperSyncJob.getJobState() && !isLargeJob) {
-        return false;
-      }
-      
-      // dont run if we are a small job
-      if (GcGrouperSyncJobState.pending == currentGrouperSyncJob.getJobState() && !isLargeJob) {
-        return false;
-      }
-    }
-
-    // large jobs always keep going
-    return true;
-  }
-
-  /**
-   * assign heartbeat and end job
-   */
-  public void assignHeartbeatAndEndJob() {
-    
-    this.setHeartbeat(new Timestamp(System.currentTimeMillis()));
-
-    // should already be running but just in case
-    this.setJobState(GcGrouperSyncJobState.notRunning);
-
-    this.store();
-    
-  }
-
   /**
    * 
    */
@@ -766,6 +628,200 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
     }
     this.id = GrouperClientUtils.uuid();
     return true;
+  }
+
+  /**
+   * assign heartbeat and see if other jobs are pending or running
+   * @param provisionerName
+   * @param isLargeJob is if this is a  big job and has precendence
+   * @return false if should stop and true if should run
+   */
+  public boolean assignHeartbeatAndCheckForPendingJobs(boolean isLargeJob) {
+    
+    List<GcGrouperSyncJob> allGcGrouperSyncJobs = this.getGrouperSync().getGcGrouperSyncJobDao().internal_jobRetrieveFromDbAll();
+  
+    GcGrouperSyncJob gcGrouperSyncJob = GcGrouperSyncJob.retrieveJobBySyncType(allGcGrouperSyncJobs, syncType);
+    
+    // if doesnt exist, 
+    if (gcGrouperSyncJob == null) {
+      throw new RuntimeException("Why is this job not found????");
+    }
+    
+    gcGrouperSyncJob.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+  
+    // should already be running but just in case
+    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.running);
+  
+    this.grouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
+    
+    for (GcGrouperSyncJob currentGrouperSyncJob : GrouperClientUtils.nonNull(allGcGrouperSyncJobs)) {
+      if (GrouperClientUtils.equals(currentGrouperSyncJob.getSyncType(), syncType)) {
+        continue;
+      }
+      
+      //if the heartbeat is bad dontw worry about it
+      if (currentGrouperSyncJob.getHeartbeat() == null || System.currentTimeMillis() - currentGrouperSyncJob.getHeartbeat().getTime() > 90000) {
+        // dont worry about it
+        continue;
+      }
+      
+      if (GcGrouperSyncJobState.running == currentGrouperSyncJob.getJobState() && !isLargeJob) {
+        return false;
+      }
+      
+      // dont run if we are a small job
+      if (GcGrouperSyncJobState.pending == currentGrouperSyncJob.getJobState() && !isLargeJob) {
+        return false;
+      }
+    }
+  
+    // large jobs always keep going
+    return true;
+  }
+
+  /**
+   * assign heartbeat and end job
+   */
+  public void assignHeartbeatAndEndJob() {
+    
+    this.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+  
+    // should already be running but just in case
+    this.setJobState(GcGrouperSyncJobState.notRunning);
+  
+    this.grouperSync.getGcGrouperSyncJobDao().internal_jobStore(this);
+    
+  }
+
+  /**
+   * wait for related jobs to finish running, then run.  note you should get the job again afterwards so its up to date
+   * @param provisionerName
+   * @param goToPendingFirstAkaLargeJob is if this is a  big job and needs to register as pending first so 
+   * it knows it should run now.  false if quick job and doesnt matter
+   */
+  public void waitForRelatedJobsToFinishThenRun(boolean goToPendingFirstAkaLargeJob) {
+  
+    List<GcGrouperSyncJob> allGcGrouperSyncJobs = this.grouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbAll();
+  
+    for (int i=0;i<allGcGrouperSyncJobs.size();i++) {
+      GcGrouperSyncJob current = allGcGrouperSyncJobs.get(i);
+      if (GrouperClientUtils.equals(this.getId(), current.getId())) {
+        allGcGrouperSyncJobs.set(i, this);
+      }
+    }
+    
+    waitForRelatedJobsToFinishThenRunHelper(allGcGrouperSyncJobs, goToPendingFirstAkaLargeJob);
+  }
+
+  /**
+   * wait for related jobs to finish running, then run
+   * @param provisionerName
+   * @param goToPendingFirstAkaLargeJob is if this is a  big job and needs to register as pending first so 
+   * it knows it should run now.  falso if quick job and doesnt matter
+   */
+  private void waitForRelatedJobsToFinishThenRunHelper(List<GcGrouperSyncJob> allGcGrouperSyncJobs, boolean goToPendingFirstAkaLargeJob) {
+    
+    String syncType = this.getSyncType();
+    
+    // if we are already running then we good
+    if (this.getJobState() == GcGrouperSyncJobState.running) {
+  
+      // if heartbeat is expired
+      if (this.isHeartBeatAlive()) {
+        return;
+      }
+    }
+  
+    
+    //go to pending first?
+    if (goToPendingFirstAkaLargeJob) {
+      this.setJobState(GcGrouperSyncJobState.pending);
+      this.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+      this.grouperSync.getGcGrouperSyncJobDao().internal_jobStore(this);
+      
+      // sleep between half and full second
+      GrouperClientUtils.sleep(500 + new Random().nextInt(500));
+      
+      allGcGrouperSyncJobs = this.grouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbAll();
+      
+    }
+  
+    // back this off so we arent overchecking
+    int sleepSeconds = 15;
+    long started = System.currentTimeMillis();
+    
+    while(true) {
+  
+      // see how many other jobs running
+      int runningOrPendingCount = 0;
+      for (GcGrouperSyncJob currentGrouperSyncJob : GrouperClientUtils.nonNull(allGcGrouperSyncJobs)) {
+        if (GrouperClientUtils.equals(currentGrouperSyncJob.getSyncType(), syncType)) {
+          continue;
+        }
+        
+        //if the heartbeat is bad dontw worry about it
+        if (currentGrouperSyncJob.getHeartbeat() == null || System.currentTimeMillis() - currentGrouperSyncJob.getHeartbeat().getTime() > 90000) {
+          // dont worry about it
+          continue;
+        }
+        
+        if (GcGrouperSyncJobState.running == currentGrouperSyncJob.getJobState()) {
+          runningOrPendingCount++;
+          continue;
+        }
+        
+        // dont run if we are a small job
+        if (GcGrouperSyncJobState.pending == currentGrouperSyncJob.getJobState() && !goToPendingFirstAkaLargeJob) {
+          runningOrPendingCount++;
+          continue;
+        }
+      }
+      
+      //if nothing there or only one there, we done
+      if (runningOrPendingCount == 0) {
+        this.setJobState(GcGrouperSyncJobState.running);
+        this.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+        this.grouperSync.getGcGrouperSyncJobDao().internal_jobStore(this);
+        return;
+      }
+  
+      // lets go to pending and set the heartbeat
+      if (sleepSeconds > 60) {
+        this.setJobState(GcGrouperSyncJobState.notRunning);
+      }
+      this.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+      this.grouperSync.getGcGrouperSyncJobDao().internal_jobStore(this);
+      
+      // sleep a little at first then ramp it up
+      GrouperClientUtils.sleep((sleepSeconds*1000) + new Random().nextInt(5000));
+  
+      if (sleepSeconds > 60 || goToPendingFirstAkaLargeJob) {
+        this.setJobState(GcGrouperSyncJobState.pending);
+        
+      }
+      this.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+      this.grouperSync.getGcGrouperSyncJobDao().internal_jobStore(this);
+  
+      if (goToPendingFirstAkaLargeJob) {
+        
+        // sleep between half and full second
+        GrouperClientUtils.sleep(500 + new Random().nextInt(500));
+        
+      }
+      if (sleepSeconds < 120) {
+        sleepSeconds *= 2;
+      }
+      if (sleepSeconds > 120) {
+        sleepSeconds = 120;
+      }
+      
+      allGcGrouperSyncJobs = this.grouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbAll();
+  
+      if (System.currentTimeMillis() - started > 1000 * 60 * 60 * 24) {
+        throw new RuntimeException("Job cannot start for a day! " 
+            + this.connectionName + ", " + this.grouperSync.getSyncEngine() + ", " + this.grouperSync.getProvisionerName() + ", " + syncType);
+      }
+    }    
   }
 
 }

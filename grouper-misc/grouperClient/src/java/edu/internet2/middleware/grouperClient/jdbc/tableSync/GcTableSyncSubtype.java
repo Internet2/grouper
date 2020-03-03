@@ -579,7 +579,6 @@ public enum GcTableSyncSubtype {
 
       recordsChanged += results[0] + results[1] + results[2];
       
-      //TODO update the sync group objects?
     }
     return recordsChanged;
   }
@@ -735,7 +734,7 @@ public enum GcTableSyncSubtype {
     debugMap.put("paused", true);
     
     gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.pending);
-    gcGrouperSyncJob.store();
+    gcGrouperSyncJob.getGrouperSync().getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
 
     // wait a sec
     GrouperClientUtils.sleep(1000);
@@ -749,7 +748,7 @@ public enum GcTableSyncSubtype {
     // wait a sec
     GrouperClientUtils.sleep(1000);
 
-    gcGrouperSyncJob.getGrouperSync().waitForRelatedJobsToFinishThenRun(gcGrouperSyncJob, false);
+    gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(false);
     debugMap.put("paused", false);
   }
 

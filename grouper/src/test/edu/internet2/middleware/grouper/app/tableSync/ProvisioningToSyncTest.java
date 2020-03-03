@@ -42,12 +42,15 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
@@ -65,7 +68,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncLogStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncJobStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncGroupStoreAndDelete"));
-    TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncMemberStoreAndDelete"));
+    //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncMembershipStoreAndDelete"));
+    //TestRunner.run(new ProvisioningToSyncTest("testProvisioningAttributesToGroupSyncFull"));
+    TestRunner.run(new ProvisioningToSyncTest("testEsbConsumer"));
     
   }
   
@@ -269,9 +274,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
   public void testGcGrouperSyncGroupStoreAndDelete() {
 
     //try to store an insert
-    GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp123");
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp123");
     GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("abc");
-    gcGrouperSync.storeAllObjects();
+    gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
     
     assertNotNull(gcGrouperSyncGroup.getId());
     
@@ -345,9 +350,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
     gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup2.getId());
     assertNull(gcGrouperSyncGroup2);
     
-    gcGrouperSync.delete();
+    gcGrouperSync.getGcGrouperSyncDao().delete();
 
-    gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp124");
+    gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp124");
     
     //try some inserts, some updates, and some no changes
     Map<String, GcGrouperSyncGroup> groupIdToGcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupIds(GrouperUtil.toList("abc", "def"));
@@ -356,7 +361,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     GcGrouperSyncGroup gcGrouperSyncGroup3 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("mno");
     GcGrouperSyncGroup gcGrouperSyncGroup4 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("pqr");
 
-    int changes = gcGrouperSync.storeAllObjects();
+    int changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
 
     assertEquals(4, changes);
     
@@ -367,9 +372,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
     gcGrouperSyncGroup3.setGroupFromId2("mno");
     gcGrouperSyncGroup4.setGroupFromId2("pqr");
 
-    changes = gcGrouperSync.storeAllObjects();
+    changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
 
-    assertEquals(4, changes);
+    assertEquals(8, changes);
     
     gcGrouperSyncGroup3 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup3.getId());
     gcGrouperSyncGroup4 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup4.getId());
@@ -385,8 +390,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
     
     
     GcGrouperSyncGroup gcGrouperSyncGroup7 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("ghi");
-    assertNull(gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
-    assertEquals(1, gcGrouperSync.storeAllObjects());
+    assertNotNull(gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
+    assertEquals(0, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
     assertNotNull(gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
     
     gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup7, true, true);
@@ -437,7 +442,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
 
     assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
 
-    gcGrouperSync.storeAllObjects();
+    gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
 
     int existingLogs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncGroup1.getId()).size();
 
@@ -445,7 +450,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     
     GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateLog(gcGrouperSyncGroup1);
     gcGrouperSyncLog.setDescription("hey");
-    assertEquals(1, gcGrouperSync.storeAllObjects());
+    assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
     
     List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncGroup1.getId());
     assertEquals(1, logs.size());
@@ -611,7 +616,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup3.getId()));
     assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup4.getId()));
 
-    GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName("grouper", "testTarget");
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "testTarget");
     List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
     
     Set<String> uuidsToProvision = new HashSet<String>();
@@ -807,8 +812,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
       GcTableSync gcTableSync = new GcTableSync();
       GcTableSyncOutput gcTableSyncOutput = gcTableSync.sync("testTarget", GcTableSyncSubtype.fullSyncFull); 
 
-      GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveByProvisionerName(null, "testTarget");
-      GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.jobRetrieveBySyncType(GcTableSyncSubtype.fullSyncFull.name());
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "testTarget");
+      GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType(GcTableSyncSubtype.fullSyncFull.name());
       
       Timestamp lastSyncTimestamp = gcGrouperSyncJob.getLastSyncTimestamp();
       
@@ -884,10 +889,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcTableSync = new GcTableSync();
       gcTableSyncOutput = gcTableSync.sync("testTarget", GcTableSyncSubtype.fullSyncFull); 
       
-      gcGrouperSync = GcGrouperSync.retrieveByProvisionerName(null, "testTarget");
-      gcGrouperSyncJob = gcGrouperSync.jobRetrieveBySyncType(GcTableSyncSubtype.fullSyncFull.name());
+      gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "testTarget");
+      gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType(GcTableSyncSubtype.fullSyncFull.name());
       
       assertTrue(gcGrouperSyncJob.getLastSyncTimestamp().getTime() > lastSyncTimestamp.getTime());
+      assertTrue(gcGrouperSync.getLastFullSyncRun().getTime() > lastSyncTimestamp.getTime());
             
       assertEquals(1, gcTableSyncOutput.getDelete());
       assertEquals(0, gcTableSyncOutput.getUpdate());
@@ -908,9 +914,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
   public void testGcGrouperSyncLogStoreAndDelete() {
   
       //try to store an insert
-      GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp123");
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp123");
       GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("abc");
-      gcGrouperSync.storeAllObjects();
+      gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
       
       assertNotNull(gcGrouperSyncLog.getId());
       
@@ -941,11 +947,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncLog2.setGrouperSync(gcGrouperSync);
       gcGrouperSyncLog2.setGrouperSyncOwnerId("def");
   
-      List<GcGrouperSyncLog> gcGrouperSyncGroups = new ArrayList<GcGrouperSyncLog>();
-      gcGrouperSyncGroups.add(gcGrouperSyncLog1);
-      gcGrouperSyncGroups.add(gcGrouperSyncLog2);
+      List<GcGrouperSyncLog> gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();
+      gcGrouperSyncLogs.add(gcGrouperSyncLog1);
+      gcGrouperSyncLogs.add(gcGrouperSyncLog2);
       
-      gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncGroups);
+      gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLogs);
       
       assertNotNull(gcGrouperSyncLog1.getId());
       assertNotNull(gcGrouperSyncLog2.getId());
@@ -960,11 +966,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncLog1.setDescription("mno");
       gcGrouperSyncLog2.setDescription("pqr");
   
-      gcGrouperSyncGroups = new ArrayList<GcGrouperSyncLog>();
-      gcGrouperSyncGroups.add(gcGrouperSyncLog1);
-      gcGrouperSyncGroups.add(gcGrouperSyncLog2);
+      gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();
+      gcGrouperSyncLogs.add(gcGrouperSyncLog1);
+      gcGrouperSyncLogs.add(gcGrouperSyncLog2);
       
-      gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncGroups);
+      gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLogs);
       
       gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog1.getId());
       gcGrouperSyncLog2 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog2.getId());
@@ -972,21 +978,21 @@ public class ProvisioningToSyncTest extends GrouperTest {
       assertEquals("mno", gcGrouperSyncLog1.getDescription());
       assertEquals("pqr", gcGrouperSyncLog2.getDescription());
   
-      gcGrouperSyncGroups = new ArrayList<GcGrouperSyncLog>();
-      gcGrouperSyncGroups.add(gcGrouperSyncLog1);
-      gcGrouperSyncGroups.add(gcGrouperSyncLog2);
+      gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();
+      gcGrouperSyncLogs.add(gcGrouperSyncLog1);
+      gcGrouperSyncLogs.add(gcGrouperSyncLog2);
       
       //try to store a delete
-      gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncGroups);
+      gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncLogs);
       
       gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog1.getId());
       assertNull(gcGrouperSyncLog1);
       gcGrouperSyncLog2 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog2.getId());
       assertNull(gcGrouperSyncLog2);
       
-      gcGrouperSync.delete();
+      gcGrouperSync.getGcGrouperSyncDao().delete();
   
-      gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp124");
+      gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp124");
       
       //try some inserts, some updates, and some no changes
       gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("abc");
@@ -994,7 +1000,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       GcGrouperSyncLog gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("mno");
       GcGrouperSyncLog gcGrouperSyncLog4 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("pqr");
   
-      int changes = gcGrouperSync.storeAllObjects();
+      int changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
   
       assertEquals(4, changes);
       
@@ -1005,7 +1011,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncLog3.setDescription("mno");
       gcGrouperSyncLog4.setDescription("pqr");
   
-      changes = gcGrouperSync.storeAllObjects();
+      changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
   
       assertEquals(4, changes);
       
@@ -1018,13 +1024,13 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncLog3.getGrouperSyncOwnerId()).get(0);
       assertEquals("mno", gcGrouperSyncLog3.getDescription());
       
-      gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbAll();
-      assertEquals(6, gcGrouperSyncGroups.size());
+      gcGrouperSyncLogs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbAll();
+      assertEquals(6, gcGrouperSyncLogs.size());
       
       
       GcGrouperSyncLog gcGrouperSyncGroup7 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("ghi");
       assertNull(gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
-      assertEquals(1, gcGrouperSync.storeAllObjects());
+      assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
       assertNotNull(gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
       
       gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncGroup7);
@@ -1038,9 +1044,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
   public void testGcGrouperSyncJobStoreAndDelete() {
   
       //try to store an insert
-      GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp123");
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp123");
       GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("abc");
-      gcGrouperSync.storeAllObjects();
+      gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
       
       assertNotNull(gcGrouperSyncJob.getId());
       
@@ -1114,9 +1120,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncJob2 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob2.getId());
       assertNull(gcGrouperSyncJob2);
       
-      gcGrouperSync.delete();
+      gcGrouperSync.getGcGrouperSyncDao().delete();
   
-      gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp124");
+      gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp124");
       
       //try some inserts, some updates, and some no changes
       gcGrouperSyncJob1 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("abc");
@@ -1124,7 +1130,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       GcGrouperSyncJob gcGrouperSyncJob3 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("mno");
       GcGrouperSyncJob gcGrouperSyncJob4 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("pqr");
   
-      int changes = gcGrouperSync.storeAllObjects();
+      int changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
   
       assertEquals(4, changes);
       
@@ -1135,9 +1141,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncJob3.setErrorMessage("mno");
       gcGrouperSyncJob4.setErrorMessage("pqr");
   
-      changes = gcGrouperSync.storeAllObjects();
+      changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
   
-      assertEquals(4, changes);
+      assertEquals(8, changes);
       
       gcGrouperSyncJob3 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob3.getId());
       gcGrouperSyncJob4 = gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob4.getId());
@@ -1153,8 +1159,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
       
       
       GcGrouperSyncJob gcGrouperSyncJob7 = gcGrouperSync.getGcGrouperSyncJobDao().jobCreateBySyncType("ghi");
-      assertNull(gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob7.getId()));
-      assertEquals(1, gcGrouperSync.storeAllObjects());
+      assertNotNull(gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob7.getId()));
+      assertEquals(0, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
       assertNotNull(gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbById(gcGrouperSyncJob7.getId()));
       
       gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJob7, true);
@@ -1195,11 +1201,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
   
       assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
   
-      gcGrouperSync.storeAllObjects();
+      gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
 
       GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId(gcGrouperSyncJob1.getId());
       gcGrouperSyncLog.setDescription("hey");
-      assertEquals(1, gcGrouperSync.storeAllObjects());
+      assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
       
       List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncJob1.getId());
       assertEquals(1, logs.size());
@@ -1210,9 +1216,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
   public void testGcGrouperSyncMemberStoreAndDelete() {
   
       //try to store an insert
-      GcGrouperSync gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp123");
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp123");
       GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("abc");
-      gcGrouperSync.storeAllObjects();
+      gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
       
       assertNotNull(gcGrouperSyncMember.getId());
       
@@ -1286,9 +1292,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncMember2 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember2.getId());
       assertNull(gcGrouperSyncMember2);
       
-      gcGrouperSync.delete();
+      gcGrouperSync.getGcGrouperSyncDao().delete();
   
-      gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, "temp124");
+      gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp124");
       
       //try some inserts, some updates, and some no changes
       Map<String, GcGrouperSyncMember> groupIdToGcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberIds(GrouperUtil.toList("abc", "def"));
@@ -1297,7 +1303,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       GcGrouperSyncMember gcGrouperSyncMember3 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("mno");
       GcGrouperSyncMember gcGrouperSyncMember4 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("pqr");
   
-      int changes = gcGrouperSync.storeAllObjects();
+      int changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
   
       assertEquals(4, changes);
       
@@ -1308,9 +1314,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncMember3.setErrorMessage("mno");
       gcGrouperSyncMember4.setErrorMessage("pqr");
   
-      changes = gcGrouperSync.storeAllObjects();
+      changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
   
-      assertEquals(4, changes);
+      assertEquals(8, changes);
       
       gcGrouperSyncMember3 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember3.getId());
       gcGrouperSyncMember4 = gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember4.getId());
@@ -1326,8 +1332,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
       
       
       GcGrouperSyncMember gcGrouperSyncMember7 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("ghi");
-      assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember7.getId()));
-      assertEquals(1, gcGrouperSync.storeAllObjects());
+      assertNotNull(gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember7.getId()));
+      assertEquals(0, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
       assertNotNull(gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberRetrieveFromDbById(gcGrouperSyncMember7.getId()));
       
       gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember7, true, true);
@@ -1378,7 +1384,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
   
       assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
   
-      gcGrouperSync.storeAllObjects();
+      gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
   
       int existingLogs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMember1.getId()).size();
   
@@ -1386,7 +1392,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       
       GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateLog(gcGrouperSyncMember1);
       gcGrouperSyncLog.setDescription("hey");
-      assertEquals(1, gcGrouperSync.storeAllObjects());
+      assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
       
       List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMember1.getId());
       assertEquals(1, logs.size());
@@ -1394,5 +1400,247 @@ public class ProvisioningToSyncTest extends GrouperTest {
       
   
     }
+
+  public void testGcGrouperSyncMembershipStoreAndDelete() {
+  
+    //try to store an insert
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp123");
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group");
+    GcGrouperSyncGroup gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group1");
+    GcGrouperSyncGroup gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group2");
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member");
+    GcGrouperSyncMember gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member1");
+    GcGrouperSyncMember gcGrouperSyncMember2 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member2");
+    
+    gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp123");
+    
+    GcGrouperSyncMembership gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveOrCreateByGroupIdAndMemberId("group", "member");
+    gcGrouperSyncMembership.setMembershipId("abc");
+    gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
+    
+    assertNotNull(gcGrouperSyncMembership.getId());
+    
+    gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership.getId());
+  
+    assertEquals("abc", gcGrouperSyncMembership.getMembershipId());
+  
+    //try to store an update
+    gcGrouperSyncMembership.setErrorMessage("def");
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMembership);
+  
+    gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership.getId());
+    assertEquals("def", gcGrouperSyncMembership.getErrorMessage());
+  
+    //try to store a delete
+    gcGrouperSync.getGcGrouperSyncMembershipDao().membershipDelete(gcGrouperSyncMembership, false);
+    
+    gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership.getId());
+  
+    assertNull(gcGrouperSyncMembership);
+  
+    
+    //try to store some inserts
+    GcGrouperSyncMembership gcGrouperSyncMembership1 = new GcGrouperSyncMembership();
+    gcGrouperSyncMembership1.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMembership1.setGrouperSyncGroupId(gcGrouperSyncGroup1.getId());
+    gcGrouperSyncMembership1.setGrouperSyncMemberId(gcGrouperSyncMember1.getId());
+    gcGrouperSyncMembership1.setMembershipId("abc");
+    GcGrouperSyncMembership gcGrouperSyncMembership2 = new GcGrouperSyncMembership();
+    gcGrouperSyncMembership2.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMembership2.setGrouperSyncGroupId(gcGrouperSyncGroup2.getId());
+    gcGrouperSyncMembership2.setGrouperSyncMemberId(gcGrouperSyncMember2.getId());
+    gcGrouperSyncMembership2.setMembershipId("def");
+  
+    List<GcGrouperSyncMembership> gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
+    gcGrouperSyncMemberships.add(gcGrouperSyncMembership1);
+    gcGrouperSyncMemberships.add(gcGrouperSyncMembership2);
+    
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMemberships);
+    
+    assertNotNull(gcGrouperSyncMembership1.getId());
+    assertNotNull(gcGrouperSyncMembership2.getId());
+  
+    gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership1.getId());
+    gcGrouperSyncMembership2 = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership2.getId());
+  
+    assertEquals("abc", gcGrouperSyncMembership1.getMembershipId());
+    assertEquals("def", gcGrouperSyncMembership2.getMembershipId());
+  
+    //try to store an update
+    gcGrouperSyncMembership1.setErrorMessage("mno");
+    gcGrouperSyncMembership2.setErrorMessage("pqr");
+  
+    gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
+    gcGrouperSyncMemberships.add(gcGrouperSyncMembership1);
+    gcGrouperSyncMemberships.add(gcGrouperSyncMembership2);
+    
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMemberships);
+    
+    gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership1.getId());
+    gcGrouperSyncMembership2 = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership2.getId());
+  
+    assertEquals("mno", gcGrouperSyncMembership1.getErrorMessage());
+    assertEquals("pqr", gcGrouperSyncMembership2.getErrorMessage());
+  
+    gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
+    gcGrouperSyncMemberships.add(gcGrouperSyncMembership1);
+    gcGrouperSyncMemberships.add(gcGrouperSyncMembership2);
+    
+    //try to store a delete
+    gcGrouperSync.getGcGrouperSyncMembershipDao().membershipDelete(gcGrouperSyncMemberships, true);
+    
+    gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership1.getId());
+    assertNull(gcGrouperSyncMembership1);
+    gcGrouperSyncMembership2 = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership2.getId());
+    assertNull(gcGrouperSyncMembership2);
+    
+    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup, false, false);
+    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup1, true, true);
+    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup2, false, false);
+    gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember, false, false);
+    gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember1, false, false);
+    gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember2, false, false);
+    
+    gcGrouperSync.getGcGrouperSyncDao().delete();
+  
+    gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "temp124");
+  
+    gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group");
+    gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group1");
+    gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group2");
+    gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member");
+    gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member1");
+    gcGrouperSyncMember2 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member2");
+
+    GcGrouperSyncGroup gcGrouperSyncGroup3 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group3");
+    GcGrouperSyncGroup gcGrouperSyncGroup4 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group4");
+    GcGrouperSyncGroup gcGrouperSyncGroup5 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group5");
+    GcGrouperSyncGroup gcGrouperSyncGroup6 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group6");
+    GcGrouperSyncGroup gcGrouperSyncGroup7 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group7");
+    GcGrouperSyncGroup gcGrouperSyncGroup8 = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId("group8");
+    GcGrouperSyncMember gcGrouperSyncMember3 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member3");
+    GcGrouperSyncMember gcGrouperSyncMember4 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member4");
+    GcGrouperSyncMember gcGrouperSyncMember5 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member5");
+    GcGrouperSyncMember gcGrouperSyncMember6 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member6");
+    GcGrouperSyncMember gcGrouperSyncMember7 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member7");
+    GcGrouperSyncMember gcGrouperSyncMember8 = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId("member8");
+    
+    gcGrouperSync.setInternalObjectsCreatedCount(0);
+    
+    //try some inserts, some updates, and some no changes
+    MultiKey memberhip1multiKey = new MultiKey("group1", "member1");
+    MultiKey memberhip2multiKey = new MultiKey("group2", "member2");
+    Map<MultiKey, GcGrouperSyncMembership> groupIdToGcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveOrCreateByGroupIdsAndMemberIds(
+        GrouperUtil.toList(memberhip1multiKey, memberhip2multiKey));
+    gcGrouperSyncMembership1 = groupIdToGcGrouperSyncMembership.get(memberhip1multiKey);
+    gcGrouperSyncMembership2 = groupIdToGcGrouperSyncMembership.get(memberhip2multiKey);
+    GcGrouperSyncMembership gcGrouperSyncMembership3 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveOrCreateByGroupIdAndMemberId("group3", "member3");
+    GcGrouperSyncMembership gcGrouperSyncMembership4 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveOrCreateByGroupIdAndMemberId("group4", "member4");
+  
+    int changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
+  
+    assertEquals(4, changes);
+
+    gcGrouperSyncMembership1.setMembershipId("abc");
+    gcGrouperSyncMembership2.setMembershipId("bcd");
+    gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
+    
+    GcGrouperSyncMembership gcGrouperSyncMembership5 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveOrCreateByGroupIdAndMemberId("group5", "member5");
+    GcGrouperSyncMembership gcGrouperSyncMembership6 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveOrCreateByGroupIdAndMemberId("group6", "member6");
+  
+    //try to store an update
+    gcGrouperSyncMembership3.setErrorMessage("mno");
+    gcGrouperSyncMembership4.setErrorMessage("pqr");
+  
+    changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
+  
+    assertEquals(8, changes);
+    
+    gcGrouperSyncMembership3 = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership3.getId());
+    gcGrouperSyncMembership4 = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership4.getId());
+  
+    assertEquals("mno", gcGrouperSyncMembership3.getErrorMessage());
+    assertEquals("pqr", gcGrouperSyncMembership4.getErrorMessage());
+  
+    gcGrouperSyncMembership3 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId("group3", "member3");
+    assertEquals("mno", gcGrouperSyncMembership3.getErrorMessage());
+    
+    gcGrouperSyncMemberships = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbAll();
+    assertEquals(6, gcGrouperSyncMemberships.size());
+    
+    GcGrouperSyncMembership gcGrouperSyncMembership7 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipCreateByGroupAndMember(gcGrouperSyncGroup7, gcGrouperSyncMember7);
+    assertNotNull(gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership7.getId()));
+    assertEquals(0, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
+    assertNotNull(gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership7.getId()));
+    
+    gcGrouperSync.getGcGrouperSyncMembershipDao().membershipDelete(gcGrouperSyncMembership7, true);
+    assertNull(gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbById(gcGrouperSyncMembership7.getId()));
+    assertNull(gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveById(gcGrouperSyncMembership7.getId()));
+  
+    assertNotNull(gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveById(gcGrouperSyncMembership6.getId()));
+    
+    groupIdToGcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdsAndMemberIds(GrouperUtil.toSet(
+        new MultiKey(gcGrouperSyncGroup1.getGroupId(), gcGrouperSyncMember1.getMemberId()), 
+        new MultiKey(gcGrouperSyncGroup2.getGroupId(), gcGrouperSyncMember2.getMemberId())));
+  
+    assertEquals(2, groupIdToGcGrouperSyncMembership.size());
+    assertTrue(groupIdToGcGrouperSyncMembership.containsKey(new MultiKey(gcGrouperSyncGroup1.getGroupId(), gcGrouperSyncMember1.getMemberId())));
+    assertTrue(groupIdToGcGrouperSyncMembership.containsKey(new MultiKey(gcGrouperSyncGroup2.getGroupId(), gcGrouperSyncMember2.getMemberId())));
+    
+    groupIdToGcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(
+        GrouperUtil.toSet(new MultiKey(gcGrouperSyncMembership1.getGrouperSyncGroupId(), gcGrouperSyncMembership1.getGrouperSyncMemberId()),
+            new MultiKey(gcGrouperSyncMembership2.getGrouperSyncGroupId(), gcGrouperSyncMembership2.getGrouperSyncMemberId())));
+  
+    assertEquals(2, groupIdToGcGrouperSyncMembership.size());
+    assertTrue(groupIdToGcGrouperSyncMembership.containsKey(new MultiKey(gcGrouperSyncMembership1.getGrouperSyncGroupId(), gcGrouperSyncMembership1.getGrouperSyncMemberId())));
+    assertTrue(groupIdToGcGrouperSyncMembership.containsKey(new MultiKey(gcGrouperSyncMembership2.getGrouperSyncGroupId(), gcGrouperSyncMembership2.getGrouperSyncMemberId())));
+  
+    GcDbAccess.threadLocalQueryCountReset();
+  
+    gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(gcGrouperSyncGroup1.getGroupId(), gcGrouperSyncMember1.getMemberId());
+    assertEquals("abc", gcGrouperSyncMembership1.getMembershipId());
+    gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveById(gcGrouperSyncMembership1.getId());
+    assertEquals("abc", gcGrouperSyncMembership1.getMembershipId());
+  
+    assertEquals(0, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipCacheDelete(gcGrouperSyncMembership1);
+    GcDbAccess.threadLocalQueryCountReset();
+  
+    gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(gcGrouperSyncGroup1.getGroupId(), gcGrouperSyncMember1.getMemberId());
+    assertEquals("abc", gcGrouperSyncMembership1.getMembershipId());
+  
+    assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+    gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveById(gcGrouperSyncMembership1.getId());
+    assertEquals("abc", gcGrouperSyncMembership1.getMembershipId());
+  
+    assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipCacheDelete(gcGrouperSyncMembership1);
+    GcDbAccess.threadLocalQueryCountReset();
+  
+    gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveById(gcGrouperSyncMembership1.getId());
+    assertEquals("abc", gcGrouperSyncMembership1.getMembershipId());
+  
+    assertEquals(1, GcDbAccess.threadLocalQueryCountRetrieve());
+  
+    gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
+  
+    int existingLogs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMembership1.getId()).size();
+  
+    assertEquals(0, existingLogs);
+    
+    GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipCreateLog(gcGrouperSyncMembership1);
+    gcGrouperSyncLog.setDescription("hey");
+    assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
+    
+    List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMembership1.getId());
+    assertEquals(1, logs.size());
+    assertEquals("hey", logs.get(0).getDescription());
+    
+  
+  }
 
 }

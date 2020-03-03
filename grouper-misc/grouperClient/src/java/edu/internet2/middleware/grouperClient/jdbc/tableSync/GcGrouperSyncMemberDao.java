@@ -36,10 +36,23 @@ public class GcGrouperSyncMemberDao {
    * @return the member
    */
   public GcGrouperSyncMember memberCreateByMemberId(String memberId) {
+    GcGrouperSyncMember gcGrouperSyncMember = this.internal_memberCreateByMemberIdHelper(memberId);
+    this.internal_memberStore(gcGrouperSyncMember);
+    this.gcGrouperSync.addObjectCreatedCount(1);
+    this.internal_memberCacheAdd(gcGrouperSyncMember);
+    return gcGrouperSyncMember;
+  }
+
+  /**
+   * create grouper sync member by member id.  Note: this doesnt store to db yet, you do that at the end
+   * @param connectionName
+   * @param memberId
+   * @return the member
+   */
+  public GcGrouperSyncMember internal_memberCreateByMemberIdHelper(String memberId) {
     GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
     gcGrouperSyncMember.setGrouperSync(this.getGcGrouperSync());
     gcGrouperSyncMember.setMemberId(memberId);
-    this.internal_memberCacheAdd(gcGrouperSyncMember);
     return gcGrouperSyncMember;
   }
 
@@ -57,7 +70,7 @@ public class GcGrouperSyncMemberDao {
     
     List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
     
-    Set<String> logMemberSyncIds = new HashSet<String>();
+    Set<String> memberSyncIds = new HashSet<String>();
     
     for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembers) {
       
@@ -65,18 +78,20 @@ public class GcGrouperSyncMemberDao {
       currentBindVarRow.add(gcGrouperSyncMember.getId());
       batchBindVars.add(currentBindVarRow);
       
-      logMemberSyncIds.add(gcGrouperSyncMember.getId());
+      memberSyncIds.add(gcGrouperSyncMember.getId());
       this.internal_memberCacheDelete(gcGrouperSyncMember);
     }
   
     String connectionName = gcGrouperSyncMembers.iterator().next().getConnectionName();
     
     if (deleteLogs) {
-      count += this.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logDeleteBatchByOwnerIds(logMemberSyncIds);
+      count += this.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logDeleteBatchByOwnerIds(memberSyncIds);
     }
     
-    // TODO delete memberships? and membership log
-  
+    if (deleteMemberships) {
+      count += this.getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteBySyncMemberIds(memberSyncIds, deleteLogs);
+    }
+
     int[] rowDeleteCounts = new GcDbAccess().connectionName(connectionName).sql("delete from grouper_sync_member where id = ?")
       .batchBindVars(batchBindVars).batchSize(this.getGcGrouperSync().batchSize()).executeBatchSql();
   
@@ -107,8 +122,10 @@ public class GcGrouperSyncMemberDao {
     if (deleteLogs) {
       count += this.getGcGrouperSync().getGcGrouperSyncLogDao().logDeleteByOwnerId(gcGrouperSyncMember.getId());
     }
-    
-    // TODO delete memberships?
+
+    if (deleteMemberships) {
+      count += this.getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteBySyncMemberId(gcGrouperSyncMember.getId(), deleteLogs);
+    }
 
     int rowDeleteCount = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql("delete from grouper_sync_member where id = ?")
       .bindVars(gcGrouperSyncMember.getId()).executeSql();
@@ -240,9 +257,6 @@ public class GcGrouperSyncMemberDao {
   public GcGrouperSyncMember memberRetrieveOrCreateByMemberId(String memberId) {
     GcGrouperSyncMember gcGrouperSyncMember = this.memberRetrieveByMemberId(memberId);
     if (gcGrouperSyncMember == null) {
-      gcGrouperSyncMember = internal_memberRetrieveFromDbByMemberId(memberId);
-    }
-    if (gcGrouperSyncMember == null) {
       gcGrouperSyncMember = this.memberCreateByMemberId(memberId);
     }
     return gcGrouperSyncMember;
@@ -268,11 +282,21 @@ public class GcGrouperSyncMemberDao {
     Set<String> memberIdsToCreate = new HashSet<String>(grouperMemberIdsCollection);
     memberIdsToCreate.removeAll(result.keySet());
     
+    Set<GcGrouperSyncMember> syncMembersToStore = new HashSet<GcGrouperSyncMember>();
+    
     for (String memberIdToCreate : memberIdsToCreate) {
-      GcGrouperSyncMember gcGrouperSyncMember = this.memberCreateByMemberId(memberIdToCreate);
+      GcGrouperSyncMember gcGrouperSyncMember = this.internal_memberCreateByMemberIdHelper(memberIdToCreate);
       result.put(memberIdToCreate, gcGrouperSyncMember);
+      syncMembersToStore.add(gcGrouperSyncMember);
     }
     
+    int changes = this.internal_memberStore(syncMembersToStore);
+    this.gcGrouperSync.addObjectCreatedCount(changes);
+
+    for (GcGrouperSyncMember gcGrouperSyncMember : syncMembersToStore) {
+      this.internal_memberCacheAdd(gcGrouperSyncMember);
+    }
+
     return result;
     
   }
@@ -493,7 +517,7 @@ public class GcGrouperSyncMemberDao {
    * 
    * @return number of members stored
    */
-  public int internal_memberStore() {
+  public int internal_memberStoreAll() {
     return this.internal_memberStore(this.internalCacheSyncMembers.values());
   }
   

@@ -5,7 +5,6 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;

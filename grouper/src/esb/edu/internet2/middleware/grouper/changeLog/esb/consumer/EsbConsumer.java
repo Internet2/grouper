@@ -43,7 +43,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
@@ -51,6 +50,7 @@ import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerRes
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -419,7 +419,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     
     grouperProvisioningProcessingResult.setGcGrouperSyncJob(gcGrouperSyncJob);
     
-    grouperProvisioningProcessingResult.setGcGrouperSyncLog(gcGrouperSyncJob.retrieveGrouperSyncLogOrCreate());
+    grouperProvisioningProcessingResult.setGcGrouperSyncLog(gcGrouperSync.getGcGrouperSyncJobDao().jobCreateLog(gcGrouperSyncJob));
 
     grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(null);
     
@@ -675,8 +675,9 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           long startNanoTime = System.nanoTime();
           // ######### STEP 3: wait for other jobs, and start thread
           this.debugMapOverall.put("state", "waitForRelatedJobsToFinishThenRun");
-          gcGrouperSync = GcGrouperSync.retrieveOrCreateByProvisionerName(null, filterByProvisionerTarget);
-          gcGrouperSyncJob = gcGrouperSync.waitForRelatedJobsToFinishThenRun(filterByProvisionerJobSyncType, false);
+          gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, filterByProvisionerTarget);
+          gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType(filterByProvisionerJobSyncType);
+          gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(false);
           int tookMillis = (int)((System.nanoTime()-startNanoTime) / 1000000);
           if (tookMillis > 10) {
             debugMapOverall.put("waitingForRelatedJobsMillis", tookMillis);
@@ -823,7 +824,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setDescription(debugMapToString);
           this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setJobTookMillis((int)tookMillis);
           this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setRecordsProcessed(GrouperUtil.length(allEsbEventContainers));
-          // TODO this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().store();
+          this.grouperProvisioningProcessingResult.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logStore(
+              this.grouperProvisioningProcessingResult.getGcGrouperSyncLog());
         }
       } catch (RuntimeException re3) {
         debugMapOverall.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
@@ -1310,7 +1312,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     debugMapOverall.put("currentSequenceNumber", null);
   
     // lets retrieve all those
-    Map<String, GcGrouperSyncMember> memberIdToSyncMemberMap = null; // TODO GcGrouperSyncMember.retrieveBySyncIdAndMemberId(null, gcGrouperSync.getId(), memberIdsToRetrieve);
+    Map<String, GcGrouperSyncMember> memberIdToSyncMemberMap = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIdsToRetrieve);
+
     logIntegerIfNotZero(debugMapOverall, "gcGrouperSyncMembersRetrievedByEvents", GrouperUtil.length(memberIdToSyncMemberMap));
 
     if (this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap() == null) {

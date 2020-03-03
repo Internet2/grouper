@@ -504,13 +504,15 @@ public class GcTableSync {
       if (gcTableSyncSubtype.isFullMetadataSync()) {
         this.getGcGrouperSync().setLastFullMetadataSyncRun(milliswhenSyncStartedTimestamp);
       }
-      if (gcTableSyncSubtype.isFullMetadataSync()) {
+      if (gcTableSyncSubtype.isFullSync()) {
         this.getGcGrouperSync().setLastFullSyncRun(milliswhenSyncStartedTimestamp);
       }
-      if (gcTableSyncSubtype.isFullMetadataSync()) {
+      if (gcTableSyncSubtype.isIncrementalSync()) {
         this.getGcGrouperSync().setLastIncrementalSyncRun(milliswhenSyncStartedTimestamp);
       }
-      this.getGcGrouperSync().store();
+      
+      int gcSyncObjectChanges = this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
+      debugMap.put("gcSyncObjectChanges", gcSyncObjectChanges + gcGrouperSync.getInternalObjectsCreatedCount());
 
     } catch (RuntimeException re) {
       gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
