@@ -36,7 +36,7 @@ public class GcGrouperSyncJobDao {
   }
 
   /**
-   * select grouper sync jobs by job id.  Note: this doesnt store to db yet, you do that at the end
+   * select grouper sync jobs by job id
    * @param connectionName
    * @param syncType
    * @return the job
@@ -45,7 +45,8 @@ public class GcGrouperSyncJobDao {
     GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
     gcGrouperSyncJob.setGrouperSync(this.getGcGrouperSync());
     gcGrouperSyncJob.setSyncType(syncType);
-    this.internal_jobCacheAdd(gcGrouperSyncJob);
+    this.internal_jobStore(gcGrouperSyncJob);
+    this.gcGrouperSync.addObjectCreatedCount(1);
     return gcGrouperSyncJob;
   }
 
@@ -80,8 +81,6 @@ public class GcGrouperSyncJobDao {
     
     count += this.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logDeleteBatchByOwnerIds(logJobIds);
     
-    // TODO delete memberships? and membership log
-  
     int[] rowDeleteCounts = new GcDbAccess().connectionName(connectionName).sql("delete from grouper_sync_job where id = ?")
       .batchBindVars(batchBindVars).batchSize(this.getGcGrouperSync().batchSize()).executeBatchSql();
   
@@ -197,9 +196,6 @@ public class GcGrouperSyncJobDao {
    */
   public GcGrouperSyncJob jobRetrieveOrCreateBySyncType(String syncType) {
     GcGrouperSyncJob gcGrouperSyncJob = this.jobRetrieveBySyncType(syncType);
-    if (gcGrouperSyncJob == null) {
-      gcGrouperSyncJob = internal_jobRetrieveFromDbBySyncType(syncType);
-    }
     if (gcGrouperSyncJob == null) {
       gcGrouperSyncJob = this.jobCreateBySyncType(syncType);
     }
@@ -334,7 +330,7 @@ public class GcGrouperSyncJobDao {
    * 
    * @return number of groups stored
    */
-  public int internal_jobStore() {
+  public int internal_jobStoreAll() {
     return this.internal_jobStore(this.internalCacheSyncJobs.values());
   }
   
@@ -375,6 +371,8 @@ public class GcGrouperSyncJobDao {
   
     new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).storeToDatabase(gcGrouperSyncJob);
   
-  }
+    this.internal_jobCacheAdd(gcGrouperSyncJob);
 
+  }
+  
 }

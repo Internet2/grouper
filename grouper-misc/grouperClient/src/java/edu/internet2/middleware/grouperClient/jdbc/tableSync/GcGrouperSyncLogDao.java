@@ -32,7 +32,7 @@ public class GcGrouperSyncLogDao {
   }
 
   /**
-   * select grouper sync log by owner id.  Note: this doesnt store to db yet, you do that at the end
+   * select grouper sync log by owner id.  note this does not actually store the object
    * @param connectionName
    * @param ownerId
    * @return the group
@@ -42,6 +42,8 @@ public class GcGrouperSyncLogDao {
     gcGrouperSyncLog.setGrouperSync(this.getGcGrouperSync());
     gcGrouperSyncLog.setGrouperSyncOwnerId(ownerId);
     this.internal_logCacheAdd(gcGrouperSyncLog);
+
+
     return gcGrouperSyncLog;
   }
 
@@ -91,8 +93,35 @@ public class GcGrouperSyncLogDao {
   public int logDeleteByOwnerId(String ownerId) {
 
     this.internal_logCacheDeleteByOwnerId(ownerId);
-    return new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql("delete from grouper_sync_log where grouper_sync_owner_id = ?")
+    return new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
+        "delete from grouper_sync_log where grouper_sync_owner_id = ?")
       .bindVars(ownerId).executeSql();
+  }
+  
+  /**
+   * delete by sync group id from membership
+   * @param syncGroupId
+   * @return rows deleted (logs)
+   */
+  public int logDeleteByMembershipSyncGroupId(String syncGroupId) {
+
+    this.internal_logCacheDeleteByMembershipSyncGroupId(syncGroupId);
+    return new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
+        "delete from grouper_sync_log gsl where grouper_sync_owner_id in ( select gsm.id from grouper_sync_membership gsm where gsm.grouper_sync_group_id = ? )")
+      .bindVars(syncGroupId).executeSql();
+  }
+  
+  /**
+   * delete by sync member id from membership
+   * @param syncMemberId
+   * @return rows deleted (logs)
+   */
+  public int logDeleteByMembershipSyncMemberId(String syncMemberId) {
+
+    this.internal_logCacheDeleteByMembershipSyncMemberId(syncMemberId);
+    return new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
+        "delete from grouper_sync_log gsl where grouper_sync_owner_id in ( select gsm.id from grouper_sync_membership gsm where gsm.grouper_sync_member_id = ? )")
+      .bindVars(syncMemberId).executeSql();
   }
   
   /**
@@ -271,6 +300,39 @@ public class GcGrouperSyncLogDao {
 
     for (GcGrouperSyncLog gcGrouperSyncLog : new HashSet<GcGrouperSyncLog>(internalCacheSyncLogs.values())) {
       if (GrouperClientUtils.equals(ownerId, gcGrouperSyncLog.getGrouperSyncOwnerId())) {
+        internal_logCacheDelete(gcGrouperSyncLog);
+      }
+    }
+        
+  }
+
+  /**
+   * delete from cache by membership sync group id
+   * @param gcGrouperSyncLog
+   */
+  public void internal_logCacheDeleteByMembershipSyncGroupId(String syncGroupId) {
+
+    for (GcGrouperSyncLog gcGrouperSyncLog : new HashSet<GcGrouperSyncLog>(internalCacheSyncLogs.values())) {
+      GcGrouperSyncMembership gcGrouperSyncMembership = this.gcGrouperSync
+          .getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromCacheById(gcGrouperSyncLog.getGrouperSyncOwnerId());
+      if (gcGrouperSyncMembership != null && GrouperClientUtils.equals(syncGroupId, gcGrouperSyncMembership.getGrouperSyncGroupId())) {
+        internal_logCacheDelete(gcGrouperSyncLog);
+      }
+    }
+        
+  }
+
+
+  /**
+   * delete from cache by membership sync member id
+   * @param gcGrouperSyncLog
+   */
+  public void internal_logCacheDeleteByMembershipSyncMemberId(String syncMemberId) {
+
+    for (GcGrouperSyncLog gcGrouperSyncLog : new HashSet<GcGrouperSyncLog>(internalCacheSyncLogs.values())) {
+      GcGrouperSyncMembership gcGrouperSyncMembership = this.gcGrouperSync
+          .getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromCacheById(gcGrouperSyncLog.getGrouperSyncOwnerId());
+      if (gcGrouperSyncMembership != null && GrouperClientUtils.equals(syncMemberId, gcGrouperSyncMembership.getGrouperSyncMemberId())) {
         internal_logCacheDelete(gcGrouperSyncLog);
       }
     }
@@ -469,7 +531,7 @@ public class GcGrouperSyncLogDao {
    * 
    * @return number of logs stored
    */
-  public int internal_logStore() {
+  public int internal_logStoreAll() {
     return this.internal_logStore(this.internalCacheSyncLogs.values());
   }
   

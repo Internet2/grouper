@@ -385,22 +385,22 @@ public class GcTableSyncConfiguration {
         debugMap.put("configStatusDatabase", this.statusDatabase);
       }
       if (this.gcTableSync.getGcGrouperSync() == null) {
-        this.gcTableSync.setGcGrouperSync(GcGrouperSync.retrieveOrCreateByProvisionerName(defaultStatusDatabase, configKey));
+        this.gcTableSync.setGcGrouperSync(GcGrouperSyncDao.retrieveOrCreateByProvisionerName(defaultStatusDatabase, configKey));
       }
       if (!GrouperClientUtils.equals(GcGrouperSync.SQL_SYNC_ENGINE, this.gcTableSync.getGcGrouperSync().getSyncEngine())) {
         this.gcTableSync.getGcGrouperSync().setSyncEngine(GcGrouperSync.SQL_SYNC_ENGINE);
-        this.gcTableSync.getGcGrouperSync().store();
+        this.gcTableSync.getGcGrouperSync().getGcGrouperSyncDao().store();
       }
 
       GcGrouperSyncJob gcGrouperSyncJob = this.gcTableSync.getGcGrouperSyncJob();
       if (gcGrouperSyncJob == null) {
-        gcGrouperSyncJob = this.gcTableSync.getGcGrouperSync().jobRetrieveOrCreateBySyncType(gcTableSyncSubtype.name());
+        gcGrouperSyncJob = this.gcTableSync.getGcGrouperSync().getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType(gcTableSyncSubtype.name());
+        this.gcTableSync.setGcGrouperSyncJob(gcGrouperSyncJob);
       }
-      this.gcTableSync.getGcGrouperSync().waitForRelatedJobsToFinishThenRun(gcGrouperSyncJob, theGcTableSyncSubtype.isFullSync());
+      this.gcTableSync.getGcGrouperSyncJob().waitForRelatedJobsToFinishThenRun(theGcTableSyncSubtype.isFullSync());
       
-      this.gcTableSync.setGcGrouperSyncJob(gcGrouperSyncJob);
       if (this.gcTableSync.getGcGrouperSyncLog() == null) {
-        this.gcTableSync.setGcGrouperSyncLog(this.gcTableSync.getGcGrouperSyncJob().retrieveGrouperSyncLogOrCreate());
+        this.gcTableSync.setGcGrouperSyncLog(this.gcTableSync.getGcGrouperSync().getGcGrouperSyncJobDao().jobCreateLog(this.gcTableSync.getGcGrouperSyncJob()));
       }
       
       this.gcTableSync.getGcGrouperSyncLog().setSyncTimestamp(new Timestamp(System.currentTimeMillis()));

@@ -36,10 +36,23 @@ public class GcGrouperSyncGroupDao {
    * @return the group
    */
   public GcGrouperSyncGroup groupCreateByGroupId(String groupId) {
+    GcGrouperSyncGroup gcGrouperSyncGroup = this.internal_groupCreateByGroupIdHelper(groupId);
+    this.internal_groupStore(gcGrouperSyncGroup);
+    this.gcGrouperSync.addObjectCreatedCount(1);
+    this.internal_groupCacheAdd(gcGrouperSyncGroup);
+    return gcGrouperSyncGroup;
+  }
+
+  /**
+   * select grouper sync group by group id.  Note: this doesnt store to db yet, you do that at the end
+   * @param connectionName
+   * @param groupId
+   * @return the group
+   */
+  public GcGrouperSyncGroup internal_groupCreateByGroupIdHelper(String groupId) {
     GcGrouperSyncGroup gcGrouperSyncGroup = new GcGrouperSyncGroup();
     gcGrouperSyncGroup.setGrouperSync(this.getGcGrouperSync());
     gcGrouperSyncGroup.setGroupId(groupId);
-    this.internal_groupCacheAdd(gcGrouperSyncGroup);
     return gcGrouperSyncGroup;
   }
 
@@ -75,7 +88,9 @@ public class GcGrouperSyncGroupDao {
       count += this.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logDeleteBatchByOwnerIds(logGroupSyncIds);
     }
     
-    // TODO delete memberships? and membership log
+    if (deleteMemberships) {
+      count += this.getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteBySyncGroupIds(logGroupSyncIds, deleteLogs);
+    }
   
     int[] rowDeleteCounts = new GcDbAccess().connectionName(connectionName).sql("delete from grouper_sync_group where id = ?")
       .batchBindVars(batchBindVars).batchSize(this.getGcGrouperSync().batchSize()).executeBatchSql();
@@ -108,7 +123,9 @@ public class GcGrouperSyncGroupDao {
         count += this.getGcGrouperSync().getGcGrouperSyncLogDao().logDeleteByOwnerId(gcGrouperSyncGroup.getId());
       }
       
-      // TODO delete memberships?
+      if (deleteMemberships) {
+        count += this.getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteBySyncGroupId(gcGrouperSyncGroup.getId(), deleteLogs);
+      }
   
       int rowDeleteCount = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql("delete from grouper_sync_group where id = ?")
         .bindVars(gcGrouperSyncGroup.getId()).executeSql();
@@ -232,7 +249,7 @@ public class GcGrouperSyncGroupDao {
   }
 
   /**
-   * select grouper sync group by group id.  Note: this doesnt store to db yet, you do that at the end
+   * select grouper sync group by group id.  This will make sure there are uuids for new ones
    * @param connectionName
    * @param groupId
    * @return the group
@@ -240,16 +257,13 @@ public class GcGrouperSyncGroupDao {
   public GcGrouperSyncGroup groupRetrieveOrCreateByGroupId(String groupId) {
     GcGrouperSyncGroup gcGrouperSyncGroup = this.groupRetrieveByGroupId(groupId);
     if (gcGrouperSyncGroup == null) {
-      gcGrouperSyncGroup = internal_groupRetrieveFromDbByGroupId(groupId);
-    }
-    if (gcGrouperSyncGroup == null) {
       gcGrouperSyncGroup = this.groupCreateByGroupId(groupId);
     }
     return gcGrouperSyncGroup;
   }
 
   /**
-   * select grouper sync group by group id.  note, this does not store the groups to the database, do that later
+   * select grouper sync group by group id.  this will make sure there are uuids for new ones
    * @param grouperSyncId
    * @param grouperGroupIdsCollection
    * @param provisionerName
@@ -268,11 +282,21 @@ public class GcGrouperSyncGroupDao {
     Set<String> groupIdsToCreate = new HashSet<String>(grouperGroupIdsCollection);
     groupIdsToCreate.removeAll(result.keySet());
     
+    Set<GcGrouperSyncGroup> syncGroupsToStore = new HashSet<GcGrouperSyncGroup>();
+    
     for (String groupIdToCreate : groupIdsToCreate) {
-      GcGrouperSyncGroup gcGrouperSyncGroup = this.groupCreateByGroupId(groupIdToCreate);
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.internal_groupCreateByGroupIdHelper(groupIdToCreate);
       result.put(groupIdToCreate, gcGrouperSyncGroup);
+      syncGroupsToStore.add(gcGrouperSyncGroup);
     }
     
+    int changes = this.internal_groupStore(syncGroupsToStore);
+    this.gcGrouperSync.addObjectCreatedCount(changes);
+
+    for (GcGrouperSyncGroup gcGrouperSyncGroup : syncGroupsToStore) {
+      this.internal_groupCacheAdd(gcGrouperSyncGroup);
+    }
+
     return result;
     
   }
@@ -493,7 +517,7 @@ public class GcGrouperSyncGroupDao {
    * 
    * @return number of groups stored
    */
-  public int internal_groupStore() {
+  public int internal_groupStoreAll() {
     return this.internal_groupStore(this.internalCacheSyncGroups.values());
   }
   

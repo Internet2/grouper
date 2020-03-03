@@ -155,15 +155,11 @@ public class RegistryReset {
    */
   public static void internal_resetRegistryAndAddTestSubjects(boolean includeTypesAndFields) { 
     RegistryReset rr = new RegistryReset();
-    try {
-      MemberFinder.clearInternalMembers();
-      rr._emptyTables(includeTypesAndFields);
-      rr._addSubjects();
-      SubjectSourceCache.clearCache();
-    }
-    catch (Exception e) {
-      rr._abort(ExceptionUtils.getFullStackTrace(e));
-    }
+
+    MemberFinder.clearInternalMembers();
+    rr._emptyTables(includeTypesAndFields);
+    rr._addSubjects();
+    SubjectSourceCache.clearCache();
     
     GrouperCacheUtils.clearAllCaches();
 

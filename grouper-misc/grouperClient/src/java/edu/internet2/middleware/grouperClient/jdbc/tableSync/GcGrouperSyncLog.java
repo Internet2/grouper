@@ -157,7 +157,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
     GcGrouperSync gcGrouperSync = new GcGrouperSync();
     gcGrouperSync.setSyncEngine("temp");
     gcGrouperSync.setProvisionerName("myJob");
-    gcGrouperSync.store();
+    gcGrouperSync.getGcGrouperSyncDao().store();
     
     GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
     gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
@@ -165,7 +165,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
     gcGrouperSyncJob.setLastSyncIndex(135L);
     gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
     gcGrouperSyncJob.setSyncType("testSyncType");
-    gcGrouperSyncJob.store();
+    gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
 
     GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("myId");
     gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
@@ -193,8 +193,8 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
 
     gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncLog);
     gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup, false, false);
-    gcGrouperSyncJob.delete();
-    gcGrouperSync.delete();
+    gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJob, false);
+    gcGrouperSync.getGcGrouperSyncDao().delete();
     
     System.out.println("deleted");
 

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 /**
@@ -14,43 +15,49 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
  */
 public class ProvisioningSyncResult {
 
+  /**
+   * number of objects stored (for logging)
+   */
+  private int syncObjectStoreCount;
+  
+  
   
   /**
-   * gc grouper sync groups that were updated
+   * number of objects stored (for logging)
+   * @return number of objects
    */
-  private Set<GcGrouperSyncGroup> gcGrouperSyncGroupsToUpdate;
-  
-  
-  
-  
-  public Set<GcGrouperSyncGroup> getGcGrouperSyncGroupsToUpdate() {
-    return gcGrouperSyncGroupsToUpdate;
-  }
-
-  
-  public void setGcGrouperSyncGroupsToUpdate(
-      Set<GcGrouperSyncGroup> gcGrouperSyncGroupsToUpdate) {
-    this.gcGrouperSyncGroupsToUpdate = gcGrouperSyncGroupsToUpdate;
+  public int getSyncObjectStoreCount() {
+    return this.syncObjectStoreCount;
   }
 
   /**
-   * group that is in target, and is provisionable, no changes
+   * number of objects stored (for logging)
+   * @param syncObjectStoreCount1
    */
-  private Set<GcGrouperSyncGroup> gcGrouperSyncGroupsNoChange;
-  
-  /**
-   * group that is in target, and is provisionable, no changes
-   */
-  public Set<GcGrouperSyncGroup> getGcGrouperSyncGroupsNoChange() {
-    return this.gcGrouperSyncGroupsNoChange;
+  public void setSyncObjectStoreCount(int syncObjectStoreCount1) {
+    this.syncObjectStoreCount = syncObjectStoreCount1;
   }
+
+  /**
+   * gc group sync with cache of all objects
+   */
+  private GcGrouperSync gcGrouperSync;
+  
   
   /**
-   * group that is in target, and is provisionable, no changes
+   * gc group sync with cache of all objects
+   * @return sync
    */
-  public void setGcGrouperSyncGroupsNoChange(
-      Set<GcGrouperSyncGroup> gcGrouperSyncGroupsNoChange1) {
-    this.gcGrouperSyncGroupsNoChange = gcGrouperSyncGroupsNoChange1;
+  public GcGrouperSync getGcGrouperSync() {
+    return this.gcGrouperSync;
+  }
+
+  /**
+   * gc group sync with cache of all objects
+   * @param gcGrouperSync1
+   */
+  public void setGcGrouperSync(GcGrouperSync gcGrouperSync1) {
+    this.gcGrouperSync = gcGrouperSync1;
   }
 
   /**
@@ -165,27 +172,6 @@ public class ProvisioningSyncResult {
   }
 
   /**
-   * groups with provisioning attributes
-   */
-  private Set<Group> groupsProvisioned = null;
-  
-  /**
-   * groups with provisioning attributes
-   * @return groups provisioned
-   */
-  public Set<Group> getGroupsProvisioned() {
-    return this.groupsProvisioned;
-  }
-  
-  /**
-   * groups with provisioning attributes
-   * @param groupsProvisioned1
-   */
-  public void setGroupsProvisioned(Set<Group> groupsProvisioned1) {
-    this.groupsProvisioned = groupsProvisioned1;
-  }
-
-  /**
    * map of group id to group
    */
   private Map<String, Group> mapGroupIdToGroup = null;
@@ -204,26 +190,6 @@ public class ProvisioningSyncResult {
    */
   public void setMapGroupIdToGroup(Map<String, Group> mapGroupIdToGroup1) {
     this.mapGroupIdToGroup = mapGroupIdToGroup1;
-  }
-
-  /**
-   * sync group objects
-   */
-  private List<GcGrouperSyncGroup> gcGrouperSyncGroups = null;
-  
-  /**
-   * @return sync group objects
-   */
-  public List<GcGrouperSyncGroup> getGcGrouperSyncGroups() {
-    return this.gcGrouperSyncGroups;
-  }
-
-  /**
-   * sync group objects
-   * @param gcGrouperSyncGroups1
-   */
-  public void setGcGrouperSyncGroups(List<GcGrouperSyncGroup> gcGrouperSyncGroups1) {
-    this.gcGrouperSyncGroups = gcGrouperSyncGroups1;
   }
 
   /**

@@ -5,11 +5,6 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -209,39 +204,6 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
   }
 
   /**
-   * select grouper sync member by sync id and member id
-   * @param theConnectionName
-   * @param grouperSyncId
-   * @param memberId
-   * @return the sync
-   */
-  public static GcGrouperSyncMember retrieveBySyncIdAndMemberId(String theConnectionName, String grouperSyncId, String memberId) {
-    theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
-    GcGrouperSyncMember gcGrouperSyncMember = new GcDbAccess().connectionName(theConnectionName)
-        .sql("select * from grouper_sync_member where grouper_sync_id = ? and member_id = ?").addBindVar(grouperSyncId).addBindVar(memberId).select(GcGrouperSyncMember.class);
-    if (gcGrouperSyncMember != null) {
-      gcGrouperSyncMember.connectionName = theConnectionName;
-    }
-    return gcGrouperSyncMember;
-  }
-
-  /**
-   * select grouper sync member by id
-   * @param theConnectionName
-   * @param id
-   * @return the sync
-   */
-  public static GcGrouperSyncMember retrieveById(String theConnectionName, String id) {
-    theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
-    GcGrouperSyncMember gcGrouperSyncMember = new GcDbAccess().connectionName(theConnectionName)
-        .sql("select * from grouper_sync_member where id = ?").addBindVar(id).select(GcGrouperSyncMember.class);
-    if (gcGrouperSyncMember != null) {
-      gcGrouperSyncMember.connectionName = theConnectionName;
-    }
-    return gcGrouperSyncMember;
-  }
-
-  /**
    * foreign key to the members sync table, though not a real foreign key
    */
   private String memberId;
@@ -350,22 +312,6 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     this.subjectId = subjectId1;
   }
 
-
-
-  /**
-   * 
-   */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSyncMember.class);
-
-  /**
-   * 
-   * @param connectionName
-   */
-  public void store() {
-    storePrepare();
-    new GcDbAccess().connectionName(this.connectionName).storeToDatabase(this);
-  }
-
   /**
    * call this before storing
    */
@@ -375,17 +321,6 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     this.errorMessage = GrouperClientUtils.abbreviate(this.errorMessage, 3700);
   }
 
-  /**
-   * 
-   * @return sync
-   */
-  public GcGrouperSync retrieveGrouperSync() {
-    if (this.grouperSync == null && this.grouperSyncId != null) {
-      this.grouperSync = GcGrouperSync.retrieveById(this.connectionName, this.grouperSyncId);
-    }
-    return this.grouperSync;
-  }
-  
   /**
    * 
    */
@@ -433,15 +368,6 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
 
   /**
    * 
-   * @param connectionName
-   */
-  public void delete() {
-    this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
-    new GcDbAccess().connectionName(this.connectionName).deleteFromDatabase(this);
-  }
-  
-  /**
-   * 
    * @param args
    */
   public static void main(String[] args) {
@@ -456,7 +382,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     GcGrouperSync gcGrouperSync = new GcGrouperSync();
     gcGrouperSync.setSyncEngine("temp");
     gcGrouperSync.setProvisionerName("myJob");
-    gcGrouperSync.store();
+    gcGrouperSync.getGcGrouperSyncDao().store();
     
     GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
     gcGrouperSyncMember.setGrouperSync(gcGrouperSync);
@@ -477,15 +403,15 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     gcGrouperSyncMember.provisionableDb = "T";
     gcGrouperSyncMember.provisionableEnd = new Timestamp(456L);
     gcGrouperSyncMember.provisionableStart = new Timestamp(567L);
-    gcGrouperSyncMember.store();
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
     
     System.out.println("stored");
     
-    gcGrouperSyncMember = null; // TODO gcGrouperSync.retrieveMemberByMemberId("memId");
+    gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId("memId");
     System.out.println(gcGrouperSyncMember);
     
     gcGrouperSyncMember.setMemberToId2("from2a");
-    gcGrouperSyncMember.store();
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
 
     System.out.println("updated");
 
@@ -493,8 +419,8 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
       System.out.println(theGcGrouperSyncMember.toString());
     }
 
-    gcGrouperSyncMember.delete();
-    gcGrouperSync.delete();
+    gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember, false, false);
+    gcGrouperSync.getGcGrouperSyncDao().delete();
     
     System.out.println("deleted");
 
