@@ -52,7 +52,7 @@ public class GrouperDuoFullRefresh extends OtherJobBase {
   /**
    * change log temp to change log
    */
-  public static final String GROUPER_DUO_FULL_REFRESH = "CHANGE_LOG_grouperDuoFullRefresh";
+  public static final String GROUPER_DUO_FULL_REFRESH = "OTHER_JOB_grouperDuoAdminFullRefresh";
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperDuoFullRefresh.class);
