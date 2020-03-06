@@ -2,10 +2,10 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSyncAttributeMetadata;
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSyncConfiguration;
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSyncObject;
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSyncObjectContainer;
+import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
+import edu.internet2.middleware.grouper.ldap.LdapModificationResult;
+import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 
 /**
  * access LDAP or dry run or testing
@@ -16,68 +16,59 @@ public abstract class LdapSyncDao {
 
   /**
    * do a filter search
-   * @param ldapSyncConfiguration
    * @param ldapPoolName
    * @param baseDn
    * @param filter
+   * @param ldapSearchScope
    * @param attributeNames are optional attribute names to get from the ldap object
    * @return the data
    */
-  public abstract LdapSyncObjectContainer search(LdapSyncConfiguration ldapSyncConfiguration, String ldapPoolName, String baseDn, String filter, 
-      List<String> attributeNames );
+  public abstract List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames );
   
   /**
    * find objects by dn's
-   * @param ldapSyncConfiguration
    * @param ldapPoolName
    * @param dnList
    * @param attributeNames are optional attribute names to get from the ldap object
    * @return the data
    */
-  public abstract LdapSyncObjectContainer read(LdapSyncConfiguration ldapSyncConfiguration, String ldapPoolName, List<String> dnList, 
-      List<String> attributeNames );
+  public abstract List<LdapEntry> read(String ldapPoolName, List<String> dnList, List<String> attributeNames);
   
   /**
    * delete an object by dn
-   * @param ldapSyncConfiguration
    * @param ldapPoolName
    * @param dn
+   * @return true if deleted, false if didn't exist
    */
-  public abstract void delete(LdapSyncConfiguration ldapSyncConfiguration, String ldapPoolName, String dn);
+  public abstract boolean delete(String ldapPoolName, String dn);
 
   /**
-   * create an object by dn
-   * @param ldapSyncConfiguration
+   * create an object
    * @param ldapPoolName
-   * @param dn
-   * @param ldapSyncAttributeMetadatas metadata for attributes
-   * @param ldapSyncObject contains dn and attribute values
+   * @param ldapEntry
+   * @return true if created, false if existed and updated
    */
-  public abstract void create(LdapSyncConfiguration ldapSyncConfiguration, 
-      String ldapPoolName, List<LdapSyncAttributeMetadata> ldapSyncAttributeMetadatas, LdapSyncObject ldapSyncObject);
+  public abstract boolean create(String ldapPoolName, LdapEntry ldapEntry);
 
   /**
    * move an object to a new dn
-   * @param ldapSyncConfiguration
    * @param ldapPoolName
    * @param oldDn
    * @param newDn
+   * @return true if moved, false if newDn exists and oldDn doesn't exist so no update
    */
-  public abstract void move(LdapSyncConfiguration ldapSyncConfiguration, 
-      String ldapPoolName, String oldDn, String newDn);
+  public abstract boolean move(String ldapPoolName, String oldDn, String newDn);
 
   /**
-   * modify attributes for an object.  this should be done in bulk, and if there is an error, should be done ind
-   * @param ldapSyncConfiguration
+   * modify attributes for an object.  this should be done in bulk, and if there is an error, should be done individually
    * @param ldapPoolName
    * @param dn
-   * @param ldapSyncDaoModifications
+   * @param ldapModificationItems
    * @return the result
    */
-  public final LdapSyncDaoResult modify(LdapSyncConfiguration ldapSyncConfiguration, 
-      String ldapPoolName, String dn, List<LdapSyncDaoModification> ldapSyncDaoModifications) {
+  public final LdapModificationResult modify(String ldapPoolName, String dn, List<LdapModificationItem> ldapModificationItems) {
     
-    // do the bulk with internal_modifyHelper
+    // do the bulk with internal_modifyHelper (in batches based on ldap setting)
     
     // if not exception return a success
     
@@ -88,30 +79,16 @@ public abstract class LdapSyncDao {
     // compare attributes, try each individually with individ value: internal_modifyHelperSingle
     
     // return the result
-    
+        
     return null;
   }
 
   /**
    * modify attributes for an object.  this should be done in bulk, and if there is an error, throw it
-   * @param ldapSyncConfiguration
    * @param ldapPoolName
    * @param dn
-   * @param ldapSyncDaoModifications
+   * @param ldapModificationItems
    * @throws Exception if problem
    */
-  public abstract void internal_modifyHelperMultiple(LdapSyncConfiguration ldapSyncConfiguration, 
-      String ldapPoolName, String dn, List<LdapSyncDaoModification> ldapSyncDaoModifications);
-  
-  /**
-   * modify attributes for an object for one attribute value, if error, return it, else null for success
-   * @param ldapSyncConfiguration
-   * @param ldapPoolName
-   * @param dn
-   * @param ldapSyncDaoModifications
-   * @return null if ok, object if error
-   */
-  public abstract LdapSyncDaoAttributeError internal_modifyHelperSingle(LdapSyncConfiguration ldapSyncConfiguration, 
-      String ldapPoolName, String dn, LdapSyncDaoModification ldapSyncDaoModification);
-  
+  public abstract void internal_modifyHelper(String ldapPoolName, String dn, List<LdapModificationItem> ldapModificationItems);
 }
