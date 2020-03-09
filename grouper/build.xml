@@ -154,7 +154,7 @@
     <record name="${build.log}" action="start"/>
     <mkdir  dir="${build.dir.grouper}"/>
     <!-- 2008/04/23 CH dont allow turning off debug -->
-    <javac  srcdir="${src.dir.grouper}" 
+    <javac  
             destdir="${build.dir.grouper}"
             debug="true"
             deprecation="${compile.deprecation}"
@@ -162,22 +162,13 @@
             source="8"
             target="8"
     >
-      <classpath refid="project.noesb.classpath" />
+      <src path="${src.dir.grouper}" />
+      <src path="src/esb" />
+      <classpath refid="project.classpath" />
 <!--  TODO 20061011 I'll eventually have to deal with this migration
       <compilerarg  value="-Xlint:unchecked"  />
 -->
     </javac>
-
-    <javac  srcdir="src/esb" 
-            destdir="${build.dir.grouper}"
-            debug="true"
-            deprecation="${compile.deprecation}"
-            optimize="${compile.optimize}"
-            source="8"
-    >
-      <classpath refid="project.classpath" />
-    </javac>
-
   	
   	<!-- CH 20080215 copy source to the build dir... -->    
     <copy todir="${build.dir.grouper}">
