@@ -217,10 +217,10 @@ public class RuleEngine {
               for (Set<AttributeAssignValueContainer> attributeAssignValueContainersSet : 
                   GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
                 RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
-                
-                //dont validate, already validated
-                newDefinitions.add(ruleDefinition);
-                
+                if (ruleDefinition.isValidInAttributes()) {
+                  //dont validate, already validated
+                  newDefinitions.add(ruleDefinition);
+                }                
               }
               
               newEngine.indexData();
@@ -536,13 +536,17 @@ public class RuleEngine {
               ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
         
               String validReason = ruleDefinition.validate();
-              
+              boolean ruleChanged = false;
               if (StringUtils.isBlank(validReason)) {
                 validReason = "T";
                 
                 //run daemon on rule if should
                 ruleDefinition.runDaemonOnDefinitionIfShould();
                 
+                if (!ruleDefinition.isValidInAttributes()) {
+                  rulesChanged++;
+                  ruleChanged = true;
+                }
               } else {
                 validReason = "INVALID: " + validReason;
         
@@ -550,12 +554,18 @@ public class RuleEngine {
                 LOG.error("Invalid rule definition: " 
                     + validReason + ", ruleDefinition: " + ruleDefinition);
         
-                AttributeAssign typeAttributeAssign = ruleDefinition.getAttributeAssignType();
-        
-                typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
-                
-                rulesChanged++;
+                if (ruleDefinition.isValidInAttributes()) {
+                  rulesChanged++;
+                  ruleChanged = true;
+                }
               }
+              
+              if (ruleChanged) {
+                AttributeAssign typeAttributeAssign = ruleDefinition.getAttributeAssignType();
+                
+                typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
+              }              
+
             } catch (Exception e) {
               LOG.error("Error with daemon on rule: " + ruleDefinition, e);
             }

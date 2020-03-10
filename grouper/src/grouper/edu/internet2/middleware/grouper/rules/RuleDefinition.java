@@ -46,6 +46,27 @@ import edu.internet2.middleware.subject.Subject;
 public class RuleDefinition {
 
   /**
+   * if this rule is valid in the attributes (calculated)
+   */
+  private boolean validInAttributes;
+  
+  /**
+   * if this rule is valid in the attributes (calculated)
+   * @return the validInAttributes
+   */
+  public boolean isValidInAttributes() {
+    return this.validInAttributes;
+  }
+  
+  /**
+   * if this rule is valid in the attributes (calculated)
+   * @param validInAttributes1 the validInAttributes to set
+   */
+  public void setValidInAttributes(boolean validInAttributes1) {
+    this.validInAttributes = validInAttributes1;
+  }
+
+  /**
    * load rules for one attribute type assign id
    * @param attributeTypeAssignId
    */
@@ -166,7 +187,12 @@ public class RuleDefinition {
         ruleSubjectActAs, ruleCheck, ruleIfCondition, ruleThen);
     
     this.runDaemon = runDaemonTf;
-    
+
+    {
+      String valid =  AttributeAssignValueContainer
+          .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleValidName());
+      this.validInAttributes = StringUtils.equals("T", valid);
+    }
   }
   
 
