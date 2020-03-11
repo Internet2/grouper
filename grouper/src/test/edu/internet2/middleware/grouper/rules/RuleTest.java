@@ -4910,6 +4910,12 @@ public class RuleTest extends GrouperTest {
   public void testRuleFixVetoIfNotInFolder() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    //run at first so the consumer is initted
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+    
+    
     new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
     Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
     Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();

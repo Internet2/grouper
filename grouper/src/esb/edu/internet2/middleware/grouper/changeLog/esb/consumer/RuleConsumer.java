@@ -38,7 +38,9 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
@@ -210,15 +212,44 @@ public class RuleConsumer extends ChangeLogConsumerBase {
 
       if (ruleCheck.checkTypeEnum() == RuleCheckType.subjectAssignInStem &&
           ifCondition.ifConditionEnum() == RuleIfConditionEnum.groupHasNoEnabledMembership &&
-          RuleUtils.ruleThenEnumName().equals(RuleThenEnum.veto.name()) &&
-          definition.getAttributeAssignType().getOwnerStem() != null &&
-          (RuleUtils.ruleIfOwnerNameName().equals(group.getName()) || RuleUtils.ruleIfOwnerIdName().equals(group.getId()))) {
+          definition.getAttributeAssignType().getOwnerStem() != null) {
         
-        String attributeAssignId = definition.getAttributeAssignType().getOwnerAttributeAssignId();
-        Set<AttributeAssignValueContainer> attributeAssignValueContainers = GrouperDAOFactory.getFactory()
-            .getAttributeAssign().findByAssignTypeId(attributeAssignId);
+        AttributeValueDelegate attributeValueDelegate = definition.getAttributeAssignType().getAttributeValueDelegate();
+        
+        AttributeAssignValue attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(RuleUtils.ruleIfOwnerNameName());
+        boolean shouldContinue = false;
+        if (attributeAssignValue != null && StringUtils.equals(attributeAssignValue.getValueString(), group.getName())) {          
+          shouldContinue = true;
+        }
+        
+        if (attributeAssignValue == null) {
+          attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(RuleUtils.ruleIfOwnerIdName());
+          if (attributeAssignValue != null && StringUtils.equals(attributeAssignValue.getValueString(), group.getId())) { 
+            shouldContinue = true;
+          }
+        }
+        
+        if (!shouldContinue) {
+          return;
+        }
+        
+        shouldContinue = false;
+        attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(RuleUtils.ruleThenEnumName());
+        if (attributeAssignValue != null && StringUtils.equals(attributeAssignValue.getValueString(), RuleThenEnum.veto.name())) {          
+          shouldContinue = true;
+        }
+        
+        if (!shouldContinue) {
+          return;
+        }
+        
+        final Stem ownerStem = definition.getAttributeAssignType().getOwnerStem();
+        
+        attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(RuleUtils.ruleCheckStemScopeName());
+        
+        String checkStemScope = attributeAssignValue != null ? attributeAssignValue.getValueString() : null;
 
-        Stem ownerStem = definition.getAttributeAssignType().getOwnerStem();
+        final Scope scope = StringUtils.isNotBlank(checkStemScope) ? Scope.valueOfIgnoreCase(checkStemScope, true): Scope.SUB;
 
         GrouperSession theGrouperSession = GrouperSession.startRootSession(false);
         
@@ -236,17 +267,12 @@ public class RuleConsumer extends ChangeLogConsumerBase {
                 sources.add(source);
               }
 
-              String checkStemScope = AttributeAssignValueContainer.attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckStemScopeName());
-
-              Scope scope = Scope.SUB;
-              if (StringUtils.isNotBlank(checkStemScope)) {
-                scope = Scope.valueOfIgnoreCase(checkStemScope, true);
-              }
-
               Set<Object[]> memberships = MembershipFinder.findMemberships(null, Arrays.asList(member.getId()),
                   null, MembershipType.IMMEDIATE, null, sources, null, ownerStem, scope, null);
 
               System.out.println(memberships);
+              
+              //TODO delete each one of the entry
               
               return null;
             }
