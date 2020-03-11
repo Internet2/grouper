@@ -95,7 +95,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateAttributeDefNormalizePrivileges"));
+    TestRunner.run(new RuleTest("testRuleFixVetoIfNotInFolder"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -4905,6 +4905,50 @@ public class RuleTest extends GrouperTest {
     
     assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
   
+  }
+  
+  public void testRuleFixVetoIfNotInFolder() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+    
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), restrictedStem, employeeGroup, false, "jdbc", Stem.Scope.SUB, "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
+    boolean added = false;
+    try {
+      restrictedGroup.addMember(SubjectTestHelper.SUBJ0, true);
+      added = true;
+    } catch (Exception e) {
+      String stack = ExceptionUtils.getFullStackTrace(e);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+    
+    assertFalse(added);
+    
+    employeeGroup.addMember(SubjectTestHelper.SUBJ0, true);
+    
+    restrictedGroup.addMember(SubjectTestHelper.SUBJ0, true);
+    
+    boolean restrictedGroupHasSubject = restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0);
+    
+    assertTrue(restrictedGroupHasSubject);
+
+    // now remove the subject from employee and it should be removed from retrictedGroup as well
+    employeeGroup.deleteMember(SubjectTestHelper.SUBJ0, true);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+    
+    boolean employeeGroupHasSubject = employeeGroup.hasImmediateMember(SubjectTestHelper.SUBJ0);
+    assertFalse(employeeGroupHasSubject);
+    
+    restrictedGroupHasSubject = restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0);
+    
+    assertFalse(restrictedGroupHasSubject);
+    
   }
 
   /**

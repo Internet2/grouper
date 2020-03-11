@@ -18,7 +18,10 @@
  */
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -28,25 +31,39 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.rules.RuleCheck;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleIfCondition;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
+import edu.internet2.middleware.grouper.rules.RuleThenEnum;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Class to dispatch individual events for rules
@@ -113,6 +130,8 @@ public class RuleConsumer extends ChangeLogConsumerBase {
         //fire rules related to membership flat delete in folder
         RuleEngine.fireRule(RuleCheckType.flattenedMembershipRemoveInFolder, rulesBean);
         
+        fixVetoIfNotInFolder(rulesBean.getGroup(), rulesBean.getSubject(), rulesBean.getSubjectSourceId());
+        
       }
 
       /**
@@ -177,6 +196,71 @@ public class RuleConsumer extends ChangeLogConsumerBase {
   /** */
   private static final Log LOG = GrouperUtil.getLog(RuleConsumer.class);
 
+  
+  public static void fixVetoIfNotInFolder(Group group, Subject subject, String subjectSourceId) {
+
+    Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+
+    System.out.println("Inside fixVetoIfNotInFolder");
+    
+    for (RuleDefinition definition: definitions) {
+
+      RuleCheck ruleCheck = definition.getCheck();
+      RuleIfCondition ifCondition = definition.getIfCondition();
+
+      if (ruleCheck.checkTypeEnum() == RuleCheckType.subjectAssignInStem &&
+          ifCondition.ifConditionEnum() == RuleIfConditionEnum.groupHasNoEnabledMembership &&
+          RuleUtils.ruleThenEnumName().equals(RuleThenEnum.veto.name()) &&
+          definition.getAttributeAssignType().getOwnerStem() != null &&
+          (RuleUtils.ruleIfOwnerNameName().equals(group.getName()) || RuleUtils.ruleIfOwnerIdName().equals(group.getId()))) {
+        
+        String attributeAssignId = definition.getAttributeAssignType().getOwnerAttributeAssignId();
+        Set<AttributeAssignValueContainer> attributeAssignValueContainers = GrouperDAOFactory.getFactory()
+            .getAttributeAssign().findByAssignTypeId(attributeAssignId);
+
+        Stem ownerStem = definition.getAttributeAssignType().getOwnerStem();
+
+        GrouperSession theGrouperSession = GrouperSession.startRootSession(false);
+        
+        try {
+          GrouperSession.callbackGrouperSession(theGrouperSession, new GrouperSessionHandler() {
+            
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              
+              Member member = MemberFinder.findBySubject(theGrouperSession, subject, false);
+
+              Set<Source> sources = new HashSet<Source>();
+
+              if (subjectSourceId != null) {
+                Source source = SourceManager.getInstance().getSource(subjectSourceId);
+                sources.add(source);
+              }
+
+              String checkStemScope = AttributeAssignValueContainer.attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckStemScopeName());
+
+              Scope scope = Scope.SUB;
+              if (StringUtils.isNotBlank(checkStemScope)) {
+                scope = Scope.valueOfIgnoreCase(checkStemScope, true);
+              }
+
+              Set<Object[]> memberships = MembershipFinder.findMemberships(null, Arrays.asList(member.getId()),
+                  null, MembershipType.IMMEDIATE, null, sources, null, ownerStem, scope, null);
+
+              System.out.println(memberships);
+              
+              return null;
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(theGrouperSession);
+        }
+        
+
+      }
+
+    }
+  }
+  
   /**
    * @see ChangeLogConsumerBase#processChangeLogEntries(List, ChangeLogProcessorMetadata)
    */
