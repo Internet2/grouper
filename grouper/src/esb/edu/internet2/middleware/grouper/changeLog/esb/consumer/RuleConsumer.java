@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -39,7 +40,6 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -48,7 +48,6 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.rules.RuleCheck;
@@ -203,8 +202,6 @@ public class RuleConsumer extends ChangeLogConsumerBase {
 
     Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
 
-    System.out.println("Inside fixVetoIfNotInFolder");
-    
     for (RuleDefinition definition: definitions) {
 
       RuleCheck ruleCheck = definition.getCheck();
@@ -270,9 +267,22 @@ public class RuleConsumer extends ChangeLogConsumerBase {
               Set<Object[]> memberships = MembershipFinder.findMemberships(null, Arrays.asList(member.getId()),
                   null, MembershipType.IMMEDIATE, null, sources, null, ownerStem, scope, null);
 
-              System.out.println(memberships);
-              
-              //TODO delete each one of the entry
+              for (Object[] objects: memberships) {
+                
+                for (Object obj: objects) {
+                  if (obj instanceof Membership) {
+                    Membership membership = (Membership) obj;
+                    membership.delete();
+                  } else if (obj instanceof Member) {
+                    Member memberObj = (Member) obj;
+                    //TODO what to do here??
+                  } else if (obj instanceof Group) {
+                    Group groupObj = (Group) obj;
+                    //TODO what to do here??
+                  }
+                }
+                
+              }
               
               return null;
             }
