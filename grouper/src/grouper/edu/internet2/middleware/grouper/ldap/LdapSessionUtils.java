@@ -31,9 +31,14 @@ public class LdapSessionUtils {
    */
   public static LdapSession ldapSession() {
     if (ldapSession == null) {
-      String className = GrouperConfig.retrieveConfig().propertyValueString("ldap.implementation.className");
-      Class<LdapSession> theClass = GrouperUtil.forName(className);
-      ldapSession = GrouperUtil.newInstance(theClass);
+      synchronized (LdapSessionUtils.class) {
+        if (ldapSession == null) {
+          String className = GrouperConfig.retrieveConfig().propertyValueString("ldap.implementation.className");
+          @SuppressWarnings("unchecked")
+          Class<LdapSession> theClass = GrouperUtil.forName(className);
+          ldapSession = GrouperUtil.newInstance(theClass);
+        }
+      }
     }
     
     return ldapSession;

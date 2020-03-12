@@ -11,39 +11,22 @@ public class LdapSyncDaoForLdap extends LdapSyncDao {
 
   @Override
   public List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames) {
-    
-    List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list(ldapPoolName, baseDn, ldapSearchScope, filter, attributeNames.toArray(new String[] {}), null);
-    
-    return ldapEntries;
+    return LdapSessionUtils.ldapSession().list(ldapPoolName, baseDn, ldapSearchScope, filter, attributeNames.toArray(new String[] {}), null);    
   }
 
   @Override
-  public List<LdapEntry> read(String ldapPoolName, List<String> dnList, List<String> attributeNames) {
-
-    // If there's a config that specifies the dn attribute, then option 1: "(|(entryDn=dn1)(entryDn=dn2)(entryDn=dn3)(entryDn=dn4))"  (or distinguishedName for AD)
-    // option 2, loop through each: "(objectclass=*)" basedn = dn1  (warn, print once)
-    return null;
+  public List<LdapEntry> read(String ldapPoolName, String baseDn, List<String> dnList, List<String> attributeNames) {
+    return LdapSessionUtils.ldapSession().read(ldapPoolName, baseDn, dnList, attributeNames.toArray(new String[] {}));
   }
 
   @Override
-  public boolean delete(String ldapPoolName, String dn) {
-    
-    // true if deleted, false if didn't exist
-    // note if there's an error during deletion, if the exception says it didn't exist, then return false.  otherwise query and see if it exists or not.  if doesn't, return false, if does throw exception
-    // TODO Auto-generated method stub
-    
-    return false;
+  public void delete(String ldapPoolName, String dn) {
+    LdapSessionUtils.ldapSession().delete(ldapPoolName, dn);
   }
 
   @Override
   public boolean create(String ldapPoolName, LdapEntry ldapEntry) {
-    
-    // if create failed because object is there, then do an update with the attributes that were given
-    // some attributes given may have no values and therefore clear those attributes?
-    // true if created, false if updated
-    // TODO Auto-generated method stub
-    
-    return false;
+    return LdapSessionUtils.ldapSession().create(ldapPoolName, ldapEntry);
   }
 
   @Override

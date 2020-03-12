@@ -738,4 +738,21 @@ public class VTLdapSessionImpl implements LdapSession {
     
     return grouperLoaderLdapServer;
   }
+
+
+  @Override
+  public List<LdapEntry> read(String ldapServerId, String searchDn, List<String> dnList, String[] attributeNames) {
+    throw new RuntimeException("vt-ldap is now deprecated and does not support all methods");
+  }
+
+
+  @Override
+  public void delete(String ldapServerId, String dn) {
+    throw new RuntimeException("vt-ldap is now deprecated and does not support all methods");
+  }
+  
+  @Override
+  public boolean create(String ldapServerId, LdapEntry ldapEntry) {
+    throw new RuntimeException("vt-ldap is now deprecated and does not support all methods");
+  }
 }

@@ -28,19 +28,19 @@ public abstract class LdapSyncDao {
   /**
    * find objects by dn's
    * @param ldapPoolName
+   * @param baseDn
    * @param dnList
    * @param attributeNames are optional attribute names to get from the ldap object
    * @return the data
    */
-  public abstract List<LdapEntry> read(String ldapPoolName, List<String> dnList, List<String> attributeNames);
+  public abstract List<LdapEntry> read(String ldapPoolName, String baseDn, List<String> dnList, List<String> attributeNames);
   
   /**
    * delete an object by dn
    * @param ldapPoolName
    * @param dn
-   * @return true if deleted, false if didn't exist
    */
-  public abstract boolean delete(String ldapPoolName, String dn);
+  public abstract void delete(String ldapPoolName, String dn);
 
   /**
    * create an object

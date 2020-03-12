@@ -28,6 +28,10 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.ldaptive.AddOperation;
+import org.ldaptive.AddRequest;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.AttributeModificationType;
 import org.ldaptive.BindConnectionInitializer;
 import org.ldaptive.BindOperation;
 import org.ldaptive.BindRequest;
@@ -36,9 +40,14 @@ import org.ldaptive.Connection;
 import org.ldaptive.ConnectionConfig;
 import org.ldaptive.Credential;
 import org.ldaptive.DefaultConnectionFactory;
+import org.ldaptive.DeleteOperation;
+import org.ldaptive.DeleteRequest;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
+import org.ldaptive.ModifyOperation;
+import org.ldaptive.ModifyRequest;
+import org.ldaptive.Response;
 import org.ldaptive.ResultCode;
 import org.ldaptive.SearchFilter;
 import org.ldaptive.SearchOperation;
@@ -60,10 +69,14 @@ import org.ldaptive.props.DefaultConnectionFactoryPropertySource;
 import org.ldaptive.props.PoolConfigPropertySource;
 import org.ldaptive.props.SearchRequestPropertySource;
 import org.ldaptive.provider.jndi.JndiProviderConfig;
+import org.ldaptive.referral.AddReferralHandler;
+import org.ldaptive.referral.DeleteReferralHandler;
+import org.ldaptive.referral.ModifyReferralHandler;
 import org.ldaptive.referral.SearchReferralHandler;
 import org.ldaptive.sasl.GssApiConfig;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.ldap.LdapConfiguration;
 import edu.internet2.middleware.grouper.ldap.LdapHandler;
 import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
 import edu.internet2.middleware.grouper.ldap.LdapPEMSocketFactory;
@@ -93,11 +106,14 @@ public class LdaptiveSessionImpl implements LdapSession {
   
   private static Map<String, LinkedHashSet<Class<SearchEntryHandler>>> searchEntryHandlers = new HashMap<String, LinkedHashSet<Class<SearchEntryHandler>>>();
   
+  private static boolean hasWarnedAboutMissingDnAttributeForSearches = false;
+  
   /**
    * get or create the pool based on the server id
    * @param ldapServerId
    * @return the pool
    */
+  @SuppressWarnings("unchecked")
   private static PooledConnectionFactory blockingLdapPool(String ldapServerId) {
     
     PooledConnectionFactory blockingLdapPool = poolMap.get(ldapServerId);
@@ -368,7 +384,7 @@ public class LdaptiveSessionImpl implements LdapSession {
         LOG.debug("post-checkout: ldap id: " + ldapServerId + ", pool active: " + blockingLdapPool.getConnectionPool().activeCount() + ", available: " + blockingLdapPool.getConnectionPool().availableCount());
       }
       
-      LdapHandlerBean<Connection> ldapHandlerBean = new LdapHandlerBean();
+      LdapHandlerBean<Connection> ldapHandlerBean = new LdapHandlerBean<Connection>();
       
       ldapHandlerBean.setLdap(ldap);
         
@@ -395,6 +411,7 @@ public class LdaptiveSessionImpl implements LdapSession {
   /**
    * @see edu.internet2.middleware.grouper.ldap.LdapSession#list(java.lang.Class, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ldap.LdapSearchScope, java.lang.String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   public <R> List<R> list(final Class<R> returnType, final String ldapServerId, 
       final String searchDn, final LdapSearchScope ldapSearchScope, final String filter, final String attributeName) {
     
@@ -406,48 +423,7 @@ public class LdaptiveSessionImpl implements LdapSession {
 
           Connection ldap = ldapHandlerBean.getLdap();
           
-          SearchRequest searchRequest = new SearchRequest();
-          searchRequest.setSearchFilter(new SearchFilter(filter));
-          searchRequest.setReturnAttributes(attributeName);
-          
-          if (searchEntryHandlers.get(ldapServerId).size() > 0) {
-            SearchEntryHandler[] handlers = new SearchEntryHandler[searchEntryHandlers.get(ldapServerId).size()];
-            int count = 0;
-            for (Class<SearchEntryHandler> handlerClass : searchEntryHandlers.get(ldapServerId)) {
-              handlers[count] = GrouperUtil.newInstance(handlerClass);
-              count++;
-            }
-            
-            searchRequest.setSearchEntryHandlers(handlers);
-          }
-                    
-          SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchRequest, propertiesMap.get(ldapServerId));
-          srSource.initialize();
-                    
-          // add this after the properties get initialized so that this would override if needed
-          // note that the searchDn here is relative
-          if (StringUtils.isNotBlank(searchDn)) {
-            searchRequest.setBaseDn(searchDn);
-          }
-
-          if (ldapSearchScope != null) {
-            searchRequest.setSearchScope(translateScope(ldapSearchScope));
-          }
-          
-          if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-            searchRequest.setReferralHandler(new SearchReferralHandler());
-          }
-          
-          SearchResult searchResult;
-          Integer pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
-          
-          if (pageSize == null) {
-            SearchOperation search = new SearchOperation(ldap);
-            searchResult = search.execute(searchRequest).getResult();
-          } else {
-            PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
-            searchResult = client.executeToCompletion(searchRequest).getResult();
-          }
+          SearchResult searchResult = processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[] { attributeName }, null);
           
           List<R> result = new ArrayList<R>();
           for (LdapEntry entry : searchResult.getEntries()) {
@@ -496,6 +472,7 @@ public class LdaptiveSessionImpl implements LdapSession {
   /**
    * @see edu.internet2.middleware.grouper.ldap.LdapSession#listInObjects(java.lang.Class, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ldap.LdapSearchScope, java.lang.String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   public <R> Map<String, List<R>> listInObjects(final Class<R> returnType, final String ldapServerId, 
       final String searchDn, final LdapSearchScope ldapSearchScope, final String filter, final String attributeName) {
     
@@ -507,48 +484,7 @@ public class LdaptiveSessionImpl implements LdapSession {
   
           Connection ldap = ldapHandlerBean.getLdap();
                     
-          SearchRequest searchRequest = new SearchRequest();
-          searchRequest.setSearchFilter(new SearchFilter(filter));
-          searchRequest.setReturnAttributes(attributeName);
-
-          if (searchEntryHandlers.get(ldapServerId).size() > 0) {
-            SearchEntryHandler[] handlers = new SearchEntryHandler[searchEntryHandlers.get(ldapServerId).size()];
-            int count = 0;
-            for (Class<SearchEntryHandler> handlerClass : searchEntryHandlers.get(ldapServerId)) {
-              handlers[count] = GrouperUtil.newInstance(handlerClass);
-              count++;
-            }
-            
-            searchRequest.setSearchEntryHandlers(handlers);
-          }
-          
-          SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchRequest, propertiesMap.get(ldapServerId));
-          srSource.initialize();
-          
-          // add this after the properties get initialized so that this would override if needed
-          // note that the searchDn here is relative
-          if (StringUtils.isNotBlank(searchDn)) {
-            searchRequest.setBaseDn(searchDn);
-          }
-
-          if (ldapSearchScope != null) {
-            searchRequest.setSearchScope(translateScope(ldapSearchScope));
-          }
-          
-          if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-            searchRequest.setReferralHandler(new SearchReferralHandler());
-          }
-          
-          SearchResult searchResult;
-          Integer pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
-          
-          if (pageSize == null) {
-            SearchOperation search = new SearchOperation(ldap);
-            searchResult = search.execute(searchRequest).getResult();
-          } else {
-            PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
-            searchResult = client.executeToCompletion(searchRequest).getResult();
-          }
+          SearchResult searchResult = processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[] { attributeName }, null);
           
           Map<String, List<R>> result = new HashMap<String, List<R>>();
           int subObjectCount = 0;
@@ -593,6 +529,7 @@ public class LdaptiveSessionImpl implements LdapSession {
   /**
    * @see edu.internet2.middleware.grouper.ldap.LdapSession#list(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ldap.LdapSearchScope, java.lang.String, java.lang.String[], java.lang.Long)
    */
+  @SuppressWarnings("unchecked")
   public List<edu.internet2.middleware.grouper.ldap.LdapEntry> list(final String ldapServerId, final String searchDn,
       final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames, final Long sizeLimit) {
 
@@ -604,77 +541,9 @@ public class LdaptiveSessionImpl implements LdapSession {
 
           Connection ldap = ldapHandlerBean.getLdap();
                     
-          SearchRequest searchRequest = new SearchRequest();
-          searchRequest.setSearchFilter(new SearchFilter(filter));
-          searchRequest.setReturnAttributes(attributeNames);
+          SearchResult searchResults = processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, attributeNames, sizeLimit);
           
-          if (searchEntryHandlers.get(ldapServerId).size() > 0) {
-            SearchEntryHandler[] handlers = new SearchEntryHandler[searchEntryHandlers.get(ldapServerId).size()];
-            int count = 0;
-            for (Class<SearchEntryHandler> handlerClass : searchEntryHandlers.get(ldapServerId)) {
-              handlers[count] = GrouperUtil.newInstance(handlerClass);
-              count++;
-            }
-            
-            searchRequest.setSearchEntryHandlers(handlers);
-          }
-          
-          SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchRequest, propertiesMap.get(ldapServerId));
-          srSource.initialize();
-          
-          // add this after the properties get initialized so that this would override if needed
-          // note that the searchDn here is relative
-          if (StringUtils.isNotBlank(searchDn)) {
-            searchRequest.setBaseDn(searchDn);
-          }
-          
-          if (sizeLimit != null) {
-            searchRequest.setSizeLimit(sizeLimit);
-          }
-
-          if (ldapSearchScope != null) {
-            searchRequest.setSearchScope(translateScope(ldapSearchScope));
-          }
-          
-          if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-            searchRequest.setReferralHandler(new SearchReferralHandler());
-          }
-          
-          SearchResult searchResults;
-          Integer pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
-          
-          if (pageSize == null) {
-            SearchOperation search = new SearchOperation(ldap);
-            searchResults = search.execute(searchRequest).getResult();
-          } else {
-            PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
-            searchResults = client.executeToCompletion(searchRequest).getResult();
-          }
-          
-          List<edu.internet2.middleware.grouper.ldap.LdapEntry> results = new ArrayList<edu.internet2.middleware.grouper.ldap.LdapEntry>();
-
-          for (LdapEntry searchResult : searchResults.getEntries()) {
-
-            String nameInNamespace = searchResult.getDn();
-            
-            edu.internet2.middleware.grouper.ldap.LdapEntry entry = new edu.internet2.middleware.grouper.ldap.LdapEntry(nameInNamespace);
-            for (String attributeName : attributeNames) {
-              edu.internet2.middleware.grouper.ldap.LdapAttribute attribute = new edu.internet2.middleware.grouper.ldap.LdapAttribute(attributeName);
-              
-              LdapAttribute sourceAttribute = searchResult.getAttribute(attributeName);
-              if (sourceAttribute != null) {
-                if (sourceAttribute.isBinary()) {
-                  attribute.setBinaryValues(sourceAttribute.getBinaryValues());
-                } else {
-                  attribute.setStringValues(sourceAttribute.getStringValues());
-                }
-              }
-              
-              entry.addAttribute(attribute);
-            }
-            
-            results.add(entry);
-          }
+          List<edu.internet2.middleware.grouper.ldap.LdapEntry> results = getLdapEntriesFromSearchResult(searchResults, attributeNames);
           
           return results;
         }
@@ -682,6 +551,56 @@ public class LdaptiveSessionImpl implements LdapSession {
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, "Error querying ldap server id: " + ldapServerId + ", searchDn: " + searchDn
           + ", filter: '" + filter + "', returning attributes: " + StringUtils.join(attributeNames, ", "));
+      throw re;
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<edu.internet2.middleware.grouper.ldap.LdapEntry> read(String ldapServerId, String searchDn, List<String> dnList, String[] attributeNames) {
+    try {
+      return (List<edu.internet2.middleware.grouper.ldap.LdapEntry>)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
+        
+        public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
+
+          Connection ldap = ldapHandlerBean.getLdap();
+          
+          List<edu.internet2.middleware.grouper.ldap.LdapEntry> results = new ArrayList<edu.internet2.middleware.grouper.ldap.LdapEntry>();
+
+          LdapConfiguration config = LdapConfiguration.getConfig(ldapServerId);
+          int batchSize = config.getQueryBatchSize();
+          
+          if (StringUtils.isEmpty(config.getDnAttributeForSearches()) && !hasWarnedAboutMissingDnAttributeForSearches) {
+            LOG.warn("Performance impact due to missing config: ldap." + ldapServerId + ".dnAttributeForSearches");
+            hasWarnedAboutMissingDnAttributeForSearches = true;
+          }
+
+          if (!StringUtils.isEmpty(config.getDnAttributeForSearches()) && batchSize > 1) {
+            int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(dnList), batchSize);
+            for (int i = 0; i < numberOfBatches; i++) {
+              List<String> currentBatch = GrouperUtil.batchList(dnList, batchSize, i);
+              StringBuilder builder = new StringBuilder();
+              for (String dn : currentBatch) {
+                builder.append("(" + config.getDnAttributeForSearches() + "=" + dn + ")");
+              }
+              
+              String filter = "(|" + builder.toString() + ")";
+              SearchResult searchResults = processSearchRequest(ldapServerId, ldap, searchDn, LdapSearchScope.SUBTREE_SCOPE, filter, attributeNames, null);
+              results.addAll(getLdapEntriesFromSearchResult(searchResults, attributeNames));              
+            }
+          } else {
+            for (String dn : dnList) {
+              SearchResult searchResults = processSearchRequest(ldapServerId, ldap, dn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", attributeNames, null);
+              results.addAll(getLdapEntriesFromSearchResult(searchResults, attributeNames));              
+            }
+          }
+          
+          return results;
+        }
+      });
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Error querying ldap server id: " + ldapServerId + ", dnList size: " + dnList.size()
+          + ", returning attributes: " + StringUtils.join(attributeNames, ", "));
       throw re;
     }
   }
@@ -737,5 +656,206 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     
     return ldaptiveScope;
+  }
+  
+  private SearchResult processSearchRequest(String ldapServerId, Connection ldap, String searchDn, LdapSearchScope ldapSearchScope, String filter, String[] attributeNames, Long sizeLimit) throws LdapException {
+
+    SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setSearchFilter(new SearchFilter(filter));
+    searchRequest.setReturnAttributes(attributeNames);
+    
+    if (searchEntryHandlers.get(ldapServerId).size() > 0) {
+      SearchEntryHandler[] handlers = new SearchEntryHandler[searchEntryHandlers.get(ldapServerId).size()];
+      int count = 0;
+      for (Class<SearchEntryHandler> handlerClass : searchEntryHandlers.get(ldapServerId)) {
+        handlers[count] = GrouperUtil.newInstance(handlerClass);
+        count++;
+      }
+      
+      searchRequest.setSearchEntryHandlers(handlers);
+    }
+    
+    SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchRequest, propertiesMap.get(ldapServerId));
+    srSource.initialize();
+    
+    // add this after the properties get initialized so that this would override if needed
+    // note that the searchDn here is relative
+    if (StringUtils.isNotBlank(searchDn)) {
+      searchRequest.setBaseDn(searchDn);
+    }
+    
+    if (sizeLimit != null) {
+      searchRequest.setSizeLimit(sizeLimit);
+    }
+
+    if (ldapSearchScope != null) {
+      searchRequest.setSearchScope(translateScope(ldapSearchScope));
+    }
+    
+    if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+      searchRequest.setReferralHandler(new SearchReferralHandler());
+    }
+    
+    SearchResult searchResults;
+    Integer pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
+    
+    if (pageSize == null) {
+      SearchOperation search = new SearchOperation(ldap);
+      searchResults = search.execute(searchRequest).getResult();
+    } else {
+      PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
+      searchResults = client.executeToCompletion(searchRequest).getResult();
+    }
+    
+    return searchResults;
+  }
+  
+  private List<edu.internet2.middleware.grouper.ldap.LdapEntry> getLdapEntriesFromSearchResult(SearchResult searchResults, String[] attributeNames) {
+
+    List<edu.internet2.middleware.grouper.ldap.LdapEntry> results = new ArrayList<edu.internet2.middleware.grouper.ldap.LdapEntry>();
+
+    for (LdapEntry searchResult : searchResults.getEntries()) {
+
+      String nameInNamespace = searchResult.getDn();
+      
+      edu.internet2.middleware.grouper.ldap.LdapEntry entry = new edu.internet2.middleware.grouper.ldap.LdapEntry(nameInNamespace);
+      for (String attributeName : attributeNames) {
+        edu.internet2.middleware.grouper.ldap.LdapAttribute attribute = new edu.internet2.middleware.grouper.ldap.LdapAttribute(attributeName);
+        
+        LdapAttribute sourceAttribute = searchResult.getAttribute(attributeName);
+        if (sourceAttribute != null) {
+          if (sourceAttribute.isBinary()) {
+            attribute.setBinaryValues(sourceAttribute.getBinaryValues());
+          } else {
+            attribute.setStringValues(sourceAttribute.getStringValues());
+          }
+        }
+        
+        entry.addAttribute(attribute);
+      }
+      
+      results.add(entry);
+    }
+    
+    return results;
+  }
+
+  @Override
+  public void delete(final String ldapServerId, final String dn) {
+
+    try {
+      callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
+        
+        public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
+
+          Connection ldap = ldapHandlerBean.getLdap();
+
+          DeleteOperation delete = new DeleteOperation(ldap);
+          DeleteRequest deleteRequest = new DeleteRequest(dn);
+          
+          if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+            deleteRequest.setReferralHandler(new DeleteReferralHandler());
+          }
+          
+          try {
+            Response<Void> response = delete.execute(deleteRequest);
+            if (response.getResultCode() == ResultCode.SUCCESS) {
+              return null;
+            } else {
+              throw new RuntimeException("Received result code: " + response.getResultCode());
+            }
+          } catch (LdapException e) {
+            
+            // note that this only happens if an intermediate context does not exist
+            if (e.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+              return null;
+            }
+            
+            // TODO should we re-query just to be sure?
+            throw e;
+          }
+        }
+      });
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Error deleting entry server id: " + ldapServerId + ", dn: " + dn);
+      throw re;
+    }
+  }
+  
+  @Override
+  public boolean create(final String ldapServerId, final edu.internet2.middleware.grouper.ldap.LdapEntry ldapEntry) {
+    
+    // if create failed because object is there, then do an update with the attributes that were given
+    // some attributes given may have no values and therefore clear those attributes
+    // true if created, false if updated
+
+    try {
+      return (Boolean)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
+        
+        public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
+
+          Connection ldap = ldapHandlerBean.getLdap();
+          
+          List<LdapAttribute> ldaptiveAttributes = new ArrayList<LdapAttribute>(); // if doing create
+          List<AttributeModification> ldaptiveModifications = new ArrayList<AttributeModification>(); // if doing modify
+          
+          for (edu.internet2.middleware.grouper.ldap.LdapAttribute grouperLdapAttribute : ldapEntry.getAttributes()) {
+            LdapAttribute ldaptiveAttribute = new LdapAttribute(grouperLdapAttribute.getName());
+            if (grouperLdapAttribute.getStringValues().size() > 0) {
+              ldaptiveAttribute.addStringValues(grouperLdapAttribute.getStringValues());
+            } else if (grouperLdapAttribute.getBinaryValues().size() > 0) {
+              ldaptiveAttribute.addBinaryValues(grouperLdapAttribute.getBinaryValues());
+            }
+            
+            if (ldaptiveAttribute.size() > 0) {
+              ldaptiveAttributes.add(ldaptiveAttribute);
+            }
+            
+            ldaptiveModifications.add(new AttributeModification(AttributeModificationType.REPLACE, ldaptiveAttribute));
+          }
+
+          AddOperation add = new AddOperation(ldap);
+          AddRequest addRequest = new AddRequest();
+          addRequest.setDn(ldapEntry.getDn());
+          addRequest.setLdapAttributes(ldaptiveAttributes);
+          
+          if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+            addRequest.setReferralHandler(new AddReferralHandler());
+          }
+          
+          try {
+            Response<Void> response = add.execute(addRequest);
+            if (response.getResultCode() == ResultCode.SUCCESS) {
+              return true;
+            } else {
+              throw new RuntimeException("Received result code: " + response.getResultCode());
+            }
+          } catch (LdapException e) {
+            
+            // update attributes instead
+            if (e.getResultCode() == ResultCode.ENTRY_ALREADY_EXISTS) {
+              ModifyOperation modify = new ModifyOperation(ldap);
+              ModifyRequest modifyRequest = new ModifyRequest(ldapEntry.getDn(), ldaptiveModifications.toArray(new AttributeModification[] { }));
+              
+              if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+                modifyRequest.setReferralHandler(new ModifyReferralHandler());
+              }
+              
+              Response<Void> response = modify.execute(modifyRequest);
+              if (response.getResultCode() == ResultCode.SUCCESS) {
+                return false;
+              } else {
+                throw new RuntimeException("Received result code: " + response.getResultCode());
+              }
+            }
+            
+            throw e;
+          }
+        }
+      });
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Error creating entry server id: " + ldapServerId + ", dn: " + ldapEntry.getDn());
+      throw re;
+    }
   }
 }

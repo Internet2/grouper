@@ -67,6 +67,31 @@ public interface LdapSession {
       final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames, Long sizeLimit);
   
   /**
+   * Get the following entries.
+   * @param ldapServerId
+   * @param searchDn
+   * @param dnList
+   * @param attributeNames
+   * @return the list of results, never null
+   */
+  public abstract List<LdapEntry> read(final String ldapServerId, final String searchDn, final List<String> dnList, final String[] attributeNames);
+  
+  /**
+   * Delete an entry if it exists.
+   * @param ldapServerId
+   * @param dn
+   */
+  public abstract void delete(final String ldapServerId, final String dn);
+  
+  /**
+   * Create entry.  If entry exists, update attributes instead.
+   * @param ldapPoolName
+   * @param ldapEntry
+   * @return true if created, false if updated
+   */
+  public abstract boolean create(final String ldapPoolName, final LdapEntry ldapEntry);
+  
+  /**
    * Authenticate a user
    * @param ldapServerId 
    * @param userDn
