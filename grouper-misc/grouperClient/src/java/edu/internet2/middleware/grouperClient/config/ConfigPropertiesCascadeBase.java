@@ -962,8 +962,8 @@ public abstract class ConfigPropertiesCascadeBase {
             
             ) {
           String resource = GrouperClientUtils.stripPrefix(overrideConfigString, "classpath:");
-          File fileResource = GrouperClientUtils.fileFromResourceName(resource);
-          if (fileResource == null || !fileResource.exists()) {
+          URL url = GrouperClientUtils.computeUrl(resource, true);
+          if (url == null) {
             replaceWithBlank = true;
           }
         }
