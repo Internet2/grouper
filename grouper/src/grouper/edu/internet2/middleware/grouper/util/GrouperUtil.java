@@ -745,6 +745,10 @@ public class GrouperUtil {
    */
   public static void fileCopyExampleResourceIfNotExist(String exampleResource, String resource) {
     try {
+      // this could be in a jar
+      if (GrouperUtil.computeUrl(resource, true) != null) {
+        return;
+      }
       File fileResource = GrouperUtil.fileFromResourceName(resource);
       if (!fileResource.exists()) {
         throw new RuntimeException("File doesnt exist: " + resource);
