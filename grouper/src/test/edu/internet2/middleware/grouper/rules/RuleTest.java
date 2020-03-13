@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import junit.textui.TestRunner;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -68,6 +66,7 @@ import edu.internet2.middleware.grouper.subj.SafeSubject;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import junit.textui.TestRunner;
 
 
 /**
@@ -95,7 +94,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleFixVetoIfNotInFolder"));
+    TestRunner.run(new RuleTest("testRuleFixVetoIfNotInFolderDaemon"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -4907,7 +4906,8 @@ public class RuleTest extends GrouperTest {
   
   }
   
-  public void testRuleFixVetoIfNotInFolder() {
+  
+  public void testRuleFixVetoIfNotInFolderDaemon() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -4916,11 +4916,14 @@ public class RuleTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
     
     
-    new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    Group allowedGroup = new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
     Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
     Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
     
     Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+    
+    Group subGroup = new GroupSave(grouperSession).assignName("stem:subGroup").assignCreateParentStemsIfNotExist(true).save(); 
+    restrictedGroup.addMember(subGroup.toSubject());
     
     RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), restrictedStem, employeeGroup, false, "jdbc", Stem.Scope.SUB, "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
     boolean added = false;
@@ -4935,8 +4938,73 @@ public class RuleTest extends GrouperTest {
     assertFalse(added);
     
     employeeGroup.addMember(SubjectTestHelper.SUBJ0, true);
+    employeeGroup.addMember(SubjectTestHelper.SUBJ1, true); // permanent employee
+    
+    allowedGroup.addMember(SubjectTestHelper.SUBJ0, true);
+    allowedGroup.addMember(SubjectTestHelper.SUBJ1, true);
     
     restrictedGroup.addMember(SubjectTestHelper.SUBJ0, true);
+    restrictedGroup.addMember(SubjectTestHelper.SUBJ1, true);
+    
+    boolean restrictedGroupHasSubject = restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0);
+    
+    assertTrue(restrictedGroupHasSubject);
+
+    // now remove the subject from employee and it should be removed from retrictedGroup as well
+    employeeGroup.deleteMember(SubjectTestHelper.SUBJ0, true);
+    
+    RuleEngine.daemon();
+    
+    assertFalse(employeeGroup.hasImmediateMember(SubjectTestHelper.SUBJ0));
+    assertTrue(employeeGroup.hasImmediateMember(SubjectTestHelper.SUBJ1));
+    
+    assertFalse(restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0));
+    assertTrue(restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ1));
+    assertTrue(restrictedGroup.hasImmediateMember(subGroup.toSubject()));
+    
+    assertTrue(allowedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0));
+    assertTrue(allowedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0));
+  }
+  
+  
+  public void testRuleFixVetoIfNotInFolder() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    //run at first so the consumer is initted
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+    
+    
+    Group allowedGroup = new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+    
+    Group subGroup = new GroupSave(grouperSession).assignName("stem:subGroup").assignCreateParentStemsIfNotExist(true).save(); 
+    restrictedGroup.addMember(subGroup.toSubject());
+    
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), restrictedStem, employeeGroup, false, "jdbc", Stem.Scope.SUB, "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
+    boolean added = false;
+    try {
+      restrictedGroup.addMember(SubjectTestHelper.SUBJ0, true);
+      added = true;
+    } catch (Exception e) {
+      String stack = ExceptionUtils.getFullStackTrace(e);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+    
+    assertFalse(added);
+    
+    employeeGroup.addMember(SubjectTestHelper.SUBJ0, true);
+    employeeGroup.addMember(SubjectTestHelper.SUBJ1, true); // permanent employee
+    
+    allowedGroup.addMember(SubjectTestHelper.SUBJ0, true);
+    allowedGroup.addMember(SubjectTestHelper.SUBJ1, true);
+    
+    restrictedGroup.addMember(SubjectTestHelper.SUBJ0, true);
+    restrictedGroup.addMember(SubjectTestHelper.SUBJ1, true);
     
     boolean restrictedGroupHasSubject = restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0);
     
@@ -4948,12 +5016,15 @@ public class RuleTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
     
-    boolean employeeGroupHasSubject = employeeGroup.hasImmediateMember(SubjectTestHelper.SUBJ0);
-    assertFalse(employeeGroupHasSubject);
+    assertFalse(employeeGroup.hasImmediateMember(SubjectTestHelper.SUBJ0));
+    assertTrue(employeeGroup.hasImmediateMember(SubjectTestHelper.SUBJ1));
     
-    restrictedGroupHasSubject = restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0);
+    assertFalse(restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0));
+    assertTrue(restrictedGroup.hasImmediateMember(SubjectTestHelper.SUBJ1));
+    assertTrue(restrictedGroup.hasImmediateMember(subGroup.toSubject()));
     
-    assertFalse(restrictedGroupHasSubject);
+    assertTrue(allowedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0));
+    assertTrue(allowedGroup.hasImmediateMember(SubjectTestHelper.SUBJ0));
     
   }
 
@@ -5364,9 +5435,6 @@ public class RuleTest extends GrouperTest {
     stem2testAttributeDef.delete();
     
     GrouperSession.stopQuietly(grouperSession);
-  
-    
-    
     
   
   }

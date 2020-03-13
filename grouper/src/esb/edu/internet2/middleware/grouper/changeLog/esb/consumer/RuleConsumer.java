@@ -18,7 +18,6 @@
  */
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,15 +38,15 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.rules.RuleCheck;
@@ -57,7 +56,6 @@ import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleIfCondition;
 import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
 import edu.internet2.middleware.grouper.rules.RuleThenEnum;
-import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
@@ -196,104 +194,98 @@ public class RuleConsumer extends ChangeLogConsumerBase {
   
   /** */
   private static final Log LOG = GrouperUtil.getLog(RuleConsumer.class);
-
+  
+  
+  public static boolean shouldContinue(final RuleDefinition definition) {
+    
+    RuleCheck ruleCheck = definition.getCheck();
+    RuleIfCondition ifCondition = definition.getIfCondition();
+    
+    if (ruleCheck.checkTypeEnum() == RuleCheckType.subjectAssignInStem &&
+        ifCondition.ifConditionEnum() == RuleIfConditionEnum.groupHasNoEnabledMembership &&
+        definition.getAttributeAssignType().getOwnerStem() != null &&
+        definition.getThen().thenEnum() == RuleThenEnum.veto) {
+      return true;
+    }
+    
+    return false;
+    
+  }
   
   public static void fixVetoIfNotInFolder(Group group, Subject subject, String subjectSourceId) {
 
     Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
 
     for (RuleDefinition definition: definitions) {
-
-      RuleCheck ruleCheck = definition.getCheck();
-      RuleIfCondition ifCondition = definition.getIfCondition();
-
-      if (ruleCheck.checkTypeEnum() == RuleCheckType.subjectAssignInStem &&
-          ifCondition.ifConditionEnum() == RuleIfConditionEnum.groupHasNoEnabledMembership &&
-          definition.getAttributeAssignType().getOwnerStem() != null) {
-        
-        AttributeValueDelegate attributeValueDelegate = definition.getAttributeAssignType().getAttributeValueDelegate();
-        
-        AttributeAssignValue attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(RuleUtils.ruleIfOwnerNameName());
-        boolean shouldContinue = false;
-        if (attributeAssignValue != null && StringUtils.equals(attributeAssignValue.getValueString(), group.getName())) {          
-          shouldContinue = true;
-        }
-        
-        if (attributeAssignValue == null) {
-          attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(RuleUtils.ruleIfOwnerIdName());
-          if (attributeAssignValue != null && StringUtils.equals(attributeAssignValue.getValueString(), group.getId())) { 
-            shouldContinue = true;
-          }
-        }
-        
-        if (!shouldContinue) {
-          return;
-        }
-        
-        shouldContinue = false;
-        attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(RuleUtils.ruleThenEnumName());
-        if (attributeAssignValue != null && StringUtils.equals(attributeAssignValue.getValueString(), RuleThenEnum.veto.name())) {          
-          shouldContinue = true;
-        }
-        
-        if (!shouldContinue) {
-          return;
-        }
-        
-        final Stem ownerStem = definition.getAttributeAssignType().getOwnerStem();
-        
-        attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(RuleUtils.ruleCheckStemScopeName());
-        
-        String checkStemScope = attributeAssignValue != null ? attributeAssignValue.getValueString() : null;
-
-        final Scope scope = StringUtils.isNotBlank(checkStemScope) ? Scope.valueOfIgnoreCase(checkStemScope, true): Scope.SUB;
-
-        GrouperSession theGrouperSession = GrouperSession.startRootSession(false);
-        
-        try {
-          GrouperSession.callbackGrouperSession(theGrouperSession, new GrouperSessionHandler() {
-            
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              
-              Member member = MemberFinder.findBySubject(theGrouperSession, subject, false);
-
-              Set<Source> sources = new HashSet<Source>();
-
-              if (subjectSourceId != null) {
-                Source source = SourceManager.getInstance().getSource(subjectSourceId);
-                sources.add(source);
-              }
-
-              Set<Object[]> memberships = MembershipFinder.findMemberships(null, Arrays.asList(member.getId()),
-                  null, MembershipType.IMMEDIATE, null, sources, null, ownerStem, scope, null);
-
-              for (Object[] objects: memberships) {
-                
-                for (Object obj: objects) {
-                  if (obj instanceof Membership) {
-                    Membership membership = (Membership) obj;
-                    membership.delete();
-                  } else if (obj instanceof Member) {
-                    Member memberObj = (Member) obj;
-                    //TODO what to do here??
-                  } else if (obj instanceof Group) {
-                    Group groupObj = (Group) obj;
-                    //TODO what to do here??
-                  }
-                }
-                
-              }
-              
-              return null;
-            }
-          });
-        } finally {
-          GrouperSession.stopQuietly(theGrouperSession);
-        }
-        
-
+      
+      if (!shouldContinue(definition)) {
+        continue;
       }
+      
+      String ownerId = definition.getIfCondition().getIfOwnerId();
+      
+      boolean shouldContinue = false;
+      
+      if (StringUtils.equals(ownerId, group.getId())) {
+        shouldContinue = true;
+      }
+      
+      if (!shouldContinue) {
+        String ownerName = definition.getIfCondition().getIfOwnerName();
+        if (StringUtils.equals(ownerName, group.getName())) {
+          shouldContinue = true;
+        }
+      }
+      
+      if (!shouldContinue) {
+        continue;
+      }
+      
+      final Stem ownerStem = definition.getAttributeAssignType().getOwnerStem();
+      
+      String checkStemScope =  definition.getCheck().getCheckStemScope();
 
+      final Scope scope = StringUtils.isNotBlank(checkStemScope) ? Scope.valueOfIgnoreCase(checkStemScope, true): Scope.SUB;
+
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+
+          if (group.hasMember(member.getSubject())) {
+            return null;
+          }
+          
+          Set<Source> sources = null;
+
+          if (subjectSourceId != null) {
+            sources = new HashSet<Source>();
+            Source source = SourceManager.getInstance().getSource(subjectSourceId);
+            sources.add(source);
+          }
+
+          MembershipResult membershipResult = new MembershipFinder().assignFindAllFields(true)
+            .addMemberId(member.getId())
+            .assignMembershipType(MembershipType.IMMEDIATE)
+            .assignSources(sources)
+            .assignStem(ownerStem)
+            .assignStemScope(scope)
+            .assignEnabled(null)
+            .findMembershipResult();
+          
+          Set<Object[]> membershipsOwnersMembers = membershipResult.getMembershipsOwnersMembers();
+
+          for (Object[] objects: membershipsOwnersMembers) {
+              Membership membership = (Membership) objects[0];  
+              membership.delete();
+          }
+          
+          return null;
+        }
+      });
+        
     }
   }
   
