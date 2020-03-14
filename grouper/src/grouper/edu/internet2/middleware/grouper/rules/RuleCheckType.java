@@ -1444,35 +1444,33 @@ public enum RuleCheckType {
         return;
       }
       
-      Group group = null;
-      String groupId = ruleDefinition.getIfCondition().getIfOwnerId();
-      if (StringUtils.isNotBlank(groupId)) {
-        group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-      }
-      
-      if (group == null) {
-        String groupName = ruleDefinition.getIfCondition().getIfOwnerName();
-        if (StringUtils.isNotBlank(groupName)) {
-          group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
-        }
-      }
-      
-      if (group == null) {
-        throw new RuntimeException("Could not find group for rule definition: "+ruleDefinition);
-      }
-      
-      final Stem ownerStem = ruleDefinition.getAttributeAssignType().getOwnerStem();
-      
-      String checkStemScope = ruleDefinition.getCheck().getCheckStemScope();
-      
-      final Scope scope = StringUtils.isNotBlank(checkStemScope) ? Scope.valueOfIgnoreCase(checkStemScope, true): Scope.SUB;
-      
-      final Group GROUP = group;
-      
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          Group group = null;
+          String groupId = ruleDefinition.getIfCondition().getIfOwnerId();
+          if (StringUtils.isNotBlank(groupId)) {
+            group = GroupFinder.findByUuid(grouperSession, groupId, true);
+          }
+          
+          if (group == null) {
+            String groupName = ruleDefinition.getIfCondition().getIfOwnerName();
+            if (StringUtils.isNotBlank(groupName)) {
+              group = GroupFinder.findByName(grouperSession, groupName, true);
+            }
+          }
+          
+          if (group == null) {
+            throw new RuntimeException("Could not find group for rule definition: "+ruleDefinition);
+          }
+          
+          final Stem ownerStem = ruleDefinition.getAttributeAssignType().getOwnerStem();
+          
+          String checkStemScope = ruleDefinition.getCheck().getCheckStemScope();
+          
+          final Scope scope = StringUtils.isNotBlank(checkStemScope) ? Scope.valueOfIgnoreCase(checkStemScope, true): Scope.SUB;
           
           String sourceId = ruleDefinition.getCheck().getCheckArg0();
           Set<Source> sources = null;
@@ -1489,7 +1487,7 @@ public enum RuleCheckType {
             .assignStem(ownerStem)
             .assignStemScope(scope)
             .assignEnabled(null)
-            .assignCustomCompositeGroup(GROUP)
+            .assignCustomCompositeGroup(group)
             .assignCustomCompositeType(CompositeType.COMPLEMENT)
             .findMembershipResult();
           
