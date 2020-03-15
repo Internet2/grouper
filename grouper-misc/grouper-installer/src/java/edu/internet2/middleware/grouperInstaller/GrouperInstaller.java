@@ -10429,10 +10429,10 @@ public class GrouperInstaller {
     //Find out the working directory.  This ends in a file separator
     this.grouperTarballDirectoryString = grouperUpgradeTempDirectory();
     
-    this.version = getClass().getPackage().getImplementationVersion();
-    if (this.version == null) {
-      // when you are running directly from eclipse without the jar file
-      this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    this.version = GrouperInstallerUtils.propertiesValue("grouper.version", false);
+    
+    if (GrouperInstallerUtils.isBlank(this.version)) {
+      this.version = getClass().getPackage().getImplementationVersion();
     }
     
     System.out.println("Installing grouper version: " + this.version);
@@ -10454,7 +10454,7 @@ public class GrouperInstaller {
     String grouperUntarredReleaseDir = untarredGrouperSourceCodeDir.getAbsolutePath().substring(0, untarredGrouperSourceCodeDir.getAbsolutePath().lastIndexOf(File.separator));
     grouperUntarredReleaseDir = grouperUntarredReleaseDir + File.separator + "grouper-" + untarredGrouperSourceCodeDir.getName() ;
     
-    // go in grouper, grouper-ws, grouper-ui and grouper-ws-scim directory and run mvn dependency:copy-dependencies
+    // go in grouper-container and run mvn dependency:copy-dependencies
     List<File> grouperProjects = new ArrayList<File>();
     
     grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-container"));
@@ -10546,6 +10546,32 @@ public class GrouperInstaller {
     } catch (Exception e) {
       throw new RuntimeException("Could not copy files from conf directory to classes directory", e);
     }
+    
+    // now copy all misc/*.example.properties into classes directory and rename them to not have example in the filename
+    
+    File miscDir = new File(grouperUntarredReleaseDir + File.separator + "grouper" + File.separator + "misc");
+    File[] filesToBeCopied = miscDir.listFiles(new FilenameFilter() {
+      
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.endsWith("example.properties") && !name.equals("grouper.text.en.us.example.properties");
+      }
+    });
+    
+    for (File miscFileToBeCopied: filesToBeCopied) {
+      String newFileName = miscFileToBeCopied.getName().replace(".example", "");
+      File destFile = new File(classesDir.getAbsolutePath() + File.separator + newFileName);
+      GrouperInstallerUtils.copyFile(miscFileToBeCopied, destFile);
+    }
+    
+    // now copy grouper.text.en.us.example.properties into classes/grouperText
+    File textFileToBeCopied = new File(grouperUntarredReleaseDir + File.separator + "grouper" + 
+        File.separator + "misc" + File.separator + "grouper.text.en.us.example.properties");
+    
+    File textDestFile = new File(classesDir.getAbsolutePath() + File.separator + "grouperText" + 
+        File.separator + "grouper.text.en.us.properties");
+    GrouperInstallerUtils.copyFile(textFileToBeCopied, textDestFile);
+    
     
     // now copy all grouper-ws/webapp specific files into outputDir/webapp
     File grouperWsWebinfDir = new File(grouperUntarredReleaseDir+File.separator+"grouper-ws"+File.separator+
