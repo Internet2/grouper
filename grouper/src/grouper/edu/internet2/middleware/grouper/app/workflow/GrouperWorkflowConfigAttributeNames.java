@@ -103,6 +103,31 @@ public class GrouperWorkflowConfigAttributeNames {
     
     return attributeDef;
   }
+  
+  /**
+   * attribute value def assigned to group
+   * @return the attribute def name
+   */
+  public static AttributeDef retrieveAttributeDefValueDef() {
+    
+    AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefFinder.findByName(GrouperWorkflowSettings.workflowStemName() + ":" + GROUPER_WORKFLOW_CONFIG_VALUE_DEF, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDef == null) {
+      throw new RuntimeException("Why cant workflowConfigValueDef attribute def be found?");
+    }
+    
+    return attributeDef;
+  }
 
   
   /**
