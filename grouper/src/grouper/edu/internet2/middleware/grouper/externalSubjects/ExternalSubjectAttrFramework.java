@@ -20,11 +20,17 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -37,6 +43,16 @@ public class ExternalSubjectAttrFramework {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ExternalSubjectAttrFramework.class);
+  
+  /**
+   * main attribute definition assigned to stems
+   */
+  public static final String EXTERNAL_SUBJECT_INVITE_CONFIG_DEF = "externalSubjectInviteDef";
+  
+  /**
+   * main attribute definition assigned to stem assignment
+   */
+  public static final String EXTERNAL_SUBJECT_INVITE_VALUE_DEF = "externalSubjectInviteAttrDef";
 
   /**
    * invite external users to register with grouper.  Note, there needs to a wheel/root 
@@ -379,6 +395,57 @@ public class ExternalSubjectAttrFramework {
     rootStemName += ":attrExternalSubjectInvite";
     return rootStemName;
   }
+    
+  /**
+   * attribute value def assigned to stem or group
+   * @return the attribute def
+   */
+  public static AttributeDef retrieveAttributeDefBaseDef() {
+    
+    AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefFinder.findByName(attributeExternalSubjectInviteStemName()+":"+EXTERNAL_SUBJECT_INVITE_CONFIG_DEF, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDef == null) {
+      throw new RuntimeException("Why cant externalSubjectInviteDef attribute def be found?");
+    }
+    
+    return attributeDef;
+  }
+  
+  /**
+   * attribute value def assigned to stem or group
+   * @return the attribute def
+   */
+  public static AttributeDef retrieveAttributeDefValueDef() {
+    
+    AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefFinder.findByName(attributeExternalSubjectInviteStemName()+":"+EXTERNAL_SUBJECT_INVITE_VALUE_DEF, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDef == null) {
+      throw new RuntimeException("Why cant externalSubjectInviteAttrDef attribute def be found?");
+    }
+    
+    return attributeDef;
+  }
+
   
 
   

@@ -46,11 +46,16 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.text.TextBundleBean;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -147,6 +152,30 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
               namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefBaseDef().getName());
               namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getName());
               
+              // attestation
+              namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDef().getName());
+              namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getName());
+              
+              // reports
+              namesOfAttributeDefs.add(GrouperReportConfigAttributeNames.retrieveAttributeDefBaseDef().getName());
+              namesOfAttributeDefs.add(GrouperReportConfigAttributeNames.retrieveAttributeDefValueDef().getName());
+              
+              // subject resolution
+              namesOfAttributeDefs.add(UsduAttributeNames.retrieveAttributeDefBaseDef().getName());
+              namesOfAttributeDefs.add(UsduAttributeNames.retrieveAttributeDefValueDef().getName());
+              
+              // workflow config 
+              namesOfAttributeDefs.add(GrouperWorkflowConfigAttributeNames.retrieveAttributeDefBaseDef().getName());
+              namesOfAttributeDefs.add(GrouperWorkflowConfigAttributeNames.retrieveAttributeDefValueDef().getName());
+              
+              // workflow instance
+              namesOfAttributeDefs.add(GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefBaseDef().getName());
+              namesOfAttributeDefs.add(GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefValueDef().getName());
+              
+              // external subject invite
+              namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefBaseDef().getName());
+              namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefValueDef().getName());
+              
               if (!StringUtils.isBlank(namesOfAttributeDefsCommaSeparated)) {
                 namesOfAttributeDefs.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefsCommaSeparated, ","));
               }
@@ -242,13 +271,6 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
           if (tempResult == null) {
             
             Set<String> namesOfAttributeDefNames = new HashSet<String>();
-            
-            // GRP-1695: hard code built in ignore attribute defs and names
-            // $$grouper.attribute.rootStem$$:attestation:attestationCalculatedDaysLeft
-            namesOfAttributeDefNames.add(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
-            
-            // $$grouper.attribute.rootStem$$:attestation:attestationLastEmailedDate
-            namesOfAttributeDefNames.add(GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName());
             
             if (!StringUtils.isBlank(namesOfAttributeDefNamesCommaSeparated)) {
               namesOfAttributeDefNames.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefNamesCommaSeparated, ","));

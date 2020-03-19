@@ -168,4 +168,29 @@ public class GrouperReportConfigAttributeNames {
       return attributeDef;
     }
 
+    /**
+     * attribute value def assigned to stem or group
+     * @return the attribute def
+     */
+    public static AttributeDef retrieveAttributeDefValueDef() {
+      
+      AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          
+          return AttributeDefFinder.findByName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_VALUE_DEF, false, new QueryOptions().secondLevelCache(false));
+          
+        }
+        
+      });
+    
+      if (attributeDef == null) {
+        throw new RuntimeException("Why cant reportConfigValueDef attribute def be found?");
+      }
+      
+      return attributeDef;
+    }
+    
 }
