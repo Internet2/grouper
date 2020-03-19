@@ -37,6 +37,15 @@ public class LdapAttribute {
   }
   
   /**
+   * @param name
+   * @param value
+   */
+  public LdapAttribute(String name, Object value) {
+    this.name = name;
+    this.addValue(value);
+  }
+  
+  /**
    * @return the stringValues
    */
   public Collection<String> getStringValues() {
@@ -103,5 +112,79 @@ public class LdapAttribute {
     }
     
     binaryValues.add(value);
+  }
+  
+  /**
+   * @param values
+   */
+  public void addStringValues(Collection<String> values) {
+    if (stringValues == null) {
+      stringValues = new ArrayList<String>();
+    }
+    
+    stringValues.addAll(values);
+  }
+  
+  /**
+   * @param values
+   */
+  public void addBinaryValues(Collection<byte[]> values) {
+    if (binaryValues == null) {
+      binaryValues = new ArrayList<byte[]>();
+    }
+    
+    binaryValues.addAll(values);
+  }
+  
+  /**
+   * @return values
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public Collection<Object> getValues() {
+    if (binaryValues != null && binaryValues.size() > 0) {
+      return (Collection)binaryValues;
+    }
+    
+    if (stringValues != null && stringValues.size() > 0) {
+      return (Collection)stringValues;
+    }
+    
+    return new ArrayList<Object>();
+  }
+  
+  /**
+   * @param value
+   */
+  public void addValue(Object value) {
+    if (value instanceof String) {
+      addStringValue((String)value);
+    } else if (value instanceof byte[]){
+      addBinaryValue((byte[])value);
+    } else {
+      throw new RuntimeException("Unexpected");
+    }
+  }
+  
+  /**
+   * @param values
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public void addValues(Collection<Object> values) {
+    if (values.size() == 0) {
+      return;
+    }
+    
+    if (values.iterator().next() instanceof String) {
+      addStringValues((Collection)values);
+    } else if (values.iterator().next() instanceof byte[]){
+      addBinaryValues((Collection)values);
+    } else {
+      throw new RuntimeException("Unexpected");
+    }
+  }
+  
+  public void clearValues() {
+    stringValues = null;
+    binaryValues = null;
   }
 }

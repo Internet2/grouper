@@ -31,20 +31,11 @@ public class LdapSyncDaoForLdap extends LdapSyncDao {
 
   @Override
   public boolean move(String ldapPoolName, String oldDn, String newDn) {
-    // what happens if newdn exists and old doesn't?  return false?
-    // return true if moved
-    
-    // what if OU is changing?  do some ldaps not allow that or allow with a config?  should the provisioner or pool have a config on whether to allow a move that changes OUs or to do a delete/recreate?
-    
-    // TODO Auto-generated method stub
-    
-    return false;
+    return LdapSessionUtils.ldapSession().move(ldapPoolName, oldDn, newDn);
   }
 
   @Override
   public void internal_modifyHelper(String ldapPoolName, String dn, List<LdapModificationItem> ldapModificationItems) {
-    
-    // TODO Auto-generated method stub
-    
+    LdapSessionUtils.ldapSession().internal_modifyHelper(ldapPoolName, dn, ldapModificationItems);
   }
 }

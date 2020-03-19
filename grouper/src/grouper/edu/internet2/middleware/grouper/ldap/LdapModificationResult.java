@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.ldap;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,5 +65,16 @@ public class LdapModificationResult {
    */
   public void setAttributeErrors(List<LdapModificationAttributeError> attributeErrors1) {
     this.attributeErrors = attributeErrors1;
+  }
+  
+  /**
+   * @param attributeError
+   */
+  public void addAttributeError(LdapModificationAttributeError attributeError) {
+    if (this.attributeErrors == null) {
+      this.attributeErrors = new ArrayList<LdapModificationAttributeError>();
+    }
+    
+    this.attributeErrors.add(attributeError);
   }
 }

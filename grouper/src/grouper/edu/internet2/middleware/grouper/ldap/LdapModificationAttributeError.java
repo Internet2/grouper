@@ -78,7 +78,7 @@ public class LdapModificationAttributeError {
 
   /**
    * error if applicable
-   * @return error message
+   * @return error
    */
   public Throwable getError() {
     return this.error;
@@ -86,9 +86,9 @@ public class LdapModificationAttributeError {
 
   /**
    * error if applicable
-   * @param errorMessage1
+   * @param error1
    */
-  public void setErrorMessage(Throwable error1) {
+  public void setError(Throwable error1) {
     this.error = error1;
   }
 

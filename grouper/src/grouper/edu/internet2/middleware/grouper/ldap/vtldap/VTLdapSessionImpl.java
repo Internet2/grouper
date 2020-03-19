@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapHandler;
 import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
+import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -753,6 +754,18 @@ public class VTLdapSessionImpl implements LdapSession {
   
   @Override
   public boolean create(String ldapServerId, LdapEntry ldapEntry) {
+    throw new RuntimeException("vt-ldap is now deprecated and does not support all methods");
+  }
+
+
+  @Override
+  public boolean move(String ldapServerId, String oldDn, String newDn) {
+    throw new RuntimeException("vt-ldap is now deprecated and does not support all methods");
+  }
+
+
+  @Override
+  public void internal_modifyHelper(String ldapServerId, String dn, List<LdapModificationItem> ldapModificationItems) {
     throw new RuntimeException("vt-ldap is now deprecated and does not support all methods");
   }
 }

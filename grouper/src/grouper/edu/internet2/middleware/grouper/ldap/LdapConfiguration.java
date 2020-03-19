@@ -30,6 +30,7 @@ public class LdapConfiguration {
   private boolean isActiveDirectory;
   private String dnAttributeForSearches;
   private int queryBatchSize;
+  private int updateBatchSize;
   
   /**
    * @param ldapServerId
@@ -38,6 +39,7 @@ public class LdapConfiguration {
     this.isActiveDirectory = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("ldap." + ldapServerId + ".isActiveDirectory", false);
     this.dnAttributeForSearches = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".dnAttributeForSearches", null);
     this.queryBatchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".queryBatchSize", 100);
+    this.updateBatchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".updateBatchSize", 100);
   
     if (this.dnAttributeForSearches == null && this.isActiveDirectory) {
       this.dnAttributeForSearches = "distinguishedName";
@@ -45,6 +47,10 @@ public class LdapConfiguration {
     
     if (this.queryBatchSize < 1) {
       this.queryBatchSize = 1;
+    }
+    
+    if (this.updateBatchSize < 1) {
+      this.updateBatchSize = 1;
     }
   }
   
@@ -85,5 +91,12 @@ public class LdapConfiguration {
    */
   public int getQueryBatchSize() {
     return queryBatchSize;
+  }
+
+  /**
+   * @return batch size for updates
+   */
+  public int getUpdateBatchSize() {
+    return updateBatchSize;
   }
 }

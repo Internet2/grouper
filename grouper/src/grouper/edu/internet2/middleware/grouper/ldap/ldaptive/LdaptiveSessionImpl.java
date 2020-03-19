@@ -45,6 +45,8 @@ import org.ldaptive.DeleteRequest;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
+import org.ldaptive.ModifyDnOperation;
+import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.ModifyOperation;
 import org.ldaptive.ModifyRequest;
 import org.ldaptive.Response;
@@ -71,6 +73,7 @@ import org.ldaptive.props.SearchRequestPropertySource;
 import org.ldaptive.provider.jndi.JndiProviderConfig;
 import org.ldaptive.referral.AddReferralHandler;
 import org.ldaptive.referral.DeleteReferralHandler;
+import org.ldaptive.referral.ModifyDnReferralHandler;
 import org.ldaptive.referral.ModifyReferralHandler;
 import org.ldaptive.referral.SearchReferralHandler;
 import org.ldaptive.sasl.GssApiConfig;
@@ -79,6 +82,8 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.ldap.LdapConfiguration;
 import edu.internet2.middleware.grouper.ldap.LdapHandler;
 import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
+import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
+import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapPEMSocketFactory;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
@@ -658,6 +663,26 @@ public class LdaptiveSessionImpl implements LdapSession {
     return ldaptiveScope;
   }
   
+  private AttributeModificationType translateModificationType(LdapModificationType modificationType) {
+    if (modificationType == null) {
+      return null;
+    }
+    
+    AttributeModificationType ldaptiveModificationType = null;
+    
+    if (modificationType == LdapModificationType.ADD_ATTRIBUTE) {
+      ldaptiveModificationType = AttributeModificationType.ADD;
+    } else if (modificationType == LdapModificationType.REMOVE_ATTRIBUTE) {
+      ldaptiveModificationType = AttributeModificationType.REMOVE;
+    } else if (modificationType == LdapModificationType.REPLACE_ATTRIBUTE) {
+      ldaptiveModificationType = AttributeModificationType.REPLACE;
+    } else {
+      throw new RuntimeException("Unexpected modification type " + modificationType);
+    }
+    
+    return ldaptiveModificationType;
+  }
+  
   private SearchResult processSearchRequest(String ldapServerId, Connection ldap, String searchDn, LdapSearchScope ldapSearchScope, String filter, String[] attributeNames, Long sizeLimit) throws LdapException {
 
     SearchRequest searchRequest = new SearchRequest();
@@ -855,6 +880,112 @@ public class LdaptiveSessionImpl implements LdapSession {
       });
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, "Error creating entry server id: " + ldapServerId + ", dn: " + ldapEntry.getDn());
+      throw re;
+    }
+  }
+
+  @Override
+  public boolean move(final String ldapServerId, final String oldDn, final String newDn) {
+    // return true if moved
+    // return false if newDn exists and oldDn doesn't
+    try {
+      return (Boolean)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
+        
+        public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
+
+          Connection ldap = ldapHandlerBean.getLdap();
+
+          ModifyDnOperation modifyDn = new ModifyDnOperation(ldap);
+          ModifyDnRequest modifyDnRequest = new ModifyDnRequest();
+          modifyDnRequest.setDeleteOldRDn(true);
+          modifyDnRequest.setDn(oldDn);
+          modifyDnRequest.setNewDn(newDn);
+          
+          if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+            modifyDnRequest.setReferralHandler(new ModifyDnReferralHandler());
+          }
+          
+          try {
+            Response<Void> response = modifyDn.execute(modifyDnRequest);
+            if (response.getResultCode() == ResultCode.SUCCESS) {
+              return true;
+            } else {
+              throw new RuntimeException("Received result code: " + response.getResultCode());
+            }
+          } catch (LdapException e) {
+            
+            if (e.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+              // old entry doesn't exist.  if the new one does, then let's assume it was already renamed and return false
+              // note that this exception could also happen if the oldDn exists but the newDn is an invalid location - in that case we should still end up throwing the original exception below
+
+              try {
+                processSearchRequest(ldapServerId, ldap, newDn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", new String[] { "objectclass" }, null);
+                return false;
+              } catch (LdapException e2) {
+                if (e2.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+                  // throw original exception
+                  throw e;
+                }
+                
+                // something else went wrong so throw this
+                throw e2;
+              }
+            }   
+            
+            throw e;
+          }
+        }
+      });
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Error moving entry server id: " + ldapServerId + ", oldDn: " + oldDn + ", newDn: " + newDn);
+      throw re;
+    }
+  }
+
+  @Override
+  public void internal_modifyHelper(final String ldapServerId, String dn, final List<LdapModificationItem> ldapModificationItems) {
+
+    if (ldapModificationItems.size() == 0) {
+      return;
+    }
+    
+    try {
+      callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
+        
+        public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
+
+          Connection ldap = ldapHandlerBean.getLdap();
+          
+          List<AttributeModification> ldaptiveModifications = new ArrayList<AttributeModification>();
+          
+          for (LdapModificationItem ldapModificationItem : ldapModificationItems) {
+            LdapAttribute ldaptiveAttribute = new LdapAttribute(ldapModificationItem.getAttribute().getName());
+            if (ldapModificationItem.getAttribute().getStringValues().size() > 0) {
+              ldaptiveAttribute.addStringValues(ldapModificationItem.getAttribute().getStringValues());
+            } else if (ldapModificationItem.getAttribute().getBinaryValues().size() > 0) {
+              ldaptiveAttribute.addBinaryValues(ldapModificationItem.getAttribute().getBinaryValues());
+            }
+
+            ldaptiveModifications.add(new AttributeModification(translateModificationType(ldapModificationItem.getLdapModificationType()), ldaptiveAttribute));
+          }
+
+          ModifyOperation modify = new ModifyOperation(ldap);
+          ModifyRequest modifyRequest = new ModifyRequest(dn, ldaptiveModifications.toArray(new AttributeModification[] { }));
+          
+          if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+            modifyRequest.setReferralHandler(new ModifyReferralHandler());
+          }
+          
+          Response<Void> response = modify.execute(modifyRequest);
+          if (response.getResultCode() == ResultCode.SUCCESS) {
+            return null;
+          } else {
+            throw new RuntimeException("Received result code: " + response.getResultCode());
+          }
+        }
+      });
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Error modifying entry server id: " + ldapServerId + ", dn: " + dn);
       throw re;
     }
   }

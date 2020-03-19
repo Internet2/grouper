@@ -85,11 +85,31 @@ public interface LdapSession {
   
   /**
    * Create entry.  If entry exists, update attributes instead.
-   * @param ldapPoolName
+   * @param ldapServerId
    * @param ldapEntry
    * @return true if created, false if updated
    */
-  public abstract boolean create(final String ldapPoolName, final LdapEntry ldapEntry);
+  public abstract boolean create(final String ldapServerId, final LdapEntry ldapEntry);
+  
+  /**
+   * Move an object to a new dn.  Assuming this would only be called if it's expected to work.
+   * i.e. If the ldap server doesn't allow this, the caller should avoid calling this and instead
+   * do a delete/re-create as appropriate.
+   * @param ldapServerId
+   * @param oldDn
+   * @param newDn
+   * @return true if moved, false if newDn exists and oldDn doesn't exist so no update
+   */
+  public abstract boolean move(final String ldapServerId, String oldDn, String newDn);
+  
+  /**
+   * modify attributes for an object.  this should be done in bulk, and if there is an error, throw it
+   * @param ldapServerId
+   * @param dn
+   * @param ldapModificationItems
+   * @throws Exception if problem
+   */
+  public abstract void internal_modifyHelper(final String ldapServerId, final String dn, final List<LdapModificationItem> ldapModificationItems);
   
   /**
    * Authenticate a user
