@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,8 +38,8 @@ import java.util.Set;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.joda.time.Days;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -65,6 +64,49 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GrouperLoaderResultset {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    
+    
+//    String provisioner_name="pspng_activedirectoryFull"; // Whatever your provisioner is called in grouper_loader.properties
+//    GrouperSession gs=GrouperSession.startRootSession();
+//    provisioner=edu.internet2.middleware.grouper.pspng.ProvisionerFactory.createProvisioner(provisioner_name,false);
+//    provisioner.getAllGroupsForProvisioner();
+    
+//    List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list("pennKiteAd", 
+//        "OU=GrouperFull,OU=LocalAuth,DC=kite,DC=upenn,DC=edu", LdapSearchScope.SUBTREE_SCOPE, 
+//    "objectclass=group", new String[]{"cn","gidNumber","samAccountName","objectclass", "member"}, null);
+//    List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list("pennKiteAd", 
+//        "OU=Grouper,OU=LocalAuth,DC=kite,DC=upenn,DC=edu", LdapSearchScope.SUBTREE_SCOPE, 
+//    "objectclass=group", new String[]{"cn","gidNumber","samAccountName","objectclass", "member"}, null);
+    List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list("oneProdAd", 
+        "OU=GrouperFull,OU=365Groups,DC=one,DC=upenn,DC=edu", LdapSearchScope.SUBTREE_SCOPE, 
+        "objectclass=group", new String[]{"cn","gidNumber","samAccountName","objectclass", "member"}, null);
+    
+    
+    int g = 0;
+    int ms = 0;
+    for (LdapEntry searchResult : searchResults) {
+
+      int m = 0;
+      String subjectNameInNamespace = searchResult.getDn();
+      System.out.println(g++ + ": " + subjectNameInNamespace);
+      // loop over attribute names that indicate group membership
+      LdapAttribute groupAttribute = searchResult.getAttribute("member");
+
+      if (groupAttribute != null) {
+        for (String attributeValue : groupAttribute.getStringValues()) {
+          System.out.println(m++ + ": " + ms++ + ": - " + attributeValue);
+        }
+
+      } // end of looping over attributes indicating group membership
+    } // end of looping over search results
+
+  }
+  
   /**
    * if we should bulk lookup subjects to add/remove
    */

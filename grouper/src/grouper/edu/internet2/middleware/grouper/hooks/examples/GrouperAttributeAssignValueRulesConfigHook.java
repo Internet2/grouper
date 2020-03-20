@@ -164,10 +164,13 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
         
             String validReason = ruleDefinition.validate();
             
+            
             if (StringUtils.isBlank(validReason)) {
               validReason = "T";
+              ruleDefinition.setValidInAttributes(true);
             } else {
               validReason = "INVALID: " + validReason;
+              ruleDefinition.setValidInAttributes(false);
             }
             
             //now, we need to assign the valid attribute if not there already

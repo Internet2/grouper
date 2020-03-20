@@ -112,22 +112,7 @@
                         <td>${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.id}</td>
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.lastUpdated}</td>
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.host}</td>
-                        <td style="white-space: nowrap">
-                          <c:choose>
-                            <c:when test="${fn:length(guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage) > 0}">
-                              <span id="jobMessageSpan__${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.id}"
-                                >${grouper:abbreviate(guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage, 30, false, true)}
-                                <a href="#" onclick="$('#jobMessageTextarea__${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.id}').show('slow'); 
-                                $('#jobMessageSpan__${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.id}').hide('slow');
-                                return false">${textContainer.text['grouperLoaderLogsLoadedJobMessageShow']}</a>
-                              </span>
-                            
-                              <textarea cols="20" rows="3" style="display: none" 
-                               id="jobMessageTextarea__${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.id}"
-                               >${grouper:escapeHtml(guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage)}</textarea>
-                            </c:when>
-                          </c:choose>
-                        </td>
+                        <td style="white-space: nowrap"><grouper:abbreviateTextarea text="${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage}" showCharCount="30" cols="20" rows="3"/></td>
                         <%-- only some jobs have subjobs --%>
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.hasSubjobs}">
                           <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.parentJobId}</td>

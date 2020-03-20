@@ -131,6 +131,7 @@ import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -2427,7 +2428,55 @@ public class GrouperCheckConfig {
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_AUTHORIZED_GROUP_ID,
             "The authorized group associated with this attestation if any", wasInCheckConfig);
       }
-      
+
+      {
+        
+        String customUiRootStemName = CustomUiAttributeNames.customUiStemName();
+        
+        Stem customUiStem = StemFinder.findByName(grouperSession, customUiRootStemName, false);
+        if (customUiStem == null) {
+          customUiStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for Grouper custom UI attributes").assignName(customUiRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String customUiTypeDefName = customUiRootStemName + ":" + CustomUiAttributeNames.CUSTOM_UI_DEF;
+
+        AttributeDef customUiType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            customUiTypeDefName, false, new QueryOptions().secondLevelCache(false));
+        if (customUiType == null) {
+          customUiType = customUiStem.addChildAttributeDef(CustomUiAttributeNames.CUSTOM_UI_DEF, AttributeDefType.type);
+          customUiType.setAssignToGroup(true);
+          customUiType.store();
+        }
+        
+        //add a name
+        AttributeDefName attribute = checkAttribute(customUiStem, customUiType, CustomUiAttributeNames.CUSTOM_UI_MARKER, "has custom UI attributes", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String customUiAttrDefName = customUiRootStemName + ":" + CustomUiAttributeNames.CUSTOM_UI_VALUE_DEF;
+        AttributeDef customUiAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            customUiAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (customUiAttrType == null) {
+          customUiAttrType = customUiStem.addChildAttributeDef(CustomUiAttributeNames.CUSTOM_UI_VALUE_DEF, AttributeDefType.attr);
+          customUiAttrType.setAssignToGroupAssn(true);
+          customUiAttrType.setMultiValued(true);
+          customUiAttrType.setValueType(AttributeDefValueType.string);
+          customUiAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        customUiAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+
+        //add some names
+        checkAttribute(customUiStem, customUiAttrType, CustomUiAttributeNames.CUSTOM_UI_TEXT_CONFIG_BEANS, 
+            "JSONs of CustomUiTextConfigBeans.  Add a json with multiple values to configure text for this custom UI", wasInCheckConfig);
+        checkAttribute(customUiStem, customUiAttrType, CustomUiAttributeNames.CUSTOM_UI_USER_QUERY_CONFIG_BEANS, 
+            "JSONs of CustomUiUserQueryConfigBeans.  Add a json with multiple values to configure variables and queries for this custom UI", wasInCheckConfig);
+      }
+
       // add attribute defs for grouper types
       {
         String grouperObjectTypesRootStemName = GrouperObjectTypesSettings.objectTypesStemName();

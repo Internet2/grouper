@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 
@@ -28,6 +29,26 @@ public class GrouperTextContainer {
   /** logger */
   protected static final Log LOG = LogFactory.getLog(GrouperTextContainer.class);
 
+  /**
+   * variables to replace once we are in the text and replacing the second time
+   */
+  private static ThreadLocal<Map<String, Object>> threadLocalVariableMap = new InheritableThreadLocal<Map<String, Object>>();
+  
+  /**
+   * assign thread local variable map
+   * @param variableMap
+   */
+  public static void assignThreadLocalVariableMap(Map<String, Object> variableMap) {
+    threadLocalVariableMap.set(variableMap);
+  }
+  
+  /**
+   * remove the threadlocal
+   */
+  public static void resetThreadLocalVariableMap() {
+    threadLocalVariableMap.remove();
+  }
+  
   /**
    * get the text or null if not found
    * @param key
@@ -149,14 +170,21 @@ public class GrouperTextContainer {
       if (value.contains("${")) {
         Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
         Object grouperRequestContainer = grouperRequestContainerThreadLocal.get();
-        if (grouperRequestContainer != null) {
-          substituteMap.put("grouperRequestContainer", grouperRequestContainer);
+        
+        substituteMap.put("grouperRequestContainer", grouperRequestContainer);
+        
+        {
+          Map<String, Object> threadLocalSubstituteMap = threadLocalVariableMap.get();
+          if (threadLocalSubstituteMap != null) {
+            substituteMap.putAll(threadLocalSubstituteMap);
+          }
         }
         
         ServletRequest servletRequest = servletRequestThreadLocal.get();
         
         substituteMap.put("request", servletRequest);
         substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
+        
         value = GrouperUtil.substituteExpressionLanguage(value, substituteMap, true, false, true);
       }
       return value;

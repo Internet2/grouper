@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.app.loader.LoaderJobBean;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.ui.customUi.CustomUiUserQueryConfigBean;
 
 
 /**
@@ -40,7 +41,7 @@ public class GenerateFieldConstants {
    * @param args
    */
   public static void main(String[] args) {
-    generateConstants(LoaderJobBean.class);
+    generateConstants(CustomUiUserQueryConfigBean.class);
   }
   
   /**

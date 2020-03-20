@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -50,6 +49,7 @@ import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -390,6 +390,7 @@ public class SubjectHelper {
    * @param a 
    * @param b 
    * @return  True if both objects are <code>Subject</code>s and equal.
+   * could be a multikey (sourceId, subjectId) and subject
    * @since   1.2.1
    */
   public static boolean eq(Object a, Object b) {
@@ -398,6 +399,15 @@ public class SubjectHelper {
     }
     if ( (a == null) || (b == null) ) {
       return false;
+    }
+    if (a instanceof Subject && b instanceof MultiKey) {
+      return new MultiKey(((Subject)a).getSourceId(), ((Subject)a).getId()).equals(b);
+    }
+    if (b instanceof Subject && a instanceof MultiKey) {
+      return new MultiKey(((Subject)b).getSourceId(), ((Subject)b).getId()).equals(a);
+    }
+    if (a instanceof MultiKey && b instanceof MultiKey) {
+      return a.equals(b);
     }
     if ( !(a instanceof Subject) ) {
       return false;

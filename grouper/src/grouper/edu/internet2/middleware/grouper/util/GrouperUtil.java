@@ -82,8 +82,14 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javassist.util.proxy.ProxyObject;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -97,7 +103,6 @@ import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.Log4JLogger;
@@ -129,10 +134,6 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.util.ExpirableCache;
-import javassist.util.proxy.ProxyObject;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.PropertyFilter;
 
 
 /**
@@ -9388,6 +9389,16 @@ public class GrouperUtil {
     return substituteExpressionLanguage(stringToParse, variableMap, allowStaticClasses, silent, false);
   }
 
+//  /**
+//   * text container pattern
+//   */
+//  private static Pattern textContainerPattern = Pattern.compile("^\\s*textContainer.(text[a-zA-Z]*)\\[\\s*['\"]([a-zA-Z0-9_]+)['\"]\\s*\\]\\s*$");
+  
+  /**
+   * pattern to identify a script
+   */
+  private static Pattern scriptPattern = Pattern.compile("\\$\\{(.*?)\\}");
+  
   /**
    * substitute an EL for objects
    * @param stringToParse
@@ -9401,7 +9412,7 @@ public class GrouperUtil {
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
-    
+    variableMap = nonNull(variableMap);
     if (!jexlEnginesInitialized) {
       synchronized (GrouperUtil.class) {
         if (!jexlEnginesInitialized) {
@@ -9424,8 +9435,6 @@ public class GrouperUtil {
     try {
       JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
 
-
-
       int index = 0;
 
       for (String key: variableMap.keySet()) {
@@ -9437,8 +9446,7 @@ public class GrouperUtil {
       //if you add another one here, add it in the logs below
 
       // matching ${ exp }   (non-greedy)
-      Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
-      Matcher matcher = pattern.matcher(stringToParse);
+      Matcher matcher = scriptPattern.matcher(stringToParse);
 
       StringBuilder result = new StringBuilder();
 
@@ -9472,10 +9480,26 @@ public class GrouperUtil {
           }
         }
 
-        Expression e = jexlEngines.get(new MultiKey(silent, lenient)).createExpression(script);
-
         //this is the result of the evaluation
         Object o = null;
+
+//        // if this is a text container, then scripts in the externalized text might not work, so substitute that out here
+//        Object textContainer = variableMap.get("textContainer");
+//        matcher = textContainerPattern.matcher(script);
+//        if (textContainer != null && matcher.matches()) {
+//
+//          String mapName = matcher.group(1);
+//          String key = matcher.group(2);
+//          
+//          String methodName = "get" + Character.toUpperCase(mapName.charAt(0)) + mapName.substring(1, mapName.length());
+//
+//          Map<String, String> theMap = (Map<String, String>)callMethod(textContainer, methodName);
+//          
+//          o = theMap.get(key);
+//          
+//        } else {
+          
+        Expression e = jexlEngines.get(new MultiKey(silent, lenient)).createExpression(script);
 
         try {
           o = e.evaluate(jc);
@@ -9497,6 +9521,7 @@ public class GrouperUtil {
           throw je;
         }
 
+//        }
         //we dont want "null" in the result I think...
         if (o == null && lenient) {
           o = "";

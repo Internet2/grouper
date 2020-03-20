@@ -37,6 +37,10 @@
                         <c:if test="${!grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canJoin }">
                           <li><a href="#" onclick="ajax('../app/UiV2Group.joinGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupViewJoinGroupButton']}</a></li>
                         </c:if>
+                        <c:if test="${grouperRequestContainer.groupContainer.hasCustomUi }">
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUi.customUiGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupViewCustomUiButton'] }</a></li>                    
+                        </c:if>
 
                         <c:if test="${grouperRequestContainer.groupContainer.canUpdate }">
                           <li class="divider"></li>

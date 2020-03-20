@@ -523,6 +523,14 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     this.group = theGroup;
   }
   
+  
+  /**
+   * @param group1 the group to set
+   */
+  public void setGroup(Group group1) {
+    this.group = group1;
+  }
+
   /**
    * the export subject ids file name
    * @return the export subject ids file name

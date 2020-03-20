@@ -151,6 +151,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2GroupPermission.class.getSimpleName() + ".limitMenuStructure",
       UiV2GroupPermission.class.getSimpleName() + ".limitValueMenuStructure",
       UiV2Main.class.getSimpleName() + ".index",
+      UiV2Main.class.getSimpleName() + ".indexCustomUi",
       UiV2Main.class.getSimpleName() + ".folderMenu",
       UiV2Main.class.getSimpleName() + ".folderMenuObjectPath",
       UiV2Group.class.getSimpleName() + ".addMemberFilter",

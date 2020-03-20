@@ -88,6 +88,30 @@ function guiV2link(url, options) {
     guiScrollTop();
   }
   url = '?' + url;  
+  // http://localhost:8097/grouper/grouperUi/app/UiV2Main.indexCustomUi?operation=UiV2Group.viewGroup&groupId=61bcaad67d57438ab1fea11c426c2f64
+  var browserUrl = location.href;
+  var servletIndex = browserUrl.indexOf("/app/");
+  
+  var navigate = false;
+  
+  if (servletIndex != -1) {
+    servletIndex += "/app/".length;
+    var servlet = browserUrl.substring(servletIndex, browserUrl.length);
+
+    var questionIndex = servlet.indexOf("?");
+    if (questionIndex > -1) {
+      servlet = servlet.substring(0, questionIndex);
+    }
+    if (servlet.toLowerCase().includes("customui") && !url.toLowerCase().includes("customui")) {
+      url = "UiV2Main.index" + url;
+      navigate = true;
+    }
+    if (!servlet.toLowerCase().includes("customui") && url.toLowerCase().includes("customui")) {
+      url = "UiV2Main.indexCustomUi" + url;
+      navigate = true;
+    }
+  }  
+    
   if (typeof options.optionalFormElementNamesToSend != 'undefined' && options.optionalFormElementNamesToSend != null) { 
     
     //add additional form element names to filter based on other things on the screen 
@@ -107,6 +131,10 @@ function guiV2link(url, options) {
     } 
   } 
 
+  if (navigate) {
+    window.location.href = url;
+    return false;
+  }
   var handleStateChangeInitially = true;
 
   var stateObj = { };
