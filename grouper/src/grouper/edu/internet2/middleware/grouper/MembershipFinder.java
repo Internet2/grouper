@@ -64,6 +64,9 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.service.ServiceRole;
@@ -751,6 +754,22 @@ public class MembershipFinder {
     throw new RuntimeException("Expecting 0 or 1 fields but got: " + GrouperUtil.length(this.fields));
   }
   
+  
+  /**
+   * if true then find all fields in all membership and priv owners
+   */
+  private boolean findAllFields = false;
+  /**
+   * if true then find all fields in all membership and priv owners
+   * @param theFindAllFields
+   * @return this for chaining
+   */
+  public MembershipFinder assignFindAllFields(boolean theFindAllFields) {
+    this.findAllFields = theFindAllFields;
+    return this;
+  }
+  
+  
   /**
    * find a set of object arrays which have a membership, group|stem|attributeDef, and member inside
    * @return the set of arrays never null
@@ -760,6 +779,37 @@ public class MembershipFinder {
     if (pointInTimeFrom != null || pointInTimeTo != null) {
       throw new RuntimeException("Use findPITMembershipsMembers() for point in time queries");
     }
+    
+    if (this.findAllFields) {
+      
+      if (GrouperUtil.length(this.fields) > 0) {
+        throw new RuntimeException("Cannot findAllFields and pass in a field");
+      }
+      
+      Set<Object[]> totalResults = new LinkedHashSet<Object[]>();
+      this.findAllFields = false;
+      
+      // memberships
+      this.fields =  GrouperUtil.toSet(Group.getDefaultList());
+      totalResults.addAll(GrouperUtil.nonNull(this.findMembershipsMembers()));
+      
+      // group privs
+      this.fields =  Privilege.convertPrivilegesToFields(AccessPrivilege.ALL_PRIVILEGES);
+      totalResults.addAll(GrouperUtil.nonNull(this.findMembershipsMembers()));
+      
+      // stem privs
+      this.fields =  Privilege.convertPrivilegesToFields(NamingPrivilege.ALL_PRIVILEGES);
+      totalResults.addAll(GrouperUtil.nonNull(this.findMembershipsMembers()));
+      // attr def privs
+      this.fields =  Privilege.convertPrivilegesToFields(AttributeDefPrivilege.ALL_PRIVILEGES);
+      totalResults.addAll(GrouperUtil.nonNull(this.findMembershipsMembers()));
+      
+      this.findAllFields = true;
+      this.fields = null;
+      
+      return totalResults;
+      
+    } 
     
     Field field = this.field(true);
     if ((this.fieldType != null && this.fieldType == FieldType.NAMING )

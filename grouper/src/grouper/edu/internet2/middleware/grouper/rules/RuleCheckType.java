@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -39,8 +40,11 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.RuleConsumer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
@@ -54,7 +58,9 @@ import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.subj.SafeSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * type of checking for rules
@@ -1434,7 +1440,67 @@ public enum RuleCheckType {
     @Override
     public void runDaemon(final RuleDefinition ruleDefinition) {
       
-      throw new RuntimeException("Not implemented daemon: " + ruleDefinition);
+      if (!RuleConsumer.shouldContinue(ruleDefinition)) {
+        return;
+      }
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          Group group = null;
+          String groupId = ruleDefinition.getIfCondition().getIfOwnerId();
+          if (StringUtils.isNotBlank(groupId)) {
+            group = GroupFinder.findByUuid(grouperSession, groupId, true);
+          }
+          
+          if (group == null) {
+            String groupName = ruleDefinition.getIfCondition().getIfOwnerName();
+            if (StringUtils.isNotBlank(groupName)) {
+              group = GroupFinder.findByName(grouperSession, groupName, true);
+            }
+          }
+          
+          if (group == null) {
+            throw new RuntimeException("Could not find group for rule definition: "+ruleDefinition);
+          }
+          
+          final Stem ownerStem = ruleDefinition.getAttributeAssignType().getOwnerStem();
+          
+          String checkStemScope = ruleDefinition.getCheck().getCheckStemScope();
+          
+          final Scope scope = StringUtils.isNotBlank(checkStemScope) ? Scope.valueOfIgnoreCase(checkStemScope, true): Scope.SUB;
+          
+          String sourceId = ruleDefinition.getCheck().getCheckArg0();
+          Set<Source> sources = null;
+
+          if (StringUtils.isNotBlank(sourceId)) {
+            sources = new HashSet<Source>();
+            Source source = SourceManager.getInstance().getSource(sourceId);
+            sources.add(source);
+          }
+         
+          MembershipResult membershipResult = new MembershipFinder().assignFindAllFields(true)
+            .assignMembershipType(MembershipType.IMMEDIATE)
+            .assignSources(sources)
+            .assignStem(ownerStem)
+            .assignStemScope(scope)
+            .assignEnabled(null)
+            .assignCustomCompositeGroup(group)
+            .assignCustomCompositeType(CompositeType.COMPLEMENT)
+            .findMembershipResult();
+          
+          Set<Object[]> membershipsOwnersMembers = membershipResult.getMembershipsOwnersMembers();
+
+          for (Object[] objects: membershipsOwnersMembers) {
+              Membership membership = (Membership) objects[0];  
+              membership.delete();
+          }
+          
+          return null;
+        }
+      });
       
     }
 

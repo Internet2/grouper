@@ -18,7 +18,9 @@
  */
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -28,6 +30,10 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -38,15 +44,25 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.rules.RuleCheck;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleIfCondition;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
+import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Class to dispatch individual events for rules
@@ -113,6 +129,8 @@ public class RuleConsumer extends ChangeLogConsumerBase {
         //fire rules related to membership flat delete in folder
         RuleEngine.fireRule(RuleCheckType.flattenedMembershipRemoveInFolder, rulesBean);
         
+        fixVetoIfNotInFolder(rulesBean.getGroup(), rulesBean.getSubject(), rulesBean.getSubjectSourceId());
+        
       }
 
       /**
@@ -176,7 +194,101 @@ public class RuleConsumer extends ChangeLogConsumerBase {
   
   /** */
   private static final Log LOG = GrouperUtil.getLog(RuleConsumer.class);
+  
+  
+  public static boolean shouldContinue(final RuleDefinition definition) {
+    
+    RuleCheck ruleCheck = definition.getCheck();
+    RuleIfCondition ifCondition = definition.getIfCondition();
+    
+    if (ruleCheck.checkTypeEnum() == RuleCheckType.subjectAssignInStem &&
+        ifCondition.ifConditionEnum() == RuleIfConditionEnum.groupHasNoEnabledMembership &&
+        definition.getAttributeAssignType().getOwnerStem() != null &&
+        definition.getThen().thenEnum() == RuleThenEnum.veto) {
+      return true;
+    }
+    
+    return false;
+    
+  }
+  
+  public static void fixVetoIfNotInFolder(Group group, Subject subject, String subjectSourceId) {
 
+    Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+
+    for (RuleDefinition definition: definitions) {
+      
+      if (!shouldContinue(definition)) {
+        continue;
+      }
+      
+      String ownerId = definition.getIfCondition().getIfOwnerId();
+      
+      boolean shouldContinue = false;
+      
+      if (StringUtils.equals(ownerId, group.getId())) {
+        shouldContinue = true;
+      }
+      
+      if (!shouldContinue) {
+        String ownerName = definition.getIfCondition().getIfOwnerName();
+        if (StringUtils.equals(ownerName, group.getName())) {
+          shouldContinue = true;
+        }
+      }
+      
+      if (!shouldContinue) {
+        continue;
+      }
+      
+      final Stem ownerStem = definition.getAttributeAssignType().getOwnerStem();
+      
+      String checkStemScope =  definition.getCheck().getCheckStemScope();
+
+      final Scope scope = StringUtils.isNotBlank(checkStemScope) ? Scope.valueOfIgnoreCase(checkStemScope, true): Scope.SUB;
+
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+
+          if (group.hasMember(member.getSubject())) {
+            return null;
+          }
+          
+          Set<Source> sources = null;
+
+          if (subjectSourceId != null) {
+            sources = new HashSet<Source>();
+            Source source = SourceManager.getInstance().getSource(subjectSourceId);
+            sources.add(source);
+          }
+
+          MembershipResult membershipResult = new MembershipFinder().assignFindAllFields(true)
+            .addMemberId(member.getId())
+            .assignMembershipType(MembershipType.IMMEDIATE)
+            .assignSources(sources)
+            .assignStem(ownerStem)
+            .assignStemScope(scope)
+            .assignEnabled(null)
+            .findMembershipResult();
+          
+          Set<Object[]> membershipsOwnersMembers = membershipResult.getMembershipsOwnersMembers();
+
+          for (Object[] objects: membershipsOwnersMembers) {
+              Membership membership = (Membership) objects[0];  
+              membership.delete();
+          }
+          
+          return null;
+        }
+      });
+        
+    }
+  }
+  
   /**
    * @see ChangeLogConsumerBase#processChangeLogEntries(List, ChangeLogProcessorMetadata)
    */

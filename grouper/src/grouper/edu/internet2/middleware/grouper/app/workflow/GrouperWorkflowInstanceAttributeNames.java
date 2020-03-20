@@ -182,5 +182,30 @@ public class GrouperWorkflowInstanceAttributeNames {
       return attributeDef;
     }
     
+    /**
+     * attribute value def assigned to stem or group
+     * @return the attribute def name
+     */
+    public static AttributeDef retrieveAttributeDefValueDef() {
+      
+      AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          
+          return AttributeDefFinder.findByName(GrouperWorkflowSettings.workflowStemName()+":"+GROUPER_WORKFLOW_INSTANCE_VALUE_DEF, false, new QueryOptions().secondLevelCache(false));
+          
+        }
+        
+      });
+    
+      if (attributeDef == null) {
+        throw new RuntimeException("Why cant workflowInstanceValueDef attribute def be found?");
+      }
+      
+      return attributeDef;
+    }
+    
 
 }
