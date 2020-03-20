@@ -10,7 +10,7 @@
     <noscript>
       <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
     </noscript>
-    <div class="top-container">
+    <div class="top-container" id="theTopContainer">
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
           <div class="container-fluid"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a>

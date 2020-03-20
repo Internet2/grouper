@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -49,6 +50,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GroupContainer {
 
+  /**
+   * 
+   * @return if has custom ui attribute
+   */
+  public boolean isHasCustomUi() {
+    return CustomUiAttributeNames.retrieveAttributeValuesForGroup(this.getGuiGroup().getGroup()).size() > 0;
+  }
+  
   /**
    * if can view privilege inheritance
    * @return true if can

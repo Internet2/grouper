@@ -1356,7 +1356,50 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       final boolean exceptionIfAlreadyMember, final String uuid, final Timestamp startDate, final Timestamp endDate)
     throws  InsufficientPrivilegeException,
             MemberAddException, SchemaException {
-
+    return this.internal_addMember(subj, f, exceptionIfAlreadyMember, uuid, startDate, endDate, true);
+  }
+  
+  
+  /**
+   * Add a subject to this group as immediate member.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.addMember(subj, f);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add member
+   * } 
+   * catch (SchemaException eS) {
+   *   // Invalid Field
+   * } 
+   * </pre>
+   * @param   subj  Add this {@link Subject}
+   * @param   f     Add subject to this {@link Field}.
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @param uuid is uuid or null for generated
+   * @param startDate 
+   * @param endDate 
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   * @throws  SchemaException
+   * @return false if it already existed, true if it didnt already exist
+   */
+  public boolean internal_addMember(final Subject subj, final Field f, 
+      final boolean exceptionIfAlreadyMember, final String uuid, final Timestamp startDate, final Timestamp endDate, final boolean checkSecurity)
+    throws  InsufficientPrivilegeException,
+            MemberAddException, SchemaException {
     final StopWatch sw = new StopWatch();
     sw.start();
     
@@ -1377,7 +1420,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               if ( !FieldType.LIST.equals( f.getType() ) ) {
                 throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
               }
-              if ( !Group.this.canWriteField(f) ) { 
+              if (checkSecurity && !Group.this.canWriteField(f) ) { 
                 GrouperValidator v = CanOptinValidator.validate(Group.this, subj, f);
                 if (v.isInvalid()) {
                   throw new InsufficientPrivilegeException();
@@ -2377,6 +2420,43 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     throws  InsufficientPrivilegeException, 
             MemberDeleteException,
             SchemaException { 
+    return this.internal_deleteMember(subj, f, exceptionIfAlreadyDeleted, true);
+  }
+  
+  /** 
+   * Delete a subject from this group, and subject must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(m, f);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   subj  Delete this {@link Subject}.
+   * @param   f     Delete subject from this {@link Field}.
+   * @param exceptionIfAlreadyDeleted true if an exception should be thrown
+   * if the member is already deleted
+   * @param checkSecurity false if should not check security
+   * @return false if it was already deleted, true if it wasnt already deleted
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   * @throws  SchemaException
+   */
+  public boolean internal_deleteMember(final Subject subj, final Field f, final boolean exceptionIfAlreadyDeleted, final boolean checkSecurity)  {
+
     final StopWatch sw  = new StopWatch();
     sw.start();
     
@@ -2398,7 +2478,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             if ( !FieldType.LIST.equals( f.getType() ) ) {
               throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
             }
-            if ( !Group.this.canWriteField(f) ) {
+            if (checkSecurity && !Group.this.canWriteField(f) ) {
               GrouperValidator v = CanOptoutValidator.validate(Group.this, subj, f);
               if (v.isInvalid()) {
                 throw new InsufficientPrivilegeException(errorMessageSuffix);

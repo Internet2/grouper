@@ -268,7 +268,7 @@ public class UserAuditQuery {
       
       for (String fieldName : this.auditFieldValue.keySet()) {
         Object value = this.auditFieldValue.get(fieldName);
-
+      //TODO        if groupId then also do owner group id?  owner owner group id?
         //find the field name for this fieldName in all audit types
         Criterion criterion = AuditFieldType.criterion(fieldName, value);
         if (criterion == null) {

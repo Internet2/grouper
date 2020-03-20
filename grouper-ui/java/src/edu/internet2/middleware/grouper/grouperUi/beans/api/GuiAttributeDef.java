@@ -48,6 +48,14 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class GuiAttributeDef extends GuiObjectBase implements Serializable {
 
+  
+  /**
+   * @param attributeDef the attributeDef to set
+   */
+  public void setAttributeDef(AttributeDef attributeDef) {
+    this.attributeDef = attributeDef;
+  }
+
   /**
    * if the logged in user has admin
    * @return true

@@ -10,6 +10,49 @@
 
   <tag>
     <description>
+      Abbreviate with a more button and display all in textarea
+    </description>
+    <name>abbreviateTextarea</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperAbbreviateTextareaTag
+    </tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        cols of textarea
+        </description>
+      <name>cols</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+       rows of textarea
+        </description>
+      <name>rows</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        number of chars to show
+        </description>
+      <name>showCharCount</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        text to show
+        </description>
+      <name>text</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+
+  </tag>
+
+  <tag>
+    <description>
       Creates a dhtmlx combobox
     </description>
     <name>combobox</name>

@@ -506,6 +506,32 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * custom ui container
+   */
+  private CustomUiContainer customUiContainer;
+  
+  
+  /**
+   * custom ui container
+   * @return the groupLiteContainer
+   */
+  public CustomUiContainer getCustomUiContainer() {
+    if (this.customUiContainer == null) {
+      this.customUiContainer = new CustomUiContainer();
+    }
+    return this.customUiContainer;
+  }
+
+  
+  /**
+   * custom ui container
+   * @param groupLiteContainer1 the groupLiteContainer to set
+   */
+  public void setCustomUiContainer(CustomUiContainer groupLiteContainer1) {
+    this.customUiContainer = groupLiteContainer1;
+  }
+
+  /**
    * container for group screens
    */
   private GroupContainer groupContainer;

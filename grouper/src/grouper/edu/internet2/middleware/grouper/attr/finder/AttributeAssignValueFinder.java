@@ -87,6 +87,7 @@ public class AttributeAssignValueFinder {
     private Map<String, AttributeDefName> mapAttributeDefNameIdToAttributeDefName = new LinkedHashMap<String, AttributeDefName>();
     private Map<String, AttributeDef> mapAttributeDefIdToAttributeDef = new LinkedHashMap<String, AttributeDef>();
     private Map<String, AttributeAssignValue> mapAttributeAssignOnAssignIdToAttributeAssignValue = new LinkedHashMap<String, AttributeAssignValue>();
+    private Map<String, Set<AttributeAssignValue>> mapAttributeAssignOnAssignIdToAttributeAssignValueSet = new LinkedHashMap<String, Set<AttributeAssignValue>>();
     private Map<MultiKey, AttributeAssign> mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign = new LinkedHashMap<MultiKey, AttributeAssign>();
     
     /**
@@ -166,6 +167,53 @@ public class AttributeAssignValueFinder {
           }          
         }
         
+      }
+      
+      return result;
+    }
+    
+    /**
+     * get the map of attribute assign id (base attrbute) to map of names and sets of values (assign of assign)
+     * @param ownerId
+     * @return the map
+     */
+    public Map<String, Map<String, Set<String>>> retrieveAssignIdsToAttributeDefNamesAndValueSetsStrings(String ownerId) {
+      
+      Map<String, Map<String, Set<String>>> result = new LinkedHashMap<String, Map<String, Set<String>>>();
+      
+      if (GrouperUtil.length(this.attributeAssignValues) > 0) {
+        
+        Set<AttributeAssign> attributeAssigns = this.mapOwnerIdToAttributeAssigns.get(ownerId);
+
+        if (GrouperUtil.length(attributeAssigns) > 0) {
+          for (AttributeAssign attributeAssign : attributeAssigns) {
+            
+            Map<String, Set<String>> attributeDefNameToValueSet = new LinkedHashMap<String, Set<String>>();
+            result.put(attributeAssign.getId(), attributeDefNameToValueSet);
+            
+            for (String attributeAssignAssignId : GrouperUtil.nonNull(this.mapAttributeAssignIdToAssignAssignIds.get(attributeAssign.getId()))) {
+
+              AttributeAssign attributeAssignOnAssign = this.mapAttributeAssignIdToAttributeAssign.get(attributeAssignAssignId);
+              
+              AttributeDefName attributeDefName = this.mapAttributeDefNameIdToAttributeDefName.get(attributeAssignOnAssign.getAttributeDefNameId());
+              
+              if (result.containsKey(attributeDefName.getName())) {
+                throw new RuntimeException("AttributeDefName '" + attributeDefName.getName() + "' already exists!");
+              }
+              
+              Set<AttributeAssignValue> attributeAssignValueSet = this.mapAttributeAssignOnAssignIdToAttributeAssignValueSet.get(attributeAssignOnAssign.getId());
+              
+              if (attributeAssignValueSet != null) {
+                Set<String> values = new HashSet<String>();
+                for (AttributeAssignValue attributeAssignValue : attributeAssignValueSet) {
+                  values.add(attributeAssignValue.valueString());
+                }
+                    
+                attributeDefNameToValueSet.put(attributeDefName.getName(), values);
+              }
+            }
+          }          
+        }
       }
       
       return result;
@@ -522,14 +570,39 @@ public class AttributeAssignValueFinder {
       
       String attributeAssignId = attributeAssignValue.getAttributeAssignId();
       
+      AttributeAssign attributeAssign = result.mapAttributeAssignIdToAttributeAssign.get(attributeAssignId);
+      
+      AttributeDefName attributeDefName = result.mapAttributeDefNameIdToAttributeDefName.get(attributeAssign.getAttributeDefNameId());
+
+      AttributeDef attributeDef = result.mapAttributeDefIdToAttributeDef.get(attributeDefName.getAttributeDefId());
+
+      // support multiple
+      if (attributeDef.isMultiValued()) {
+        continue;
+      }
+
       if (result.mapAttributeAssignOnAssignIdToAttributeAssignValue.get(attributeAssignId) != null) {
         throw new RuntimeException("AttributeAssignId: " + attributeAssignId + " should only have one value but has multiple!");
       }
 
       result.mapAttributeAssignOnAssignIdToAttributeAssignValue.put(attributeAssignId, attributeAssignValue);
 
-      AttributeAssign attributeAssign = result.mapAttributeAssignIdToAttributeAssign.get(attributeAssignId);
       attributeAssignValue.internalSetAttributeAssign(attributeAssign);
+
+    }
+    
+    for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(result.attributeAssignValues)) {
+      
+      String attributeAssignId = attributeAssignValue.getAttributeAssignId();
+      
+      Set<AttributeAssignValue> attributeAssignValueSet = result.mapAttributeAssignOnAssignIdToAttributeAssignValueSet.get(attributeAssignId);
+      
+      if (attributeAssignValueSet == null) {
+        attributeAssignValueSet = new LinkedHashSet<AttributeAssignValue>();
+        result.mapAttributeAssignOnAssignIdToAttributeAssignValueSet.put(attributeAssignId, attributeAssignValueSet);
+      }
+      
+      attributeAssignValueSet.add(attributeAssignValue);
 
     }
     

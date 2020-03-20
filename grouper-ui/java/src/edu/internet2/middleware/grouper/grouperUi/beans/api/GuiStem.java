@@ -41,6 +41,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class GuiStem extends GuiObjectBase implements Serializable {
 
+  
+  /**
+   * @param stem the stem to set
+   */
+  public void setStem(Stem stem) {
+    this.stem = stem;
+  }
+
   /**
    * 
    * @see java.lang.Object#equals(java.lang.Object)
