@@ -9,7 +9,7 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;

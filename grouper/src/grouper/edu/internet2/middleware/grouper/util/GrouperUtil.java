@@ -93,7 +93,7 @@ import net.sf.json.util.PropertyFilter;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;

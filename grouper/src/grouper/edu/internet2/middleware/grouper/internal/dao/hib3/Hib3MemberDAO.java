@@ -41,7 +41,7 @@ import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Criteria;

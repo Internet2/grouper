@@ -32,7 +32,7 @@ package edu.internet2.middleware.grouper.privs;
 
 import net.sf.ehcache.Element;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;

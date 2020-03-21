@@ -437,7 +437,7 @@ public class LdapSync {
       if (GrouperClientUtils.isBlank(gcGrouperSyncLog.getStatus())) {
         gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
       }
-      this.getGcGrouperSync().store();
+      this.getGcGrouperSync().getGcGrouperSyncDao().store();
 
     } catch (RuntimeException re) {
       gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
@@ -481,8 +481,8 @@ public class LdapSync {
         if (gcGrouperSyncLog != null) {
           gcGrouperSyncLog.setDescription(debugString);
           gcGrouperSyncLog.setJobTookMillis(durationMillis);
-          gcGrouperSyncLog.store();
         }
+        this.gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
       } catch (RuntimeException re3) {
         debugMap.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
         debugString = GrouperClientUtils.mapToString(debugMap);

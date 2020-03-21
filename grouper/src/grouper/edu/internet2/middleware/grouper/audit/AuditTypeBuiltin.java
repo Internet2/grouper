@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper.audit;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 
 

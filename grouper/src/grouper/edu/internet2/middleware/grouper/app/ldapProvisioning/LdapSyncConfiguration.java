@@ -199,7 +199,7 @@ public class LdapSyncConfiguration {
       if (this.ldapSync != null && this.ldapSync.getGcGrouperSyncLog() != null) {
         try {
           this.ldapSync.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.CONFIG_ERROR);
-          this.ldapSync.getGcGrouperSyncLog().store();
+          this.ldapSync.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
         } catch (RuntimeException re2) {
           GrouperClientUtils.injectInException(re, "***** START ANOTHER EXCEPTON *******" + GrouperClientUtils.getFullStackTrace(re2) + "***** END ANOTHER EXCEPTON *******");
         }

@@ -21,7 +21,6 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -41,6 +40,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindR
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**

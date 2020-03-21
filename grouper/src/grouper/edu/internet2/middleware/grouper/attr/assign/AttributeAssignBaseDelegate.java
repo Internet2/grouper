@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper.attr.assign;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;

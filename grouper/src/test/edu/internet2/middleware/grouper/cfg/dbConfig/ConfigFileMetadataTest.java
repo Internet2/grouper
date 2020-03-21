@@ -7,7 +7,7 @@ package edu.internet2.middleware.grouper.cfg.dbConfig;
 import java.io.File;
 import java.util.List;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;

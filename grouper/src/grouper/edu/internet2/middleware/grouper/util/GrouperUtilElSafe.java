@@ -56,7 +56,7 @@ import java.util.regex.Pattern;
 import javassist.util.proxy.ProxyObject;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.logging.Log;
