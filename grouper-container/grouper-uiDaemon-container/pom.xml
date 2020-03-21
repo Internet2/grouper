@@ -27,21 +27,6 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>grouper</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-ws</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-ws-scim</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>grouper-ui</artifactId>
       <version>${grouper.version}</version>
     </dependency>

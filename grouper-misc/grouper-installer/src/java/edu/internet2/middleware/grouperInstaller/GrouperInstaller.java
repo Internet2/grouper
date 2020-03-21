@@ -10454,35 +10454,6 @@ public class GrouperInstaller {
     String grouperUntarredReleaseDir = untarredGrouperSourceCodeDir.getAbsolutePath().substring(0, untarredGrouperSourceCodeDir.getAbsolutePath().lastIndexOf(File.separator));
     grouperUntarredReleaseDir = grouperUntarredReleaseDir + File.separator + "grouper-" + untarredGrouperSourceCodeDir.getName() ;
     
-    // go in grouper-container and run mvn dependency:copy-dependencies
-    List<File> grouperProjects = new ArrayList<File>();
-    
-    grouperProjects.add(new File(grouperUntarredReleaseDir + File.separator + "grouper-container"));
-    
-    List<String> commands = new ArrayList<String>();
-    addMavenCommands(commands);
-    
-    commands.add("-DincludeScope=runtime");
-    commands.add("-Dgrouper.version="+this.version);
- 
-    commands.add("dependency:copy-dependencies");
-          
-    for (File file: grouperProjects) {
-      System.out.println("\n##################################");
-      System.out.println("Downloading third party jars for "+ file.getName()+" with command:\n" 
-          + convertCommandsIntoCommand(commands) + "\n");
-      
-      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-          true, true, null, new File(file.getAbsolutePath()), null, true);
-      
-      if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-        System.out.println("stderr: " + commandResult.getErrorText());
-      }
-      if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-        System.out.println("stdout: " + commandResult.getOutputText());
-      }
-    }
-    
     // now create an output directory (webapp) and tomee
     String containerDirString = grouperContainerDirectory();
     File containerTomeeDir = new File(containerDirString + "tomee");
@@ -10498,8 +10469,19 @@ public class GrouperInstaller {
     webInfDir.mkdirs(); // should already be there
     File webInfConfDir = new File(webInfDir+File.separator+"conf");
     webInfConfDir.mkdirs();
+    
     File libDir = new File(webInfDir+File.separator+"lib");
     libDir.mkdirs();
+    
+    File libUiAndDaemonDir = new File(webInfDir+File.separator+"libUiAndDaemon");
+    libUiAndDaemonDir.mkdirs();
+    
+    File libWsDir = new File(webInfDir+File.separator+"libWs");
+    libWsDir.mkdirs();
+    
+    File libScimDir = new File(webInfDir+File.separator+"libScim");
+    libScimDir.mkdirs();
+    
     File modulesDir = new File(webInfDir+File.separator+"modules");
     modulesDir.mkdirs();
     File servicesDir = new File(webInfDir+File.separator+"services");
@@ -10509,24 +10491,73 @@ public class GrouperInstaller {
     File binDir = new File(webInfDir+File.separator+"bin");
     binDir.mkdirs();
     
-    // now copy all dependency jars into container/webapp/WEB-INF/lib
+    // go in grouper-container and run mvn dependency:copy-dependencies
+    Map<File, File> projectDirToOutputLibDir = new LinkedHashMap<File, File>();
+    projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-api-container"), libDir);
+    projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-uiDaemon-container"), libUiAndDaemonDir);
+    projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-ws-container"), libWsDir);
+    projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-scim-container"), libScimDir);
+    
+    List<String> commands = new ArrayList<String>();
+    addMavenCommands(commands);
+    
+    commands.add("-DincludeScope=runtime");
+    commands.add("-Dgrouper.version="+this.version);
+ 
+    commands.add("dependency:copy-dependencies");
+          
+    for (File file: projectDirToOutputLibDir.keySet()) {
+      System.out.println("\n##################################");
+      System.out.println("Downloading third party jars for "+ file.getName()+" with command:\n" 
+          + convertCommandsIntoCommand(commands) + "\n");
+      
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+          true, true, null, new File(file.getAbsolutePath()), null, true);
+      
+      if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+        System.out.println("stderr: " + commandResult.getErrorText());
+      }
+      if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+        System.out.println("stdout: " + commandResult.getOutputText());
+      }
+    }
+    
+    // now copy all dependency jars into corresponding container/webapp/WEB-INF/lib{""|UiAndDaemon|Ws|Scim|}
     try {
-      for (File file: grouperProjects) {
+      Set<String> allGrouperApiJars = new HashSet<String>();
+      for (File file: projectDirToOutputLibDir.keySet()) {        
         File jarsDirectory = new File(file.getAbsolutePath()+File.separator+"target"+File.separator+"dependency");
-        GrouperInstallerUtils.copyDirectory(jarsDirectory, libDir, null, true);
+        
+        if (allGrouperApiJars.size() == 0) { // we are relying on the first item in projectDirToOutputLibDir being the grouper api 
+          for (File jarFile: findAllLibraryFiles(jarsDirectory.getAbsolutePath())) {
+            allGrouperApiJars.add(jarFile.getName());
+          }
+          // copy the grouper api jars into container/webapp/WEB-INF/lib
+          GrouperInstallerUtils.copyDirectory(jarsDirectory, projectDirToOutputLibDir.get(file), null, true);
+          continue;
+        }
+        
+        // make sure the jar file is already not there
+        for (File jarFile: findAllLibraryFiles(jarsDirectory.getAbsolutePath())) {
+          if (allGrouperApiJars.contains(jarFile.getName()) == false) {
+            File destFile = new File(projectDirToOutputLibDir.get(file).getAbsolutePath() + File.separator + jarFile.getName());
+            GrouperInstallerUtils.copyFile(jarFile, destFile);
+          }
+        }
+        
       }
     } catch (Exception e) {
       throw new RuntimeException("Could not copy jars from dependency directories ", e);
     }
     
     // delete all grouper snapshots jars from WEB-INF/lib
-    List<File> allLibraryJars = findAllLibraryFiles(libDir.getAbsolutePath());
-    
-    for (File file: allLibraryJars) {
-      if (file.getName().contains("grouper") && file.getName().contains("SNAPSHOT")) {
-        GrouperInstallerUtils.fileDelete(file);
-      }
-    }
+//    List<File> allLibraryJars = findAllLibraryFiles(libDir.getAbsolutePath());
+//    
+//    for (File file: allLibraryJars) {
+//      if (file.getName().contains("grouper") && file.getName().contains("SNAPSHOT")) {
+//        GrouperInstallerUtils.fileDelete(file);
+//      }
+//    }
     
     // now copy grouper/conf, grouper-ws/conf, grouper-ui/conf and grouperClient/conf to classesDir
     
@@ -10605,6 +10636,9 @@ public class GrouperInstaller {
     
     // take care of conflicting jars
     reportOnConflictingJars(libDir.getAbsolutePath());
+    reportOnConflictingJars(libUiAndDaemonDir.getAbsolutePath());
+    reportOnConflictingJars(libWsDir.getAbsolutePath());
+    reportOnConflictingJars(libScimDir.getAbsolutePath());
     
     // copy apache-tomee-webprofile-7.0.7 to tomee
     // why can't uncompressed directory has the same name??? :((
