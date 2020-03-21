@@ -1,10 +1,6 @@
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
-import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 
 /**
  * message sent in JSON to tell the provisioner to analyze objects

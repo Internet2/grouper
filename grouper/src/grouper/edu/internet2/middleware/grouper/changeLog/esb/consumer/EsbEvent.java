@@ -19,13 +19,11 @@
 
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -57,90 +55,6 @@ public class EsbEvent {
     this.createdOnMicros = createdOnMicros1;
   }
 
-  /**
-   * type of event
-   * @author mchyzer
-   *
-   */
-  public static enum EsbEventType {
-    
-    /** ENTITY_ADD event */
-    ENTITY_ADD, 
-    
-    /** ENTITY_DELETE event */
-    ENTITY_DELETE,
-    
-    /** ENTITY_UPDATE event */
-    ENTITY_UPDATE,
-
-    /** GROUP_ADD event */
-    GROUP_ADD, 
-    
-    /** GROUP_DELETE event */
-    GROUP_DELETE,
-
-    /** GROUP_FIELD_ADD event */
-    GROUP_FIELD_ADD,
-    
-    /** GROUP_FIELD_DELETE event */
-    GROUP_FIELD_DELETE,
-    
-    /** GROUP_FIELD_UPDATE event */
-    GROUP_FIELD_UPDATE,
-
-    /** GROUP_TYPE_ADD event */
-    GROUP_TYPE_ADD,
-
-    /** GROUP_TYPE_DELETE event */
-    GROUP_TYPE_DELETE,
-
-    /** GROUP_TYPE_UPDATE event */
-    GROUP_TYPE_UPDATE,
-
-    /** GROUP_UPDATE event */
-    GROUP_UPDATE,
-
-    /** MEMBERSHIP_ADD event */
-    MEMBERSHIP_ADD,
-
-    /** MEMBERSHIP_DELETE event */
-    MEMBERSHIP_DELETE,
-
-    /** MEMBERSHIP_UPDATE event */
-    MEMBERSHIP_UPDATE,
-
-    /** MEMBER_ADD event */
-    MEMBER_ADD,
-
-    /** MEMBER_DELETE event */
-    MEMBER_DELETE,
-
-    /** MEMBER_UPDATE event */
-    MEMBER_UPDATE,
-
-    /** PRIVILEGE_ADD event */
-    PRIVILEGE_ADD,
-
-    /** PRIVILEGE_DELETE event */
-    PRIVILEGE_DELETE,
-
-    /** PRIVILEGE_UPDATE event */
-    PRIVILEGE_UPDATE,
-
-    /** STEM_ADD event */
-    STEM_ADD,
-
-    /** STEM_DELETE event */
-    STEM_DELETE,
-
-    /** STEM_UPDATE event */
-    STEM_UPDATE,
-    
-    /** PERMISSION_CHANGE_ON_SUBJECT event */
-    PERMISSION_CHANGE_ON_SUBJECT;
-  }
-  
-  
   /**
    * get a subject attribute by name
    * @param attributeName
@@ -185,6 +99,68 @@ public class EsbEvent {
   public void setChangeOccurred(boolean changeOccurred) {
     this.changeOccurred = changeOccurred;
   }
+  
+  /**
+   * if doing a sync, this is the provisioner
+   */
+  private String provisionerName;
+  
+  /**
+   * if doing a sync, this is the provisioner
+   * @return provisioner name
+   */
+  public String getProvisionerName() {
+    return this.provisionerName;
+  }
+
+  /**
+   * if doing a sync, this is the provisioner
+   * @param provisionerName1
+   */
+  public void setProvisionerName(String provisionerName1) {
+    this.provisionerName = provisionerName1;
+  }
+
+  /**
+   * for full sync, or even for group sync potentially, true if the sync should block other sync,
+   * false if should not block and should just add more lowel level sync events
+   */
+  private Boolean provisionerBlocking;
+
+  /**
+   * for full sync, or even for group sync potentially, true if the sync should block other sync,
+   * false if should not block and should just add more lowel level sync events
+   * @return
+   */
+  public Boolean isProvisionerBlocking() {
+    return this.provisionerBlocking;
+  }
+
+  
+  public void setProvisionerBlocking(Boolean provisionerBlocking1) {
+    this.provisionerBlocking = provisionerBlocking1;
+  }
+
+  /**
+   * sync type of the sync if full sync.  e.g. fullSyncFull or fullSyncGroup
+   */
+  private String provisionerSyncType;
+  
+  /**
+   * sync type of the sync.  e.g. fullSyncFull or fullSyncGroup
+   * @return sync type
+   */
+  public String getProvisionerSyncType() {
+    return this.provisionerSyncType;
+  }
+
+  /**
+   * sync type of the sync.  e.g. fullSyncFull or fullSyncGroup
+   * @param provisionerSyncType1
+   */
+  public void setProvisionerSyncType(String provisionerSyncType1) {
+    this.provisionerSyncType = provisionerSyncType1;
+  }
 
   /** sequence number of event for logging or whatnot */
   private String sequenceNumber;
@@ -209,6 +185,9 @@ public class EsbEvent {
 
   /** */
   private String fieldName;
+
+  /** */
+  private String fieldId;
 
   /** */
   private String groupId;
@@ -432,6 +411,27 @@ public class EsbEvent {
    */
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
+  }
+
+  /**
+   * field id
+   * @return field id
+   */
+  public String getFieldId() {
+    return this.fieldId;
+  }
+
+  /**
+   * field id
+   * @param fieldId1
+   */
+  public void setFieldId(String fieldId1) {
+    this.fieldId = fieldId1;
+  }
+
+  
+  public Boolean getProvisionerBlocking() {
+    return provisionerBlocking;
   }
 
   /**
@@ -854,4 +854,209 @@ public class EsbEvent {
   public void setMemberId(String memberId) {
     this.memberId = memberId;
   }
+
+  @Override
+  public String toString() {
+    return GrouperClientUtils.toStringReflection(this);
+  }
+  
+  /**
+   * for attribute assignments, if the attributeAssignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId
+   */
+  private String ownerId2;
+  
+  /**
+   * for attribute assignments, if the attributeAssignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId
+   * @return ownerId2
+   */
+  public String getOwnerId2() {
+    return ownerId2;
+  }
+
+  /**
+   * for attribute assignments, if the attributeAssignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId
+   * @param ownerId2
+   */
+  public void setOwnerId2(String ownerId2) {
+    this.ownerId2 = ownerId2;
+  }
+
+
+  /**
+   * attribute def name id for attribute assignments
+   */
+  private String attributeDefNameId;
+
+  
+  
+  /**
+   * attribute def name id for attribute assignments
+   * @return attribute def name id
+   */
+  public String getAttributeDefNameId() {
+    return this.attributeDefNameId;
+  }
+
+  /**
+   * attribute def name id for attribute assignments
+   * @param attributeDefNameId1
+   */
+  public void setAttributeDefNameId(String attributeDefNameId1) {
+    this.attributeDefNameId = attributeDefNameId1;
+  }
+
+  /**
+   * name of attributeDefName
+   */
+  private String attributeDefNameName;
+
+  /**
+   * name of attributeDefName
+   * @return name
+   */
+  public String getAttributeDefNameName() {
+    return this.attributeDefNameName;
+  }
+
+  /**
+   * name of attributeDefName
+   * @param attributeDefNameName1 
+   */
+  public void setAttributeDefNameName(String attributeDefNameName1) {
+    this.attributeDefNameName = attributeDefNameName1;
+  }
+
+  /**
+   * attributeAssignId
+   */
+  private String attributeAssignId;
+  
+  
+  
+  /**
+   * attributeAssignId
+   * @return id
+   */
+  public String getAttributeAssignId() {
+    return this.attributeAssignId;
+  }
+
+  /**
+   * attributeAssignId
+   * @param attributeAssignId1
+   */
+  public void setAttributeAssignId(String attributeAssignId1) {
+    this.attributeAssignId = attributeAssignId1;
+  }
+
+  /**
+   * type of value: nullValue, memberId, string, floating, integerValue
+   */
+  private String valueType;
+  
+  /**
+   * type of value: nullValue, memberId, string, floating, integerValue
+   * @return vlaue type
+   */
+  public String getValueType() {
+    return this.valueType;
+  }
+
+  /**
+   * type of value: nullValue, memberId, string, floating, integerValue
+   * @param valueType1
+   */
+  public void setValueType(String valueType1) {
+    this.valueType = valueType1;
+  }
+
+  /**
+   * attribute assign type: group, group_asgn, member, member_asgn, stem, stem_asgn, any_mem, any_mem_asgn, attr_def, attr_def_asgn, imm_mem, imm_mem_asgn
+   */
+  private String attributeAssignType;
+
+  
+  
+  /**
+   * attribute assign type: group, group_asgn, member, member_asgn, stem, stem_asgn, any_mem, any_mem_asgn, attr_def, attr_def_asgn, imm_mem, imm_mem_asgn
+   * @return type
+   */
+  public String getAttributeAssignType() {
+    return this.attributeAssignType;
+  }
+
+  /**
+   * attribute assign type: group, group_asgn, member, member_asgn, stem, stem_asgn, any_mem, any_mem_asgn, attr_def, attr_def_asgn, imm_mem, imm_mem_asgn
+   * @param attributeAssignType1
+   */
+  public void setAttributeAssignType(String attributeAssignType1) {
+    this.attributeAssignType = attributeAssignType1;
+  }
+
+  /**
+   * generally: assign
+   */
+  private String attributeAssignAction;
+
+  
+  
+  /**
+   * generally: assign
+   * @return action
+   */
+  public String getAttributeAssignAction() {
+    return this.attributeAssignAction;
+  }
+
+  /**
+   * generally: assign
+   * @param attributeAssignAction1
+   */
+  public void setAttributeAssignAction(String attributeAssignAction1) {
+    this.attributeAssignAction = attributeAssignAction1;
+  }
+
+  /**
+   * id of attribute assign action
+   */
+  private String attributeAssignActionId;
+  
+  /**
+   * id of attribute assign action
+   * @return id
+   */
+  public String getAttributeAssignActionId() {
+    return this.attributeAssignActionId;
+  }
+
+  /**
+   * id of attribute assign action
+   * @param attributeAssignActionId1
+   */
+  public void setAttributeAssignActionId(String attributeAssignActionId1) {
+    this.attributeAssignActionId = attributeAssignActionId1;
+  }
+
+  /**
+   * T or F for permissions
+   */
+  private String disallowed;
+
+  /**
+   * T or F for permissions
+   * @return T or F
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * T or F for permissions
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
+  
 }
