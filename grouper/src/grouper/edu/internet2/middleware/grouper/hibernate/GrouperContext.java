@@ -336,22 +336,29 @@ public class GrouperContext {
     
     return grouperContext;
   }
-  
+
   /**
    * tell the context another query occurred
    */
   public static void incrementQueryCount() {
+    incrementQueryCount(1);
+  }
+
+  /**
+   * tell the context another query occurred
+   */
+  public static void incrementQueryCount(int queries) {
     
-    totalQueryCount++;
+    totalQueryCount+=queries;
     
     GrouperContext grouperContextInner = currentInnerContext.get();
     if (grouperContextInner != null) {
-      grouperContextInner.queryCount++;
+      grouperContextInner.queryCount+=queries;
     }
     
     GrouperContext grouperContextOuter = currentOuterContext.get();
     if (grouperContextOuter != null) {
-      grouperContextOuter.queryCount++;
+      grouperContextOuter.queryCount+=queries;
     }
   }
 

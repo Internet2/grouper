@@ -1,6 +1,11 @@
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 
 /**
  * message sent in JSON to tell the provisioner to analyze objects
@@ -29,13 +34,14 @@ public class ProvisioningMessage {
     
     String message = provisioningMessage.toJson();
     System.out.println(message);
-//    GrouperMessagingEngine.send(
-//        new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-//          .assignQueueType(GrouperMessageQueueType.queue)
-//          .assignQueueOrTopicName("grouperProvisioningControl_myPspngProvisioner")
-//          .assignAutocreateObjects(true)
-//          .addMessageBody(message));
-
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    GrouperMessagingEngine.send(
+        new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+          .assignQueueType(GrouperMessageQueueType.queue)
+          .assignQueueOrTopicName("grouperProvisioningControl_myPspngProvisioner")
+          .assignAutocreateObjects(true)
+          .addMessageBody(message));
+    GrouperSession.stopQuietly(grouperSession);
     
   }
   

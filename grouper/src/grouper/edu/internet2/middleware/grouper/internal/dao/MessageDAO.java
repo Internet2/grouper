@@ -45,6 +45,13 @@ public interface MessageDAO extends GrouperDAO {
   public List<GrouperMessageHibernate> findByQueue(String queue, int pageSize);
 
   /**
+   * find queues with messages by prefix
+   * @param queuePrefix
+   * @return collection of queues
+   */
+  public Set<String> queuesWithMessagesByPrefix(String queuePrefix);
+
+  /**
    * @param id
    * @param exceptionIfNotFound 
    * @return the message

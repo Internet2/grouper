@@ -31,28 +31,28 @@ public class ProvisioningMembershipMessage {
    */
   public ProvisioningMembershipMessage(String groupId1, String memberId1, String fieldName1) {
     this(groupId1, memberId1);
-    this.fieldName = fieldName1;
+    this.fieldId = fieldName1;
   }
 
   /**
-   * e.g. members
+   * e.g. uuid for members
    */
-  private String fieldName;
+  private String fieldId;
   
   /**
-   * e.g. members
+   * e.g. uuid for members
    * @return field name
    */
-  public String getFieldName() {
-    return this.fieldName;
+  public String getFieldId() {
+    return this.fieldId;
   }
 
   /**
-   * e.g. members
+   * e.g. uuid for members
    * @param fieldName1
    */
-  public void setFieldName(String fieldName1) {
-    this.fieldName = fieldName1;
+  public void setFieldId(String fieldName1) {
+    this.fieldId = fieldName1;
   }
 
   /**

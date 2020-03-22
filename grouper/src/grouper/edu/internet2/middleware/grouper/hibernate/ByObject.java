@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Session;
 
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
@@ -264,9 +265,13 @@ public class ByObject extends HibernateDelegate {
           ((HibGrouperLifecycle)object).onPreSave(hibernateSession);
         }
       }
+
+      int queries = 1+(GrouperUtil.length(collection) / GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.jdbc.batch_size", 200));
+
+      GrouperContext.incrementQueryCount(queries);
+
       
       for (Object object : collection) {
-        GrouperContext.incrementQueryCount();
         
         if (StringUtils.isBlank(this.entityName)) {
           session.save(object);
@@ -565,5 +570,68 @@ public class ByObject extends HibernateDelegate {
   public ByObject setEntityName(String theEntityName) {
     this.entityName = theEntityName;
     return this;
+  }
+
+  /**
+   * <pre>
+   * call hibernate method "update" on a collection of objects in batch
+   * 
+   * </pre>
+   * @param collection of objects to save
+   * @throws GrouperDAOException
+   */
+  public void updateBatch(final Collection<?> collection) throws GrouperDAOException {
+    try {
+      HibernateSession hibernateSession = this.getHibernateSession();
+      Session session = hibernateSession.getSession();
+  
+      for (Object object : collection) {
+        if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
+          ((HibGrouperLifecycle)object).onPreUpdate(hibernateSession);
+        }
+      }
+
+      int queries = 1+(GrouperUtil.length(collection) / GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.jdbc.batch_size", 200));
+
+      GrouperContext.incrementQueryCount(queries);
+
+      for (Object object : collection) {
+        
+        if (StringUtils.isBlank(this.entityName)) {
+          session.update(object);
+        } else {
+          session.update(this.entityName, object);
+        }
+      }
+  
+      session.flush();
+      session.clear();
+      
+      for (Object object : collection) {
+        if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
+          ((HibGrouperLifecycle)object).onPostUpdate(hibernateSession);
+        }
+      }
+  
+    } catch (HookVeto hookVeto) {
+      //just throw, this is ok
+      throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
+    } catch (MembershipAlreadyExistsException e) {
+      throw e;
+    } catch (RuntimeException e) {
+  
+      String errorString = "Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+      
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+  
+      throw e;
+    }
+    
   }
 }

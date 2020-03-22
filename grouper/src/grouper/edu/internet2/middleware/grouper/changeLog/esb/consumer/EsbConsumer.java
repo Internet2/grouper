@@ -32,10 +32,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningProcessingResult;
@@ -47,7 +44,8 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -56,6 +54,15 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartb
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache.ExpirableCacheUnit;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
@@ -74,11 +81,14 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     //GrouperBuiltinMessagingSystem.createQueue("abc");
-    int i=14;
-    Group group = new GroupSave(grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
-    RegistryReset._addSubjects(i, i+1);
-    Subject subject = SubjectFinder.findById("test.subject." + i, true);
-    group.addMember(subject);
+//    int i=14;
+//    Group group = new GroupSave(grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+//    RegistryReset._addSubjects(i, i+1);
+//    Subject subject = SubjectFinder.findById("test.subject." + i, true);
+//    group.addMember(subject);
+    
+    System.out.println(provisioningMessageQueueHasMessages("myPspngProvisioner"));
+    
   }
   
   /** */
@@ -372,6 +382,43 @@ public class EsbConsumer extends ChangeLogConsumerBase {
   }
 
   /**
+   * cache of queues with messages, get with the method
+   */
+  private static ExpirableCache<Boolean, Set<String>> provisioningMessageQueuesWithMessages = null;
+
+  /**
+   * get the cache of queues with messages
+   * @return the cache
+   */
+  private static ExpirableCache<Boolean, Set<String>> provisioningMessageQueuesWithMessages() {
+    if (provisioningMessageQueuesWithMessages == null) {
+      int secondsToCache = GrouperLoaderConfig.retrieveConfig().propertyValueInt("provisioningMessagesCheckCacheSeconds", 15);
+      provisioningMessageQueuesWithMessages = new ExpirableCache<Boolean, Set<String>>(ExpirableCacheUnit.SECOND, secondsToCache);
+    }
+    return provisioningMessageQueuesWithMessages;
+  }
+
+  /**
+   * see if queue has messages
+   * @param provisionerName
+   * @return true if has messages
+   */
+  private static boolean provisioningMessageQueueHasMessages(String provisionerName) {
+    ExpirableCache<Boolean, Set<String>> provisioningMessageQueuesWithMessagesCache = provisioningMessageQueuesWithMessages();
+    Set<String> provisioningQueuesWithMessages = provisioningMessageQueuesWithMessagesCache.get(Boolean.TRUE);
+    if (provisioningQueuesWithMessages == null) {
+      synchronized (provisioningMessageQueuesWithMessagesCache) {
+        provisioningQueuesWithMessages = provisioningMessageQueuesWithMessagesCache.get(Boolean.TRUE);
+        if (provisioningQueuesWithMessages == null) {
+          provisioningQueuesWithMessages = GrouperDAOFactory.getFactory().getMessage().queuesWithMessagesByPrefix("grouperProvisioningControl_");
+          provisioningMessageQueuesWithMessagesCache.put(Boolean.TRUE, provisioningQueuesWithMessages);
+        }
+      }
+    }
+    return provisioningQueuesWithMessages.contains("grouperProvisioningControl_" + provisionerName);
+  }
+  
+  /**
    * 
    * @param changeLogEntryList
    * @return
@@ -586,6 +633,11 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     public int filterByNotProvisionablePostSize;
     public int eventsFilteredNotTrackedOrProvisionable;
     public int gcGrouperSyncGroupsRetrievedByEventsSize;
+    public int messageCountForProvisioner;
+    public int messageProcessedCountForProvisioner;
+    public int messageNotProcessedCountForProvisioner;
+      
+
   }
 
   /**
@@ -684,38 +736,45 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           }
         }
         
-        // ######### STEP 4: see if we can skip some based on full sync
+        // ######### STEP 4: check messages and create events
+        this.debugMapOverall.put("state", "checkMessagesAndCreateEvents");
+        this.checkMessagesAndCreateEvents(esbEventContainersToProcess, gcGrouperSync, sendCreatedOnMicros);
+        
+        // ######### STEP 5: see if we can skip some based on full sync, group sync
         this.debugMapOverall.put("state", "filterByProvisioningFullSync");
         this.filterByProvisioningFullSync(esbEventContainersToProcess, gcGrouperSync);
-        
-        // ######### STEP 5: update provisioning metadata based on attribute changes
+
+        // ######### STEP 6: update provisioning metadata based on attribute changes TODO consider messages
         this.debugMapOverall.put("state", "processProvisioningMetadata");
         this.grouperProvisioningProcessingResult = this.processProvisioningMetadata(esbEventContainersToProcess, gcGrouperSync, gcGrouperSyncJob);
         
-        // ######### STEP 6: filter out events that are captured in provisioning metadata changes
+        // ######### STEP 7: filter out events that are captured in provisioning metadata changes
         this.debugMapOverall.put("state", "filterEventsCapturedByProvisioningMetadata");
         this.filterEventsCapturedByProvisioningMetadata(esbEventContainersToProcess, this.grouperProvisioningProcessingResult);
         
       }
 
-      // ######### STEP 7: add in subject attributes
+      // ######### STEP 8: add in subject attributes
       this.debugMapOverall.put("state", "addSubjectAttributes");
       this.addSubjectAttributes(esbEventContainersToProcess);
       
-      // ######### STEP 8: filter by EL
+      // ######### STEP 9: filter by EL
       this.debugMapOverall.put("state", "filterByExpressionLanguage");
       this.filterByExpressionLanguage(esbEventContainersToProcess);
 
       if (!StringUtils.isBlank(filterByProvisionerTarget)) {
         
-        // ######### STEP 9: retrieve and create group sync objects
+        // ######### STEP 10: retrieve and create group sync objects
         this.debugMapOverall.put("state", "retrieveProvisioningGroupSyncObjects");
         this.retrieveAndCreateProvisioningGroupSyncObjects(esbEventContainersToProcess, gcGrouperSync);
         
-        // ######### STEP 10: filter if not provisionable
+        // ######### STEP 11: filter if not provisionable
         this.debugMapOverall.put("state", "filterByNotProvisionable");
         this.filterByNotProvisionable(esbEventContainersToProcess);
         
+        // ######### STEP 12: convert events to full or group sync and filter TODO do this
+
+
         // ######### STEP 11: filter by group sync
         this.debugMapOverall.put("state", "filterByProvisioningGroupSync");
         this.filterByProvisioningGroupSync(esbEventContainersToProcess, gcGrouperSync);
@@ -762,6 +821,10 @@ public class EsbConsumer extends ChangeLogConsumerBase {
         if (currentId == lastEventSequenceToProcess) {
           currentId = lastEventSequenceOverall;
         }
+        
+        // ######### STEP 17: acknowledge messages
+        this.acknowledgeMessagesProcessed(esbEventContainersToProcess, gcGrouperSync, currentId);
+        
       } else {
         
         // no records to process, we good
@@ -886,6 +949,212 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     return currentId;
   }
 
+  /**
+   * acknowledgeMessages processed
+   * @param esbEventContainersToProcess
+   * @param gcGrouperSync
+   * @param lastProcessedSequenceNumber
+   */
+  private void acknowledgeMessagesProcessed(
+      List<EsbEventContainer> esbEventContainersToProcess, GcGrouperSync gcGrouperSync, long lastProcessedSequenceNumber) {
+    int messageProcessedCountForProvisioner = 0;
+    int messageNotProcessedCountForProvisioner = 0;
+    
+    Set<GrouperMessage> messagesNotProcessed = new HashSet<GrouperMessage>();
+    Set<GrouperMessage> messagesProcessed = new HashSet<GrouperMessage>();
+    
+    OUTER: for (GrouperMessage grouperMessage : this.grouperMessageToSequenceNumbers.keySet()) {
+      
+      Set<Long> messageSequenceNumbers = this.grouperMessageToSequenceNumbers.get(grouperMessage);
+      for (Long messageSequenceNumber : messageSequenceNumbers) {
+        
+        // hmmm, didnt get done
+        if (messageSequenceNumber > lastProcessedSequenceNumber) {
+          messagesNotProcessed.add(grouperMessage);
+          continue OUTER;
+        }
+      }
+      messagesNotProcessed.add(grouperMessage);
+    }
+
+    if (messagesNotProcessed.size() > 0) {
+    
+      GrouperMessagingEngine.acknowledge(
+          new GrouperMessageAcknowledgeParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+            .assignAcknowledgeType(GrouperMessageAcknowledgeType.return_to_queue)
+            .assignGrouperMessages(messagesNotProcessed)
+            .assignQueueName("grouperProvisioningControl_" + gcGrouperSync.getProvisionerName()));
+    }
+    if (messagesProcessed.size() > 0) {
+      GrouperMessagingEngine.acknowledge(
+          new GrouperMessageAcknowledgeParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+            .assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed)
+            .assignGrouperMessages(messagesNotProcessed)
+            .assignQueueName("grouperProvisioningControl_" + gcGrouperSync.getProvisionerName()));
+      
+    }
+    
+    logIntegerIfNotZero(debugMapOverall, "messageProcessedCountForProvisioner", messageProcessedCountForProvisioner);
+    this.internal_esbConsumerTestingData.messageProcessedCountForProvisioner = messageProcessedCountForProvisioner;
+    logIntegerIfNotZero(debugMapOverall, "messageNotProcessedCountForProvisioner", messageNotProcessedCountForProvisioner);
+    this.internal_esbConsumerTestingData.messageNotProcessedCountForProvisioner = messageNotProcessedCountForProvisioner;
+
+  }
+
+  /**
+   * if we need to add events we can add some negative sequence numbers
+   */
+  private int negativeSequenceNumber = -1;
+
+  /**
+   * keep messages that were sent and link to which esb event sequence numbers
+   */
+  private Map<GrouperMessage, Set<Long>> grouperMessageToSequenceNumbers = new HashMap<GrouperMessage, Set<Long>>();
+  
+  /**
+   * keep messages that were sent and link to which esb event sequence numbers
+   * @return the map
+   */
+  public Map<GrouperMessage, Set<Long>> getGrouperMessageToSequenceNumbers() {
+    return this.grouperMessageToSequenceNumbers;
+  }
+
+  /**
+   * check messages to see if we are affecting the real time provisioners
+   * @param esbEventContainersToProcess
+   * @param gcGrouperSync
+   * @param sendCreatedOnMicros
+   */
+  private void checkMessagesAndCreateEvents(
+      List<EsbEventContainer> esbEventContainersToProcess, GcGrouperSync gcGrouperSync, boolean sendCreatedOnMicros) {
+    
+    int messageCountForProvisioner = 0;
+    
+    if (provisioningMessageQueueHasMessages(gcGrouperSync.getProvisionerName())) {
+      
+      GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(
+          new GrouperMessageReceiveParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+            .assignQueueType(GrouperMessageQueueType.queue)
+            .assignQueueName("grouperProvisioningControl_" + gcGrouperSync.getProvisionerName()));
+
+      for (GrouperMessage grouperMessage : GrouperUtil.nonNull(grouperMessageReceiveResult.getGrouperMessages())) {
+        String messageBody = grouperMessage.getMessageBody();
+        String messageId = grouperMessage.getId();
+
+        ProvisioningMessage provisioningMessage = ProvisioningMessage.fromJson(messageBody);
+
+        if (provisioningMessage.getFullSync() != null && provisioningMessage.getFullSync()) {
+          
+          EsbEventContainer esbEventContainer = createEsbEventContainerForProvisioningMessage(grouperMessage, 
+              sendCreatedOnMicros, messageId, gcGrouperSync.getProvisionerName(),
+              provisioningMessage.getBlocking(), true, provisioningMessage.getFullSyncType(), null, null, null);
+          esbEventContainersToProcess.add(0, esbEventContainer);
+          messageCountForProvisioner++;
+        } else {
+          
+          if (GrouperUtil.length(provisioningMessage.getGroupIdsForSync()) > 0) {
+            for (String groupId : provisioningMessage.getGroupIdsForSync()) {
+              EsbEventContainer esbEventContainer = createEsbEventContainerForProvisioningMessage(grouperMessage,
+                  sendCreatedOnMicros, messageId, gcGrouperSync.getProvisionerName(),
+                  provisioningMessage.getBlocking(), false, "groupSync", groupId, null, null);
+              esbEventContainersToProcess.add(0, esbEventContainer);
+              messageCountForProvisioner++;
+            }
+            
+          }
+          
+          if (GrouperUtil.length(provisioningMessage.getMemberIdsForSync()) > 0) {
+            for (String memberId : provisioningMessage.getMemberIdsForSync()) {
+              EsbEventContainer esbEventContainer = createEsbEventContainerForProvisioningMessage(grouperMessage,
+                  sendCreatedOnMicros, messageId, gcGrouperSync.getProvisionerName(),
+                  provisioningMessage.getBlocking(), false, "memberSync", null, memberId, null);
+              esbEventContainersToProcess.add(0, esbEventContainer);
+              messageCountForProvisioner++;
+            }
+            
+          }
+          
+          if (GrouperUtil.length(provisioningMessage.getMembershipsForSync()) > 0) {
+            // TODO if user sync then see if supports user sync and if not convert to membership syncs (current and recent)
+            for (ProvisioningMembershipMessage provisioningMembershipMessage : provisioningMessage.getMembershipsForSync()) {
+              EsbEventContainer esbEventContainer = createEsbEventContainerForProvisioningMessage(grouperMessage,
+                  sendCreatedOnMicros, messageId, gcGrouperSync.getProvisionerName(),
+                  provisioningMessage.getBlocking(), false, "membershipSync", 
+                  provisioningMembershipMessage.getGroupId(), provisioningMembershipMessage.getMemberId(), 
+                  provisioningMembershipMessage.getFieldId());
+              esbEventContainersToProcess.add(0, esbEventContainer);
+              messageCountForProvisioner++;
+            }
+            
+          }
+          
+        }
+        
+      }
+    }
+    
+    debugMapOverall.put("currentSequenceNumber", null);
+    
+    logIntegerIfNotZero(debugMapOverall, "messageCountForProvisioner", messageCountForProvisioner);
+    this.internal_esbConsumerTestingData.messageCountForProvisioner = messageCountForProvisioner;
+
+  }
+
+  /**
+   * make an esb event container from provisioning message
+   * @param grouperMessage
+   * @param sendCreatedOnMicros
+   * @param messageId
+   * @param provisionerName
+   * @param blocking
+   * @param fullSync
+   * @param syncType
+   * @param groupId
+   * @param memberId
+   * @param fieldId
+   * @return the esb event container
+   */
+  private EsbEventContainer createEsbEventContainerForProvisioningMessage(GrouperMessage grouperMessage, 
+      boolean sendCreatedOnMicros, String messageId, String provisionerName,
+      Boolean blocking, boolean fullSync, String syncType, String groupId, String memberId, String fieldId) {
+
+    EsbEvent esbEvent = new EsbEvent();
+    EsbEventContainer esbEventContainer = new EsbEventContainer();
+    esbEventContainer.setSequenceNumber(GrouperUtil.longValue(this.negativeSequenceNumber--));
+    // for logging
+    debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
+
+    Set<Long> sequenceNumbersForMessage = this.grouperMessageToSequenceNumbers.get(grouperMessage);
+    if (sequenceNumbersForMessage == null) {
+      sequenceNumbersForMessage = new HashSet<Long>();
+      this.grouperMessageToSequenceNumbers.put(grouperMessage, sequenceNumbersForMessage);
+    }
+    sequenceNumbersForMessage.add(esbEventContainer.getSequenceNumber());
+
+    EsbEvent event = new EsbEvent();
+    esbEventContainer.setEsbEvent(event);
+    esbEventContainer.setDebugMapForEvent(new LinkedHashMap<String, Object>());
+
+    event.setSequenceNumber(Long.toString(esbEventContainer.getSequenceNumber()));
+
+    if (sendCreatedOnMicros) {
+      event.setCreatedOnMicros(System.currentTimeMillis()*1000);
+    }
+    // TOOO set event type
+    esbEvent.setMessageId(messageId);
+    esbEvent.setProvisionerName(provisionerName);
+
+    esbEvent.setProvisionerBlocking(blocking);
+
+    esbEvent.setProvisionerSyncType(syncType);
+
+    esbEvent.setGroupId(groupId);
+    esbEvent.setMemberId(memberId);
+    esbEvent.setFieldId(fieldId);
+
+    return esbEventContainer;
+  }
+    
   /**
    * might need this method later
    * @param esbEventContainersToProcess

@@ -711,5 +711,62 @@ public class ByObjectStatic extends ByQueryBase {
     return (ByObjectStatic)super.setIgnoreHooks(theIgnoreHooks);
   }
 
+
+  /**
+   * <pre>
+   * call hibernate method "updateBatch" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().updateBatch(collection);
+   * 
+   * </pre>
+   * @param collection is collection of objects to update in one transaction.  If null or empty just ignore
+   * @throws GrouperDAOException
+   */
+  public void updateBatch(final Collection<?> collection) throws GrouperDAOException {
+    if (collection == null) {
+      return;
+    }
+    try {
+      GrouperTransactionType grouperTransactionTypeToUse = 
+        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
+          new HibernateHandler() {
+  
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+              
+              GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
+              GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
+              
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.updateBatch(collection);
+              return null;
+            }
+        
+      });
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      
+      String errorString = "Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+  
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+  
+      throw e;
+    }
+    
+  }
+
   
 }

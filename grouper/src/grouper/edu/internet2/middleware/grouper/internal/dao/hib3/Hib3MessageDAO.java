@@ -109,5 +109,19 @@ public class Hib3MessageDAO extends Hib3DAO implements MessageDAO {
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(Hib3MessageDAO.class);
 
+  @Override
+  public Set<String> queuesWithMessagesByPrefix(String queuePrefix) {
+    Set<String> messages = HibernateSession.byHqlStatic()
+        .createQuery("select distinct gmh.queueName from GrouperMessageHibernate gmh "
+            + " where gmh.queueName like :theQueuePrefix"
+            + " and (gmh.state = 'IN_QUEUE' or (gmh.state = 'GET_ATTEMPTED'"
+            + " and gmh.attemptTimeExpiresMillis < :attemptTimeExpired )) ")
+        .setString("theQueuePrefix", queuePrefix.endsWith("%") ? queuePrefix : (queuePrefix + '%'))
+        .setLong("attemptTimeExpired", System.currentTimeMillis())
+        .listSet(String.class);
+    return messages;
+
+  }
+
 
 }
