@@ -344,13 +344,22 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       // Find all the values for the membership attribute
       Collection<String> membershipValues = new HashSet<String>(initialMembers.size());
+
       for ( Subject subject : initialMembers ) {
-        LdapUser ldapUser = getTargetSystemUser(subject);
-        if ( ldapUser != null ) {
-          String membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroup, null);
-          if ( membershipAttributeValue != null ) {
-            membershipValues.add(membershipAttributeValue);
+        LdapUser ldapUser;
+        String membershipAttributeValue = null;
+        if (!config.needsTargetSystemUsers()) {
+          membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, null, grouperGroup, null);
+        }
+        else {
+          ldapUser = getTargetSystemUser(subject);
+          if ( ldapUser != null ) {
+            membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroup, null);
           }
+        }
+
+        if ( membershipAttributeValue != null ) {
+          membershipValues.add(membershipAttributeValue);
         }
       }
 
