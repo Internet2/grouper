@@ -30,6 +30,27 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class EsbEvent {
 
   /**
+   * messageid of message
+   */
+  private String messageId;
+  
+  /**
+   * messageid of message
+   * @return message id
+   */
+  public String getMessageId() {
+    return this.messageId;
+  }
+
+  /**
+   * messageid of message
+   * @param messageId1
+   */
+  public void setMessageId(String messageId1) {
+    this.messageId = messageId1;
+  }
+
+  /**
    * microseconds since 1970 that this event was created.  divide by 1000 for millis
    */
   private Long createdOnMicros = null;
@@ -221,12 +242,33 @@ public class EsbEvent {
   }
 
   /**
-   * sync type of the sync if full sync.  e.g. fullSyncFull or fullSyncGroup
+   * if this is a full sync
+   */
+  private Boolean provisionerFullSync;
+  
+  /**
+   * if this is a full sync
+   * @return if full sync
+   */
+  public Boolean getProvisionerFullSync() {
+    return this.provisionerFullSync;
+  }
+
+  /**
+   * if this is a full sync
+   * @param provisionerFullSync1
+   */
+  public void setProvisionerFullSync(Boolean provisionerFullSync1) {
+    this.provisionerFullSync = provisionerFullSync1;
+  }
+
+  /**
+   * sync type of the sync if full sync.  e.g. fullSyncFull or fullSyncGroup, groupSync, userSync, membershipSync
    */
   private String provisionerSyncType;
   
   /**
-   * sync type of the sync.  e.g. fullSyncFull or fullSyncGroup
+   * sync type of the sync.  e.g. fullSyncFull or fullSyncGroup, groupSync, userSync, membershipSync
    * @return sync type
    */
   public String getProvisionerSyncType() {
@@ -234,7 +276,7 @@ public class EsbEvent {
   }
 
   /**
-   * sync type of the sync.  e.g. fullSyncFull or fullSyncGroup
+   * sync type of the sync.  e.g. fullSyncFull or fullSyncGroup, groupSync, userSync, membershipSync
    * @param provisionerSyncType1
    */
   public void setProvisionerSyncType(String provisionerSyncType1) {

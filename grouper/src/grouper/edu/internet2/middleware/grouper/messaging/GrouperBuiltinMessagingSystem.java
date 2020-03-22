@@ -1338,20 +1338,30 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
           }
           grouperMessageHibernate.setGetAttemptTimeMillis(System.currentTimeMillis());
           grouperMessageHibernate.setState(GrouperBuiltinMessageState.GET_ATTEMPTED.name());
-          try {
-            grouperMessageHibernate.saveOrUpdate();
-          } catch (GrouperStaleStateException gsse) {
-            //if this happens, it might be because it was received in another thread... just go to next one
-            LOG.debug("Stale object state on message is not a problem: " + grouperMessageHibernate.getId() + ", " + grouperMessageHibernate.getQueueName(), gsse);
-            continue;
-          } catch (GrouperStaleObjectStateException gsose) {
-            //if this happens, it might be because it was received in another thread... just go to next one
-            LOG.debug("Stale object state on message is not a problem: " + grouperMessageHibernate.getId() + ", " + grouperMessageHibernate.getQueueName(), gsose);
-            continue;
-          }
           messages.add(grouperMessageHibernate);
         }
+
+        try {
+          // its more efficient if this works
+          HibernateSession.byObjectStatic().updateBatch(grouperMessageHibernates);
+        } catch (Exception e) {
         
+          // if there is a problem do each individually
+          for (GrouperMessageHibernate grouperMessageHibernate : grouperMessageHibernates) {
+  
+            try {
+              grouperMessageHibernate.saveOrUpdate();
+            } catch (GrouperStaleStateException gsse) {
+              //if this happens, it might be because it was received in another thread... just go to next one
+              LOG.debug("Stale object state on message is not a problem: " + grouperMessageHibernate.getId() + ", " + grouperMessageHibernate.getQueueName(), gsse);
+              continue;
+            } catch (GrouperStaleObjectStateException gsose) {
+              //if this happens, it might be because it was received in another thread... just go to next one
+              LOG.debug("Stale object state on message is not a problem: " + grouperMessageHibernate.getId() + ", " + grouperMessageHibernate.getQueueName(), gsose);
+              continue;
+            }
+          }
+        }        
         break;
       }
       //dont long poll
@@ -1374,6 +1384,8 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
       final GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
     final GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
 
+    // TODO batch update or the messages...
+    
     String queue = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopicName();
 
     //must be queue
@@ -1423,9 +1435,6 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
             if (StringUtils.equals(GrouperBuiltinMessageState.GET_ATTEMPTED.name(), grouperMessageHibernate.getState())) {
               grouperMessageHibernate.setState(GrouperBuiltinMessageState.IN_QUEUE.name());
               grouperMessageHibernate.saveOrUpdate();
-            } else if (grouperMessageHibernate == null) {
-              //if not there, i guess thats ok
-              LOG.warn("Grouper message doesnt exist, cant return to queue: " + grouperMessage.getId());
             } else {
               LOG.warn("Grouper message already had state: " + grouperMessageHibernate.getState());
             }
@@ -1438,9 +1447,6 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
               grouperMessageHibernate.setState(GrouperBuiltinMessageState.IN_QUEUE.name());
               grouperMessageHibernate.setSentTimeMicros(messageSentTimeMicros());
               grouperMessageHibernate.saveOrUpdate();
-            } else if (grouperMessageHibernate == null) {
-              //if not there, i guess thats ok
-              LOG.warn("Grouper message doesnt exist, cant return to queue: " + grouperMessage.getId());
             } else {
               LOG.warn("Grouper message already had state: " + grouperMessageHibernate.getState());
             }
@@ -1474,18 +1480,14 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
                 }
               });
               
-            } else if (grouperMessageHibernate == null) {
-              //if not there, i guess thats ok
-              LOG.warn("Grouper message doesnt exist, cant return to queue: " + grouperMessage.getId());
             } else {
               LOG.warn("Grouper message already had state: " + grouperMessageHibernate.getState());
             }
             break;
         }
-      } else if (grouperMessageHibernate == null) {
+      // if (grouperMessageHibernate == null) 
+      } else { 
         LOG.warn("Grouper message doesnt exist, cant mark as processed: " + grouperMessage.getId());
-      } else {
-        LOG.warn("Grouper message was already processed: " + grouperMessage.getId());
       }
     }
     return new GrouperMessageAcknowledgeResult();

@@ -908,6 +908,9 @@ public class ProvisioningToSyncTest extends GrouperTest {
       assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.filterInvalidEventTypesSize);
       assertEquals(1, this.esbConsumer.internal_esbConsumerTestingData.skippedEventsDueToFullSync);
       
+      // ######### Add a group, should see those events
+      
+      // TODO sdf
   
     }
 
