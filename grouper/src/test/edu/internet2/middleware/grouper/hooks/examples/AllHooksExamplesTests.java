@@ -16,6 +16,7 @@
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -36,7 +37,9 @@ public class AllHooksExamplesTests {
     suite.addTestSuite(GroupAttributeNameValidationHookTest.class);
     suite.addTestSuite(GroupUniqueNameCaseInsensitiveHookTest.class);
     suite.addTestSuite(LDAPProvisioningHookTest.class);
-    suite.addTestSuite(MembershipCannotAddSelfToGroupHookTest.class);
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.membershipCannotAddSelfToGroupHook", false)) {
+      suite.addTestSuite(MembershipCannotAddSelfToGroupHookTest.class);
+    }
     suite.addTestSuite(MembershipOneInFolderMaxHookTest.class);
     suite.addTestSuite(StemUniqueNameCaseInsensitiveHookTest.class);
     suite.addTestSuite(UniqueObjectHookTest.class);
