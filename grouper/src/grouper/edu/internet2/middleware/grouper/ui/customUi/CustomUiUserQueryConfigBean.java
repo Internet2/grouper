@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.ui.customUi;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -70,6 +71,9 @@ public class CustomUiUserQueryConfigBean {
   /** constant for field name for: groupId */
   public static final String FIELD_GROUP_ID = "groupId";
 
+  /** constant for field name for: forLoggedInUser */
+  public static final String FIELD_FOR_LOGGED_IN_USER = "forLoggedInUser";
+
   /** constant for field name for: groupName */
   public static final String FIELD_GROUP_NAME = "groupName";
 
@@ -88,9 +92,6 @@ public class CustomUiUserQueryConfigBean {
   /** constant for field name for: listName */
   public static final String FIELD_LIST_NAME = "listName";
 
-  /** constant for field name for: managerVariable */
-  public static final String FIELD_MANAGER_VARIABLE = "managerVariable";
-
   /** constant for field name for: nameOfAttributeDef */
   public static final String FIELD_NAME_OF_ATTRIBUTE_DEF = "nameOfAttributeDef";
 
@@ -108,9 +109,6 @@ public class CustomUiUserQueryConfigBean {
 
   /** constant for field name for: stemName */
   public static final String FIELD_STEM_NAME = "stemName";
-
-  /** constant for field name for: userVariable */
-  public static final String FIELD_USER_VARIABLE = "userVariable";
 
   /** constant for field name for: userQueryType */
   public static final String FIELD_USER_QUERY_TYPE = "userQueryType";
@@ -614,45 +612,26 @@ public class CustomUiUserQueryConfigBean {
   }
 
   /**
-   * if evaluated for managers
+   * if this is for the logged in user instead of the user being operated on
    */
-  private Boolean managerVariable;
+  private Boolean forLoggedInUser;
+
+  
   
   /**
-   * if evaluated for managers
-   * @return the managerVariable
+   * if this is for the logged in user instead of the user being operated on
+   * @return for logged in user
    */
-  public Boolean getManagerVariable() {
-    return this.managerVariable;
-  }
-  
-  /**
-   * if evaluated for managers
-   * @param managerVariable1 the managerVariable to set
-   */
-  public void setManagerVariable(Boolean managerVariable1) {
-    this.managerVariable = managerVariable1;
+  public Boolean getForLoggedInUser() {
+    return this.forLoggedInUser;
   }
 
   /**
-   * if evaluated for users
+   * 
+   * @param forLoggedInUser1
    */
-  private Boolean userVariable;
-  
-  /**
-   * if evaluated for users
-   * @return the userVariable
-   */
-  public Boolean getUserVariable() {
-    return this.userVariable;
-  }
-  
-  /**
-   * if evaluated for users
-   * @param userVariable1 the userVariable to set
-   */
-  public void setUserVariable(Boolean userVariable1) {
-    this.userVariable = userVariable1;
+  public void setForLoggedInUser(Boolean forLoggedInUser1) {
+    this.forLoggedInUser = forLoggedInUser1;
   }
 
   /**
@@ -826,5 +805,5 @@ public class CustomUiUserQueryConfigBean {
   public String toString() {
     return GrouperClientUtils.toStringReflection(this);
   }
-  
+
 }

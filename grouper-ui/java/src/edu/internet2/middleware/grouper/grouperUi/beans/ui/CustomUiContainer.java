@@ -25,7 +25,6 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiTextType;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiUserQueryDisplayBean;
-import edu.internet2.middleware.grouper.ui.customUi.CustomUiUserType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -123,42 +122,10 @@ public class CustomUiContainer {
       substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
       substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
       
-      return CustomUiContainer.this.customUiEngine.findBestText(CustomUiUserType.user, customUiTextType, substituteMap);
+      return CustomUiContainer.this.customUiEngine.findBestText(customUiTextType, substituteMap);
     }
     
   };
-  
-  
-  /**
-   * @return the textTypeToTextManager
-   */
-  public Map<String, Object> getTextTypeToTextManager() {
-    return this.textTypeToTextManager;
-  }
-
-  /**
-   * map from text type to text manager
-   */
-  private Map<String, Object> textTypeToTextManager = new HashMap<String, Object>() {
-
-    /**
-     * @see java.util.HashMap#get(java.lang.Object)
-     */
-    @Override
-    public Object get(Object key) {
-
-      CustomUiTextType customUiTextType = CustomUiTextType.valueOfIgnoreCase((String)key, true);
-      
-      Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
-      substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
-      substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
-      substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
-      
-      return CustomUiContainer.this.customUiEngine.findBestText(CustomUiUserType.manager, customUiTextType, substituteMap);
-    }
-    
-  };
-  
   
   /**
    * @return the textTypeToText
@@ -179,7 +146,7 @@ public class CustomUiContainer {
   public boolean isCanChangeVariables() {
     if (this.canChangeVariables == null) {
       
-      Boolean overrideOff = (Boolean)this.customUiEngine.userQueryVariables(CustomUiUserType.manager).get("cu_grouperTurnOffManager");
+      Boolean overrideOff = (Boolean)this.customUiEngine.userQueryVariables().get("cu_grouperTurnOffManager");
       if (overrideOff != null && overrideOff) {
         this.canChangeVariables = false;
       }
@@ -191,7 +158,7 @@ public class CustomUiContainer {
       substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
       substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
 
-      Object result = this.customUiEngine.findBestText(CustomUiUserType.manager, CustomUiTextType.canAssignVariables, substituteMap);
+      Object result = this.customUiEngine.findBestText(CustomUiTextType.canAssignVariables, substituteMap);
       if (result != null) {
         this.canChangeVariables = GrouperUtil.booleanObjectValue(result);
       }
@@ -225,7 +192,7 @@ public class CustomUiContainer {
    * @return attributes
    */
   public Set<String> getAttributeNames() {
-    Map<String, Object> userQueryVariables = this.customUiEngine.userQueryVariables(CustomUiUserType.user);
+    Map<String, Object> userQueryVariables = this.customUiEngine.userQueryVariables();
     if (userQueryVariables == null) {
       return null;
     }
@@ -294,7 +261,7 @@ public class CustomUiContainer {
     
     if (this.manager == null && this.customUiEngine != null) {
       
-      final Map<String, Object> userQueryVariables = this.customUiEngine.userQueryVariables(CustomUiUserType.manager);
+      final Map<String, Object> userQueryVariables = this.customUiEngine.userQueryVariables();
       if (userQueryVariables != null) {
         Boolean overrideOff = (Boolean)userQueryVariables.get("cu_grouperTurnOffManager");
         if (overrideOff != null && overrideOff) {
