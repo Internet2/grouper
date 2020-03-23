@@ -47,11 +47,9 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
-import edu.internet2.middleware.grouper.ui.customUi.CustomUiUserType;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * operations in the group screen
@@ -349,7 +347,7 @@ public class UiV2CustomUi {
         
         customUiContainer.setCustomUiEngine(customUiEngine);
         
-        customUiEngine.processGroup(group, subject, loggedInSubject);
+        customUiEngine.processGroup(group, loggedInSubject, subject);
 
         return null;
       }
@@ -360,7 +358,7 @@ public class UiV2CustomUi {
       Enumeration<String> parameterNames = request.getParameterNames();
       if (parameterNames != null) {
         boolean needsReset = false;
-        final Map<String, Object> userQueryVariables = customUiContainer.getCustomUiEngine().userQueryVariables(CustomUiUserType.user);
+        final Map<String, Object> userQueryVariables = customUiContainer.getCustomUiEngine().userQueryVariables();
         while (parameterNames.hasMoreElements()) {
           String parameterName = parameterNames.nextElement();
           if (parameterName.startsWith("cu_")) {

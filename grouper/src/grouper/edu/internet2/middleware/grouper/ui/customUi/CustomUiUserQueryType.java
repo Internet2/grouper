@@ -464,8 +464,6 @@ public enum CustomUiUserQueryType {
       CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
       CustomUiUserQueryConfigBean.FIELD_LABEL,
       CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
-      CustomUiUserQueryConfigBean.FIELD_MANAGER_VARIABLE,
-      CustomUiUserQueryConfigBean.FIELD_USER_VARIABLE,
       CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN,
       CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN_ON_ERROR
       );
@@ -476,6 +474,7 @@ public enum CustomUiUserQueryType {
   private static Set<String> azureOptionaldFieldNames = GrouperUtil.toSet(
       CustomUiUserQueryConfigBean.FIELD_AZURE_GROUP_ID, 
       CustomUiUserQueryConfigBean.FIELD_ENABLED, 
+      CustomUiUserQueryConfigBean.FIELD_FOR_LOGGED_IN_USER,
       CustomUiUserQueryConfigBean.FIELD_GROUP_ID, 
       CustomUiUserQueryConfigBean.FIELD_GROUP_NAME,
       CustomUiUserQueryConfigBean.FIELD_ORDER
@@ -486,8 +485,6 @@ public enum CustomUiUserQueryType {
    */
   private static Set<String> grouperRequiredFieldNames = GrouperUtil.toSet(
       CustomUiUserQueryConfigBean.FIELD_LABEL,
-      CustomUiUserQueryConfigBean.FIELD_MANAGER_VARIABLE,
-      CustomUiUserQueryConfigBean.FIELD_USER_VARIABLE,
       CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
       CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN
       );
@@ -500,6 +497,7 @@ public enum CustomUiUserQueryType {
       CustomUiUserQueryConfigBean.FIELD_ENABLED, 
       CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
       CustomUiUserQueryConfigBean.FIELD_FIELD_NAMES, 
+      CustomUiUserQueryConfigBean.FIELD_FOR_LOGGED_IN_USER,
       CustomUiUserQueryConfigBean.FIELD_GROUP_ID, 
       CustomUiUserQueryConfigBean.FIELD_GROUP_NAME,
       CustomUiUserQueryConfigBean.FIELD_NAME_OF_ATTRIBUTE_DEF,
@@ -516,8 +514,6 @@ public enum CustomUiUserQueryType {
   private static Set<String> expressionLanguageRequiredFieldNames = GrouperUtil.toSet(
       CustomUiUserQueryConfigBean.FIELD_LABEL,
       CustomUiUserQueryConfigBean.FIELD_SCRIPT,
-      CustomUiUserQueryConfigBean.FIELD_MANAGER_VARIABLE,
-      CustomUiUserQueryConfigBean.FIELD_USER_VARIABLE,
       CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
       CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN
       );
@@ -529,6 +525,7 @@ public enum CustomUiUserQueryType {
       CustomUiUserQueryConfigBean.FIELD_ATTRIBUTE_DEF_ID, 
       CustomUiUserQueryConfigBean.FIELD_ENABLED, 
       CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_FOR_LOGGED_IN_USER,
       CustomUiUserQueryConfigBean.FIELD_GROUP_ID, 
       CustomUiUserQueryConfigBean.FIELD_GROUP_NAME,
       CustomUiUserQueryConfigBean.FIELD_NAME_OF_ATTRIBUTE_DEF,
@@ -545,8 +542,6 @@ public enum CustomUiUserQueryType {
   private static Set<String> sqlRequiredFieldNames = GrouperUtil.toSet(
       CustomUiUserQueryConfigBean.FIELD_LABEL,
       CustomUiUserQueryConfigBean.FIELD_QUERY,
-      CustomUiUserQueryConfigBean.FIELD_MANAGER_VARIABLE,
-      CustomUiUserQueryConfigBean.FIELD_USER_VARIABLE,
       CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
       CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN
       );
@@ -565,6 +560,7 @@ public enum CustomUiUserQueryType {
       CustomUiUserQueryConfigBean.FIELD_CONFIG_ID, 
       CustomUiUserQueryConfigBean.FIELD_ENABLED, 
       CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_FOR_LOGGED_IN_USER,
       CustomUiUserQueryConfigBean.FIELD_GROUP_ID, 
       CustomUiUserQueryConfigBean.FIELD_GROUP_NAME,
       CustomUiUserQueryConfigBean.FIELD_NAME_OF_ATTRIBUTE_DEF,
@@ -584,8 +580,6 @@ public enum CustomUiUserQueryType {
       CustomUiUserQueryConfigBean.FIELD_LDAP_ATTRIBUTE_TO_RETRIEVE,
       CustomUiUserQueryConfigBean.FIELD_LDAP_FILTER,
       CustomUiUserQueryConfigBean.FIELD_LABEL,
-      CustomUiUserQueryConfigBean.FIELD_MANAGER_VARIABLE,
-      CustomUiUserQueryConfigBean.FIELD_USER_VARIABLE,
       CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
       CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN
       );
@@ -596,6 +590,7 @@ public enum CustomUiUserQueryType {
   private static Set<String> ldapOptionalFieldNames = GrouperUtil.toSet(
       CustomUiUserQueryConfigBean.FIELD_ENABLED, 
       CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_FOR_LOGGED_IN_USER,
       CustomUiUserQueryConfigBean.FIELD_GROUP_ID, 
       CustomUiUserQueryConfigBean.FIELD_GROUP_NAME,
       CustomUiUserQueryConfigBean.FIELD_LDAP_SEARCH_DN,

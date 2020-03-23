@@ -15,8 +15,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import jline.internal.Log;
-
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -30,6 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
+import jline.internal.Log;
 
 
 /**
@@ -45,12 +44,7 @@ public class CustomUiEngine {
   /**
    * user query beans
    */
-  private List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeansForUser = new ArrayList<CustomUiUserQueryConfigBean>();
-  
-  /**
-   * user query beans
-   */
-  private List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeansForManager = new ArrayList<CustomUiUserQueryConfigBean>();
+  private List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeans = new ArrayList<CustomUiUserQueryConfigBean>();
   
   /**
    * display beans
@@ -101,12 +95,7 @@ public class CustomUiEngine {
         if (StringUtils.equals("default", customUiUserQueryConfigBean.getVariableToAssign())) {
           defaultConfigBean = customUiUserQueryConfigBean;
         } else {
-          if (customUiUserQueryConfigBean.getUserVariable() == null || customUiUserQueryConfigBean.getUserVariable()) {
-            customUiUserQueryConfigBeansForUser.add(customUiUserQueryConfigBean);
-          }
-          if (customUiUserQueryConfigBean.getManagerVariable() != null && customUiUserQueryConfigBean.getManagerVariable()) {
-            customUiUserQueryConfigBeansForManager.add(customUiUserQueryConfigBean);
-          }
+          customUiUserQueryConfigBeans.add(customUiUserQueryConfigBean);
         }
       }
     }
@@ -120,11 +109,7 @@ public class CustomUiEngine {
 
     // copy default values
     if (this.defaultConfigBean != null) {
-      for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeansForUser) {
-
-        copyDefaultsForConfigBean(customUiUserQueryConfigBean);
-      }
-      for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeansForManager) {
+      for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans) {
 
         copyDefaultsForConfigBean(customUiUserQueryConfigBean);
       }
@@ -169,10 +154,7 @@ public class CustomUiEngine {
     
     List<MultiKey> groupIdAndNames = new ArrayList<MultiKey>();
     
-    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeansForUser) {
-      cacheGroupObjects(groupIdAndNames, customUiUserQueryConfigBean);
-    }
-    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeansForManager) {
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans) {
       cacheGroupObjects(groupIdAndNames, customUiUserQueryConfigBean);
     }
     if (GrouperUtil.length(groupIdAndNames) > 0) {
@@ -202,10 +184,7 @@ public class CustomUiEngine {
     
     List<MultiKey> stemIdAndNames = new ArrayList<MultiKey>();
     
-    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeansForManager) {
-      cacheStemObjects(stemIdAndNames, customUiUserQueryConfigBean);
-    }
-    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeansForUser) {
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans) {
       cacheStemObjects(stemIdAndNames, customUiUserQueryConfigBean);
     }
     if (GrouperUtil.length(stemIdAndNames) > 0) {
@@ -234,10 +213,7 @@ public class CustomUiEngine {
     
     List<MultiKey> attributeDefIdAndNames = new ArrayList<MultiKey>();
     
-    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeansForUser) {
-      cacheAttributeDefObjects(attributeDefIdAndNames, customUiUserQueryConfigBean);
-    }
-    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeansForManager) {
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans) {
       cacheAttributeDefObjects(attributeDefIdAndNames, customUiUserQueryConfigBean);
     }
     if (GrouperUtil.length(attributeDefIdAndNames) > 0) {
@@ -274,27 +250,25 @@ public class CustomUiEngine {
     
     Map<MultiKey, Set<String>> sourceIdSubjectIdToGroupNames = new HashMap<MultiKey, Set<String>>();
 
-    for (CustomUiUserType customUiUserType : CustomUiUserType.values()) {
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans()) {
+
+      Subject subject = subject(customUiUserQueryConfigBean);
       
-      Subject subject = this.subject(customUiUserType);
       MultiKey sourceIdSubjectId = new MultiKey(subject.getSourceId(), subject.getId());
       
-      for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans(customUiUserType)) {
+      String userQueryTypeString = customUiUserQueryConfigBean.getUserQueryType();
+      CustomUiUserQueryType customUiUserQueryType = CustomUiUserQueryType.valueOfIgnoreCase(userQueryTypeString, true);
 
-        String userQueryTypeString = customUiUserQueryConfigBean.getUserQueryType();
-        CustomUiUserQueryType customUiUserQueryType = CustomUiUserQueryType.valueOfIgnoreCase(userQueryTypeString, true);
-
-        if (customUiUserQueryType == CustomUiUserQueryType.grouper) {
-          if (!StringUtils.isBlank(customUiUserQueryConfigBean.getGroupId()) || !StringUtils.isBlank(customUiUserQueryConfigBean.getGroupName())) {
-            if (StringUtils.isBlank(customUiUserQueryConfigBean.getFieldNames()) || customUiUserQueryConfigBean.getFieldNames().toLowerCase().contains("members")) {
-              Group group = retrieveGroupFromCache(customUiUserQueryConfigBean.getGroupId(), customUiUserQueryConfigBean.getGroupName());
-              Set<String> groupNames = sourceIdSubjectIdToGroupNames.get(sourceIdSubjectId);
-              if (groupNames == null) {
-                groupNames = new HashSet<String>();
-                sourceIdSubjectIdToGroupNames.put(sourceIdSubjectId, groupNames);
-              }
-              groupNames.add(group.getName());
+      if (customUiUserQueryType == CustomUiUserQueryType.grouper) {
+        if (!StringUtils.isBlank(customUiUserQueryConfigBean.getGroupId()) || !StringUtils.isBlank(customUiUserQueryConfigBean.getGroupName())) {
+          if (StringUtils.isBlank(customUiUserQueryConfigBean.getFieldNames()) || customUiUserQueryConfigBean.getFieldNames().toLowerCase().contains("members")) {
+            Group group = retrieveGroupFromCache(customUiUserQueryConfigBean.getGroupId(), customUiUserQueryConfigBean.getGroupName());
+            Set<String> groupNames = sourceIdSubjectIdToGroupNames.get(sourceIdSubjectId);
+            if (groupNames == null) {
+              groupNames = new HashSet<String>();
+              sourceIdSubjectIdToGroupNames.put(sourceIdSubjectId, groupNames);
             }
+            groupNames.add(group.getName());
           }
         }
       }
@@ -313,17 +287,14 @@ public class CustomUiEngine {
   /**
    * 
    * @param customUiUserType
-   * @return subject
    */
-  public Subject subject(CustomUiUserType customUiUserType) {
-    switch (customUiUserType) {
-      case manager:
-        return this.subjectManager;
-      case user:
-        return this.subjectUser;
-      default:
-        throw new RuntimeException("Not expecting " + customUiUserType);    
+  public Subject subject(CustomUiUserQueryConfigBean customUiUserQueryConfigBean) {
+
+    if (customUiUserQueryConfigBean.getForLoggedInUser() != null 
+        && customUiUserQueryConfigBean.getForLoggedInUser()) {
+      return this.subjectLoggedIn;
     }
+    return this.subjectOperatedOn;
   }
   
   /**
@@ -332,29 +303,22 @@ public class CustomUiEngine {
    */
   private Subject subject(MultiKey sourceIdSubjectId) {
     
-    if (SubjectHelper.eq(sourceIdSubjectId, this.subjectManager)) {
-      return subjectManager;
+    if (SubjectHelper.eq(sourceIdSubjectId, this.subjectLoggedIn)) {
+      return subjectLoggedIn;
     }
-    if (SubjectHelper.eq(sourceIdSubjectId, this.subjectUser)) {
-      return subjectManager;
+    if (SubjectHelper.eq(sourceIdSubjectId, this.subjectOperatedOn)) {
+      return subjectLoggedIn;
     }
     throw new RuntimeException("Cant find subject! " + sourceIdSubjectId.getKey(0) + ", " + sourceIdSubjectId.getKey(1) 
-        + "," + SubjectHelper.getPretty(this.subjectManager) + ", " + SubjectHelper.getPretty(this.subjectUser));
+        + "," + SubjectHelper.getPretty(this.subjectLoggedIn) + ", " + SubjectHelper.getPretty(this.subjectOperatedOn));
   }
   
   /**
    * @param customUiUserType
    * @return the list of beans
    */
-  private List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeans(CustomUiUserType customUiUserType) {
-    switch (customUiUserType) {
-      case manager:
-        return this.customUiUserQueryConfigBeansForManager;
-      case user:
-        return this.customUiUserQueryConfigBeansForUser;
-      default:
-        throw new RuntimeException("Not expecting " + customUiUserType);    
-    }
+  private List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeans() {
+    return this.customUiUserQueryConfigBeans;
   }
 
   /**
@@ -429,7 +393,7 @@ public class CustomUiEngine {
   /**
    * subject
    */
-  private Subject subjectManager;
+  private Subject subjectLoggedIn;
   
   
   
@@ -437,8 +401,8 @@ public class CustomUiEngine {
    * subject
    * @return the subjectManager
    */
-  public Subject getSubjectManager() {
-    return this.subjectManager;
+  public Subject getSubjectLoggedIn() {
+    return this.subjectLoggedIn;
   }
 
   
@@ -446,48 +410,46 @@ public class CustomUiEngine {
    * subject
    * @param subjectManager1 the subjectManager to set
    */
-  public void setSubjectManager(Subject subjectManager1) {
-    this.subjectManager = subjectManager1;
+  public void setSubjectLoggedIn(Subject subjectManager1) {
+    this.subjectLoggedIn = subjectManager1;
   }
 
   /**
    * subject
    */
-  private Subject subjectUser;
+  private Subject subjectOperatedOn;
   
   /**
    * subject
-   * @return the subject
-   */
-  public Subject getSubjectUser() {
-    return this.subjectUser;
+   * @return the subjectgetSubjectOperatedOnc Subject getSubjectOperatedOn() {
+    return this.subjectOperatedOn;
   }
 
   
   /**
    * subject
-   * @param subject1 the subject to set
+   * @param subject1 thesetSubjectOperatedOnt
    */
-  public void setSubjectUser(Subject subject1) {
-    this.subjectUser = subject1;
+  public void setSubjectOperatedOn(Subject subject1) {
+    this.subjectOperatedOn = subject1;
   }
 
   /**
    * process a group for lite ui
-   * @param subjectUser1
-   * @param subjectManager1
+   * @param subjectOperatedOn1
+   * @param subjectLoggedIn1
    */
-  public void processGroup(final Group group1, final Subject subjectUser1, final Subject subjectManager1) {
+  public void processGroup(final Group group1, final Subject subjectLoggedIn1, final Subject subjectOperatedOn1) {
     long startedNanos = System.nanoTime();
     this.debugMap.put("group", group1.getName());
-    this.debugMap.put("subjectUserId", subjectUser1.getId());
-    if (!SubjectHelper.eq(subjectUser1, subjectManager1)) {
-      this.debugMap.put("subjectManagerId", subjectUser1.getId());
+    this.debugMap.put("subjectUserId", subjectOperatedOn1.getId());
+    if (!SubjectHelper.eq(subjectOperatedOn1, subjectLoggedIn1)) {
+      this.debugMap.put("subjectManagerId", subjectOperatedOn1.getId());
     }
     
     this.group = group1;
-    this.subjectUser = subjectUser1;
-    this.subjectManager = subjectManager1;
+    this.subjectOperatedOn = subjectOperatedOn1;
+    this.subjectLoggedIn = subjectLoggedIn1;
     try {
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -503,7 +465,7 @@ public class CustomUiEngine {
         }
       } );
     } catch (RuntimeException re) {
-      GrouperUtil.injectInException(re, group1.getName() + ", " + SubjectUtils.subjectToString(subjectUser1) + ", " + SubjectUtils.subjectToString(subjectManager1));
+      GrouperUtil.injectInException(re, group1.getName() + ", " + SubjectUtils.subjectToString(subjectOperatedOn1) + ", " + SubjectUtils.subjectToString(subjectLoggedIn1));
       throw re;
     } finally {
       this.debugMap.put("processGroupMillis", ((System.nanoTime() - startedNanos)/1000000));
@@ -527,7 +489,12 @@ public class CustomUiEngine {
         if (customUiTextConfigBean.getDefaultText() != null && customUiTextConfigBean.getDefaultText()) {
           
           if (customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType) != null) {
-            throw new RuntimeException("Cant have multiple defaults for custom ui text: '" + customUiTextType + "'" );
+            throw new RuntimeException("Cant have multiple defaults for custom ui text: '" + customUiTextType + "', " 
+                + customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType).getIndex() + ", " 
+                + customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType).getText() + ", " 
+                + ", " + customUiTextConfigBean.getIndex()
+                + ", " + customUiTextConfigBean.getText()
+                );
           }
           customUiTextTypeToDefaultCustomUiTextConfigBean.put(customUiTextType, customUiTextConfigBean);
           
@@ -585,7 +552,7 @@ public class CustomUiEngine {
    */
   public void generateUserQueryDisplayBeans(Map<String, Object> substituteMap) {
     
-    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : GrouperUtil.nonNull(this.customUiUserQueryConfigBeansForUser)) {
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : GrouperUtil.nonNull(this.customUiUserQueryConfigBeans)) {
 
       Map<String, Object> variableMap = new HashMap<String, Object>(GrouperUtil.nonNull(substituteMap));
       
@@ -611,11 +578,11 @@ public class CustomUiEngine {
       customUiUserQueryDisplayBean.setVariableValue(customUiVariableType.screenValue(value, variableMap));
 
       final String label = CustomUiUtil.substituteExpressionLanguage(customUiUserQueryConfigBean.getLabel(), 
-          group, null, null, this.subjectUser, variableMap, true);
+          group, null, null, this.subjectOperatedOn, variableMap, true);
       customUiUserQueryDisplayBean.setLabel(label);
 
       customUiUserQueryDisplayBean.setUserQueryType(customUiUserQueryType.label(variableMap));
-      String description = customUiUserQueryType.description(this, customUiUserQueryConfigBean, group, this.subjectUser, 
+      String description = customUiUserQueryType.description(this, customUiUserQueryConfigBean, group, this.subjectOperatedOn, 
           stem, attributeDef, variableMap);
       customUiUserQueryDisplayBean.setDescription(description);
       
@@ -625,7 +592,7 @@ public class CustomUiEngine {
         customUiUserQueryDisplayBean = new CustomUiUserQueryDisplayBean();
         
         final String errorLabel = CustomUiUtil.substituteExpressionLanguage(customUiUserQueryConfigBean.getErrorLabel(), 
-            group, null, null, this.subjectUser, variableMap, true);
+            group, null, null, this.subjectOperatedOn, variableMap, true);
         customUiUserQueryDisplayBean.setLabel(errorLabel);
         
         // set to same order, the variable name will fix that
@@ -652,75 +619,72 @@ public class CustomUiEngine {
    * 
    */
   public void validateCustomUiUserQueryConfigBeanJsons() {
-    for (CustomUiUserType customUiUserType : CustomUiUserType.values()) {
-      
-      Subject subject  = this.subject(customUiUserType);
-      for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans(customUiUserType)) {
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans()) {
+      Subject subject  = this.subject(customUiUserQueryConfigBean);
+      try {
+        String userQueryTypeString = customUiUserQueryConfigBean.getUserQueryType();
+        CustomUiUserQueryType customUiUserQueryType = CustomUiUserQueryType.valueOfIgnoreCase(userQueryTypeString, true);
+        Group group = this.retrieveGroupFromCache(customUiUserQueryConfigBean.getGroupId(), customUiUserQueryConfigBean.getGroupName());
+        Stem stem = this.retrieveStemFromCache(customUiUserQueryConfigBean.getStemId(), customUiUserQueryConfigBean.getStemName());
+        AttributeDef attributeDef = this.retrieveAttributeDefFromCache(customUiUserQueryConfigBean.getAttributeDefId(), customUiUserQueryConfigBean.getNameOfAttributeDef());
+  
+        // check optional and require fields
+        for (String fieldName : GrouperUtil.fieldNames(CustomUiUserQueryConfigBean.class, null, false)) {
+          
+          Object configuredValue = GrouperUtil.fieldValue(customUiUserQueryConfigBean, fieldName);
+          if (configuredValue == null) {
+            continue;
+          }
+  
+          if (StringUtils.equals(CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE, fieldName) 
+              || StringUtils.equals(CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN, fieldName)) {
+            continue;
+          }
+          
+          if (customUiUserQueryType.optionalFieldNames().contains(fieldName) || customUiUserQueryType.requiredFieldNames().contains(fieldName)) {
+            continue;
+          }
+  
+          throw new RuntimeException("Field '" + fieldName + "' is not valid for user query: " + customUiUserQueryConfigBean.toString());
+        }
+        
+        {
+          String variableToAssign = customUiUserQueryConfigBean.getVariableToAssign();
+          if (!StringUtils.isBlank(variableToAssign)) {
+            if (!variableToAssign.startsWith("cu_")) {
+              throw new RuntimeException("variableToAssign must start with 'cu_', '" + variableToAssign + "'");
+            }
+            if (!variableNamePattern.matcher(variableToAssign).matches()) {
+              throw new RuntimeException("variableToAssign must start with a char, then me alphanumeric with underscores only, '" + variableToAssign + "'");
+            }
+          }
+        }
+        
+        {
+          String variableToAssignOnError = customUiUserQueryConfigBean.getVariableToAssignOnError();
+  
+          if (!StringUtils.isBlank(variableToAssignOnError)) {
+            if (!variableToAssignOnError.startsWith("cu_")) {
+              throw new RuntimeException("variableToAssignOnError must start with 'cu_', '" + variableToAssignOnError + "'");
+            }
+            if (!variableNamePattern.matcher(variableToAssignOnError).matches()) {
+              throw new RuntimeException("variableToAssignonError must start with a char, then me alphanumeric with underscores only, '" + variableToAssignOnError + "'");
+            }
+            if (StringUtils.isBlank(customUiUserQueryConfigBean.getErrorLabel())) {
+              throw new RuntimeException("If you configure variableToAssignOnError then you must set an error label");
+            }
+          }
+        }
+  
         try {
-          String userQueryTypeString = customUiUserQueryConfigBean.getUserQueryType();
-          CustomUiUserQueryType customUiUserQueryType = CustomUiUserQueryType.valueOfIgnoreCase(userQueryTypeString, true);
-          Group group = this.retrieveGroupFromCache(customUiUserQueryConfigBean.getGroupId(), customUiUserQueryConfigBean.getGroupName());
-          Stem stem = this.retrieveStemFromCache(customUiUserQueryConfigBean.getStemId(), customUiUserQueryConfigBean.getStemName());
-          AttributeDef attributeDef = this.retrieveAttributeDefFromCache(customUiUserQueryConfigBean.getAttributeDefId(), customUiUserQueryConfigBean.getNameOfAttributeDef());
-    
-          // check optional and require fields
-          for (String fieldName : GrouperUtil.fieldNames(CustomUiUserQueryConfigBean.class, null, false)) {
-            
-            Object configuredValue = GrouperUtil.fieldValue(customUiUserQueryConfigBean, fieldName);
-            if (configuredValue == null) {
-              continue;
-            }
-    
-            if (StringUtils.equals(CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE, fieldName) 
-                || StringUtils.equals(CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN, fieldName)) {
-              continue;
-            }
-            
-            if (customUiUserQueryType.optionalFieldNames().contains(fieldName) || customUiUserQueryType.requiredFieldNames().contains(fieldName)) {
-              continue;
-            }
-    
-            throw new RuntimeException("Field '" + fieldName + "' is not valid for user query: " + customUiUserQueryConfigBean.toString());
-          }
-          
-          {
-            String variableToAssign = customUiUserQueryConfigBean.getVariableToAssign();
-            if (!StringUtils.isBlank(variableToAssign)) {
-              if (!variableToAssign.startsWith("cu_")) {
-                throw new RuntimeException("variableToAssign must start with 'cu_', '" + variableToAssign + "'");
-              }
-              if (!variableNamePattern.matcher(variableToAssign).matches()) {
-                throw new RuntimeException("variableToAssign must start with a char, then me alphanumeric with underscores only, '" + variableToAssign + "'");
-              }
-            }
-          }
-          
-          {
-            String variableToAssignOnError = customUiUserQueryConfigBean.getVariableToAssignOnError();
-    
-            if (!StringUtils.isBlank(variableToAssignOnError)) {
-              if (!variableToAssignOnError.startsWith("cu_")) {
-                throw new RuntimeException("variableToAssignOnError must start with 'cu_', '" + variableToAssignOnError + "'");
-              }
-              if (!variableNamePattern.matcher(variableToAssignOnError).matches()) {
-                throw new RuntimeException("variableToAssignonError must start with a char, then me alphanumeric with underscores only, '" + variableToAssignOnError + "'");
-              }
-              if (StringUtils.isBlank(customUiUserQueryConfigBean.getErrorLabel())) {
-                throw new RuntimeException("If you configure variableToAssignOnError then you must set an error label");
-              }
-            }
-          }
-    
-          try {
-            customUiUserQueryType.validate(customUiUserQueryConfigBean, group, subject, stem, attributeDef);
-          } catch (RuntimeException re) {
-            GrouperUtil.injectInException(re, customUiUserQueryConfigBean.toString());
-            throw re;
-          }
+          customUiUserQueryType.validate(customUiUserQueryConfigBean, group, subject, stem, attributeDef);
         } catch (RuntimeException re) {
           GrouperUtil.injectInException(re, customUiUserQueryConfigBean.toString());
           throw re;
         }
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, customUiUserQueryConfigBean.toString());
+        throw re;
       }
     }
   }
@@ -730,53 +694,44 @@ public class CustomUiEngine {
    * @param customUiUserType
    * @return the variable map
    */
-  public Map<String, Object> userQueryVariables(CustomUiUserType customUiUserType) {
-    switch (customUiUserType) {
-      case manager:
-        return this.theUserQueryVariables;
-      case user:
-        return this.managerQueryVariables;
-      default:
-        throw new RuntimeException("Not expecting " + customUiUserType);    
-    }
+  public Map<String, Object> userQueryVariables() {
+    return this.theUserQueryVariables;
   }
   
   /**
    * 
    */
   public void evaluateCustomUiUserQueryConfigBeanJsons() {
-    for (CustomUiUserType customUiUserType : CustomUiUserType.values()) {
-      Subject subject = this.subject(customUiUserType);
-      for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans(customUiUserType)) {
-        String userQueryTypeString = customUiUserQueryConfigBean.getUserQueryType();
-        CustomUiUserQueryType customUiUserQueryType = CustomUiUserQueryType.valueOfIgnoreCase(userQueryTypeString, true);
-        Group group = this.retrieveGroupFromCache(customUiUserQueryConfigBean.getGroupId(), customUiUserQueryConfigBean.getGroupName());
-        Stem stem = this.retrieveStemFromCache(customUiUserQueryConfigBean.getStemId(), customUiUserQueryConfigBean.getStemName());
-        AttributeDef attributeDef = this.retrieveAttributeDefFromCache(customUiUserQueryConfigBean.getAttributeDefId(), customUiUserQueryConfigBean.getNameOfAttributeDef());
-  
-        String variableToAssignOnError = customUiUserQueryConfigBean.getVariableToAssignOnError();
-        
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans()) {
+      Subject subject = this.subject(customUiUserQueryConfigBean);
+      String userQueryTypeString = customUiUserQueryConfigBean.getUserQueryType();
+      CustomUiUserQueryType customUiUserQueryType = CustomUiUserQueryType.valueOfIgnoreCase(userQueryTypeString, true);
+      Group group = this.retrieveGroupFromCache(customUiUserQueryConfigBean.getGroupId(), customUiUserQueryConfigBean.getGroupName());
+      Stem stem = this.retrieveStemFromCache(customUiUserQueryConfigBean.getStemId(), customUiUserQueryConfigBean.getStemName());
+      AttributeDef attributeDef = this.retrieveAttributeDefFromCache(customUiUserQueryConfigBean.getAttributeDefId(), customUiUserQueryConfigBean.getNameOfAttributeDef());
+
+      String variableToAssignOnError = customUiUserQueryConfigBean.getVariableToAssignOnError();
+      
+      if (!StringUtils.isBlank(variableToAssignOnError)) {
+        this.userQueryVariables().put(variableToAssignOnError, false);
+      }
+      
+      // check optional and require fields
+      try {
+        Object result = customUiUserQueryType.evaluate(this, customUiUserQueryConfigBean, group, subject, stem, attributeDef);
+        String variableToAssign = customUiUserQueryConfigBean.getVariableToAssign();
+        this.userQueryVariables().put(variableToAssign, result);
+      } catch (RuntimeException re) {
+        String error = "Error evaluating: " + customUiUserQueryConfigBean;
+        Log.error(error, re);
         if (!StringUtils.isBlank(variableToAssignOnError)) {
-          this.userQueryVariables(customUiUserType).put(variableToAssignOnError, false);
-        }
-        
-        // check optional and require fields
-        try {
-          Object result = customUiUserQueryType.evaluate(this, customUiUserQueryConfigBean, group, subject, stem, attributeDef);
-          String variableToAssign = customUiUserQueryConfigBean.getVariableToAssign();
-          this.userQueryVariables(customUiUserType).put(variableToAssign, result);
-        } catch (RuntimeException re) {
-          String error = "Error evaluating: " + customUiUserQueryConfigBean;
-          Log.error(error, re);
-          if (!StringUtils.isBlank(variableToAssignOnError)) {
-            if (this.error != null) {
-              this.error += "\n";
-            }
-            this.error += error + "\n" + GrouperUtil.getFullStackTrace(re);
-            this.userQueryVariables(customUiUserType).put(variableToAssignOnError, true);
-          } else {
-            throw new RuntimeException(error, re);
+          if (this.error != null) {
+            this.error += "\n";
           }
+          this.error += error + "\n" + GrouperUtil.getFullStackTrace(re);
+          this.userQueryVariables().put(variableToAssignOnError, true);
+        } else {
+          throw new RuntimeException(error, re);
         }
       }
     }
@@ -808,11 +763,6 @@ public class CustomUiEngine {
    * user query names and values
    */
   private Map<String, Object> theUserQueryVariables = new HashMap<String, Object>();
-  
-  /**
-   * user query names and values
-   */
-  private Map<String, Object> managerQueryVariables = new HashMap<String, Object>();
   
   /**
    * 
@@ -847,7 +797,7 @@ public class CustomUiEngine {
    * @param substituteMap 
    * @return the best text
    */
-  public Object findBestText(CustomUiUserType customUiUserType, CustomUiTextType customUiTextType, Map<String, Object> substituteMap) {
+  public String findBestText(CustomUiTextType customUiTextType, Map<String, Object> substituteMap) {
     long startNanos = System.nanoTime();
     
     boolean assignedThreadLocal = false;
@@ -856,18 +806,22 @@ public class CustomUiEngine {
       assignedThreadLocal = true;
     }
     try {
-      final Subject subject = this.subject(customUiUserType);
-      final Map<String, Object> userQueryVariables = this.userQueryVariables(customUiUserType);
 
+      final Subject subject = this.subjectOperatedOn;
+      
+      final Map<String, Object> userQueryVariables = this.userQueryVariables();
+
+      userQueryVariables.put("subjectLoggedIn", this.subjectLoggedIn);
+      
       Set<CustomUiTextConfigBean> customUiTextConfigBeans = this.customUiTextTypeToCustomUiTextConfigBean.get(customUiTextType);
       
       StringBuilder resultText = new StringBuilder();
-  
+
       if (substituteMap == null) {
         substituteMap = new HashMap<String, Object>();
       }
       substituteMap.putAll(GrouperUtil.nonNull(userQueryVariables));
-      
+
       boolean foundSomething = false;
       for (CustomUiTextConfigBean customUiTextConfigBean : GrouperUtil.nonNull(customUiTextConfigBeans)) {
         

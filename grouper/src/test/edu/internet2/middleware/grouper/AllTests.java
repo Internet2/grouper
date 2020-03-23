@@ -33,10 +33,6 @@ package edu.internet2.middleware.grouper;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.AllAppTests;
@@ -70,12 +66,16 @@ import edu.internet2.middleware.grouper.stem.AllStemTests;
 import edu.internet2.middleware.grouper.stress.AllStressTests;
 import edu.internet2.middleware.grouper.subj.AllSubjectTests;
 import edu.internet2.middleware.grouper.tableIndex.AllTableIndexTests;
+import edu.internet2.middleware.grouper.ui.AllGrouperUiTests;
 import edu.internet2.middleware.grouper.userData.AllUserDataTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AllValidatorTests;
 import edu.internet2.middleware.grouper.xml.AllXmlTests;
 import edu.internet2.middleware.grouper.xmpp.AllXmppTests;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 /**
  * Run default tests.
@@ -225,6 +225,7 @@ public class AllTests extends GrouperTest {
     
     suite.addTest(AllFilterTests.suite());
     suite.addTest(AllGroupTests.suite());
+    suite.addTest(AllGrouperUiTests.suite());
     suite.addTest(AllHibernateTests.suite());
     suite.addTest(AllHooksTests.suite());
     suite.addTest(AllInternalDaoTests.suite());
