@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
@@ -196,7 +197,7 @@ public class RuleConsumer extends ChangeLogConsumerBase {
   private static final Log LOG = GrouperUtil.getLog(RuleConsumer.class);
   
   
-  public static boolean shouldContinue(final RuleDefinition definition) {
+  public static boolean shouldContinueFixVetoIfNotInFolder(final RuleDefinition definition) {
     
     RuleCheck ruleCheck = definition.getCheck();
     RuleIfCondition ifCondition = definition.getIfCondition();
@@ -218,10 +219,13 @@ public class RuleConsumer extends ChangeLogConsumerBase {
 
     for (RuleDefinition definition: definitions) {
       
-      if (!shouldContinue(definition)) {
+      if (!shouldContinueFixVetoIfNotInFolder(definition)) {
         continue;
       }
-      
+      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouperRuleChangeLog_GRP_2143_Remove_memberships_from_restricted_stem_when_removed_from_dependent_group", false)) {
+        return;
+      }
+
       String ownerId = definition.getIfCondition().getIfOwnerId();
       
       boolean shouldContinue = false;

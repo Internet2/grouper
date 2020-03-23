@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.RuleConsumer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
@@ -1440,10 +1441,12 @@ public enum RuleCheckType {
     @Override
     public void runDaemon(final RuleDefinition ruleDefinition) {
       
-      if (!RuleConsumer.shouldContinue(ruleDefinition)) {
+      if (!RuleConsumer.shouldContinueFixVetoIfNotInFolder(ruleDefinition)) {
         return;
       }
-      
+      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouperRuleDaemon_GRP_2143_Remove_memberships_from_restricted_stem_when_removed_from_dependent_group", false)) {
+        return;
+      }
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
