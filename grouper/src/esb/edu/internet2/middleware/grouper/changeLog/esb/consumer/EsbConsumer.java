@@ -109,6 +109,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     debugMapForEvent.put("sequenceNumber", currentId);
 
     EsbEventContainer esbEventContainer = new EsbEventContainer();
+
     esbEventContainer.setSequenceNumber(changeLogEntry.getSequenceNumber());
     // for logging
     debugMapOverall.put("currentSequenceNumber", changeLogEntry.getSequenceNumber());
@@ -140,6 +141,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
         event.setEventType(esbEventType.name());
         esbEventContainer.setEsbEventType(esbEventType);
         esbEventType.processChangeLogEntry(esbEventContainer, changeLogEntry);
+      } else {
+        debugMapForEvent.put("unsupportEventType", event.getType());
       }
     }
 
@@ -203,17 +206,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
         
         filterInvalidEventTypesSize++;
         
-        Map<String, Object> debugMapForEvent = esbEventContainer.getDebugMapForEvent();
-
-        String unsupportedEventLabel = "unsupportedEvent_" + event.getType();
-        Integer unsupportedEventCount = (Integer)debugMapForEvent.get(unsupportedEventLabel);
-        if (unsupportedEventCount == null) {
-          unsupportedEventCount = 1;
-        } else {
-          unsupportedEventCount++;
-        }
-        debugMapForEvent.put("unsupportEventType", event.getType());
-        logIntegerIfNotZero(debugMapOverall, unsupportedEventLabel, unsupportedEventCount);
         iterator.remove();
       }
 

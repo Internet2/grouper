@@ -259,9 +259,11 @@ public class ChangeLogHelper {
               + ExceptionUtils.getFullStackTrace(e));
           error = true;
         }
-        if (lastProcessed != -1 && (changeLogConsumer.getLastSequenceProcessed() == null || changeLogConsumer.getLastSequenceProcessed() != lastProcessed)) {
-          changeLogConsumer.setLastSequenceProcessed(lastProcessed);
-          GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+        if (lastProcessed > -1 && (changeLogConsumer.getLastSequenceProcessed() == null || changeLogConsumer.getLastSequenceProcessed() != lastProcessed)) {
+          if (lastProcessed > (Long)GrouperUtil.defaultIfNull(changeLogConsumer.getLastSequenceProcessed(), -1)) {
+            changeLogConsumer.setLastSequenceProcessed(lastProcessed);
+            GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+          }
         }
         
         long lastSequenceInBatch = changeLogEntryList.get(changeLogEntryList.size()-1).getSequenceNumber();

@@ -136,6 +136,8 @@ public abstract class EsbListenerBase {
 
     for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
 
+      currentId = esbEventContainer.getSequenceNumber();
+      
       // for logging
       this.getEsbConsumer().getDebugMapOverall().put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
 
@@ -177,7 +179,7 @@ public abstract class EsbListenerBase {
     // for logging
     this.getEsbConsumer().getDebugMapOverall().put("currentSequenceNumber", null);
 
-    provisioningSyncConsumerResult.setLastProcessedSequenceNumber(currentId-1L);
+    provisioningSyncConsumerResult.setLastProcessedSequenceNumber(currentId);
     return provisioningSyncConsumerResult;
   }
 
