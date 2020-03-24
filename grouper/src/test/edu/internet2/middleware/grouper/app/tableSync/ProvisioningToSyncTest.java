@@ -71,7 +71,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncGroupStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncMembershipStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testProvisioningAttributesToGroupSyncFull"));
-    TestRunner.run(new ProvisioningToSyncTest("testEsbConsumerInvalidEvent"));
+    TestRunner.run(new ProvisioningToSyncTest("testEsbConsumerPrint"));
     
   }
   
@@ -1753,6 +1753,94 @@ public class ProvisioningToSyncTest extends GrouperTest {
     
     hib3GrouperLoaderLog = runJobs(true, true);
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+  }
+
+  /**
+   * add provisioning attributes and see them transition to group sync attribute
+   */
+  public void testEsbConsumerPrint() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+              
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
+        EsbConsumer.class.getName());
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
+        ProvisioningSampleListener.class.getName());
+    
+    //something that will never fire
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
+        "0 0 5 * * 2000");
+    
+  
+    // run the loader, initial run tries that event
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = runJobs(true, true);
+  
+    int messageCount = ProvisioningSampleListener.messageCount;
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+    
+    Group testGroup1 = new GroupSave(grouperSession).assignName("test:testGroup1").save();
+    
+    testGroup1.addMember(SubjectTestHelper.SUBJ0);
+    testGroup1.addMember(SubjectTestHelper.SUBJ1);
+    
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+  
+    testGroup2.addMember(SubjectTestHelper.SUBJ2);
+  
+    Group testGroup3 = new GroupSave(grouperSession).assignName("test:testGroup3").save();
+  
+    testGroup3.addMember(SubjectTestHelper.SUBJ3);
+  
+    Group testGroup4 = new GroupSave(grouperSession).assignName("test:test2:testGroup4").assignCreateParentStemsIfNotExist(true).save();
+  
+    testGroup4.addMember(SubjectTestHelper.SUBJ4);
+  
+    // marker
+    AttributeDefName provisioningMarkerAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker();
+  
+    // target name
+    AttributeDefName provisioningTargetAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget();
+  
+    // direct name
+    AttributeDefName provisioningDirectAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment();
+  
+    // direct name
+    AttributeDefName provisioningStemScopeAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameStemScope();
+  
+    // do provision
+    AttributeDefName provisioningDoProvisionAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision();
+    
+    Set<Group> groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+    assertEquals(0, GrouperUtil.length(groups));
+    
+    AttributeAssign testStemAttributeAssign = testStem.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningStemScopeAttributeDefName.getName(), "sub");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
+  
+    AttributeAssign testGroup2attributeAssign = testGroup2.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
+
+    //make sure unexpecte events are handled
+    new AttributeDefSave(grouperSession).assignName("test:whateverDef").save();
+    
+    hib3GrouperLoaderLog = runJobs(true, true);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    assertTrue(ProvisioningSampleListener.messageCount + "", ProvisioningSampleListener.messageCount > messageCount + 10);
+    
+    long maxSequenceNumber = new GcDbAccess().sql("select max(sequence_number) from grouper_change_log_entry").select(long.class);
+
+    long lastProcessedSequenceNumber = new GcDbAccess().sql("select last_sequence_processed from grouper_change_log_consumer where name = 'TEST_TARGET'").select(long.class);
+
+    assertEquals(maxSequenceNumber, lastProcessedSequenceNumber);
+    
   }
 
 }
