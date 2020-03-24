@@ -73,6 +73,10 @@ public class CustomUiTextConfigBean implements Comparable<CustomUiTextConfigBean
 //  customUiTextConfigBean.setText("${textContainer.text['penn_o365twoStep_enroll_emailBody']}");
 //  customUiTextConfigBean.setEndIfMatches(true);
 
+  customUiTextConfigBean.setCustomUiTextType(CustomUiTextType.emailToUser.name());
+  customUiTextConfigBean.setIndex(0);
+  customUiTextConfigBean.setText("true");
+
 //  customUiTextConfigBean.setCustomUiTextType(CustomUiTextType.emailSubject.name());
 //  customUiTextConfigBean.setIndex(0);
 //  customUiTextConfigBean.setText("${cu_grouperEnroll ? textContainer.text['penn_o365twoStep_enroll_emailSubject'] : textContainer.text['penn_o365twoStep_unenroll_emailSubject']}");

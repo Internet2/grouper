@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -604,6 +605,35 @@ public class SubjectFinder {
     }
     return result;
     
+  }
+  
+  /**
+   * find subjects by members
+   * @param members
+   * @return the map of sourceId, subjectId, to subject
+   */
+  public static Map<MultiKey, Subject> findByMembers(Collection<Member> members) {
+    Map<MultiKey, Subject> result = new LinkedHashMap<MultiKey, Subject>();
+    if (GrouperUtil.length(members) > 0) {
+      Map<String, Collection<String>> sourceIdToSubjectIds = new HashMap<String, Collection<String>>();
+      for (Member member : members) {
+        Collection<String> subjectIds = sourceIdToSubjectIds.get(member.getSubjectSourceId());
+        if (subjectIds == null) {
+          subjectIds = new HashSet<String>();
+          sourceIdToSubjectIds.put(member.getSubjectSourceId(), subjectIds);
+        }
+        subjectIds.add(member.getSubjectId());
+      }
+      for (String sourceId : sourceIdToSubjectIds.keySet()) {
+        
+        Map<String, Subject> subjectIdToSubject = findByIds(sourceIdToSubjectIds.get(sourceId));
+        for (Subject subject : GrouperUtil.nonNull(subjectIdToSubject).values()) {
+          MultiKey sourceIdAndSubjectId = new MultiKey(subject.getSourceId(), subject.getId());
+          result.put(sourceIdAndSubjectId, subject);
+        }
+      }
+    }
+    return result;
   }
   
   /**

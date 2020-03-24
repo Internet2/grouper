@@ -99,58 +99,102 @@
                 </c:choose>
 
                 <br /><br />
-                <c:if test="${ grouperRequestContainer.customUiContainer.manager }">
+                <c:if test="${ grouperRequestContainer.customUiContainer.canSeeUserEnvironment}">
                 
-                <br /><br />
-                <h3>${textContainer.text['guiCustomUiUserEnvironmentHeader']}</h3>
-                <br />
-                <table class="table table-condensed table-striped" style="width: 1200px">
-                  <tr>
-                    <th>${textContainer.text['guiCustomUiTableVariableLabel']}</th>
-                    <th>${textContainer.text['guiCustomUiTableVariableValue']}</th>
-                    <th>${textContainer.text['guiCustomUiTableVariableName']}</th>
-                    <th>${textContainer.text['guiCustomUiTableVariableType']}</th>
-                    <th>${textContainer.text['guiCustomUiTableUserQueryType']}</th>
-                    <th>${textContainer.text['guiCustomUiTableVariableDescription']}</th>
-                  </tr>
-                  <c:forEach items="${grouperRequestContainer.customUiContainer.customUiUserQueryDisplayBeans}" 
-                          var="customUiUserQueryDisplayBean" >
+                  <br /><br />
+                  <h3>${textContainer.text['guiCustomUiUserEnvironmentHeader']}</h3>
+                  <br />
+                  <table class="table table-condensed table-striped" style="width: 1200px">
                     <tr>
-                      <td class="span5">${customUiUserQueryDisplayBean.label}</td>
-                      <td>${customUiUserQueryDisplayBean.variableValue}</td>
-                      <td>${customUiUserQueryDisplayBean.variableName}</td>
-                      <td>${customUiUserQueryDisplayBean.variableType}</td>
-                      <td>${customUiUserQueryDisplayBean.userQueryType}</td>
-                      <td>${customUiUserQueryDisplayBean.description}</td>
+                      <th>${textContainer.text['guiCustomUiTableVariableLabel']}</th>
+                      <th>${textContainer.text['guiCustomUiTableVariableValue']}</th>
+                      <th>${textContainer.text['guiCustomUiTableVariableDescription']}</th>
+                      <c:if test="${ grouperRequestContainer.customUiContainer.canSeeScreenState}">
+                        <th>${textContainer.text['guiCustomUiTableVariableName']}</th>
+                        <th>${textContainer.text['guiCustomUiTableVariableType']}</th>
+                        <th>${textContainer.text['guiCustomUiTableUserQueryType']}</th>
+                        <th>${textContainer.text['guiCustomUiTableVariableLoggedInUser']}</th>
+                      </c:if>
+                    </tr>
+                    <c:forEach items="${grouperRequestContainer.customUiContainer.customUiUserQueryDisplayBeans}" 
+                            var="customUiUserQueryDisplayBean" >
+                      <c:if test="${grouperRequestContainer.customUiContainer.canSeeScreenState || !customUiUserQueryDisplayBean.forLoggedInUserBoolean }">
+                        <tr>
+                          <td class="span5">${customUiUserQueryDisplayBean.label}</td>
+                          <td>${customUiUserQueryDisplayBean.variableValue}</td>
+                          <td>${customUiUserQueryDisplayBean.description}</td>
+                          <c:if test="${ grouperRequestContainer.customUiContainer.canSeeScreenState}">
+                            <td>${customUiUserQueryDisplayBean.variableName}</td>
+                            <td>${customUiUserQueryDisplayBean.variableType}</td>
+                            <td>${customUiUserQueryDisplayBean.userQueryType}</td>
+                            <td>${customUiUserQueryDisplayBean.forLoggedInUser}</td>
+                          </c:if>
+                        </tr>
+                      </c:if>
+                    </c:forEach>
                     
-                    </tr>
-                  </c:forEach>
+                  </table>
                   
-                </table>
+                  <br /><br />
+                </c:if>
                 
-                <br /><br /><br /><br />
-                <h3>${textContainer.text['guiCustomUiScreenState']}</h3>
-                <br />
-                <table class="table table-condensed table-striped" style="width: 1200px">
-                  <tr>
-                    <th>${textContainer.text['guiCustomUiTableTextType']}</th>
-                    <th>${textContainer.text['guiCustomUiTableTextIndex']}</th>
-                    <th>${textContainer.text['guiCustomUiTableTextScript']}</th>
-                    <th>${textContainer.text['guiCustomUiTableTextConfigured']}</th>
-                    <th>${textContainer.text['guiCustomUiTableTextEvaluated']}</th>
-                  </tr>
-                  <c:forEach items="${grouperRequestContainer.customUiContainer.customUiEngine.customUiTextResults}" 
-                          var="customUiTextResult" >
+                <c:if test="${ grouperRequestContainer.customUiContainer.canSeeScreenState}">
+                
+                  <br /><br />
+                  <h3>${textContainer.text['guiCustomUiScreenState']}</h3>
+                  <br />
+                  <table class="table table-condensed table-striped" style="width: 1200px">
                     <tr>
-                      <td>${customUiTextResult.customUiTextType.name}</td>
-                      <td>${customUiTextResult.customUiTextConfigBean.index}</td>
-                      <td>${grouper:escapeHtml(customUiTextResult.customUiTextConfigBean.script)}</td>
-                      <td><grouper:abbreviateTextarea text="${customUiTextResult.customUiTextConfigBean.text}" showCharCount="200" /></td>
-                      <td><grouper:abbreviateTextarea text="${customUiTextResult.textResult}"  showCharCount="200"/></td>
+                      <th>${textContainer.text['guiCustomUiTableTextType']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextIndex']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextScript']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextConfigured']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextEvaluated']}</th>
                     </tr>
-                  </c:forEach>
+                    <c:forEach items="${grouperRequestContainer.customUiContainer.customUiEngine.customUiTextResults}" 
+                            var="customUiTextResult" >
+                      <tr>
+                        <td>${customUiTextResult.customUiTextType.name}</td>
+                        <td>${customUiTextResult.customUiTextConfigBean.index}</td>
+                        <td>${grouper:escapeHtml(customUiTextResult.customUiTextConfigBean.script)}</td>
+                        <td><grouper:abbreviateTextarea text="${customUiTextResult.customUiTextConfigBean.text}" showCharCount="200" /></td>
+                        <td><grouper:abbreviateTextarea text="${customUiTextResult.textResult}"  showCharCount="200"/></td>
+                      </tr>
+                    </c:forEach>
+                    
+                  </table>
+                  <br /><br />
+                  <br /><br />
+                  <h3>${textContainer.text['guiCustomUiAllScreenText']}</h3>
+                  <br />
+                  <table class="table table-condensed table-striped" style="width: 1200px">
+                    <tr>
+                      <th>${textContainer.text['guiCustomUiTableTextType']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextIndex']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextScript']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextScriptResult']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextConfigured']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextEvaluated']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextDefault']}</th>
+                      <th>${textContainer.text['guiCustomUiTableTextEndIfMatches']}</th>
+                    </tr>
+                    <c:forEach items="${grouperRequestContainer.customUiContainer.customUiEngine.customUiTextResultsAll}" 
+                            var="customUiTextResult" >
+                      <tr>
+                        <td>${customUiTextResult.customUiTextType.name}</td>
+                        <td>${customUiTextResult.customUiTextConfigBean.index}</td>
+                        <td>${grouper:escapeHtml(customUiTextResult.customUiTextConfigBean.script)}</td>
+                        <td>${customUiTextResult.scriptResult}</td>
+                        <td><grouper:abbreviateTextarea text="${customUiTextResult.customUiTextConfigBean.text}" showCharCount="200" /></td>
+                        <td><grouper:abbreviateTextarea text="${customUiTextResult.textResult}"  showCharCount="200"/></td>
+                        <td>${customUiTextResult.theDefault}</td>
+                        <td>${customUiTextResult.endIfMatches}</td>
+                      </tr>
+                    </c:forEach>
+                    
+                  </table>
+                  <br /><br />
                   
-                </table>
                 </c:if>                
               </div>
             </div>

@@ -9,26 +9,34 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import jline.internal.Log;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
-import jline.internal.Log;
 
 
 /**
@@ -307,7 +315,7 @@ public class CustomUiEngine {
       return subjectLoggedIn;
     }
     if (SubjectHelper.eq(sourceIdSubjectId, this.subjectOperatedOn)) {
-      return subjectLoggedIn;
+      return subjectOperatedOn;
     }
     throw new RuntimeException("Cant find subject! " + sourceIdSubjectId.getKey(0) + ", " + sourceIdSubjectId.getKey(1) 
         + "," + SubjectHelper.getPretty(this.subjectLoggedIn) + ", " + SubjectHelper.getPretty(this.subjectOperatedOn));
@@ -461,6 +469,7 @@ public class CustomUiEngine {
           
           Set<String> textConfigBeans = attributeDefNameToValues.get(CustomUiAttributeNames.retrieveAttributeDefNameTextConfigBeans().getName());
           CustomUiEngine.this.parseCustomUiTextConfigBeanJsons(textConfigBeans);
+          
           return null;
         }
       } );
@@ -516,7 +525,7 @@ public class CustomUiEngine {
    * custom ui text type to custom ui text config beans
    */
   private Map<CustomUiTextType, Set<CustomUiTextConfigBean>> customUiTextTypeToCustomUiTextConfigBean = 
-      new HashMap<CustomUiTextType, Set<CustomUiTextConfigBean>>();
+      new TreeMap<CustomUiTextType, Set<CustomUiTextConfigBean>>();
   
   /**
    * custom ui text type to custom ui text config beans
@@ -576,6 +585,11 @@ public class CustomUiEngine {
       Object value = this.theUserQueryVariables.get(customUiUserQueryConfigBean.getVariableToAssign());
       
       customUiUserQueryDisplayBean.setVariableValue(customUiVariableType.screenValue(value, variableMap));
+
+      customUiUserQueryDisplayBean.setForLoggedInUser(CustomUiVariableType.BOOLEAN.screenValue(
+          GrouperUtil.booleanValue(customUiUserQueryConfigBean.getForLoggedInUser(), false), variableMap));
+      customUiUserQueryDisplayBean.setForLoggedInUserBoolean(
+          GrouperUtil.booleanValue(customUiUserQueryConfigBean.getForLoggedInUser(), false));
 
       final String label = CustomUiUtil.substituteExpressionLanguage(customUiUserQueryConfigBean.getLabel(), 
           group, null, null, this.subjectOperatedOn, variableMap, true);
@@ -776,6 +790,105 @@ public class CustomUiEngine {
   private List<CustomUiTextResult> customUiTextResults = new ArrayList<CustomUiTextResult>();
   
   /**
+   * all texts to show on screen for troubleshooting
+   */
+  private List<CustomUiTextResult> customUiTextResultsAll = null;
+  
+  
+  /**
+   * @return the customUiTextResultsAll
+   */
+  public List<CustomUiTextResult> getCustomUiTextResultsAll() {
+    return this.customUiTextResultsAll;
+  }
+
+  /**
+   * @param substituteMap 
+   */
+  public void generateCustomUiTextResultsAll(Map<String, Object> substituteMap) {
+    if (this.customUiTextResultsAll == null) {
+
+      long startNanos = System.nanoTime();
+      
+      boolean assignedThreadLocal = false;
+      if (threadLocalCustomUiEngine.get() == null) {
+        threadLocalCustomUiEngine.set(this);
+        assignedThreadLocal = true;
+      }
+
+      try {
+        this.customUiTextResultsAll = new ArrayList<CustomUiTextResult>();
+        
+        for (CustomUiTextType customUiTextType : customUiTextTypeToCustomUiTextConfigBean.keySet()) {
+          Set<CustomUiTextConfigBean> customUiTextConfigBeans = new LinkedHashSet(customUiTextTypeToCustomUiTextConfigBean.get(customUiTextType));
+
+          {
+            CustomUiTextConfigBean customUiTextConfigBean = this.customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType);
+            if (customUiTextConfigBean != null) {
+              customUiTextConfigBeans.add(customUiTextConfigBean);
+            }
+          }
+          for (CustomUiTextConfigBean customUiTextConfigBean : customUiTextConfigBeans) {
+            
+            final Subject subject = this.subjectOperatedOn;
+            
+            final Map<String, Object> userQueryVariables = this.userQueryVariables();
+
+            userQueryVariables.put("subjectLoggedIn", this.subjectLoggedIn);
+            
+            if (substituteMap == null) {
+              substituteMap = new HashMap<String, Object>();
+            }
+            substituteMap.putAll(GrouperUtil.nonNull(userQueryVariables));
+
+            try {
+              String script = customUiTextConfigBean.getScript();
+              boolean shouldDisplay = true;
+              
+              if (!StringUtils.isBlank(script)) {
+                
+                String shouldDisplayString = CustomUiUtil.substituteExpressionLanguage(script, this.group, null, null, subject, userQueryVariables);
+                
+                shouldDisplay = GrouperUtil.booleanValue(shouldDisplayString);
+              }
+                
+              String theText = customUiTextConfigBean.getText();
+              theText = CustomUiUtil.substituteExpressionLanguage(theText, this.group, null, null, subject, substituteMap);
+
+              CustomUiTextResult customUiTextResult = new CustomUiTextResult();
+              customUiTextResult.setCustomUiTextConfigBean(customUiTextConfigBean);
+              customUiTextResult.setCustomUiTextType(customUiTextType);
+              customUiTextResult.setTextResult(theText);
+              if (customUiTextConfigBean.getDefaultText() != null && customUiTextConfigBean.getDefaultText()) {
+                customUiTextResult.setTheDefault(CustomUiVariableType.BOOLEAN.screenValue(true, substituteMap));
+              }
+              if (customUiTextConfigBean.getEndIfMatches() != null && customUiTextConfigBean.getEndIfMatches()) {
+                customUiTextResult.setEndIfMatches(CustomUiVariableType.BOOLEAN.screenValue(true, substituteMap));
+              }
+              customUiTextResult.setScriptResult(CustomUiVariableType.BOOLEAN.screenValue(shouldDisplay, substituteMap));
+              this.customUiTextResultsAll.add(customUiTextResult);
+
+            } catch (RuntimeException re) {
+              GrouperUtil.injectInException(re, customUiTextConfigBean.toString());
+              CustomUiTextResult customUiTextResult = new CustomUiTextResult();
+              customUiTextResult.setCustomUiTextConfigBean(customUiTextConfigBean);
+              customUiTextResult.setCustomUiTextType(customUiTextType);
+              customUiTextResult.setTextResult(GrouperUtil.getFullStackTrace(re));
+              this.customUiTextResultsAll.add(customUiTextResult);
+            }
+          }   
+        }
+      } finally {
+        if (assignedThreadLocal) {
+          threadLocalCustomUiEngine.remove();
+        }
+        this.debugMap.put("generateCustomUiTextResultsAll_millis", (System.nanoTime()-startNanos)/1000000);
+      }
+    }
+  }
+
+  
+  /**
    * results of text calls
    * @return the customUiTextResults
    */
@@ -790,9 +903,51 @@ public class CustomUiEngine {
   public void setCustomUiTextResults(List<CustomUiTextResult> customUiTextResults1) {
     this.customUiTextResults = customUiTextResults1;
   }
+  
 
   /**
-   * @param customUiUserType
+   * @param substituteMap 
+   */
+  public void sendEmail(Map<String, Object> substituteMap) {
+    
+    boolean emailToUser = GrouperUtil.booleanValue(findBestText(CustomUiTextType.emailToUser, substituteMap), false);
+    
+    this.debugMap.put("emailToUser", emailToUser);
+    
+    if (!emailToUser) {
+      return;
+    }
+    
+    String emailTo = GrouperEmailUtils.getEmail(this.subjectOperatedOn);
+
+    final String bccGroup = findBestText(CustomUiTextType.emailBccGroupName, substituteMap);
+
+    String bccAddresses = null;
+    
+    this.debugMap.put("emailAddress", emailTo);
+
+    if (!StringUtils.isBlank(bccGroup)) {
+      
+      bccAddresses = GrouperEmailUtils.retrieveEmailAddressesOrFromCache(bccGroup);
+    }
+
+    if (StringUtils.isBlank(emailTo) && StringUtils.isBlank(bccAddresses)) {
+      return;
+    }
+
+    if (StringUtils.isBlank(emailTo)) {
+      emailTo = bccAddresses;
+      bccAddresses = null;
+    }
+    
+    final String emailSubject = findBestText(CustomUiTextType.emailSubject, substituteMap);
+    final String emailBody = findBestText(CustomUiTextType.emailBody, substituteMap);
+
+    new GrouperEmail().setBcc(bccAddresses).setBody(emailBody).setSubject(emailSubject).setTo(emailTo).send();
+
+  }
+
+  /**
    * @param customUiTextType
    * @param substituteMap 
    * @return the best text
@@ -823,6 +978,7 @@ public class CustomUiEngine {
       substituteMap.putAll(GrouperUtil.nonNull(userQueryVariables));
 
       boolean foundSomething = false;
+      
       for (CustomUiTextConfigBean customUiTextConfigBean : GrouperUtil.nonNull(customUiTextConfigBeans)) {
         
         try {
@@ -868,8 +1024,21 @@ public class CustomUiEngine {
       if (customUiTextConfigBean != null) {
         String theText = customUiTextConfigBean.getText();
         theText = CustomUiUtil.substituteExpressionLanguage(theText, this.group, null, null, subject, substituteMap);
+
+        CustomUiTextResult customUiTextResult = new CustomUiTextResult();
+        customUiTextResult.setCustomUiTextConfigBean(customUiTextConfigBean);
+        customUiTextResult.setCustomUiTextType(customUiTextType);
+        customUiTextResult.setTextResult(theText);
+        this.customUiTextResults.add(customUiTextResult);
+
         return theText;
       }
+      
+      CustomUiTextResult customUiTextResult = new CustomUiTextResult();
+      customUiTextResult.setCustomUiTextType(customUiTextType);
+      customUiTextResult.setTextResult(null);
+      this.customUiTextResults.add(customUiTextResult);
+
       return "";
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, "key: '" + customUiTextType.name() + "'");
@@ -878,7 +1047,7 @@ public class CustomUiEngine {
       if (assignedThreadLocal) {
         threadLocalCustomUiEngine.remove();
       }
-      this.debugMap.put("findText_" + customUiTextType.name() + "_millis", (System.nanoTime()-startNanos)/1000000);
+      //this.debugMap.put("findText_" + customUiTextType.name() + "_millis", (System.nanoTime()-startNanos)/1000000);
     }
   }
 

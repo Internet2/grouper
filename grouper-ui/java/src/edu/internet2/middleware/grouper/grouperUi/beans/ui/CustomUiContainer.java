@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,6 +22,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiTextType;
@@ -84,10 +86,7 @@ public class CustomUiContainer {
    */
   public Set<CustomUiUserQueryDisplayBean> getCustomUiUserQueryDisplayBeans() {
     if (!this.calculatedDisplayBeans) {
-      Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
-      substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
-      substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
-      substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
+      Map<String, Object> substituteMap = overrideMap();
 
       this.customUiEngine.generateUserQueryDisplayBeans(substituteMap);
     }
@@ -107,20 +106,17 @@ public class CustomUiContainer {
   /**
    * map from text type to text
    */
-  private Map<String, Object> textTypeToText = new HashMap<String, Object>() {
+  private Map<String, String> textTypeToText = new HashMap<String, String>() {
 
     /**
      * @see java.util.HashMap#get(java.lang.Object)
      */
     @Override
-    public Object get(Object key) {
+    public String get(Object key) {
 
-      CustomUiTextType customUiTextType = CustomUiTextType.valueOfIgnoreCase((String)key, true);
+      CustomUiTextType customUiTextType = key instanceof CustomUiTextType ? (CustomUiTextType)key : CustomUiTextType.valueOfIgnoreCase((String)key, true);
       
-      Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
-      substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
-      substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
-      substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
+      Map<String, Object> substituteMap = overrideMap();
       
       return CustomUiContainer.this.customUiEngine.findBestText(customUiTextType, substituteMap);
     }
@@ -128,42 +124,57 @@ public class CustomUiContainer {
   };
   
   /**
+   * has computed logic
+   */
+  private boolean hasComputedLogic = false;
+
+  
+  /**
+   * has computed logic
+   * @return the hasComputedLogic
+   */
+  public boolean isHasComputedLogic() {
+    return this.hasComputedLogic;
+  }
+
+
+  
+  /**
+   * has computed logic
+   * @param hasComputedLogic1 the hasComputedLogic to set
+   */
+  public void setHasComputedLogic(boolean hasComputedLogic1) {
+    this.hasComputedLogic = hasComputedLogic1;
+  }
+
+
+  /**
    * @return the textTypeToText
    */
-  public Map<String, Object> getTextTypeToText() {
+  public Map<String, String> getTextTypeToText() {
     return this.textTypeToText;
   }
 
   /**
    * if can change variables, null if not calculated
    */
-  private Boolean canChangeVariables;
+  private Boolean canAssignVariables;
   
   /**
    * 
    * @return if can change variables
    */
-  public boolean isCanChangeVariables() {
-    if (this.canChangeVariables == null) {
-      
-      Boolean overrideOff = (Boolean)this.customUiEngine.userQueryVariables().get("cu_grouperTurnOffManager");
-      if (overrideOff != null && overrideOff) {
-        this.canChangeVariables = false;
-      }
-    }      
-    if (this.canChangeVariables == null) {
-      
-      Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
-      substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
-      substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
-      substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
+  public boolean isCanAssignVariables() {
+    if (this.canAssignVariables == null) {
 
-      Object result = this.customUiEngine.findBestText(CustomUiTextType.canAssignVariables, substituteMap);
-      if (result != null) {
-        this.canChangeVariables = GrouperUtil.booleanObjectValue(result);
+      Boolean result = GrouperUtil.booleanObjectValue(this.getTextTypeToText().get(CustomUiTextType.canAssignVariables));
+      if (result == null) {
+        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+        result = PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject);
       }
+      this.canAssignVariables = result;
     }
-    return this.canChangeVariables;
+    return this.canAssignVariables;
   }
   
   /**
@@ -242,6 +253,67 @@ public class CustomUiContainer {
     }
     return TextContainer.retrieveFromRequest().getText().get("guiCustomUiGroupDefaultEnrollButtonText");
   }
+  
+  /**
+   * if show user environment
+   */
+  private Boolean canSeeUserEnvironment;
+  
+  
+  /**
+   * @return the showUserEnvironment
+   */
+  public boolean isCanSeeUserEnvironment() {
+    if (this.canSeeUserEnvironment == null) {
+      Boolean result = GrouperUtil.booleanObjectValue(this.getTextTypeToText().get(CustomUiTextType.canSeeUserEnvironment));
+      if (result == null) {
+        result = this.isManager();
+      }
+      this.canSeeUserEnvironment = result;
+    }
+    return this.canSeeUserEnvironment;
+  }
+  
+  /**
+   * are we on an enroll or unenroll
+   */
+  private boolean enroll;
+  
+  /**
+   * @return the enroll
+   */
+  public boolean isEnroll() {
+    return this.enroll;
+  }
+
+  /**
+   * @param enroll1 the enroll to set
+   */
+  public void setEnroll(boolean enroll1) {
+    this.enroll = enroll1;
+  }
+
+
+  /**
+   * @return the showScreenState
+   */
+  public boolean isCanSeeScreenState() {
+    if (this.canSeeScreenState == null) {
+      
+      Boolean result = GrouperUtil.booleanObjectValue(this.getTextTypeToText().get(CustomUiTextType.canSeeScreenState));
+      if (result == null || !result) {
+        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+        result = PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject);
+      }
+      this.canSeeScreenState = result;
+    }
+    return this.canSeeScreenState;
+  }
+
+  /**
+   * if show screen state
+   */
+  private Boolean canSeeScreenState;
   
   /**
    * cache if manager
@@ -339,11 +411,24 @@ public class CustomUiContainer {
   }
 
   /**
-   * @param b
    */
   public void resetCache() {
-    this.canChangeVariables = null;
+    this.canAssignVariables = null;
+    this.canSeeScreenState = null;
+    this.canSeeUserEnvironment = null;
     this.manager = null;
+  }
+
+
+  /**
+   * @return map
+   */
+  public Map<String, Object> overrideMap() {
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+    substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
+    substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
+    substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
+    return substituteMap;
   }
 
   

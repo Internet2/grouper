@@ -20,10 +20,20 @@
 package edu.internet2.middleware.grouper.util;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -35,6 +45,59 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class GrouperEmailUtils {
 
+  /**
+   * keep a cache of group name to comma separated list
+   */
+  private static ExpirableCache<String, String> groupNameToEmailList = new ExpirableCache<String, String>(5);
+
+  /**
+   * 
+   * @param groupName
+   * @return comma separated email addresses
+   */
+  public static String retrieveEmailAddresses(final String groupName) {
+    return (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        StringBuilder result = new StringBuilder();
+        
+        Group group = GroupFinder.findByName(grouperSession, groupName, true);
+        
+        Set<Member> members = group.getMembers();
+        
+        Map<MultiKey, Subject> sourceIdSubjectIdToSubject = SubjectFinder.findByMembers(members);
+        
+        for (Subject subject : GrouperUtil.nonNull(sourceIdSubjectIdToSubject).values()) {
+          String emailAddress = getEmail(subject);
+          if (!StringUtils.isBlank(emailAddress)) {
+            if (result.length() > 0) {
+              result.append(", ");
+            }
+            result.append(emailAddress);
+          }
+        }
+        
+        return null;
+      }
+    });
+  }
+
+  /**
+   * 
+   * @param groupName
+   * @return the email addresses
+   */
+  public static String retrieveEmailAddressesOrFromCache(final String groupName) {
+    String emailAddresses = groupNameToEmailList.get(groupName);
+    if (emailAddresses == null) {
+      emailAddresses = retrieveEmailAddresses(groupName);
+      emailAddresses = GrouperUtil.defaultString(emailAddresses);
+      groupNameToEmailList.put(groupName, emailAddresses);
+    }
+    return emailAddresses;
+  }
+  
   /**
    * get the subject attribute name for a source id
    * @param sourceId
