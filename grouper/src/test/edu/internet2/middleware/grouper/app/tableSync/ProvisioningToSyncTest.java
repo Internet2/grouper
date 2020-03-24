@@ -65,12 +65,12 @@ public class ProvisioningToSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
     GrouperStartup.startup();
-    //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncLogStoreAndDelete"));
+    TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncLogStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncJobStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncGroupStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncMembershipStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testProvisioningAttributesToGroupSyncFull"));
-    TestRunner.run(new ProvisioningToSyncTest("testEsbConsumer"));
+    //TestRunner.run(new ProvisioningToSyncTest("testEsbConsumer"));
     
   }
   

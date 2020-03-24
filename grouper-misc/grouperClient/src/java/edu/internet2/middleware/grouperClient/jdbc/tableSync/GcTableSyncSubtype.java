@@ -673,23 +673,23 @@ public enum GcTableSyncSubtype {
 
     if (needsFullSyncBasedOnRecords) {
       // see if we really want to do full sync still
-      if (switchFromIncrementalToFullIfOverGroupCount > 0 && groupPrimaryKeys.size() > switchFromIncrementalToFullIfOverGroupCount) {
+      if (switchFromIncrementalToFullIfOverGroupCount > 0 && GrouperClientUtils.length(groupPrimaryKeys) > switchFromIncrementalToFullIfOverGroupCount) {
         needsFullSyncBasedOnGroups = true;
       }
     }
     
-    if (!needsFullSyncBasedOnGroups) {
+    if (needsFullSyncBasedOnGroups) {
       // lets tackle this based on groups
       needsFullSyncBasedOnRecords = false;
       // take out groups that have fewer members than the limit
-      for (Object grouping : new HashSet<Object>(groupPrimaryKeys.keySet())) {
+      for (Object grouping : new HashSet<Object>(GrouperClientUtils.nonNull(groupPrimaryKeys).keySet())) {
         Set<MultiKey> primaryKeys = groupPrimaryKeys.get(grouping);
         if (primaryKeys.size() <= switchFromIncrementalToGroupIfOverRecordsInGroup) {
           groupPrimaryKeys.remove(grouping);
         }
       }
     
-      if (groupPrimaryKeys.size() > 0) {
+      if (GrouperClientUtils.length(groupPrimaryKeys) > 0) {
         // lets see what we got
         Set<Object> switchedToGroups = new HashSet<Object>(groupPrimaryKeys.keySet());
         gcTableSync.getGcTableSyncOutput().setSwitchedToGroups(switchedToGroups);
