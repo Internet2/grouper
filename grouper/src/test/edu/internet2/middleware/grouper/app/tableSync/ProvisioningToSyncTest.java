@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
@@ -65,12 +66,12 @@ public class ProvisioningToSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncLogStoreAndDelete"));
+    //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncLogStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncJobStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncGroupStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncMembershipStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testProvisioningAttributesToGroupSyncFull"));
-    //TestRunner.run(new ProvisioningToSyncTest("testEsbConsumer"));
+    TestRunner.run(new ProvisioningToSyncTest("testEsbConsumerInvalidEvent"));
     
   }
   
@@ -839,7 +840,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
 
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
 
-      
+      //make sure unexpecte events are handled
+      new AttributeDefSave(grouperSession).assignName("test:whateverDef").save();
       
       // run the loader, initial run does nothing
       Hib3GrouperLoaderLog hib3GrouperLoaderLog = runJobs(true, true);
@@ -1644,6 +1646,113 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertEquals("hey", logs.get(0).getDescription());
     
   
+  }
+
+  /**
+   * add provisioning attributes and see them transition to group sync attribute
+   */
+  public void testEsbConsumerInvalidEvent() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+    
+    Group testGroup1 = new GroupSave(grouperSession).assignName("test:testGroup1").save();
+    
+    testGroup1.addMember(SubjectTestHelper.SUBJ0);
+    testGroup1.addMember(SubjectTestHelper.SUBJ1);
+    
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+  
+    testGroup2.addMember(SubjectTestHelper.SUBJ2);
+  
+    Group testGroup3 = new GroupSave(grouperSession).assignName("test:testGroup3").save();
+  
+    testGroup3.addMember(SubjectTestHelper.SUBJ3);
+  
+    Group testGroup4 = new GroupSave(grouperSession).assignName("test:test2:testGroup4").assignCreateParentStemsIfNotExist(true).save();
+  
+    testGroup4.addMember(SubjectTestHelper.SUBJ4);
+  
+    // marker
+    AttributeDefName provisioningMarkerAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker();
+  
+    // target name
+    AttributeDefName provisioningTargetAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget();
+  
+    // direct name
+    AttributeDefName provisioningDirectAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment();
+  
+    // direct name
+    AttributeDefName provisioningStemScopeAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameStemScope();
+  
+    // do provision
+    AttributeDefName provisioningDoProvisionAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision();
+    
+    Set<Group> groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+    assertEquals(0, GrouperUtil.length(groups));
+    
+    AttributeAssign testStemAttributeAssign = testStem.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningStemScopeAttributeDefName.getName(), "sub");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
+  
+    AttributeAssign testGroup2attributeAssign = testGroup2.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
+    
+    // propagate the attributes to children
+    GrouperProvisioningJob.runDaemonStandalone();
+    
+    // create the sync stuff
+    new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+          
+    
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.databaseFrom", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.tableFrom", "testgrouper_mship_from_v");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.databaseTo", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.tableTo", "testgrouper_sync_subject_to");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.columns", "*");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.primaryKeyColumns", "group_id, member_id, field_id");
+    
+    
+    GcTableSync gcTableSync = new GcTableSync();
+    GcTableSyncOutput gcTableSyncOutput = gcTableSync.sync("testTarget", GcTableSyncSubtype.fullSyncFull); 
+  
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "testTarget");
+    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType(GcTableSyncSubtype.fullSyncFull.name());
+    
+    Timestamp lastSyncTimestamp = gcGrouperSyncJob.getLastSyncTimestamp();
+    
+    assertNotNull(lastSyncTimestamp);
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
+        EsbConsumer.class.getName());
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
+        TableSyncProvisioningConsumer.class.getName());
+    
+    //something that will never fire
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
+        "0 0 5 * * 2000");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "testTarget");
+  
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
+        GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys.name());
+  
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
+  
+    // run the loader, initial run tries that event
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = runJobs(true, true);
+
+    //make sure unexpecte events are handled
+    new AttributeDefSave(grouperSession).assignName("test:whateverDef").save();
+    
+    hib3GrouperLoaderLog = runJobs(true, true);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
   }
 
 }

@@ -128,7 +128,13 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     if (changeLogTypeBuiltin != null) {
       
       // this is a shadow enum
-      EsbEventType esbEventType = EsbEventType.valueOfIgnoreCase(changeLogTypeBuiltin.name(), false);
+      EsbEventType esbEventType = null;
+      
+      try {
+        esbEventType = EsbEventType.valueOfIgnoreCase(changeLogTypeBuiltin.name(), false);
+      } catch (Exception e) {
+        // ignore
+      }
       
       if (esbEventType != null) {
         event.setEventType(esbEventType.name());
