@@ -47,7 +47,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
-import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -106,22 +105,6 @@ public class UiV2CustomUi {
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2CustomUi.class);
 
-  public void sendEmail(boolean enroll) {
-    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-//    CustomUiContainer customUiContainer = grouperRequestContainer.getCustomUiContainer();
-//    customUiContainer.getCustomUiEngine().getCustomUiOverallBean().getEmailBccToGroupName();
-//    customUiContainer.getCustomUiEngine().getCustomUiOverallBean().getEmailToUser();
-//    customUiContainer.getCustomUiEngine().getCustomUiOverallBean().getEmailUnenrollBody();
-//    customUiContainer.getCustomUiEngine().getCustomUiOverallBean().getEmailUnenrollSubject();
-    
-    try {
-      new GrouperEmail().setBody("Dear Katherine Wilson,\n\nYou have just " + (enroll ? "enrolled in" : "unenrolled from") + " Two-Step Verification for PennO365.\n\nIf you have questions please open a ticket.\n\nThanks!\nISC").setSubject("PennO365 Two-Step Verification " + (enroll ? "" : "un") + "enrollment").setTo("mchyzer@isc.upenn.edu").send();
-    } catch (Exception e) {
-      LOG.error("Error sending email", e);
-    }
-
-  }
-  
   /**
    * leave the current group
    * @param request
@@ -145,9 +128,15 @@ public class UiV2CustomUi {
       
       Member member = lookupMember(request);
       
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      CustomUiContainer customUiContainer = grouperRequestContainer.getCustomUiContainer();
+      customUiContainer.setEnroll(false);
+
       group.deleteMember(member, false);
+
+      customUiGroupLogic(request, member.getSubject());   
       
-      sendEmail(false);
+      customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());
       
       customUiGroup(request, response);
 
@@ -326,7 +315,7 @@ public class UiV2CustomUi {
     customUiContainer.setMember(member);
     return member;
   }
-  
+
   /**
    * @param request
    * @param subject
@@ -336,7 +325,11 @@ public class UiV2CustomUi {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
     final CustomUiContainer customUiContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getCustomUiContainer();
-    
+
+    if (customUiContainer.isHasComputedLogic()) {
+      return;
+    }
+
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession inner_grouperSession) throws GrouperSessionException {
@@ -349,12 +342,17 @@ public class UiV2CustomUi {
         
         customUiEngine.processGroup(group, loggedInSubject, subject);
 
+        customUiEngine.userQueryVariables().put("cu_managerIsLoggedIn", customUiContainer.isManager());
+        customUiEngine.userQueryVariables().put("cu_grouperEnroll", customUiContainer.isEnroll());
+
         return null;
       }
     
     });
 
-    if (customUiContainer.isCanChangeVariables()) {
+    
+    
+    if (customUiContainer.isCanAssignVariables()) {
       Enumeration<String> parameterNames = request.getParameterNames();
       if (parameterNames != null) {
         boolean needsReset = false;
@@ -388,9 +386,12 @@ public class UiV2CustomUi {
         }
       }
     }
+    if (customUiContainer.isCanSeeScreenState()) {
+      customUiContainer.getCustomUiEngine().generateCustomUiTextResultsAll(customUiContainer.overrideMap());
+    }
     
+    customUiContainer.setHasComputedLogic(true);
   }
-
   /**
    * leave the current group
    * @param request
@@ -414,9 +415,15 @@ public class UiV2CustomUi {
     
       Member member = lookupMember(request);
       
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      CustomUiContainer customUiContainer = grouperRequestContainer.getCustomUiContainer();
+      customUiContainer.setEnroll(true);
+      
       group.addMember(member.getSubject(), false);
       
-      sendEmail(true);
+      customUiGroupLogic(request, member.getSubject());   
+
+      customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());
       
       customUiGroup(request, response);
   

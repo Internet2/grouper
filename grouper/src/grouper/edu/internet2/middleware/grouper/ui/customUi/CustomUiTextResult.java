@@ -16,6 +16,71 @@ public class CustomUiTextResult {
   public CustomUiTextResult() {
   }
 
+    
+  private String endIfMatches;
+  
+  
+
+  
+  /**
+   * @return the endIfMatches
+   */
+  public String getEndIfMatches() {
+    return this.endIfMatches;
+  }
+
+
+
+  
+  /**
+   * @param endIfMatches the endIfMatches to set
+   */
+  public void setEndIfMatches(String endIfMatches) {
+    this.endIfMatches = endIfMatches;
+  }
+
+  private String theDefault;
+  
+  
+  
+  
+  /**
+   * @return the theDefault
+   */
+  public String getTheDefault() {
+    return this.theDefault;
+  }
+
+
+  
+  /**
+   * @param theDefault the theDefault to set
+   */
+  public void setTheDefault(String theDefault) {
+    this.theDefault = theDefault;
+  }
+
+  /**
+   * 
+   */
+  private String scriptResult;
+  
+  
+  /**
+   * @return the shouldDisplay
+   */
+  public String getScriptResult() {
+    return this.scriptResult;
+  }
+
+  
+  /**
+   * @param scriptResult the shouldDisplay to set
+   */
+  public void setScriptResult(String scriptResult) {
+    this.scriptResult = scriptResult;
+  }
+
   /**
    * type to check
    */

@@ -13,8 +13,50 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public class CustomUiUserQueryDisplayBean implements Comparable<CustomUiUserQueryDisplayBean> {
 
+  /**
+   * 
+   */
+  private boolean forLoggedInUserBoolean;
   
   
+  /**
+   * @return the forLoggedInUserBoolean
+   */
+  public boolean isForLoggedInUserBoolean() {
+    return this.forLoggedInUserBoolean;
+  }
+
+
+  
+  /**
+   * @param forLoggedInUserBoolean the forLoggedInUserBoolean to set
+   */
+  public void setForLoggedInUserBoolean(boolean forLoggedInUserBoolean) {
+    this.forLoggedInUserBoolean = forLoggedInUserBoolean;
+  }
+
+  /**
+   * yes or no
+   */
+  private String forLoggedInUser;
+  
+  
+  
+  /**
+   * @return the forLoggedInUser
+   */
+  public String getForLoggedInUser() {
+    return this.forLoggedInUser;
+  }
+
+  
+  /**
+   * @param forLoggedInUser the forLoggedInUser to set
+   */
+  public void setForLoggedInUser(String forLoggedInUser) {
+    this.forLoggedInUser = forLoggedInUser;
+  }
+
   /**
    * @see java.lang.Object#toString()
    */
