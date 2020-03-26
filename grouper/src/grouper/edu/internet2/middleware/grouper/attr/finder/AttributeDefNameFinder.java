@@ -304,7 +304,8 @@ public class AttributeDefNameFinder {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
       // if passed in empty set of attributeDefName ids and no names, then no attributeDefNames found
       // uncomment this if we can search by attributeDefName names
-      if (this.idsOfAttributeDefName != null && this.idsOfAttributeDefName.size() == 0 /* && GrouperUtil.length(this.namesOfAttributeDefName) == 0 */ ) {
+      if (this.idsOfAttributeDefName != null && this.idsOfAttributeDefName.size() == 0 /* && GrouperUtil.length(this.namesOfAttributeDefName) == 0 */ 
+          ) {
         return new HashSet<AttributeDefName>();
       }
     }

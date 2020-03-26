@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -339,12 +340,18 @@ public class AttributeDefFinder {
     }
     
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
-      // if passed in empty set of attributeDef ids and no names, then no attributeDefs found
-      // uncomment this if we can search by attributeDef names
-      if (this.attributeDefIds != null && this.attributeDefIds.size() == 0 /* && GrouperUtil.length(this.namesOrAttributeDefs) == 0 */ 
-          && this.attributeDefNameIds != null && this.attributeDefNameIds.size() == 0) {
+
+      // if passed in empty set of group ids and no names, then no groups found
+      if (this.attributeDefIds != null && this.attributeDefIds.size() == 0) {
         return new HashSet<AttributeDef>();
       }
+      
+      // if passed in empty set of group names and no ids, then no groups found
+      if (this.attributeDefNameIds != null && this.attributeDefNameIds.size() == 0) {
+        return new HashSet<AttributeDef>();
+      }
+      
+      
     }
 
     Set<AttributeDef> results = null;

@@ -648,9 +648,15 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     
     queryOptions.setCount(count);
 
+    boolean canFlashCache = GrouperUtil.length(privileges) > 0;
+    
     for (AttributeDef attributeDef : GrouperUtil.nonNull(overallResults)) {
       attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
-      attributeDefFlashCacheAddIfSupposedTo(attributeDef);
+      if (canFlashCache) {
+
+        // if there are no privs then its not a secure method and it shouldnt be in the user VIEW flash cache
+        attributeDefFlashCacheAddIfSupposedTo(attributeDef);
+      }
     }
 
     //if find by uuid or name, try to narrow down to one...
@@ -959,9 +965,14 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     
     queryOptions.setCount(count);
 
+    boolean canFlashCache = GrouperUtil.length(privileges) > 0;
+
     for (AttributeDef attributeDef : GrouperUtil.nonNull(overallResults)) {
       attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
-      attributeDefFlashCacheAddIfSupposedTo(attributeDef);
+      if (canFlashCache) {
+        // if there are no privs then its not a secure method and it shouldnt be in the user VIEW flash cache
+        attributeDefFlashCacheAddIfSupposedTo(attributeDef);
+      }
     }
 
     //if find by uuid or name, try to narrow down to one...
@@ -1547,6 +1558,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       if (multiKey == null) {
         continue;
       }
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("adding attribute def flash cache for: " + multiKey.toString());
+      }
       attributeDefFlashCache.put(multiKey, attributeDef);
     }
     
@@ -1560,9 +1574,13 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     if (attributeDef == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE, true)) {
       return;
     }
-    
     for (Object id : new Object[]{attributeDef.getUuid(), attributeDef.getName(), attributeDef.getIdIndex()}) {
       MultiKey multiKey = attributeDefFlashCacheMultikeyAsRoot(id);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("adding attribute def flash cache for: " + multiKey.toString());
+      }
+
       attributeDefFlashCache.put(multiKey, attributeDef);
     }
     
@@ -1614,12 +1632,13 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    */
   private static AttributeDef attributeDefFlashCacheRetrieve(Object id, QueryOptions queryOptions) {
     if (attributeDefFlashCacheable(id, queryOptions)) {
-      MultiKey groupFlashMultikey = attributeDefFlashCacheMultikey(id);
+      MultiKey attributeDefFlashMultikey = attributeDefFlashCacheMultikey(id);
       //see if its already in the cache
-      AttributeDef attributeDef = attributeDefFlashCache.get(groupFlashMultikey);
+      AttributeDef attributeDef = attributeDefFlashCache.get(attributeDefFlashMultikey);
       if (attributeDef != null) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("retrieving from attribute def flash cache by id: " + attributeDef.getName());
+          LOG.debug("retrieving from attribute def flash cache by: " + attributeDefFlashMultikey);
+          
         }
         return attributeDef;
       }
