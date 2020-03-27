@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -102,6 +104,32 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class GrouperDdlUtils {
 
+  /**
+   * 
+   */
+  private static ThreadLocal<DdlVersionBean> ddlVersionBeanThreadLocal = new InheritableThreadLocal<DdlVersionBean>();
+
+  /**
+   * 
+   * @return the bean
+   */
+  public static DdlVersionBean ddlVersionBeanThreadLocal() {
+    return ddlVersionBeanThreadLocal.get();
+  }
+  
+  /**
+   * @param ddlVersionBean
+   */
+  public static void ddlVersionBeanThreadLocalAssign(DdlVersionBean ddlVersionBean) {
+    ddlVersionBeanThreadLocal.set(ddlVersionBean);
+  }
+  
+  /**
+   */
+  public static void ddlVersionBeanThreadLocalClear() {
+    ddlVersionBeanThreadLocal.remove();
+  }
+  
   /**
    * see if the config file seems to be hsql
    * @return see if hsql
@@ -562,15 +590,20 @@ public class GrouperDdlUtils {
               recreateViewsAndForeignKeys = false;
             }
           }
-  
+
           {
             if (recreateViewsAndForeignKeys) {
+              
               //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
               DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result);
-              ddlVersionable.dropAllViews(tempDdlVersionBean);
-    
-              //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-              dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+              ddlVersionBeanThreadLocalAssign(tempDdlVersionBean);
+              try {
+                ddlVersionable.dropAllViews(tempDdlVersionBean);
+                //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+                dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+              } finally {
+                ddlVersionBeanThreadLocalClear();
+              }
             }
           }
           
@@ -726,31 +759,37 @@ public class GrouperDdlUtils {
                 DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, 
                     sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result);
                 
-                ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
+                ddlVersionBeanThreadLocalAssign(ddlVersionBean);
+
+                try {
+                  ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
+      
+                  ////lets add table / col comments
+                  //for (Table table : newDatabase.getTables()) {
+                  //  GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
+                  //  for (Column column : table.getColumns()) {
+                  //    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
+                  //  }
+                  //}
     
-                ////lets add table / col comments
-                //for (Table table : newDatabase.getTables()) {
-                //  GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
-                //  for (Column column : table.getColumns()) {
-                //    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
-                //  }
-                //}
-  
-                String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
-                    newDatabase);
-                
-                script = StringUtils.trimToEmpty(script);
-                
-                String additionalScriptsString = additionalScripts.toString();
-                if (!StringUtils.isBlank(additionalScriptsString)) {
-                  script += "\n" + additionalScriptsString;
-                }
-    
-                
-                if (!StringUtils.isBlank(script)) {
-                  //result.append("\n-- add back all the foreign keys */\n");
-                  result.append(script).append("\n");
-                  //result.append("\n-- end add back all foreign keys */\n\n");
+                  String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
+                      newDatabase);
+                  
+                  script = StringUtils.trimToEmpty(script);
+                  
+                  String additionalScriptsString = additionalScripts.toString();
+                  if (!StringUtils.isBlank(additionalScriptsString)) {
+                    script += "\n" + additionalScriptsString;
+                  }
+      
+                  
+                  if (!StringUtils.isBlank(script)) {
+                    //result.append("\n-- add back all the foreign keys */\n");
+                    result.append(script).append("\n");
+                    //result.append("\n-- end add back all foreign keys */\n\n");
+                  }
+                } finally {
+                  ddlVersionBeanThreadLocalClear();
                 }
               }
             }
@@ -1170,12 +1209,16 @@ public class GrouperDdlUtils {
         {
           DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder,
               null, null, null, false, -1, result);
-          
-          if (dropViewsConstraintsFirst) {
-            ddlVersionable.dropAllViews(tempDdlVersionBean);
-    
-            //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-            dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+          ddlVersionBeanThreadLocalAssign(tempDdlVersionBean);
+          try {
+            if (dropViewsConstraintsFirst) {
+              ddlVersionable.dropAllViews(tempDdlVersionBean);
+      
+              //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+              dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+            }
+          } finally {
+            ddlVersionBeanThreadLocalClear();
           }
         }
         
@@ -1191,30 +1234,35 @@ public class GrouperDdlUtils {
         StringBuilder additionalScripts = new StringBuilder();
         //callback
         DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, -1, result);
-        ddlUtilsChangeDatabase.changeDatabase(ddlVersionBean);
-        
-        String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
+        ddlVersionBeanThreadLocalAssign(ddlVersionBean);
+        try {
+          ddlUtilsChangeDatabase.changeDatabase(ddlVersionBean);
           
-        if (!StringUtils.isBlank(script)) {
-          //result.append("\n-- we are configured in grouper.properties to drop all tables \n");
-          result.append(script).append("\n");
-          //result.append("\n-- end drop all tables \n\n");
-        }
-        
-        if (additionalScripts.length() > 0) {
-          result.append(additionalScripts).append("\n");
-          additionalScripts = new StringBuilder();
-          ddlVersionBean.setAdditionalScripts(additionalScripts);
-        }
-        //add back in the foreign keys
-        ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
-          
-        //lets add table / col comments
-        for (Table table : newDatabase.getTables()) {
-          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
-          for (Column column : table.getColumns()) {
-            GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
+          String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
+            
+          if (!StringUtils.isBlank(script)) {
+            //result.append("\n-- we are configured in grouper.properties to drop all tables \n");
+            result.append(script).append("\n");
+            //result.append("\n-- end drop all tables \n\n");
           }
+          
+          if (additionalScripts.length() > 0) {
+            result.append(additionalScripts).append("\n");
+            additionalScripts = new StringBuilder();
+            ddlVersionBean.setAdditionalScripts(additionalScripts);
+          }
+          //add back in the foreign keys
+          ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
+            
+          //lets add table / col comments
+          for (Table table : newDatabase.getTables()) {
+            GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
+            for (Column column : table.getColumns()) {
+              GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
+            }
+          }
+        } finally {
+          ddlVersionBeanThreadLocalClear();
         }
 
       } finally {
@@ -2127,7 +2175,12 @@ public class GrouperDdlUtils {
       //do an incremental update
       DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldVersion, baseVersion, additionalScripts, 
           version == requestedVersion, upgradeToVersion, fullScript);
-      ddlVersionable.updateVersionFromPrevious(baseVersion, ddlVersionBean);
+      ddlVersionBeanThreadLocalAssign(ddlVersionBean);
+      try {
+        ddlVersionable.updateVersionFromPrevious(baseVersion, ddlVersionBean);
+      } finally {
+        ddlVersionBeanThreadLocalClear();
+      }
     }
   }
   
@@ -2159,9 +2212,54 @@ public class GrouperDdlUtils {
   public static Index ddlutilsFindOrCreateIndex(Database database,  
       String tableName, String indexName, 
       boolean unique, String... columnNames) {
-    return ddlutilsFindOrCreateIndex(database, null, tableName, indexName, null, unique, columnNames);
+    return ddlutilsFindOrCreateIndex(database, GrouperDdlUtils.ddlVersionBeanThreadLocal(), tableName, indexName, null, unique, columnNames);
   }
 
+  private static Pattern columnNameWithMaxLengthPattern = Pattern.compile("^([^(]+)\\(([^)]+)\\)$");
+  
+  /**
+   * <pre>
+   * input: col1, col2, col3(40), col4
+   * output:
+   * object[]
+   *   string[]: col1, col2, col3, col4
+   *   integer[]: null, null, 40, null
+   * </pre>
+   * return the string array of column names and the Integer[] of max lengths
+   * @param columnNamesWithMaxLength
+   * @return the array of arrays
+   */
+  public static Object[] columnNamesWithoutMaxLength(String[] columnNamesWithMaxLength) {
+    
+    final int inputLength = GrouperUtil.length(columnNamesWithMaxLength);
+    
+    if (inputLength == 0) {
+      return null;
+    }
+    
+    Object[] result = new Object[2];
+    final String[] columnNames = new String[inputLength];
+    result[0] = columnNames;
+    final Integer[] columnSizes = new Integer[inputLength];
+    result[1] = columnSizes;
+    
+    for (int i=0;i<inputLength;i++) {
+      String columnNameWithMaxLength = columnNamesWithMaxLength[i];
+      Matcher matcher = columnNameWithMaxLengthPattern.matcher(columnNameWithMaxLength);
+      if (matcher.matches()) {
+        String columnName = GrouperUtil.trim(matcher.group(1));
+        columnNames[i] = columnName;
+        Integer size = GrouperUtil.intObjectValue(GrouperUtil.trim(matcher.group(2)), false);
+        columnSizes[i] = size;
+        
+      } else {
+        columnNames[i] = columnNameWithMaxLength;
+      }
+    }
+    return result;
+    
+  }
+  
   /**
    * add an index on a table.  drop a misnamed or a misuniqued index which is existing
    * @param database
@@ -2170,7 +2268,7 @@ public class GrouperDdlUtils {
    * @param indexName 
    * @param customScript use this script to create the index, not ddlutils
    * @param unique
-   * @param columnNames
+   * @param columnNames or column names with max length
    * @return the index which is the new one, or existing one if it already exists, or null if a custom index
    */
   public static Index ddlutilsFindOrCreateIndex(Database database, DdlVersionBean ddlVersionBean, 
@@ -2178,6 +2276,10 @@ public class GrouperDdlUtils {
       boolean unique, String... columnNames) {
     Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName, true);
 
+    Object[] columnsAndSizes = columnNamesWithoutMaxLength(columnNames);
+    String[] columnNamesWithoutMaxlength = (String[])columnsAndSizes[0];
+    Integer[] maxlength = (Integer[])columnsAndSizes[1];
+    
     //search for the index
     OUTERLOOP:
     for (Index existingIndex : table.getIndices()) {
@@ -2188,7 +2290,7 @@ public class GrouperDdlUtils {
         //look through existing columns (order is important)
         //see if this is not a match
         for (int i=0;i<columnNames.length;i++) {
-          if (!StringUtils.equalsIgnoreCase(existingIndex.getColumn(i).getName(), columnNames[i])) {
+          if (!StringUtils.equalsIgnoreCase(existingIndex.getColumn(i).getName(), columnNamesWithoutMaxlength[i])) {
             
             continue OUTERLOOP;
           }
@@ -2216,6 +2318,39 @@ public class GrouperDdlUtils {
     if (!StringUtils.isBlank(customScript)) {
       //this better be there
       ddlVersionBean.appendAdditionalScriptUnique(customScript);
+      return null;
+    }
+    
+    // see if we have one with custom col lengths
+    boolean customColumnLengths = false;
+    for (int i=0;i<maxlength.length;i++) {
+      if (maxlength[i] != null) {
+        customColumnLengths = true;
+      }
+    }
+
+    if (ddlVersionBean.isSmallIndexes() && customColumnLengths) {
+//      "\nCREATE unique INDEX group_name_idx " +
+//          "ON grouper_groups (name(255));\n" :
+      
+      StringBuilder indexScript = new StringBuilder();
+      indexScript.append("\nCREATE unique INDEX " + indexName + " " +
+          "ON " + tableName + " (");
+      for (int i=0; i<columnNames.length;i++) {
+        if (i!=0) {
+          indexScript.append(", ");
+        }
+        indexScript.append(columnNamesWithoutMaxlength[i]);
+        if (maxlength[i] != null) {
+          // name(255)
+          indexScript.append("(").append(maxlength[i]).append(")");
+        }
+      }
+      
+      indexScript.append(");\n");
+      
+      //this better be there
+      ddlVersionBean.appendAdditionalScriptUnique(indexScript.toString());
       return null;
     }
     
