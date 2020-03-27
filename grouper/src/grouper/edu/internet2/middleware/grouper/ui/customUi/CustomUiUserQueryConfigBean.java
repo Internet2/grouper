@@ -4,9 +4,11 @@
  */
 package edu.internet2.middleware.grouper.ui.customUi;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -19,15 +21,51 @@ public class CustomUiUserQueryConfigBean {
    * @param args
    */
   public static void main(String[] args) {
-    CustomUiUserQueryConfigBean customUiUserQueryConfigBean = new CustomUiUserQueryConfigBean();
-    customUiUserQueryConfigBean.setUserQueryType("grouper");
-    customUiUserQueryConfigBean.setVariableToAssign("cu_o365twoStepRequiredToEnroll");
-    customUiUserQueryConfigBean.setVariableType("boolean");
-    customUiUserQueryConfigBean.setGroupName("penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod_policy");
-    customUiUserQueryConfigBean.setFieldNames("members");
+    //printRequiredAndOptionalFields();
     
-    
-    System.out.println(GrouperUtil.jsonConvertTo(customUiUserQueryConfigBean, false));
+    //customUiUserQueryConfigBean = new edu.internet2.middleware.grouper.ui.customUi.CustomUiUserQueryConfigBean();
+    //customUiUserQueryConfigBean.setUserQueryType("grouper");
+    //customUiUserQueryConfigBean.setVariableToAssign("cu_o365twoStepRequiredToEnroll");
+    //customUiUserQueryConfigBean.setVariableType("boolean");
+    //customUiUserQueryConfigBean.setGroupName("penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod_policy");
+    //customUiUserQueryConfigBean.setFieldNames("members");
+    //
+    //System.out.println(GrouperUtil.jsonConvertTo(customUiUserQueryConfigBean, false));
+  }
+
+  /**
+   * 
+   */
+  public static void printRequiredAndOptionalFields() {
+    Set<String> fieldNames = new TreeSet<String>(GrouperUtil.fieldNames(CustomUiUserQueryConfigBean.class, null, false));
+    for (String fieldName : fieldNames) {
+      System.out.println(fieldName);
+      StringBuilder result = new StringBuilder();
+      for (CustomUiUserQueryType customUiUserQueryType : CustomUiUserQueryType.values()) {
+        if (customUiUserQueryType.requiredFieldNames().contains(fieldName)) {
+          if (result.length() > 0) {
+            result.append(", ");
+          } else {
+            result.append("Required: ");
+          }
+          result.append(customUiUserQueryType.name());
+        }
+      }
+      System.out.println(result);
+      result = new StringBuilder();
+      for (CustomUiUserQueryType customUiUserQueryType : CustomUiUserQueryType.values()) {
+        if (customUiUserQueryType.optionalFieldNames().contains(fieldName)) {
+          if (result.length() > 0) {
+            result.append(", ");
+          } else {
+            result.append("Optional: ");
+          }
+          result.append(customUiUserQueryType.name());
+        }
+      }
+      System.out.println(result);
+      System.out.println("");
+    }
   }
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
