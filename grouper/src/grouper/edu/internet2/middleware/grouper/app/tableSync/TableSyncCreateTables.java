@@ -154,7 +154,7 @@ public class TableSyncCreateTables {
         Types.VARCHAR, "40", false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", 
-        Types.VARCHAR, "4000", false, false);
+        Types.VARCHAR, "1024", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id_index", 
         Types.BIGINT, "12", false, false);
@@ -268,16 +268,16 @@ public class TableSyncCreateTables {
         "grouper_sync_gr_sy_gr_idx", true, "grouper_sync_id", "group_id");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_gr_f2_idx", false, "grouper_sync_id", "group_from_id2");
+        "grouper_sync_gr_f2_idx", false, "grouper_sync_id", "group_from_id2(255)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_gr_f3_idx", false, "grouper_sync_id", "group_from_id3");
+        "grouper_sync_gr_f3_idx", false, "grouper_sync_id", "group_from_id3(255)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_gr_t2_idx", false, "grouper_sync_id", "group_to_id2");
+        "grouper_sync_gr_t2_idx", false, "grouper_sync_id", "group_to_id2(255)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_gr_t3_idx", false, "grouper_sync_id", "group_to_id3");
+        "grouper_sync_gr_t3_idx", false, "grouper_sync_id", "group_to_id3(255)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_gr_er_idx", false, "grouper_sync_id", "error_timestamp");
@@ -433,16 +433,16 @@ public class TableSyncCreateTables {
         "grouper_sync_us_sm_idx", true, "grouper_sync_id", "member_id");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_us_f2_idx", false, "grouper_sync_id", "member_from_id2");
+        "grouper_sync_us_f2_idx", false, "grouper_sync_id", "member_from_id2(255)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_us_f3_idx", false, "grouper_sync_id", "member_from_id3");
+        "grouper_sync_us_f3_idx", false, "grouper_sync_id", "member_from_id3(255)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_us_t2_idx", false, "grouper_sync_id", "member_to_id2");
+        "grouper_sync_us_t2_idx", false, "grouper_sync_id", "member_to_id2(255)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-        "grouper_sync_us_t3_idx", false, "grouper_sync_id", "member_to_id3");
+        "grouper_sync_us_t3_idx", false, "grouper_sync_id", "member_to_id3(255)");
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_us_er_idx", false, "grouper_sync_id", "error_timestamp");
@@ -733,6 +733,13 @@ public class TableSyncCreateTables {
   
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
         "grouper_sync_mship_er_idx", false, "grouper_sync_id", "error_timestamp");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
+        "grouper_sync_mship_f1_idx", false, "grouper_sync_id", "membership_id(255)");
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
+        "grouper_sync_mship_f2_idx", false, "grouper_sync_id", "membership_id2(255)");
+
   
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(ddlVersionBean.getDatabase(), tableName, "grouper_sync_me_gid_fk", "grouper_sync_group", "grouper_sync_group_id", "id");
     

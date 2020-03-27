@@ -32,10 +32,9 @@ public class AllTableSyncTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.app.loader");
     //$JUnit-BEGIN$
-
-    suite.addTestSuite(TableSyncTest.class);
     suite.addTestSuite(ProvisioningToSyncTest.class);
-    
+    suite.addTestSuite(TableSyncGroupMetadataTest.class);
+    suite.addTestSuite(TableSyncTest.class);
     //$JUnit-END$
     return suite;
   }
