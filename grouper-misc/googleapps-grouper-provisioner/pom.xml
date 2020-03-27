@@ -16,17 +16,18 @@
     <artifactId>google-apps-provisioner</artifactId>
 
     <properties>
-        <commons-collections.version>3.2.1</commons-collections.version>
-        <google-api-services-admin-directory.version>directory_v1-rev90-1.23.0</google-api-services-admin-directory.version>
-        <google-api-services-groupssettings.version>v1-rev66-1.23.0</google-api-services-groupssettings.version>
-        <grouper.version>2.3.0</grouper.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
+        <google-api-services-admin-directory.version>directory_v1-rev109-1.23.0</google-api-services-admin-directory.version>
+        <google-api-services-groupssettings.version>v1-rev77-1.23.0</google-api-services-groupssettings.version>
+        <grouper.version>2.4.0</grouper.version>
         <hibernate-core.version>3.6.7.Final</hibernate-core.version>
+        <joda-time.version>2.9.9</joda-time.version>
         <mockito.version>1.8.5</mockito.version>
         <powermock.version>1.4.9</powermock.version>
         <slf4j.version>1.6.1</slf4j.version>
 
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -35,16 +36,6 @@
             <artifactId>grouper</artifactId>
             <version>${grouper.version}</version>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.transaction</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.wso2.charon</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -79,13 +70,14 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate-core.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.9.7</version>
+            <version>${joda-time.version}</version>
+            <scope>provided</scope>
         </dependency>
 
 
