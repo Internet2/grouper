@@ -743,7 +743,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             AuditEntry auditEntry = new AuditEntry();
             AttributeDefName theAttributeDefName = AttributeAssign.this.getAttributeDefName();
-            AttributeAssign.this.getAttributeAssignType().decorateAuditEntryInsert(auditEntry, AttributeAssign.this.retrieveAttributeAssignable());
+            AttributeAssign.this.getAttributeAssignType().decorateAuditEntryDelete(auditEntry, AttributeAssign.this.retrieveAttributeAssignable());
 
             AttributeDef theAttributeDef = theAttributeDefName.getAttributeDef();
             
