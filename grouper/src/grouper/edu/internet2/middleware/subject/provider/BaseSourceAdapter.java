@@ -33,6 +33,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -516,7 +517,7 @@ public abstract class BaseSourceAdapter implements Source {
    * @param value
    */
   public void addInitParam(String name1, String value) {
-    this.params.setProperty(name1, value);
+    this.params.setProperty(name1, GrouperClientUtils.defaultString(value));
   }
   
   /**

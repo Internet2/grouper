@@ -645,6 +645,14 @@ public class TestGroup extends GrouperTest {
     LOG.debug("tearDown");
     super.tearDown();
   }
+  
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.show.folders.where.user.can.see.subobjects", "true");
+    
+  }
 
   /**
    * 
