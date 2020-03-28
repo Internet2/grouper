@@ -6,10 +6,22 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+
 /**
  *
  */
 public class GcTableSyncOutput {
+
+  
+  
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return GrouperClientUtils.toStringReflection(this);
+  }
 
   /**
    * millis get data
