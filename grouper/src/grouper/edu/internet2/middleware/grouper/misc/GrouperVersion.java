@@ -254,6 +254,18 @@ public class GrouperVersion {
   }
 
   /**
+   * see if this version is same argument one, only considering major and minor version
+   * @param other
+   * @param orEqual 
+   * @return true if less than, false if equal or greater
+   */
+  public boolean sameMajorMinorArg(GrouperVersion other) {
+    
+    return this.major == other.major && this.minor == other.minor;
+    
+  }
+
+  /**
    * see if this version is less than the argument one
    * @param other
    * @return true if less than, false if equal or greater

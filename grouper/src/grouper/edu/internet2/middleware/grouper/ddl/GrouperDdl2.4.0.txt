@@ -58,7 +58,6 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
@@ -109,11 +108,7 @@ public enum GrouperDdl implements DdlVersionable {
    * change stem name index if applicable
    */
   V13 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -136,10 +131,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V12 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -175,11 +166,7 @@ public enum GrouperDdl implements DdlVersionable {
    * </pre>
    */
   V14 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -236,7 +223,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         //move data to the group cols
         ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_groups set name = \n" +
-        	 "  (select ga.value from grouper_attributes ga, grouper_fields gf \n" +
+           "  (select ga.value from grouper_attributes ga, grouper_fields gf \n" +
            "    where ga.FIELD_ID = gf.ID and gf.TYPE = 'attribute' \n" +
            "    and gf.NAME = 'name' and ga.GROUP_ID = grouper_groups.id);\ncommit;\n");
         
@@ -281,11 +268,7 @@ public enum GrouperDdl implements DdlVersionable {
 
   /** add indexes on group attribute name cols */
   V15 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
-
+    
     @Override
     public void updateVersionFromPrevious(Database database, DdlVersionBean ddlVersionBean) {
 
@@ -326,11 +309,7 @@ public enum GrouperDdl implements DdlVersionable {
      * </pre>
      */
   V16 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
-
+      
       /**
        * 
        * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -412,11 +391,7 @@ public enum GrouperDdl implements DdlVersionable {
    * </pre>
    */
   V17 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -448,10 +423,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V18 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -485,10 +456,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V19 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -514,10 +481,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V20 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "1.5.0";
-    }
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -541,10 +504,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V21 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "1.6.0";
-    }
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -565,10 +524,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V22 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "1.6.0";
-    }
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -590,10 +545,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V23 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "1.6.0";
-    }
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -711,10 +662,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V24 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "2.0.0";
-    }
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -777,10 +724,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V25 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "2.0.0";
-    }
     /**
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
@@ -829,10 +772,6 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
           "composite_composite_idx", true, "owner");
     }
-    @Override
-    public String getGrouperVersion() {
-      return "2.1.0";
-    }
 
   },
   
@@ -840,11 +779,7 @@ public enum GrouperDdl implements DdlVersionable {
    * delete backup cols if configured to and if exist
    */
   V11 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -878,11 +813,7 @@ public enum GrouperDdl implements DdlVersionable {
    * delete field name/type if in the right situation
    */
   V10 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -914,11 +845,7 @@ public enum GrouperDdl implements DdlVersionable {
    * update the fields id as a foreign key, keep backups of old data
    */
   V9 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -1057,11 +984,7 @@ public enum GrouperDdl implements DdlVersionable {
    * drop grouper_sessions table if exists
    */
   V8 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -1082,11 +1005,7 @@ public enum GrouperDdl implements DdlVersionable {
    * delete backup cols if configured to and is exist
    */
   V7 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -1150,11 +1069,7 @@ public enum GrouperDdl implements DdlVersionable {
    * delete uuid if in right situation
    */
   V6 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -1220,11 +1135,7 @@ public enum GrouperDdl implements DdlVersionable {
    * convert uuid/id to just id
    */
   V5 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -1361,11 +1272,7 @@ public enum GrouperDdl implements DdlVersionable {
 
   /** add in the hibernate_version_number cols */
   V4 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
@@ -1390,11 +1297,7 @@ public enum GrouperDdl implements DdlVersionable {
    * add grouper loader
    */
   V3 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -1495,11 +1398,7 @@ public enum GrouperDdl implements DdlVersionable {
     
   /** all tables and indexes from grouper v1.3 */
   V2 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -1571,9 +1470,7 @@ public enum GrouperDdl implements DdlVersionable {
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
             "composite_right_factor_idx", false, "right_factor");
-        
-        GrouperDdl2_5.addCompositeTypeIndex(ddlVersionBean, database);
-        
+
         versionNumberColumnFindOrCreate(compositeTable);
 
       }
@@ -1658,8 +1555,6 @@ public enum GrouperDdl implements DdlVersionable {
             Types.BIGINT, "20", false, false); 
 
         addGroupAlternateNameCol(database, ddlVersionBean, groupsTable);
-        
-        GrouperDdl2_5.addGroupEnabledDisabledColumns(database, ddlVersionBean, groupsTableNew);
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
             "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
@@ -1947,20 +1842,11 @@ public enum GrouperDdl implements DdlVersionable {
      
       addQuartzTables(ddlVersionBean, database);
       addQuartzIndexes(ddlVersionBean, database);
-
-      addConfigurationTables(ddlVersionBean, database);
-      addConfigurationIndexes(ddlVersionBean, database);
-    
     }
   }, 
   
   /** first version of grouper, make sure the ddl table is there */
   V1 {
-    @Override
-    public String getGrouperVersion() {
-      return "1.4.0";
-    }
-
     /**
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
@@ -2000,11 +1886,6 @@ public enum GrouperDdl implements DdlVersionable {
    */
   V27 {
     
-    @Override
-    public String getGrouperVersion() {
-      return "2.2.0";
-    }
-
     /**
      * 
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
@@ -2314,11 +2195,7 @@ public enum GrouperDdl implements DdlVersionable {
         }
       }
     }
-    @Override
-    public String getGrouperVersion() {
-      return "2.2.0";
-    }
-
+  
   },
   
   /**
@@ -2371,11 +2248,6 @@ public enum GrouperDdl implements DdlVersionable {
     public boolean recreateViewsAndForeignKeys() {
       return false;
     }
-    @Override
-    public String getGrouperVersion() {
-      return "2.2.1";
-    }
-
   },
 
 
@@ -2427,12 +2299,6 @@ public enum GrouperDdl implements DdlVersionable {
       addQuartzTables(ddlVersionBean, database);
       addQuartzIndexes(ddlVersionBean, database);
     }
-    
-    @Override
-    public String getGrouperVersion() {
-      return "2.5.0";
-    }
-
   },
 
   /**
@@ -2462,10 +2328,6 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
           "change_log_temp_created_on_idx", false, "created_on");
-      
-      addConfigurationTables(ddlVersionBean, database);
-      addConfigurationIndexes(ddlVersionBean, database);
-
     }
     
     /**
@@ -2473,63 +2335,6 @@ public enum GrouperDdl implements DdlVersionable {
      */
     public boolean recreateViewsAndForeignKeys() {
       return false;
-    }
-    
-    @Override
-    public String getGrouperVersion() {
-      return "2.4.0";
-    }
-
-  },
-  
-  /**
-   * <pre>
-   * Grouper 2.5.0
-   * </pre>
-   */
-  V32 {
-    
-    /**
-     * 
-     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
-     */
-    @Override
-    public void updateVersionFromPrevious(Database database, 
-        DdlVersionBean ddlVersionBean) {
-      
-      GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v", false);
-      GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v", false);
-
-      GrouperDdl2_5.addGroupEnabledDisabledColumns(database, ddlVersionBean, false);
-
-      createViewGrouperGroupsV(ddlVersionBean);
-      createViewGrouperRolesV(ddlVersionBean);
-
-      GrouperDdl2_5.adjustMessageMemberIdSize(ddlVersionBean, database);
-      GrouperDdl2_5.addCompositeTypeIndex(ddlVersionBean, database);
-      GrouperDdl2_5.addAttributeAssignTypeIndex(ddlVersionBean, database);
-      
-      GrouperDdl2_5.addGrouperPasswordTables(ddlVersionBean, database);
-      GrouperDdl2_5.addGrouperPasswordIndexes(ddlVersionBean, database);
-      GrouperDdl2_5.addGrouperPasswordComments(ddlVersionBean, database);
-      
-      GrouperDdl2_5.addSyncTables(ddlVersionBean, database);
-      GrouperDdl2_5.addSyncIndexes(ddlVersionBean, database);
-      GrouperDdl2_5.addSyncComments(ddlVersionBean, database);
-      
-
-    }
-
-    /**
-     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#recreateViewsAndForeignKeys()
-     */
-    public boolean recreateViewsAndForeignKeys() {
-      return false;
-    }
-
-    @Override
-    public String getGrouperVersion() {
-      return "2.5.0";
     }
   };
   
@@ -2557,12 +2362,6 @@ public enum GrouperDdl implements DdlVersionable {
     return GrouperDdlUtils.versionIntFromEnum(this);
   }
 
-  /**
-   * get the grouper version for this version, e.g. x.y.z
-   * @return the grouper version
-   */
-  public abstract String getGrouperVersion();
-  
   /**
    * cache this
    */
@@ -5158,7 +4957,7 @@ public enum GrouperDdl implements DdlVersionable {
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SUBJECT_SOURCE, 
-            "id of the source from subject.properties");
+            "id of the source from sources.xml");
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SUBJECT_TYPE, 
@@ -5248,7 +5047,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITMember.TABLE_GROUPER_PIT_MEMBERS,  
           PITMember.COLUMN_SUBJECT_SOURCE, 
-            "id of the source from subject.properties");
+            "id of the source from sources.xml");
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITMember.TABLE_GROUPER_PIT_MEMBERS,  
@@ -5770,9 +5569,6 @@ public enum GrouperDdl implements DdlVersionable {
           "hibernate optimistic locking number for updates and deletes");
 
     }
-
-    GrouperDdl2_5.addGrouperPasswordComments(ddlVersionBean, database);
-    GrouperDdl2_5.addSyncComments(ddlVersionBean, database);
     
     String groupIdCol = "id";
     
@@ -6080,9 +5876,6 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, StemSet.TABLE_GROUPER_STEM_SET, 
         "fk_stem_set_then", Stem.TABLE_GROUPER_STEMS, 
         StemSet.COLUMN_THEN_HAS_STEM_ID, Stem.COLUMN_ID);
-
-    GrouperDdl2_5.addGrouperPasswordForeignKeys(ddlVersionBean, database);
-    GrouperDdl2_5.addSyncForeignKeys(ddlVersionBean, database);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_QZ_TRIGGERS", "qrtz_trigger_to_jobs_fk", "grouper_QZ_JOB_DETAILS", 
         Arrays.asList(new String[]{"sched_name", "job_name", "job_group"}),
@@ -6370,14 +6163,140 @@ public enum GrouperDdl implements DdlVersionable {
 
     }
     
-    createViewGrouperGroupsV(ddlVersionBean);
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_v", 
+        "Contains one record for each group, with friendly names for some attributes and some more information",
+        GrouperUtil.toSet("EXTENSION", 
+            "NAME", 
+            "DISPLAY_EXTENSION", 
+            "DISPLAY_NAME", 
+            "DESCRIPTION", 
+            "PARENT_STEM_NAME", 
+            "TYPE_OF_GROUP", 
+            "GROUP_ID", 
+            "PARENT_STEM_ID", 
+            "MODIFIER_SOURCE", 
+            "MODIFIER_SUBJECT_ID", 
+            "CREATOR_SOURCE", 
+            "CREATOR_SUBJECT_ID", 
+            "IS_COMPOSITE_OWNER", 
+            "IS_COMPOSITE_FACTOR", 
+            "CREATOR_ID", 
+            "CREATE_TIME", 
+            "MODIFIER_ID", 
+            "MODIFY_TIME", 
+            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
+        GrouperUtil.toSet("EXTENSION: part of group name not including path information, e.g. theGroup", 
+            "NAME: name of the group, e.g. school:stem1:theGroup", 
+            "DISPLAY_EXTENSION: name for display of the group, e.g. My school:The stem 1:The group", 
+            "DISPLAY_NAME: name for display of the group without any path information, e.g. The group", 
+            "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
+            "PARENT_STEM_NAME: name of the stem this group is in, e.g. school:stem1", 
+            "TYPE_OF_GROUP: group if it is a group, role if it is a role", 
+            "GROUP_ID: uuid unique id of the group", 
+            "PARENT_STEM_ID: uuid unique id of the stem this group is in", 
+            "MODIFIER_SOURCE: source name of the subject who last modified this group, e.g. schoolPersonSource", 
+            "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this group, e.g. 12345", 
+            "CREATOR_SOURCE: source name of the subject who created this group, e.g. schoolPersonSource", 
+            "CREATOR_SUBJECT_ID: subject id of the subject who created this group, e.g. 12345", 
+            "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
+            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
+            "CREATOR_ID: member id of the subject who created this group, foreign key to grouper_members", 
+            "CREATE_TIME: number of millis since 1970 since this group was created", 
+            "MODIFIER_ID: member id of the subject who last modified this group, foreign key to grouper_members", 
+            "MODIFY_TIME: number of millis since 1970 since this group was last changed", 
+            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update",
+            "Context id links together multiple operations into one high level action"),
+            "select  "
+            + "gg.extension as extension, "
+            + "gg.name as name, "
+            + "gg.display_extension as display_extension, "
+            + "gg.display_name as display_name, "
+            + "gg.description as description, "
+            + "gs.NAME as parent_stem_name, "
+            + "gg.type_of_group, "
+            + "gg.id as group_id, "
+            + "gs.ID as parent_stem_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, "
+            + "(select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, "
+            + "(select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, "
+            + "gg.CREATOR_ID, "
+            + "gg.CREATE_TIME, "
+            + "gg.MODIFIER_ID, "
+            + "gg.MODIFY_TIME, "
+            + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
+            + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
 
-    createViewGrouperRolesV(ddlVersionBean);
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_roles_v", 
+        "Contains one record for each role, with friendly names for some attributes and some more information",
+        GrouperUtil.toSet("EXTENSION", 
+            "NAME", 
+            "DISPLAY_EXTENSION", 
+            "DISPLAY_NAME", 
+            "DESCRIPTION", 
+            "PARENT_STEM_NAME", 
+            "ROLE_ID", 
+            "PARENT_STEM_ID", 
+            "MODIFIER_SOURCE", 
+            "MODIFIER_SUBJECT_ID", 
+            "CREATOR_SOURCE", 
+            "CREATOR_SUBJECT_ID", 
+            "IS_COMPOSITE_OWNER", 
+            "IS_COMPOSITE_FACTOR", 
+            "CREATOR_ID", 
+            "CREATE_TIME", 
+            "MODIFIER_ID", 
+            "MODIFY_TIME", 
+            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
+        GrouperUtil.toSet("EXTENSION: part of role name not including path information, e.g. theRole", 
+            "NAME: name of the role, e.g. school:stem1:theRole", 
+            "DISPLAY_EXTENSION: name for display of the role, e.g. My school:The stem 1:The role", 
+            "DISPLAY_NAME: name for display of the role without any path information, e.g. The role", 
+            "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
+            "PARENT_STEM_NAME: name of the stem this role is in, e.g. school:stem1", 
+            "ROLE_ID: uuid unique id of the role", 
+            "PARENT_STEM_ID: uuid unique id of the stem this role is in", 
+            "MODIFIER_SOURCE: source name of the subject who last modified this role, e.g. schoolPersonSource", 
+            "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this role, e.g. 12345", 
+            "CREATOR_SOURCE: source name of the subject who created this role, e.g. schoolPersonSource", 
+            "CREATOR_SUBJECT_ID: subject id of the subject who created this role, e.g. 12345", 
+            "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
+            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
+            "CREATOR_ID: member id of the subject who created this role, foreign key to grouper_members", 
+            "CREATE_TIME: number of millis since 1970 since this role was created", 
+            "MODIFIER_ID: member id of the subject who last modified this role, foreign key to grouper_members", 
+            "MODIFY_TIME: number of millis since 1970 since this role was last changed", 
+            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update",
+            "Context id links together multiple operations into one high level action"),
+            "select  "
+            + "gg.extension as extension, "
+            + "gg.name as name, "
+            + "gg.display_extension as display_extension, "
+            + "gg.display_name as display_name, "
+            + "gg.description as description, "
+            + "gs.NAME as parent_stem_name, "
+            + "gg.id as role_id, "
+            + "gs.ID as parent_stem_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, "
+            + "(select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, "
+            + "(select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, "
+            + "gg.CREATOR_ID, "
+            + "gg.CREATE_TIME, "
+            + "gg.MODIFIER_ID, "
+            + "gg.MODIFY_TIME, "
+            + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
+            + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID and" +
+                " type_of_group = 'role' ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_all_v", 
         "Grouper_memberships_all_v holds one record for each immediate, composite and effective membership or privilege in the system for members to groups or stems (for privileges).",
         GrouperUtil.toSet("MEMBERSHIP_ID", 
-        		"IMMEDIATE_MEMBERSHIP_ID", 
+            "IMMEDIATE_MEMBERSHIP_ID", 
             "GROUP_SET_ID", 
             "MEMBER_ID", 
             "FIELD_ID", 
@@ -6401,7 +6320,7 @@ public enum GrouperDdl implements DdlVersionable {
             "HIBERNATE_VERSION_NUMBER", 
             "CONTEXT_ID"),
         GrouperUtil.toSet("MEMBERSHIP_ID: uuid unique id of this membership", 
-        		"IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate (or composite) membership that causes this membership", 
+            "IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate (or composite) membership that causes this membership", 
             "GROUP_SET_ID: uuid of the group set that causes this membership", 
             "MEMBER_ID: id in the grouper_members table", 
             "FIELD_ID: id in the grouper_fields table", 
@@ -6532,7 +6451,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "where gms.OWNER_GROUP_ID = gg.id " 
             + "and gms.FIELD_ID = gfl.ID "
             + "and gms.MEMBER_ID = gm.ID "
-            +	"and gms.IMMEDIATE_MSHIP_ENABLED = 'T'");
+            + "and gms.IMMEDIATE_MSHIP_ENABLED = 'T'");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_stem_lw_v", 
         "grouper_mship_stem_lw_v unique membership records that can be read from a SQL interface outside of grouper for stems.  Immediate and effective memberships are represented here (distinct)",
@@ -7265,7 +7184,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "where gaa.owner_membership_id = gms.id "
           + "and gaa.attribute_def_name_id = gadn.id "
           + "and gadn.attribute_def_id = gad.id "
-      		+ " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id "
+          + " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id "
           + " and gf.type = 'list' and gaa.attribute_assign_action_id = gaaa.id ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_attrdef_v", 
@@ -7405,7 +7324,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' " 
-          +	"and gg.id = gaa1.owner_group_id "
+          + "and gg.id = gaa1.owner_group_id "
           + "and gaa1.owner_member_id is null "
           + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id");
 
@@ -7498,7 +7417,7 @@ public enum GrouperDdl implements DdlVersionable {
               "grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf, "
           + "grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2 "
           + "where gaa1.owner_member_id = gmav.member_id and gaa1.owner_group_id = gmav.owner_group_id" +
-          		" and gaa2.owner_attribute_assign_id = gaa1.id  "
+              " and gaa2.owner_attribute_assign_id = gaa1.id  "
           + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' and gmav.immediate_mship_enabled = 'T'" +
@@ -7772,9 +7691,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "gaaa1.id as action_id1, "
           + "gaaa2.id as action_id2 "
           + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, " +
-          		"grouper_groups gg, grouper_memberships gms, "
+              "grouper_groups gg, grouper_memberships gms, "
           + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, " +
-          		"grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf, "
+              "grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf, "
           + "grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2 "
           + "where gaa1.owner_membership_id = gms.id and gaa2.owner_attribute_assign_id = gaa1.id  "
           + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
@@ -9044,15 +8963,15 @@ public enum GrouperDdl implements DdlVersionable {
         "select distinct gm.subject_id, " +
         "gm.subject_source as subject_source_id,  "
         + "gf.name as field_name, " +
-        		"gad.name as attribute_def_name, "
+            "gad.name as attribute_def_name, "
         + "gad.description as attribute_def_description,  "
         + "gad.attribute_def_type, "
         + "gad.stem_id as attribute_def_stem_id, "
         + "gad.id as attribute_def_id,  "
         + "gm.id as member_id, "
         + "gmav.field_id, " +
-        		"gmav.immediate_membership_id, " +
-        		"gmav.membership_id  "
+            "gmav.immediate_membership_id, " +
+            "gmav.membership_id  "
         + "from grouper_memberships_all_v gmav, grouper_attribute_def gad, grouper_fields gf, grouper_members gm "
         + "where gmav.owner_attr_def_id = gad.id and gmav.field_id = gf.id "
         + "and gmav.immediate_mship_enabled = 'T' and gmav.member_id = gm.id ");
@@ -10126,7 +10045,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "grouper_stems gsParentIfHas,   "
         + "grouper_stems gsParentThenHas,   "
         + "grouper_stems ifHas, "
-        +	"grouper_stems thenHas   "
+        + "grouper_stems thenHas   "
         + "where  thenHas.id = gss.then_has_stem_id   "
         + "and ifHas.id = gss.if_has_stem_id   "
         + "and gss.parent_stem_set_id = gssParent.id   "
@@ -10234,7 +10153,7 @@ public enum GrouperDdl implements DdlVersionable {
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteMemberId' "
               + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
-              +	" AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_member_id, "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_member_id, "
               + " (SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteDate' "
@@ -10786,163 +10705,6 @@ public enum GrouperDdl implements DdlVersionable {
     
   }
 
-  private static void createViewGrouperRolesV(DdlVersionBean ddlVersionBean) {
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_roles_v", 
-        "Contains one record for each role, with friendly names for some attributes and some more information",
-        GrouperUtil.toSet("EXTENSION", 
-            "NAME", 
-            "DISPLAY_EXTENSION", 
-            "DISPLAY_NAME", 
-            "DESCRIPTION", 
-            "PARENT_STEM_NAME", 
-            "ROLE_ID", 
-            "PARENT_STEM_ID", 
-            "ENABLED",
-            "ENABLED_TIMESTAMP",
-            "DISABLED_TIMESTAMP",
-            "MODIFIER_SOURCE", 
-            "MODIFIER_SUBJECT_ID", 
-            "CREATOR_SOURCE", 
-            "CREATOR_SUBJECT_ID", 
-            "IS_COMPOSITE_OWNER", 
-            "IS_COMPOSITE_FACTOR", 
-            "CREATOR_ID", 
-            "CREATE_TIME", 
-            "MODIFIER_ID", 
-            "MODIFY_TIME", 
-            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
-        GrouperUtil.toSet("EXTENSION: part of role name not including path information, e.g. theRole", 
-            "NAME: name of the role, e.g. school:stem1:theRole", 
-            "DISPLAY_EXTENSION: name for display of the role, e.g. My school:The stem 1:The role", 
-            "DISPLAY_NAME: name for display of the role without any path information, e.g. The role", 
-            "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
-            "PARENT_STEM_NAME: name of the stem this role is in, e.g. school:stem1", 
-            "ROLE_ID: uuid unique id of the role", 
-            "PARENT_STEM_ID: uuid unique id of the stem this role is in", 
-            "ENABLED: T or F to indicate if this role is enabled",
-            "ENABLED_TIMESTAMP: when the role will be enabled if the time is in the future",
-            "DISABLED_TIMESTAMP: when the role will be disabled if the time is in the future",
-            "MODIFIER_SOURCE: source name of the subject who last modified this role, e.g. schoolPersonSource", 
-            "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this role, e.g. 12345", 
-            "CREATOR_SOURCE: source name of the subject who created this role, e.g. schoolPersonSource", 
-            "CREATOR_SUBJECT_ID: subject id of the subject who created this role, e.g. 12345", 
-            "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
-            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
-            "CREATOR_ID: member id of the subject who created this role, foreign key to grouper_members", 
-            "CREATE_TIME: number of millis since 1970 since this role was created", 
-            "MODIFIER_ID: member id of the subject who last modified this role, foreign key to grouper_members", 
-            "MODIFY_TIME: number of millis since 1970 since this role was last changed", 
-            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update",
-            "Context id links together multiple operations into one high level action"),
-            "select  "
-            + "gg.extension as extension, "
-            + "gg.name as name, "
-            + "gg.display_extension as display_extension, "
-            + "gg.display_name as display_name, "
-            + "gg.description as description, "
-            + "gs.NAME as parent_stem_name, "
-            + "gg.id as role_id, "
-            + "gs.ID as parent_stem_id, "
-            + "gg.enabled, "
-            + "gg.enabled_timestamp, "
-            + "gg.disabled_timestamp, "
-            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
-            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
-            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
-            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, "
-            + "(select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, "
-            + "(select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, "
-            + "gg.CREATOR_ID, "
-            + "gg.CREATE_TIME, "
-            + "gg.MODIFIER_ID, "
-            + "gg.MODIFY_TIME, "
-            + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
-            + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID and" +
-                " type_of_group = 'role' ");
-  }
-
-  
-  private static void createViewGrouperGroupsV(DdlVersionBean ddlVersionBean) {
-    if (ddlVersionBean.didWeDoThis("createViewGrouperGroupsV", true)) {
-      return;
-    }
-
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_v", 
-        "Contains one record for each group, with friendly names for some attributes and some more information",
-        GrouperUtil.toSet("EXTENSION", 
-            "NAME", 
-            "DISPLAY_EXTENSION", 
-            "DISPLAY_NAME", 
-            "DESCRIPTION", 
-            "PARENT_STEM_NAME", 
-            "TYPE_OF_GROUP", 
-            "GROUP_ID", 
-            "PARENT_STEM_ID", 
-            "ENABLED",
-            "ENABLED_TIMESTAMP",
-            "DISABLED_TIMESTAMP",
-            "MODIFIER_SOURCE", 
-            "MODIFIER_SUBJECT_ID", 
-            "CREATOR_SOURCE", 
-            "CREATOR_SUBJECT_ID", 
-            "IS_COMPOSITE_OWNER", 
-            "IS_COMPOSITE_FACTOR", 
-            "CREATOR_ID", 
-            "CREATE_TIME", 
-            "MODIFIER_ID", 
-            "MODIFY_TIME", 
-            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
-        GrouperUtil.toSet("EXTENSION: part of group name not including path information, e.g. theGroup", 
-            "NAME: name of the group, e.g. school:stem1:theGroup", 
-            "DISPLAY_EXTENSION: name for display of the group, e.g. My school:The stem 1:The group", 
-            "DISPLAY_NAME: name for display of the group without any path information, e.g. The group", 
-            "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
-            "PARENT_STEM_NAME: name of the stem this group is in, e.g. school:stem1", 
-            "TYPE_OF_GROUP: group if it is a group, role if it is a role", 
-            "GROUP_ID: uuid unique id of the group", 
-            "PARENT_STEM_ID: uuid unique id of the stem this group is in", 
-            "ENABLED: T or F to indicate if this group is enabled",
-            "ENABLED_TIMESTAMP: when the group will be enabled if the time is in the future",
-            "DISABLED_TIMESTAMP: when the group will be disabled if the time is in the future",
-            "MODIFIER_SOURCE: source name of the subject who last modified this group, e.g. schoolPersonSource", 
-            "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this group, e.g. 12345", 
-            "CREATOR_SOURCE: source name of the subject who created this group, e.g. schoolPersonSource", 
-            "CREATOR_SUBJECT_ID: subject id of the subject who created this group, e.g. 12345", 
-            "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
-            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
-            "CREATOR_ID: member id of the subject who created this group, foreign key to grouper_members", 
-            "CREATE_TIME: number of millis since 1970 since this group was created", 
-            "MODIFIER_ID: member id of the subject who last modified this group, foreign key to grouper_members", 
-            "MODIFY_TIME: number of millis since 1970 since this group was last changed", 
-            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update",
-            "Context id links together multiple operations into one high level action"),
-            "select  "
-            + "gg.extension as extension, "
-            + "gg.name as name, "
-            + "gg.display_extension as display_extension, "
-            + "gg.display_name as display_name, "
-            + "gg.description as description, "
-            + "gs.NAME as parent_stem_name, "
-            + "gg.type_of_group, "
-            + "gg.id as group_id, "
-            + "gs.ID as parent_stem_id, "
-            + "gg.enabled, "
-            + "gg.enabled_timestamp, "
-            + "gg.disabled_timestamp, "
-            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
-            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
-            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
-            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, "
-            + "(select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, "
-            + "(select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, "
-            + "gg.CREATOR_ID, "
-            + "gg.CREATE_TIME, "
-            + "gg.MODIFIER_ID, "
-            + "gg.MODIFY_TIME, "
-            + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
-            + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
-  }
-
   /**
    * an example table name so we can hone in on the exact metadata
    * @return the table name
@@ -10953,11 +10715,6 @@ public enum GrouperDdl implements DdlVersionable {
         "grouper_stems"};
   }
   
-  @Override
-  public boolean requiresEmptyChangelog() {
-    return false;
-  }
-
   /**
    * Add messaging indexes
    * @param ddlVersionBean 
@@ -11197,52 +10954,53 @@ public enum GrouperDdl implements DdlVersionable {
   }
   
   /**
-   * Add configuration tables
+   * Add messaging tables
    * @param ddlVersionBean 
    * @param database
    */
-  private static void addConfigurationTables(DdlVersionBean ddlVersionBean, Database database) {
+  private static void addMessagingTables(DdlVersionBean ddlVersionBean, Database database) {
     
     {
+      Table messageTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
       
-      Table configTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          GrouperConfigHibernate.TABLE_GROUPER_CONFIG);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_ID,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS,
+          Types.BIGINT, "20", false, true);
+  
+      //sent to receiver but not yet confirmed
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_TIME_MILLIS,
+          Types.BIGINT, "20", false, true);
+  
+      //count of get attempts
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_COUNT,
+          Types.BIGINT, "20", false, true);
+      
+      //IN_QUEUE, GET_ATTEMPTED, PROCESSED
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_STATE,
+          Types.VARCHAR, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_TIME_MILLIS,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID,
           Types.VARCHAR, "100", false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_KEY,
-          Types.VARCHAR, "400", false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_VALUE,
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_QUEUE_NAME,
+          Types.VARCHAR, "100", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_MESSAGE_BODY,
           Types.VARCHAR, "4000", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_COMMENT,
-          Types.VARCHAR, "4000", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY,
-          Types.VARCHAR, "50", false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_ENCRYPTED,
-          Types.VARCHAR, "1", false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_SEQUENCE, 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, true);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_VERSION_INDEX, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS, 
           Types.BIGINT, null, false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_LAST_UPDATED, 
-          Types.BIGINT, null, false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, true);
     }
   }
-  
   /**
    * Add PIT tables
    * @param ddlVersionBean 
@@ -12326,7 +12084,7 @@ public enum GrouperDdl implements DdlVersionable {
       count = GrouperDdlUtils.getTableCount("grouper_group_set", false);
       if (count != 0) {
         ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_group_set (id, source_id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, active, start_time, context_id, hibernate_version_number) " +
-        		"select id, id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, 'T', '" + startTime + "', context_id, '0' from grouper_group_set;\ncommit;\n\n");
+            "select id, id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, 'T', '" + startTime + "', context_id, '0' from grouper_group_set;\ncommit;\n\n");
       }
     }
     
@@ -12654,8 +12412,6 @@ public enum GrouperDdl implements DdlVersionable {
     
     addGroupSetTable(database, ddlVersionBean);
   }
-  
-  
 
   /**
    * 
@@ -13443,7 +13199,6 @@ public enum GrouperDdl implements DdlVersionable {
       ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_group_set set owner_id = owner_attr_def_id where owner_attr_def_id is not null;\ncommit;\n");      
     }
   }
-  
 
   /** dont do this twice */
   static boolean alreadyAddedTableIndices = false;
@@ -13493,7 +13248,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(tableIndexTable, 
           TableIndex.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableIndexTable.getName(),
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableIndexTable.getName(), 
           "table_index_type_idx", true, 
           TableIndex.COLUMN_TYPE);
       
@@ -13922,7 +13677,7 @@ public enum GrouperDdl implements DdlVersionable {
       if (columnNew) {
         ddlVersionBean.appendAdditionalScriptUnique(
           "\nupdate grouper_groups set type_of_group = 'group' where " +
-      		"type_of_group is null;\ncommit;\n");
+          "type_of_group is null;\ncommit;\n");
       }
     }
     
@@ -14173,8 +13928,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attr_asgn_own_stem_idx", false, 
           AttributeAssign.COLUMN_OWNER_STEM_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
-      
-      GrouperDdl2_5.addAttributeAssignTypeIndex(ddlVersionBean, database);
+
     }
 
     {
@@ -14462,43 +14216,43 @@ public enum GrouperDdl implements DdlVersionable {
             "select count(*) from grouper_fields where name = 'attrOptins'");
         if (count == 0) {
           ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, " +
-          		"name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
-          		"values ('00b4148eaf454aabb7435ced0e91277d', 'attrOptins', 'attrUpdate', 'attributeDef', 'attrUpdate', 0, '39c69826e3114f0db38794185e63af3b');\ncommit;\n\n");
+              "name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+              "values ('00b4148eaf454aabb7435ced0e91277d', 'attrOptins', 'attrUpdate', 'attributeDef', 'attrUpdate', 0, '39c69826e3114f0db38794185e63af3b');\ncommit;\n\n");
         }
         count = HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_fields where name = 'attrAdmins'");
         if (count == 0) {
           ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, " +
-          		"name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
-          		"values ('3b1da4ed18d64ae88de85a5071dfe6d8', 'attrAdmins', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '86c25c1ab89741afa70210cb44a5b0a0');\ncommit;\n\n");
+              "name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+              "values ('3b1da4ed18d64ae88de85a5071dfe6d8', 'attrAdmins', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '86c25c1ab89741afa70210cb44a5b0a0');\ncommit;\n\n");
         }
         count = HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_fields where name = 'attrViewers'");
         if (count == 0) {
           ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, " +
-          		"name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
-          		"values ('4ab55239369e409e859e1b4a9b3251c5', 'attrViewers', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '3ff484c5a5744131a82bf3bedf3cd4d5');\ncommit;\n\n");
+              "name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+              "values ('4ab55239369e409e859e1b4a9b3251c5', 'attrViewers', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '3ff484c5a5744131a82bf3bedf3cd4d5');\ncommit;\n\n");
         }
         count = HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_fields where name = 'attrOptouts'");
         if (count == 0) {
           ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, " +
-          		"name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
-          		"values ('6774afba333c4d5187bd814a7faa92e8', 'attrOptouts', 'attrUpdate', 'attributeDef', 'attrUpdate', 0, '4e3799ef8b254013b25f8a4abdf1bc9d');\ncommit;\n\n");
+              "name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+              "values ('6774afba333c4d5187bd814a7faa92e8', 'attrOptouts', 'attrUpdate', 'attributeDef', 'attrUpdate', 0, '4e3799ef8b254013b25f8a4abdf1bc9d');\ncommit;\n\n");
         }
         count = HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_fields where name = 'attrUpdaters'");
         if (count == 0) {
           ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, " +
-          		"name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
-          		"values ('a4900e37f50d4c9b8e96f6c467b3ac7b', 'attrUpdaters', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '1d330d859f664cd8b1b86f03c1812f21');\ncommit;\n\n");
+              "name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+              "values ('a4900e37f50d4c9b8e96f6c467b3ac7b', 'attrUpdaters', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '1d330d859f664cd8b1b86f03c1812f21');\ncommit;\n\n");
         }
         count = HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_fields where name = 'attrReaders'");
         if (count == 0) {
           ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, " +
-          		"name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
-          		"values ('fe16c65b4030428d812c2bc021b5c834', 'attrReaders', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '6f7243f690274dcdaf8215a13b6d3a93');\ncommit;\n\n");
+              "name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+              "values ('fe16c65b4030428d812c2bc021b5c834', 'attrReaders', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '6f7243f690274dcdaf8215a13b6d3a93');\ncommit;\n\n");
         }
         
       } catch (RuntimeException e) {
@@ -14566,94 +14320,5 @@ public enum GrouperDdl implements DdlVersionable {
     
     // assume true
     return true;
-  }
-
-  /**
-   * Add config indexes
-   * @param ddlVersionBean 
-   * @param database
-   */
-  private static void addConfigurationIndexes(DdlVersionBean ddlVersionBean, Database database) {
-    
-    {
-      Table configTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          GrouperConfigHibernate.TABLE_GROUPER_CONFIG);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
-          "grpconfig_config_file_idx", false, 
-          GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME, GrouperConfigHibernate.COLUMN_LAST_UPDATED);
-      
-      {
-        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-        String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grpconfig_config_key_idx ON grouper_config"
-            + " (config_key(100), config_file_name(50));\n" : null;
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, configTable.getName(), 
-            "grpconfig_config_key_idx", scriptOverride, false, GrouperConfigHibernate.COLUMN_CONFIG_KEY, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME);
-      }
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
-          "grpconfig_last_updated_idx", false, GrouperConfigHibernate.COLUMN_LAST_UPDATED);
-
-      {
-        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-        String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE UNIQUE INDEX grpconfig_unique_idx ON grouper_config"
-            + " (config_file_name(20), config_file_hierarchy(20),  config_key(100), config_sequence);\n" : null;
-
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, configTable.getName(), 
-            "grpconfig_unique_idx", scriptOverride, true, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME,
-            GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY, GrouperConfigHibernate.COLUMN_CONFIG_KEY,
-            GrouperConfigHibernate.COLUMN_CONFIG_SEQUENCE);
-      }
-    }
-  }
-
-  /**
-   * Add messaging tables
-   * @param ddlVersionBean 
-   * @param database
-   */
-  private static void addMessagingTables(DdlVersionBean ddlVersionBean, Database database) {
-    
-    {
-      Table messageTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS,
-          Types.BIGINT, "20", false, true);
-  
-      //sent to receiver but not yet confirmed
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_TIME_MILLIS,
-          Types.BIGINT, "20", false, true);
-  
-      //count of get attempts
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_COUNT,
-          Types.BIGINT, "20", false, true);
-      
-      //IN_QUEUE, GET_ATTEMPTED, PROCESSED
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_STATE,
-          Types.VARCHAR, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_TIME_MILLIS,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID,
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_QUEUE_NAME,
-          Types.VARCHAR, "100", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_MESSAGE_BODY,
-          Types.VARCHAR, "4000", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, true);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS, 
-          Types.BIGINT, null, false, false);
-    }
   }
 }

@@ -28,6 +28,18 @@ import org.apache.ddlutils.model.Database;
 public interface DdlVersionable {
 
   /**
+   * if this version requires an empty changelog
+   * @return true if so
+   */
+  public boolean requiresEmptyChangelog();
+  
+  /**
+   * get grouper version e.g. x.y.z
+   * @return grouper version
+   */
+  public String getGrouperVersion();
+
+  /**
    * add all foreign keys, views, table / col comments, etc
    * @param ddlVersionBean
    */

@@ -92,6 +92,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -507,18 +508,31 @@ public class GrouperDdlUtils {
           //this is the version in the db
           int realDbVersion = retrieveDdlDbVersion(objectName);
           
-          String versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
-            + realDbVersion + " and java version: " + javaVersion;
-          
+          String versionStatus = null;
+          GrouperVersion grouperVersionDatabase = null;
+          GrouperVersion grouperVersionJava = new GrouperVersion(ddlVersionable.getGrouperVersion());
+          {
+            DdlVersionable dbDdlVersionable = retieveVersion(objectName, realDbVersion);
+            grouperVersionDatabase = new GrouperVersion(dbDdlVersionable.getGrouperVersion());
+            versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
+              + realDbVersion + " (" + grouperVersionDatabase + ") and java version: " + javaVersion + " (" + grouperVersionJava + ")";
+          }          
           boolean versionMismatch = javaVersion != realDbVersion;
-  
+
+          boolean okIfSameMajorAndMinorVersion = GrouperConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.okIfSameMajorAndMinorVersion", true);
+          boolean sameMajorAndMinorVersion = grouperVersionDatabase.sameMajorMinorArg(grouperVersionJava);
+
+          if (versionMismatch && okIfSameMajorAndMinorVersion && sameMajorAndMinorVersion) {
+            versionMismatch = false;
+          }
+          
           if (versionMismatch) {
             if (internal_printDdlUpdateMessage) {
-            System.err.println(versionStatus);
-            LOG.error(versionStatus);
+              System.err.println(versionStatus);
+              LOG.error(versionStatus);
             }
           } else {
-            LOG.info(versionStatus);
+            LOG.warn(versionStatus);
           }
   
           //one originally in the DB
@@ -542,21 +556,40 @@ public class GrouperDdlUtils {
           }
           
           //if the java is less than db, then grouper was rolled back... that might not be good
+          if (javaVersion < dbVersion && !dropOnly && sameMajorAndMinorVersion && okIfSameMajorAndMinorVersion) {
+            LOG.warn("Java version of db object name: " + objectName + " is " 
+                + javaVersion + " (" + grouperVersionJava + ") which is less than the dbVersion " + dbVersion
+                + " (" + grouperVersionDatabase + ").  This is probably ok, another JVM has a slightly higher version.");
+            continue;
+          }
+          
+          //if the java is less than db, then grouper was rolled back... that might not be good
           if (javaVersion < dbVersion && !dropOnly) {
             LOG.error("Java version of db object name: " + objectName + " is " 
-                + javaVersion + " which is less than the dbVersion " + dbVersion
-                + ".  This means grouper was upgraded and rolled back?  Check in the enum "
+                + javaVersion + " (" + grouperVersionJava + ") which is less than the dbVersion " + dbVersion
+                + " (" + grouperVersionDatabase + ").  This means grouper was upgraded and rolled back?  Check in the enum "
                 + objectEnumClass.getName() + " for details on if things are compatible.");
             //not much we can do here... good luck!
             continue;
           }
           
-          if (!dropOnly && !theDropBeforeCreate) {
-            // if the temp change log has entries, don't let the upgrade continue..
-            int tempChangeLogCount = getTableCount("grouper_change_log_entry_temp", false);
-            if (tempChangeLogCount > 0) {
-              System.err.println("NOTE: Grouper database schema DDL may require updates, but the temp change log must be empty to perform an upgrade.  To process the temp change log, start up your current version of GSH and run: loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\")");
-              return false;
+          if (!dropOnly && !theDropBeforeCreate ) {
+            
+            // see if any version between the database and java requires change log checking
+            boolean checkAboutChangeLog = false;
+            for (int i=realDbVersion+1; i<=javaVersion; i++) {
+              DdlVersionable currentVersionable = retieveVersion(objectName, i);
+              if (currentVersionable.requiresEmptyChangelog()) {
+                checkAboutChangeLog = true;
+              }
+            }
+            if (checkAboutChangeLog) {
+              // if the temp change log has entries, don't let the upgrade continue..
+              int tempChangeLogCount = getTableCount("grouper_change_log_entry_temp", false);
+              if (tempChangeLogCount > 0) {
+                System.err.println("NOTE: Grouper database schema DDL may require updates, but the temp change log must be empty to perform an upgrade.  To process the temp change log, start up your current version of GSH and run: loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\")");
+                return false;
+              }
             }
           }
   
@@ -590,15 +623,15 @@ public class GrouperDdlUtils {
               recreateViewsAndForeignKeys = false;
             }
           }
-
+  
           {
             if (recreateViewsAndForeignKeys) {
-              
               //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
               DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result);
               ddlVersionBeanThreadLocalAssign(tempDdlVersionBean);
               try {
                 ddlVersionable.dropAllViews(tempDdlVersionBean);
+      
                 //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
                 dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
               } finally {
@@ -713,7 +746,7 @@ public class GrouperDdlUtils {
                     && !alreadyInsertedForObjectName.contains(objectName)) {
                 
                   result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
-                  		"last_updated, history) values ('" + GrouperUuid.getUuid() 
+                      "last_updated, history) values ('" + GrouperUuid.getUuid() 
                       +  "', '" + objectName + "', 1, '" + timestamp + "', \n'" + historyString + "');\n");
                   //dont insert again for this object
                   alreadyInsertedForObjectName.add(objectName);
@@ -1604,7 +1637,7 @@ public class GrouperDdlUtils {
 
         //just log, maybe the table isnt there
         LOG.error("maybe the grouper_ddl table isnt there... if that is the reason its ok.  " +
-        		"info level logging will show underlying reason." + e.getMessage());
+            "info level logging will show underlying reason." + e.getMessage());
         //send this as info, since most of the time it isnt needed
         LOG.info("ddl issue: ", e);
       }
@@ -1678,7 +1711,7 @@ public class GrouperDdlUtils {
     boolean backupThere = tableExists(backupTableName);
     if (backupThere) {
       throw new RuntimeException("Backup table already exists... something is wrong (if not, manually " +
-      		"delete that table and try again): " + backupTableName);
+          "delete that table and try again): " + backupTableName);
     }
     
     String script;
@@ -1753,7 +1786,7 @@ public class GrouperDdlUtils {
       ddlutilsColumnComment(ddlVersionBean, viewName, alias, columnComment);
     }
   }
-  
+
   /**
    * add a table comment if the DB supports it
    * @param ddlVersionBean
@@ -2259,7 +2292,7 @@ public class GrouperDdlUtils {
     return result;
     
   }
-  
+
   /**
    * add an index on a table.  drop a misnamed or a misuniqued index which is existing
    * @param database
@@ -2358,7 +2391,7 @@ public class GrouperDdlUtils {
     Index index = unique ? new UniqueIndex() : new NonUniqueIndex();
     index.setName(indexName);
 
-    for (String columnName : columnNames) {
+    for (String columnName : columnNamesWithoutMaxlength) {
       
       Column column = GrouperDdlUtils.ddlutilsFindColumn(table, columnName, true);
       IndexColumn nameColumn = new IndexColumn(column);
@@ -2502,7 +2535,7 @@ public class GrouperDdlUtils {
     if (column == null) {
       if (exceptionIfNotFound) {
         throw new RuntimeException("Cant find column '" + columnName + "' in table '" + tableName + "'," +
-        		" perhaps you need to rollback your ddl version in the DB and sync up");
+            " perhaps you need to rollback your ddl version in the DB and sync up");
       }
       return null;
     }

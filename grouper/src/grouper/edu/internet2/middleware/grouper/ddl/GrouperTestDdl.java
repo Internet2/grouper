@@ -42,7 +42,18 @@ public enum GrouperTestDdl implements DdlVersionable {
       }
       
     }
+
+    @Override
+    public String getGrouperVersion() {
+      return "1.4.0";
+    }
   };
+
+  @Override
+  public boolean requiresEmptyChangelog() {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#getVersion()

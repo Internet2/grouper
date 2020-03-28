@@ -60,7 +60,7 @@ public class TableSyncTest extends GrouperTest {
     
     
 //    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
-    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalPrimaryKey"));
+    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
     
 //    BigDecimal a = new BigDecimal(1);
 //    BigDecimal b = new BigDecimal(1.000);

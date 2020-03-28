@@ -264,7 +264,19 @@ public enum GrouperOrgDdl implements DdlVersionable {
       }
       
     }
+
+    @Override
+    public String getGrouperVersion() {
+      return "1.5.0";
+    }
+
   };
+
+  @Override
+  public boolean requiresEmptyChangelog() {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
   /**
    * create the assignments

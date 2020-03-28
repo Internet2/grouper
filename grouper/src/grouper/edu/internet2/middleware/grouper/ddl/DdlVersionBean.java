@@ -20,6 +20,8 @@
 package edu.internet2.middleware.grouper.ddl;
 
 import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.model.Database;
@@ -32,6 +34,36 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
  * bean to pass to versions to update stuff
  */
 public class DdlVersionBean {
+
+  /**
+   * keep track if we already did something
+   */
+  private Map<String, Boolean> alreadyDone = new HashMap<String, Boolean>();
+
+  /**
+   * if starting over, reset this
+   */
+  public void resetAlreadyDone() {
+    alreadyDone.clear();
+  }
+
+  /**
+   * see if we already did this
+   * @param label
+   * @param addAsDoing true if we should add that we are doing this now
+   * @return true if already done
+   */
+  public boolean didWeDoThis(String label, boolean addAsDoing) {
+    Boolean result = alreadyDone.get(label);
+    if (result != null && result) {
+      return true;
+    }
+    if (addAsDoing) {
+      alreadyDone.put(label, true);
+    }
+    return false;
+  }
+  
 
   /** ddl object name (e.g. Grouper or Subject) */
   private String objectName;
