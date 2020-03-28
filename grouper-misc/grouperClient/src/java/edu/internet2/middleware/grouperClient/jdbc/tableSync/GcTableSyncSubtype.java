@@ -275,8 +275,10 @@ public enum GcTableSyncSubtype {
       int[] results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSync.getDataBeanFrom().getDataInitialQuery(), gcTableSyncTableDataTo);
       recordsChanged += results[0] + results[1] + results[2];
 
-      gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
-
+      if (gcTableSync.getGcGrouperSync().getRecordsCount() != null) {
+        gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
+      }
+      
       // update the real time incremented col...
       assignIncrementalIndex(gcTableSync.getDataBeanFrom().getDataInitialQuery(), 
           gcTableSync.getDataBeanFrom().getTableMetadata().getIncrementalAllCoumnsColumn());
@@ -1107,7 +1109,7 @@ public enum GcTableSyncSubtype {
               +  " ) values ( " + GrouperClientUtils.appendQuestions(GrouperClientUtils.length(gcTableSyncTableMetadata.getColumns())) +  " )" ;
     
           GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gcTableSyncTableMetadata.getConnectionName());
-    
+          // TODO fix this for columns not in the right order
           List<List<Object>> bindVars = convertToListOfBindVarsValues(primaryKeysToInsertBatch, allIndexByPrimaryKey);
           
           gcDbAccess.batchBindVars(bindVars);

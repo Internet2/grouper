@@ -802,7 +802,8 @@ public class GcTableSync {
    * @param args
    */
   public static void main(String[] args) {
-    new GcTableSync().sync(args[0], GcTableSyncSubtype.valueOfIgnoreCase(args[1], true));
+    GcTableSyncOutput gcTableSyncOutput = new GcTableSync().sync(args[0], GcTableSyncSubtype.valueOfIgnoreCase(args[1], true));
+    System.out.println(gcTableSyncOutput.toString());
   }
 
 }
