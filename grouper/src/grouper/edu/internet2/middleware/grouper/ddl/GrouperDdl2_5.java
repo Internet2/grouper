@@ -1,8 +1,6 @@
 package edu.internet2.middleware.grouper.ddl;
 
 import java.sql.Types;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.model.Column;
@@ -11,13 +9,13 @@ import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class GrouperDdl2_5 {
 
@@ -151,8 +149,12 @@ public class GrouperDdl2_5 {
     }
 
     Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS, true);
-    boolean enabledColumnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ENABLED, false);
-
+    boolean enabledColumnIsNew = false;
+    
+    if (groupTable != null) {
+      enabledColumnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ENABLED, false);
+    }
+    
     //this is required if the group table is new    
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, groupTableNew, "T");
     
@@ -163,15 +165,21 @@ public class GrouperDdl2_5 {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_time_idx", false, Group.COLUMN_ENABLED_TIMESTAMP);
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_disabled_time_idx", false, Group.COLUMN_DISABLED_TIMESTAMP);
     
-    if (!groupTableNew) {
+    if (!groupTableNew && groupTable != null) {
       boolean needUpdate = false;
       
       if (enabledColumnIsNew) {
         needUpdate = true;
       } else {
-        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_groups where enabled is null");
-        if (count > 0) {
-          needUpdate = true;
+        try {
+          int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_groups where enabled is null");
+          if (count > 0) {
+            needUpdate = true;
+          }
+        } catch (Exception e) {
+          needUpdate = false;
+          LOG.info("Exception querying grouper_groups", e);
+          // group table doesnt exist?
         }
       }
       
@@ -307,12 +315,21 @@ public class GrouperDdl2_5 {
 
     try {
       // if you cant connrc to it, its not there
-      new GcDbAccess().sql("select count(*) from grouper_ddl_worker where 1 != 1").select(int.class);
+      HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
       return;
     } catch (Exception e) {
       //not found
     }
 
+//    // if no tables are there, then dont do this :)
+//    try {
+//      HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_groups where 1!=1", null, null);
+//    } catch (Exception e) {
+//      //not found, dont add a random table to who knows what database...
+//      return;
+//    }
+    
+    
     boolean runScript = GrouperDdlUtils.autoDdl2_5orAbove();
     if (!runScript) {
       LOG.error("You need to add the grouper_ddl_worker table!");
@@ -333,7 +350,7 @@ public class GrouperDdl2_5 {
 
       try {
         // if you cant connect to it, its not there
-        new GcDbAccess().sql("select count(*) from grouper_ddl_worker where 1 != 1").select(int.class);
+        HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
         return;
       } catch (Exception e) {
         //not found

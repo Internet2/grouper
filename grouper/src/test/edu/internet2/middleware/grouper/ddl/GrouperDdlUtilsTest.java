@@ -19,10 +19,15 @@
  */
 package edu.internet2.middleware.grouper.ddl;
 
+import java.io.File;
+
 import org.apache.commons.logging.Log;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -58,7 +63,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testDdl"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
   }
 
   /**
@@ -193,6 +198,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   protected void setUp() {
     //dont print annoying messages to user
     GrouperDdlUtils.internal_printDdlUpdateMessage = false;
+    
+    // do a normal startup
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "2.5.*");
+
+
   }
 
   /**
@@ -204,6 +214,32 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
   }
 
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_4() {
+    
+    
+    // drop everything
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null, true, false);
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_4_hsql.sql
+    // get to 2.4
+    String scriptName = "edu/internet2/middleware/grouper/ddl/GrouperDdl_2_4_" + GrouperDdlUtils.databaseType() + ".sql";
+    File scriptToGetTo2_4 = GrouperUtil.fileFromResourceName(scriptName);
+    if (scriptToGetTo2_4 == null) {
+      throw new RuntimeException("Cant find 2.4 sql script: " + scriptName);
+    }
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_4, true, true);
+
+    GrouperDdl2_5.addDdlWorkerTableIfNotThere();
+
+    GrouperDdlUtils.bootstrapHelper(false, true, true, false, false, false, true, null, true, true);
+
+    HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
+    
+  }
+  
   /**
    * @throws Exception 
    * @throws SchemaException 

@@ -142,6 +142,27 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * returns mysql, hsql, postgres, oracle, or exception
+   * @return database type
+   */
+  public static String databaseType() {
+    if (GrouperDdlUtils.isHsql()) {
+      return "hsql";
+    }
+    if (GrouperDdlUtils.isMysql()) {
+      return "mysql";
+    }
+    if (GrouperDdlUtils.isPostgres()) {
+      return "postgres";
+    }
+    if (GrouperDdlUtils.isOracle()) {
+      return "oracle";
+    }
+    throw new RuntimeException("Database type not expected");
+  
+  }
+  
+  /**
    * see if the config file seems to be hsql
    * @param connectionUrl url to check against
    * @return see if hsql
@@ -516,14 +537,14 @@ public class GrouperDdlUtils {
           GrouperVersion grouperVersionJava = new GrouperVersion(ddlVersionable.getGrouperVersion());
           {
             DdlVersionable dbDdlVersionable = retieveVersion(objectName, realDbVersion);
-            grouperVersionDatabase = new GrouperVersion(dbDdlVersionable.getGrouperVersion());
+            grouperVersionDatabase = dbDdlVersionable == null ? null : new GrouperVersion(dbDdlVersionable.getGrouperVersion());
             versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
               + realDbVersion + " (" + grouperVersionDatabase + ") and java version: " + javaVersion + " (" + grouperVersionJava + ")";
           }          
           boolean versionMismatch = javaVersion != realDbVersion;
 
           boolean okIfSameMajorAndMinorVersion = GrouperConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.okIfSameMajorAndMinorVersion", true);
-          boolean sameMajorAndMinorVersion = grouperVersionDatabase.sameMajorMinorArg(grouperVersionJava);
+          boolean sameMajorAndMinorVersion = grouperVersionDatabase == null ? false : grouperVersionDatabase.sameMajorMinorArg(grouperVersionJava);
 
           if (versionMismatch && okIfSameMajorAndMinorVersion && sameMajorAndMinorVersion) {
             versionMismatch = false;
@@ -626,7 +647,7 @@ public class GrouperDdlUtils {
                  
                   grouperDdlWorker = grouperDdlWorkers.get(0);
                   
-                  if (System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() < 20000) {
+                  if (grouperDdlWorker.getHeartbeat() != null && System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() < 20000) {
                     waitForOtherProcessesToDoDdl = true; 
                   }
                   
@@ -1703,6 +1724,10 @@ public class GrouperDdlUtils {
    */
   public static DdlVersionable retieveVersion(String objectName, int version) {
     
+    if (version == 0) {
+      return null;
+    }
+      
     String enumName = "V" + version;
     Class<Enum> enumClass = retrieveDdlEnum(objectName);
     
