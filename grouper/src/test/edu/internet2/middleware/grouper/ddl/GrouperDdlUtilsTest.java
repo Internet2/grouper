@@ -236,26 +236,37 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
     
+    scriptToGetTo2_4.delete();
+    
   }
 
   private static File retrieveScriptFile(String fileName) {
     String scriptName = "edu/internet2/middleware/grouper/ddl/" + fileName;
-    File scriptToGetTo2_4 = GrouperUtil.fileFromResourceName(scriptName);
-    if (scriptToGetTo2_4 == null) {
-      
-      //lets get grouper.hibernate.base.properties and work back from there
-      scriptToGetTo2_4 = GrouperUtil.fileFromResourceName("grouper.hibernate.base.properties");
-      File grouperBase = scriptToGetTo2_4.getParentFile().getParentFile();
-      if ("target".equals(grouperBase.getName())) {
-        grouperBase = grouperBase.getParentFile();
-      }
-      scriptToGetTo2_4 = new File(grouperBase.getAbsolutePath() + "/src/test/" + scriptName);
-      
-      if (!scriptToGetTo2_4.exists() || !scriptToGetTo2_4.isFile()) {
-        throw new RuntimeException("Cant find 2.4 sql script: " + scriptName + ", " + scriptToGetTo2_4.getAbsolutePath());
-      }
-    }
-    return scriptToGetTo2_4;
+    
+    // if running on a workstation, assumes /src/test is on classpath and not filtering anything
+    // look in eclipse at build path and make sure not filtering on *.java
+    String script = GrouperUtil.readResourceIntoString(scriptName, true);
+    
+    File tempFile = GrouperUtil.newFileUniqueName(GrouperUtil.tmpDir(true), fileName, ".sql", true);
+    
+    GrouperUtil.saveStringIntoFile(tempFile, script);
+    
+//    File scriptToGetTo2_4 = GrouperUtil.fileFromResourceName(scriptName);
+//    if (scriptToGetTo2_4 == null) {
+//      
+//      //lets get grouper.hibernate.base.properties and work back from there
+//      scriptToGetTo2_4 = GrouperUtil.fileFromResourceName("grouper.hibernate.base.properties");
+//      File grouperBase = scriptToGetTo2_4.getParentFile().getParentFile();
+//      if ("target".equals(grouperBase.getName())) {
+//        grouperBase = grouperBase.getParentFile();
+//      }
+//      scriptToGetTo2_4 = new File(grouperBase.getAbsolutePath() + "/src/test/" + scriptName);
+//      
+//      if (!scriptToGetTo2_4.exists() || !scriptToGetTo2_4.isFile()) {
+//        throw new RuntimeException("Cant find 2.4 sql script: " + scriptName + ", " + scriptToGetTo2_4.getAbsolutePath());
+//      }
+//    }
+    return tempFile;
   }
   
   /**
