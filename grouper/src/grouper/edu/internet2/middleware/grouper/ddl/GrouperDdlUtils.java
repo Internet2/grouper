@@ -70,9 +70,9 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -543,7 +543,7 @@ public class GrouperDdlUtils {
           }          
           boolean versionMismatch = javaVersion != realDbVersion;
 
-          boolean okIfSameMajorAndMinorVersion = GrouperConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.okIfSameMajorAndMinorVersion", true);
+          boolean okIfSameMajorAndMinorVersion = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.okIfSameMajorAndMinorVersion", true);
           boolean sameMajorAndMinorVersion = grouperVersionDatabase == null ? false : grouperVersionDatabase.sameMajorMinorArg(grouperVersionJava);
 
           if (versionMismatch && okIfSameMajorAndMinorVersion && sameMajorAndMinorVersion) {
@@ -2399,11 +2399,11 @@ public class GrouperDdlUtils {
   
   public static boolean autoDdl2_5orAbove() {
     if (autoDdl2_5orAbove == null) {
-      String autoDdlUpToVersion = GrouperConfig.retrieveConfig().propertyValueString("registry.auto.ddl.upToVersion");
+      String autoDdlUpToVersion = GrouperHibernateConfig.retrieveConfig().propertyValueString("registry.auto.ddl.upToVersion");
       if (StringUtils.isBlank(autoDdlUpToVersion)) {
         
-        if (!GrouperConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.dontRemindMeAboutUpToVersion", false)) {
-          LOG.error("You should set grouper.properties registry.auto.ddl.upToVersion to the recommended value "
+        if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.dontRemindMeAboutUpToVersion", false)) {
+          LOG.error("You should set grouper.hibernate.properties registry.auto.ddl.upToVersion to the recommended value "
               + "of at least 2.5.* (whatever minor version you are on)     You can set registry.auto.ddl.dontRemindMeAboutUpToVersion "
               + "to true to stop seeing this message");
         }
@@ -2422,7 +2422,7 @@ public class GrouperDdlUtils {
   
   public static boolean autoDdlFor(GrouperVersion grouperVersion) {
     
-    String autoDdlUpToVersionString = GrouperConfig.retrieveConfig().propertyValueString("registry.auto.ddl.upToVersion");
+    String autoDdlUpToVersionString = GrouperHibernateConfig.retrieveConfig().propertyValueString("registry.auto.ddl.upToVersion");
     if (StringUtils.isBlank(autoDdlUpToVersionString)) {
       return false;
     }

@@ -64,6 +64,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
     TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
+    
+
   }
 
   /**
@@ -224,11 +226,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null, true, false);
     //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_4_hsql.sql
     // get to 2.4
-    String scriptName = "edu/internet2/middleware/grouper/ddl/GrouperDdl_2_4_" + GrouperDdlUtils.databaseType() + ".sql";
-    File scriptToGetTo2_4 = GrouperUtil.fileFromResourceName(scriptName);
-    if (scriptToGetTo2_4 == null) {
-      throw new RuntimeException("Cant find 2.4 sql script: " + scriptName);
-    }
+    File scriptToGetTo2_4 = retrieveScriptFile("GrouperDdl_2_4_" + GrouperDdlUtils.databaseType() + ".sql");
     
     GrouperDdlUtils.sqlRun(scriptToGetTo2_4, true, true);
 
@@ -238,6 +236,26 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
     
+  }
+
+  private static File retrieveScriptFile(String fileName) {
+    String scriptName = "edu/internet2/middleware/grouper/ddl/" + fileName;
+    File scriptToGetTo2_4 = GrouperUtil.fileFromResourceName(scriptName);
+    if (scriptToGetTo2_4 == null) {
+      
+      //lets get grouper.hibernate.base.properties and work back from there
+      scriptToGetTo2_4 = GrouperUtil.fileFromResourceName("grouper.hibernate.base.properties");
+      File grouperBase = scriptToGetTo2_4.getParentFile().getParentFile();
+      if ("target".equals(grouperBase.getName())) {
+        grouperBase = grouperBase.getParentFile();
+      }
+      scriptToGetTo2_4 = new File(grouperBase.getAbsolutePath() + "/src/test/" + scriptName);
+      
+      if (!scriptToGetTo2_4.exists() || !scriptToGetTo2_4.isFile()) {
+        throw new RuntimeException("Cant find 2.4 sql script: " + scriptName + ", " + scriptToGetTo2_4.getAbsolutePath());
+      }
+    }
+    return scriptToGetTo2_4;
   }
   
   /**
