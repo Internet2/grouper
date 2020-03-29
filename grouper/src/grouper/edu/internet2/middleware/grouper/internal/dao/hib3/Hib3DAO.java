@@ -43,6 +43,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -167,6 +168,7 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3RoleSetViewDAO.class);
       addClass(CFG, Hib3StemDAO.class);
       addClass(CFG, Hib3GrouperDdl.class);
+      addClass(CFG, Hib3GrouperDdlWorker.class);
       addClass(CFG, Hib3GrouperLoaderLog.class);
       addClass(CFG, Hib3GroupSetDAO.class);
       addClass(CFG, Hib3PITGroupDAO.class);

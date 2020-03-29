@@ -4,6 +4,7 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
 import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
@@ -15,6 +16,8 @@ import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class GrouperDdl2_5 {
 
@@ -300,7 +303,116 @@ public class GrouperDdl2_5 {
     }
   }
 
+  public static void addDdlWorkerTableIfNotThere() {
 
+    try {
+      // if you cant connrc to it, its not there
+      new GcDbAccess().sql("select count(*) from grouper_ddl_worker where 1 != 1").select(int.class);
+      return;
+    } catch (Exception e) {
+      //not found
+    }
+
+    boolean runScript = GrouperDdlUtils.autoDdl2_5orAbove();
+    if (!runScript) {
+      LOG.error("You need to add the grouper_ddl_worker table!");
+    }
+    try {
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), false, runScript, new DdlUtilsChangeDatabase() {
+        
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          addDdlWorkerTable(ddlVersionBean, ddlVersionBean.getDatabase());
+          addDdlWorkerIndexes(ddlVersionBean, ddlVersionBean.getDatabase());
+          addDdlWorkerComments(ddlVersionBean, ddlVersionBean.getDatabase());
+        }
+      });
+
+    } catch (Exception e2) {
+
+      GrouperUtil.sleep(3000);
+
+      try {
+        // if you cant connect to it, its not there
+        new GcDbAccess().sql("select count(*) from grouper_ddl_worker where 1 != 1").select(int.class);
+        return;
+      } catch (Exception e) {
+        //not found
+      }
+
+      LOG.error("error creating the grouper_ddl_worker table", e2);
+    }
+
+  }
+
+  /**
+   * 
+   */
+  static void addDdlWorkerTable(DdlVersionBean ddlVersionBean, Database database) {
+    if (ddlVersionBean.didWeDoThis("addDdlWorkerTable", true)) {
+      return;
+    }
+    {
+      final String tableName = "grouper_ddl_worker";
+    
+      Table ddlWorkerTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(ddlWorkerTable, "id", 
+          Types.VARCHAR, "40", true, true);
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(ddlWorkerTable, "grouper", 
+          Types.VARCHAR, "40", false, true);
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(ddlWorkerTable, "worker_uuid", 
+          Types.VARCHAR, "40", false, true);
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(ddlWorkerTable, "heartbeat", 
+          Types.TIMESTAMP, "10", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(ddlWorkerTable, "last_updated", 
+          Types.TIMESTAMP, "10", false, true);
+    }
+  }  
+
+  /**
+   * Add grouper password indexes
+   * @param ddlVersionBean 
+   * @param database
+   */
+  static void addDdlWorkerIndexes(DdlVersionBean ddlVersionBean, Database database) {
+    if (ddlVersionBean.didWeDoThis("addDdlWorkerIndexes", true)) {
+      return;
+    }
+    
+    {
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_ddl_worker", 
+          "grouper_ddl_worker_grp_idx", true, "grouper");
+      
+    }
+  }
+
+
+  /**
+   * 
+   */
+  static void addDdlWorkerComments(DdlVersionBean ddlVersionBean, Database database) {
+    if (ddlVersionBean.didWeDoThis("addDdlWorkerComments", true)) {
+      return;
+    }
+  
+    final String tableName = "grouper_ddl_worker";
+
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+        tableName, "JVMs register a uuid so only one JVM does the DDL upgrades at a time");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper", "this just holds the word grouper, so there is only one row here");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "worker_uuid", "random uuid from a jvm to do work on the database");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "heartbeat", "while the ddl is running, keep a heartbeat updated");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_updated", "when this record was last updated");
+    
+  }
   /**
    * 
    */
@@ -1068,6 +1180,9 @@ public class GrouperDdl2_5 {
         "attr_asgn_type_idx", false, 
         AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE);
   }
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperDdl2_5.class);
 
   
   

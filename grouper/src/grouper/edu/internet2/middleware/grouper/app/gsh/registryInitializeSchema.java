@@ -83,7 +83,7 @@ public class registryInitializeSchema {
       boolean dropThenCreate = GrouperUtil.hasOption(options, DROP_THEN_CREATE);
       boolean writeAndRunScript = GrouperUtil.hasOption(options, WRITE_AND_RUN_SCRIPT);
       boolean installGrouperData = RegistryInitializeSchema.isInstallGrouperData();
-      GrouperDdlUtils.bootstrapHelper(true, false, true, dropThenCreate, writeAndRunScript, false, installGrouperData, null, true);
+      GrouperDdlUtils.bootstrapHelper(true, false, true, dropThenCreate, writeAndRunScript, false, installGrouperData, null, true, false);
       return "Registry DDL created: dropThenCreate: " + dropThenCreate 
         + ", writeAndRunScript: " + writeAndRunScript;    
     } finally {

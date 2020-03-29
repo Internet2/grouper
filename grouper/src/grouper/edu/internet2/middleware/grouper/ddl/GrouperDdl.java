@@ -2510,7 +2510,14 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_5.addSyncForeignKeys(ddlVersionBean, database);
       GrouperDdl2_5.addSyncComments(ddlVersionBean, database);
       
+      boolean grouperDdlWorkerTableExists = database.findTable("grouper_ddl_worker") != null;
 
+      if (!grouperDdlWorkerTableExists) {
+        GrouperDdl2_5.addDdlWorkerTable(ddlVersionBean, database);
+        GrouperDdl2_5.addDdlWorkerIndexes(ddlVersionBean, database);
+        GrouperDdl2_5.addDdlWorkerComments(ddlVersionBean, database);
+      }
+        
     }
 
     /**

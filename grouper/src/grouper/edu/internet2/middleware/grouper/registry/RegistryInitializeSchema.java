@@ -179,7 +179,7 @@ public class RegistryInitializeSchema {
                                       dropOnly, 
                                       installDefaultGrouperData, 
                                       maxVersions, 
-                                      promptUser);
+                                      promptUser, false);
         }
         
         if (!dropOnly && (theWriteAndRunScript || runReset || runSqlFile || runForTests)) {
@@ -223,7 +223,7 @@ public class RegistryInitializeSchema {
       GrouperStartup.startup();
       
       //run the bootstrap
-      GrouperDdlUtils.bootstrap(fromCommandLine, isInstallGrouperData(), true);
+      GrouperDdlUtils.bootstrap(fromCommandLine, isInstallGrouperData(), true, false);
 
       //now check config
       GrouperCheckConfig.checkConfig();
@@ -253,7 +253,7 @@ public class RegistryInitializeSchema {
         LOG.error(e);
       }
       
-      GrouperDdlUtils.bootstrapHelper(true, false, true, true, true, false, true, null, true);
+      GrouperDdlUtils.bootstrapHelper(true, false, true, true, true, false, true, null, true, false);
       
       //everything right version
       GrouperDdlUtils.everythingRightVersion = true;

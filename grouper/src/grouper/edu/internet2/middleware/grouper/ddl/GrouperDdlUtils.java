@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -69,6 +70,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
@@ -358,7 +360,7 @@ public class GrouperDdlUtils {
    * @param promptUser prompt user to see if they really want to do this
    */
   @SuppressWarnings("unchecked")
-  public static void bootstrap(boolean callFromCommandLine, boolean installDefaultGrouperData, boolean promptUser) {
+  public static void bootstrap(boolean callFromCommandLine, boolean installDefaultGrouperData, boolean promptUser, boolean fromStartup) {
     if (bootstrapDone) {
       if (callFromCommandLine) {
         throw new RuntimeException("DDL bootstrap is already done, something is wrong...");
@@ -372,7 +374,7 @@ public class GrouperDdlUtils {
   
       bootstrapHelper(callFromCommandLine, false, !callFromCommandLine || compareFromDbDllVersion, 
           false, 
-          false, false, installDefaultGrouperData, null, promptUser);
+          false, false, installDefaultGrouperData, null, promptUser, fromStartup);
     } catch (RuntimeException re) {
       everythingRightVersion = false;
       throw re;
@@ -408,13 +410,14 @@ public class GrouperDdlUtils {
    * @param maxVersions if unit testing, and not going to max, then associate object name
    * with max version
    * @param promptUser promptUser to see if they want to do this...
+   * @param fromStartup if from startup
    * @return true if up to date, false if needs to run a script
    */
   @SuppressWarnings("unchecked")
   public static boolean bootstrapHelper(boolean callFromCommandLine, boolean fromUnitTest,
       boolean theCompareFromDbVersion, boolean theDropBeforeCreate, boolean theWriteAndRunScript,
       boolean dropOnly, boolean installDefaultGrouperData, Map<String, DdlVersionable> maxVersions,
-      boolean promptUser) {
+      boolean promptUser, boolean fromStartup) {
         
     //start with success
     everythingRightVersion = true;
@@ -597,215 +600,225 @@ public class GrouperDdlUtils {
           if (!fromUnitTest) {
             everythingRightVersion = false;
           }
-          
-          DbMetadataBean dbMetadataBean = findDbMetadataBean(ddlVersionable);
-          
-          //to be safe lets only deal with tables related to this object
-          platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
-          //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-          platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
-            
-          SqlBuilder sqlBuilder = platform.getSqlBuilder();
-          
-          // see if we really need to recreate views/keys
-          boolean recreateViewsAndForeignKeys = true;
-          if (!theDropBeforeCreate && !dropOnly) {
-            boolean reallyNeedToRecreate = false;
-            for (int version = dbVersion+1; version<=javaVersion; version++) {
-              DdlVersionable v = retieveVersion(objectName, version);
-              if (v.recreateViewsAndForeignKeys()) {
-                reallyNeedToRecreate = true;
-                break;
-              }
-            }
-            
-            if (!reallyNeedToRecreate) {
-              recreateViewsAndForeignKeys = false;
-            }
-          }
-  
-          {
-            if (recreateViewsAndForeignKeys) {
-              //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
-              DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result);
-              ddlVersionBeanThreadLocalAssign(tempDdlVersionBean);
-              try {
-                ddlVersionable.dropAllViews(tempDdlVersionBean);
-      
-                //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-                dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
-              } finally {
-                ddlVersionBeanThreadLocalClear();
-              }
-            }
-          }
-          
-          // if deleting all, lets delete all:
-          if (theDropBeforeCreate || dropOnly) {
-            //it needs a name, just use "grouper"
-            Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
-                null, null);
-            dropAllForeignKeys(oldDatabase);
-            
-            Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
-                null, null);
-            dropAllForeignKeys(newDatabase);
-  
-            removeAllTables(newDatabase);
-            
-            String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
-            
-            if (!StringUtils.isBlank(script)) {
-              //result.append("\n-- we are configured in grouper.properties to drop all tables \n");
-              result.append(script).append("\n");
-              //result.append("\n-- end drop all tables \n\n");
-            }
 
-            GrouperDdl.alreadyAddedTableIndices = false;
-            
-          }
+          final boolean[] done = new boolean[] {false}; 
+          Thread heartbeatThread = null;
           
-          if (!dropOnly) {
-            //the db version is less than the java version
-            //lets go up one version at a time until we are current
-            for (int version = dbVersion+1; version<=javaVersion;version++) {
-    
-              ddlVersionable = retieveVersion(objectName, version);
-              //we just want a script, see if one exists for this version
-              String script = findScriptOverride(ddlVersionable, dbname);
+          try {
+            // lets lock until we can make changes
+            if (fromStartup) {
+              theWriteAndRunScript = GrouperDdlUtils.autoDdlFor(grouperVersionJava);
+              if (theWriteAndRunScript) {
+                
+                // we need to lock with the DB so two JVMs dont try to run DDL at the same time
+                List<Hib3GrouperDdlWorker> grouperDdlWorkers = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
+                
+                boolean waitForOtherProcessesToDoDdl = false;
+                
+                Hib3GrouperDdlWorker grouperDdlWorker = null;
               
-              //if there was no override
-              if (StringUtils.isBlank(script)) {
-                
-                //it needs a name, just use "grouper"
-                Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
-                    null, null);
-                dropAllForeignKeys(oldDatabase);
-                
-                Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
-                    null, null);
-                dropAllForeignKeys(newDatabase);
-                
-                if (theDropBeforeCreate) {
-                  removeAllTables(oldDatabase);
-                  removeAllTables(newDatabase);
-                }
-                
-                //get this to the previous version, dont worry about additional scripts
-                upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, version-1, javaVersion, 
-                    new StringBuilder(), result, platform, connection, schema, sqlBuilder);
-                
-                StringBuilder additionalScripts = new StringBuilder();
-                
-                //get this to the current version
-                upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, version, 
-                    javaVersion, additionalScripts, result, platform, connection, schema, sqlBuilder);
-                
-                script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
-                    newDatabase);
-                
-                script = StringUtils.trimToEmpty(script);
-                
-                String additionalScriptsString = additionalScripts.toString();
-                if (!StringUtils.isBlank(additionalScriptsString)) {
-                  script += "\n" + additionalScriptsString;
-                }
-                
-                //String ddl = platform.getAlterTablesSql(connection, database);
-              }
-              //make sure no single quotes in any of these...
-              String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-              //is this db independent?  if not, figure out what the issues are and fix so we can have comments
-              String summary = timestamp + ": upgrade " + objectName + " from V" + (version-1) + " to V" + version;
-              
-              boolean scriptNotBlank = !StringUtils.isBlank(script);
-              //dont do this if shouldnt
-              boolean upgradeDdlTable = realDbVersion < version || theDropBeforeCreate;
-    
-              if (scriptNotBlank || upgradeDdlTable) {
-                //result.append("\n-- " + summary + " \n");
-              }
-              
-              if (scriptNotBlank) {
-                result.append(script).append("\n\n");
-              }
-    
-              if (upgradeDdlTable) {
-                realDbVersion = version;
-                historyBuilder.insert(0, summary + ", ");
-                
-                String historyString = StringUtils.abbreviate(historyBuilder.toString(), 4000);
-                
-                //mssql needs begin tx
-                if (platform.getName().toLowerCase().contains("mssql")) {
-                  result.append("\nbegin transaction");
-                }
-                
-                //see if already in db
-                if ((!containsDbRecord(objectName) || (version == 1 && theDropBeforeCreate)) 
-                    && !alreadyInsertedForObjectName.contains(objectName)) {
-                
-                  result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
-                      "last_updated, history) values ('" + GrouperUuid.getUuid() 
-                      +  "', '" + objectName + "', 1, '" + timestamp + "', \n'" + historyString + "');\n");
-                  //dont insert again for this object
-                  alreadyInsertedForObjectName.add(objectName);
-  
+                if (GrouperUtil.length(grouperDdlWorkers) == 0) {
+                  grouperDdlWorker = new Hib3GrouperDdlWorker();
+
+                  // this is the only value since it is unique and one row in table
+                  grouperDdlWorker.setGrouper("grouper");
                 } else {
+                 
+                  grouperDdlWorker = grouperDdlWorkers.get(0);
                   
-                  result.append("\nupdate grouper_ddl set db_version = " + version 
-                      + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
-                      + "' where object_name = '" + objectName + "';\n");
-  
+                  if (System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() < 20000) {
+                    waitForOtherProcessesToDoDdl = true; 
+                  }
+                  
                 }
-                result.append("commit;\n\n");
+                
+                if (!waitForOtherProcessesToDoDdl) {
+                
+                  grouperDdlWorker.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+                  grouperDdlWorker.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+                  String thisUuid = GrouperUuid.getUuid();
+                  grouperDdlWorker.setWorkerUuid(thisUuid);
+                  try {
+                    HibernateSession.byObjectStatic().saveOrUpdate(grouperDdlWorker);
+                    
+                    //ok, we stored, are we in there?
+                    GrouperUtil.sleep(3000);
+                    
+                    grouperDdlWorker = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null).get(0);
+                    
+                    if (!StringUtils.equals(thisUuid, grouperDdlWorker.getWorkerUuid())) {
+                      waitForOtherProcessesToDoDdl = true;
+                    }
+  
+                    // lets do it!
+                    
+                  } catch (Exception e) {
+                    waitForOtherProcessesToDoDdl = true;
+                  }
+                }
+                if (waitForOtherProcessesToDoDdl) {
+                  // some other jvm did this at the same time
+                  // lets wait until done, and then exit
+                  for (int i=0;i<2000;i++) {
+                    if (i==40) {
+                      String waitingErrorMessage = "Waiting for another process to finish DDL updates...";
+                      LOG.error(waitingErrorMessage);
+                      System.out.println(waitingErrorMessage);
+                    }
+                    GrouperUtil.sleep(5000);
+                    grouperDdlWorker = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null).get(0);
+                    if (grouperDdlWorker.getHeartbeat() == null) {
+                      return false;
+                    }
+                    if (System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() > 90000) {
+                      throw new RuntimeException("Heartbeat of DDL worker is not updating!!!!");
+                    }
+                  }
+                  throw new RuntimeException("DDL updates never completed successfully!");
+                }
+                final Hib3GrouperDdlWorker GROUPER_DDL_WORKER = grouperDdlWorker;
+                heartbeatThread = new Thread(new Runnable() {
+
+                  @Override
+                  public void run() {
+                    try {
+                      
+                      for (int i=0;i<10000;i++) {
+                        
+                        // update the heartbeat every 5 seconds
+                        for (int j=0;j<5;j++) {
+                          GrouperUtil.sleep(1000);
+                          if (done[0]) {
+                            // we done
+                            GROUPER_DDL_WORKER.setHeartbeat(null);
+                            HibernateSession.byObjectStatic().saveOrUpdate(GROUPER_DDL_WORKER);
+                            return;
+                          }
+                        }
+                        
+                        GROUPER_DDL_WORKER.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+                        HibernateSession.byObjectStatic().saveOrUpdate(GROUPER_DDL_WORKER);
+                      }
+                      throw new RuntimeException("DDL didnt end!!!!!");
+                    } catch (Exception e) {
+                      LOG.error("Error running heartbeat", e);
+                    }
+                    
+                  }
+                  
+                });
+                heartbeatThread.start();
               }
             }
             
-            //now we need to add the foreign keys back in
-            //just get the first version since we need an instance, any instance
-            {
+            DbMetadataBean dbMetadataBean = findDbMetadataBean(ddlVersionable);
+            
+            //to be safe lets only deal with tables related to this object
+            platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+            //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+            platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
               
+            SqlBuilder sqlBuilder = platform.getSqlBuilder();
+            
+            // see if we really need to recreate views/keys
+            boolean recreateViewsAndForeignKeys = true;
+            if (!theDropBeforeCreate && !dropOnly) {
+              boolean reallyNeedToRecreate = false;
+              for (int version = dbVersion+1; version<=javaVersion; version++) {
+                DdlVersionable v = retieveVersion(objectName, version);
+                if (v.recreateViewsAndForeignKeys()) {
+                  reallyNeedToRecreate = true;
+                  break;
+                }
+              }
+              
+              if (!reallyNeedToRecreate) {
+                recreateViewsAndForeignKeys = false;
+              }
+            }
+    
+            {
               if (recreateViewsAndForeignKeys) {
-                //get the latest, doesnt really matter
-                ddlVersionable = retieveVersion(objectName, javaVersion);
-    
-                //it needs a name, just use "grouper"
-                Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
-                    null, null);
-                dropAllForeignKeys(oldDatabase);
-                
-                Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
-                    null, null);
-                dropAllForeignKeys(newDatabase);
-                
-                //get this to the current version, dont worry about additional scripts
-                upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, javaVersion, javaVersion, 
-                    new StringBuilder(), result, platform, connection, schema, sqlBuilder);
-                
-                //get this to the current version, dont worry about additional scripts
-                upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, javaVersion, 
-                    javaVersion, new StringBuilder(), result, platform, connection, schema, sqlBuilder);
-    
-                StringBuilder additionalScripts = new StringBuilder();
-                
-                DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, 
-                    sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result);
-                
-                ddlVersionBeanThreadLocalAssign(ddlVersionBean);
-
+                if (fromStartup) {
+                  // dont run a script that will go off the rails
+                  theWriteAndRunScript = false;
+                }
+                //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
+                DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result);
+                ddlVersionBeanThreadLocalAssign(tempDdlVersionBean);
                 try {
-                  ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
-      
-                  ////lets add table / col comments
-                  //for (Table table : newDatabase.getTables()) {
-                  //  GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
-                  //  for (Column column : table.getColumns()) {
-                  //    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
-                  //  }
-                  //}
+                  ddlVersionable.dropAllViews(tempDdlVersionBean);
+        
+                  //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+                  dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+                } finally {
+                  ddlVersionBeanThreadLocalClear();
+                }
+              }
+            }
+            
+            // if deleting all, lets delete all:
+            if (theDropBeforeCreate || dropOnly) {
+              //it needs a name, just use "grouper"
+              Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
+                  null, null);
+              dropAllForeignKeys(oldDatabase);
+              
+              Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
+                  null, null);
+              dropAllForeignKeys(newDatabase);
     
-                  String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
+              removeAllTables(newDatabase);
+              
+              String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
+              
+              if (!StringUtils.isBlank(script)) {
+                //result.append("\n-- we are configured in grouper.properties to drop all tables \n");
+                result.append(script).append("\n");
+                //result.append("\n-- end drop all tables \n\n");
+              }
+  
+              GrouperDdl.alreadyAddedTableIndices = false;
+              
+            }
+            
+            if (!dropOnly) {
+              //the db version is less than the java version
+              //lets go up one version at a time until we are current
+              for (int version = dbVersion+1; version<=javaVersion;version++) {
+      
+                ddlVersionable = retieveVersion(objectName, version);
+                //we just want a script, see if one exists for this version
+                String script = findScriptOverride(ddlVersionable, dbname);
+                
+                //if there was no override
+                if (StringUtils.isBlank(script)) {
+                  
+                  //it needs a name, just use "grouper"
+                  Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
+                      null, null);
+                  dropAllForeignKeys(oldDatabase);
+                  
+                  Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
+                      null, null);
+                  dropAllForeignKeys(newDatabase);
+                  
+                  if (theDropBeforeCreate) {
+                    removeAllTables(oldDatabase);
+                    removeAllTables(newDatabase);
+                  }
+                  
+                  //get this to the previous version, dont worry about additional scripts
+                  upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, version-1, javaVersion, 
+                      new StringBuilder(), result, platform, connection, schema, sqlBuilder);
+                  
+                  StringBuilder additionalScripts = new StringBuilder();
+                  
+                  //get this to the current version
+                  upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, version, 
+                      javaVersion, additionalScripts, result, platform, connection, schema, sqlBuilder);
+                  
+                  script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
                       newDatabase);
                   
                   script = StringUtils.trimToEmpty(script);
@@ -814,19 +827,131 @@ public class GrouperDdlUtils {
                   if (!StringUtils.isBlank(additionalScriptsString)) {
                     script += "\n" + additionalScriptsString;
                   }
-      
                   
-                  if (!StringUtils.isBlank(script)) {
-                    //result.append("\n-- add back all the foreign keys */\n");
-                    result.append(script).append("\n");
-                    //result.append("\n-- end add back all foreign keys */\n\n");
+                  //String ddl = platform.getAlterTablesSql(connection, database);
+                }
+                //make sure no single quotes in any of these...
+                String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+                //is this db independent?  if not, figure out what the issues are and fix so we can have comments
+                String summary = timestamp + ": upgrade " + objectName + " from V" + (version-1) + " to V" + version;
+                
+                boolean scriptNotBlank = !StringUtils.isBlank(script);
+                //dont do this if shouldnt
+                boolean upgradeDdlTable = realDbVersion < version || theDropBeforeCreate;
+      
+                if (scriptNotBlank || upgradeDdlTable) {
+                  //result.append("\n-- " + summary + " \n");
+                }
+                
+                if (scriptNotBlank) {
+                  result.append(script).append("\n\n");
+                }
+      
+                if (upgradeDdlTable) {
+                  realDbVersion = version;
+                  historyBuilder.insert(0, summary + ", ");
+                  
+                  String historyString = StringUtils.abbreviate(historyBuilder.toString(), 4000);
+                  
+                  //mssql needs begin tx
+                  if (platform.getName().toLowerCase().contains("mssql")) {
+                    result.append("\nbegin transaction");
                   }
-                } finally {
-                  ddlVersionBeanThreadLocalClear();
+                  
+                  //see if already in db
+                  if ((!containsDbRecord(objectName) || (version == 1 && theDropBeforeCreate)) 
+                      && !alreadyInsertedForObjectName.contains(objectName)) {
+                  
+                    result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
+                        "last_updated, history) values ('" + GrouperUuid.getUuid() 
+                        +  "', '" + objectName + "', 1, '" + timestamp + "', \n'" + historyString + "');\n");
+                    //dont insert again for this object
+                    alreadyInsertedForObjectName.add(objectName);
+    
+                  } else {
+                    
+                    result.append("\nupdate grouper_ddl set db_version = " + version 
+                        + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
+                        + "' where object_name = '" + objectName + "';\n");
+    
+                  }
+                  result.append("commit;\n\n");
                 }
               }
-            }
+              
+              //now we need to add the foreign keys back in
+              //just get the first version since we need an instance, any instance
+              {
+                
+                if (recreateViewsAndForeignKeys) {
+                  //get the latest, doesnt really matter
+                  ddlVersionable = retieveVersion(objectName, javaVersion);
+      
+                  //it needs a name, just use "grouper"
+                  Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
+                      null, null);
+                  dropAllForeignKeys(oldDatabase);
+                  
+                  Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
+                      null, null);
+                  dropAllForeignKeys(newDatabase);
+                  
+                  //get this to the current version, dont worry about additional scripts
+                  upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, javaVersion, javaVersion, 
+                      new StringBuilder(), result, platform, connection, schema, sqlBuilder);
+                  
+                  //get this to the current version, dont worry about additional scripts
+                  upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, javaVersion, 
+                      javaVersion, new StringBuilder(), result, platform, connection, schema, sqlBuilder);
+      
+                  StringBuilder additionalScripts = new StringBuilder();
+                  
+                  DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, 
+                      sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result);
+                  
+                  ddlVersionBeanThreadLocalAssign(ddlVersionBean);
+  
+                  try {
+                    ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
+        
+                    ////lets add table / col comments
+                    //for (Table table : newDatabase.getTables()) {
+                    //  GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
+                    //  for (Column column : table.getColumns()) {
+                    //    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
+                    //  }
+                    //}
+      
+                    String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
+                        newDatabase);
+                    
+                    script = StringUtils.trimToEmpty(script);
+                    
+                    String additionalScriptsString = additionalScripts.toString();
+                    if (!StringUtils.isBlank(additionalScriptsString)) {
+                      script += "\n" + additionalScriptsString;
+                    }
+        
+                    
+                    if (!StringUtils.isBlank(script)) {
+                      //result.append("\n-- add back all the foreign keys */\n");
+                      result.append(script).append("\n");
+                      //result.append("\n-- end add back all foreign keys */\n\n");
+                    }
+                  } finally {
+                    ddlVersionBeanThreadLocalClear();
+                  }
+                }
+              }
+            }            
+          } finally {
+            // tell the heartbeat we are done
+            done[0]=true;
             
+            // wait for the heartbeat to return
+            if (heartbeatThread != null) {
+              GrouperUtil.threadJoin(heartbeatThread);
+            }
           }
         }
   
@@ -861,6 +986,9 @@ public class GrouperDdlUtils {
           AuditTypeFinder.clearCache();
           ChangeLogTypeFinder.clearCache();
           MemberFinder.clearInternalMembers();
+          if (fromStartup) {
+            everythingRightVersion = true;
+          }
         } else {
           if (callFromCommandLine || GrouperShell.runFromGsh) {
             System.err.println("Note: this script was not executed due to option passed in");
@@ -1827,25 +1955,36 @@ public class GrouperDdlUtils {
       return;
     }
 
+    //only do this if oracle, or postgres
+    if (!supportsComments(ddlVersionBean)) {
+      return;
+    }
+
     if (StringUtils.isBlank(comment)) {
       LOG.warn("No comment for db column " + objectName + "." + columnName);
       return;
     }
     
-    //only do this if oracle, or postgres
+      
+    //dont let a single quote mess up the sql...
+    comment = StringUtils.replace(comment, "'", "^");
+    
+    String sql = null;
+    
+    sql = "\nCOMMENT ON COLUMN " + objectName + "." + columnName + " IS '" + comment + "';\n";
+
+    ddlVersionBean.appendAdditionalScriptUnique(sql);
+  }
+
+  /**
+   * if supports comments
+   * @param ddlVersionBean
+   * @return true if supports comments
+   */
+  public static boolean supportsComments(DdlVersionBean ddlVersionBean) {
     boolean isOracle = ddlVersionBean.isOracle();
     boolean isPostgres = ddlVersionBean.isPostgres();
-    if (isPostgres || isOracle) {
-      
-      //dont let a single quote mess up the sql...
-      comment = StringUtils.replace(comment, "'", "^");
-      
-      String sql = null;
-      
-      sql = "\nCOMMENT ON COLUMN " + objectName + "." + columnName + " IS '" + comment + "';\n";
-
-      ddlVersionBean.appendAdditionalScriptUnique(sql);
-    }
+    return isOracle || isPostgres;
   }
   
   /**
@@ -1861,32 +2000,30 @@ public class GrouperDdlUtils {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.disableComments", false)) {
       return;
     }
-    
+    if (!supportsComments(ddlVersionBean)) {
+      return;
+    }
     if (StringUtils.isBlank(comment)) {
       LOG.debug("No comment for db object " + objectName);
       return;
     }
     
     //only do this if oracle, or postgres
-    boolean isOracle = ddlVersionBean.isOracle();
     boolean isPostgres = ddlVersionBean.isPostgres();
-    if (isPostgres || isOracle) {
       
-      //dont let a single quote mess up the sql...
-      comment = StringUtils.replace(comment, "'", "^");
-      
-      String sql = null;
-      
-      String objectString = "TABLE";
-      if (!tableNotView && isPostgres) {
-        objectString = "VIEW";
-      }
-
-      sql = "\nCOMMENT ON " + objectString + " " + objectName + " IS '" + comment + "';\n";
-
-      ddlVersionBean.appendAdditionalScriptUnique(sql);
-      
+    //dont let a single quote mess up the sql...
+    comment = StringUtils.replace(comment, "'", "^");
+    
+    String sql = null;
+    
+    String objectString = "TABLE";
+    if (!tableNotView && isPostgres) {
+      objectString = "VIEW";
     }
+
+    sql = "\nCOMMENT ON " + objectString + " " + objectName + " IS '" + comment + "';\n";
+
+    ddlVersionBean.appendAdditionalScriptUnique(sql);
     
   }
   
@@ -2233,6 +2370,45 @@ public class GrouperDdlUtils {
     return table;
   }
 
+  private static Boolean autoDdl2_5orAbove = null;
+  
+  public static boolean autoDdl2_5orAbove() {
+    if (autoDdl2_5orAbove == null) {
+      String autoDdlUpToVersion = GrouperConfig.retrieveConfig().propertyValueString("registry.auto.ddl.upToVersion");
+      if (StringUtils.isBlank(autoDdlUpToVersion)) {
+        
+        if (!GrouperConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.dontRemindMeAboutUpToVersion", false)) {
+          LOG.error("You should set grouper.properties registry.auto.ddl.upToVersion to the recommended value "
+              + "of at least 2.5.* (whatever minor version you are on)     You can set registry.auto.ddl.dontRemindMeAboutUpToVersion "
+              + "to true to stop seeing this message");
+        }
+        
+        autoDdl2_5orAbove = false;
+      } else {
+        if (autoDdlUpToVersion.endsWith(".*")) {
+          autoDdlUpToVersion = StringUtils.replace(autoDdlUpToVersion, ".*", ".0");
+        }
+        GrouperVersion configVersion = new GrouperVersion(autoDdlUpToVersion);
+        autoDdl2_5orAbove = configVersion.greaterOrEqualToArg("2.5.0");
+      }
+    }
+    return autoDdl2_5orAbove;
+  }
+  
+  public static boolean autoDdlFor(GrouperVersion grouperVersion) {
+    
+    String autoDdlUpToVersionString = GrouperConfig.retrieveConfig().propertyValueString("registry.auto.ddl.upToVersion");
+    if (StringUtils.isBlank(autoDdlUpToVersionString)) {
+      return false;
+    }
+    if (autoDdlUpToVersionString.endsWith(".*")) {
+      autoDdlUpToVersionString = StringUtils.replace(autoDdlUpToVersionString, ".*", ".9999");
+    }
+    GrouperVersion autoDdlUpToVersion = new GrouperVersion(autoDdlUpToVersionString);
+    return autoDdlUpToVersion.greaterOrEqualToArg(grouperVersion);
+    
+  }
+  
   /**
    * add an index on a table.  drop a misnamed or a misuniqued index which is existing
    * @param database

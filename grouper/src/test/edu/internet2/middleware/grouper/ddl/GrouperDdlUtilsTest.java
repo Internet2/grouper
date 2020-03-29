@@ -156,12 +156,12 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       assertTrue("Starting out, tables should be there", GrouperDdlUtils.assertTablesThere(null, false, true));
       
       //now lets remove all tables and object
-      GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null, false);
+      GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null, false, false);
       
       assertFalse("Just removed tables, shouldnt be there", GrouperDdlUtils.assertTablesThere(null, false, false));
   
       //lets add all tables and object
-      GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false);
+      GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false, false);
       
       //if we init data, the root stem should be there...
       assertTrue("Just added all tables, and registry init, it should be there", 
@@ -174,7 +174,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       		"should be there " + count, count > 1);
       
       //try again, everything should be there (even not from junit)
-      GrouperDdlUtils.bootstrapHelper(false, false, true, false, false, false, false, null, false);
+      GrouperDdlUtils.bootstrapHelper(false, false, true, false, false, false, false, null, false, false);
       
       assertTrue("Should not change anything", GrouperDdlUtils.assertTablesThere(null, true, true));
   
