@@ -299,11 +299,8 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, groupsTable.getName(), 
             "group_name_idx", scriptOverrideName, true, "name");
         
-        String scriptOverrideDisplayName = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX group_display_name_idx " +
-            "ON grouper_groups (display_name(255));\n" : null;
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, groupsTable.getName(), 
-            "group_display_name_idx", scriptOverrideDisplayName, false, "display_name");
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
+            "group_display_name_idx", false, "display_name(255)");
       }
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
@@ -688,12 +685,9 @@ public enum GrouperDdl implements DdlVersionable {
 
         //do 8 string indexes, probably dont need them on the other string cols
         for (int i=6;i<=8;i++) {
-          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX audit_entry_string0" + i + "_idx " +
-              "ON grouper_audit_entry (string0" + i + "(255));\n" : null;
           
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperAuditEntryTable.getName(), 
-              "audit_entry_string0" + i + "_idx", scriptOverride, false, "string0" + i);
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+              "audit_entry_string0" + i + "_idx", false, "string0" + i+"(255)");
           
         }
       }
@@ -764,8 +758,8 @@ public enum GrouperDdl implements DdlVersionable {
       Table grouperChangeLogEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
         ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
-          "change_log_created_on_idx", null, false, "created_on");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogEntryTable.getName(), 
+          "change_log_created_on_idx", false, "created_on");
       
     }
   },
@@ -2342,13 +2336,10 @@ public enum GrouperDdl implements DdlVersionable {
       if (!ddlVersionBean.isSqlServer()) {
         //do 12 string indexes
         for (int i=1;i<=12;i++) {
-          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
-              "ON grouper_change_log_entry_temp (string" + StringUtils.leftPad(i + "", 2, '0') + "(255));\n" : null;
           
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP, 
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP, 
               "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
-              + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
+              + "_idx", false, "string" + StringUtils.leftPad(i + "", 2, '0') + "(255)");
           
         }
       }
@@ -2511,10 +2502,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdl2_5.addGrouperPasswordTables(ddlVersionBean, database);
       GrouperDdl2_5.addGrouperPasswordIndexes(ddlVersionBean, database);
+      GrouperDdl2_5.addGrouperPasswordForeignKeys(ddlVersionBean, database);
       GrouperDdl2_5.addGrouperPasswordComments(ddlVersionBean, database);
       
       GrouperDdl2_5.addSyncTables(ddlVersionBean, database);
       GrouperDdl2_5.addSyncIndexes(ddlVersionBean, database);
+      GrouperDdl2_5.addSyncForeignKeys(ddlVersionBean, database);
       GrouperDdl2_5.addSyncComments(ddlVersionBean, database);
       
 
@@ -2780,11 +2773,8 @@ public enum GrouperDdl implements DdlVersionable {
         ddlVersionBean.isSqlServer() ? "900" : "1024", false, false); 
     
     if (!ddlVersionBean.isSqlServer()) {
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX group_alternate_name_idx " +
-              "ON grouper_groups (alternate_name(255));\n" : null;
-          
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, Group.TABLE_GROUPER_GROUPS,
-          "group_alternate_name_idx", scriptOverride, false, Group.COLUMN_ALTERNATE_NAME);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+          "group_alternate_name_idx", false, Group.COLUMN_ALTERNATE_NAME+"(255)");
     } 
   }
   
@@ -11872,11 +11862,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
           "pit_group_source_id_idx", false, PITGroup.COLUMN_SOURCE_ID);
       
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_group_name_idx " +
-          "ON grouper_pit_groups (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitGroupsTable.getName(), 
-          "pit_group_name_idx", scriptOverride, false, PITGroup.COLUMN_NAME);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
+          "pit_group_name_idx", false, PITGroup.COLUMN_NAME+"(255)");
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
           "pit_group_parent_idx", false, PITGroup.COLUMN_STEM_ID);
@@ -11898,11 +11885,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
           "pit_stem_source_id_idx", false, PITStem.COLUMN_SOURCE_ID);
       
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_stem_name_idx " +
-          "ON grouper_pit_stems (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitStemsTable.getName(), 
-          "pit_stem_name_idx", scriptOverride, false, PITStem.COLUMN_NAME);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
+          "pit_stem_name_idx", false, PITStem.COLUMN_NAME+"(255)");
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
           "pit_stem_parent_idx", false, PITStem.COLUMN_PARENT_STEM_ID);
@@ -11924,11 +11908,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
           "pit_attr_def_source_id_idx", false, PITAttributeDef.COLUMN_SOURCE_ID);
       
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attribute_def_name_idx " +
-          "ON grouper_pit_attribute_def (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeDefTable.getName(), 
-          "pit_attribute_def_name_idx", scriptOverride, false, PITAttributeDef.COLUMN_NAME);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
+          "pit_attribute_def_name_idx", false, PITAttributeDef.COLUMN_NAME+"(255)");
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
           "pit_attribute_def_parent_idx", false, PITAttributeDef.COLUMN_STEM_ID);
@@ -12095,11 +12076,8 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_attr_val_assign_idx", false, PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID);
 
       if (!ddlVersionBean.isSqlServer()) {
-        String scriptOverrideName = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attr_val_string_idx " +
-            "ON grouper_pit_attr_assn_value (value_string(255));\n" : null;
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeAssignValueTable.getName(),
-            "pit_attr_val_string_idx", scriptOverrideName, false, PITAttributeAssignValue.COLUMN_VALUE_STRING);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(),
+            "pit_attr_val_string_idx", false, PITAttributeAssignValue.COLUMN_VALUE_STRING+"(255)");
       }
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
@@ -12142,11 +12120,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
           "pit_attrdef_name_srcid_idx", false, PITAttributeDefName.COLUMN_SOURCE_ID);
       
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attr_def_name_name_idx " +
-          "ON grouper_pit_attr_def_name (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeDefNameTable.getName(), 
-          "pit_attr_def_name_name_idx", scriptOverride, false, PITAttributeDefName.COLUMN_NAME);    
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
+          "pit_attr_def_name_name_idx", false, PITAttributeDefName.COLUMN_NAME+"(255)");    
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
           "pit_attr_def_name_stem_idx", false, PITAttributeDefName.COLUMN_STEM_ID);
@@ -12376,12 +12351,8 @@ public enum GrouperDdl implements DdlVersionable {
    */
   private static void addGrouperLoaderJobNameIndex(Database database,
       DdlVersionBean ddlVersionBean) {
-    //see if the grouper_ext_loader_log table is there
-    String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_loader_job_name_idx " +
-        "ON grouper_loader_log (job_name(255), status, ended_time);\n" : null;
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, "grouper_loader_log",
-        "grouper_loader_job_name_idx", scriptOverride, false, "job_name", "status", "ended_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_loader_log",
+        "grouper_loader_job_name_idx", false, "job_name(255)", "status", "ended_time");
   }
 
   /**
@@ -12463,11 +12434,9 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string4_idx", false, Member.COLUMN_SORT_STRING4);
 
-    String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_name_idx ON grouper_members (name(255));\n" : null;
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_name_idx", scriptOverride, false, Member.COLUMN_NAME);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_name_idx", false, Member.COLUMN_NAME+"(255)");
 
-    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_description_idx ON grouper_members (description(255));\n" : null;
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_description_idx", scriptOverride, false, Member.COLUMN_DESCRIPTION);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_description_idx", false, Member.COLUMN_DESCRIPTION+"(255)");
   }
   
   /**
@@ -13035,12 +13004,9 @@ public enum GrouperDdl implements DdlVersionable {
       if (!ddlVersionBean.isSqlServer()) {
         //do 8 string indexes, probably dont need them on the other string cols
         for (int i=1;i<=8;i++) {
-          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX audit_entry_string0" + i + "_idx " +
-              "ON grouper_audit_entry (string0" + i + "(255));\n" : null;
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperAuditEntryTable.getName(), 
-              "audit_entry_string0" + i + "_idx", scriptOverride, false, "string0" + i);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+              "audit_entry_string0" + i + "_idx", false, "string0" + i + "(255)");
           
         }
       }      
@@ -13201,13 +13167,10 @@ public enum GrouperDdl implements DdlVersionable {
       if (!ddlVersionBean.isSqlServer()) {
         //do 12 string indexes
         for (int i=1;i<=12;i++) {
-          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
-              "ON grouper_change_log_entry_temp (string" + StringUtils.leftPad(i + "", 2, '0') + "(255));\n" : null;
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogTempEntryTable.getName(), 
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogTempEntryTable.getName(), 
               "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
-              + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
+              + "_idx", false, "string" + StringUtils.leftPad(i + "", 2, '0') + "(255)");
           
         }
       }
@@ -13282,14 +13245,14 @@ public enum GrouperDdl implements DdlVersionable {
         }
       }
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
-          "change_log_sequence_number_idx", null, false, "sequence_number", "created_on");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogEntryTable.getName(), 
+          "change_log_sequence_number_idx", false, "sequence_number", "created_on");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
-          "change_log_context_id_idx", null, false, "context_id");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogEntryTable.getName(), 
+          "change_log_context_id_idx", false, "context_id");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
-          "change_log_created_on_idx", null, false, "created_on");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogEntryTable.getName(), 
+          "change_log_created_on_idx", false, "created_on");
       
     }
 
@@ -13358,12 +13321,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
           "grouper_ext_subj_cxt_id_idx", false, ExternalSubject.COLUMN_CONTEXT_ID);
       
-      //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_ext_subj_idfr_idx " +
-          "ON grouper_ext_subj(identifier(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, externalSubjectTable.getName(), 
-          "grouper_ext_subj_idfr_idx", scriptOverride, true, ExternalSubject.COLUMN_IDENTIFIER);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
+          "grouper_ext_subj_idfr_idx", true, ExternalSubject.COLUMN_IDENTIFIER+"(255)");
 
     }
     
@@ -13407,12 +13366,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectAttributeTable.getName(), 
           "grouper_extsubjattr_subj_idx", true, ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME);
       
-      //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_extsubjattr_value_idx " +
-          "ON grouper_ext_subj_attr(attribute_value(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, externalSubjectAttributeTable.getName(), 
-          "grouper_extsubjattr_value_idx", scriptOverride, false, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectAttributeTable.getName(), 
+          "grouper_extsubjattr_value_idx", false, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE+"(255)");
 
       
     }
@@ -14011,12 +13966,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
           AttributeDef.COLUMN_ASSIGN_TO_STEM_ASSN, Types.VARCHAR, "1", false, true, "F");
           
-
-      String scriptOverrideName = ddlVersionBean.isSmallIndexes() ? "\nCREATE unique INDEX attribute_def_name_idx " +
-          "ON grouper_attribute_def (name(255));\n" : null;
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeDefTable.getName(), 
-          "attribute_def_name_idx", scriptOverrideName, true, "name");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefTable.getName(), 
+          "attribute_def_name_idx", true, "name(255)");
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefTable.getName(), 
           "attribute_def_type_idx", false, AttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE);
@@ -14063,11 +14015,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
           AttributeDefName.COLUMN_DISPLAY_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
 
-      String scriptOverrideName = ddlVersionBean.isSmallIndexes() ? "\nCREATE unique INDEX attribute_def_name_name_idx " +
-          "ON grouper_attribute_def_name (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeDefNameTable.getName(), 
-          "attribute_def_name_name_idx", scriptOverrideName, true, "name");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameTable.getName(), 
+          "attribute_def_name_name_idx", true, "name(255)");
       
     }
 
@@ -14219,11 +14168,8 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID);
 
       if (!ddlVersionBean.isSqlServer()) {
-        String scriptOverrideName = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX attribute_val_string_idx " +
-            "ON grouper_attribute_assign_value (value_string(255));\n" : null;
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeAssignValueTable.getName(), 
-            "attribute_val_string_idx", scriptOverrideName, false, AttributeAssignValue.COLUMN_VALUE_STRING);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
+            "attribute_val_string_idx", false, AttributeAssignValue.COLUMN_VALUE_STRING+"(255)");
       }
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
@@ -14584,25 +14530,17 @@ public enum GrouperDdl implements DdlVersionable {
           GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME, GrouperConfigHibernate.COLUMN_LAST_UPDATED);
       
       {
-        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-        String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grpconfig_config_key_idx ON grouper_config"
-            + " (config_key(100), config_file_name(50));\n" : null;
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, configTable.getName(), 
-            "grpconfig_config_key_idx", scriptOverride, false, GrouperConfigHibernate.COLUMN_CONFIG_KEY, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
+            "grpconfig_config_key_idx", false, GrouperConfigHibernate.COLUMN_CONFIG_KEY+"(100)", GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME+"(50)");
       }
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
           "grpconfig_last_updated_idx", false, GrouperConfigHibernate.COLUMN_LAST_UPDATED);
 
       {
-        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-        String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE UNIQUE INDEX grpconfig_unique_idx ON grouper_config"
-            + " (config_file_name(20), config_file_hierarchy(20),  config_key(100), config_sequence);\n" : null;
-
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, configTable.getName(), 
-            "grpconfig_unique_idx", scriptOverride, true, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME,
-            GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY, GrouperConfigHibernate.COLUMN_CONFIG_KEY,
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
+            "grpconfig_unique_idx", true, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME+"(20)",
+            GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY+"(20)", GrouperConfigHibernate.COLUMN_CONFIG_KEY+"(100)",
             GrouperConfigHibernate.COLUMN_CONFIG_SEQUENCE);
       }
     }
