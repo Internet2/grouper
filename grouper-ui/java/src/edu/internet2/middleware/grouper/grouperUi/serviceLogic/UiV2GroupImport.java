@@ -31,7 +31,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
