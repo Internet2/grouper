@@ -163,12 +163,18 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       assertTrue("Starting out, tables should be there", GrouperDdlUtils.assertTablesThere(null, false, true));
       
       //now lets remove all tables and object
-      GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null, false, false);
+      new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+        .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+        .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(false)
+        .assignFromStartup(false).runDdl();
       
       assertFalse("Just removed tables, shouldnt be there", GrouperDdlUtils.assertTablesThere(null, false, false));
   
       //lets add all tables and object
-      GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false, false);
+      new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+        .assignCompareFromDbVersion(false).assignDropBeforeCreate(false).assignWriteAndRunScript(true).assignDropOnly(false)
+        .assignInstallDefaultGrouperData(true).assignMaxVersions(null).assignPromptUser(false)
+        .assignFromStartup(false).runDdl();
       
       //if we init data, the root stem should be there...
       assertTrue("Just added all tables, and registry init, it should be there", 
@@ -181,8 +187,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       		"should be there " + count, count > 1);
       
       //try again, everything should be there (even not from junit)
-      GrouperDdlUtils.bootstrapHelper(false, false, true, false, false, false, false, null, false, false);
-      
+      new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(false)
+        .assignCompareFromDbVersion(true).assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+        .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(false)
+        .assignFromStartup(false).runDdl();
+
       assertTrue("Should not change anything", GrouperDdlUtils.assertTablesThere(null, true, true));
   
       //at this point, hibernate should not be shut off
@@ -223,7 +232,12 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     
     // drop everything
-    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null, true, false);
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+
+    
     //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_4_hsql.sql
     // get to 2.4
     File scriptToGetTo2_4 = retrieveScriptFile("GrouperDdl_2_4_" + GrouperDdlUtils.databaseType() + ".sql");
@@ -232,7 +246,10 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     GrouperDdl2_5.addDdlWorkerTableIfNotThere();
 
-    GrouperDdlUtils.bootstrapHelper(false, true, true, false, false, false, true, null, true, true);
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(true).assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+      .assignInstallDefaultGrouperData(true).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(true).runDdl();
 
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
     

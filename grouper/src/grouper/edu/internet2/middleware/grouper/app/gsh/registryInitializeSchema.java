@@ -24,7 +24,7 @@ package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -83,7 +83,12 @@ public class registryInitializeSchema {
       boolean dropThenCreate = GrouperUtil.hasOption(options, DROP_THEN_CREATE);
       boolean writeAndRunScript = GrouperUtil.hasOption(options, WRITE_AND_RUN_SCRIPT);
       boolean installGrouperData = RegistryInitializeSchema.isInstallGrouperData();
-      GrouperDdlUtils.bootstrapHelper(true, false, true, dropThenCreate, writeAndRunScript, false, installGrouperData, null, true, false);
+
+      new GrouperDdlEngine().assignCallFromCommandLine(true)
+        .assignCompareFromDbVersion(true).assignDropBeforeCreate(dropThenCreate).assignWriteAndRunScript(writeAndRunScript)
+        .assignInstallDefaultGrouperData(installGrouperData).assignPromptUser(true)
+        .runDdl();
+      
       return "Registry DDL created: dropThenCreate: " + dropThenCreate 
         + ", writeAndRunScript: " + writeAndRunScript;    
     } finally {

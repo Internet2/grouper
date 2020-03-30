@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlVersionable;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -171,15 +172,12 @@ public class RegistryInitializeSchema {
         
         if (runBootstrap) {
           //run the bootstrap
-          GrouperDdlUtils.bootstrapHelper(callFromCommandLine, 
-                                      fromUnitTest, 
-                                      theCompareFromDbVersion, 
-                                      theDropBeforeCreate, 
-                                      theWriteAndRunScript, 
-                                      dropOnly, 
-                                      installDefaultGrouperData, 
-                                      maxVersions, 
-                                      promptUser, false);
+          new GrouperDdlEngine().assignCallFromCommandLine(callFromCommandLine).assignFromUnitTest(fromUnitTest)
+            .assignCompareFromDbVersion(theCompareFromDbVersion)
+            .assignDropBeforeCreate(theDropBeforeCreate).assignWriteAndRunScript(theWriteAndRunScript)
+            .assignDropOnly(dropOnly)
+            .assignInstallDefaultGrouperData(installDefaultGrouperData).assignPromptUser(promptUser).runDdl();
+          
         }
         
         if (!dropOnly && (theWriteAndRunScript || runReset || runSqlFile || runForTests)) {
@@ -253,10 +251,14 @@ public class RegistryInitializeSchema {
         LOG.error(e);
       }
       
-      GrouperDdlUtils.bootstrapHelper(true, false, true, true, true, false, true, null, true, false);
+      new GrouperDdlEngine().assignCallFromCommandLine(true)
+        .assignCompareFromDbVersion(true)
+        .assignDropBeforeCreate(true).assignWriteAndRunScript(true)
+        .assignInstallDefaultGrouperData(true).assignPromptUser(true).runDdl();
+
       
       //everything right version
-      GrouperDdlUtils.everythingRightVersion = true;
+      GrouperDdlEngine.everythingRightVersion = true;
       
       //now check config
       GrouperCheckConfig.checkConfig();
