@@ -184,6 +184,7 @@
         <taglibs.standard.version>1.1.2</taglibs.standard.version>
         <jsp.version>2.3.2-b02</jsp.version>
         <xercesimpl.version>2.11.0</xercesimpl.version>
+        <axis2.version>1.7.9</axis2.version>
     </properties>
 
     <repositories>
@@ -717,7 +718,21 @@
               <artifactId>org.wso2.charon.samples</artifactId>
               <version>${charon.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-codegen</artifactId>
+                <version>${axis2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-adb-codegen</artifactId>
+                <version>${axis2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-java2wsdl</artifactId>
+                <version>${axis2.version}</version>
+            </dependency>
             <!-- Runtime Dependencies -->
 
             <!-- Test Dependencies -->
