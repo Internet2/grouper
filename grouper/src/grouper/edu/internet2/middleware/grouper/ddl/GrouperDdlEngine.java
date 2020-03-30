@@ -158,6 +158,8 @@ public class GrouperDdlEngine {
   
   boolean done = false;
   
+  private String thisDdlDatabaseLockingUuid;
+  
   private Boolean runDdlForObjectName(String objectName, Connection connection, String schema, Platform platform, StringBuilder result) {
 
     if (StringUtils.equals("GrouperLoader", objectName)) {
@@ -272,7 +274,7 @@ public class GrouperDdlEngine {
 
     // lets lock until we can make changes
     if (fromStartup) {
-      writeAndRunScript = GrouperDdlUtils.autoDdlFor(grouperVersionJava);
+      writeAndRunScript = writeAndRunScript || GrouperDdlUtils.autoDdlFor(grouperVersionJava);
       if (writeAndRunScript) {
         
         Boolean hasResult = waitForOtherJvmsOrLockInDatabase();
@@ -474,7 +476,7 @@ public class GrouperDdlEngine {
 
     {
       if (recreateViewsAndForeignKeys) {
-        if (fromStartup) {
+        if (fromStartup && dbVersion > 0) {
           // dont run a script that will go off the rails
           writeAndRunScript = false;
         }
@@ -522,7 +524,11 @@ public class GrouperDdlEngine {
     boolean waitForOtherProcessesToDoDdl = false;
     
     Hib3GrouperDdlWorker grouperDdlWorker = null;
-    
+
+    if (thisDdlDatabaseLockingUuid == null) {
+      thisDdlDatabaseLockingUuid = GrouperUuid.getUuid();
+    }
+
     if (GrouperUtil.length(grouperDdlWorkers) == 0) {
       grouperDdlWorker = new Hib3GrouperDdlWorker();
 
@@ -532,7 +538,8 @@ public class GrouperDdlEngine {
      
       grouperDdlWorker = grouperDdlWorkers.get(0);
       
-      if (grouperDdlWorker.getHeartbeat() != null && System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() < 20000) {
+      if (!StringUtils.equals(this.thisDdlDatabaseLockingUuid, grouperDdlWorker.getWorkerUuid()) 
+          && grouperDdlWorker.getHeartbeat() != null && System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() < 20000) {
         waitForOtherProcessesToDoDdl = true; 
       }
       
@@ -542,8 +549,7 @@ public class GrouperDdlEngine {
     
       grouperDdlWorker.setHeartbeat(new Timestamp(System.currentTimeMillis()));
       grouperDdlWorker.setLastUpdated(new Timestamp(System.currentTimeMillis()));
-      String thisUuid = GrouperUuid.getUuid();
-      grouperDdlWorker.setWorkerUuid(thisUuid);
+      grouperDdlWorker.setWorkerUuid(thisDdlDatabaseLockingUuid);
       try {
         HibernateSession.byObjectStatic().saveOrUpdate(grouperDdlWorker);
         
@@ -552,7 +558,7 @@ public class GrouperDdlEngine {
         
         grouperDdlWorker = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null).get(0);
         
-        if (!StringUtils.equals(thisUuid, grouperDdlWorker.getWorkerUuid())) {
+        if (!StringUtils.equals(thisDdlDatabaseLockingUuid, grouperDdlWorker.getWorkerUuid())) {
           waitForOtherProcessesToDoDdl = true;
         }
 
@@ -629,6 +635,7 @@ public class GrouperDdlEngine {
    */
   public boolean runDdl() {
     
+    this.thisDdlDatabaseLockingUuid = null;
     this.done = false;
 
     heartbeatThread = null;

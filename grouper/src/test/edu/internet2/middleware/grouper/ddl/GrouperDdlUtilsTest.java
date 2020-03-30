@@ -63,7 +63,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
+    TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
 
   }
@@ -766,6 +766,30 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     ////at this point, hibernate should not be shut off
     //assertTrue("at this point, hibernate should not be shut off", GrouperDdlUtils.okToUseHibernate());
     
+  }
+
+  /**
+   * 
+   */
+  public void testAutoInstall() {
+    
+    
+    // drop everything
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+  
+    
+    GrouperDdl2_5.addDdlWorkerTableIfNotThere();
+  
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(true).assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+      .assignInstallDefaultGrouperData(true).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(true).runDdl();
+  
+    HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
+        
   }
   
 }
