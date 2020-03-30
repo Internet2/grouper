@@ -20,10 +20,16 @@
 package edu.internet2.middleware.grouper.ddl;
 
 import java.io.File;
+import java.sql.Connection;
 
 import org.apache.commons.logging.Log;
+import org.apache.ddlutils.Platform;
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Index;
+import org.apache.ddlutils.model.Table;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
@@ -63,7 +69,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
     
 
   }
@@ -232,10 +238,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     
     // drop everything
-    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
-      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
-      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
-      .assignFromStartup(false).runDdl();
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
 
     
     //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_4_hsql.sql
@@ -246,14 +251,70 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     GrouperDdl2_5.addDdlWorkerTableIfNotThere();
 
-    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
-      .assignCompareFromDbVersion(true).assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
-      .assignInstallDefaultGrouperData(true).assignMaxVersions(null).assignPromptUser(true)
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignCompareFromDbVersion(true)
+      .assignInstallDefaultGrouperData(true).assignPromptUser(true)
       .assignFromStartup(true).runDdl();
 
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
     
     scriptToGetTo2_4.delete();
+    
+  }
+
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_3() {
+    
+    
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+
+    
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_3_hsql.sql
+    // get to 2.3
+    File scriptToGetTo2_3 = retrieveScriptFile("GrouperDdl_2_3_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_3, true, true);
+
+    GrouperDdl2_5.addDdlWorkerTableIfNotThere();
+
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignCompareFromDbVersion(true)
+      .assignInstallDefaultGrouperData(true).assignPromptUser(true)
+      .assignFromStartup(true).runDdl();
+
+    HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
+    
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    Connection connection = null;
+    Index index = null;
+    try {
+      connection = grouperDb.connection();
+
+      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        null, null);
+    
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
+  
+      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), "member_subjidentifier0_idx");
+      
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+
+    assertNotNull(index);
+    
+    HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_config");
+
+    scriptToGetTo2_3.delete();
     
   }
 

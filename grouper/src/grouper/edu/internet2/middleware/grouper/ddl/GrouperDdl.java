@@ -1942,9 +1942,6 @@ public enum GrouperDdl implements DdlVersionable {
       addQuartzTables(ddlVersionBean, database);
       addQuartzIndexes(ddlVersionBean, database);
 
-      addConfigurationTables(ddlVersionBean, database);
-      addConfigurationIndexes(ddlVersionBean, database);
-    
     }
   }, 
   
@@ -2258,6 +2255,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types_legacy", true);
         GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy", true);
       }
+
     }
   },
   
@@ -2307,6 +2305,11 @@ public enum GrouperDdl implements DdlVersionable {
           ddlVersionBean.appendAdditionalScriptUnique("\ndelete from grouper_fields where type = 'attribute';\ncommit;\n");
         }
       }
+      
+      
+      GrouperDdl2_5.createViewGrouperGroupsVplaceholder(ddlVersionBean);
+      GrouperDdl2_5.createViewGrouperRolesVplaceholder(ddlVersionBean);
+
     }
     @Override
     public String getGrouperVersion() {
@@ -2421,7 +2424,7 @@ public enum GrouperDdl implements DdlVersionable {
     
     @Override
     public String getGrouperVersion() {
-      return "2.5.0";
+      return "2.3.0";
     }
 
   },
@@ -2441,25 +2444,13 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
 
-      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), 
-          "member_subjidentifier0_idx", false, "subject_identifier0");
+      GrouperDdl2_4.addMembersTableIndifier0Index(ddlVersionBean, database);
+      GrouperDdl2_4.addPitMembersTableIndifier0Index(ddlVersionBean, database);
+      GrouperDdl2_4.addChangeLogEntryTempIndex(ddlVersionBean, database);
+      GrouperDdl2_4.addConfigurationTables(ddlVersionBean, database);
+      GrouperDdl2_4.addConfigurationIndexes(ddlVersionBean, database);
       
-      Table pitMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, PITMember.TABLE_GROUPER_PIT_MEMBERS, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
-          "pit_member_subjidentifier0_idx", false, "subject_identifier0");
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
-          "change_log_temp_created_on_idx", false, "created_on");
-      
-      addConfigurationTables(ddlVersionBean, database);
-      addConfigurationIndexes(ddlVersionBean, database);
-      
-      GrouperDdl2_5.createViewGrouperGroupsVplaceholder(ddlVersionBean);
-      GrouperDdl2_5.createViewGrouperRolesVplaceholder(ddlVersionBean);
-
     }
     
     /**
@@ -2512,6 +2503,10 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_5.addSyncIndexes(ddlVersionBean, database);
       GrouperDdl2_5.addSyncForeignKeys(ddlVersionBean, database);
       GrouperDdl2_5.addSyncComments(ddlVersionBean, database);
+
+      GrouperDdl2_5.addConfigurationComments(ddlVersionBean, database);
+
+      GrouperDdl2_5.addGrouperExternalSubjectIdentifierIndex(ddlVersionBean, database);
       
       boolean grouperDdlWorkerTableExists = database.findTable("grouper_ddl_worker") != null;
 
@@ -5773,6 +5768,7 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdl2_5.addGrouperPasswordComments(ddlVersionBean, database);
     GrouperDdl2_5.addSyncComments(ddlVersionBean, database);
+    GrouperDdl2_5.addConfigurationComments(ddlVersionBean, database);
     
     String groupIdCol = "id";
     
@@ -11040,53 +11036,6 @@ public enum GrouperDdl implements DdlVersionable {
   }
   
   /**
-   * Add configuration tables
-   * @param ddlVersionBean 
-   * @param database
-   */
-  private static void addConfigurationTables(DdlVersionBean ddlVersionBean, Database database) {
-    
-    {
-      
-      Table configTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          GrouperConfigHibernate.TABLE_GROUPER_CONFIG);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_ID,
-          Types.VARCHAR, "40", true, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME,
-          Types.VARCHAR, "100", false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_KEY,
-          Types.VARCHAR, "400", false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_VALUE,
-          Types.VARCHAR, "4000", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_COMMENT,
-          Types.VARCHAR, "4000", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY,
-          Types.VARCHAR, "50", false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_ENCRYPTED,
-          Types.VARCHAR, "1", false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_SEQUENCE, 
-          Types.BIGINT, null, false, true);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_VERSION_INDEX, 
-          Types.BIGINT, null, false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_LAST_UPDATED, 
-          Types.BIGINT, null, false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, true);
-    }
-  }
-  
-  /**
    * Add PIT tables
    * @param ddlVersionBean 
    * @param database
@@ -13119,6 +13068,10 @@ public enum GrouperDdl implements DdlVersionable {
    */
   private static void addExternalSubjectTables(DdlVersionBean ddlVersionBean, Database database) {
     
+    if (ddlVersionBean.didWeDoThis("addExternalSubjectTables", true)) {
+      return;
+    }
+
     {
       Table externalSubjectTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           ExternalSubject.TABLE_GROUPER_EXT_SUBJ);
@@ -13174,8 +13127,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
           "grouper_ext_subj_cxt_id_idx", false, ExternalSubject.COLUMN_CONTEXT_ID);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
-          "grouper_ext_subj_idfr_idx", true, ExternalSubject.COLUMN_IDENTIFIER+"(255)");
+      GrouperDdl2_5.addGrouperExternalSubjectIdentifierIndex(ddlVersionBean, database);
 
     }
     
@@ -13226,8 +13178,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
   }
-  
-  
+
   /**
    * 
    * @param database
@@ -14365,38 +14316,6 @@ public enum GrouperDdl implements DdlVersionable {
     
     // assume true
     return true;
-  }
-
-  /**
-   * Add config indexes
-   * @param ddlVersionBean 
-   * @param database
-   */
-  private static void addConfigurationIndexes(DdlVersionBean ddlVersionBean, Database database) {
-    
-    {
-      Table configTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          GrouperConfigHibernate.TABLE_GROUPER_CONFIG);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
-          "grpconfig_config_file_idx", false, 
-          GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME, GrouperConfigHibernate.COLUMN_LAST_UPDATED);
-      
-      {
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
-            "grpconfig_config_key_idx", false, GrouperConfigHibernate.COLUMN_CONFIG_KEY+"(100)", GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME+"(50)");
-      }
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
-          "grpconfig_last_updated_idx", false, GrouperConfigHibernate.COLUMN_LAST_UPDATED);
-
-      {
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
-            "grpconfig_unique_idx", true, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME+"(20)",
-            GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY+"(20)", GrouperConfigHibernate.COLUMN_CONFIG_KEY+"(100)",
-            GrouperConfigHibernate.COLUMN_CONFIG_SEQUENCE);
-      }
-    }
   }
 
   /**

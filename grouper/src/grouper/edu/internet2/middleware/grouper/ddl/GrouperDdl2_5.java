@@ -5,6 +5,7 @@ import java.sql.Types;
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -13,6 +14,8 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -47,7 +50,7 @@ public class GrouperDdl2_5 {
   private static boolean buildingToPreviousVersion(DdlVersionBean ddlVersionBean) {
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     
-    boolean buildingToPreviousVersion = GrouperDdl.V31.getVersion() == buildingToVersion;
+    boolean buildingToPreviousVersion = GrouperDdl.V32.getVersion() > buildingToVersion;
 
     return buildingToPreviousVersion;
   }
@@ -1529,6 +1532,98 @@ public class GrouperDdl2_5 {
             + "gg.extension as extension from grouper_groups gg");
   }
 
+  static void addConfigurationComments(DdlVersionBean ddlVersionBean, Database database) {
   
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("addConfigurationComments", true)) {
+      return;
+    }
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG, 
+        "database configuration for config files which allowe database overrides");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_ID, 
+          "uuid of record is unique for all records in table and primary key");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME, 
+          "Config file name of the config this record relates to, e.g. grouper.config.properties");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_CONFIG_KEY, 
+          "key of the config, not including elConfig");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_CONFIG_VALUE, 
+          "Value of the config");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_CONFIG_COMMENT, 
+          "documentation of the config value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY, 
+          "config file hierarchy, e.g. base, institution, or env");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_CONFIG_ENCRYPTED, 
+          "if the value is encrypted");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_CONFIG_SEQUENCE, 
+          "if there is more data than fits in the column this is the 0 indexed order");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_CONFIG_VERSION_INDEX, 
+          "for built in configs, this is the index that will identify if the database configs should be replaced from the java code");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_LAST_UPDATED, 
+          "when this record was inserted or last updated");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        GrouperConfigHibernate.TABLE_GROUPER_CONFIG,
+        GrouperConfigHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate version for optimistic locking");
+    
+  }
+
+  static void addGrouperExternalSubjectIdentifierIndex(DdlVersionBean ddlVersionBean, Database database) {
+    
+    if (buildingToPreviousVersion(ddlVersionBean) && ddlVersionBean.isSmallIndexes()) {
+      if (ddlVersionBean.didWeDoThis("addGrouperExternalSubjectIdentifierIndexRemoveAdd", true)) {
+        return;
+      }
+      // add an old one since "unique" changed for mysql
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ExternalSubject.TABLE_GROUPER_EXT_SUBJ, 
+          "grouper_ext_subj_idfr_idx", false, ExternalSubject.COLUMN_IDENTIFIER+"(255)");
+      
+      return;
+    }
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("addGrouperExternalSubjectIdentifierIndex", true)) {
+      return;
+    }
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ExternalSubject.TABLE_GROUPER_EXT_SUBJ, 
+        "grouper_ext_subj_idfr_idx", true, ExternalSubject.COLUMN_IDENTIFIER+"(255)");
+  }
   
 }

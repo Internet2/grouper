@@ -1847,6 +1847,32 @@ public class GrouperDdlUtils {
    * @param columnNames or column names with max length
    * @return the index which is the new one, or existing one if it already exists, or null if a custom index
    */
+  public static Index ddlutilsFindIndex(Database database,
+      String tableName, String indexName) {
+
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName, true);
+
+    //at this point, there should not be one of the same name in there
+    for (Index existingIndex : table.getIndices()) {
+      //if same name but not same, then get rid of it
+      if (StringUtils.equalsIgnoreCase(existingIndex.getName(), indexName)) {
+        return existingIndex;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * add an index on a table.  drop a misnamed or a misuniqued index which is existing
+   * @param database
+   * @param ddlVersionBean can be null unless custom script
+   * @param tableName
+   * @param indexName 
+   * @param customScript use this script to create the index, not ddlutils
+   * @param unique
+   * @param columnNames or column names with max length
+   * @return the index which is the new one, or existing one if it already exists, or null if a custom index
+   */
   public static Index ddlutilsFindOrCreateIndex(Database database, DdlVersionBean ddlVersionBean, 
       String tableName, String indexName, String customScript,
       boolean unique, String... columnNames) {
@@ -1910,7 +1936,7 @@ public class GrouperDdlUtils {
 //          "ON grouper_groups (name(255));\n" :
       
       StringBuilder indexScript = new StringBuilder();
-      indexScript.append("\nCREATE unique INDEX " + indexName + " " +
+      indexScript.append("\nCREATE " + (unique ? "unique " : "") + "INDEX " + indexName + " " +
           "ON " + tableName + " (");
       for (int i=0; i<columnNames.length;i++) {
         if (i!=0) {
