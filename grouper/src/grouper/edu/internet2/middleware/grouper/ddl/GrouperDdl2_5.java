@@ -19,11 +19,49 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperDdl2_5 {
 
+  /**
+   * if building to this version at least
+   */
+  private static boolean buildingToThisVersionAtLeast(DdlVersionBean ddlVersionBean) {
+    int buildingToVersion = ddlVersionBean.getBuildingToVersion();
+    
+    boolean buildingToThisVersionAtLeast = GrouperDdl.V32.getVersion() <= buildingToVersion;
+
+    return buildingToThisVersionAtLeast;
+  }
+
+  /**
+   * if building to this version at least
+   */
+  private static boolean buildingFromScratch(DdlVersionBean ddlVersionBean) {
+    int buildingFromVersion = ddlVersionBean.getBuildingFromVersion();
+    if (buildingFromVersion <= 0) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * if building to this version at least
+   */
+  private static boolean buildingToPreviousVersion(DdlVersionBean ddlVersionBean) {
+    int buildingToVersion = ddlVersionBean.getBuildingToVersion();
+    
+    boolean buildingToPreviousVersion = GrouperDdl.V31.getVersion() == buildingToVersion;
+
+    return buildingToPreviousVersion;
+  }
+
   static void addGrouperPasswordComments(DdlVersionBean ddlVersionBean, Database database) {
 
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
     if (ddlVersionBean.didWeDoThis("addGrouperPasswordComments", true)) {
       return;
     }
+    
     {
       GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
           GrouperPassword.TABLE_GROUPER_PASSWORD, 
@@ -143,7 +181,11 @@ public class GrouperDdl2_5 {
   }
 
   static void addGroupEnabledDisabledColumns(Database database, DdlVersionBean ddlVersionBean, boolean groupTableNew) {
-    
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addGroupEnabledDisabledColumns", true)) {
       return;
     }
@@ -198,6 +240,12 @@ public class GrouperDdl2_5 {
    * @param database
    */
   static void addGrouperPasswordForeignKeys(DdlVersionBean ddlVersionBean, Database database) {
+    
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addGrouperPasswordForeignKeys", true)) {
       return;
     }
@@ -212,6 +260,11 @@ public class GrouperDdl2_5 {
    * @param database
    */
   static void addGrouperPasswordTables(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addGrouperPasswordTables", true)) {
       return;
     }
@@ -297,6 +350,12 @@ public class GrouperDdl2_5 {
    * @param database
    */
   static void addGrouperPasswordIndexes(DdlVersionBean ddlVersionBean, Database database) {
+    
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addGrouperPasswordIndexes", true)) {
       return;
     }
@@ -313,6 +372,8 @@ public class GrouperDdl2_5 {
 
   public static void addDdlWorkerTableIfNotThere() {
 
+    // this is added on startup...
+    
     try {
       // if you cant connrc to it, its not there
       HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
@@ -434,6 +495,11 @@ public class GrouperDdl2_5 {
    * 
    */
   static void addSyncTables(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addSyncTables", true)) {
       return;
     }
@@ -758,6 +824,11 @@ public class GrouperDdl2_5 {
    * 
    */
   static void addSyncComments(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addSyncComments", true)) {
       return;
     }
@@ -999,6 +1070,11 @@ public class GrouperDdl2_5 {
    * 
    */
   static void addSyncForeignKeys(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addSyncForeignKeys", true)) {
       return;
     }
@@ -1030,6 +1106,11 @@ public class GrouperDdl2_5 {
    * 
    */
   static void addSyncIndexes(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addSyncIndexes", true)) {
       return;
     }
@@ -1147,6 +1228,11 @@ public class GrouperDdl2_5 {
 
   static void adjustMessageMemberIdSize(DdlVersionBean ddlVersionBean, Database database) {
     
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("adjustMessageMemberIdSize", true)) {
       return;
     }
@@ -1180,6 +1266,11 @@ public class GrouperDdl2_5 {
   }
 
   static void addCompositeTypeIndex(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addCompositeTypeIndex", true)) {
       return;
     }
@@ -1189,6 +1280,11 @@ public class GrouperDdl2_5 {
   }
 
   static void addAttributeAssignTypeIndex(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
     if (ddlVersionBean.didWeDoThis("addAttributeAssignTypeIndex", true)) {
       return;
     }
@@ -1200,6 +1296,238 @@ public class GrouperDdl2_5 {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperDdl2_5.class);
+
+  static void createViewGrouperRolesV(DdlVersionBean ddlVersionBean) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("createViewGrouperRolesV", true)) {
+      return;
+    }
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_roles_v", 
+        "Contains one record for each role, with friendly names for some attributes and some more information",
+        GrouperUtil.toSet("EXTENSION", 
+            "NAME", 
+            "DISPLAY_EXTENSION", 
+            "DISPLAY_NAME", 
+            "DESCRIPTION", 
+            "PARENT_STEM_NAME", 
+            "ROLE_ID", 
+            "PARENT_STEM_ID", 
+            "ENABLED",
+            "ENABLED_TIMESTAMP",
+            "DISABLED_TIMESTAMP",
+            "MODIFIER_SOURCE", 
+            "MODIFIER_SUBJECT_ID", 
+            "CREATOR_SOURCE", 
+            "CREATOR_SUBJECT_ID", 
+            "IS_COMPOSITE_OWNER", 
+            "IS_COMPOSITE_FACTOR", 
+            "CREATOR_ID", 
+            "CREATE_TIME", 
+            "MODIFIER_ID", 
+            "MODIFY_TIME", 
+            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
+        GrouperUtil.toSet("EXTENSION: part of role name not including path information, e.g. theRole", 
+            "NAME: name of the role, e.g. school:stem1:theRole", 
+            "DISPLAY_EXTENSION: name for display of the role, e.g. My school:The stem 1:The role", 
+            "DISPLAY_NAME: name for display of the role without any path information, e.g. The role", 
+            "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
+            "PARENT_STEM_NAME: name of the stem this role is in, e.g. school:stem1", 
+            "ROLE_ID: uuid unique id of the role", 
+            "PARENT_STEM_ID: uuid unique id of the stem this role is in", 
+            "ENABLED: T or F to indicate if this role is enabled",
+            "ENABLED_TIMESTAMP: when the role will be enabled if the time is in the future",
+            "DISABLED_TIMESTAMP: when the role will be disabled if the time is in the future",
+            "MODIFIER_SOURCE: source name of the subject who last modified this role, e.g. schoolPersonSource", 
+            "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this role, e.g. 12345", 
+            "CREATOR_SOURCE: source name of the subject who created this role, e.g. schoolPersonSource", 
+            "CREATOR_SUBJECT_ID: subject id of the subject who created this role, e.g. 12345", 
+            "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
+            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
+            "CREATOR_ID: member id of the subject who created this role, foreign key to grouper_members", 
+            "CREATE_TIME: number of millis since 1970 since this role was created", 
+            "MODIFIER_ID: member id of the subject who last modified this role, foreign key to grouper_members", 
+            "MODIFY_TIME: number of millis since 1970 since this role was last changed", 
+            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update",
+            "Context id links together multiple operations into one high level action"),
+            "select  "
+            + "gg.extension as extension, "
+            + "gg.name as name, "
+            + "gg.display_extension as display_extension, "
+            + "gg.display_name as display_name, "
+            + "gg.description as description, "
+            + "gs.NAME as parent_stem_name, "
+            + "gg.id as role_id, "
+            + "gs.ID as parent_stem_id, "
+            + "gg.enabled, "
+            + "gg.enabled_timestamp, "
+            + "gg.disabled_timestamp, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, "
+            + "(select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, "
+            + "(select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, "
+            + "gg.CREATOR_ID, "
+            + "gg.CREATE_TIME, "
+            + "gg.MODIFIER_ID, "
+            + "gg.MODIFY_TIME, "
+            + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
+            + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID and" +
+                " type_of_group = 'role' ");
+  }
+
+  static void dropViewGrouperGroupsV(DdlVersionBean ddlVersionBean) {
+
+    if (buildingFromScratch(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("dropViewGrouperGroupsV", true)) {
+      return;
+    }
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v", false);
+  }
+  static void dropViewGrouperRolesV(DdlVersionBean ddlVersionBean) {
+
+    if (buildingFromScratch(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("dropViewGrouperRolesV", true)) {
+      return;
+    }
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v", false);
+  }
+  
+
+  static void createViewGrouperGroupsV(DdlVersionBean ddlVersionBean) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("createViewGrouperGroupsV", true)) {
+      return;
+    }
+  
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_v", 
+        "Contains one record for each group, with friendly names for some attributes and some more information",
+        GrouperUtil.toSet("EXTENSION", 
+            "NAME", 
+            "DISPLAY_EXTENSION", 
+            "DISPLAY_NAME", 
+            "DESCRIPTION", 
+            "PARENT_STEM_NAME", 
+            "TYPE_OF_GROUP", 
+            "GROUP_ID", 
+            "PARENT_STEM_ID", 
+            "ENABLED",
+            "ENABLED_TIMESTAMP",
+            "DISABLED_TIMESTAMP",
+            "MODIFIER_SOURCE", 
+            "MODIFIER_SUBJECT_ID", 
+            "CREATOR_SOURCE", 
+            "CREATOR_SUBJECT_ID", 
+            "IS_COMPOSITE_OWNER", 
+            "IS_COMPOSITE_FACTOR", 
+            "CREATOR_ID", 
+            "CREATE_TIME", 
+            "MODIFIER_ID", 
+            "MODIFY_TIME", 
+            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
+        GrouperUtil.toSet("EXTENSION: part of group name not including path information, e.g. theGroup", 
+            "NAME: name of the group, e.g. school:stem1:theGroup", 
+            "DISPLAY_EXTENSION: name for display of the group, e.g. My school:The stem 1:The group", 
+            "DISPLAY_NAME: name for display of the group without any path information, e.g. The group", 
+            "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
+            "PARENT_STEM_NAME: name of the stem this group is in, e.g. school:stem1", 
+            "TYPE_OF_GROUP: group if it is a group, role if it is a role", 
+            "GROUP_ID: uuid unique id of the group", 
+            "PARENT_STEM_ID: uuid unique id of the stem this group is in", 
+            "ENABLED: T or F to indicate if this group is enabled",
+            "ENABLED_TIMESTAMP: when the group will be enabled if the time is in the future",
+            "DISABLED_TIMESTAMP: when the group will be disabled if the time is in the future",
+            "MODIFIER_SOURCE: source name of the subject who last modified this group, e.g. schoolPersonSource", 
+            "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this group, e.g. 12345", 
+            "CREATOR_SOURCE: source name of the subject who created this group, e.g. schoolPersonSource", 
+            "CREATOR_SUBJECT_ID: subject id of the subject who created this group, e.g. 12345", 
+            "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
+            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
+            "CREATOR_ID: member id of the subject who created this group, foreign key to grouper_members", 
+            "CREATE_TIME: number of millis since 1970 since this group was created", 
+            "MODIFIER_ID: member id of the subject who last modified this group, foreign key to grouper_members", 
+            "MODIFY_TIME: number of millis since 1970 since this group was last changed", 
+            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update",
+            "Context id links together multiple operations into one high level action"),
+            "select  "
+            + "gg.extension as extension, "
+            + "gg.name as name, "
+            + "gg.display_extension as display_extension, "
+            + "gg.display_name as display_name, "
+            + "gg.description as description, "
+            + "gs.NAME as parent_stem_name, "
+            + "gg.type_of_group, "
+            + "gg.id as group_id, "
+            + "gs.ID as parent_stem_id, "
+            + "gg.enabled, "
+            + "gg.enabled_timestamp, "
+            + "gg.disabled_timestamp, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, "
+            + "(select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, "
+            + "(select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, "
+            + "gg.CREATOR_ID, "
+            + "gg.CREATE_TIME, "
+            + "gg.MODIFIER_ID, "
+            + "gg.MODIFY_TIME, "
+            + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
+            + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
+  }
+
+  static void createViewGrouperGroupsVplaceholder(DdlVersionBean ddlVersionBean) {
+  
+    if (!buildingToPreviousVersion(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("createViewGrouperGroupsVplaceholder", true)) {
+      return;
+    }
+  
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_v", 
+        "Contains one record for each group, with friendly names for some attributes and some more information",
+        GrouperUtil.toSet("EXTENSION"),
+        GrouperUtil.toSet("EXTENSION: part of group name not including path information, e.g. theGroup"),
+            "select  "
+            + "gg.extension as extension from grouper_groups gg ");
+  }
+
+  static void createViewGrouperRolesVplaceholder(DdlVersionBean ddlVersionBean) {
+  
+    if (!buildingToPreviousVersion(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("createViewGrouperRolesVplaceholder", true)) {
+      return;
+    }
+  
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_roles_v", 
+        "Contains one record for each role, with friendly names for some attributes and some more information",
+        GrouperUtil.toSet("EXTENSION"),
+        GrouperUtil.toSet("EXTENSION: part of role name not including path information, e.g. theRole"),
+            "select  "
+            + "gg.extension as extension from grouper_groups gg");
+  }
 
   
   

@@ -733,7 +733,7 @@ public class GrouperDdlUtils {
         
         {
           DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder,
-              null, null, null, false, -1, result);
+              null, null, null, false, -1, result, 0);
           ddlVersionBeanThreadLocalAssign(tempDdlVersionBean);
           try {
             if (dropViewsConstraintsFirst) {
@@ -758,7 +758,7 @@ public class GrouperDdlUtils {
 
         StringBuilder additionalScripts = new StringBuilder();
         //callback
-        DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, -1, result);
+        DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, -1, result, 0);
         ddlVersionBeanThreadLocalAssign(ddlVersionBean);
         try {
           ddlUtilsChangeDatabase.changeDatabase(ddlVersionBean);
@@ -1711,7 +1711,7 @@ public class GrouperDdlUtils {
       DdlVersionable ddlVersionable = retieveVersion(objectName, version);
       //do an incremental update
       DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldVersion, baseVersion, additionalScripts, 
-          version == upgradeToVersion, upgradeToVersion, fullScript);
+          version == upgradeToVersion, upgradeToVersion, fullScript, baseDatabaseVersion);
       ddlVersionBeanThreadLocalAssign(ddlVersionBean);
       try {
         ddlVersionable.updateVersionFromPrevious(baseVersion, ddlVersionBean);

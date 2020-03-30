@@ -383,7 +383,7 @@ public class GrouperDdlEngine {
       SqlBuilder sqlBuilder, Database oldDatabase, Database newDatabase, StringBuilder additionalScripts) {
     
     //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
-    DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result);
+    DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result, 0);
     GrouperDdlUtils.ddlVersionBeanThreadLocalAssign(tempDdlVersionBean);
     try {
       ddlVersionableJava.addAllForeignKeysViewsEtc(tempDdlVersionBean);
@@ -479,7 +479,7 @@ public class GrouperDdlEngine {
           writeAndRunScript = false;
         }
         //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
-        DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result);
+        DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result, 0);
         GrouperDdlUtils.ddlVersionBeanThreadLocalAssign(tempDdlVersionBean);
         try {
           ddlVersionableJava.dropAllViews(tempDdlVersionBean);
@@ -613,6 +613,8 @@ public class GrouperDdlEngine {
             throw new RuntimeException("DDL didnt end!!!!!");
           } catch (Exception e) {
             LOG.error("Error running heartbeat", e);
+          } finally {
+            GrouperDdlEngine.this.heartbeatThread = null;
           }
           
         }
@@ -627,7 +629,7 @@ public class GrouperDdlEngine {
    */
   public boolean runDdl() {
     
-    boolean done = false;
+    this.done = false;
 
     heartbeatThread = null;
     
@@ -732,7 +734,7 @@ public class GrouperDdlEngine {
       GrouperDdlUtils.isDropBeforeCreate = false;
       
       // tell the heartbeat we are done
-      done=true;
+      this.done=true;
       
       // wait for the heartbeat to return
       if (heartbeatThread != null) {

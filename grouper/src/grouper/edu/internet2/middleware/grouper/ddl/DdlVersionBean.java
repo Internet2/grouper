@@ -336,7 +336,25 @@ public class DdlVersionBean {
     return this.sqlBuilder;
   }
 
+  /**
+   * version building from
+   */
+  private int buildingFromVersion;
   
+  /**
+   * version building from
+   */
+  public int getBuildingFromVersion() {
+    return buildingFromVersion;
+  }
+  
+  /**
+   * version building from
+   */
+  public void setBuildingFromVersion(int buildingFromVersion1) {
+    this.buildingFromVersion = buildingFromVersion1;
+  }
+
   /**
    * construct
    * @param objectName
@@ -354,7 +372,7 @@ public class DdlVersionBean {
   public DdlVersionBean(String objectName, Platform platform, Connection connection,
       String schema, SqlBuilder sqlBuilder, Database oldDatabase, Database database,
       StringBuilder additionalScripts, boolean isDestinationVersion,
-      int buildingToVersion, StringBuilder fullScript) {
+      int buildingToVersion, StringBuilder fullScript, int theBuildingFromVersion) {
     super();
     this.objectName = objectName;
     this.platform = platform;
@@ -367,6 +385,7 @@ public class DdlVersionBean {
     this.isDestinationVersion = isDestinationVersion;
     this.buildingToVersion = buildingToVersion;
     this.fullScript = fullScript;
+    this.buildingFromVersion = theBuildingFromVersion;
   }
 
   /**
