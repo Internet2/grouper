@@ -254,6 +254,21 @@ ALTER TABLE grouper_sync_membership
 ALTER TABLE grouper_sync_membership
     ADD CONSTRAINT grouper_sync_me_uid_fk FOREIGN KEY (grouper_sync_member_id) REFERENCES grouper_sync_member (id);
 
+CREATE TABLE grouper_ddl_worker
+(
+    id VARCHAR(40) NOT NULL,
+    grouper VARCHAR(40) NOT NULL,
+    worker_uuid VARCHAR(40) NOT NULL,
+    heartbeat TIMESTAMP,
+    last_updated TIMESTAMP NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX grouper_ddl_worker_grp_idx ON grouper_ddl_worker (grouper);
+
+
+
+    
 ALTER TABLE grouper_sync_membership
     ADD CONSTRAINT grouper_sync_me_id_fk FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync (id);
 
@@ -268,4 +283,9 @@ CREATE VIEW grouper_roles_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, D
 
 ALTER TABLE grouper_message ALTER COLUMN from_member_id VARCHAR(40);
 
+
+
+update grouper_ddl set db_version = 32, last_updated = '2020/03/30 14:13:08', 
+history = '2020/03/30 14:13:08: upgrade Grouper from V31 to V32, 2020/03/30 14:01:06: upgrade Grouper from V30 to V31, 2020/03/30 14:01:06: upgrade Grouper from V29 to V30, 2020/03/30 14:01:06: upgrade Grouper from V28 to V29, 2020/03/30 14:01:06: upgrade Grouper from V27 to V28, 2020/03/30 14:01:06: upgrade Grouper from V26 to V27, 2020/03/30 14:01:06: upgrade Grouper from V25 to V26, 2020/03/30 14:01:06: upgrade Grouper from V24 to V25, 2020/03/30 14:01:06: upgrade Grouper from V23 to V24, 2020/03/30 14:01:06: upgrade Grouper from V22 to V23, 2020/03/30 14:01:06: upgrade Grouper from V21 to V22, 2020/03/30 14:01:06: upgrade Grouper from V20 to V21, 2020/03/30 14:01:06: upgrade Grouper from V19 to V20, 2020/03/30 14:01:06: upgrade Grouper from V18 to V19, 2020/03/30 14:01:06: upgrade Grouper from V17 to V18, 2020/03/30 14:01:06: upgrade Grouper from V16 to V17, 2020/03/30 14:01:06: upgrade Grouper from V15 to V16, 2020/03/30 14:01:06: upgrade Grouper from V14 to V15, 2020/03/30 14:01:06: upgrade Grouper from V13 to V14, 2020/03/30 14:01:06: upgrade Grouper from V12 to V13, 2020/03/30 14:01:06: upgrade Grouper from V11 to V12, 2020/03/30 14:01:06: upgrade Grouper from V10 to V11, 2020/03/30 14:01:06: upgrade Grouper from V9 to V10, 2020/03/30 14:01:06: upgrade Grouper from V8 to V9, 2020/03/30 14:01:06: upgrade Grouper from V7 to V8, 2020/03/30 14:01:06: upgrade Grouper from V6 to V7, 2020/03/30 14:01:06: upgrade Grouper from V5 to V6, 2020/03/30 14:01:06: upgrade Grouper from V4 to V5, 2020/03/30 14:01:06: upgrade Grouper from V3 to V4, 2020/03/30 14:01:06: upgrade Grouper from V2 to V3, 2020/03/30 14:01:06: upgrade Grouper from V1 to V2, 2020/03/30 14:01:05: upgrade Grouper from V0 to V1, ' where object_name = 'Grouper';
+commit;
 

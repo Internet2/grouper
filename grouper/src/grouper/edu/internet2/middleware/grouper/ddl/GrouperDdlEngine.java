@@ -399,30 +399,28 @@ public class GrouperDdlEngine {
   private void addGrouperDdlLogEntryIfNeeded(String objectName, StringBuilder result,
       StringBuilder historyBuilder, int javaVersion, String timestamp, String summary,
       boolean upgradeDdlTable) {
-    if (upgradeDdlTable) {
-      historyBuilder.insert(0, summary + ", ");
-      
-      String historyString = StringUtils.abbreviate(historyBuilder.toString(), 4000);
-      
-      //see if already in db
-      if ((!GrouperDdlUtils.containsDbRecord(objectName) || dropBeforeCreate) 
-          && !GrouperDdlUtils.alreadyInsertedForObjectName.contains(objectName)) {
-      
-        result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
-            "last_updated, history) values ('" + GrouperUuid.getUuid() 
-            +  "', '" + objectName + "', " + javaVersion + ", '" + timestamp + "', \n'" + historyString + "');\n");
-        //dont insert again for this object
-        GrouperDdlUtils.alreadyInsertedForObjectName.add(objectName);
+    historyBuilder.insert(0, summary + ", ");
+  
+    String historyString = StringUtils.abbreviate(historyBuilder.toString(), 3800);
+    
+    //see if already in db
+    if (upgradeDdlTable || ((!GrouperDdlUtils.containsDbRecord(objectName) || dropBeforeCreate) 
+        && !GrouperDdlUtils.alreadyInsertedForObjectName.contains(objectName))) {
+    
+      result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
+          "last_updated, history) values ('" + GrouperUuid.getUuid() 
+          +  "', '" + objectName + "', " + javaVersion + ", '" + timestamp + "', \n'" + historyString + "');\n");
+      //dont insert again for this object
+      GrouperDdlUtils.alreadyInsertedForObjectName.add(objectName);
 
-      } else {
-        
-        result.append("\nupdate grouper_ddl set db_version = " + javaVersion
-            + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
-            + "' where object_name = '" + objectName + "';\n");
+    } else {
+      
+      result.append("\nupdate grouper_ddl set db_version = " + javaVersion
+          + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
+          + "' where object_name = '" + objectName + "';\n");
 
-      }
-      result.append("commit;\n\n");
     }
+    result.append("commit;\n\n");
   }
 
   private void dropEverythingIfNeeded(String objectName, Connection connection,
@@ -608,12 +606,14 @@ public class GrouperDdlEngine {
                 if (GrouperDdlEngine.this.done) {
                   // we done
                   GROUPER_DDL_WORKER.setHeartbeat(null);
+                  GROUPER_DDL_WORKER.setLastUpdated(new Timestamp(System.currentTimeMillis()));
                   HibernateSession.byObjectStatic().saveOrUpdate(GROUPER_DDL_WORKER);
                   return;
                 }
               }
-              
-              GROUPER_DDL_WORKER.setHeartbeat(new Timestamp(System.currentTimeMillis()));
+              Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+              GROUPER_DDL_WORKER.setHeartbeat(timestamp);
+              GROUPER_DDL_WORKER.setLastUpdated(timestamp);
               HibernateSession.byObjectStatic().saveOrUpdate(GROUPER_DDL_WORKER);
             }
             throw new RuntimeException("DDL didnt end!!!!!");
