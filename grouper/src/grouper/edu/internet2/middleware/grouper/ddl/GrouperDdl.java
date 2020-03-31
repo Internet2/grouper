@@ -12548,8 +12548,7 @@ public enum GrouperDdl implements DdlVersionable {
         }
       }
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogTempEntryTable.getName(),
-          "change_log_temp_created_on_idx", false, "created_on");
+      GrouperDdl2_4.addChangeLogEntryTempIndex(ddlVersionBean, database);
     }
 
     {
