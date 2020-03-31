@@ -2,24 +2,13 @@ package edu.internet2.middleware.grouper.ddl;
 
 import java.sql.Types;
 
-import org.apache.commons.logging.Log;
-import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
-import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.authentication.GrouperPassword;
-import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
 import edu.internet2.middleware.grouper.pit.PITMember;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperDdl2_4 {
 
@@ -51,7 +40,7 @@ public class GrouperDdl2_4 {
   private static boolean buildingToPreviousVersion(DdlVersionBean ddlVersionBean) {
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     
-    boolean buildingToPreviousVersion = GrouperDdl.V30.getVersion() == buildingToVersion;
+    boolean buildingToPreviousVersion = GrouperDdl.V31.getVersion() > buildingToVersion;
 
     return buildingToPreviousVersion;
   }
@@ -62,7 +51,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addMembersTableIndifier0Index", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addMembersTableIndifier0Index", true)) {
       return;
     }
     
@@ -79,7 +68,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addPitMembersTableIndifier0Index", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addPitMembersTableIndifier0Index", true)) {
       return;
     }
     
@@ -96,7 +85,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addChangeLogEntryTempIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addChangeLogEntryTempIndex", true)) {
       return;
     }
     
@@ -114,7 +103,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addConfigurationIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addConfigurationIndexes", true)) {
       return;
     }
 
@@ -148,7 +137,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addConfigurationTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addConfigurationTables", true)) {
       return;
     }
     

@@ -61,7 +61,7 @@ public class GrouperDdl2_5 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addGrouperPasswordComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperPasswordComments", true)) {
       return;
     }
     
@@ -183,49 +183,65 @@ public class GrouperDdl2_5 {
   
   }
 
-  static void addGroupEnabledDisabledColumns(Database database, DdlVersionBean ddlVersionBean, boolean groupTableNew) {
+  static void addGroupEnabledDisabledColumns(Database database, DdlVersionBean ddlVersionBean) {
 
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addGroupEnabledDisabledColumns", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGroupEnabledDisabledColumns", true)) {
       return;
     }
 
     Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS, true);
-    boolean enabledColumnIsNew = false;
     
-    if (groupTable != null) {
-      enabledColumnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ENABLED, false);
+    
+    if (buildingFromScratch(ddlVersionBean)) {
+      
+      //this is required if the group table is new    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, true, "T");
+    } else {
+      if (!GrouperDdlUtils.isPostgres()) {
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, false, "T");
+        
+      }
+    }
+
+    // just do nothing if there is no upgrade.  i.e. the database already has this
+    if (!buildingFromScratch(ddlVersionBean) && GrouperDdlUtils.isPostgres() && ddlVersionBean.getBuildingFromVersion() < GrouperDdl.V32.getVersion()) {
+      
+      // this will recreate the grouper_groups table in postgres on an existing installation if you dont do this
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_groups ADD COLUMN enabled VARCHAR(1);\n");
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_groups ADD COLUMN enabled_timestamp BIGINT;\n");
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_groups ADD COLUMN disabled_timestamp BIGINT;\n");
+      ddlVersionBean.getAdditionalScripts().append("CREATE INDEX group_enabled_idx ON grouper_groups (enabled);\n");
+      ddlVersionBean.getAdditionalScripts().append("CREATE INDEX group_enabled_time_idx ON grouper_groups (enabled_timestamp);\n");
+      ddlVersionBean.getAdditionalScripts().append("CREATE INDEX group_disabled_time_idx ON grouper_groups (disabled_timestamp);\n");
+      
+    } else {
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED_TIMESTAMP, Types.BIGINT, "20", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_DISABLED_TIMESTAMP, Types.BIGINT, "20", false, false);    
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_idx", false, Group.COLUMN_ENABLED); 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_time_idx", false, Group.COLUMN_ENABLED_TIMESTAMP);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_disabled_time_idx", false, Group.COLUMN_DISABLED_TIMESTAMP);
+      
     }
     
-    //this is required if the group table is new    
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, groupTableNew, "T");
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED_TIMESTAMP, Types.BIGINT, "20", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_DISABLED_TIMESTAMP, Types.BIGINT, "20", false, false);    
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_idx", false, Group.COLUMN_ENABLED); 
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_time_idx", false, Group.COLUMN_ENABLED_TIMESTAMP);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_disabled_time_idx", false, Group.COLUMN_DISABLED_TIMESTAMP);
-    
-    if (!groupTableNew && groupTable != null) {
+    if (!buildingFromScratch(ddlVersionBean)) {
       boolean needUpdate = false;
       
-      if (enabledColumnIsNew) {
-        needUpdate = true;
-      } else {
-        try {
-          int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_groups where enabled is null");
-          if (count > 0) {
-            needUpdate = true;
-          }
-        } catch (Exception e) {
-          needUpdate = false;
-          LOG.info("Exception querying grouper_groups", e);
-          // group table doesnt exist?
+      try {
+        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_groups");
+        if (count > 0) {
+          needUpdate = true;
         }
+      } catch (Exception e) {
+        needUpdate = false;
+        LOG.info("Exception querying grouper_groups", e);
+        // group table doesnt exist?
       }
       
       if (needUpdate) {
@@ -234,6 +250,13 @@ public class GrouperDdl2_5 {
             "commit;\n");
       }
     }
+    
+    if (!buildingFromScratch(ddlVersionBean) && GrouperDdlUtils.isPostgres()) {
+      ddlVersionBean.getAdditionalScripts().append(          
+          "ALTER TABLE " + Group.TABLE_GROUPER_GROUPS + " ALTER COLUMN " + Group.COLUMN_ENABLED + " SET NOT NULL;\n");
+      ddlVersionBean.getAdditionalScripts().append(          
+          "ALTER TABLE " + Group.TABLE_GROUPER_GROUPS + " ALTER COLUMN " + Group.COLUMN_ENABLED + " SET DEFAULT 'T';\n");      
+    }    
   }
 
 
@@ -249,7 +272,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addGrouperPasswordForeignKeys", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperPasswordForeignKeys", true)) {
       return;
     }
 
@@ -268,7 +291,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addGrouperPasswordTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperPasswordTables", true)) {
       return;
     }
 
@@ -359,7 +382,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addGrouperPasswordIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperPasswordIndexes", true)) {
       return;
     }
     
@@ -429,7 +452,7 @@ public class GrouperDdl2_5 {
    * 
    */
   static void addDdlWorkerTable(DdlVersionBean ddlVersionBean, Database database) {
-    if (ddlVersionBean.didWeDoThis("addDdlWorkerTable", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addDdlWorkerTable", true)) {
       return;
     }
     {
@@ -460,7 +483,7 @@ public class GrouperDdl2_5 {
    * @param database
    */
   static void addDdlWorkerIndexes(DdlVersionBean ddlVersionBean, Database database) {
-    if (ddlVersionBean.didWeDoThis("addDdlWorkerIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addDdlWorkerIndexes", true)) {
       return;
     }
     
@@ -476,7 +499,7 @@ public class GrouperDdl2_5 {
    * 
    */
   static void addDdlWorkerComments(DdlVersionBean ddlVersionBean, Database database) {
-    if (ddlVersionBean.didWeDoThis("addDdlWorkerComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addDdlWorkerComments", true)) {
       return;
     }
   
@@ -503,7 +526,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addSyncTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addSyncTables", true)) {
       return;
     }
     {
@@ -832,7 +855,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addSyncComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addSyncComments", true)) {
       return;
     }
   
@@ -1078,7 +1101,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addSyncForeignKeys", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addSyncForeignKeys", true)) {
       return;
     }
 
@@ -1114,7 +1137,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addSyncIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addSyncIndexes", true)) {
       return;
     }
   
@@ -1236,7 +1259,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("adjustMessageMemberIdSize", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_adjustMessageMemberIdSize", true)) {
       return;
     }
 
@@ -1274,7 +1297,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addCompositeTypeIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addCompositeTypeIndex", true)) {
       return;
     }
     Table compositeTable = GrouperDdlUtils.ddlutilsFindTable(database, Composite.TABLE_GROUPER_COMPOSITES, true);
@@ -1288,7 +1311,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addAttributeAssignTypeIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addAttributeAssignTypeIndex", true)) {
       return;
     }
     Table attributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, true);
@@ -1306,7 +1329,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("createViewGrouperRolesV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_createViewGrouperRolesV", true)) {
       return;
     }
 
@@ -1390,7 +1413,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("dropViewGrouperGroupsV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_dropViewGrouperGroupsV", true)) {
       return;
     }
 
@@ -1402,7 +1425,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("dropViewGrouperRolesV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_dropViewGrouperRolesV", true)) {
       return;
     }
 
@@ -1416,7 +1439,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("createViewGrouperGroupsV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_createViewGrouperGroupsV", true)) {
       return;
     }
   
@@ -1502,7 +1525,7 @@ public class GrouperDdl2_5 {
       return;
     }
   
-    if (ddlVersionBean.didWeDoThis("createViewGrouperGroupsVplaceholder", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_createViewGrouperGroupsVplaceholder", true)) {
       return;
     }
   
@@ -1520,7 +1543,7 @@ public class GrouperDdl2_5 {
       return;
     }
   
-    if (ddlVersionBean.didWeDoThis("createViewGrouperRolesVplaceholder", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_createViewGrouperRolesVplaceholder", true)) {
       return;
     }
   
@@ -1538,7 +1561,7 @@ public class GrouperDdl2_5 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addConfigurationComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addConfigurationComments", true)) {
       return;
     }
     
@@ -1606,7 +1629,7 @@ public class GrouperDdl2_5 {
   static void addGrouperExternalSubjectIdentifierIndex(DdlVersionBean ddlVersionBean, Database database) {
     
     if (buildingToPreviousVersion(ddlVersionBean) && ddlVersionBean.isSmallIndexes()) {
-      if (ddlVersionBean.didWeDoThis("addGrouperExternalSubjectIdentifierIndexRemoveAdd", true)) {
+      if (ddlVersionBean.didWeDoThis("v2_5_addGrouperExternalSubjectIdentifierIndexRemoveAdd", true)) {
         return;
       }
       // add an old one since "unique" changed for mysql
@@ -1619,7 +1642,7 @@ public class GrouperDdl2_5 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addGrouperExternalSubjectIdentifierIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperExternalSubjectIdentifierIndex", true)) {
       return;
     }
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ExternalSubject.TABLE_GROUPER_EXT_SUBJ, 

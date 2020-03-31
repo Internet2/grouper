@@ -1429,9 +1429,6 @@ public class GrouperDdlUtils {
     return objectNames;
   }
   
-  /** if check from scratch */
-  public static boolean deepCheck = false;
-  
   /**
    * get the version of a ddl object in the DB
    * @param objectName
@@ -1439,10 +1436,6 @@ public class GrouperDdlUtils {
    */
   public static int retrieveDdlDbVersion(String objectName) {
 
-    if (deepCheck) {
-      return 0;
-    }
-    
     //init stuff
     retrieveDdlsFromCache();
     

@@ -5663,7 +5663,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
 
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, GrouperMessageHibernate.TABLE_GROUPER_MESSAGE, 
-        "fk_message_from_member_id", Member.TABLE_GROUPER_MEMBERS, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID, memberIdCol);
+        "fk_message_from_member_id", Member.TABLE_GROUPER_MEMBERS, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID, "id");
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         "fk_memberships_creator_id", Member.TABLE_GROUPER_MEMBERS, "creator_id", memberIdCol);
