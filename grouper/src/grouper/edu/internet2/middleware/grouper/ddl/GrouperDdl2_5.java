@@ -183,7 +183,7 @@ public class GrouperDdl2_5 {
   
   }
 
-  static void addGroupEnabledDisabledColumns(Database database, DdlVersionBean ddlVersionBean, boolean groupTableNew) {
+  static void addGroupEnabledDisabledColumns(Database database, DdlVersionBean ddlVersionBean) {
 
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
@@ -194,38 +194,54 @@ public class GrouperDdl2_5 {
     }
 
     Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS, true);
-    boolean enabledColumnIsNew = false;
     
-    if (groupTable != null) {
-      enabledColumnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ENABLED, false);
+    
+    if (buildingFromScratch(ddlVersionBean)) {
+      
+      //this is required if the group table is new    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, true, "T");
+    } else {
+      if (!GrouperDdlUtils.isPostgres()) {
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, false, "T");
+        
+      }
+    }
+
+    // just do nothing if there is no upgrade.  i.e. the database already has this
+    if (!buildingFromScratch(ddlVersionBean) && GrouperDdlUtils.isPostgres() && ddlVersionBean.getBuildingFromVersion() < GrouperDdl.V32.getVersion()) {
+      
+      // this will recreate the grouper_groups table in postgres on an existing installation if you dont do this
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_groups ADD COLUMN enabled VARCHAR(1);\n");
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_groups ADD COLUMN enabled_timestamp BIGINT;\n");
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_groups ADD COLUMN disabled_timestamp BIGINT;\n");
+      ddlVersionBean.getAdditionalScripts().append("CREATE INDEX group_enabled_idx ON grouper_groups (enabled);\n");
+      ddlVersionBean.getAdditionalScripts().append("CREATE INDEX group_enabled_time_idx ON grouper_groups (enabled_timestamp);\n");
+      ddlVersionBean.getAdditionalScripts().append("CREATE INDEX group_disabled_time_idx ON grouper_groups (disabled_timestamp);\n");
+      
+    } else {
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED_TIMESTAMP, Types.BIGINT, "20", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_DISABLED_TIMESTAMP, Types.BIGINT, "20", false, false);    
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_idx", false, Group.COLUMN_ENABLED); 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_time_idx", false, Group.COLUMN_ENABLED_TIMESTAMP);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_disabled_time_idx", false, Group.COLUMN_DISABLED_TIMESTAMP);
+      
     }
     
-    //this is required if the group table is new    
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED, Types.VARCHAR, "1", false, groupTableNew, "T");
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ENABLED_TIMESTAMP, Types.BIGINT, "20", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_DISABLED_TIMESTAMP, Types.BIGINT, "20", false, false);    
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_idx", false, Group.COLUMN_ENABLED); 
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_enabled_time_idx", false, Group.COLUMN_ENABLED_TIMESTAMP);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(), "group_disabled_time_idx", false, Group.COLUMN_DISABLED_TIMESTAMP);
-    
-    if (!groupTableNew && groupTable != null) {
+    if (!buildingFromScratch(ddlVersionBean)) {
       boolean needUpdate = false;
       
-      if (enabledColumnIsNew) {
-        needUpdate = true;
-      } else {
-        try {
-          int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_groups where enabled is null");
-          if (count > 0) {
-            needUpdate = true;
-          }
-        } catch (Exception e) {
-          needUpdate = false;
-          LOG.info("Exception querying grouper_groups", e);
-          // group table doesnt exist?
+      try {
+        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_groups");
+        if (count > 0) {
+          needUpdate = true;
         }
+      } catch (Exception e) {
+        needUpdate = false;
+        LOG.info("Exception querying grouper_groups", e);
+        // group table doesnt exist?
       }
       
       if (needUpdate) {
@@ -234,6 +250,13 @@ public class GrouperDdl2_5 {
             "commit;\n");
       }
     }
+    
+    if (!buildingFromScratch(ddlVersionBean) && GrouperDdlUtils.isPostgres()) {
+      ddlVersionBean.getAdditionalScripts().append(          
+          "ALTER TABLE " + Group.TABLE_GROUPER_GROUPS + " ALTER COLUMN " + Group.COLUMN_ENABLED + " SET NOT NULL;\n");
+      ddlVersionBean.getAdditionalScripts().append(          
+          "ALTER TABLE " + Group.TABLE_GROUPER_GROUPS + " ALTER COLUMN " + Group.COLUMN_ENABLED + " SET DEFAULT 'T';\n");      
+    }    
   }
 
 

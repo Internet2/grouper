@@ -22,100 +22,11 @@ COMMENT ON COLUMN grouper_ddl_worker.heartbeat IS 'while the ddl is running, kee
 
 COMMENT ON COLUMN grouper_ddl_worker.last_updated IS 'when this record was last updated';
 
+
+
 DROP VIEW IF EXISTS grouper_groups_v cascade;
 
 DROP VIEW IF EXISTS grouper_roles_v cascade;
-ALTER TABLE grouper_groups
-    ADD COLUMN disabled_timestamp BIGINT;
-
-CREATE TABLE grouper_groups_
-(
-    id VARCHAR(40) NOT NULL,
-    parent_stem VARCHAR(40) NOT NULL,
-    creator_id VARCHAR(40) NOT NULL,
-    create_time BIGINT NOT NULL,
-    modifier_id VARCHAR(40),
-    modify_time BIGINT,
-    last_membership_change BIGINT,
-    last_imm_membership_change BIGINT,
-    alternate_name VARCHAR(1024),
-    hibernate_version_number BIGINT,
-    name VARCHAR(1024),
-    display_name VARCHAR(1024),
-    extension VARCHAR(255),
-    display_extension VARCHAR(255),
-    description VARCHAR(1024),
-    context_id VARCHAR(40),
-    type_of_group VARCHAR(10) DEFAULT 'group' NOT NULL,
-    id_index BIGINT NOT NULL,
-    enabled VARCHAR(1) DEFAULT 'T',
-    enabled_timestamp BIGINT,
-    disabled_timestamp BIGINT,
-    PRIMARY KEY (id)
-);
-
-INSERT INTO grouper_groups_ (id,parent_stem,creator_id,create_time,modifier_id,modify_time,last_membership_change,last_imm_membership_change,alternate_name,hibernate_version_number,name,display_name,extension,display_extension,description,context_id,type_of_group,id_index,disabled_timestamp) SELECT id,parent_stem,creator_id,create_time,modifier_id,modify_time,last_membership_change,last_imm_membership_change,alternate_name,hibernate_version_number,name,display_name,extension,display_extension,description,context_id,type_of_group,id_index,disabled_timestamp FROM grouper_groups;
-
-DROP TABLE grouper_groups CASCADE;
-
-CREATE TABLE grouper_groups
-(
-    id VARCHAR(40) NOT NULL,
-    parent_stem VARCHAR(40) NOT NULL,
-    creator_id VARCHAR(40) NOT NULL,
-    create_time BIGINT NOT NULL,
-    modifier_id VARCHAR(40),
-    modify_time BIGINT,
-    last_membership_change BIGINT,
-    last_imm_membership_change BIGINT,
-    alternate_name VARCHAR(1024),
-    hibernate_version_number BIGINT,
-    name VARCHAR(1024),
-    display_name VARCHAR(1024),
-    extension VARCHAR(255),
-    display_extension VARCHAR(255),
-    description VARCHAR(1024),
-    context_id VARCHAR(40),
-    type_of_group VARCHAR(10) DEFAULT 'group' NOT NULL,
-    id_index BIGINT NOT NULL,
-    enabled VARCHAR(1) DEFAULT 'T',
-    enabled_timestamp BIGINT,
-    disabled_timestamp BIGINT,
-    PRIMARY KEY (id)
-);
-
-CREATE UNIQUE INDEX group_id_index_idx ON grouper_groups (id_index);
-
-CREATE UNIQUE INDEX group_name_idx ON grouper_groups (name);
-
-CREATE UNIQUE INDEX group_parent_idx ON grouper_groups (parent_stem, extension);
-
-CREATE INDEX group_alternate_name_idx ON grouper_groups (alternate_name);
-
-CREATE INDEX group_context_idx ON grouper_groups (context_id);
-
-CREATE INDEX group_createtime_idx ON grouper_groups (create_time);
-
-CREATE INDEX group_creator_idx ON grouper_groups (creator_id);
-
-CREATE INDEX group_display_name_idx ON grouper_groups (display_name);
-
-CREATE INDEX group_last_imm_membership_idx ON grouper_groups (last_imm_membership_change);
-
-CREATE INDEX group_last_membership_idx ON grouper_groups (last_membership_change);
-
-CREATE INDEX group_modifier_idx ON grouper_groups (modifier_id);
-
-CREATE INDEX group_modifytime_idx ON grouper_groups (modify_time);
-
-CREATE INDEX group_parent_display_idx ON grouper_groups (parent_stem, display_extension);
-
-CREATE INDEX group_type_of_group_idx ON grouper_groups (type_of_group);
-
-INSERT INTO grouper_groups (id,parent_stem,creator_id,create_time,modifier_id,modify_time,last_membership_change,last_imm_membership_change,alternate_name,hibernate_version_number,name,display_name,extension,display_extension,description,context_id,type_of_group,id_index,enabled,enabled_timestamp,disabled_timestamp) SELECT id,parent_stem,creator_id,create_time,modifier_id,modify_time,last_membership_change,last_imm_membership_change,alternate_name,hibernate_version_number,name,display_name,extension,display_extension,description,context_id,type_of_group,id_index,enabled,enabled_timestamp,disabled_timestamp FROM grouper_groups_;
-
-DROP TABLE grouper_groups_ CASCADE;
-
 CREATE TABLE grouper_config
 (
     id VARCHAR(40) NOT NULL,
@@ -359,12 +270,6 @@ CREATE INDEX attr_asgn_type_idx ON grouper_attribute_assign (attribute_assign_ty
 
 CREATE INDEX composite_type_idx ON grouper_composites (type);
 
-CREATE INDEX group_enabled_idx ON grouper_groups (enabled);
-
-CREATE INDEX group_enabled_time_idx ON grouper_groups (enabled_timestamp);
-
-CREATE INDEX group_disabled_time_idx ON grouper_groups (disabled_timestamp);
-
 CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0);
 
 CREATE INDEX pit_member_subjidentifier0_idx ON grouper_pit_members (subject_identifier0);
@@ -392,8 +297,16 @@ ALTER TABLE grouper_sync_membership
 
 ALTER TABLE grouper_sync_log
     ADD CONSTRAINT grouper_sync_log_sy_fk FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync (id);
+ALTER TABLE grouper_groups ADD COLUMN enabled VARCHAR(1);
+ALTER TABLE grouper_groups ADD COLUMN enabled_timestamp BIGINT;
+ALTER TABLE grouper_groups ADD COLUMN disabled_timestamp BIGINT;
+CREATE INDEX group_enabled_idx ON grouper_groups (enabled);
+CREATE INDEX group_enabled_time_idx ON grouper_groups (enabled_timestamp);
+CREATE INDEX group_disabled_time_idx ON grouper_groups (disabled_timestamp);
 update grouper_groups set enabled='T' where enabled is null;
 commit;
+ALTER TABLE grouper_groups ALTER COLUMN enabled SET NOT NULL;
+ALTER TABLE grouper_groups ALTER COLUMN enabled SET DEFAULT 'T';
 
 CREATE VIEW grouper_groups_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, TYPE_OF_GROUP, GROUP_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.type_of_group, gg.id as group_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ;
 
@@ -774,7 +687,7 @@ COMMENT ON COLUMN grouper_config.hibernate_version_number IS 'hibernate version 
 
 
 
-update grouper_ddl set db_version = 32, last_updated = '2020/03/30 19:44:42', 
-history = '2020/03/30 19:44:42: upgrade Grouper from V30 to V32, 2020/03/30 19:42:38: upgrade Grouper from V29 to V30, 2020/03/30 19:42:38: upgrade Grouper from V28 to V29, 2020/03/30 19:42:37: upgrade Grouper from V27 to V28, 2020/03/30 19:42:37: upgrade Grouper from V26 to V27, 2020/03/30 19:42:37: upgrade Grouper from V25 to V26, 2020/03/30 19:42:37: upgrade Grouper from V24 to V25, 2020/03/30 19:42:37: upgrade Grouper from V23 to V24, 2020/03/30 19:42:37: upgrade Grouper from V22 to V23, 2020/03/30 19:42:37: upgrade Grouper from V21 to V22, 2020/03/30 19:42:37: upgrade Grouper from V20 to V21, 2020/03/30 19:42:37: upgrade Grouper from V19 to V20, 2020/03/30 19:42:37: upgrade Grouper from V18 to V19, 2020/03/30 19:42:37: upgrade Grouper from V17 to V18, 2020/03/30 19:42:37: upgrade Grouper from V16 to V17, 2020/03/30 19:42:37: upgrade Grouper from V15 to V16, 2020/03/30 19:42:37: upgrade Grouper from V14 to V15, 2020/03/30 19:42:37: upgrade Grouper from V13 to V14, 2020/03/30 19:42:37: upgrade Grouper from V12 to V13, 2020/03/30 19:42:37: upgrade Grouper from V11 to V12, 2020/03/30 19:42:37: upgrade Grouper from V10 to V11, 2020/03/30 19:42:37: upgrade Grouper from V9 to V10, 2020/03/30 19:42:37: upgrade Grouper from V8 to V9, 2020/03/30 19:42:37: upgrade Grouper from V7 to V8, 2020/03/30 19:42:37: upgrade Grouper from V6 to V7, 2020/03/30 19:42:37: upgrade Grouper from V5 to V6, 2020/03/30 19:42:37: upgrade Grouper from V4 to V5, 2020/03/30 19:42:37: upgrade Grouper from V3 to V4, 2020/03/30 19:42:37: upgrade Grouper from V2 to V3, 2020/03/30 19:42:37: upgrade Grouper from V1 to V2, 2020/03/30 19:42:37: upgrade Grouper from V0 to V1, ' where object_name = 'Grouper';
+update grouper_ddl set db_version = 32, last_updated = '2020/03/31 01:51:05', 
+history = '2020/03/31 01:51:05: upgrade Grouper from V30 to V32, 2020/03/31 01:48:00: upgrade Grouper from V29 to V30, 2020/03/31 01:48:00: upgrade Grouper from V28 to V29, 2020/03/31 01:48:00: upgrade Grouper from V27 to V28, 2020/03/31 01:48:00: upgrade Grouper from V26 to V27, 2020/03/31 01:48:00: upgrade Grouper from V25 to V26, 2020/03/31 01:48:00: upgrade Grouper from V24 to V25, 2020/03/31 01:48:00: upgrade Grouper from V23 to V24, 2020/03/31 01:48:00: upgrade Grouper from V22 to V23, 2020/03/31 01:48:00: upgrade Grouper from V21 to V22, 2020/03/31 01:48:00: upgrade Grouper from V20 to V21, 2020/03/31 01:48:00: upgrade Grouper from V19 to V20, 2020/03/31 01:48:00: upgrade Grouper from V18 to V19, 2020/03/31 01:48:00: upgrade Grouper from V17 to V18, 2020/03/31 01:48:00: upgrade Grouper from V16 to V17, 2020/03/31 01:48:00: upgrade Grouper from V15 to V16, 2020/03/31 01:48:00: upgrade Grouper from V14 to V15, 2020/03/31 01:48:00: upgrade Grouper from V13 to V14, 2020/03/31 01:48:00: upgrade Grouper from V12 to V13, 2020/03/31 01:48:00: upgrade Grouper from V11 to V12, 2020/03/31 01:48:00: upgrade Grouper from V10 to V11, 2020/03/31 01:47:59: upgrade Grouper from V9 to V10, 2020/03/31 01:47:59: upgrade Grouper from V8 to V9, 2020/03/31 01:47:59: upgrade Grouper from V7 to V8, 2020/03/31 01:47:59: upgrade Grouper from V6 to V7, 2020/03/31 01:47:59: upgrade Grouper from V5 to V6, 2020/03/31 01:47:59: upgrade Grouper from V4 to V5, 2020/03/31 01:47:59: upgrade Grouper from V3 to V4, 2020/03/31 01:47:59: upgrade Grouper from V2 to V3, 2020/03/31 01:47:59: upgrade Grouper from V1 to V2, 2020/03/31 01:47:59: upgrade Grouper from V0 to V1, ' where object_name = 'Grouper';
 commit;
 

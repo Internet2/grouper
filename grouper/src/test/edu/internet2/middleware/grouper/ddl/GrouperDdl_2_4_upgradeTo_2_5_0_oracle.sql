@@ -1,10 +1,10 @@
 CREATE TABLE grouper_ddl_worker
 (
-    id VARCHAR(40) NOT NULL,
-    grouper VARCHAR(40) NOT NULL,
-    worker_uuid VARCHAR(40) NOT NULL,
-    heartbeat TIMESTAMP,
-    last_updated TIMESTAMP NOT NULL,
+    id VARCHAR2(40) NOT NULL,
+    grouper VARCHAR2(40) NOT NULL,
+    worker_uuid VARCHAR2(40) NOT NULL,
+    heartbeat DATE,
+    last_updated DATE NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -22,27 +22,55 @@ COMMENT ON COLUMN grouper_ddl_worker.heartbeat IS 'while the ddl is running, kee
 
 COMMENT ON COLUMN grouper_ddl_worker.last_updated IS 'when this record was last updated';
 
-DROP VIEW IF EXISTS grouper_groups_v cascade;
 
-DROP VIEW IF EXISTS grouper_roles_v cascade;
+DROP VIEW grouper_groups_v;
+
+DROP VIEW grouper_roles_v;
+ALTER TABLE GROUPER_MESSAGE
+    DROP CONSTRAINT fk_message_from_member_id;
+
+ALTER TABLE GROUPER_QZ_BLOB_TRIGGERS
+    DROP CONSTRAINT qrtz_blob_trig_to_trig_fk;
+
+ALTER TABLE GROUPER_QZ_CRON_TRIGGERS
+    DROP CONSTRAINT qrtz_cron_trig_to_trig_fk;
+
+ALTER TABLE GROUPER_QZ_SIMPLE_TRIGGERS
+    DROP CONSTRAINT qrtz_simple_trig_to_trig_fk;
+
+ALTER TABLE GROUPER_QZ_SIMPROP_TRIGGERS
+    DROP CONSTRAINT qrtz_simprop_trig_to_trig_fk;
+
+ALTER TABLE GROUPER_QZ_TRIGGERS
+    DROP CONSTRAINT qrtz_trigger_to_jobs_fk;
+
+ALTER TABLE GROUPER_GROUPS
+    ADD enabled VARCHAR2(1) DEFAULT 'T';
+
+ALTER TABLE GROUPER_GROUPS
+    ADD enabled_timestamp NUMBER(38);
+
+ALTER TABLE GROUPER_GROUPS
+    ADD disabled_timestamp NUMBER(38);
+
 CREATE TABLE grouper_password
 (
-    id VARCHAR(40) NOT NULL,
-    username VARCHAR(255) NOT NULL,
-    member_id VARCHAR(40),
-    entity_type VARCHAR(20),
-    is_hashed VARCHAR(1) NOT NULL,
-    encryption_type VARCHAR(20) NOT NULL,
-    the_salt VARCHAR(255),
-    the_password VARCHAR(4000),
-    application VARCHAR(20) NOT NULL,
-    allowed_from_cidrs VARCHAR(4000),
-    recent_source_addresses VARCHAR(4000),
-    failed_source_addresses VARCHAR(4000),
-    last_authenticated BIGINT,
-    last_edited BIGINT NOT NULL,
-    failed_logins VARCHAR(4000),
-    hibernate_version_number BIGINT,
+    id VARCHAR2(40) NOT NULL,
+    username VARCHAR2(255) NOT NULL,
+    member_id VARCHAR2(40),
+    entity_type VARCHAR2(20),
+    is_hashed VARCHAR2(1) NOT NULL,
+    encryption_type VARCHAR2(20) NOT NULL,
+    the_salt VARCHAR2(255),
+    the_password VARCHAR2(4000),
+    application VARCHAR2(20) NOT NULL,
+    allowed_from_cidrs VARCHAR2(4000),
+    recent_source_addresses VARCHAR2(4000),
+    failed_source_addresses VARCHAR2(4000),
+    last_authenticated NUMBER(38),
+    last_edited NUMBER(38) NOT NULL,
+    failed_logins VARCHAR2(4000),
+    hibernate_version_number NUMBER(38),
     PRIMARY KEY (id)
 );
 
@@ -50,27 +78,27 @@ CREATE UNIQUE INDEX grppassword_username_idx ON grouper_password (username, appl
 
 CREATE TABLE grouper_password_recently_used
 (
-    id VARCHAR(40) NOT NULL,
-    grouper_password_id VARCHAR(40) NOT NULL,
-    jwt_jti VARCHAR(100) NOT NULL,
+    id VARCHAR2(40) NOT NULL,
+    grouper_password_id VARCHAR2(40) NOT NULL,
+    jwt_jti VARCHAR2(100) NOT NULL,
     jwt_iat INTEGER NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE grouper_sync
 (
-    id VARCHAR(40) NOT NULL,
-    sync_engine VARCHAR(50),
-    provisioner_name VARCHAR(100) NOT NULL,
+    id VARCHAR2(40) NOT NULL,
+    sync_engine VARCHAR2(50),
+    provisioner_name VARCHAR2(100) NOT NULL,
     group_count INTEGER,
     user_count INTEGER,
     records_count INTEGER,
-    incremental_index BIGINT,
-    incremental_timestamp TIMESTAMP,
-    last_incremental_sync_run TIMESTAMP,
-    last_full_sync_run TIMESTAMP,
-    last_full_metadata_sync_run TIMESTAMP,
-    last_updated TIMESTAMP NOT NULL,
+    incremental_index NUMBER(38),
+    incremental_timestamp DATE,
+    last_incremental_sync_run DATE,
+    last_full_sync_run DATE,
+    last_full_metadata_sync_run DATE,
+    last_updated DATE NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -80,19 +108,19 @@ CREATE UNIQUE INDEX grouper_sync_eng_prov_idx ON grouper_sync (provisioner_name)
 
 CREATE TABLE grouper_sync_job
 (
-    id VARCHAR(40) NOT NULL,
-    grouper_sync_id VARCHAR(40) NOT NULL,
-    sync_type VARCHAR(50) NOT NULL,
-    job_state VARCHAR(50),
-    last_sync_index BIGINT,
-    last_sync_timestamp TIMESTAMP,
-    last_time_work_was_done TIMESTAMP,
-    heartbeat TIMESTAMP,
-    quartz_job_name VARCHAR(400),
+    id VARCHAR2(40) NOT NULL,
+    grouper_sync_id VARCHAR2(40) NOT NULL,
+    sync_type VARCHAR2(50) NOT NULL,
+    job_state VARCHAR2(50),
+    last_sync_index NUMBER(38),
+    last_sync_timestamp DATE,
+    last_time_work_was_done DATE,
+    heartbeat DATE,
+    quartz_job_name VARCHAR2(400),
     percent_complete INTEGER,
-    last_updated TIMESTAMP NOT NULL,
-    error_message VARCHAR(4000),
-    error_timestamp TIMESTAMP,
+    last_updated DATE NOT NULL,
+    error_message VARCHAR2(4000),
+    error_timestamp DATE,
     PRIMARY KEY (id)
 );
 
@@ -100,29 +128,29 @@ CREATE UNIQUE INDEX grouper_sync_st_ty_idx ON grouper_sync_job (grouper_sync_id,
 
 CREATE TABLE grouper_sync_group
 (
-    id VARCHAR(40) NOT NULL,
-    grouper_sync_id VARCHAR(40) NOT NULL,
-    group_id VARCHAR(40) NOT NULL,
-    group_name VARCHAR(1024),
-    group_id_index BIGINT,
-    provisionable VARCHAR(1),
-    in_target VARCHAR(1),
-    in_target_insert_or_exists VARCHAR(1),
-    in_target_start TIMESTAMP,
-    in_target_end TIMESTAMP,
-    provisionable_start TIMESTAMP,
-    provisionable_end TIMESTAMP,
-    last_updated TIMESTAMP NOT NULL,
-    last_group_sync TIMESTAMP,
-    last_group_metadata_sync TIMESTAMP,
-    group_from_id2 VARCHAR(4000),
-    group_from_id3 VARCHAR(4000),
-    group_to_id2 VARCHAR(4000),
-    group_to_id3 VARCHAR(4000),
-    metadata_updated TIMESTAMP,
-    error_message VARCHAR(4000),
-    error_timestamp TIMESTAMP,
-    last_time_work_was_done TIMESTAMP,
+    id VARCHAR2(40) NOT NULL,
+    grouper_sync_id VARCHAR2(40) NOT NULL,
+    group_id VARCHAR2(40) NOT NULL,
+    group_name VARCHAR2(1024),
+    group_id_index NUMBER(38),
+    provisionable VARCHAR2(1),
+    in_target VARCHAR2(1),
+    in_target_insert_or_exists VARCHAR2(1),
+    in_target_start DATE,
+    in_target_end DATE,
+    provisionable_start DATE,
+    provisionable_end DATE,
+    last_updated DATE NOT NULL,
+    last_group_sync DATE,
+    last_group_metadata_sync DATE,
+    group_from_id2 VARCHAR2(4000),
+    group_from_id3 VARCHAR2(4000),
+    group_to_id2 VARCHAR2(4000),
+    group_to_id3 VARCHAR2(4000),
+    metadata_updated DATE,
+    error_message VARCHAR2(4000),
+    error_timestamp DATE,
+    last_time_work_was_done DATE,
     PRIMARY KEY (id)
 );
 
@@ -144,30 +172,30 @@ CREATE INDEX grouper_sync_gr_er_idx ON grouper_sync_group (grouper_sync_id, erro
 
 CREATE TABLE grouper_sync_member
 (
-    id VARCHAR(40) NOT NULL,
-    grouper_sync_id VARCHAR(40) NOT NULL,
-    member_id VARCHAR(128) NOT NULL,
-    source_id VARCHAR(255),
-    subject_id VARCHAR(255),
-    subject_identifier VARCHAR(255),
-    in_target VARCHAR(1),
-    in_target_insert_or_exists VARCHAR(1),
-    in_target_start TIMESTAMP,
-    in_target_end TIMESTAMP,
-    provisionable VARCHAR(1),
-    provisionable_start TIMESTAMP,
-    provisionable_end TIMESTAMP,
-    last_updated TIMESTAMP NOT NULL,
-    last_user_sync TIMESTAMP,
-    last_user_metadata_sync TIMESTAMP,
-    member_from_id2 VARCHAR(4000),
-    member_from_id3 VARCHAR(4000),
-    member_to_id2 VARCHAR(4000),
-    member_to_id3 VARCHAR(4000),
-    metadata_updated TIMESTAMP,
-    last_time_work_was_done TIMESTAMP,
-    error_message VARCHAR(4000),
-    error_timestamp TIMESTAMP,
+    id VARCHAR2(40) NOT NULL,
+    grouper_sync_id VARCHAR2(40) NOT NULL,
+    member_id VARCHAR2(128) NOT NULL,
+    source_id VARCHAR2(255),
+    subject_id VARCHAR2(255),
+    subject_identifier VARCHAR2(255),
+    in_target VARCHAR2(1),
+    in_target_insert_or_exists VARCHAR2(1),
+    in_target_start DATE,
+    in_target_end DATE,
+    provisionable VARCHAR2(1),
+    provisionable_start DATE,
+    provisionable_end DATE,
+    last_updated DATE NOT NULL,
+    last_user_sync DATE,
+    last_user_metadata_sync DATE,
+    member_from_id2 VARCHAR2(4000),
+    member_from_id3 VARCHAR2(4000),
+    member_to_id2 VARCHAR2(4000),
+    member_to_id3 VARCHAR2(4000),
+    metadata_updated DATE,
+    last_time_work_was_done DATE,
+    error_message VARCHAR2(4000),
+    error_timestamp DATE,
     PRIMARY KEY (id)
 );
 
@@ -191,20 +219,20 @@ CREATE INDEX grouper_sync_us_st_gr_idx ON grouper_sync_member (grouper_sync_id, 
 
 CREATE TABLE grouper_sync_membership
 (
-    id VARCHAR(40) NOT NULL,
-    grouper_sync_id VARCHAR(40) NOT NULL,
-    grouper_sync_group_id VARCHAR(40) NOT NULL,
-    grouper_sync_member_id VARCHAR(40) NOT NULL,
-    in_target VARCHAR(1),
-    in_target_insert_or_exists VARCHAR(1),
-    in_target_start TIMESTAMP,
-    in_target_end TIMESTAMP,
-    last_updated TIMESTAMP NOT NULL,
-    membership_id VARCHAR(4000),
-    membership_id2 VARCHAR(4000),
-    metadata_updated TIMESTAMP,
-    error_message VARCHAR(4000),
-    error_timestamp TIMESTAMP,
+    id VARCHAR2(40) NOT NULL,
+    grouper_sync_id VARCHAR2(40) NOT NULL,
+    grouper_sync_group_id VARCHAR2(40) NOT NULL,
+    grouper_sync_member_id VARCHAR2(40) NOT NULL,
+    in_target VARCHAR2(1),
+    in_target_insert_or_exists VARCHAR2(1),
+    in_target_start DATE,
+    in_target_end DATE,
+    last_updated DATE NOT NULL,
+    membership_id VARCHAR2(4000),
+    membership_id2 VARCHAR2(4000),
+    metadata_updated DATE,
+    error_message VARCHAR2(4000),
+    error_timestamp DATE,
     PRIMARY KEY (id)
 );
 
@@ -222,17 +250,17 @@ CREATE INDEX grouper_sync_mship_f2_idx ON grouper_sync_membership (grouper_sync_
 
 CREATE TABLE grouper_sync_log
 (
-    id VARCHAR(40) NOT NULL,
-    grouper_sync_owner_id VARCHAR(40),
-    grouper_sync_id VARCHAR(40),
-    status VARCHAR(20),
-    sync_timestamp TIMESTAMP,
-    description VARCHAR(4000),
+    id VARCHAR2(40) NOT NULL,
+    grouper_sync_owner_id VARCHAR2(40),
+    grouper_sync_id VARCHAR2(40),
+    status VARCHAR2(20),
+    sync_timestamp DATE,
+    description VARCHAR2(4000),
     records_processed INTEGER,
     records_changed INTEGER,
     job_took_millis INTEGER,
-    server VARCHAR(200),
-    last_updated TIMESTAMP NOT NULL,
+    server VARCHAR2(200),
+    last_updated DATE NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -240,9 +268,15 @@ CREATE INDEX grouper_sync_log_sy_idx ON grouper_sync_log (grouper_sync_id, sync_
 
 CREATE INDEX grouper_sync_log_ow_idx ON grouper_sync_log (grouper_sync_owner_id, sync_timestamp);
 
-CREATE INDEX attr_asgn_type_idx ON grouper_attribute_assign (attribute_assign_type);
+CREATE INDEX attr_asgn_type_idx ON GROUPER_ATTRIBUTE_ASSIGN (ATTRIBUTE_ASSIGN_TYPE);
 
-CREATE INDEX composite_type_idx ON grouper_composites (type);
+CREATE INDEX composite_type_idx ON GROUPER_COMPOSITES (TYPE);
+
+CREATE INDEX group_enabled_idx ON GROUPER_GROUPS (enabled);
+
+CREATE INDEX group_enabled_time_idx ON GROUPER_GROUPS (enabled_timestamp);
+
+CREATE INDEX group_disabled_time_idx ON GROUPER_GROUPS (disabled_timestamp);
 
 ALTER TABLE grouper_password_recently_used
     ADD CONSTRAINT fk_grouper_password_id FOREIGN KEY (grouper_password_id) REFERENCES grouper_password (id);
@@ -267,20 +301,12 @@ ALTER TABLE grouper_sync_membership
 
 ALTER TABLE grouper_sync_log
     ADD CONSTRAINT grouper_sync_log_sy_fk FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync (id);
-ALTER TABLE grouper_groups ADD COLUMN enabled VARCHAR(1);
-ALTER TABLE grouper_groups ADD COLUMN enabled_timestamp BIGINT;
-ALTER TABLE grouper_groups ADD COLUMN disabled_timestamp BIGINT;
-CREATE INDEX group_enabled_idx ON grouper_groups (enabled);
-CREATE INDEX group_enabled_time_idx ON grouper_groups (enabled_timestamp);
-CREATE INDEX group_disabled_time_idx ON grouper_groups (disabled_timestamp);
 update grouper_groups set enabled='T' where enabled is null;
 commit;
-ALTER TABLE grouper_groups ALTER COLUMN enabled SET NOT NULL;
-ALTER TABLE grouper_groups ALTER COLUMN enabled SET DEFAULT 'T';
 
 CREATE VIEW grouper_groups_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, TYPE_OF_GROUP, GROUP_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.type_of_group, gg.id as group_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ;
 
-COMMENT ON VIEW grouper_groups_v IS 'Contains one record for each group, with friendly names for some attributes and some more information';
+COMMENT ON TABLE grouper_groups_v IS 'Contains one record for each group, with friendly names for some attributes and some more information';
 
 COMMENT ON COLUMN grouper_groups_v.EXTENSION IS 'EXTENSION: part of group name not including path information, e.g. theGroup';
 
@@ -332,7 +358,7 @@ COMMENT ON COLUMN grouper_groups_v.CONTEXT_ID IS 'Context id links together mult
 
 CREATE VIEW grouper_roles_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, ROLE_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.id as role_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID and type_of_group = 'role' ;
 
-COMMENT ON VIEW grouper_roles_v IS 'Contains one record for each role, with friendly names for some attributes and some more information';
+COMMENT ON TABLE grouper_roles_v IS 'Contains one record for each role, with friendly names for some attributes and some more information';
 
 COMMENT ON COLUMN grouper_roles_v.EXTENSION IS 'EXTENSION: part of role name not including path information, e.g. theRole';
 
@@ -380,8 +406,7 @@ COMMENT ON COLUMN grouper_roles_v.HIBERNATE_VERSION_NUMBER IS 'HIBERNATE_VERSION
 
 COMMENT ON COLUMN grouper_roles_v.CONTEXT_ID IS 'Context id links together multiple operations into one high level action';
 
-ALTER TABLE grouper_message ALTER COLUMN from_member_id TYPE VARCHAR(40);
-COMMIT;
+ALTER TABLE GROUPER_MESSAGE MODIFY (FROM_MEMBER_ID VARCHAR(40));
 
 COMMENT ON TABLE grouper_password IS 'entries for grouper usernames passwords';
 
@@ -657,7 +682,7 @@ COMMENT ON COLUMN grouper_config.hibernate_version_number IS 'hibernate version 
 
 
 
-update grouper_ddl set db_version = 32, last_updated = '2020/03/31 01:45:01', 
-history = '2020/03/31 01:45:01: upgrade Grouper from V31 to V32, 2020/03/31 01:40:46: upgrade Grouper from V30 to V31, 2020/03/31 01:40:46: upgrade Grouper from V29 to V30, 2020/03/31 01:40:46: upgrade Grouper from V28 to V29, 2020/03/31 01:40:45: upgrade Grouper from V27 to V28, 2020/03/31 01:40:45: upgrade Grouper from V26 to V27, 2020/03/31 01:40:45: upgrade Grouper from V25 to V26, 2020/03/31 01:40:45: upgrade Grouper from V24 to V25, 2020/03/31 01:40:45: upgrade Grouper from V23 to V24, 2020/03/31 01:40:45: upgrade Grouper from V22 to V23, 2020/03/31 01:40:45: upgrade Grouper from V21 to V22, 2020/03/31 01:40:45: upgrade Grouper from V20 to V21, 2020/03/31 01:40:45: upgrade Grouper from V19 to V20, 2020/03/31 01:40:45: upgrade Grouper from V18 to V19, 2020/03/31 01:40:45: upgrade Grouper from V17 to V18, 2020/03/31 01:40:45: upgrade Grouper from V16 to V17, 2020/03/31 01:40:45: upgrade Grouper from V15 to V16, 2020/03/31 01:40:45: upgrade Grouper from V14 to V15, 2020/03/31 01:40:45: upgrade Grouper from V13 to V14, 2020/03/31 01:40:45: upgrade Grouper from V12 to V13, 2020/03/31 01:40:45: upgrade Grouper from V11 to V12, 2020/03/31 01:40:45: upgrade Grouper from V10 to V11, 2020/03/31 01:40:45: upgrade Grouper from V9 to V10, 2020/03/31 01:40:45: upgrade Grouper from V8 to V9, 2020/03/31 01:40:45: upgrade Grouper from V7 to V8, 2020/03/31 01:40:45: upgrade Grouper from V6 to V7, 2020/03/31 01:40:45: upgrade Grouper from V5 to V6, 2020/03/31 01:40:45: upgrade Grouper from V4 to V5, 2020/03/31 01:40:45: upgrade Grouper from V3 to V4, 2020/03/31 01:40:45: upgrade Grouper from V2 to V3, 2020/03/31 01:40:45: upgrade Grouper from V1 to V2, 2020/03/31 01:40:45: upgrade Grouper from V0 to V1, ' where object_name = 'Grouper';
+update grouper_ddl set db_version = 32, last_updated = '2020/03/31 03:29:10', 
+history = '2020/03/31 03:29:10: upgrade Grouper from V31 to V32, 2020/03/31 03:16:02: upgrade Grouper from V30 to V31, 2020/03/31 03:15:52: upgrade Grouper from V29 to V30, 2020/03/31 03:15:42: upgrade Grouper from V28 to V29, 2020/03/31 03:15:30: upgrade Grouper from V27 to V28, 2020/03/31 03:15:22: upgrade Grouper from V26 to V27, 2020/03/31 03:15:15: upgrade Grouper from V25 to V26, 2020/03/31 03:15:05: upgrade Grouper from V24 to V25, 2020/03/31 03:14:58: upgrade Grouper from V23 to V24, 2020/03/31 03:14:52: upgrade Grouper from V22 to V23, 2020/03/31 03:14:49: upgrade Grouper from V21 to V22, 2020/03/31 03:14:48: upgrade Grouper from V20 to V21, 2020/03/31 03:14:46: upgrade Grouper from V19 to V20, 2020/03/31 03:14:45: upgrade Grouper from V18 to V19, 2020/03/31 03:14:44: upgrade Grouper from V17 to V18, 2020/03/31 03:14:42: upgrade Grouper from V16 to V17, 2020/03/31 03:14:41: upgrade Grouper from V15 to V16, 2020/03/31 03:14:40: upgrade Grouper from V14 to V15, 2020/03/31 03:14:39: upgrade Grouper from V13 to V14, 2020/03/31 03:14:39: upgrade Grouper from V12 to V13, 2020/03/31 03:14:38: upgrade Grouper from V11 to V12, 2020/03/31 03:14:38: upgrade Grouper from V10 to V11, 2020/03/31 03:14:37: upgrade Grouper from V9 to V10, 2020/03/31 03:14:37: upgrade Grouper from V8 to V9, 2020/03/31 03:14:36: upgrade Grouper from V7 to V8, 2020/03/31 03:14:36: upgrade Grouper from V6 to V7, 2020/03/31 03:14:35: upgrade Grouper from V5 to V6, 2020/03/31 03:14:35: upgrade Grouper from V4 to V5, 2020/03/31 03:14:34: upgrade Grouper from V3 to V4, 2020/03/31 03:14:32: upgrade Grouper from V2 to V3, 2020/03/31 03:14:30: upgrade Grouper from V1 to V2, 2020/03/31 03:14:30: upgrade Grouper from V0 to V1, ' where object_name = 'Grouper';
 commit;
 
