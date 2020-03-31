@@ -69,7 +69,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_3"));
     
 
   }
