@@ -908,6 +908,48 @@
                             
 
                         /**
+                        * field for TypeOfGroups
+                        */
+
+                        
+                                    protected java.lang.String localTypeOfGroups ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localTypeOfGroupsTracker = false ;
+
+                           public boolean isTypeOfGroupsSpecified(){
+                               return localTypeOfGroupsTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getTypeOfGroups(){
+                               return localTypeOfGroups;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param TypeOfGroups
+                               */
+                               public void setTypeOfGroups(java.lang.String param){
+                            localTypeOfGroupsTracker = true;
+                                   
+                                            this.localTypeOfGroups=param;
+                                    
+
+                               }
+                            
+
+                        /**
                         * field for PageIsCursor
                         */
 
@@ -1070,48 +1112,6 @@
                             localPageCursorFieldIncludesLastRetrievedTracker = true;
                                    
                                             this.localPageCursorFieldIncludesLastRetrieved=param;
-                                    
-
-                               }
-                            
-
-                        /**
-                        * field for TypeOfGroups
-                        */
-
-                        
-                                    protected java.lang.String localTypeOfGroups ;
-                                
-                           /*  This tracker boolean wil be used to detect whether the user called the set method
-                          *   for this attribute. It will be used to determine whether to include this field
-                           *   in the serialized XML
-                           */
-                           protected boolean localTypeOfGroupsTracker = false ;
-
-                           public boolean isTypeOfGroupsSpecified(){
-                               return localTypeOfGroupsTracker;
-                           }
-
-                           
-
-                           /**
-                           * Auto generated getter method
-                           * @return java.lang.String
-                           */
-                           public  java.lang.String getTypeOfGroups(){
-                               return localTypeOfGroups;
-                           }
-
-                           
-                        
-                            /**
-                               * Auto generated setter method
-                               * @param param TypeOfGroups
-                               */
-                               public void setTypeOfGroups(java.lang.String param){
-                            localTypeOfGroupsTracker = true;
-                                   
-                                            this.localTypeOfGroups=param;
                                     
 
                                }
@@ -1595,6 +1595,24 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localTypeOfGroupsTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "typeOfGroups", xmlWriter);
+                             
+
+                                          if (localTypeOfGroups==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localTypeOfGroups);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              } if (localPageIsCursorTracker){
                                     namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "pageIsCursor", xmlWriter);
@@ -1663,24 +1681,6 @@
 
                                         
                                                    xmlWriter.writeCharacters(localPageCursorFieldIncludesLastRetrieved);
-                                            
-                                          }
-                                    
-                                   xmlWriter.writeEndElement();
-                             } if (localTypeOfGroupsTracker){
-                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
-                                    writeStartElement(null, namespace, "typeOfGroups", xmlWriter);
-                             
-
-                                          if (localTypeOfGroups==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                  
-                                          }else{
-
-                                        
-                                                   xmlWriter.writeCharacters(localTypeOfGroups);
                                             
                                           }
                                     
@@ -2014,6 +2014,12 @@
                                  
                                          elementList.add(localAscending==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAscending));
+                                    } if (localTypeOfGroupsTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "typeOfGroups"));
+                                 
+                                         elementList.add(localTypeOfGroups==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localTypeOfGroups));
                                     } if (localPageIsCursorTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "pageIsCursor"));
@@ -2038,12 +2044,6 @@
                                  
                                          elementList.add(localPageCursorFieldIncludesLastRetrieved==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageCursorFieldIncludesLastRetrieved));
-                                    } if (localTypeOfGroupsTracker){
-                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                      "typeOfGroups"));
-                                 
-                                         elementList.add(localTypeOfGroups==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localTypeOfGroups));
                                     } if (localEnabledTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "enabled"));
@@ -2696,6 +2696,33 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","typeOfGroups").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setTypeOfGroups(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pageIsCursor").equals(reader.getName())){
                                 
                                        nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
@@ -2785,33 +2812,6 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setPageCursorFieldIncludesLastRetrieved(
-                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
-                                            
-                                       } else {
-                                           
-                                           
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
-                                        reader.next();
-                                    
-                              }  // End of if for expected property start element
-                                
-                                    else {
-                                        
-                                    }
-                                
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","typeOfGroups").equals(reader.getName())){
-                                
-                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
-                                    
-                                    java.lang.String content = reader.getElementText();
-                                    
-                                              object.setTypeOfGroups(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

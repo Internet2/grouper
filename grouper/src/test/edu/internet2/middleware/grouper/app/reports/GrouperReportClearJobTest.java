@@ -27,7 +27,6 @@ public class GrouperReportClearJobTest extends GrouperTest {
   @Override
   protected void setUp() {
     super.setUp();
-    GrouperCheckConfig.checkGroups();
     GrouperCheckConfig.waitUntilDoneWithExtraConfig();
   }
   

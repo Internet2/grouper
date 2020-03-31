@@ -167,10 +167,10 @@ public class GrouperService {
       String groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1, String pageSize, 
-      String pageNumber, String sortString, String ascending, 
+      String pageNumber, String sortString, String ascending, String typeOfGroups,
       String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
       String pageCursorFieldIncludesLastRetrieved,
-      String typeOfGroups, String enabled) {
+      String enabled) {
 
     WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
 
@@ -191,10 +191,10 @@ public class GrouperService {
           groupName, stemName, stemScope, groupUuid, groupAttributeName, groupAttributeValue,
           groupType,actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, 
           includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1,
-          pageSize, pageNumber, sortString, ascending, 
+          pageSize, pageNumber, sortString, ascending, typeOfGroups,
           pageIsCursor, pageLastCursorField, pageLastCursorFieldType,
           pageCursorFieldIncludesLastRetrieved,
-          typeOfGroups, enabled);
+          enabled);
       
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, null, e);
@@ -361,9 +361,8 @@ public class GrouperService {
       String includeSubjectDetail, String subjectAttributeNames,
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds,
-      String pointInTimeRetrieve,
       String pointInTimeFrom, String pointInTimeTo, String pageSize, String pageNumber,
-      String sortString, String ascending,
+      String sortString, String ascending, String pointInTimeRetrieve,
       String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
       String pageCursorFieldIncludesLastRetrieved) {
 
@@ -404,10 +403,10 @@ public class GrouperService {
           actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
           paramName1, paramValue1, sourceIds,
-          pointInTimeRetrieveBoolean, pointInTimeFromTimestamp, pointInTimeToTimestamp,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
-          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
-          pageCursorFieldIncludesLastRetrievedBoolean);
+          pointInTimeRetrieveBoolean, pageIsCursorBoolean, pageLastCursorField, 
+          pageLastCursorFieldType, pageCursorFieldIncludesLastRetrievedBoolean);
     } catch (Exception e) {
       wsGetMembersLiteResult.assignResultCodeException(null, null, e);
     }
@@ -471,9 +470,8 @@ public class GrouperService {
       String includeGroupDetail, 
       String includeSubjectDetail, String[] subjectAttributeNames,
       WsParam[] params, String[] sourceIds,
-      String pointInTimeRetrieve,
       String pointInTimeFrom, String pointInTimeTo, String pageSize, String pageNumber,
-      String sortString, String ascending,
+      String sortString, String ascending, String pointInTimeRetrieve,
       String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
       String pageCursorFieldIncludesLastRetrieved) {
 	  
@@ -513,8 +511,8 @@ public class GrouperService {
       wsGetMembersResults = GrouperServiceLogic.getMembers(grouperWsVersion, wsGroupLookups, 
           wsMemberFilter, actAsSubjectLookup, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, params, sourceIds, 
-          pointInTimeRetrieveBoolean, pointInTimeFromTimestamp, pointInTimeToTimestamp,
-          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp,
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pointInTimeRetrieveBoolean,
           pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
           pageCursorFieldIncludesLastRetrievedBoolean);
     } catch (Exception e) {
@@ -587,9 +585,9 @@ public class GrouperService {
       WsParam[] params, String fieldName, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, 
       String pageSize, String pageNumber, String sortString, String ascending,
+      String pointInTimeFrom, String pointInTimeTo,
       String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
-      String pageCursorFieldIncludesLastRetrieved,
-      String pointInTimeFrom, String pointInTimeTo) {
+      String pageCursorFieldIncludesLastRetrieved) {
     
     WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
 
@@ -624,9 +622,9 @@ public class GrouperService {
           wsMemberFilter, actAsSubjectLookup, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, params, fieldName, scope, wsStemLookup, 
           stemScopeEnum, enabled, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp,
           pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
-          pageCursorFieldIncludesLastRetrievedBoolean,
-          pointInTimeFromTimestamp, pointInTimeToTimestamp);
+          pageCursorFieldIncludesLastRetrievedBoolean);
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, null, e);
     }
@@ -1483,9 +1481,9 @@ public class GrouperService {
       String paramName1, String paramValue1, String fieldName, String scope, 
       String stemName, String stemUuid, String stemScope, String enabled, 
       String pageSize, String pageNumber, String sortString, String ascending,
+      String pointInTimeFrom, String pointInTimeTo,
       String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
-      String pageCursorFieldIncludesLastRetrieved,
-      String pointInTimeFrom, String pointInTimeTo) {
+      String pageCursorFieldIncludesLastRetrieved) {
 
     WsGetGroupsLiteResult wsGetGroupsLiteResult = new WsGetGroupsLiteResult();
 
@@ -1522,10 +1520,9 @@ public class GrouperService {
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
           paramName1, paramValue1, fieldName, scope, stemName, stemUuid, stemScopeEnum, enabled, 
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, 
-          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
-          pageCursorFieldIncludesLastRetrievedBoolean,
           pointInTimeFromTimestamp,
-          pointInTimeToTimestamp);
+          pointInTimeToTimestamp, pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean);
     } catch (Exception e) {
       wsGetGroupsLiteResult.assignResultCodeException(null, null, e);
     }
@@ -2510,10 +2507,10 @@ public class GrouperService {
       WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, 
       String fieldType, String serviceRole, WsAttributeDefNameLookup serviceLookup, String pageSize, String pageNumber,
       String sortString, String ascending, 
-      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
-      String pageCursorFieldIncludesLastRetrieved,
       String pageSizeForMember, String pageNumberForMember,
       String sortStringForMember, String ascendingForMember,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved,
       String pageIsCursorForMember, String pageLastCursorFieldForMember, 
       String pageLastCursorFieldTypeForMember,
       String pageCursorFieldIncludesLastRetrievedForMember,
@@ -2573,10 +2570,10 @@ public class GrouperService {
           subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds,
           wsOwnerStemLookups, wsOwnerAttributeDefLookups, fieldTypeEnum, serviceRoleEnum, serviceLookup,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, 
+          pageSizeForMemberInteger, pageNumberForMemberInteger, 
+          sortStringForMember, ascendingForMemberBoolean,
           pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
           pageCursorFieldIncludesLastRetrievedBoolean,
-          pageSizeForMemberInteger, pageNumberForMemberInteger, 
-          sortStringForMember, ascendingForMemberBoolean, 
           pageIsCursorForMemberBoolean, pageLastCursorFieldForMember, pageLastCursorFieldTypeForMember,
           pageCursorFieldIncludesLastRetrievedForMemberBoolean,
           pointInTimeRetrieveBoolean,
@@ -2696,10 +2693,10 @@ public class GrouperService {
       String ownerAttributeDefUuid, String fieldType, String serviceRole, 
       String serviceId, String serviceName, String pageSize, String pageNumber,
       String sortString, String ascending, 
+      String pageSizeForMember, String pageNumberForMember,
+      String sortStringForMember, String ascendingForMember,
       String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
       String pageCursorFieldIncludesLastRetrieved,
-      String pageSizeForMember, String pageNumberForMember,
-      String sortStringForMember, String ascendingForMember, 
       String pageIsCursorForMember, String pageLastCursorFieldForMember, 
       String pageLastCursorFieldTypeForMember, String pageCursorFieldIncludesLastRetrievedForMember,
       String pointInTimeRetrieve,
@@ -2752,10 +2749,10 @@ public class GrouperService {
           stemName, stemUuid, theStemScope, enabled, membershipIds, ownerStemName, ownerStemUuid, 
           nameOfOwnerAttributeDef, ownerAttributeDefUuid, fieldTypeEnum, serviceRoleEnum, serviceId, serviceName,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, 
+          pageSizeForMemberInteger, pageNumberForMemberInteger, 
+          sortStringForMember, ascendingForMemberBoolean,
           pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
           pageCursorFieldIncludesLastRetrievedBoolean,
-          pageSizeForMemberInteger, pageNumberForMemberInteger, 
-          sortStringForMember, ascendingForMemberBoolean, 
           pageIsCursorForMemberBoolean, pageLastCursorFieldForMember, 
           pageLastCursorFieldTypeForMember,
           pageCursorFieldIncludesLastRetrievedForMemberBoolean,
@@ -4584,10 +4581,10 @@ public class GrouperService {
       String stemScope, String parentStemId, String findByUuidOrName,
       String pageSize, String pageNumber,
       String sortString, String ascending, 
-      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
-      String pageCursorFieldIncludesLastRetrieved,
       WsSubjectLookup actAsSubjectLookup,
-      WsParam[] params) {
+      WsParam[] params, 
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved) {
 
     WsFindAttributeDefsResults wsFindAttributeDefsResults = new WsFindAttributeDefsResults();
 
@@ -4622,9 +4619,9 @@ public class GrouperService {
           privilegeName,
           stemScopeEnum, parentStemId, findByUuidOrNameBoolean,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          actAsSubjectLookup, params,
           pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
-          pageCursorFieldIncludesLastRetrievedBoolean,
-          actAsSubjectLookup, params);
+          pageCursorFieldIncludesLastRetrievedBoolean);
 
     } catch (Exception e) {
       wsFindAttributeDefsResults.assignResultCodeException(null, null, e);
@@ -4691,12 +4688,11 @@ public class GrouperService {
       String findByUuidOrName,
       String pageSize, String pageNumber,
       String sortString, String ascending,
-      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
-      String pageCursorFieldIncludesLastRetrieved,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
-      String paramValue0, String paramName1, String paramValue1
-      ) {
+      String paramValue0, String paramName1, String paramValue1,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved) {
 
     WsFindAttributeDefsResults wsFindAttributeDefsResults = new WsFindAttributeDefsResults();
 
@@ -4731,11 +4727,11 @@ public class GrouperService {
           idIndexOfAttributeDef, privilegeName,
           stemScopeEnum, parentStemId, findByUuidOrNameBoolean,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
-          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
-          pageCursorFieldIncludesLastRetrievedBoolean,
           actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, paramName0,
-          paramValue0, paramName1, paramValue1);
+          paramValue0, paramName1, paramValue1,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean);
 
     } catch (Exception e) {
       wsFindAttributeDefsResults.assignResultCodeException(null, null, e);
@@ -5014,10 +5010,10 @@ public class GrouperService {
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups, 
       String pageSize, String pageNumber,
       String sortString, String ascending, 
-      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
-      String pageCursorFieldIncludesLastRetrieved,
       String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
-      WsSubjectLookup wsSubjectLookup, String serviceRole) {
+      WsSubjectLookup wsSubjectLookup, String serviceRole,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved) {
 
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
 
@@ -5049,9 +5045,9 @@ public class GrouperService {
           scope, splitScopeBoolean, wsAttributeDefLookup,
           attributeAssignTypeEnum, attributeDefTypeEnum,
           wsAttributeDefNameLookups, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
-          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
-          pageCursorFieldIncludesLastRetrievedBoolean,
-          wsInheritanceSetRelationEnum, actAsSubjectLookup, params, wsSubjectLookup, serviceRoleEnum);
+          wsInheritanceSetRelationEnum, actAsSubjectLookup, params, wsSubjectLookup,
+          serviceRoleEnum, pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean);
   
     } catch (Exception e) {
       wsFindAttributeDefNamesResults.assignResultCodeException(null, null, e);
@@ -5122,15 +5118,14 @@ public class GrouperService {
       String attributeAssignType, String attributeDefType, String attributeDefNameUuid, String attributeDefNameName,
       String pageSize, String pageNumber,
       String sortString, String ascending,
-      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
-      String pageCursorFieldIncludesLastRetrieved,
       String wsInheritanceSetRelation,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1,
       String subjectId, String subjectSourceId,
-      String subjectIdentifier, String serviceRole 
-      ) {
+      String subjectIdentifier, String serviceRole,
+      String pageIsCursor, String pageLastCursorField, String pageLastCursorFieldType,
+      String pageCursorFieldIncludesLastRetrieved) {
         
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
     
@@ -5162,12 +5157,12 @@ public class GrouperService {
           scope, splitScopeBoolean, uuidOfAttributeDef, nameOfAttributeDef,
           attributeAssignTypeEnum, attributeDefTypeEnum, attributeDefNameUuid, attributeDefNameName,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
-          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
-          pageCursorFieldIncludesLastRetrievedBoolean,
           wsInheritanceSetRelationEnum, actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, paramName0,
           paramValue0, paramName1, paramValue1, subjectId, subjectSourceId,
-          subjectIdentifier, serviceRoleEnum);
+          subjectIdentifier, serviceRoleEnum,
+          pageIsCursorBoolean, pageLastCursorField, pageLastCursorFieldType,
+          pageCursorFieldIncludesLastRetrievedBoolean);
 
     } catch (Exception e) {
       wsFindAttributeDefNamesResults.assignResultCodeException(null, null, e);

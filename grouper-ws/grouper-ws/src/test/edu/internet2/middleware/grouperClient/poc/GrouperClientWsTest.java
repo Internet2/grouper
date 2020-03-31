@@ -62,6 +62,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.authentication.GrouperPassword;
+import edu.internet2.middleware.grouper.authentication.GrouperPasswordSave;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
@@ -73,6 +75,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -81,7 +84,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
@@ -254,6 +257,23 @@ public class GrouperClientWsTest extends GrouperTest {
     }
 
     GrouperClient.exitOnError = false;
+    
+    // insert GrouperSystem/admin123 for grouper ws authentication
+    GrouperPasswordSave grouperPasswordSave = new GrouperPasswordSave();
+    
+    String userName = GrouperWsConfig.retrieveConfig().propertyValueString("ws.testing.user");
+    if (StringUtils.isBlank(userName)) {
+      throw new RuntimeException("Set ws.testing.user in grouper.ws.properties file");
+    }
+    
+    String password = GrouperWsConfig.retrieveConfig().propertyValueString("ws.testing.pass");
+    if (StringUtils.isBlank(password)) {
+      throw new RuntimeException("Set ws.testing.pass in grouper.ws.properties file");
+    }
+    
+    grouperPasswordSave.assignUsername(userName).assignPassword(password).assignEntityType("username");
+    grouperPasswordSave.assignApplication(GrouperPassword.Application.WS);
+    new Authentication().assignUserPassword(grouperPasswordSave);
   }
 
   /**
@@ -21364,7 +21384,8 @@ public class GrouperClientWsTest extends GrouperTest {
         String[] outputLines2 = new String[4];
         int i=0;
         for (String outputLine : outputLines) {
-          if (!outputLine.contains("attestationLastEmailedDate") && !outputLine.contains("deprovisioningLastEmailedDate")) {
+          if (!outputLine.contains("attestationLastEmailedDate") && !outputLine.contains("deprovisioningLastEmailedDate") &&
+              !outputLine.contains("workflowInstanceLastEmailedDate") && !outputLine.contains("workflowInstanceLastEmailedState")) {
             outputLines2[i++] = outputLine;
           }
         }
@@ -21409,7 +21430,8 @@ public class GrouperClientWsTest extends GrouperTest {
         String[] outputLines2 = new String[4];
         int i=0;
         for (String outputLine : outputLines) {
-          if (!outputLine.contains("attestationLastEmailedDate") && !outputLine.contains("deprovisioningLastEmailedDate")) {
+          if (!outputLine.contains("attestationLastEmailedDate") && !outputLine.contains("deprovisioningLastEmailedDate") &&
+              !outputLine.contains("workflowInstanceLastEmailedDate") && !outputLine.contains("workflowInstanceLastEmailedState")) {
             outputLines2[i++] = outputLine;
           }
         }
@@ -21837,8 +21859,8 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals(outputLines[0], "0", matcher.group(1));
-      assertEquals(outputLines[0], "aStem1:newAttributeDefName2", matcher.group(2));
-      assertEquals(outputLines[0], "aStem1:newAttributeDefName2", matcher.group(3));
+      assertEquals(outputLines[0], "aStem2:newAttributeDefName4", matcher.group(2));
+      assertEquals(outputLines[0], "aStem2:newAttributeDefName4", matcher.group(3));
 
       assertFalse(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));

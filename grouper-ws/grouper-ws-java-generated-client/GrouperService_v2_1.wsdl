@@ -121,6 +121,59 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="getGroups">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
+                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getGroupsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetGroupsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGetGroupsResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsGetGroupsResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsGetGroupsResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroups" nillable="true" type="ns:WsGroup"/>
+                    <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="findGroupsLite">
                 <xs:complexType>
                     <xs:sequence>
@@ -163,6 +216,55 @@
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="stemSave">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStemToSaves" nillable="true" type="ns:WsStemToSave"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemToSave">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
+                    <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsStem">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stemSaveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsStemSaveResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemSaveResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsStemSaveResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsStemSaveResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="findStems">
                 <xs:complexType>
                     <xs:sequence>
@@ -192,12 +294,6 @@
                     <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="WsStemLookup">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:element name="findStemsResponse">
                 <xs:complexType>
                     <xs:sequence>
@@ -210,16 +306,6 @@
                     <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="stemResults" nillable="true" type="ns:WsStem"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsStem">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="findGroups">
@@ -516,45 +602,6 @@
                 <xs:sequence>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="stemSave">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStemToSaves" nillable="true" type="ns:WsStemToSave"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsStemToSave">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
-                    <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="stemSaveResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsStemSaveResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsStemSaveResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsStemSaveResult"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsStemSaveResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="stemDelete">
@@ -2237,53 +2284,6 @@
                     <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:element name="getGroups">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
-                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getGroupsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetGroupsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:complexType name="WsGetGroupsResults">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsGetGroupsResult"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsGetGroupsResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroups" nillable="true" type="ns:WsGroup"/>
-                    <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
-                </xs:sequence>
-            </xs:complexType>
         </xs:schema>
     </wsdl:types>
     <wsdl:message name="groupSaveRequest">
@@ -2544,17 +2544,17 @@
     <wsdl:message name="getPermissionAssignmentsLiteResponse">
         <wsdl:part name="parameters" element="ns:getPermissionAssignmentsLiteResponse"/>
     </wsdl:message>
-    <wsdl:message name="stemSaveLiteRequest">
-        <wsdl:part name="parameters" element="ns:stemSaveLite"/>
-    </wsdl:message>
-    <wsdl:message name="stemSaveLiteResponse">
-        <wsdl:part name="parameters" element="ns:stemSaveLiteResponse"/>
-    </wsdl:message>
     <wsdl:message name="getMembersLiteRequest">
         <wsdl:part name="parameters" element="ns:getMembersLite"/>
     </wsdl:message>
     <wsdl:message name="getMembersLiteResponse">
         <wsdl:part name="parameters" element="ns:getMembersLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="stemSaveLiteRequest">
+        <wsdl:part name="parameters" element="ns:stemSaveLite"/>
+    </wsdl:message>
+    <wsdl:message name="stemSaveLiteResponse">
+        <wsdl:part name="parameters" element="ns:stemSaveLiteResponse"/>
     </wsdl:message>
     <wsdl:message name="assignAttributesBatchRequest">
         <wsdl:part name="parameters" element="ns:assignAttributesBatch"/>
@@ -2747,13 +2747,13 @@
             <wsdl:input message="tns:getPermissionAssignmentsLiteRequest" wsaw:Action="urn:getPermissionAssignmentsLite"/>
             <wsdl:output message="tns:getPermissionAssignmentsLiteResponse" wsaw:Action="urn:getPermissionAssignmentsLiteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="stemSaveLite">
-            <wsdl:input message="tns:stemSaveLiteRequest" wsaw:Action="urn:stemSaveLite"/>
-            <wsdl:output message="tns:stemSaveLiteResponse" wsaw:Action="urn:stemSaveLiteResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="getMembersLite">
             <wsdl:input message="tns:getMembersLiteRequest" wsaw:Action="urn:getMembersLite"/>
             <wsdl:output message="tns:getMembersLiteResponse" wsaw:Action="urn:getMembersLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="stemSaveLite">
+            <wsdl:input message="tns:stemSaveLiteRequest" wsaw:Action="urn:stemSaveLite"/>
+            <wsdl:output message="tns:stemSaveLiteResponse" wsaw:Action="urn:stemSaveLiteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="assignAttributesBatch">
             <wsdl:input message="tns:assignAttributesBatchRequest" wsaw:Action="urn:assignAttributesBatch"/>
@@ -3157,8 +3157,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="stemSaveLite">
-            <soap:operation soapAction="urn:stemSaveLite" style="document"/>
+        <wsdl:operation name="getMembersLite">
+            <soap:operation soapAction="urn:getMembersLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3166,8 +3166,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembersLite">
-            <soap:operation soapAction="urn:getMembersLite" style="document"/>
+        <wsdl:operation name="stemSaveLite">
+            <soap:operation soapAction="urn:stemSaveLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3592,8 +3592,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="stemSaveLite">
-            <soap12:operation soapAction="urn:stemSaveLite" style="document"/>
+        <wsdl:operation name="getMembersLite">
+            <soap12:operation soapAction="urn:getMembersLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -3601,8 +3601,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembersLite">
-            <soap12:operation soapAction="urn:getMembersLite" style="document"/>
+        <wsdl:operation name="stemSaveLite">
+            <soap12:operation soapAction="urn:stemSaveLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -3643,433 +3643,433 @@
         <wsdl:operation name="assignGrouperPrivileges">
             <http:operation location="assignGrouperPrivileges"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="hasMemberLite">
             <http:operation location="hasMemberLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="groupSave">
             <http:operation location="groupSave"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getSubjectsLite">
             <http:operation location="getSubjectsLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="deleteMemberLite">
             <http:operation location="deleteMemberLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGrouperPrivilegesLite">
             <http:operation location="getGrouperPrivilegesLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="assignAttributesLite">
             <http:operation location="assignAttributesLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="stemSave">
             <http:operation location="stemSave"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGroups">
             <http:operation location="getGroups"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="groupSaveLite">
             <http:operation location="groupSaveLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGroupsLite">
             <http:operation location="getGroupsLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findGroupsLite">
             <http:operation location="findGroupsLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMembershipsLite">
             <http:operation location="getMembershipsLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="attributeDefNameSaveLite">
             <http:operation location="attributeDefNameSaveLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="deleteMember">
             <http:operation location="deleteMember"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="memberChangeSubjectLite">
             <http:operation location="memberChangeSubjectLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getPermissionAssignments">
             <http:operation location="getPermissionAssignments"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMembers">
             <http:operation location="getMembers"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getSubjects">
             <http:operation location="getSubjects"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="attributeDefNameDelete">
             <http:operation location="attributeDefNameDelete"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findGroups">
             <http:operation location="findGroups"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="groupDeleteLite">
             <http:operation location="groupDeleteLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMemberships">
             <http:operation location="getMemberships"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="stemDeleteLite">
             <http:operation location="stemDeleteLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findStemsLite">
             <http:operation location="findStemsLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="addMemberLite">
             <http:operation location="addMemberLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="assignAttributes">
             <http:operation location="assignAttributes"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="groupDelete">
             <http:operation location="groupDelete"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="assignAttributeDefNameInheritanceLite">
             <http:operation location="assignAttributeDefNameInheritanceLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="attributeDefNameDeleteLite">
             <http:operation location="attributeDefNameDeleteLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getAttributeAssignmentsLite">
             <http:operation location="getAttributeAssignmentsLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="assignPermissions">
             <http:operation location="assignPermissions"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="addMember">
             <http:operation location="addMember"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findAttributeDefNames">
             <http:operation location="findAttributeDefNames"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="assignPermissionsLite">
             <http:operation location="assignPermissionsLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="assignGrouperPrivilegesLite">
             <http:operation location="assignGrouperPrivilegesLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="memberChangeSubject">
             <http:operation location="memberChangeSubject"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getAttributeAssignments">
             <http:operation location="getAttributeAssignments"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="attributeDefNameSave">
             <http:operation location="attributeDefNameSave"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="hasMember">
             <http:operation location="hasMember"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findAttributeDefNamesLite">
             <http:operation location="findAttributeDefNamesLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findStems">
             <http:operation location="findStems"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getPermissionAssignmentsLite">
             <http:operation location="getPermissionAssignmentsLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="stemSaveLite">
-            <http:operation location="stemSaveLite"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMembersLite">
             <http:operation location="getMembersLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemSaveLite">
+            <http:operation location="stemSaveLite"/>
+            <wsdl:input>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="assignAttributesBatch">
             <http:operation location="assignAttributesBatch"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="assignAttributeDefNameInheritance">
             <http:operation location="assignAttributeDefNameInheritance"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="stemDelete">
             <http:operation location="stemDelete"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="application/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>

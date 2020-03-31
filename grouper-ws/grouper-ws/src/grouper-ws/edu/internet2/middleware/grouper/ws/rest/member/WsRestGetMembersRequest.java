@@ -106,11 +106,6 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   private String pageCursorFieldIncludesLastRetrieved;
   
   /**
-   * enabled is A for all, T or null for enabled only, F for disabled
-   */
-  private String enabled;
-  
-  /**
    * page size if paging
    * @return page size
    */
@@ -183,6 +178,13 @@ public class WsRestGetMembersRequest implements WsRequestBean {
     this.ascending = ascending1;
   }
 
+  
+  /**
+   * T|F|null
+   */
+  private String pointInTimeRetrieve;
+  
+  
   /**
    * To query members at a certain point in time or time range in the past, set this value
    * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
@@ -489,20 +491,21 @@ public class WsRestGetMembersRequest implements WsRequestBean {
     this.pageCursorFieldIncludesLastRetrieved = pageCursorFieldIncludesLastRetrieved1;
   }
 
-
   /**
-   * @return the enabled
+   * T|F|null
    */
-  public String getEnabled() {
-    return this.enabled;
+  public String getPointInTimeRetrieve() {
+    return this.pointInTimeRetrieve;
   }
 
 
   /**
-   * @param enabled1 the enabled to set
+   * T|F|null
    */
-  public void setEnabled(String enabled1) {
-    this.enabled = enabled1;
+  public void setPointInTimeRetrieve(String pointInTimeRetrieve) {
+    this.pointInTimeRetrieve = pointInTimeRetrieve;
   }
+  
+  
   
 }

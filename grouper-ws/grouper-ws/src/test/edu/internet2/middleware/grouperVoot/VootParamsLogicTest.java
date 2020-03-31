@@ -20,13 +20,14 @@
  */
 package edu.internet2.middleware.grouperVoot;
 
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.subject.Subject;
+import junit.textui.TestRunner;
 
 /**
  * Class to test the parameter passing to main service logic for the VOOT connector for Grouper.
@@ -61,6 +62,15 @@ public class VootParamsLogicTest extends VootTest {
    */
   public VootParamsLogicTest() {
     super();
+  }
+  
+  
+
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
   }
 
   /**
@@ -398,9 +408,9 @@ public class VootParamsLogicTest extends VootTest {
     Object resultObject = callGroupsAPI("@me", null, sortBy, start, count);
   
     //analyze the result
-    int groupCount = 4;
-    int[] groups = new int[]{ 0, 1, 2, 3 };
-    String[] roles = new String[]{ "admin", "admin", "manager", "member" };
+    int groupCount = 2;
+    int[] groups = new int[]{ 0, 1 };
+    String[] roles = new String[]{ "admin", "admin" };
     validateGroups(resultObject, groupCount, sortBy, start, groupCount, groups, roles);
   
     GrouperSession.stopQuietly(grouperSession);
@@ -552,6 +562,7 @@ public class VootParamsLogicTest extends VootTest {
    * Note: running this will delete all data in the registry!
    */
   public void testSearchAllGroups() {
+    
     createRegistryToTestVOOT();
     
     //start session as logged in user to web service

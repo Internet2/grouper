@@ -598,48 +598,6 @@
                              
 
                         /**
-                        * field for PointInTimeRetrieve
-                        */
-
-                        
-                                    protected java.lang.String localPointInTimeRetrieve ;
-                                
-                           /*  This tracker boolean wil be used to detect whether the user called the set method
-                          *   for this attribute. It will be used to determine whether to include this field
-                           *   in the serialized XML
-                           */
-                           protected boolean localPointInTimeRetrieveTracker = false ;
-
-                           public boolean isPointInTimeRetrieveSpecified(){
-                               return localPointInTimeRetrieveTracker;
-                           }
-
-                           
-
-                           /**
-                           * Auto generated getter method
-                           * @return java.lang.String
-                           */
-                           public  java.lang.String getPointInTimeRetrieve(){
-                               return localPointInTimeRetrieve;
-                           }
-
-                           
-                        
-                            /**
-                               * Auto generated setter method
-                               * @param param PointInTimeRetrieve
-                               */
-                               public void setPointInTimeRetrieve(java.lang.String param){
-                            localPointInTimeRetrieveTracker = true;
-                                   
-                                            this.localPointInTimeRetrieve=param;
-                                    
-
-                               }
-                            
-
-                        /**
                         * field for PointInTimeFrom
                         */
 
@@ -718,6 +676,48 @@
                             localPointInTimeToTracker = true;
                                    
                                             this.localPointInTimeTo=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PointInTimeRetrieve
+                        */
+
+                        
+                                    protected java.lang.String localPointInTimeRetrieve ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPointInTimeRetrieveTracker = false ;
+
+                           public boolean isPointInTimeRetrieveSpecified(){
+                               return localPointInTimeRetrieveTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPointInTimeRetrieve(){
+                               return localPointInTimeRetrieve;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PointInTimeRetrieve
+                               */
+                               public void setPointInTimeRetrieve(java.lang.String param){
+                            localPointInTimeRetrieveTracker = true;
+                                   
+                                            this.localPointInTimeRetrieve=param;
                                     
 
                                }
@@ -1009,25 +1009,7 @@
                                     
                              }
 
-                        } if (localPointInTimeRetrieveTracker){
-                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
-                                    writeStartElement(null, namespace, "pointInTimeRetrieve", xmlWriter);
-                             
-
-                                          if (localPointInTimeRetrieve==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                  
-                                          }else{
-
-                                        
-                                                   xmlWriter.writeCharacters(localPointInTimeRetrieve);
-                                            
-                                          }
-                                    
-                                   xmlWriter.writeEndElement();
-                             } if (localPointInTimeFromTracker){
+                        } if (localPointInTimeFromTracker){
                                     namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "pointInTimeFrom", xmlWriter);
                              
@@ -1059,6 +1041,24 @@
 
                                         
                                                    xmlWriter.writeCharacters(localPointInTimeTo);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPointInTimeRetrieveTracker){
+                                    namespace = "http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "pointInTimeRetrieve", xmlWriter);
+                             
+
+                                          if (localPointInTimeRetrieve==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPointInTimeRetrieve);
                                             
                                           }
                                     
@@ -1389,13 +1389,7 @@
                                 
                             }
 
-                        } if (localPointInTimeRetrieveTracker){
-                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
-                                                                      "pointInTimeRetrieve"));
-                                 
-                                         elementList.add(localPointInTimeRetrieve==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPointInTimeRetrieve));
-                                    } if (localPointInTimeFromTracker){
+                        } if (localPointInTimeFromTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "pointInTimeFrom"));
                                  
@@ -1407,6 +1401,12 @@
                                  
                                          elementList.add(localPointInTimeTo==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPointInTimeTo));
+                                    } if (localPointInTimeRetrieveTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pointInTimeRetrieve"));
+                                 
+                                         elementList.add(localPointInTimeRetrieve==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPointInTimeRetrieve));
                                     }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -1887,33 +1887,6 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pointInTimeRetrieve").equals(reader.getName())){
-                                
-                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
-                                    
-                                    java.lang.String content = reader.getElementText();
-                                    
-                                              object.setPointInTimeRetrieve(
-                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
-                                            
-                                       } else {
-                                           
-                                           
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
-                                        reader.next();
-                                    
-                              }  // End of if for expected property start element
-                                
-                                    else {
-                                        
-                                    }
-                                
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pointInTimeFrom").equals(reader.getName())){
                                 
                                        nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
@@ -1949,6 +1922,33 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setPointInTimeTo(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd","pointInTimeRetrieve").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPointInTimeRetrieve(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

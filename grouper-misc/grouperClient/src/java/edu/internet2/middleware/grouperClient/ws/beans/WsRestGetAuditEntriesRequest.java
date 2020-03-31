@@ -28,27 +28,33 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   private WsParam[] params;
   
   /** fetch audit entries for this group */
-  private WsGroupLookup wsOwnerGroupLookup;
+  private WsGroupLookup wsGroupLookup;
   
   /**
    * fetch audit entries for this stem
    */
-  private WsStemLookup wsOwnerStemLookup;
+  private WsStemLookup wsStemLookup;
   
   /**
    * fetch audit entries for this attribute def
    */
-  private WsAttributeDefLookup wsOwnerAttributeDefLookup;
+  private WsAttributeDefLookup wsAttributeDefLookup;
   
   /**
    * fetch audit entries for this attribute def name
    */
-  private WsAttributeDefNameLookup wsOwnerAttributeDefNameLookup;
+  private WsAttributeDefNameLookup wsAttributeDefNameLookup;
   
   /**
    * fetch audit entries for these subjects
    */
-  private WsSubjectLookup wsOwnerSubjectLookup;
+  private WsSubjectLookup wsSubjectLookup;
+  
+  /**
+   * fetch audit entries for actions performed by these subjects 
+   */
+  private WsSubjectLookup actionsPerformedByWsSubjectLookup;
+  
   
   /** page size if paging */
   private String pageSize;
@@ -344,94 +350,108 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
     this.ascending = ascending1;
   }
 
+
+
+  /**
+   * @return the wsGroupLookup
+   */
+  public WsGroupLookup getWsGroupLookup() {
+    return this.wsGroupLookup;
+  }
+
+
+  /**
+   * @param wsGroupLookup1 the wsGroupLookup to set
+   */
+  public void setWsGroupLookup(WsGroupLookup wsGroupLookup1) {
+    this.wsGroupLookup = wsGroupLookup1;
+  }
+
+
+  /**
+   * @return the wsStemLookup
+   */
+  public WsStemLookup getWsStemLookup() {
+    return this.wsStemLookup;
+  }
+
+
+
+  /**
+   * @param wsStemLookup1 the wsStemLookup to set
+   */
+  public void setWsStemLookup(WsStemLookup wsStemLookup1) {
+    this.wsStemLookup = wsStemLookup1;
+  }
+
+
+  /**
+   * @return the wsAttributeDefLookup
+   */
+  public WsAttributeDefLookup getWsAttributeDefLookup() {
+    return this.wsAttributeDefLookup;
+  }
+
+
+
+  /**
+   * @param wsAttributeDefLookup1 the wsAttributeDefLookup to set
+   */
+  public void setWsAttributeDefLookup(WsAttributeDefLookup wsAttributeDefLookup1) {
+    this.wsAttributeDefLookup = wsAttributeDefLookup1;
+  }
+
+
+
+  /**
+   * @return the wsAttributeDefNameLookup
+   */
+  public WsAttributeDefNameLookup getWsAttributeDefNameLookup() {
+    return this.wsAttributeDefNameLookup;
+  }
+
+
+
+  /**
+   * @param wsAttributeDefNameLookup1 the wsAttributeDefNameLookup to set
+   */
+  public void setWsAttributeDefNameLookup(WsAttributeDefNameLookup wsAttributeDefNameLookup1) {
+    this.wsAttributeDefNameLookup = wsAttributeDefNameLookup1;
+  }
+
+
+
+  /**
+   * @return the wsSubjectLookup
+   */
+  public WsSubjectLookup getWsSubjectLookup() {
+    return this.wsSubjectLookup;
+  }
+
+
+
+  /**
+   * @param wsSubjectLookup1 the wsSubjectLookup to set
+   */
+  public void setWsSubjectLookup(WsSubjectLookup wsSubjectLookup1) {
+    this.wsSubjectLookup = wsSubjectLookup1;
+  }
+
   
-
   /**
-   * @return the wsOwnerGroupLookup
+   * @return the actionsPerformedByWsSubjectLookup
    */
-  public WsGroupLookup getWsOwnerGroupLookup() {
-    return this.wsOwnerGroupLookup;
+  public WsSubjectLookup getActionsPerformedByWsSubjectLookup() {
+    return this.actionsPerformedByWsSubjectLookup;
   }
 
 
-
   /**
-   * @param wsOwnerGroupLookup1 the wsOwnerGroupLookup to set
+   * @param actionsPerformedByWsSubjectLookup1 the actionsPerformedByWsSubjectLookup to set
    */
-  public void setWsOwnerGroupLookup(WsGroupLookup wsOwnerGroupLookup1) {
-    this.wsOwnerGroupLookup = wsOwnerGroupLookup1;
+  public void setActionsPerformedByWsSubjectLookup(WsSubjectLookup actionsPerformedByWsSubjectLookup1) {
+    this.actionsPerformedByWsSubjectLookup = actionsPerformedByWsSubjectLookup1;
   }
 
-
-
-  /**
-   * @return the wsOwnerStemLookup
-   */
-  public WsStemLookup getWsOwnerStemLookup() {
-    return this.wsOwnerStemLookup;
-  }
-
-
-
-  /**
-   * @param wsOwnerStemLookup1 the wsOwnerStemLookup to set
-   */
-  public void setWsOwnerStemLookup(WsStemLookup wsOwnerStemLookup1) {
-    this.wsOwnerStemLookup = wsOwnerStemLookup1;
-  }
-
-
-
-  /**
-   * @return the wsOwnerAttributeDefLookup
-   */
-  public WsAttributeDefLookup getWsOwnerAttributeDefLookup() {
-    return this.wsOwnerAttributeDefLookup;
-  }
-
-
-
-  /**
-   * @param wsOwnerAttributeDefLookup1 the wsOwnerAttributeDefLookup to set
-   */
-  public void setWsOwnerAttributeDefLookup(WsAttributeDefLookup wsOwnerAttributeDefLookup1) {
-    this.wsOwnerAttributeDefLookup = wsOwnerAttributeDefLookup1;
-  }
-
-
-
-  /**
-   * @return the wsOwnerAttributeDefNameLookup
-   */
-  public WsAttributeDefNameLookup getWsOwnerAttributeDefNameLookup() {
-    return this.wsOwnerAttributeDefNameLookup;
-  }
-
-
-
-  /**
-   * @param wsOwnerAttributeDefNameLookup1 the wsOwnerAttributeDefNameLookup to set
-   */
-  public void setWsOwnerAttributeDefNameLookup(WsAttributeDefNameLookup wsOwnerAttributeDefNameLookup1) {
-    this.wsOwnerAttributeDefNameLookup = wsOwnerAttributeDefNameLookup1;
-  }
-
-
-
-  /**
-   * @return the wsOwnerSubjectLookup
-   */
-  public WsSubjectLookup getWsOwnerSubjectLookup() {
-    return this.wsOwnerSubjectLookup;
-  }
-
-
-
-  /**
-   * @param wsOwnerSubjectLookup1 the wsOwnerSubjectLookup to set
-   */
-  public void setWsOwnerSubjectLookup(WsSubjectLookup wsOwnerSubjectLookup1) {
-    this.wsOwnerSubjectLookup = wsOwnerSubjectLookup1;
-  }
-
+  
 }

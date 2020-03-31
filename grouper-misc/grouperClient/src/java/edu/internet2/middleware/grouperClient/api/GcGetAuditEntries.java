@@ -296,15 +296,15 @@ public class GcGetAuditEntries {
 
       getAuditEntries.setActAsSubjectLookup(this.actAsSubject);
 
-      getAuditEntries.setWsOwnerStemLookup(this.wsStemLookup);
+      getAuditEntries.setWsStemLookup(this.wsStemLookup);
 
-      getAuditEntries.setWsOwnerGroupLookup(this.wsGroupLookup);
+      getAuditEntries.setWsGroupLookup(this.wsGroupLookup);
       
-      getAuditEntries.setWsOwnerAttributeDefLookup(this.wsAttributeDefLookup);
+      getAuditEntries.setWsAttributeDefLookup(this.wsAttributeDefLookup);
       
-      getAuditEntries.setWsOwnerAttributeDefNameLookup(this.wsAttributeDefNameLookup);
+      getAuditEntries.setWsAttributeDefNameLookup(this.wsAttributeDefNameLookup);
       
-      getAuditEntries.setWsOwnerSubjectLookup(this.wsSubjectLookup);
+      getAuditEntries.setWsSubjectLookup(this.wsSubjectLookup);
       
       getAuditEntries.setAuditType(this.auditType);
       
