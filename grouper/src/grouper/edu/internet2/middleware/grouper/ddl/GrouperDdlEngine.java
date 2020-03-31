@@ -328,6 +328,8 @@ public class GrouperDdlEngine {
       //get this to the previous version, dont worry about additional scripts
       GrouperDdlUtils.upgradeDatabaseVersion(oldDatabase, null, 0, objectName, dbVersion, 
           new StringBuilder(), result, platform, connection, schema, sqlBuilder);
+      GrouperDdlUtils.upgradeDatabaseVersion(newDatabase, null, 0, objectName, dbVersion, 
+          new StringBuilder(), result, platform, connection, schema, sqlBuilder);
       
       StringBuilder additionalScripts = new StringBuilder();
       

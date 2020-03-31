@@ -51,7 +51,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addMembersTableIndifier0Index", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addMembersTableIndifier0Index", true)) {
       return;
     }
     
@@ -68,7 +68,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addPitMembersTableIndifier0Index", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addPitMembersTableIndifier0Index", true)) {
       return;
     }
     
@@ -85,7 +85,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addChangeLogEntryTempIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addChangeLogEntryTempIndex", true)) {
       return;
     }
     
@@ -103,7 +103,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addConfigurationIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addConfigurationIndexes", true)) {
       return;
     }
 
@@ -137,7 +137,7 @@ public class GrouperDdl2_4 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addConfigurationTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_4_addConfigurationTables", true)) {
       return;
     }
     

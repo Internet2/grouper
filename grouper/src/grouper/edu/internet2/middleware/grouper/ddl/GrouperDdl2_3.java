@@ -55,7 +55,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addMembersTableIndifier0Column", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addMembersTableIndifier0Column", true)) {
       return;
     }
     
@@ -70,7 +70,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addMembersTableIndifier0Comment", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addMembersTableIndifier0Comment", true)) {
       return;
     }
     
@@ -92,7 +92,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addMessagingForeignKey", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addMessagingForeignKey", true)) {
       return;
     }
 
@@ -107,7 +107,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addPitMembersTableIndifier0Column", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addPitMembersTableIndifier0Column", true)) {
       return;
     }
     
@@ -123,7 +123,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addPitMembersTableIdentifier0Comment", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addPitMembersTableIdentifier0Comment", true)) {
       return;
     }
     
@@ -145,7 +145,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("convertStemAdminPrivilege", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_convertStemAdminPrivilege", true)) {
       return;
     }
     
@@ -173,7 +173,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("convertPitStemAdminPrivilege", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_convertPitStemAdminPrivilege", true)) {
       return;
     }
     
@@ -202,7 +202,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addMessagingIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addMessagingIndexes", true)) {
       return;
     }
 
@@ -243,7 +243,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addMessagingTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addMessagingTables", true)) {
       return;
     }
 
@@ -300,7 +300,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addMessagingTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addMessagingTables", true)) {
       return;
     }
     {
@@ -366,7 +366,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addQuartzIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addQuartzIndexes", true)) {
       return;
     }
 
@@ -443,7 +443,7 @@ public class GrouperDdl2_3 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("dropViewGrouperAvalAsnEfmshipV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_dropViewGrouperAvalAsnEfmshipV", true)) {
       return;
     }
 
@@ -465,7 +465,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("createViewGrouperAvalAsnEfmshipV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_createViewGrouperAvalAsnEfmshipV", true)) {
       return;
     }
 
@@ -576,7 +576,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addQuartzForeignKeys", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addQuartzForeignKeys", true)) {
       return;
     }
     
@@ -611,7 +611,7 @@ public class GrouperDdl2_3 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addQuartzTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_3_addQuartzTables", true)) {
       return;
     }
 

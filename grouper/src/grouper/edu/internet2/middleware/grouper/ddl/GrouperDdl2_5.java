@@ -61,7 +61,7 @@ public class GrouperDdl2_5 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addGrouperPasswordComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperPasswordComments", true)) {
       return;
     }
     
@@ -189,7 +189,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addGroupEnabledDisabledColumns", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGroupEnabledDisabledColumns", true)) {
       return;
     }
 
@@ -272,7 +272,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addGrouperPasswordForeignKeys", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperPasswordForeignKeys", true)) {
       return;
     }
 
@@ -291,7 +291,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addGrouperPasswordTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperPasswordTables", true)) {
       return;
     }
 
@@ -382,7 +382,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addGrouperPasswordIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperPasswordIndexes", true)) {
       return;
     }
     
@@ -452,7 +452,7 @@ public class GrouperDdl2_5 {
    * 
    */
   static void addDdlWorkerTable(DdlVersionBean ddlVersionBean, Database database) {
-    if (ddlVersionBean.didWeDoThis("addDdlWorkerTable", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addDdlWorkerTable", true)) {
       return;
     }
     {
@@ -483,7 +483,7 @@ public class GrouperDdl2_5 {
    * @param database
    */
   static void addDdlWorkerIndexes(DdlVersionBean ddlVersionBean, Database database) {
-    if (ddlVersionBean.didWeDoThis("addDdlWorkerIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addDdlWorkerIndexes", true)) {
       return;
     }
     
@@ -499,7 +499,7 @@ public class GrouperDdl2_5 {
    * 
    */
   static void addDdlWorkerComments(DdlVersionBean ddlVersionBean, Database database) {
-    if (ddlVersionBean.didWeDoThis("addDdlWorkerComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addDdlWorkerComments", true)) {
       return;
     }
   
@@ -526,7 +526,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addSyncTables", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addSyncTables", true)) {
       return;
     }
     {
@@ -855,7 +855,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addSyncComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addSyncComments", true)) {
       return;
     }
   
@@ -1101,7 +1101,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addSyncForeignKeys", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addSyncForeignKeys", true)) {
       return;
     }
 
@@ -1137,7 +1137,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addSyncIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addSyncIndexes", true)) {
       return;
     }
   
@@ -1259,7 +1259,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("adjustMessageMemberIdSize", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_adjustMessageMemberIdSize", true)) {
       return;
     }
 
@@ -1297,7 +1297,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addCompositeTypeIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addCompositeTypeIndex", true)) {
       return;
     }
     Table compositeTable = GrouperDdlUtils.ddlutilsFindTable(database, Composite.TABLE_GROUPER_COMPOSITES, true);
@@ -1311,7 +1311,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("addAttributeAssignTypeIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addAttributeAssignTypeIndex", true)) {
       return;
     }
     Table attributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, true);
@@ -1329,7 +1329,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("createViewGrouperRolesV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_createViewGrouperRolesV", true)) {
       return;
     }
 
@@ -1413,7 +1413,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("dropViewGrouperGroupsV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_dropViewGrouperGroupsV", true)) {
       return;
     }
 
@@ -1425,7 +1425,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("dropViewGrouperRolesV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_dropViewGrouperRolesV", true)) {
       return;
     }
 
@@ -1439,7 +1439,7 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("createViewGrouperGroupsV", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_createViewGrouperGroupsV", true)) {
       return;
     }
   
@@ -1525,7 +1525,7 @@ public class GrouperDdl2_5 {
       return;
     }
   
-    if (ddlVersionBean.didWeDoThis("createViewGrouperGroupsVplaceholder", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_createViewGrouperGroupsVplaceholder", true)) {
       return;
     }
   
@@ -1543,7 +1543,7 @@ public class GrouperDdl2_5 {
       return;
     }
   
-    if (ddlVersionBean.didWeDoThis("createViewGrouperRolesVplaceholder", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_createViewGrouperRolesVplaceholder", true)) {
       return;
     }
   
@@ -1561,7 +1561,7 @@ public class GrouperDdl2_5 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addConfigurationComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addConfigurationComments", true)) {
       return;
     }
     
@@ -1629,7 +1629,7 @@ public class GrouperDdl2_5 {
   static void addGrouperExternalSubjectIdentifierIndex(DdlVersionBean ddlVersionBean, Database database) {
     
     if (buildingToPreviousVersion(ddlVersionBean) && ddlVersionBean.isSmallIndexes()) {
-      if (ddlVersionBean.didWeDoThis("addGrouperExternalSubjectIdentifierIndexRemoveAdd", true)) {
+      if (ddlVersionBean.didWeDoThis("v2_5_addGrouperExternalSubjectIdentifierIndexRemoveAdd", true)) {
         return;
       }
       // add an old one since "unique" changed for mysql
@@ -1642,7 +1642,7 @@ public class GrouperDdl2_5 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("addGrouperExternalSubjectIdentifierIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperExternalSubjectIdentifierIndex", true)) {
       return;
     }
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ExternalSubject.TABLE_GROUPER_EXT_SUBJ, 
