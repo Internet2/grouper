@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1036
+Content-Length: 1156
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,30 +25,34 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestFindAttributeDefsLiteRequest">
-      <p class="actAsSubjectId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
-      <p class="ascending" />
-      <p class="clientVersion" />
-      <p class="findByUuidOrName" />
-      <p class="idIndexOfAttributeDef" />
+      <p class="actAsSubjectId"/>
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
+      <p class="ascending"/>
+      <p class="clientVersion"/>
+      <p class="findByUuidOrName"/>
+      <p class="idIndexOfAttributeDef"/>
       <p class="nameOfAttributeDef">test1:testAttributeDef_xhtml</p>
-      <p class="pageNumber" />
-      <p class="pageSize" />
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
-      <p class="parentStemId" />
-      <p class="privilegeName" />
+      <p class="pageCursorFieldIncludesLastRetrieved"/>
+      <p class="pageIsCursor"/>
+      <p class="pageLastCursorField"/>
+      <p class="pageLastCursorFieldType"/>
+      <p class="pageNumber"/>
+      <p class="pageSize"/>
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
+      <p class="parentStemId"/>
+      <p class="privilegeName"/>
       <p class="scope">test:</p>
-      <p class="sortString" />
-      <p class="splitScope" />
-      <p class="stemScope" />
-      <p class="subjectId" />
-      <p class="subjectIdentifier" />
-      <p class="subjectSourceId" />
-      <p class="uuidOfAttributeDef" />
+      <p class="sortString"/>
+      <p class="splitScope"/>
+      <p class="stemScope"/>
+      <p class="subjectId"/>
+      <p class="subjectIdentifier"/>
+      <p class="subjectSourceId"/>
+      <p class="uuidOfAttributeDef"/>
     </div>
   </body>
 </html>
@@ -63,16 +67,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=40990A4A348582F62AD4D1E006E82F0E;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:38:56 GMT
+Date: Tue, 31 Mar 2020 20:29:08 GMT
 Connection: close
+Server: Apache TomEE
 
-40a
+407
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -82,13 +87,13 @@ Connection: close
   <body>
     <div title="WsFindAttributeDefsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">129</p>
-        <p class="resultWarnings" />
+        <p class="millis">20</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
 , params: null</p>

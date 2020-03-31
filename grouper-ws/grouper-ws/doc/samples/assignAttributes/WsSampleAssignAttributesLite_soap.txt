@@ -9,18 +9,19 @@ Grouper web service sample of service: assignAttributes, WsSampleAssignAttribute
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_5 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:assignAttributesLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-975
+986
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns1:assignAttributesLite xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns1:assignAttributesLite xmlns:ns1="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:attributeAssignType>group</ns1:attributeAssignType>
       <ns1:wsAttributeDefNameName>test:testAttributeAssignDefName</ns1:wsAttributeDefNameName>
@@ -77,278 +78,298 @@ Transfer-Encoding: chunked
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=95A155B93A2CB6F2B036095C6825CE30;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignAttributesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:35:14 GMT
+Date: Tue, 31 Mar 2020 20:15:49 GMT
+Server: Apache TomEE
 
 2000
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns:assignAttributesLiteResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:assignAttributesLiteResponse xmlns:ns="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAssignAttributesLiteResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
-          <ns:millis xsi:nil="true" />
-          <ns:resultWarnings xsi:nil="true" />
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
           <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
-          <ns:params xsi:nil="true" />
+          <ns:params xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true"/>
           <ns:resultMessage>, Found 1 results.</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:subjectAttributeNames xsi:nil="true" />
+        <ns:subjectAttributeNames xsi:nil="true"/>
         <ns:wsAttributeAssignResult xsi:type="ns:WsAssignAttributeResult">
           <ns:changed>F</ns:changed>
           <ns:deleted>F</ns:deleted>
           <ns:valuesChanged>F</ns:valuesChanged>
-          <ns:wsAttributeAssignValueResults xsi:nil="true" />
+          <ns:wsAttributeAssignValueResults xsi:nil="true"/>
           <ns:wsAttributeAssigns xsi:type="ns:WsAttributeAssign">
-            <ns:attributeAssignActionId>4b87e89855c44780bae4dfb3b71281e2</ns:attributeAssignActionId>
+            <ns:attributeAssignActionId>f4ea797d82c949c8b026fbb46f9b373d</ns:attributeAssignActionId>
             <ns:attributeAssignActionName>assign</ns:attributeAssignActionName>
             <ns:attributeAssignActionType>immediate</ns:attributeAssignActionType>
             <ns:attributeAssignDelegatable>FALSE</ns:attributeAssignDelegatable>
             <ns:attributeAssignType>group</ns:attributeAssignType>
-            <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+            <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
             <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
-            <ns:attributeDefNameId>ebb18ed6ee0f4577b5704805fceb7986</ns:attributeDefNameId>
+            <ns:attributeDefNameId>84c250d8d21c407ba87c779de9ef55dc</ns:attributeDefNameId>
             <ns:attributeDefNameName>test:testAttributeAssignDefName</ns:attributeDefNameName>
-            <ns:createdOn>2018/08/06 12:34:54.147</ns:createdOn>
-            <ns:disabledTime xsi:nil="true" />
+            <ns:createdOn>2020/03/31 13:13:50.762</ns:createdOn>
+            <ns:disabledTime xsi:nil="true"/>
             <ns:disallowed>F</ns:disallowed>
             <ns:enabled>T</ns:enabled>
-            <ns:enabledTime xsi:nil="true" />
-            <ns:id>635f99e61f9e46a6b4e680fcecd1871f</ns:id>
-            <ns:lastUpdated>2018/08/06 12:34:54.147</ns:lastUpdated>
-            <ns:notes xsi:nil="true" />
-            <ns:ownerAttributeAssignId xsi:nil="true" />
-            <ns:ownerAttributeDefId xsi:nil="true" />
-            <ns:ownerAttributeDefName xsi:nil="true" />
-            <ns:ownerGroupId>1283a3268f654f5e95942676fa6d242f</ns:ownerGroupId>
+            <ns:enabledTime xsi:nil="true"/>
+            <ns:id>f455c9b6e95e4d4cb41408e3f2461074</ns:id>
+            <ns:lastUpdated>2020/03/31 13:13:50.762</ns:lastUpdated>
+            <ns:notes xsi:nil="true"/>
+            <ns:ownerAttributeAssignId xsi:nil="true"/>
+            <ns:ownerAttributeDefId xsi:nil="true"/>
+            <ns:ownerAttributeDefName xsi:nil="true"/>
+            <ns:ownerGroupId>9c4860dce6a843e18c3de2ef3208082f</ns:ownerGroupId>
             <ns:ownerGroupName>test:groupTestAttrAssign</ns:ownerGroupName>
-            <ns:ownerMemberId xsi:nil="true" />
-            <ns:ownerMemberSourceId xsi:nil="true" />
-            <ns:ownerMemberSubjectId xsi:nil="true" />
-            <ns:ownerMembershipId xsi:nil="true" />
-            <ns:ownerStemId xsi:nil="true" />
-            <ns:ownerStemName xsi:nil="true" />
+            <ns:ownerMemberId xsi:nil="true"/>
+            <ns:ownerMemberSourceId xsi:nil="true"/>
+            <ns:ownerMemberSubjectId xsi:nil="true"/>
+            <ns:ownerMembershipId xsi:nil="true"/>
+            <ns:ownerStemId xsi:nil="true"/>
+            <ns:ownerStemName xsi:nil="true"/>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>051987b270004731bb5a7cc513159412</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>0dd19f8842544670b34318fb0523cd32</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>268e3c49a9a64d2f8c7245443e65fa91</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>1c9f1ebabfee4d988d054a1a0fdfbe2b</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>3fe09e00e9d449c6a1d11b9c3bb29626</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>227b72466e214fa1915b586d5e6a297b</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>47490cba828948d1b3364a90ce05d4f1</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>38659b8074594f2e8d889383ce7a9a75</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>6eb17ac222174ced80e52e106365db06</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>59ebce553a51454295d57d0d6312d572</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>737cc806208e4dc8924d7e0e2df1c342</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>6ec66d774080402993437b33a050e88a</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>98cb4fa38d3c4564a41aad6596896113</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>8283f292f48b48a29c2e54b8f3cdb16b</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>b464ff6a18e74037aeba6016645039bd</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>8838c018afa9460ea1dbdfc7c48c44f1</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>b8fb7f2de8d1410dbec694daf408ee58</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>99d7c197f9f74ad29d9fd36c436f1bf6</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>d5610e8478124f6da9822a1029ac0a7c</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>a69b6e82323845088f0ebf1668074a27</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>e5f7db40270d45858a37db4946169466</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>c3d9336e99384a478534bdc71d305afe</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>04dc1670cd954aefa1ac2831bcbcd1af</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>d6236f1b3063466e97f4fbf98fd83e3e</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>15</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>176848cff7944c2b8745c0eace2a1c82</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>1a9c96549a764a1da1d11707e1e5d573</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>2b76fefe44394a30a5378735940e5bde</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>1ed52fb84c2d4b08a5bb44d52ac4a570</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>2bb8b45585f74462b45af89f6bd70a05</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>3e49be905bc2407089b001a71998f76d</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>3a2375b6e76b44a9bda64e140e8fd84b</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>42cea855c5124f2ea1a56de8da25ee2c</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>420e068703bc4ad397f42deff51e2f47</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>4b2ceac7023744dfb7e0db2669bd51bf</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>641246d961ed4ae8b0127710ea2e8150</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>4ed9d48ebd1c486cbbae5d37507ffb01</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>6b365205a85e4518a6878a5faee32638</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>5d89230527ba4542aedb22dd6cdc57b3</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>6da667f3ae9045e4aa4a11b722b397f7</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>625c40b8ab594e0b9a19cf08b8210bc3</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>72772b25719041b187a2fdbe7c150517</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>7b89ba24a88d44d28ba8602a18c3cf5b</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>7565198fbdc84622bc0e153e904ce2f7</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>87461e794097488bb3ae10c605a96fb7</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>79c73ccf94ed4475bc803ffdd3cffdfb</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>a19153990e144eefbc4e4e6fc2f68300</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>7af94eece57e4d4882a29dd85d0a7555</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>c16bf85c093b4c68a789fe7c054206e5</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>7b0e8f21454b4852bbc531d733372dd3</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>cc4c8b2814434286bcc622811f4e4f83</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>88a8410ea2e54b74a59d074ebb080427</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>cf5de08ac7c343b58592fd7241e180a5</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>a18bc987604840c386da861d2efa75e1</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>5</ns:valueSystem>
+            </ns:wsAttributeAssignValues
+ea8
+>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>aa7e7d3bb682446cb39cd6e52328ca95</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-              <ns:id>d5373b2c2a8b42d3972a8335faa40f11</ns:id>
-              <ns:valueFormatted xsi:nil="true" />
+              <ns:id>ac7ad747ee2b442583d3d6cea34c224a</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
               <ns:valueSystem>5</ns:valueSystem>
-              <
-c00
-/ns:wsAttributeAssignValues>
-                <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-                  <ns:id>da23a7adecaf47b8874292d861ee029e</ns:id>
-                  <ns:valueFormatted xsi:nil="true" />
-                  <ns:valueSystem>5</ns:valueSystem>
-                </ns:wsAttributeAssignValues>
-                <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-                  <ns:id>de21162274d64ed08a0370bb8915e6b2</ns:id>
-                  <ns:valueFormatted xsi:nil="true" />
-                  <ns:valueSystem>5</ns:valueSystem>
-                </ns:wsAttributeAssignValues>
-                <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-                  <ns:id>e65ffaa874af442b8a9de6cf1caf310f</ns:id>
-                  <ns:valueFormatted xsi:nil="true" />
-                  <ns:valueSystem>5</ns:valueSystem>
-                </ns:wsAttributeAssignValues>
-                <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-                  <ns:id>f2ca01a7c79b43c49a4d46f638713b4f</ns:id>
-                  <ns:valueFormatted xsi:nil="true" />
-                  <ns:valueSystem>5</ns:valueSystem>
-                </ns:wsAttributeAssignValues>
-                <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-                  <ns:id>f2e29bc3914149cfabb1ada2e347904f</ns:id>
-                  <ns:valueFormatted xsi:nil="true" />
-                  <ns:valueSystem>5</ns:valueSystem>
-                </ns:wsAttributeAssignValues>
-                <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
-                  <ns:id>fc9e8a4ccf914931a3f68502aadf0ec3</ns:id>
-                  <ns:valueFormatted xsi:nil="true" />
-                  <ns:valueSystem>5</ns:valueSystem>
-                </ns:wsAttributeAssignValues>
-              </ns:wsAttributeAssigns>
-            </ns:wsAttributeAssignResult>
-            <ns:wsAttributeDefName xsi:type="ns:WsAttributeDefName">
-              <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
-              <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
-              <ns:description xsi:nil="true" />
-              <ns:displayExtension>testAttributeAssignDefName</ns:displayExtension>
-              <ns:displayName>test:testAttributeAssignDefName</ns:displayName>
-              <ns:extension>testAttributeAssignDefName</ns:extension>
-              <ns:idIndex>10153</ns:idIndex>
-              <ns:name>test:testAttributeAssignDefName</ns:name>
-              <ns:uuid>ebb18ed6ee0f4577b5704805fceb7986</ns:uuid>
-            </ns:wsAttributeDefName>
-            <ns:wsAttributeDefs xsi:type="ns:WsAttributeDef">
-              <ns:assignableTos xsi:nil="true" />
-              <ns:attributeDefType>attr</ns:attributeDefType>
-              <ns:description xsi:nil="true" />
-              <ns:extension>testAttributeAssignDefNameDef</ns:extension>
-              <ns:idIndex>10044</ns:idIndex>
-              <ns:multiAssignable>F</ns:multiAssignable>
-              <ns:multiValued>T</ns:multiValued>
-              <ns:name>test:testAttributeAssignDefNameDef</ns:name>
-              <ns:uuid>431a9914cdba4564ad5943c7ec7de988</ns:uuid>
-              <ns:valueType>integer</ns:valueType>
-            </ns:wsAttributeDefs>
-            <ns:wsGroup xsi:type="ns:WsGroup">
-              <ns:alternateName xsi:nil="true" />
-              <ns:description>description</ns:description>
-              <ns:detail xsi:nil="true" />
-              <ns:displayExtension>groupTestAttrAssign</ns:displayExtension>
-              <ns:displayName>test:groupTestAttrAssign</ns:displayName>
-              <ns:extension>groupTestAttrAssign</ns:extension>
-              <ns:idIndex>10020</ns:idIndex>
-              <ns:name>test:groupTestAttrAssign</ns:name>
-              <ns:typeOfGroup>group</ns:typeOfGroup>
-              <ns:uuid>1283a3268f654f5e95942676fa6d242f</ns:uuid>
-            </ns:wsGroup>
-            <ns:wsMembership xsi:nil="true" />
-            <ns:wsStem xsi:nil="true" />
-            <ns:wsSubject xsi:nil="true" />
-          </ns:return>
-        </ns:assignAttributesLiteResponse>
-      </soapenv:Body>
-    </soapenv:Envelope>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>cc980cf0720e4f5183ea25347d57edb9</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>5</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>d0b6bd147b8f49089f35af1fd9a71780</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>5</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>d96ca594578a4e7b9d9edd5cf69ad92a</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>5</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>deaeaf010ae64786997cde048173130b</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>5</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>e1ed17f6b3bc422e9c27698cb6d25049</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>5</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>f2b8a9c148c245d7a3eec53feb1ff018</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>5</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues xsi:type="ns:WsAttributeAssignValue">
+              <ns:id>f30ab9ad6ad640c9b64ce9de04e71904</ns:id>
+              <ns:valueFormatted xsi:nil="true"/>
+              <ns:valueSystem>5</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+          </ns:wsAttributeAssigns>
+        </ns:wsAttributeAssignResult>
+        <ns:wsAttributeDefName xsi:type="ns:WsAttributeDefName">
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
+          <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
+          <ns:description xsi:nil="true"/>
+          <ns:displayExtension>testAttributeAssignDefName</ns:displayExtension>
+          <ns:displayName>test:testAttributeAssignDefName</ns:displayName>
+          <ns:extension>testAttributeAssignDefName</ns:extension>
+          <ns:idIndex>10279</ns:idIndex>
+          <ns:name>test:testAttributeAssignDefName</ns:name>
+          <ns:uuid>84c250d8d21c407ba87c779de9ef55dc</ns:uuid>
+        </ns:wsAttributeDefName>
+        <ns:wsAttributeDefs xsi:type="ns:WsAttributeDef">
+          <ns:assignableTos xsi:nil="true"/>
+          <ns:attributeDefType>attr</ns:attributeDefType>
+          <ns:description xsi:nil="true"/>
+          <ns:extension>testAttributeAssignDefNameDef</ns:extension>
+          <ns:idIndex>10083</ns:idIndex>
+          <ns:multiAssignable>F</ns:multiAssignable>
+          <ns:multiValued>T</ns:multiValued>
+          <ns:name>test:testAttributeAssignDefNameDef</ns:name>
+          <ns:uuid>3d7adcf55291443d8eb2527d22f6e67c</ns:uuid>
+          <ns:valueType>integer</ns:valueType>
+        </ns:wsAttributeDefs>
+        <ns:wsGroup xsi:type="ns:WsGroup">
+          <ns:alternateName xsi:nil="true"/>
+          <ns:description>description</ns:description>
+          <ns:detail xsi:nil="true"/>
+          <ns:disabledTime xsi:nil="true"/>
+          <ns:displayExtension>groupTestAttrAssign</ns:displayExtension>
+          <ns:displayName>test:groupTestAttrAssign</ns:displayName>
+          <ns:enabled>T</ns:enabled>
+          <ns:enabledTime xsi:nil="true"/>
+          <ns:extension>groupTestAttrAssign</ns:extension>
+          <ns:idIndex>10033</ns:idIndex>
+          <ns:name>test:groupTestAttrAssign</ns:name>
+          <ns:typeOfGroup>group</ns:typeOfGroup>
+          <ns:uuid>9c4860dce6a843e18c3de2ef3208082f</ns:uuid>
+        </ns:wsGroup>
+        <ns:wsMembership xsi:nil="true"/>
+        <ns:wsStem xsi:nil="true"/>
+        <ns:wsSubject xsi:nil="true"/>
+      </ns:return>
+    </ns:assignAttributesLiteResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
 0
 
 
@@ -390,11 +411,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AssignAttributesLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignAttributeResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignAttributesLiteResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssign;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignAttributesLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssign;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroup;
 
 
 /**
@@ -521,13 +542,13 @@ public class WsSampleAssignAttributesLite implements WsSampleGenerated {
 
 
 WsAssignAttributesLiteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@bb6124c,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@357972dc,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@3299fd09,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@156304e9,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsAttributeAssignResult=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignAttributeResult@731e55d8,localWsAttributeAssignResultTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@48811d85,localWsAttributeDefNameTracker=true,
-  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@168f1f0f},localWsAttributeDefsTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup@173e3893,localWsGroupTracker=true,localWsMembershipTracker=true,localWsStemTracker=true,localWsSubjectTracker=true]
-WsAttributeAssign[localAttributeAssignActionId=4b87e89855c44780bae4dfb3b71281e2,localAttributeAssignActionIdTracker=true,localAttributeAssignActionName=assign,localAttributeAssignActionNameTracker=true,localAttributeAssignActionType=immediate,localAttributeAssignActionTypeTracker=true,localAttributeAssignDelegatable=FALSE,localAttributeAssignDelegatableTracker=true,localAttributeAssignType=group,localAttributeAssignTypeTracker=true,localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localAttributeDefNameId=ebb18ed6ee0f4577b5704805fceb7986,localAttributeDefNameIdTracker=true,localAttributeDefNameName=test:testAttributeAssignDefName,localAttributeDefNameNameTracker=true,localCreatedOn=2018/08/06 12:34:54.147,localCreatedOnTracker=true,localDisabledTimeTracker=false,localDisallowed=F,localDisallowedTracker=true,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localId=635f99e61f9e46a6b4e680fcecd1871f,localIdTracker=true,localLastUpdated=2018/08/06 12:34:54.147,localLastUpdatedTracker=true,localNotesTracker=false,localOwnerAttributeAssignIdTracker=false,localOwnerAttributeDefIdTracker=false,localOwnerAttributeDefNameTracker=false,localOwnerGroupId=1283a3268f654f5e95942676fa6d242f,localOwnerGroupIdTracker=true,localOwnerGroupName=test:groupTestAttrAssign,localOwnerGroupNameTracker=true,localOwnerMemberIdTracker=false,localOwnerMemberSourceIdTracker=false,localOwnerMemberSubjectIdTracker=false,localOwnerMembershipIdTracker=false,localOwnerStemIdTracker=false,localOwnerStemNameTracker=false,
-  localWsAttributeAssignValues={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@6afdc0d4,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@26348a0d,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@d0bb60,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@ea4252,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@495d9fb,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@6f34f86,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@3fdef83,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@5157d57c,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@7b2794ac,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@67b47b31,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@b5911b3,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@64cac991,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@238fa350,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@67a639e3,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@2431682d,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@1605ab7b,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@48ce0fc8,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@1ef15e13,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@312e3de0,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@acb16cd,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@32c3f813,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@26d6399e,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@6657c199,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@34f8cee0,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@19d6bb0c,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@e5b7b61,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@56d8283a,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@242573cf,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@807b29c,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@5d52508e,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@4adc3ae6,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@45e88379,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignValue@70ce5a0a},localWsAttributeAssignValuesTracker=true]
-WsGroup[localAlternateNameTracker=false,localDescription=description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=groupTestAttrAssign,localDisplayExtensionTracker=true,localDisplayName=test:groupTestAttrAssign,localDisplayNameTracker=true,localExtension=groupTestAttrAssign,localExtensionTracker=true,localIdIndex=10020,localIdIndexTracker=true,localName=test:groupTestAttrAssign,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=1283a3268f654f5e95942676fa6d242f,localUuidTracker=true]
+  localWsAttributeAssignResult=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignAttributeResult@2d7d3510,localWsAttributeAssignResultTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@50f1e403,localWsAttributeDefNameTracker=true,
+  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDef@38b3ff76},localWsAttributeDefsTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroup@7c2298c5,localWsGroupTracker=true,localWsMembershipTracker=true,localWsStemTracker=true,localWsSubjectTracker=true]
+WsAttributeAssign[localAttributeAssignActionId=f4ea797d82c949c8b026fbb46f9b373d,localAttributeAssignActionIdTracker=true,localAttributeAssignActionName=assign,localAttributeAssignActionNameTracker=true,localAttributeAssignActionType=immediate,localAttributeAssignActionTypeTracker=true,localAttributeAssignDelegatable=FALSE,localAttributeAssignDelegatableTracker=true,localAttributeAssignType=group,localAttributeAssignTypeTracker=true,localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localAttributeDefNameId=84c250d8d21c407ba87c779de9ef55dc,localAttributeDefNameIdTracker=true,localAttributeDefNameName=test:testAttributeAssignDefName,localAttributeDefNameNameTracker=true,localCreatedOn=2020/03/31 13:13:50.762,localCreatedOnTracker=true,localDisabledTimeTracker=false,localDisallowed=F,localDisallowedTracker=true,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localId=f455c9b6e95e4d4cb41408e3f2461074,localIdTracker=true,localLastUpdated=2020/03/31 13:13:50.762,localLastUpdatedTracker=true,localNotesTracker=false,localOwnerAttributeAssignIdTracker=false,localOwnerAttributeDefIdTracker=false,localOwnerAttributeDefNameTracker=false,localOwnerGroupId=9c4860dce6a843e18c3de2ef3208082f,localOwnerGroupIdTracker=true,localOwnerGroupName=test:groupTestAttrAssign,localOwnerGroupNameTracker=true,localOwnerMemberIdTracker=false,localOwnerMemberSourceIdTracker=false,localOwnerMemberSubjectIdTracker=false,localOwnerMembershipIdTracker=false,localOwnerStemIdTracker=false,localOwnerStemNameTracker=false,
+  localWsAttributeAssignValues={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@765842f4,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@3067efcb,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@5197d5af,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@6f57ec1b,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@5b2c5ce7,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@543ae9fe,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@3b6f647b,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@6b087039,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@527ac2db,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@510ca473,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@11805e95,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@39a17d24,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@3d490cd1,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@9520837,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@1ab59b7e,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@28cf8d51,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@5d15231d,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@441f9b38,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@72c786ae,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@263628a2,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@524feab2,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@6ab17d98,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@240d7496,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@33e93b8d,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@1ede4d38,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@7f62bec6,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@3084dc78,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@4a4bbcb6,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@26909f4a,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@4c6e91d0,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@5a1ff339,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@4d264ac0,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@6f6ee6e1,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@57361acd,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@7295bd29,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignValue@d9a99f1},localWsAttributeAssignValuesTracker=true]
+WsGroup[localAlternateNameTracker=false,localDescription=description,localDescriptionTracker=true,localDetailTracker=true,localDisabledTimeTracker=false,localDisplayExtension=groupTestAttrAssign,localDisplayExtensionTracker=true,localDisplayName=test:groupTestAttrAssign,localDisplayNameTracker=true,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localExtension=groupTestAttrAssign,localExtensionTracker=true,localIdIndex=10033,localIdIndexTracker=true,localName=test:groupTestAttrAssign,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=9c4860dce6a843e18c3de2ef3208082f,localUuidTracker=true]

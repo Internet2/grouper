@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAcknowledgeMessage;
@@ -430,12 +431,14 @@ public class SampleCapture {
   private static void setupData() {
     GrouperSession grouperSession = null;
     HibUtils.assignDisallowCacheThreadLocal();
+    SubjectSourceCache.clearCache();
+    SubjectFinder.internalClearSubjectCustomizerCache();
     try {
 
       grouperSession = GrouperSession.startRootSession();
 
       RegistryReset rr = new RegistryReset();
-      rr._addSubjects();
+      // rr._addSubjects();
 
       {
         Group testGroup = GroupFinder.findByName(grouperSession, "aStem:testGroup", false);

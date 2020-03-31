@@ -40,123 +40,299 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=DAC67A247C608CDB5DB3A4259ED6595F;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 2842
-Date: Mon, 06 Aug 2018 17:14:51 GMT
+Transfer-Encoding: chunked
+Date: Tue, 31 Mar 2020 20:40:54 GMT
 Connection: close
+Server: Apache TomEE
 
+2000
 {
   "WsGetPermissionAssignmentsResults":{
+    "responseMetadata":{
+      "millis":"133",
+      "serverVersion":"2.5.0"
+    },
     "resultMetadata":{
-      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 3 results."
+      "resultMessage":", Found 13 results.",
+      "success":"T"
     },
     "wsAttributeDefs":[
       {
-        "attributeDefType":"perm",
         "assignToAttributeDef":"F",
-        "assignToStemAssignment":"F",
-        "extension":"permissionDef",
-        "assignToMemberAssignment":"F",
-        "assignToEffectiveMembership":"F",
-        "uuid":"c056b6eafc584704be188886bc8e1435",
-        "assignToImmediateMembershipAssignment":"F",
-        "assignToEffectiveMembershipAssignment":"F",
-        "assignToStem":"F",
-        "assignToGroupAssignment":"F",
-        "assignToMember":"F",
-        "multiAssignable":"F",
-        "valueType":"marker",
-        "name":"aStem:permissionDef",
         "assignToAttributeDefAssignment":"F",
-        "idIndex":"10049",
-        "multiValued":"F",
+        "assignToEffectiveMembership":"F",
+        "assignToEffectiveMembershipAssignment":"F",
         "assignToGroup":"F",
-        "assignToImmediateMembership":"F"
+        "assignToGroupAssignment":"F",
+        "assignToImmediateMembership":"F",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToMember":"F",
+        "assignToMemberAssignment":"F",
+        "assignToStem":"F",
+        "assignToStemAssignment":"F",
+        "attributeDefType":"perm",
+        "extension":"permissionDef",
+        "idIndex":"10085",
+        "multiAssignable":"F",
+        "multiValued":"F",
+        "name":"aStem:permissionDef",
+        "uuid":"82bd0a56a05f45d2b49dc5956670d41f",
+        "valueType":"marker"
+      }
+    ]
+    ,
+    "wsGroups":[
+      {
+        "displayExtension":"role",
+        "displayName":"a stem:role",
+        "enabled":"T",
+        "extension":"role",
+        "idIndex":"10035",
+        "name":"aStem:role",
+        "typeOfGroup":"role",
+        "uuid":"3befb91c854541f68a4dcb75fe1f92ee"
+      },
+      {
+        "displayExtension":"role2",
+        "displayName":"a stem:role2",
+        "enabled":"T",
+        "extension":"role2",
+        "idIndex":"10036",
+        "name":"aStem:role2",
+        "typeOfGroup":"role",
+        "uuid":"f1828d10b2ab4de381477c44cf5d1182"
       }
     ]
     ,
     "wsPermissionAssigns":[
       {
-        "sourceId":"jdbc",
-        "permissionType":"role",
-        "roleId":"58c208ec75e84b36a7942876df7491c8",
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"5e4d9766115444e194f0f9e0a7cab1c7",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
         "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"2e849c0f71a446f6bf89a490cf57c376",
         "attributeDefNameName":"aStem:permissionDefName",
-        "membershipId":"16aec416d28743b3a3c15f4971fa0875:6b8ffe19d0c2470da27bd42065b79fa1",
         "disallowed":"F",
         "enabled":"T",
-        "subjectId":"test.subject.0",
-        "attributeDefId":"c056b6eafc584704be188886bc8e1435",
-        "attributeDefNameId":"813af61d5d06469d822852367da88c78",
-        "allowedOverall":"T",
+        "membershipId":"11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
         "roleName":"aStem:role",
-        "action":"read",
-        "attributeAssignId":"7628c198a33644ac82b830831ad9d34f"
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.0"
       },
       {
-        "sourceId":"jdbc",
-        "permissionType":"role",
-        "roleId":"58c208ec75e84b36a7942876df7491c8",
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"5e4d9766115444e194f0f9e0a7cab1c7",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
         "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"2e849c0f71a446f6bf89a490cf57c376",
         "attributeDefNameName":"aStem:permissionDefName",
-        "membershipId":"5c70de3615db412ab079f30019a7f3bd:6b8ffe19d0c2470da27bd42065b79fa1",
         "disallowed":"F",
         "enabled":"T",
-        "subjectId":"test.subject.4",
-        "attributeDefId":"c056b6eafc584704be188886bc8e1435",
-        "attributeDefNameId":"813af61d5d06469d822852367da88c78",
-        "allowedOverall":"T",
+        "membershipId":"bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
         "roleName":"aStem:role",
-        "action":"read",
-        "attributeAssignId":"7628c198a33644ac82b830831ad9d34f"
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.4"
       },
       {
-        "sourceId":"jdbc",
-        "permissionType":"role_subject",
-        "roleId":"6cb12df9425e493d9e4436b28a51ab54",
-        "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameName":"aStem:permissionDefName2",
-        "membershipId":"62bbc15300634a6d9e7e4e5324b6efce:8fa8d248d1444b70870fd1a1c7c1f29c",
-        "disallowed":"F",
-        "enabled":"T",
-        "subjectId":"test.subject.1",
-        "attributeDefId":"c056b6eafc584704be188886bc8e1435",
-        "attributeDefNameId":"09fe17dde5b34608ba0d348da7e151df",
-        "allowedOverall":"T",
-        "roleName":"aStem:role2",
         "action":"write",
-        "attributeAssignId":"0777751648bc4ca2a6e67ac6034a1824"
-      }
-    ]
-    ,
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"59"
-    },
-    "wsGroups":[
-      {
-        "displayExtension":"role",
-        "extension":"role",
-        "displayName":"a stem:role",
-        "name":"aStem:role",
-        "typeOfGroup":"role",
-        "idIndex":"10033",
-        "uuid":"58c208ec75e84b36a7942876df7491c8"
+        "allowedOverall":"T",
+        "attributeAssignId":"bbc4780f5301439cb1e40765d8955c76",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"2e849c0f71a446f6bf89a490cf57c376",
+        "attributeDefNameName":"aStem:permissionDefName",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.0"
       },
       {
-        "displayExtension":"role2",
-        "extension":"role2",
-        "displayName":"a stem:role2",
-        "name":"aStem:role2",
-        "typeOfGroup":"role",
-        "idIndex":"10034",
-        "uuid":"6cb12df9425e493d9e4436b28a51ab54"
+        "action":"write",
+        "allowedOverall":"T",
+        "attributeAssignId":"bbc4780f5301439cb1e40765d8955c76",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"2e849c0f71a446f6bf89a490cf57c376",
+        "attributeDefNameName":"aStem:permissionDefName",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.4"
+      },
+      {
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"5e4d9766115444e194f0f9e0a7cab1c7",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"8ad22068269c451cb1a5d77dbbbd9e7a",
+        "attributeDefNameName":"aStem:permissionDefName3",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.0"
+      },
+      {
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"5e4d9766115444e194f0f9e0a7cab1c7",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"8ad22068269c451cb1a5d77dbbbd9e7a",
+        "attributeDefNameName":"aStem:permissionDefName3",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.4"
+      },
+      {
+        "action":"write",
+        "allowedOverall":"T",
+        "attributeAssignId":"bbc4780f5301439cb1e40765d8955c76",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"8ad22068269c451cb1a5d77dbbbd9e7a",
+        "attributeDefNameName":"aStem:permissionDefName3",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.0"
+      },
+      {
+        "action":"write",
+        "allowedOverall":"T",
+        "attributeAssignId":"bbc4780f5301439cb1e40765d8955c76",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"8ad22068269c451cb1a5d77dbbbd9e7a",
+        "attributeDefNameName":"aStem:permissionDefName3",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.4"
+      },
+      {
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"5e4d9766115444e194f0f9e0a7cab1c7",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"494f03d9824c4abdb0e447d60a9f0a63",
+        "attributeDefNameName":"aStem:permissionDefName4",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.0"
+      },
+      {
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"5e4d9766115444e194f0f9e0a7cab1c7",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"494f03d9824c4abdb0e447d60a9f0a63",
+        "attributeDefNameName":"aStem:permissionDefName4",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.4"
+      },
+      {
+        "action":"write",
+        "allowedOverall":"T",
+        "attributeAssignId":"bbc4780f5301439cb1e40765d8955c76",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"494f03d9824c4abdb0e447d60a9f0a63",
+        "attributeDefNameName":"aStem:permissionDefName4",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.0"
+      },
+      {
+        "action":"write",
+        "allowedOverall":"T",
+        "attributeAssignId":"bbc4780f5301439cb1e40765d8955c76",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"494f03d9824c4abdb0e447d60a9f0a63",
+        "attributeDefNameName":"aStem:permissionDefName4",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f",
+        "permissionType":"role",
+        "roleId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.4"
+      },
+      {
+        "action":"write",
+        "allowedOverall":"T",
+        "attributeAssignId":"30654bc3be664417beda2f46ff036fda",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"7fdc02943dec48aa9455185ebeb082b4",
+        "attributeDefNameName":"aStem:permissionDefName2",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"2214f20cafe742c8a7041872873399ad:128fcd674c544e759883f808239033d9",
+        "permissionType":"role_
+90
+subject",
+        "roleId":"f1828d10b2ab4de381477c44cf5d1182",
+        "roleName":"aStem:role2",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.1"
       }
     ]
     ,
@@ -164,6 +340,7 @@ Connection: close
     ]
   }
 }
+0
 
 
 #########################################
@@ -341,4 +518,4 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.5.0, result code: SUCCESS, result message: , Found 13 results.

@@ -49,23 +49,24 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=D5F00DF24C4D3673FAB00A2D1A77EEC4;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:35:41 GMT
+Date: Tue, 31 Mar 2020 20:18:05 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsAssignAttributesResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10044</idIndex>
+      <idIndex>10083</idIndex>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>431a9914cdba4564ad5943c7ec7de988</uuid>
+      <uuid>3d7adcf55291443d8eb2527d22f6e67c</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -88,13 +89,13 @@ Connection: close
   </wsAttributeDefs>
   <wsAttributeDefNames>
     <WsAttributeDefName>
-      <idIndex>10153</idIndex>
+      <idIndex>10279</idIndex>
       <extension>testAttributeAssignDefName</extension>
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>ebb18ed6ee0f4577b5704805fceb7986</uuid>
-      <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+      <uuid>84c250d8d21c407ba87c779de9ef55dc</uuid>
+      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
   </wsAttributeDefNames>
@@ -105,7 +106,7 @@ Connection: close
           <changed>T</changed>
           <deleted>F</deleted>
           <wsAttributeAssignValue>
-            <id>e34f166fcce54a718128b119e7263687</id>
+            <id>545d68cad8c94758b2b2bfb5e2a9e95c</id>
             <valueSystem>63</valueSystem>
           </wsAttributeAssignValue>
         </WsAttributeAssignValueResult>
@@ -118,174 +119,174 @@ Connection: close
           </
 3ee
 attributeAssignDelegatable>
-          <attributeAssignActionId>4b87e89855c44780bae4dfb3b71281e2</attributeAssignActionId>
+          <attributeAssignActionId>f4ea797d82c949c8b026fbb46f9b373d</attributeAssignActionId>
           <attributeAssignActionName>assign</attributeAssignActionName>
           <attributeAssignType>group</attributeAssignType>
-          <attributeDefNameId>ebb18ed6ee0f4577b5704805fceb7986</attributeDefNameId>
+          <attributeDefNameId>84c250d8d21c407ba87c779de9ef55dc</attributeDefNameId>
           <attributeDefNameName>test:testAttributeAssignDefName</attributeDefNameName>
-          <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+          <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
           <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
           <wsAttributeAssignValues>
             <WsAttributeAssignValue>
-              <id>051987b270004731bb5a7cc513159412</id>
+              <id>00d602b6d7ea445da97358b3fe4750d8</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>0ed822d11544415db59ea97b43c58705</id>
+              <id>07bdad6d3e324cf3957047418ff3d85d</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>2300b93a236b44d3938f4cff7a176660</id>
+              <id>0dd19f8842544670b34318fb0523cd32</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>268e3c49a9a64d2f8c7245443e65fa91</id>
+              <id>103813a8e9ea468280865591ffb089b3</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <
 3f9
 WsAttributeAssignValue>
-              <id>3fe09e00e9d449c6a1d11b9c3bb29626</id>
+              <id>1c7b55d217744f23b48c964d068c555b</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>414a4c1f69ae451dbc7e3f44fc0404cd</id>
+              <id>1c9f1ebabfee4d988d054a1a0fdfbe2b</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>47490cba828948d1b3364a90ce05d4f1</id>
+              <id>227b72466e214fa1915b586d5e6a297b</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>4838e23fb6b74fa482d9133c29c8e957</id>
+              <id>2d450030c63a40deba16f8bc5cefecbc</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>57445e30392f460f973890bebbcfd42f</id>
+              <id>31c35ba1d39c4076bcf9510dd09d7124</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>58c53f70dda34fb8b28321c7ee096fd9</id>
+              <id>38659b8074594f2e8d889383ce7a9a75</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>5a6cd7922469438494eb98fe73ba9482</id>
+              <id>3ba21c8ca0394f8b9ea12a98944d98f6</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>6eb17ac222174ced80e52e106365db06</id>
+              <id>3e40beb484194d49ae8592f74be08cc8</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>737cc806208e4dc8924d7e0e2df1c342</id>
+              <id>59ebce553a51454295d57d0d6312d572</id>
               <
 3ee
 valueSystem>
               </valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>741d7cd1d1e3413e969d2dadd3afc306</id>
+              <id>5ccac740ed2a44eb8fadd46e34b54c1b</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>74cf1d44eb77404cb643e04572fce008</id>
+              <id>5dbe65aa6f3842028977ae8922cfb584</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>7dbad2211d204c6f8dffc6c0f4907f40</id>
+              <id>6354fac5670d4b2daecc81f50a330b53</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>8a3d204397104dd4acbbba5f1bec037f</id>
+              <id>6eab432e02434ff8942eaa4279eade56</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>98cb4fa38d3c4564a41aad6596896113</id>
+              <id>6ec66d774080402993437b33a050e88a</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>9a1056b9642844c789d151bace8afbfc</id>
+              <id>767a78eecb034023b05ae0402ea4b15a</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>ac863167068c466785e539a5c7ecef17</id>
+              <id>7f0db20b271f4f9b8ed90fee180b0d94</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>b464ff6a18e74037aeba6016645039bd</id>
+              <id>81f506b663804890a14c4c1e4a7581fa</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <
 3f9
 WsAttributeAssignValue>
-              <id>b8fb7f2de8d1410dbec694daf408ee58</id>
+              <id>8283f292f48b48a29c2e54b8f3cdb16b</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>d2b312c8fd0746a0bac76bec614500fa</id>
+              <id>8838c018afa9460ea1dbdfc7c48c44f1</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>d5610e8478124f6da9822a1029ac0a7c</id>
+              <id>99d7c197f9f74ad29d9fd36c436f1bf6</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>de52befdd8bb43ec850266e81135a689</id>
+              <id>a59baab3d92447ebaa8939dd27596476</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>e5f7db40270d45858a37db4946169466</id>
+              <id>a69b6e82323845088f0ebf1668074a27</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>e85734757b9e44c1b570888596a5aa5e</id>
+              <id>c3d9336e99384a478534bdc71d305afe</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>e8ec36f0aad84a238fcfa60fd49d0603</id>
+              <id>d6236f1b3063466e97f4fbf98fd83e3e</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>9f85fceefefd431a916895f29639cdd5</id>
+              <id>269467f014a4411db57fbd4156f958b0</id>
               <valueSystem>29</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>b4279b0b5dab4d1dbd6c927b73eb8b08</id>
+              <id>cd36aa1b0870408388fa2f22accdcc4f</id>
               <
 3fe
 valueSystem>
               </valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>022e9c490d4f4948bbc2457535d72aa7</id>
+              <id>06ef1cdc9e3f457d8520af49333ca76e</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>04dc1670cd954aefa1ac2831bcbcd1af</id>
+              <id>176848cff7944c2b8745c0eace2a1c82</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>05825eb830ef40d3917efb6074caa020</id>
+              <id>177e35a1cd844899b3910b7c241c2eb2</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>09a9fe17aa094b57a21afe726e9366ad</id>
+              <id>2a0d77b5d8db49d1aa2905e97ec33408</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>0b6b4fe1c66a4568a9ffa4b3beb6f411</id>
+              <id>2b76fefe44394a30a5378735940e5bde</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>0fb5d61812ae4f269b4521b2f22392e3</id>
+              <id>2bb8b45585f74462b45af89f6bd70a05</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>1441a459e9864b0095576d772f01aef9</id>
+              <id>3611a3666b194b95873f1ccb40835220</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>18854f108d3444ba85b97703dc23f148</id>
+              <id>368016253e374651a5ec648ac7f7a77a</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
@@ -296,223 +297,223 @@ id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>1ed52fb84c2d4b08a5bb44d52ac4a570</id>
+              <id>3d090fa45e0a4a11a9f94bc8580141d7</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>267aa3c8f0e44dd48ca6e2fa165811a2</id>
+              <id>40983dd8d38d44a7887bbabed20bbd7e</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>284df389a967481b8eb6c4b12a86db74</id>
+              <id>420e068703bc4ad397f42deff51e2f47</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>375a0e1a126c4cf387b3cf98327cf54c</id>
+              <id>44c5573698c4419bbe21066666d706d6</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>3e49be905bc2407089b001a71998f76d</id>
+              <id>5fcc087282d345099ffdec8ba3479f53</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>40b87c75ebf3433bb5e4509cbe5b17e4</id>
+              <id>637dd350107e449ba01c694ca881d87e</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>419bc023f2f242af828cc54def877784</id>
+              <id>641246d961ed4ae8b0127710ea2e8150</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>42cea855c5124f2ea1a56de8da25ee2c</id>
+              <id>68bcc46bd9d143b79dc8666feede2051</id>
               <valueSystem>5</valueSystem>
             </
 3ff
 WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>4b2ceac7023744dfb7e0db2669bd51bf</id>
+              <id>6b365205a85e4518a6878a5faee32638</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>4ed9d48ebd1c486cbbae5d37507ffb01</id>
+              <id>6cda45ca42f4471ba95f6752e2573e13</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>56e0b41a592a49c6836d1c0d5b63c535</id>
+              <id>6da667f3ae9045e4aa4a11b722b397f7</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>574a7c6f91c34114a4de59078de005b9</id>
+              <id>6f6bc9ae3c5f4aafa24165b8e18e93c7</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>5d89230527ba4542aedb22dd6cdc57b3</id>
+              <id>72772b25719041b187a2fdbe7c150517</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>61c926d4ad984893b1b2d21e19ecb868</id>
+              <id>7565198fbdc84622bc0e153e904ce2f7</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>625c40b8ab594e0b9a19cf08b8210bc3</id>
+              <id>79c73ccf94ed4475bc803ffdd3cffdfb</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>6972b024f7be4eccba7e4cba01f80bfb</id>
+              <id>7af94eece57e4d4882a29dd85d0a7555</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>6ce7ef68561a4cd69ab5133192d3
+              <id>7b0e8f21454b4852bbc531d73337
 3ef
-b1a1</id>
+2dd3</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>70272c9198d249c6b48a3646d220b955</id>
+              <id>7c2940e671844aa69528dcce793434e0</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>7b89ba24a88d44d28ba8602a18c3cf5b</id>
+              <id>88a8410ea2e54b74a59d074ebb080427</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>7f4dfea8676a410a97af3449d145f77d</id>
+              <id>8dd5985db0474cd299301b1fa67fbb73</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>8740712f28bc4c04ae57b4f354a7a254</id>
+              <id>9567a531471c4936949d9c394454d4f2</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>87461e794097488bb3ae10c605a96fb7</id>
+              <id>98a4f348c94f46088b95953a5f486428</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>96c17a02955f4f37bcfff0af1c76485d</id>
+              <id>a18bc987604840c386da861d2efa75e1</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>a19153990e144eefbc4e4e6fc2f68300</id>
+              <id>a92b0d6217684659a180a57888720d13</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>b18fdbd33243470699bb9fa2860dd703</id>
+              <id>aa7e7d3bb682446cb39cd6e52328ca95</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <
 3fe
 WsAttributeAssignValue>
-              <id>c16bf85c093b4c68a789fe7c054206e5</id>
+              <id>ab22a12c10554dc299fceb27e1cbe041</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>c677e6c112a84a29bb1cfece1400f2a9</id>
+              <id>ac7ad747ee2b442583d3d6cea34c224a</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>cc4c8b2814434286bcc622811f4e4f83</id>
+              <id>b248cffe1bdd4284a1ee473e131f3a2b</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>cce0c90a9b6347958a3217c63431ff24</id>
+              <id>b2935f8764c94139a9cfd6d7b683887c</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>cf5de08ac7c343b58592fd7241e180a5</id>
+              <id>b588b2f6500b4b77966f192374b343e7</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>d5373b2c2a8b42d3972a8335faa40f11</id>
+              <id>b6e5c25d98884a5faffd3fe16da7b903</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>da23a7adecaf47b8874292d861ee029e</id>
+              <id>c643cef937d44eae8a7fe636d13e14a8</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>dd37edafe5b244ba8bcc66c8415b0bca</id>
+              <id>c71bb5767e70462bbe1db5ac59a6e2d4</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>de21162274d64ed08a0370bb8915e6b2</id>
+              <id>cc980cf0720e4f5183ea25347d57edb9</id>
               <valueSystem>5
 3ff
 </valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>e5cd3605a179422cbbc4f5b14625a14e</id>
+              <id>d0b6bd147b8f49089f35af1fd9a71780</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>e5f3cb06e89d4e09bf66d42c06380c72</id>
+              <id>d2442d76d9a6434a9cf89777a9e6e22c</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>e65ffaa874af442b8a9de6cf1caf310f</id>
+              <id>d6d29c48bee74629a53b9194a28442a3</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>ebb03c28fa8f401bb83e54db8fd96e35</id>
+              <id>d96ca594578a4e7b9d9edd5cf69ad92a</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>ece3b652b7704fa783f6fc630b4c2539</id>
+              <id>db47a4df4862439890dfa96656e38ded</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>edaed61c97874da2bb7091ca33f5b8b0</id>
+              <id>deaeaf010ae64786997cde048173130b</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>eeeac16c51854f1cb2f35e6bcde35403</id>
+              <id>e1ed17f6b3bc422e9c27698cb6d25049</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>f2ca01a7c79b43c49a4d46f638713b4f</id>
+              <id>e585d52c1a3a4203827258ae29858a97</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>f2e29bc39141
+              <id>e65e1d713f23
 3ff
-49cfabb1ada2e347904f</id>
+4c5db50ac30f8ada98ec</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>f4deae20746d43a097b616af7c19d835</id>
+              <id>ea3eb128dc7d4aa4b624167e7a469ad7</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>fb60555ec8c845989af9cfd7322635a1</id>
+              <id>f2b8a9c148c245d7a3eec53feb1ff018</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>fc9e8a4ccf914931a3f68502aadf0ec3</id>
+              <id>f30ab9ad6ad640c9b64ce9de04e71904</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>fe099aeb2705460fbbe2a5c748e8c682</id>
+              <id>f9063d453fe14a9cbf9f1d51355d16a3</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>3e420f14c981402ca94e3e3c85c0b6d5</id>
+              <id>100d0c0423b6461e927b8939904cae05</id>
               <valueSystem>63</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>e34f166fcce54a718128b119e7263687</id>
+              <id>545d68cad8c94758b2b2bfb5e2a9e95c</id>
               <valueSystem>63</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>f96149ba5d2f44d5bb71046007ef9fcd</id>
+              <id>596035ab55864223ba704e8677906a49</id>
               <valueSystem>63</valueSystem>
             </WsAttributeAssignValue>
           </wsAttributeAssignValues>
-          <createdOn>2018/08/06 12:34:54.147</createdOn>
+          <createdOn>2020/03/31 13:13:50.762</createdOn>
           <enabled>T</enabled>
-          <id>635f99e61f9e46a6b4e6
-3fa
-80fcecd1871f</id>
-          <lastUpdated>2018/08/06 12:34:54.147</lastUpdated>
-          <ownerGroupId>1283a3268f654f5e95942676fa6d242f</ownerGroupId>
+          <id>f455c9b6e95e4d4cb414
+3ff
+08e3f2461074</id>
+          <lastUpdated>2020/03/31 13:13:50.762</lastUpdated>
+          <ownerGroupId>9c4860dce6a843e18c3de2ef3208082f</ownerGroupId>
           <ownerGroupName>test:groupTestAttrAssign</ownerGroupName>
         </WsAttributeAssign>
       </wsAttributeAssigns>
@@ -528,7 +529,7 @@ WsAttributeAssignValue>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>64</millis>
+    <millis>428</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroups>
@@ -539,16 +540,17 @@ WsAttributeAssignValue>
       <description>description</description>
       <displayName>test:groupTestAttrAssign</displayName>
       <name>test:groupTestAttrAssign</name>
-      <uuid>1283a3268f654f5e95942676fa6d242f</uuid>
-      <idIndex>10020</idIndex>
+      <uuid>9c4860dce6a843e18c3de2ef3208082f</uuid>
+      <idIndex>10033</idIndex>
+      <enabled>T</enabled>
     </WsGroup>
   </wsGroups>
   <wsStems/>
-  <wsMemberships/>
-  <wsSubjects/>
-</
-1a
-WsAssignAttributesResults>
+  <wsMemberships/
+2a
+>
+    <wsSubjects/>
+  </WsAssignAttributesResults>
 0
 
 

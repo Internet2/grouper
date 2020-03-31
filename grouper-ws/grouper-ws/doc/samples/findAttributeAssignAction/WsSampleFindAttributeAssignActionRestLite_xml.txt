@@ -31,43 +31,44 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=D1D97A3C66B18DD9C967AF9654544A46;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:38:31 GMT
+Date: Tue, 31 Mar 2020 20:27:15 GMT
 Connection: close
+Server: Apache TomEE
 
 3f2
 <WsGetAttributeAssignActionsResults>
   <wsAttributeAssignActionTuples>
     <WsAttributeAssignActionTuple>
       <action>view</action>
-      <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
       <nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
     <WsAttributeAssignActionTuple>
       <action>read</action>
-      <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
       <nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
     <WsAttributeAssignActionTuple>
       <action>assign</action>
-      <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
       <nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
   </wsAttributeAssignActionTuples>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10044</idIndex>
+      <idIndex>10083</idIndex>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>431a9914cdba4564ad5943c7ec7de988</uuid>
+      <uuid>3d7adcf55291443d8eb2527d22f6e67c</uuid>
       <attributeDefType>attr</attributeDefType>
       <
-3f7
+3f8
 multiAssignable>
       </multiAssignable>
       <multiValued>T</multiValued>
@@ -93,7 +94,7 @@ multiAssignable>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>8</millis>
+    <millis>26</millis>
     <serverVersion>2.5.0</serverVersion>
   </
 36

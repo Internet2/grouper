@@ -36,16 +36,17 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=C18490834615F3D28AB876FCF2C963C4;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_ALLOWED_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:08 GMT
+Date: Tue, 31 Mar 2020 20:19:24 GMT
 Connection: close
+Server: Apache TomEE
 
-3fc
+3fd
 <WsAssignGrouperPrivilegesLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_ALLOWED_ALREADY_EXISTED</resultCode>
@@ -57,7 +58,7 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>46</millis>
+    <millis>41</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <privilegeName>optin</privilegeName>
@@ -69,12 +70,14 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-    <idIndex>10005</idIndex>
+    <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+    <idIndex>10009</idIndex>
+    <enabled>
+    </
+d9
+enabled>
   </wsGroup>
-  <
-c6
-wsSubject>
+  <wsSubject>
     <resultCode>SUCCESS</resultCode>
     <success>T</success>
     <id>test.subject.0</id>

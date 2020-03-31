@@ -22,10 +22,10 @@ Content-Type: application/json; charset=UTF-8
     "wsGroupToSaves":[
       {
         "wsGroup":{
-          "displayExtension":"disp1",
           "extension":"whateverGroup",
-          "name":"aStem:whateverGroup",
-          "description":"desc1"
+          "description":"desc1",
+          "displayExtension":"disp1",
+          "name":"aStem:whateverGroup"
         },
         "wsGroupLookup":{
           "groupName":"aStem:whateverGroup"
@@ -34,10 +34,10 @@ Content-Type: application/json; charset=UTF-8
       },
       {
         "wsGroup":{
-          "displayExtension":"disp2",
           "extension":"whateverGroup2",
-          "name":"aStem:whateverGroup2",
-          "description":"descs"
+          "description":"descs",
+          "displayExtension":"disp2",
+          "name":"aStem:whateverGroup2"
         },
         "wsGroupLookup":{
           "groupName":"aStem:whateverGroup2"
@@ -57,58 +57,61 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=202B49BC072A3E65247F059D22F0F952;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1101
-Date: Mon, 06 Aug 2018 15:22:27 GMT
+Content-Length: 1129
+Date: Tue, 31 Mar 2020 20:45:02 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGroupSaveResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroup],\n  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null"
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"36"
+      "millis":"92",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroup],\n  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED",
+          "success":"T"
         },
         "wsGroup":{
-          "displayExtension":"disp1",
-          "extension":"whateverGroup",
-          "displayName":"a stem:disp1",
-          "name":"aStem:whateverGroup",
           "description":"desc1",
+          "displayExtension":"disp1",
+          "displayName":"a stem:disp1",
+          "enabled":"T",
+          "extension":"whateverGroup",
+          "idIndex":"10050",
+          "name":"aStem:whateverGroup",
           "typeOfGroup":"group",
-          "idIndex":"10038",
-          "uuid":"0b957bb1336e4a9a87e1557d67c0fa15"
+          "uuid":"09b488181c7d42ba9eb880fd7ad698d3"
         }
         
       },
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED",
+          "success":"T"
         },
         "wsGroup":{
-          "displayExtension":"disp2",
-          "extension":"whateverGroup2",
-          "displayName":"a stem:disp2",
-          "name":"aStem:whateverGroup2",
           "description":"descs",
+          "displayExtension":"disp2",
+          "displayName":"a stem:disp2",
+          "enabled":"T",
+          "extension":"whateverGroup2",
+          "idIndex":"10052",
+          "name":"aStem:whateverGroup2",
           "typeOfGroup":"group",
-          "idIndex":"10039",
-          "uuid":"3e41f419a3c246f79d7a7e85c9b74461"
+          "uuid":"c83af6b504054a8baa46089f73a0f391"
         }
       }
     ]

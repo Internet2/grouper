@@ -25,18 +25,17 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=6649AB53188700548B1829EAD54AAE6E;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:42:40 GMT
+Date: Tue, 31 Mar 2020 20:43:13 GMT
 Connection: close
+Server: Apache TomEE
 
-2d1
+2d0
 <WsGroupDeleteLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
@@ -49,7 +48,7 @@ groupFindResult=GROUP_NOT_FOUND]&apos;.</resultMessage>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>10</millis>
+    <millis>8</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroup>

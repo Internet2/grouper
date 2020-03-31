@@ -43,103 +43,109 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=CD2000AF97AA1B11BC8175468D96D0B6;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1623
-Date: Mon, 06 Aug 2018 16:41:09 GMT
+Content-Length: 1821
+Date: Tue, 31 Mar 2020 20:38:32 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetMembersResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description\n[1]: loginid\n[2]: name\n\n, paramNames: \n, params: null\n, sourceIds: null\n, pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending: null"
-    },
-    "subjectAttributeNames":[
-      "description",
-      "loginid",
-      "name"
-    ]
-    ,
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"31"
+      "millis":"17",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description\n[1]: loginid\n[2]: name\n\n, paramNames: \n, params: null\n, sourceIds: null\n, pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending: null",
+      "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS"
+          "resultCode":"SUCCESS",
+          "success":"T"
         },
         "wsGroup":{
-          "displayExtension":"a group",
-          "extension":"aGroup",
-          "displayName":"a stem:a group",
-          "name":"aStem:aGroup",
           "description":"a group description",
+          "displayExtension":"a group",
+          "displayName":"a stem:a group",
+          "enabled":"T",
+          "extension":"aGroup",
+          "idIndex":"10009",
+          "name":"aStem:aGroup",
           "typeOfGroup":"group",
-          "idIndex":"10005",
-          "uuid":"03aae7141082467eaaa866e6c6edfda5"
+          "uuid":"32ca90db41b04a1a9611a214a20bac42"
         },
         "wsSubjects":[
           {
-            "sourceId":"g:isa",
-            "success":"T",
             "attributeValues":[
               "GrouperSysAdmin",
               "",
               "GrouperSysAdmin"
             ]
             ,
+            "id":"GrouperSystem",
+            "memberId":"641385a43fc24d2bb97a29c9fad0c41c",
             "name":"GrouperSysAdmin",
             "resultCode":"SUCCESS",
-            "id":"GrouperSystem"
+            "sourceId":"g:isa",
+            "success":"T"
           },
           {
-            "sourceId":"jdbc",
-            "success":"T",
-            "attributeValues":[
-              "description.test.subject.1",
-              "id.test.subject.1",
-              "my name is test.subject.1"
-            ]
-            ,
-            "name":"my name is test.subject.1",
-            "resultCode":"SUCCESS",
-            "id":"test.subject.1"
-          },
-          {
-            "sourceId":"jdbc",
-            "success":"T",
             "attributeValues":[
               "",
               "",
               "10021368"
             ]
             ,
+            "id":"10021368",
+            "memberId":"b2a0cd2e12b644e6b678da66c7f06cd8",
             "name":"10021368",
             "resultCode":"SUCCESS",
-            "id":"10021368"
+            "sourceId":"jdbc",
+            "success":"T"
           },
           {
-            "sourceId":"jdbc",
-            "success":"T",
             "attributeValues":[
               "",
               "",
               "10039438"
             ]
             ,
+            "id":"10039438",
+            "memberId":"9dea4c740b3a4eabafe913e3037b101d",
             "name":"10039438",
             "resultCode":"SUCCESS",
-            "id":"10039438"
+            "sourceId":"jdbc",
+            "success":"T"
+          },
+          {
+            "attributeValues":[
+              "description.test.subject.1",
+              "id.test.subject.1",
+              "my name is test.subject.1"
+            ]
+            ,
+            "id":"test.subject.1",
+            "memberId":"cabdeec9815e4026823943e7d30bebfd",
+            "name":"my name is test.subject.1",
+            "resultCode":"SUCCESS",
+            "sourceId":"jdbc",
+            "success":"T"
           }
         ]
       }
+    ]
+    ,
+    "subjectAttributeNames":[
+      "description",
+      "loginid",
+      "name"
     ]
   }
 }

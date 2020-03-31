@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 #########################################
 
 
-GET /grouper-ws/servicesRest/json/v2_5_000/subjects/10021368/groups HTTP/1.1
+GET /grouper-ws/servicesRest/json/v2_5_000/subjects/GrouperSystem/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -25,75 +25,89 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=1F625C9C194908E5DD58C1B410404510;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1575
-Date: Mon, 06 Aug 2018 16:40:39 GMT
+Content-Length: 1904
+Date: Tue, 31 Mar 2020 20:37:12 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetGroupsLiteResult":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null"
-    },
-    "wsSubject":{
-      "sourceId":"jdbc",
-      "success":"T",
-      "name":"10021368",
-      "resultCode":"SUCCESS",
-      "id":"10021368"
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"12"
+      "millis":"228",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=GrouperSystem]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
+      "success":"T"
     },
     "wsGroups":[
       {
-        "displayExtension":"a group",
-        "extension":"aGroup",
-        "displayName":"a stem:a group",
-        "name":"aStem:aGroup",
         "description":"a group description",
+        "displayExtension":"a group",
+        "displayName":"a stem:a group",
+        "enabled":"T",
+        "extension":"aGroup",
+        "idIndex":"10009",
+        "name":"aStem:aGroup",
         "typeOfGroup":"group",
-        "idIndex":"10005",
-        "uuid":"03aae7141082467eaaa866e6c6edfda5"
+        "uuid":"32ca90db41b04a1a9611a214a20bac42"
       },
       {
-        "displayExtension":"a group2",
-        "extension":"aGroup2",
-        "displayName":"a stem:a group2",
-        "name":"aStem:aGroup2",
         "description":"a group description2",
+        "displayExtension":"a group2",
+        "displayName":"a stem:a group2",
+        "enabled":"T",
+        "extension":"aGroup2",
+        "idIndex":"10032",
+        "name":"aStem:aGroup2",
         "typeOfGroup":"group",
-        "idIndex":"10006",
-        "uuid":"08cc1f2ccd3248ff801db35946e03823"
+        "uuid":"5819ab9eed78479faedcb72be0987798"
       },
       {
         "displayExtension":"sysadmingroup",
-        "extension":"sysadmingroup",
         "displayName":"etc:sysadmingroup",
+        "enabled":"T",
+        "extension":"sysadmingroup",
+        "idIndex":"10008",
         "name":"etc:sysadmingroup",
         "typeOfGroup":"group",
-        "idIndex":"10009",
-        "uuid":"5cbabdd15c1d49ceae302f8e844b0009"
+        "uuid":"69b36df0e82f4fee98b760adebed0660"
       },
       {
         "displayExtension":"webServiceActAsGroup",
-        "extension":"webServiceActAsGroup",
         "displayName":"etc:webServiceActAsGroup",
+        "enabled":"T",
+        "extension":"webServiceActAsGroup",
+        "idIndex":"10007",
         "name":"etc:webServiceActAsGroup",
         "typeOfGroup":"group",
-        "idIndex":"10008",
-        "uuid":"a3b9b6852757437981d39b7a14a0bfd7"
+        "uuid":"28e109afeac74aa0aabcafaf858ce50a"
+      },
+      {
+        "displayExtension":"webServiceClientUsers",
+        "displayName":"etc:webServiceClientUsers",
+        "enabled":"T",
+        "extension":"webServiceClientUsers",
+        "idIndex":"10006",
+        "name":"etc:webServiceClientUsers",
+        "typeOfGroup":"group",
+        "uuid":"93697d5e07f34c938d0b95e1a5e3a093"
       }
     ]
+    ,
+    "wsSubject":{
+      "id":"GrouperSystem",
+      "name":"GrouperSysAdmin",
+      "resultCode":"SUCCESS",
+      "sourceId":"g:isa",
+      "success":"T"
+    }
   }
 }
 
@@ -164,7 +178,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
       GetMethod method = new GetMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/subjects/10021368/groups");
+            + "/subjects/GrouperSystem/groups");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -201,6 +215,8 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
         throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
             + ", " + resultMessage);
       }
+      
+      System.out.println("groups length is "+wsGetGroupsLiteResult.getWsGroups().length);
       
       System.out.println("Server version: " + wsGetGroupsLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
@@ -243,7 +259,8 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+groups length is 5
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=GrouperSystem]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null

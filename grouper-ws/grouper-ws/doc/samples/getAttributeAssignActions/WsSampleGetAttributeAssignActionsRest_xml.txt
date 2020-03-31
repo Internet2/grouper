@@ -31,40 +31,41 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=F2C0A84091DC94BF88BABCC4FE97B57A;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:40:05 GMT
+Date: Tue, 31 Mar 2020 20:34:41 GMT
 Connection: close
+Server: Apache TomEE
 
 3f9
 <WsGetAttributeAssignActionsResults>
   <wsAttributeAssignActionTuples>
     <WsAttributeAssignActionTuple>
       <action>read</action>
-      <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
       <nameOfAttributeDef>aStem:permissionDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
     <WsAttributeAssignActionTuple>
       <action>write</action>
-      <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
       <nameOfAttributeDef>aStem:permissionDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
     <WsAttributeAssignActionTuple>
       <action>assign</action>
-      <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
       <nameOfAttributeDef>aStem:permissionDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
   </wsAttributeAssignActionTuples>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10046</idIndex>
+      <idIndex>10085</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>4d46bcc488724fc2b3a40b0b75e14a2b</uuid>
+      <uuid>82bd0a56a05f45d2b49dc5956670d41f</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -93,7 +94,7 @@ valueType>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>28</millis>
+    <millis>47</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetAttributeAssignActionsResults>

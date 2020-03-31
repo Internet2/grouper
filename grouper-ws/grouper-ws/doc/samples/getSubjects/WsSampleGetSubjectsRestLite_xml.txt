@@ -25,16 +25,15 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=3E5888B0C61F8745E79F989441872416;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:42:19 GMT
+Date: Tue, 31 Mar 2020 20:42:05 GMT
 Connection: close
+Server: Apache TomEE
 
 1e9
 <WsGetSubjectsResults>
@@ -54,7 +53,7 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>0</millis>
+    <millis>5</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetSubjectsResults>

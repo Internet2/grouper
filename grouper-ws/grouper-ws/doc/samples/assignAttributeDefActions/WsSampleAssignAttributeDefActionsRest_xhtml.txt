@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 716
+Content-Length: 712
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,18 +25,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAssignAttributeDefActionsRequest">
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup"/>
       <ul class="actions">
         <li>read</li>
         <li>view</li>
       </ul>
       <p class="assign">T</p>
-      <p class="clientVersion" />
+      <p class="clientVersion"/>
       <p class="replaceAllExisting">T</p>
       <div class="wsAttributeDefLookup" title="WsAttributeDefLookup">
-        <p class="idIndex" />
+        <p class="idIndex"/>
         <p class="name">test:testAttributeAssignDefNameDef</p>
-        <p class="uuid" />
+        <p class="uuid"/>
       </div>
     </div>
   </body>
@@ -52,16 +52,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=1BE9A7E53D33F5A4E9B991C204F1D8F6;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:34:48 GMT
+Date: Tue, 31 Mar 2020 20:13:42 GMT
 Connection: close
+Server: Apache TomEE
 
-84e
+76e
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -77,14 +78,6 @@ Connection: close
         </li>
         <li title="WsAttributeDefActionOperationPerformed">
           <p class="action">read</p>
-          <p class="status">DELETED</p>
-        </li>
-        <li title="WsAttributeDefActionOperationPerformed">
-          <p class="action">view</p>
-          <p class="status">DELETED</p>
-        </li>
-        <li title="WsAttributeDefActionOperationPerformed">
-          <p class="action">read</p>
           <p class="status">ADDED</p>
         </li>
         <li title="WsAttributeDefActionOperationPerformed">
@@ -93,14 +86,14 @@ Connection: close
         </li>
       </ul>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">800</p>
-        <p class="resultWarnings" />
+        <p class="millis">13034</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage" />
+        <p class="resultCode2"/>
+        <p class="resultMessage"/>
         <p class="success">T</p>
       </div>
       <div class="wsAttributeDef" title="WsAttributeDef">
@@ -117,13 +110,13 @@ Connection: close
         <p class="assignToStem">F</p>
         <p class="assignToStemAssignment">F</p>
         <p class="attributeDefType">attr</p>
-        <p class="description" />
+        <p class="description"/>
         <p class="extension">testAttributeAssignDefNameDef</p>
-        <p class="idIndex">10044</p>
+        <p class="idIndex">10083</p>
         <p class="multiAssignable">F</p>
         <p class="multiValued">T</p>
         <p class="name">test:testAttributeAssignDefNameDef</p>
-        <p class="uuid">431a9914cdba4564ad5943c7ec7de988</p>
+        <p class="uuid">3d7adcf55291443d8eb2527d22f6e67c</p>
         <p class="valueType">integer</p>
       </div>
     </div>

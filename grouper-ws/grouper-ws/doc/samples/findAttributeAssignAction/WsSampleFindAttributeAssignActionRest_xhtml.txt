@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 615
+Content-Length: 611
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,13 +25,13 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetAttributeAssignActionsRequest">
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="clientVersion" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup"/>
+      <p class="clientVersion"/>
       <ul class="wsAttributeDefLookups">
         <li title="WsAttributeDefLookup">
-          <p class="idIndex" />
+          <p class="idIndex"/>
           <p class="name">test:testAttributeAssignDefNameDef</p>
-          <p class="uuid" />
+          <p class="uuid"/>
         </li>
       </ul>
     </div>
@@ -48,16 +48,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=0DA8C3C4C3AF4475FB20B0367F357863;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:38:21 GMT
+Date: Tue, 31 Mar 2020 20:27:03 GMT
 Connection: close
+Server: Apache TomEE
 
-8b8
+8b5
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -67,30 +68,30 @@ Connection: close
   <body>
     <div title="WsGetAttributeAssignActionsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">18</p>
-        <p class="resultWarnings" />
+        <p class="millis">51</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">, Found 3 results.</p>
         <p class="success">T</p>
       </div>
       <ul class="wsAttributeAssignActionTuples">
         <li title="WsAttributeAssignActionTuple">
           <p class="action">view</p>
-          <p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p>
+          <p class="attributeDefId">3d7adcf55291443d8eb2527d22f6e67c</p>
           <p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p>
         </li>
         <li title="WsAttributeAssignActionTuple">
           <p class="action">read</p>
-          <p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p>
+          <p class="attributeDefId">3d7adcf55291443d8eb2527d22f6e67c</p>
           <p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p>
         </li>
         <li title="WsAttributeAssignActionTuple">
           <p class="action">assign</p>
-          <p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p>
+          <p class="attributeDefId">3d7adcf55291443d8eb2527d22f6e67c</p>
           <p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p>
         </li>
       </ul>
@@ -109,13 +110,13 @@ Connection: close
           <p class="assignToStem">F</p>
           <p class="assignToStemAssignment">F</p>
           <p class="attributeDefType">attr</p>
-          <p class="description" />
+          <p class="description"/>
           <p class="extension">testAttributeAssignDefNameDef</p>
-          <p class="idIndex">10044</p>
+          <p class="idIndex">10083</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">T</p>
           <p class="name">test:testAttributeAssignDefNameDef</p>
-          <p class="uuid">431a9914cdba4564ad5943c7ec7de988</p>
+          <p class="uuid">3d7adcf55291443d8eb2527d22f6e67c</p>
           <p class="valueType">integer</p>
         </li>
       </ul>
@@ -298,5 +299,5 @@ public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
 
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><title>WsGetAttributeAssignActionsResults</title></head><body><div title="WsGetAttributeAssignActionsResults"><div class="responseMetadata" title="WsResponseMeta"><p class="millis">18</p><p class="resultWarnings" /><p class="serverVersion">2.5.0</p></div><div class="resultMetadata" title="WsResultMeta"><p class="resultCode">SUCCESS</p><p class="resultCode2" /><p class="resultMessage">, Found 3 results.</p><p class="success">T</p></div><ul class="wsAttributeAssignActionTuples"><li title="WsAttributeAssignActionTuple"><p class="action">view</p><p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p><p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p></li><li title="WsAttributeAssignActionTuple"><p class="action">read</p><p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p><p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p></li><li title="WsAttributeAssignActionTuple"><p class="action">assign</p><p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p><p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p></li></ul><ul class="wsAttributeDefs"><li title="WsAttributeDef"><p class="assignToAttributeDef">F</p><p class="assignToAttributeDefAssignment">F</p><p class="assignToEffectiveMembership">F</p><p class="assignToEffectiveMembershipAssignment">F</p><p class="assignToGroup">F</p><p class="assignToGroupAssignment">F</p><p class="assignToImmediateMembership">F</p><p class="assignToImmediateMembershipAssignment">F</p><p class="assignToMember">F</p><p class="assignToMemberAssignment">F</p><p class="assignToStem">F</p><p class="assignToStemAssignment">F</p><p class="attributeDefType">attr</p><p class="description" /><p class="extension">testAttributeAssignDefNameDef</p><p class="idIndex">10044</p><p class="multiAssignable">F</p><p class="multiValued">T</p><p class="name">test:testAttributeAssignDefNameDef</p><p class="uuid">431a9914cdba4564ad5943c7ec7de988</p><p class="valueType">integer</p></li></ul></div></body></html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><title>WsGetAttributeAssignActionsResults</title></head><body><div title="WsGetAttributeAssignActionsResults"><div class="responseMetadata" title="WsResponseMeta"><p class="millis">51</p><p class="resultWarnings"/><p class="serverVersion">2.5.0</p></div><div class="resultMetadata" title="WsResultMeta"><p class="resultCode">SUCCESS</p><p class="resultCode2"/><p class="resultMessage">, Found 3 results.</p><p class="success">T</p></div><ul class="wsAttributeAssignActionTuples"><li title="WsAttributeAssignActionTuple"><p class="action">view</p><p class="attributeDefId">3d7adcf55291443d8eb2527d22f6e67c</p><p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p></li><li title="WsAttributeAssignActionTuple"><p class="action">read</p><p class="attributeDefId">3d7adcf55291443d8eb2527d22f6e67c</p><p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p></li><li title="WsAttributeAssignActionTuple"><p class="action">assign</p><p class="attributeDefId">3d7adcf55291443d8eb2527d22f6e67c</p><p class="nameOfAttributeDef">test:testAttributeAssignDefNameDef</p></li></ul><ul class="wsAttributeDefs"><li title="WsAttributeDef"><p class="assignToAttributeDef">F</p><p class="assignToAttributeDefAssignment">F</p><p class="assignToEffectiveMembership">F</p><p class="assignToEffectiveMembershipAssignment">F</p><p class="assignToGroup">F</p><p class="assignToGroupAssignment">F</p><p class="assignToImmediateMembership">F</p><p class="assignToImmediateMembershipAssignment">F</p><p class="assignToMember">F</p><p class="assignToMemberAssignment">F</p><p class="assignToStem">F</p><p class="assignToStemAssignment">F</p><p class="attributeDefType">attr</p><p class="description"/><p class="extension">testAttributeAssignDefNameDef</p><p class="idIndex">10083</p><p class="multiAssignable">F</p><p class="multiValued">T</p><p class="name">test:testAttributeAssignDefNameDef</p><p class="uuid">3d7adcf55291443d8eb2527d22f6e67c</p><p class="valueType">integer</p></li></ul></div></body></html>
 Server version: 2.5.0, result code: SUCCESS, result message: , Found 3 results.

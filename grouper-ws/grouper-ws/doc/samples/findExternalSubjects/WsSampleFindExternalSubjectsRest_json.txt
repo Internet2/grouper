@@ -40,25 +40,26 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=9C18DCEB768BB02FC313AAE5D960D451;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
 Content-Length: 384
-Date: Mon, 06 Aug 2018 16:39:09 GMT
+Date: Tue, 31 Mar 2020 20:30:26 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsFindExternalSubjectsResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: \n, params: null\n, wsExternalSubjectLookups: Array size: 1: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]"
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"6"
+      "millis":"9",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: \n, params: null\n, wsExternalSubjectLookups: Array size: 1: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]",
+      "success":"T"
     }
   }
 }

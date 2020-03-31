@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 932
+Content-Length: 912
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,27 +25,27 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetSubjectsLiteRequest">
-      <p class="actAsSubjectId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
-      <p class="clientVersion" />
-      <p class="fieldName" />
-      <p class="groupName" />
-      <p class="groupUuid" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
-      <p class="memberFilter" />
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
-      <p class="retrieveSubjectDetail" />
+      <p class="actAsSubjectId"/>
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
+      <p class="clientVersion"/>
+      <p class="fieldName"/>
+      <p class="groupName"/>
+      <p class="groupUuid"/>
+      <p class="includeGroupDetail"/>
+      <p class="includeSubjectDetail"/>
+      <p class="memberFilter"/>
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
+      <p class="retrieveSubjectDetail"/>
       <p class="searchString">test</p>
-      <p class="sourceIds" />
-      <p class="subjectAttributeNames" />
-      <p class="subjectId" />
-      <p class="subjectIdentifier" />
-      <p class="subjectSourceId" />
+      <p class="sourceIds"/>
+      <p class="subjectAttributeNames"/>
+      <p class="subjectId"/>
+      <p class="subjectIdentifier"/>
+      <p class="subjectSourceId"/>
     </div>
   </body>
 </html>
@@ -60,16 +60,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=9CA3F12415DF02CC309A82876D32ABB1;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:42:20 GMT
+Date: Tue, 31 Mar 2020 20:42:07 GMT
 Connection: close
+Server: Apache TomEE
 
-efc
+1014
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -79,53 +80,58 @@ efc
   <body>
     <div title="WsGetSubjectsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">76</p>
-        <p class="resultWarnings" />
+        <p class="millis">98</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Queried 14 subjects</p>
         <p class="success">T</p>
       </div>
-      <div class="wsGroup" title="WsGroup" />
+      <div class="wsGroup" title="WsGroup"/>
       <ul class="wsSubjects">
         <li title="WsSubject">
-          <p class="id">1283a3268f654f5e95942676fa6d242f</p>
-          <p class="identifierLookup" />
-          <p class="name">test:groupTestAttrAssign</p>
+          <p class="id">4431f675c7d04659b7efffa19410b699</p>
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
+          <p class="name">test:group113</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">g:gsa</p>
           <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="id">4f7f93403b53451bbcddeb9a92b27acc</p>
-          <p class="identifierLookup" />
-          <p class="name">aStem:test</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">g:gsa</p>
-          <p class="success">T</p>
-        </li>
-        <li title="WsSubject">
-          <p class="id">a048d305d72744e7acba0e4172ad7921</p>
-          <p class="identifierLookup" />
-          <p class="name">test:groupTestAttrAssign2</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">g:gsa</p>
-          <p class="success">T</p>
-        </li>
-        <li title="WsSubject">
-          <p class="id">f651723de0f549ed97906e28df006ced</p>
-          <p class="identifierLookup" />
+          <p class="id">6488e4e9d11d405598a420954c86fabf</p>
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">test:testGroup</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">g:gsa</p>
           <p class="success">T</p>
         </li>
         <li title="WsSubject">
+          <p class="id">86bb7ecba7bc42178f3ddd110cde25e9</p>
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
+          <p class="name">test:groupTestAttrAssign2</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">g:gsa</p>
+          <p class="success">T</p>
+        </li>
+        <li title="WsSubject">
+          <p class="id">9c4860dce6a843e18c3de2ef3208082f</p>
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
+          <p class="name">test:groupTestAttrAssign</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">g:gsa</p>
+          <p class="success">T</p>
+        </li>
+        <li title="WsSubject">
           <p class="id">test.subject.0</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.0</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -133,7 +139,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.1</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.1</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -141,7 +148,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.2</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.2</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -149,7 +157,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.3</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.3</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -157,7 +166,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.4</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.4</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -165,7 +175,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.5</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.5</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -173,7 +184,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.6</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.6</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -181,7 +193,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.7</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.7</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -189,7 +202,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.8</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.8</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -197,7 +211,8 @@ efc
         </li>
         <li title="WsSubject">
           <p class="id">test.subject.9</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.9</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>

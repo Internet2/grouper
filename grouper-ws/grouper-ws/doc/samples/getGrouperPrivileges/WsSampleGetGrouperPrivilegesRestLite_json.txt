@@ -37,24 +37,59 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
-X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
+Set-Cookie: JSESSIONID=F3C6863F0F991127B740669BCA293CB9;path=/grouper-ws/;HttpOnly
+X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 165
-Date: Mon, 06 Aug 2018 16:40:15 GMT
+Content-Length: 765
+Date: Tue, 31 Mar 2020 20:35:14 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetGrouperPrivilegesLiteResult":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS_NOT_ALLOWED"
-    },
+    "privilegeResults":[
+      {
+        "allowed":"T",
+        "ownerSubject":{
+          "id":"test.subject.0",
+          "name":"my name is test.subject.0",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        },
+        "privilegeName":"admin",
+        "privilegeType":"access",
+        "revokable":"T",
+        "wsGroup":{
+          "description":"a group description",
+          "displayExtension":"a group",
+          "displayName":"a stem:a group",
+          "enabled":"T",
+          "extension":"aGroup",
+          "idIndex":"10009",
+          "name":"aStem:aGroup",
+          "typeOfGroup":"group",
+          "uuid":"32ca90db41b04a1a9611a214a20bac42"
+        },
+        "wsSubject":{
+          "id":"test.subject.0",
+          "name":"my name is test.subject.0",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+      }
+    ]
+    ,
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"28"
+      "millis":"25",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS_ALLOWED",
+      "success":"T"
     }
   }
 }
@@ -232,4 +267,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.5.0, result code: SUCCESS_ALLOWED, result message: null

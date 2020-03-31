@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 712
+Content-Length: 704
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -27,16 +27,16 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestReceiveMessageRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectId">test.subject.0</p>
-        <p class="subjectIdentifier" />
-        <p class="subjectSourceId" />
+        <p class="subjectIdentifier"/>
+        <p class="subjectSourceId"/>
       </div>
-      <p class="blockMillis" />
-      <p class="clientVersion" />
-      <p class="maxMessagesToReceiveAtOnce" />
-      <p class="messageSystemName" />
+      <p class="blockMillis"/>
+      <p class="clientVersion"/>
+      <p class="maxMessagesToReceiveAtOnce"/>
+      <p class="messageSystemName"/>
       <p class="queueOrTopicName">def</p>
-      <p class="routingKey" />
-      <p class="autocreateObjects" />
+      <p class="routingKey"/>
+      <p class="autocreateObjects"/>
     </div>
   </body>
 </html>
@@ -51,16 +51,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=E280945C1F9BFE483E3C971CA21DE478;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 07 Aug 2018 17:24:38 GMT
+Date: Tue, 31 Mar 2020 23:24:43 GMT
 Connection: close
+Server: Apache TomEE
 
-5b1
+2d3
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -69,39 +70,17 @@ Connection: close
   </head>
   <body>
     <div title="WsMessageResults">
-      <p class="messageSystemName" />
-      <ul class="messages">
-        <li title="WsMessage">
-          <p class="fromMemberId">956e5a4fd1d8436198fa3f17af0b0298</p>
-          <p class="id">8bbe21eca3e34fef9d42144169d4ab40</p>
-          <p class="messageBody">message body</p>
-        </li>
-        <li title="WsMessage">
-          <p class="fromMemberId">956e5a4fd1d8436198fa3f17af0b0298</p>
-          <p class="id">7acc749e2c0147ceac39c564391ac9fe</p>
-          <p class="messageBody">message body</p>
-        </li>
-        <li title="WsMessage">
-          <p class="fromMemberId">956e5a4fd1d8436198fa3f17af0b0298</p>
-          <p class="id">220820501ea04613ba7d37fd1c030720</p>
-          <p class="messageBody">message body</p>
-        </li>
-        <li title="WsMessage">
-          <p class="fromMemberId">956e5a4fd1d8436198fa3f17af0b0298</p>
-          <p class="id">42b42de7af8441b89dd0161690e5685c</p>
-          <p class="messageBody">message body</p>
-        </li>
-      </ul>
+      <p class="messageSystemName"/>
       <p class="queueOrTopicName">def</p>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">162</p>
-        <p class="resultWarnings" />
+        <p class="millis">13</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">4 messages were received from def</p>
+        <p class="resultCode2"/>
+        <p class="resultMessage">0 messages were received from def</p>
         <p class="success">T</p>
       </div>
     </div>
@@ -301,4 +280,4 @@ public class WsSampleReceiveMessageRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: 4 messages were received from def
+Server version: 2.5.0, result code: SUCCESS, result message: 0 messages were received from def

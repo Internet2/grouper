@@ -14,16 +14,16 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 304
+Content-Length: 308
 Content-Type: application/xml; charset=UTF-8
 
 <WsRestExternalSubjectDeleteRequest>
   <wsExternalSubjectLookups>
     <WsExternalSubjectLookup>
-      <identifier>a_ident@b.c</identifier>
+      <identifier>a_ident@b.com</identifier>
     </WsExternalSubjectLookup>
     <WsExternalSubjectLookup>
-      <identifier>doesntExist@b.c</identifier>
+      <identifier>doesntExist@b.com</identifier>
     </WsExternalSubjectLookup>
   </wsExternalSubjectLookups>
 </WsRestExternalSubjectDeleteRequest>
@@ -38,14 +38,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=9ED55CB33DA545F6E4CF1DED4CB7351B;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:53 GMT
+Date: Tue, 31 Mar 2020 20:26:19 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsExternalSubjectDeleteResults>
@@ -53,11 +54,11 @@ Connection: close
     <WsExternalSubjectDeleteResult>
       <wsExternalSubject>
         <enabled>T</enabled>
-        <identifier>a_ident@b.c</identifier>
+        <identifier>a_ident@b.com</identifier>
       </wsExternalSubject>
       <resultMetadata>
         <resultCode>SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND</resultCode>
-        <resultMessage>Cant find external subject: &apos;WsExternalSubjectLookup[identifier=a_ident@b.c,
+        <resultMessage>Cant find external subject: &apos;WsExternalSubjectLookup[identifier=a_ident@b.com,
 externalSubjectFindResult=EXTERNAL_SUBJECT_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
       </resultMetadata>
@@ -65,11 +66,11 @@ externalSubjectFindResult=EXTERNAL_SUBJECT_NOT_FOUND]&apos;.  </resultMessage>
     <WsExternalSubjectDeleteResult>
       <wsExternalSubject>
         <enabled>T</enabled>
-        <identifier>doesntExist@b.c</identifier>
+        <identifier>doesntExist@b.com</identifier>
       </wsExternalSubject>
       <resultMetadata>
         <resultCode>SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND</resultCode>
-        <resultMessage>Cant find external subject: &apos;WsExternalSubjectLookup[identifier=doesntExist@b.c,
+        <resultMessage>Cant find external subject: &apos;WsExternalSubjectLookup[identifier=doesntExist@b.com,
 externalSubjectFindResult=EXTERNAL_SUBJECT_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
       </resultMetadata>
@@ -77,10 +78,10 @@ externalSubjectFindResult=EXTERNAL_SUBJECT_NOT_FOUND]&apos;.  </resultMessage>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success
-1c6
-for: clientVersion: 2.5.0, wsExternalSubjectLookups: Array size: 2: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]
-[1]: WsExternalSubjectLookup[identifier=doesntExist@b.c]
+    <resultMessage
+1d2
+>Success for: clientVersion: 2.5.0, wsExternalSubjectLookups: Array size: 2: [0]: WsExternalSubjectLookup[identifier=a_ident@b.com]
+[1]: WsExternalSubjectLookup[identifier=doesntExist@b.com]
 
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
@@ -88,7 +89,7 @@ for: clientVersion: 2.5.0, wsExternalSubjectLookups: Array size: 2: [0]: WsExter
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>39</millis>
+    <millis>15</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsExternalSubjectDeleteResults>
@@ -180,8 +181,8 @@ public class WsSampleExternalSubjectDeleteRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestExternalSubjectDeleteRequest externalSubjectDelete = new WsRestExternalSubjectDeleteRequest();
       
-      WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup("a_ident@b.c");
-      WsExternalSubjectLookup wsExternalSubjectLookup2 = new WsExternalSubjectLookup("doesntExist@b.c");
+      WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup("a_ident@b.com");
+      WsExternalSubjectLookup wsExternalSubjectLookup2 = new WsExternalSubjectLookup("doesntExist@b.com");
       WsExternalSubjectLookup[] wsExternalSubjectLookups = new WsExternalSubjectLookup[]{wsExternalSubjectLookup, wsExternalSubjectLookup2};
       externalSubjectDelete.setWsExternalSubjectLookups(wsExternalSubjectLookups);
       
@@ -267,8 +268,8 @@ public class WsSampleExternalSubjectDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsExternalSubjectLookups: Array size: 2: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]
-[1]: WsExternalSubjectLookup[identifier=doesntExist@b.c]
+Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsExternalSubjectLookups: Array size: 2: [0]: WsExternalSubjectLookup[identifier=a_ident@b.com]
+[1]: WsExternalSubjectLookup[identifier=doesntExist@b.com]
 
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

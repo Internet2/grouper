@@ -25,16 +25,15 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=FFE5EBAD4DE8FE846770E611D9ACCD37;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:41:16 GMT
+Date: Tue, 31 Mar 2020 20:38:42 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsGetMembersLiteResult>
@@ -51,7 +50,7 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>22</millis>
+    <millis>15</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroup>
@@ -61,34 +60,39 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-    <idIndex>10005</idIndex>
+    <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+    <idIndex>10009</idIndex>
+    <enabled>T</enabled>
   </wsGroup>
   <wsSubjects>
     <WsSubject>
-      <resultCode>SUCCESS</resultCode
-1dc
->
+      <resultCode
+2c4
+>SUCCESS</resultCode>
       <success>T</success>
+      <memberId>641385a43fc24d2bb97a29c9fad0c41c</memberId>
       <id>GrouperSystem</id>
       <sourceId>g:isa</sourceId>
     </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>test.subject.1</id>
-      <sourceId>jdbc</sourceId>
-    </WsSubject>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <success>T</success>
+      <memberId>b2a0cd2e12b644e6b678da66c7f06cd8</memberId>
       <id>10021368</id>
       <sourceId>jdbc</sourceId>
     </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
+      <memberId>9dea4c740b3a4eabafe913e3037b101d</memberId>
       <id>10039438</id>
+      <sourceId>jdbc</sourceId>
+    </WsSubject>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <memberId>cabdeec9815e4026823943e7d30bebfd</memberId>
+      <id>test.subject.1</id>
       <sourceId>jdbc</sourceId>
     </WsSubject>
   </wsSubjects>

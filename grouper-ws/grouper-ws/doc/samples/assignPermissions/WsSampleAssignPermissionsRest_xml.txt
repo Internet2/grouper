@@ -46,23 +46,24 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=4D8804C9D45CAF6BACC7D0E3C7032FD5;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:17 GMT
+Date: Tue, 31 Mar 2020 20:20:17 GMT
 Connection: close
+Server: Apache TomEE
 
 3f4
 <WsAssignPermissionsResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10046</idIndex>
+      <idIndex>10085</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>4d46bcc488724fc2b3a40b0b75e14a2b</uuid>
+      <uuid>82bd0a56a05f45d2b49dc5956670d41f</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -85,13 +86,13 @@ Connection: close
 3f1
 wsAttributeDefNames>
     <WsAttributeDefName>
-      <idIndex>10155</idIndex>
+      <idIndex>10281</idIndex>
       <extension>permissionDefName</extension>
       <displayExtension>permissionDefName</displayExtension>
       <displayName>a stem:permissionDefName</displayName>
       <name>aStem:permissionDefName</name>
-      <uuid>397ea151404d489aae915be38d0f4b4f</uuid>
-      <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
+      <uuid>2e849c0f71a446f6bf89a490cf57c376</uuid>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
     </WsAttributeDefName>
   </wsAttributeDefNames>
@@ -102,21 +103,21 @@ wsAttributeDefNames>
           <disallowed>F</disallowed>
           <attributeAssignActionType>immediate</attributeAssignActionType>
           <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-          <attributeAssignActionId>73cb43e7d8634c3c968bf04ca892378e</attributeAssignActionId>
+          <attributeAssignActionId>74f1412a22bf4b239b9421095df79f41</attributeAssignActionId>
           <attributeAssignActionName>write</attributeAssignActionName>
           <attributeAssignType>group</attributeAssignType>
-          <attributeDefNameId>397ea151404d489aae915be38d0f4b4f</attributeDefNameId>
+          <attributeDefNameId>2e849c0f71a446f6bf89a490cf57c376</attributeDefNameId>
           <attributeDefNameName>
           </
 3ff
 attributeDefNameName>
-          <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
+          <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
           <attributeDefName>aStem:permissionDef</attributeDefName>
-          <createdOn>2018/08/06 12:36:10.749</createdOn>
+          <createdOn>2020/03/31 13:19:27.323</createdOn>
           <enabled>T</enabled>
-          <id>55aed0f4e60c4e589d5ac132fee37d24</id>
-          <lastUpdated>2018/08/06 12:36:10.749</lastUpdated>
-          <ownerGroupId>c94e8975d1524eacb3e5f3a7b0b55086</ownerGroupId>
+          <id>bbc4780f5301439cb1e40765d8955c76</id>
+          <lastUpdated>2020/03/31 13:19:27.323</lastUpdated>
+          <ownerGroupId>3befb91c854541f68a4dcb75fe1f92ee</ownerGroupId>
           <ownerGroupName>aStem:role</ownerGroupName>
         </WsAttributeAssign>
       </wsAttributeAssigns>
@@ -131,7 +132,7 @@ attributeDefNameName>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>16</millis>
+    <millis>73</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroups>
@@ -141,10 +142,11 @@ attributeDefNameName>
       <displayExtension>role</displayExtension>
       <displayName>a stem:role</displayName>
       <name>aStem:role</name>
-      <uuid>c94e8975d1524eacb3e5f3a7b0b55086</uuid
-58
+      <uuid>3befb91c854541f68a4dcb75fe1f92ee</uuid
+6c
 >
-      <idIndex>10022</idIndex>
+      <idIndex>10035</idIndex>
+      <enabled>T</enabled>
     </WsGroup>
   </wsGroups>
   <wsSubjects/>

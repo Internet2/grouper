@@ -37,23 +37,24 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=D946A7F1B935C96AE5EDD3927CACA20D;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:23 GMT
+Date: Tue, 31 Mar 2020 20:20:26 GMT
 Connection: close
+Server: Apache TomEE
 
 3f8
 <WsAssignPermissionsLiteResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10046</idIndex>
+      <idIndex>10085</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>4d46bcc488724fc2b3a40b0b75e14a2b</uuid>
+      <uuid>82bd0a56a05f45d2b49dc5956670d41f</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -75,13 +76,13 @@ Connection: close
   <
 3bf
 wsAttributeDefName>
-    <idIndex>10155</idIndex>
+    <idIndex>10281</idIndex>
     <extension>permissionDefName</extension>
     <displayExtension>permissionDefName</displayExtension>
     <displayName>a stem:permissionDefName</displayName>
     <name>aStem:permissionDefName</name>
-    <uuid>397ea151404d489aae915be38d0f4b4f</uuid>
-    <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
+    <uuid>2e849c0f71a446f6bf89a490cf57c376</uuid>
+    <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
     <attributeDefName>aStem:permissionDef</attributeDefName>
   </wsAttributeDefName>
   <wsPermissionAssignResult>
@@ -95,7 +96,7 @@ wsAttributeDefName>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>11</millis>
+    <millis>33</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsSubject>

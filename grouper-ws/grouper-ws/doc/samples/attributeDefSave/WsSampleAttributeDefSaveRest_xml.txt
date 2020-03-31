@@ -81,25 +81,26 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=FE29D70A3761E5247BDE45055490D004;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:14 GMT
+Date: Tue, 31 Mar 2020 20:23:42 GMT
 Connection: close
+Server: Apache TomEE
 
 3f8
 <WsAttributeDefSaveResults>
   <results>
     <WsAttributeDefSaveResult>
       <wsAttributeDef>
-        <idIndex>10073</idIndex>
+        <idIndex>10100</idIndex>
         <extension>testAttributeDef_xml</extension>
         <description>This is a description1 rest xml</description>
         <name>test1:testAttributeDef_xml</name>
-        <uuid>ecd46d619ac744acbb0e5eeba3b3fb12</uuid>
+        <uuid>e7d737e25d6a4e50bc3004fef89900b4</uuid>
         <attributeDefType>attr</attributeDefType>
         <multiAssignable>F</multiAssignable>
         <multiValued>F</multiValued>
@@ -127,11 +128,11 @@ assignToStemAssignment>
     </WsAttributeDefSaveResult>
     <WsAttributeDefSaveResult>
       <wsAttributeDef>
-        <idIndex>10074</idIndex>
+        <idIndex>10101</idIndex>
         <extension>testAttributDef2ToSave1Rest_xml</extension>
         <description>This is a description2 rest xml</description>
         <name>test1:testAttributDef2ToSave1Rest_xml</name>
-        <uuid>954406ea249249fd9137ed0131fcb6c2</uuid>
+        <uuid>04c9761e26b34a67b443d929e2de58b3</uuid>
         <attributeDefType>attr</attributeDefType>
         <multiAssignable>F</multiAssignable>
         <multiValued>F</multiValued>
@@ -168,7 +169,7 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xml,name=t
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>221</millis>
+    <millis>646</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefSaveResults>

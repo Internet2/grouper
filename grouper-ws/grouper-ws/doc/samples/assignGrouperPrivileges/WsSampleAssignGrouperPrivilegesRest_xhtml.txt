@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1280
+Content-Length: 1269
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -27,36 +27,36 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestAssignGrouperPrivilegesRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-        <p class="subjectSourceId" />
+        <p class="subjectIdentifier"/>
+        <p class="subjectSourceId"/>
       </div>
       <p class="allowed">T</p>
       <p class="clientVersion">v2_5_000</p>
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
+      <p class="includeGroupDetail"/>
+      <p class="includeSubjectDetail"/>
       <ul class="privilegeNames">
         <li>update</li>
         <li>read</li>
       </ul>
       <p class="privilegeType">access</p>
       <p class="replaceAllExisting">F</p>
-      <p class="txType" />
+      <p class="txType"/>
       <div class="wsGroupLookup" title="WsGroupLookup">
         <p class="groupName">aStem:aGroup</p>
-        <p class="idIndex" />
-        <p class="uuid" />
+        <p class="idIndex"/>
+        <p class="uuid"/>
       </div>
-      <div class="wsStemLookup" title="WsStemLookup" />
+      <div class="wsStemLookup" title="WsStemLookup"/>
       <ul class="wsSubjectLookups">
         <li title="WsSubjectLookup">
           <p class="subjectId">test.subject.0</p>
-          <p class="subjectIdentifier" />
+          <p class="subjectIdentifier"/>
           <p class="subjectSourceId">jdbc</p>
         </li>
         <li title="WsSubjectLookup">
-          <p class="subjectId" />
+          <p class="subjectId"/>
           <p class="subjectIdentifier">id.test.subject.1</p>
-          <p class="subjectSourceId" />
+          <p class="subjectSourceId"/>
         </li>
       </ul>
     </div>
@@ -73,16 +73,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=95A468F2079F2494FAF31F42652BE057;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:35:56 GMT
+Date: Tue, 31 Mar 2020 20:18:48 GMT
 Connection: close
+Server: Apache TomEE
 
-ef2
+f7d
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -92,13 +93,13 @@ ef2
   <body>
     <div title="WsAssignGrouperPrivilegesResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">64</p>
-        <p class="resultWarnings" />
+        <p class="millis">146</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 [1]: WsSubject..., group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 2: [0]: update
 [1]: read
@@ -108,18 +109,19 @@ ef2
       </div>
       <ul class="results">
         <li title="WsAssignGrouperPrivilegesResult">
-          <p class="allowed" />
+          <p class="allowed"/>
           <p class="privilegeName">update</p>
           <p class="privilegeType">access</p>
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_ALLOWED_ALREADY_EXISTED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
             <p class="id">test.subject.0</p>
-            <p class="identifierLookup" />
+            <p class="identifierLookup"/>
+            <p class="memberId"/>
             <p class="name">my name is test.subject.0</p>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
@@ -127,18 +129,19 @@ ef2
           </div>
         </li>
         <li title="WsAssignGrouperPrivilegesResult">
-          <p class="allowed" />
+          <p class="allowed"/>
           <p class="privilegeName">update</p>
           <p class="privilegeType">access</p>
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_ALLOWED_ALREADY_EXISTED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
             <p class="id">test.subject.1</p>
             <p class="identifierLookup">id.test.subject.1</p>
+            <p class="memberId"/>
             <p class="name">my name is test.subject.1</p>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
@@ -146,18 +149,19 @@ ef2
           </div>
         </li>
         <li title="WsAssignGrouperPrivilegesResult">
-          <p class="allowed" />
+          <p class="allowed"/>
           <p class="privilegeName">read</p>
           <p class="privilegeType">access</p>
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_ALLOWED_ALREADY_EXISTED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
             <p class="id">test.subject.0</p>
-            <p class="identifierLookup" />
+            <p class="identifierLookup"/>
+            <p class="memberId"/>
             <p class="name">my name is test.subject.0</p>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
@@ -165,18 +169,19 @@ ef2
           </div>
         </li>
         <li title="WsAssignGrouperPrivilegesResult">
-          <p class="allowed" />
+          <p class="allowed"/>
           <p class="privilegeName">read</p>
           <p class="privilegeType">access</p>
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_ALLOWED_ALREADY_EXISTED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
             <p class="id">test.subject.1</p>
             <p class="identifierLookup">id.test.subject.1</p>
+            <p class="memberId"/>
             <p class="name">my name is test.subject.1</p>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
@@ -185,18 +190,21 @@ ef2
         </li>
       </ul>
       <div class="wsGroup" title="WsGroup">
-        <p class="alternateName" />
+        <p class="alternateName"/>
         <p class="description">a group description</p>
-        <div class="detail" title="WsGroupDetail" />
+        <div class="detail" title="WsGroupDetail"/>
+        <p class="disabledTime"/>
         <p class="displayExtension">a group</p>
         <p class="displayName">a stem:a group</p>
+        <p class="enabled">T</p>
+        <p class="enabledTime"/>
         <p class="extension">aGroup</p>
-        <p class="idIndex">10005</p>
+        <p class="idIndex">10009</p>
         <p class="name">aStem:aGroup</p>
         <p class="typeOfGroup">group</p>
-        <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
+        <p class="uuid">32ca90db41b04a1a9611a214a20bac42</p>
       </div>
-      <div class="wsStem" title="WsStem" />
+      <div class="wsStem" title="WsStem"/>
     </div>
   </body>
 </html>
@@ -432,15 +440,15 @@ public class WsSampleAssignGrouperPrivilegesRest implements WsSampleRest {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults@26864747[
+edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults@2da66779[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=Success for: clientVersion: 2.5.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 [1]: WsSubject..., group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 2: [0]: update
 [1]: read
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
 , params: null,success=T,httpStatusCode=500]
   subjectAttributeNames=<null>
-  responseMetadata=WsResponseMeta[millis=64,millisStart=0,serverVersion=2.5.0]
-  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=03aae7141082467eaaa866e6c6edfda5,idIndex=10005]
+  responseMetadata=WsResponseMeta[millis=146,millisStart=0,serverVersion=2.5.0]
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=32ca90db41b04a1a9611a214a20bac42,idIndex=10009,enabled=T]
   wsStem=<null>
   results={WsAssignGrouperPrivilegesResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED,success=T,httpStatusCode=500],privilegeName=update,privilegeType=access,
@@ -452,7 +460,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults@26
   resultMetadata=WsResultMeta[resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED,success=T,httpStatusCode=500],privilegeName=read,privilegeType=access,
   wsSubject=WsSubject[identifierLookup=id.test.subject.1,resultCode=SUCCESS,success=T,id=test.subject.1,name=my name is test.subject.1,sourceId=jdbc]]}
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@9e150d8[
+edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@65c6a736[
   params=<null>
   resultCode=SUCCESS
   resultCode2=<null>
@@ -464,7 +472,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@9e150d8[
   success=T
   httpStatusCode=500
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@f3a262b[
+edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@be65065[
   resultMetadata=WsResultMeta[resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED,success=T,httpStatusCode=500]
   params=<null>
   allowed=<null>
@@ -472,7 +480,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@f3a
   privilegeType=access
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@2c1b2e3e[
+edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@4476656f[
   params=<null>
   resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED
   resultCode2=<null>
@@ -480,7 +488,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@2c1b2e3e[
   success=T
   httpStatusCode=500
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@8bc3fed[
+edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@6bfa66c5[
   resultMetadata=WsResultMeta[resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED,success=T,httpStatusCode=500]
   params=<null>
   allowed=<null>
@@ -488,7 +496,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@8bc
   privilegeType=access
   wsSubject=WsSubject[identifierLookup=id.test.subject.1,resultCode=SUCCESS,success=T,id=test.subject.1,name=my name is test.subject.1,sourceId=jdbc]
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@56e94baf[
+edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@522676a7[
   params=<null>
   resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED
   resultCode2=<null>
@@ -496,7 +504,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@56e94baf[
   success=T
   httpStatusCode=500
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@7cff4f42[
+edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@17a6ff0e[
   resultMetadata=WsResultMeta[resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED,success=T,httpStatusCode=500]
   params=<null>
   allowed=<null>
@@ -504,7 +512,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@7cf
   privilegeType=access
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@15554467[
+edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@2fd27f71[
   params=<null>
   resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED
   resultCode2=<null>
@@ -512,7 +520,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@15554467[
   success=T
   httpStatusCode=500
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@1d33ff99[
+edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@a0c7283[
   resultMetadata=WsResultMeta[resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED,success=T,httpStatusCode=500]
   params=<null>
   allowed=<null>
@@ -520,7 +528,7 @@ edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult@1d3
   privilegeType=access
   wsSubject=WsSubject[identifierLookup=id.test.subject.1,resultCode=SUCCESS,success=T,id=test.subject.1,name=my name is test.subject.1,sourceId=jdbc]
 ]
-edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@1bb03622[
+edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta@2a72b243[
   params=<null>
   resultCode=SUCCESS_ALLOWED_ALREADY_EXISTED
   resultCode2=<null>

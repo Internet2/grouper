@@ -9,18 +9,19 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdmins, code 
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_5 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getGroups"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-321
+331
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns1:getGroups xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns1:getGroups xmlns:ns1="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:subjectLookups>
         <ns1:subjectId>GrouperSystem</ns1:subjectId>
@@ -29,7 +30,7 @@ Transfer-Encoding: chunked
         <ns1:subjectId>10021368</ns1:subjectId>
       </ns1:subjectLookups>
       <ns1:memberFilter>All</ns1:memberFilter>
-      <ns1:actAsSubjectLookup />
+      <ns1:actAsSubjectLookup/>
       <ns1:includeGroupDetail>F</ns1:includeGroupDetail>
       <ns1:includeSubjectDetail>F</ns1:includeSubjectDetail>
       <ns1:subjectAttributeNames></ns1:subjectAttributeNames>
@@ -52,29 +53,31 @@ Transfer-Encoding: chunked
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=B8FF9A86C0A13BE9D1C08448688FD47E;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getGroupsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:40:28 GMT
+Date: Tue, 31 Mar 2020 20:35:51 GMT
+Server: Apache TomEE
 
-9ec
+be6
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns:getGroupsResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:getGroupsResponse xmlns:ns="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetGroupsResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
-          <ns:millis xsi:nil="true" />
-          <ns:resultWarnings xsi:nil="true" />
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
           <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
-          <ns:params xsi:nil="true" />
+          <ns:params xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true"/>
           <ns:resultMessage>Success for: clientVersion: 2.5.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=GrouperSystem]
 [1]: WsSubjectLookup[subjectId=10021368]
 
@@ -89,17 +92,31 @@ fieldName1: null
         </ns:resultMetadata>
         <ns:results xsi:type="ns:WsGetGroupsResult">
           <ns:resultMetadata xsi:type="ns:WsResultMeta">
-            <ns:params xsi:nil="true" />
+            <ns:params xsi:nil="true"/>
             <ns:resultCode>SUCCESS</ns:resultCode>
-            <ns:resultCode2 xsi:nil="true" />
-            <ns:resultMessage xsi:nil="true" />
+            <ns:resultCode2 xsi:nil="true"/>
+            <ns:resultMessage xsi:nil="true"/>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
-          <ns:wsGroups xsi:nil="true" />
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:alternateName xsi:nil="true"/>
+            <ns:description>a group description</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:disabledTime xsi:nil="true"/>
+            <ns:displayExtension>a group</ns:displayExtension>
+            <ns:displayName>a stem:a group</ns:displayName>
+            <ns:enabled>T</ns:enabled>
+            <ns:enabledTime xsi:nil="true"/>
+            <ns:extension>aGroup</ns:extension>
+            <ns:idIndex>10009</ns:idIndex>
+            <ns:name>aStem:aGroup</ns:name>
+            <ns:typeOfGroup>group</ns:typeOfGroup>
+            <ns:uuid>32ca90db41b04a1a9611a214a20bac42</ns:uuid>
+          </ns:wsGroups>
           <ns:wsSubject xsi:type="ns:WsSubject">
-            <ns:attributeValues xsi:nil="true" />
+            <ns:attributeValues xsi:nil="true"/>
             <ns:id>GrouperSystem</ns:id>
-            <ns:identifierLookup xsi:nil="true" />
+            <ns:identifierLookup xsi:nil="true"/>
             <ns:name>GrouperSysAdmin</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>g:isa</ns:sourceId>
@@ -108,24 +125,24 @@ fieldName1: null
         </ns:results>
         <ns:results xsi:type="ns:WsGetGroupsResult">
           <ns:resultMetadata xsi:type="ns:WsResultMeta">
-            <ns:params xsi:nil="true" />
+            <ns:params xsi:nil="true"/>
             <ns:resultCode>SUCCESS</ns:resultCode>
-            <ns:resultCode2 xsi:nil="true" />
-            <ns:resultMessage xsi:nil="true" />
+            <ns:resultCode2 xsi:nil="true"/>
+            <ns:resultMessage xsi:nil="true"/>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
-          <ns:wsGroups xsi:nil="true" />
+          <ns:wsGroups xsi:nil="true"/>
           <ns:wsSubject xsi:type="ns:WsSubject">
-            <ns:attributeValues xsi:nil="true" />
+            <ns:attributeValues xsi:nil="true"/>
             <ns:id>10021368</ns:id>
-            <ns:identifierLookup xsi:nil="true" />
+            <ns:identifierLookup xsi:nil="true"/>
             <ns:name>10021368</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>jdbc</ns:sourceId>
             <ns:success>T</ns:success>
           </ns:wsSubject>
         </ns:results>
-        <ns:subjectAttributeNames xsi:nil="true" />
+        <ns:subjectAttributeNames xsi:nil="true"/>
       </ns:return>
     </ns:getGroupsResponse>
   </soapenv:Body>
@@ -172,12 +189,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.GetGroups;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetGroupsResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetGroups;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetGroupsResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup;
 
 
 /**
@@ -289,9 +306,9 @@ public class WsSampleGetGroupsAdmins implements WsSampleGenerated {
 
 
 WsGetGroupsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@690360ba,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@6d5d7406,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetGroupsResult@5c01a035,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetGroupsResult@2e751dbf},localResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@1bc61f94,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@1bc9b9c9,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetGroupsResult@27af904b,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetGroupsResult@cbe1195},localResultsTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true]
-<null>
+WsGroup[localAlternateNameTracker=false,localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisabledTimeTracker=false,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localExtension=aGroup,localExtensionTracker=true,localIdIndex=10009,localIdIndexTracker=true,localName=aStem:aGroup,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=32ca90db41b04a1a9611a214a20bac42,localUuidTracker=true]
 <null>

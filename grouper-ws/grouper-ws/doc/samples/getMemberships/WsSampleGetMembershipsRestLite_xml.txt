@@ -9,7 +9,7 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-GET /grouper-ws/servicesRest/xml/v2_5_000/groups/aStem%3AaGroup/memberships HTTP/1.1
+GET /grouper-ws/servicesRest/xml/v2_5_000/groups/test%3AtestGroup/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -25,131 +25,66 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=C7E1D10578BD15D84B80B5FBD13E2638;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:41:42 GMT
+Date: Tue, 31 Mar 2020 20:39:57 GMT
 Connection: close
+Server: Apache TomEE
 
-3fa
+3fd
 <WsGetMembershipsResults>
   <wsMemberships>
     <WsMembership>
-      <membershipId>b203136cf0c845359e49de75093aa74d:86f7a1fbdd5a48ac8653c7affd20c712</membershipId>
-      <immediateMembershipId>b203136cf0c845359e49de75093aa74d</immediateMembershipId>
+      <membershipId>7d62afc8800e499185023303dfb292c0:b2d4ec5c9af547949eef3d57a5a31088</membershipId>
+      <immediateMembershipId>7d62afc8800e499185023303dfb292c0</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>181714d1c2464dcdb3b8e4c4bca590ae</memberId>
-      <groupId>03aae7141082467eaaa866e6c6edfda5</groupId>
-      <subjectId>GrouperSystem</subjectId>
-      <subjectSourceId>g:isa</subjectSourceId>
-      <groupName>aStem:aGroup</groupName>
-      <createTime>2018/08/06 11:04:00.594</createTime>
-    </WsMembership>
-    <WsMembership>
-      <membershipId>c063e7ebe5284fde956d0f53e1d47fbb:86f7a1fbdd5a48ac8653c7affd20c712</membershipId>
-      <immediateMembershipId>c063e7ebe5284fde956d0f53e1d47fbb</immediateMembershipId>
-      <listName>members</listName>
-      <listType>list</listType>
-      <membershipType>immediate</membershipType>
-      <enabled>T</enabled>
-      <memberId>8ba2b7659552439c98a8e71e59b36f63</memberId>
-      <groupId>
-      </
-3f9
-groupId>
-      <subjectId>10021368</subjectId>
+      <memberId>bef6a528fd9143059d1220cf0dc58c04</memberId>
+      <groupId>6488e4e9d11d405598a420954c86fabf</groupId>
+      <subjectId>test.subject.0</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
-      <groupName>aStem:aGroup</groupName>
-      <createTime>2018/08/06 12:37:40.392</createTime>
-    </WsMembership>
-    <WsMembership>
-      <membershipId>61dfb849be444fc7b15500d437148cf0:86f7a1fbdd5a48ac8653c7affd20c712</membershipId>
-      <immediateMembershipId>61dfb849be444fc7b15500d437148cf0</immediateMembershipId>
-      <listName>members</listName>
-      <listType>list</listType>
-      <membershipType>immediate</membershipType>
-      <enabled>T</enabled>
-      <memberId>df781653f8ba492ab90bff498a75bce2</memberId>
-      <groupId>03aae7141082467eaaa866e6c6edfda5</groupId>
-      <subjectId>10039438</subjectId>
-      <subjectSourceId>jdbc</subjectSourceId>
-      <groupName>aStem:aGroup</groupName>
-      <createTime>2018/08/06 12:37:33.628</createTime>
-    </WsMembership>
-    <WsMembership>
-      <membershipId>efc96a40479a4e0a8994027f9d814254:86f7a1fbdd5a48ac8653c7affd20c712</membershipId>
-      <immediateMembershipId>efc96a40479a4e0a8994027f9d814254</immediateMembershipId>
-      <listName>members</listName>
-      <listType>list</listType>
-      <membershipType>
-      </
-3ff
-membershipType>
-      <enabled>T</enabled>
-      <memberId>687f0cd196ce486e830891ffc185e3f2</memberId>
-      <groupId>03aae7141082467eaaa866e6c6edfda5</groupId>
-      <subjectId>test.subject.1</subjectId>
-      <subjectSourceId>jdbc</subjectSourceId>
-      <groupName>aStem:aGroup</groupName>
-      <createTime>2018/08/06 11:30:16.182</createTime>
+      <groupName>test:testGroup</groupName>
+      <createTime>2020/03/31 13:12:53.816</createTime>
     </WsMembership>
   </wsMemberships>
   <wsGroups>
     <WsGroup>
-      <extension>aGroup</extension>
+      <extension>testGroup</extension>
       <typeOfGroup>group</typeOfGroup>
-      <displayExtension>a group</displayExtension>
-      <description>a group description</description>
-      <displayName>a stem:a group</displayName>
-      <name>aStem:aGroup</name>
-      <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-      <idIndex>10005</idIndex>
+      <displayExtension>testGroup</displayExtension>
+      <displayName>test:testGroup</displayName>
+      <name>test:testGroup</name>
+      <uuid>6488e4e9d11d405598a420954c86fabf</uuid>
+      <idIndex>10031</idIndex>
+      <enabled>T</enabled>
     </WsGroup>
   </wsGroups>
   <wsSubjects>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>GrouperSystem</id>
-      <sourceId>g:isa</sourceId>
-    </WsSubject>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <success>T</success>
-      <id>10021368</id>
-      <sourceId>jdbc</sourceId>
-    </WsSubject>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <success>T</success>
-      <id>10039438</id>
-      <sourceId>jdbc</sourceId>
-    </WsSubject
-1c5
->
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <success>T</success>
-      <id>test.subject.1</id>
+      <
+1b9
+memberId>
+      </memberId>
+      <id>test.subject.0</id>
       <sourceId>jdbc</sourceId>
     </WsSubject>
   </wsSubjects>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Found 4 results involving 1 groups and 4 subjects</resultMessage>
+    <resultMessage>Found 1 results involving 1 groups and 1 subjects</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>51</millis>
+    <millis>49</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetMembershipsResults>
@@ -208,7 +143,6 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
    * get members lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  @SuppressWarnings("deprecation")
   public static void getMembershipsLite(WsSampleRestType wsSampleRestType) {
 
     try {
@@ -222,7 +156,7 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
       GetMethod method = new GetMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/memberships");
+            + "/groups/test%3AtestGroup/memberships");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -301,4 +235,4 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Found 4 results involving 1 groups and 4 subjects
+Server version: 2.5.0, result code: SUCCESS, result message: Found 1 results involving 1 groups and 1 subjects

@@ -22,10 +22,10 @@ Content-Type: application/json; charset=UTF-8
     "wsGroupToSaves":[
       {
         "wsGroup":{
-          "displayExtension":"whateverGroupLeftDispExt",
           "extension":"whateverGroupLeft",
-          "name":"aStem:whateverGroupLeft",
-          "description":"whateverGroupLeftDesc"
+          "description":"whateverGroupLeftDesc",
+          "displayExtension":"whateverGroupLeftDispExt",
+          "name":"aStem:whateverGroupLeft"
         },
         "wsGroupLookup":{
           "groupName":"aStem:whateverGroupLeft"
@@ -34,10 +34,10 @@ Content-Type: application/json; charset=UTF-8
       },
       {
         "wsGroup":{
-          "displayExtension":"whateverGroupRightDispExt",
           "extension":"whateverGroupRight",
-          "name":"aStem:whateverGroupRight",
-          "description":"whateverGroupRightDesc"
+          "description":"whateverGroupRightDesc",
+          "displayExtension":"whateverGroupRightDispExt",
+          "name":"aStem:whateverGroupRight"
         },
         "wsGroupLookup":{
           "groupName":"aStem:whateverGroupRight"
@@ -46,10 +46,10 @@ Content-Type: application/json; charset=UTF-8
       },
       {
         "wsGroup":{
-          "displayExtension":"disp1",
           "extension":"whateverGroup",
-          "name":"aStem:whateverGroup",
           "description":"desc1",
+          "displayExtension":"disp1",
+          "name":"aStem:whateverGroup",
           "detail":{
             "attributeValues":[
               "val_1",
@@ -67,17 +67,17 @@ Content-Type: application/json; charset=UTF-8
             ]
             ,
             "rightGroup":{
-              "displayExtension":"whateverGroupRightDispExt",
               "extension":"whateverGroupRight",
-              "name":"aStem:whateverGroupRight",
-              "description":"whateverGroupRightDesc"
+              "description":"whateverGroupRightDesc",
+              "displayExtension":"whateverGroupRightDispExt",
+              "name":"aStem:whateverGroupRight"
             },
             "hasComposite":"T",
             "leftGroup":{
-              "displayExtension":"whateverGroupLeftDispExt",
               "extension":"whateverGroupLeft",
-              "name":"aStem:whateverGroupLeft",
-              "description":"whateverGroupLeftDesc"
+              "description":"whateverGroupLeftDesc",
+              "displayExtension":"whateverGroupLeftDispExt",
+              "name":"aStem:whateverGroupLeft"
             },
             "compositeType":"intersection"
           }
@@ -101,75 +101,79 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=24DEE629CD7E99B960F0CADDB4C4FDB2;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1533
-Date: Mon, 06 Aug 2018 15:24:02 GMT
+Content-Length: 1576
+Date: Tue, 31 Mar 2020 20:45:23 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGroupSaveResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],\n  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null"
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"57"
+      "millis":"147",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],\n  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED",
+          "success":"T"
         },
         "wsGroup":{
-          "displayExtension":"whateverGroupLeftDispExt",
-          "extension":"whateverGroupLeft",
-          "displayName":"a stem:whateverGroupLeftDispExt",
-          "name":"aStem:whateverGroupLeft",
           "description":"whateverGroupLeftDesc",
+          "displayExtension":"whateverGroupLeftDispExt",
+          "displayName":"a stem:whateverGroupLeftDispExt",
+          "enabled":"T",
+          "extension":"whateverGroupLeft",
+          "idIndex":"10048",
+          "name":"aStem:whateverGroupLeft",
           "typeOfGroup":"group",
-          "idIndex":"10051",
-          "uuid":"0002fcb01ed14407ba7dd3db1f84ae03"
+          "uuid":"4cfe65e32086496e8e37991038184c0c"
         }
         
       },
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED",
+          "success":"T"
         },
         "wsGroup":{
-          "displayExtension":"whateverGroupRightDispExt",
-          "extension":"whateverGroupRight",
-          "displayName":"a stem:whateverGroupRightDispExt",
-          "name":"aStem:whateverGroupRight",
           "description":"whateverGroupRightDesc",
+          "displayExtension":"whateverGroupRightDispExt",
+          "displayName":"a stem:whateverGroupRightDispExt",
+          "enabled":"T",
+          "extension":"whateverGroupRight",
+          "idIndex":"10049",
+          "name":"aStem:whateverGroupRight",
           "typeOfGroup":"group",
-          "idIndex":"10052",
-          "uuid":"104d12e7140b481fb03bca2d997b7acf"
+          "uuid":"e86908fb5e69416280e59c7799c17573"
         }
         
       },
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED",
+          "success":"T"
         },
         "wsGroup":{
-          "displayExtension":"disp1",
-          "extension":"whateverGroup",
-          "displayName":"a stem:disp1",
-          "name":"aStem:whateverGroup",
           "description":"desc1",
+          "displayExtension":"disp1",
+          "displayName":"a stem:disp1",
+          "enabled":"T",
+          "extension":"whateverGroup",
+          "idIndex":"10050",
+          "name":"aStem:whateverGroup",
           "typeOfGroup":"group",
-          "idIndex":"10038",
-          "uuid":"0b957bb1336e4a9a87e1557d67c0fa15"
+          "uuid":"09b488181c7d42ba9eb880fd7ad698d3"
         }
       }
     ]

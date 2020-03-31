@@ -37,23 +37,24 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=DE506C9A53C89D9516B0907FA8FD02FB;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 17:14:53 GMT
+Date: Tue, 31 Mar 2020 20:40:56 GMT
 Connection: close
+Server: Apache TomEE
 
 3fb
 <WsGetPermissionAssignmentsResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10049</idIndex>
+      <idIndex>10085</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>c056b6eafc584704be188886bc8e1435</uuid>
+      <uuid>82bd0a56a05f45d2b49dc5956670d41f</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -78,68 +79,254 @@ wsPermissionAssigns>
     <WsPermissionAssign>
       <action>read</action>
       <permissionType>role</permissionType>
-      <attributeDefNameId>813af61d5d06469d822852367da88c78</attributeDefNameId>
+      <attributeDefNameId>2e849c0f71a446f6bf89a490cf57c376</attributeDefNameId>
       <attributeDefNameName>aStem:permissionDefName</attributeDefNameName>
-      <attributeDefId>c056b6eafc584704be188886bc8e1435</attributeDefId>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
       <enabled>T</enabled>
-      <attributeAssignId>7628c198a33644ac82b830831ad9d34f</attributeAssignId>
-      <roleId>58c208ec75e84b36a7942876df7491c8</roleId>
+      <attributeAssignId>5e4d9766115444e194f0f9e0a7cab1c7</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
       <roleName>aStem:role</roleName>
       <subjectId>test.subject.0</subjectId>
       <sourceId>jdbc</sourceId>
-      <membershipId>16aec416d28743b3a3c15f4971fa0875:6b8ffe19d0c2470da27bd42065b79fa1</membershipId>
+      <membershipId>11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f</membershipId>
       <allowedOverall>T</allowedOverall>
       <disallowed>F</disallowed>
     </WsPermissionAssign>
     <WsPermissionAssign>
       <action>read</action>
       <permissionType>role</permissionType>
-      <attributeDefNameId>813af61d5d06469d822852367da88c78</attributeDefNameId>
+      <attributeDefNameId>2e849c0f71a446f6bf89a490cf57c376</attributeDefNameId>
       <attributeDefNameName>aStem:permissionDefName</attributeDefNameName>
-      <attributeDefId>c056b6eafc584704be18
-3f8
-8886bc8e1435</attributeDefId>
+      <attributeDefId>82bd0a56a05f45d2b49d
+3ff
+c5956670d41f</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
       <enabled>T</enabled>
-      <attributeAssignId>7628c198a33644ac82b830831ad9d34f</attributeAssignId>
-      <roleId>58c208ec75e84b36a7942876df7491c8</roleId>
+      <attributeAssignId>5e4d9766115444e194f0f9e0a7cab1c7</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
       <roleName>aStem:role</roleName>
       <subjectId>test.subject.4</subjectId>
       <sourceId>jdbc</sourceId>
-      <membershipId>5c70de3615db412ab079f30019a7f3bd:6b8ffe19d0c2470da27bd42065b79fa1</membershipId>
+      <membershipId>bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>write</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>2e849c0f71a446f6bf89a490cf57c376</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>bbc4780f5301439cb1e40765d8955c76</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.su
+3f2
+bject.0</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>write</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>2e849c0f71a446f6bf89a490cf57c376</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>bbc4780f5301439cb1e40765d8955c76</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.4</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>read</action>
+      <
+3ff
+permissionType>
+      </permissionType>
+      <attributeDefNameId>8ad22068269c451cb1a5d77dbbbd9e7a</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName3</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>5e4d9766115444e194f0f9e0a7cab1c7</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.0</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>read</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>8ad22068269c451cb1a5d77dbbbd9e7a</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName3</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permiss
+3ff
+ionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>5e4d9766115444e194f0f9e0a7cab1c7</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.4</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>write</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>8ad22068269c451cb1a5d77dbbbd9e7a</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName3</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>bbc4780f5301439cb1e40765d8955c76</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.0</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>1
+3ff
+1b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>write</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>8ad22068269c451cb1a5d77dbbbd9e7a</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName3</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>bbc4780f5301439cb1e40765d8955c76</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.4</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>read</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>494f03d9824c4ab
+3ff
+db0e447d60a9f0a63</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName4</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>5e4d9766115444e194f0f9e0a7cab1c7</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.0</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>read</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>494f03d9824c4abdb0e447d60a9f0a63</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName4</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>5e4d976
+3fa
+6115444e194f0f9e0a7cab1c7</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.4</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>write</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>494f03d9824c4abdb0e447d60a9f0a63</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName4</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>bbc4780f5301439cb1e40765d8955c76</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.0</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>
+      </
+3ed
+membershipId>
+      <allowedOverall>T</allowedOverall>
+      <disallowed>F</disallowed>
+    </WsPermissionAssign>
+    <WsPermissionAssign>
+      <action>write</action>
+      <permissionType>role</permissionType>
+      <attributeDefNameId>494f03d9824c4abdb0e447d60a9f0a63</attributeDefNameId>
+      <attributeDefNameName>aStem:permissionDefName4</attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <attributeDefName>aStem:permissionDef</attributeDefName>
+      <enabled>T</enabled>
+      <attributeAssignId>bbc4780f5301439cb1e40765d8955c76</attributeAssignId>
+      <roleId>3befb91c854541f68a4dcb75fe1f92ee</roleId>
+      <roleName>aStem:role</roleName>
+      <subjectId>test.subject.4</subjectId>
+      <sourceId>jdbc</sourceId>
+      <membershipId>bc176615573b45ab88acebd4c6eceb01:d35ff409fda24afd80da9f14a52b372f</membershipId>
       <allowedOverall>T</allowedOverall>
       <disallowed>F</disallowed>
     </WsPermissionAssign>
     <WsPermissionAssign>
       <action>write</action>
       <permissionType>role_subject</permissionType>
-      <attributeDefNameId>09fe17dde5b34608ba0d348da7e151df</attributeDefNameId>
-      <attributeDefNameName>aStem:permissionDefName2</attributeDefNameName>
-      <attributeDefId>c056b6eafc584704be188886bc8e1435</attributeDefId>
+      <attributeDefNameId>7fdc02943dec48aa9455185ebeb082b4</attributeDefNameId>
+      <
+3ff
+attributeDefNameName>
+      </attributeDefNameName>
+      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
       <enabled>T</enabled>
-      <attributeAssignId>0777751648bc4ca2a6e67ac6034a1824</attributeAssignId>
-      <roleId>6cb12df9425e493d9e4436b28a51ab54</roleId>
+      <attributeAssignId>30654bc3be664417beda2f46ff036fda</attributeAssignId>
+      <roleId>f1828d10b2ab4de381477c44cf5d1182</roleId>
       <roleName>aStem:role2</roleName>
-      <
-3fd
-subjectId>
-      </subjectId>
+      <subjectId>test.subject.1</subjectId>
       <sourceId>jdbc</sourceId>
-      <membershipId>62bbc15300634a6d9e7e4e5324b6efce:8fa8d248d1444b70870fd1a1c7c1f29c</membershipId>
+      <membershipId>2214f20cafe742c8a7041872873399ad:128fcd674c544e759883f808239033d9</membershipId>
       <allowedOverall>T</allowedOverall>
       <disallowed>F</disallowed>
     </WsPermissionAssign>
   </wsPermissionAssigns>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>, Found 3 results.  </resultMessage>
+    <resultMessage>, Found 13 results.  </resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>65</millis>
+    <millis>136</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroups>
@@ -147,10 +334,13 @@ subjectId>
       <extension>role</extension>
       <typeOfGroup>role</typeOfGroup>
       <displayExtension>role</displayExtension>
-      <displayName>a stem:role</displayName>
+      <displayName>a stem:ro
+1d6
+le</displayName>
       <name>aStem:role</name>
-      <uuid>58c208ec75e84b36a7942876df7491c8</uuid>
-      <idIndex>10033</idIndex>
+      <uuid>3befb91c854541f68a4dcb75fe1f92ee</uuid>
+      <idIndex>10035</idIndex>
+      <enabled>T</enabled>
     </WsGroup>
     <WsGroup>
       <extension>role2</extension>
@@ -158,11 +348,10 @@ subjectId>
       <displayExtension>role2</displayExtension>
       <displayName>a stem:role2</displayName>
       <name>aStem:role2</name>
-      <uuid>6cb12df9425e493d9e4436b28a51ab54</uuid>
-      <idIndex>10034</idIndex>
-    </
-44
-WsGroup>
+      <uuid>f1828d10b2ab4de381477c44cf5d1182</uuid>
+      <idIndex>10036</idIndex>
+      <enabled>T</enabled>
+    </WsGroup>
   </wsGroups>
   <wsSubjects/>
 </WsGetPermissionAssignmentsResults>
@@ -344,4 +533,4 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.5.0, result code: SUCCESS, result message: , Found 13 results.

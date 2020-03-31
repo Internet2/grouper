@@ -34,7 +34,7 @@ Content-Type: application/json; charset=UTF-8
     ,
     "wsOwnerMembershipLookups":[
       {
-        "uuid":"29053cbf936f41a7b3df504f40884ae8"
+        "uuid":"11b1a84a22f545c0b22d95a65912694b"
       }
     ]
     ,
@@ -53,135 +53,134 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=A2591DBF71635B39A3C831413F12804D;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 2612
-Date: Mon, 06 Aug 2018 16:35:45 GMT
+Content-Length: 2613
+Date: Tue, 31 Mar 2020 20:18:10 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsAssignAttributesResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results."
-    },
-    "wsMemberships":[
-      {
-        "membershipType":"immediate",
-        "immediateMembershipId":"29053cbf936f41a7b3df504f40884ae8",
-        "groupId":"c94e8975d1524eacb3e5f3a7b0b55086",
-        "membershipId":"29053cbf936f41a7b3df504f40884ae8:fa3f178adc4b4b3a9995d1b74d540c65",
-        "listType":"list",
-        "enabled":"T",
-        "subjectId":"test.subject.0",
-        "groupName":"aStem:role",
-        "createTime":"2018/08/06 11:04:03.740",
-        "listName":"members",
-        "subjectSourceId":"jdbc",
-        "memberId":"fc6b1899115541038c8194f8bfc3c342"
-      }
-    ]
-    ,
-    "wsStems":[
-    ]
-    ,
-    "wsAttributeDefs":[
-      {
-        "attributeDefType":"attr",
-        "assignToAttributeDef":"F",
-        "assignToStemAssignment":"F",
-        "extension":"testAttrNameDef",
-        "assignToMemberAssignment":"F",
-        "assignToEffectiveMembership":"F",
-        "uuid":"11e00ce273094c209826fba7cad5f027",
-        "assignToImmediateMembershipAssignment":"F",
-        "assignToEffectiveMembershipAssignment":"F",
-        "assignToStem":"F",
-        "assignToGroupAssignment":"F",
-        "assignToMember":"F",
-        "multiAssignable":"F",
-        "valueType":"string",
-        "name":"test:testAttrNameDef",
-        "assignToAttributeDefAssignment":"F",
-        "idIndex":"10043",
-        "multiValued":"T",
-        "assignToGroup":"F",
-        "assignToImmediateMembership":"F"
-      }
-    ]
-    ,
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"88"
+      "millis":"120",
+      "serverVersion":"2.5.0"
     },
-    "wsGroups":[
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Found 1 results.",
+      "success":"T"
+    },
+    "wsAttributeAssignResults":[
+      {
+        "changed":"F",
+        "deleted":"F",
+        "valuesChanged":"T",
+        "wsAttributeAssignValueResults":[
+          {
+            "changed":"T",
+            "deleted":"F",
+            "wsAttributeAssignValue":{
+              "id":"9233c05d32ed45809aef1d479cf466d4",
+              "valueSystem":"some_value"
+            }
+          }
+        ]
+        ,
+        "wsAttributeAssigns":[
+          {
+            "attributeAssignActionId":"7f99b631724f4b239fe0af39c6e56741",
+            "attributeAssignActionName":"assign",
+            "attributeAssignActionType":"immediate",
+            "attributeAssignDelegatable":"FALSE",
+            "attributeAssignType":"imm_mem",
+            "attributeDefId":"d79024375c684d259b271906bc1e9f4e",
+            "attributeDefName":"test:testAttrNameDef",
+            "attributeDefNameId":"e328fe96620b42e58d1ff2b6af86f62e",
+            "attributeDefNameName":"test:testAttrName",
+            "createdOn":"2020/03/31 13:18:07.773",
+            "disallowed":"F",
+            "enabled":"T",
+            "id":"3e928f19552c4ee1af927b49916f8275",
+            "lastUpdated":"2020/03/31 13:18:07.773",
+            "ownerMembershipId":"11b1a84a22f545c0b22d95a65912694b",
+            "wsAttributeAssignValues":[
+              {
+                "id":"348d5ea6e3ed4d4d917a448f889a2464",
+                "valueSystem":"some_value"
+              },
+              {
+                "id":"9233c05d32ed45809aef1d479cf466d4",
+                "valueSystem":"some_value"
+              }
+            ]
+          }
+        ]
+      }
     ]
     ,
     "wsAttributeDefNames":[
       {
-        "attributeDefId":"11e00ce273094c209826fba7cad5f027",
-        "displayExtension":"testAttrName",
-        "extension":"testAttrName",
-        "displayName":"test:testAttrName",
-        "name":"test:testAttrName",
+        "attributeDefId":"d79024375c684d259b271906bc1e9f4e",
         "attributeDefName":"test:testAttrNameDef",
-        "idIndex":"10152",
-        "uuid":"f989f8fcb110440fbdcfbf13722685fc"
+        "displayExtension":"testAttrName",
+        "displayName":"test:testAttrName",
+        "extension":"testAttrName",
+        "idIndex":"10278",
+        "name":"test:testAttrName",
+        "uuid":"e328fe96620b42e58d1ff2b6af86f62e"
       }
     ]
     ,
-    "wsAttributeAssignResults":[
+    "wsAttributeDefs":[
       {
-        "wsAttributeAssignValueResults":[
-          {
-            "deleted":"F",
-            "wsAttributeAssignValue":{
-              "id":"38aebb6011034e97a1d6b42ef4444a96",
-              "valueSystem":"some_value"
-            },
-            "changed":"T"
-          }
-        ]
-        ,
-        "deleted":"F",
-        "wsAttributeAssigns":[
-          {
-            "attributeAssignDelegatable":"FALSE",
-            "disallowed":"F",
-            "createdOn":"2018/08/06 12:35:43.452",
-            "enabled":"T",
-            "attributeAssignType":"imm_mem",
-            "attributeDefId":"11e00ce273094c209826fba7cad5f027",
-            "lastUpdated":"2018/08/06 12:35:43.452",
-            "attributeAssignActionId":"9519231f303343de801a4647855fb496",
-            "ownerMembershipId":"29053cbf936f41a7b3df504f40884ae8",
-            "id":"146a3b54659e4b2fab5279186ef2a285",
-            "wsAttributeAssignValues":[
-              {
-                "id":"38aebb6011034e97a1d6b42ef4444a96",
-                "valueSystem":"some_value"
-              },
-              {
-                "id":"d56189eef68b4a149e9a7c3e374ebc64",
-                "valueSystem":"some_value"
-              }
-            ]
-            ,
-            "attributeDefName":"test:testAttrNameDef",
-            "attributeDefNameName":"test:testAttrName",
-            "attributeAssignActionName":"assign",
-            "attributeDefNameId":"f989f8fcb110440fbdcfbf13722685fc",
-            "attributeAssignActionType":"immediate"
-          }
-        ]
-        ,
-        "valuesChanged":"T",
-        "changed":"F"
+        "assignToAttributeDef":"F",
+        "assignToAttributeDefAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToGroup":"F",
+        "assignToGroupAssignment":"F",
+        "assignToImmediateMembership":"F",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToMember":"F",
+        "assignToMemberAssignment":"F",
+        "assignToStem":"F",
+        "assignToStemAssignment":"F",
+        "attributeDefType":"attr",
+        "extension":"testAttrNameDef",
+        "idIndex":"10082",
+        "multiAssignable":"F",
+        "multiValued":"T",
+        "name":"test:testAttrNameDef",
+        "uuid":"d79024375c684d259b271906bc1e9f4e",
+        "valueType":"string"
       }
+    ]
+    ,
+    "wsGroups":[
+    ]
+    ,
+    "wsMemberships":[
+      {
+        "createTime":"2020/03/31 00:25:10.281",
+        "enabled":"T",
+        "groupId":"3befb91c854541f68a4dcb75fe1f92ee",
+        "groupName":"aStem:role",
+        "immediateMembershipId":"11b1a84a22f545c0b22d95a65912694b",
+        "listName":"members",
+        "listType":"list",
+        "memberId":"bef6a528fd9143059d1220cf0dc58c04",
+        "membershipId":"11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f",
+        "membershipType":"immediate",
+        "subjectId":"test.subject.0",
+        "subjectSourceId":"jdbc"
+      }
+    ]
+    ,
+    "wsStems":[
     ]
     ,
     "wsSubjects":[

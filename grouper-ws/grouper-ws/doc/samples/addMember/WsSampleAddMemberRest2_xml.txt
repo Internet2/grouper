@@ -39,16 +39,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=38147A3FCD4F9D67034CE1F90BB0F5FF;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 15:40:27 GMT
+Date: Tue, 31 Mar 2020 20:12:59 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsAddMemberResults>
@@ -73,23 +72,24 @@ Connection: close
     <displayExtension>testGroup</displayExtension>
     <displayName>test:testGroup</displayName>
     <name>test:testGroup</name>
-    <uuid>f651723de0f549ed97906e28df006ced</uuid>
-    <idIndex>10004</idIndex>
+    <uuid>6488e4e9d11d405598a420954c86fabf</uuid>
+    <idIndex>10031</idIndex>
+    <enabled>T</enabled>
   </wsGroupAssigned>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
     <resultMessage>Success for: clientVersion: 2.5.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
-, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false
-11b
-, subjectAttributeNames: null
+, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, include
+130
+SubjectDetail: false, subjectAttributeNames: null
 , params: null
 , disabledDate: null, enabledDate: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>22</millis>
+    <millis>210</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAddMemberResults>

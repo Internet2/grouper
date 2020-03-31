@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1410
+Content-Length: 1396
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -27,37 +27,37 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestMemberChangeSubjectRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-        <p class="subjectSourceId" />
+        <p class="subjectIdentifier"/>
+        <p class="subjectSourceId"/>
       </div>
-      <p class="clientVersion" />
-      <p class="includeSubjectDetail" />
-      <p class="txType" />
+      <p class="clientVersion"/>
+      <p class="includeSubjectDetail"/>
+      <p class="txType"/>
       <ul class="wsMemberChangeSubjects">
         <li title="WsMemberChangeSubject">
-          <p class="deleteOldMember" />
+          <p class="deleteOldMember"/>
           <div class="newSubjectLookup" title="WsSubjectLookup">
             <p class="subjectId">test.subject.1</p>
-            <p class="subjectIdentifier" />
-            <p class="subjectSourceId" />
+            <p class="subjectIdentifier"/>
+            <p class="subjectSourceId"/>
           </div>
           <div class="oldSubjectLookup" title="WsSubjectLookup">
-            <p class="subjectId" />
+            <p class="subjectId"/>
             <p class="subjectIdentifier">id.test.subject.0</p>
-            <p class="subjectSourceId" />
+            <p class="subjectSourceId"/>
           </div>
         </li>
         <li title="WsMemberChangeSubject">
           <p class="deleteOldMember">F</p>
           <div class="newSubjectLookup" title="WsSubjectLookup">
             <p class="subjectId">test.subject.3</p>
-            <p class="subjectIdentifier" />
-            <p class="subjectSourceId" />
+            <p class="subjectIdentifier"/>
+            <p class="subjectSourceId"/>
           </div>
           <div class="oldSubjectLookup" title="WsSubjectLookup">
-            <p class="subjectId" />
+            <p class="subjectId"/>
             <p class="subjectIdentifier">id.test.subject.2</p>
-            <p class="subjectSourceId" />
+            <p class="subjectSourceId"/>
           </div>
         </li>
       </ul>
@@ -75,16 +75,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=6639FA692210A768268AB21DBEC16BF7;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 07 Aug 2018 17:40:56 GMT
+Date: Tue, 31 Mar 2020 20:49:05 GMT
 Connection: close
+Server: Apache TomEE
 
-9f6
+a86
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -94,13 +95,13 @@ Connection: close
   <body>
     <div title="WsMemberChangeSubjectResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">348</p>
-        <p class="resultWarnings" />
+        <p class="millis">501</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
@@ -116,13 +117,14 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
         <li title="WsMemberChangeSubjectResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsSubjectNew" title="WsSubject">
             <p class="id">test.subject.1</p>
-            <p class="identifierLookup" />
+            <p class="identifierLookup"/>
+            <p class="memberId"/>
             <p class="name">my name is test.subject.1</p>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
@@ -131,7 +133,8 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
           <div class="wsSubjectOld" title="WsSubject">
             <p class="id">test.subject.0</p>
             <p class="identifierLookup">id.test.subject.0</p>
-            <p class="name" />
+            <p class="memberId">18ff8df89ddc41de8abef405b4149da7</p>
+            <p class="name"/>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
             <p class="success">T</p>
@@ -140,13 +143,14 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
         <li title="WsMemberChangeSubjectResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsSubjectNew" title="WsSubject">
             <p class="id">test.subject.3</p>
-            <p class="identifierLookup" />
+            <p class="identifierLookup"/>
+            <p class="memberId"/>
             <p class="name">my name is test.subject.3</p>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
@@ -155,7 +159,8 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
           <div class="wsSubjectOld" title="WsSubject">
             <p class="id">test.subject.2</p>
             <p class="identifierLookup">id.test.subject.2</p>
-            <p class="name" />
+            <p class="memberId">fc301f6730984e8dbb1bb331fef13ecc</p>
+            <p class="name"/>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
             <p class="success">T</p>

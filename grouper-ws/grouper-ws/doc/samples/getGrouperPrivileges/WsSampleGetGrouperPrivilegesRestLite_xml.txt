@@ -35,24 +35,61 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
-X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
+Set-Cookie: JSESSIONID=D6AB172CC77F713E348C39A48BC6CB24;path=/grouper-ws/;HttpOnly
+X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:40:18 GMT
+Date: Tue, 31 Mar 2020 20:35:18 GMT
 Connection: close
+Server: Apache TomEE
 
-123
+3ff
 <WsGetGrouperPrivilegesLiteResult>
   <resultMetadata>
-    <resultCode>SUCCESS_NOT_ALLOWED</resultCode>
+    <resultCode>SUCCESS_ALLOWED</resultCode>
     <success>T</success>
   </resultMetadata>
+  <privilegeResults>
+    <WsGrouperPrivilegeResult>
+      <allowed>T</allowed>
+      <ownerSubject>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <id>test.subject.0</id>
+        <name>my name is test.subject.0</name>
+        <sourceId>jdbc</sourceId>
+      </ownerSubject>
+      <privilegeName>admin</privilegeName>
+      <privilegeType>access</privilegeType>
+      <revokable>T</revokable>
+      <wsGroup>
+        <extension>aGroup</extension>
+        <typeOfGroup>group</typeOfGroup>
+        <displayExtension>a group</displayExtension>
+        <description>a group description</description>
+        <displayName>a stem:a group</displayName>
+        <name>aStem:aGroup</name>
+        <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+        <idIndex>10009</idIndex>
+        <enabled>T</enabled>
+      </wsGroup>
+      <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <id>test.subject.0</id>
+        <name>my name is test.subject.0</name>
+        <sourceId>jdbc</sourceId>
+      </wsSubject>
+    </WsGrouperPrivilegeResult>
+  </privilegeResults>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>24</millis>
+    <resultWarnings>
+    </
+7c
+resultWarnings>
+    <millis>23</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetGrouperPrivilegesLiteResult>
@@ -231,4 +268,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.5.0, result code: SUCCESS_ALLOWED, result message: null

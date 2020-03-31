@@ -39,71 +39,72 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=326F40D9BBB812517EEF0E8C4808EB63;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
 Content-Length: 1288
-Date: Mon, 06 Aug 2018 16:36:20 GMT
+Date: Tue, 31 Mar 2020 20:20:22 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsAssignPermissionsLiteResults":{
+    "responseMetadata":{
+      "millis":"29",
+      "serverVersion":"2.5.0"
+    },
     "resultMetadata":{
-      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results."
+      "resultMessage":", Found 1 results.",
+      "success":"T"
     },
     "wsAttributeDefName":{
-      "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
-      "displayExtension":"permissionDefName",
-      "extension":"permissionDefName",
-      "displayName":"a stem:permissionDefName",
-      "name":"aStem:permissionDefName",
+      "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
       "attributeDefName":"aStem:permissionDef",
-      "idIndex":"10155",
-      "uuid":"397ea151404d489aae915be38d0f4b4f"
-    },
-    "wsPermissionAssignResult":{
-      "deleted":"T",
-      "changed":"F"
+      "displayExtension":"permissionDefName",
+      "displayName":"a stem:permissionDefName",
+      "extension":"permissionDefName",
+      "idIndex":"10281",
+      "name":"aStem:permissionDefName",
+      "uuid":"2e849c0f71a446f6bf89a490cf57c376"
     },
     "wsAttributeDefs":[
       {
-        "attributeDefType":"perm",
         "assignToAttributeDef":"F",
-        "assignToStemAssignment":"F",
-        "extension":"permissionDef",
-        "assignToMemberAssignment":"F",
-        "assignToEffectiveMembership":"F",
-        "uuid":"4d46bcc488724fc2b3a40b0b75e14a2b",
-        "assignToImmediateMembershipAssignment":"F",
-        "assignToEffectiveMembershipAssignment":"F",
-        "assignToStem":"F",
-        "assignToGroupAssignment":"F",
-        "assignToMember":"F",
-        "multiAssignable":"F",
-        "valueType":"marker",
-        "name":"aStem:permissionDef",
         "assignToAttributeDefAssignment":"F",
-        "idIndex":"10046",
-        "multiValued":"F",
+        "assignToEffectiveMembership":"F",
+        "assignToEffectiveMembershipAssignment":"F",
         "assignToGroup":"F",
-        "assignToImmediateMembership":"F"
+        "assignToGroupAssignment":"F",
+        "assignToImmediateMembership":"F",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToMember":"F",
+        "assignToMemberAssignment":"F",
+        "assignToStem":"F",
+        "assignToStemAssignment":"F",
+        "attributeDefType":"perm",
+        "extension":"permissionDef",
+        "idIndex":"10085",
+        "multiAssignable":"F",
+        "multiValued":"F",
+        "name":"aStem:permissionDef",
+        "uuid":"82bd0a56a05f45d2b49dc5956670d41f",
+        "valueType":"marker"
       }
     ]
     ,
+    "wsPermissionAssignResult":{
+      "changed":"F",
+      "deleted":"T"
+    },
     "wsSubject":{
-      "sourceId":"jdbc",
-      "success":"T",
+      "id":"test.subject.4",
       "name":"my name is test.subject.4",
       "resultCode":"SUCCESS",
-      "id":"test.subject.4"
-    },
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"48"
+      "sourceId":"jdbc",
+      "success":"T"
     }
   }
 }

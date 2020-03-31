@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 657
+Content-Length: 654
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -27,10 +27,10 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestFindExternalSubjectsRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-        <p class="subjectSourceId" />
+        <p class="subjectIdentifier"/>
+        <p class="subjectSourceId"/>
       </div>
-      <p class="clientVersion" />
+      <p class="clientVersion"/>
       <ul class="wsExternalSubjectLookups">
         <li title="WsExternalSubjectLookup">
           <p class="identifier">a_ident@b.c</p>
@@ -50,16 +50,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=46F0035A7CCFDD2BDE1208614466387F;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:39:07 GMT
+Date: Tue, 31 Mar 2020 20:30:24 GMT
 Connection: close
+Server: Apache TomEE
 
-362
+361
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -69,13 +70,13 @@ Connection: close
   <body>
     <div title="WsFindExternalSubjectsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">6</p>
-        <p class="resultWarnings" />
+        <p class="millis">68</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
 , params: null
 , wsExternalSubjectLookups: Array size: 1: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]</p>

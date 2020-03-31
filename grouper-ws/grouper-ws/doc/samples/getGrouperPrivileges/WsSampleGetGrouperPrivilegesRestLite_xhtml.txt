@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 969
+Content-Length: 954
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -26,25 +26,25 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGetGrouperPrivilegesLiteRequest">
       <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
-      <p class="clientVersion" />
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
+      <p class="clientVersion"/>
       <p class="groupName">aStem:aGroup</p>
-      <p class="groupUuid" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
+      <p class="groupUuid"/>
+      <p class="includeGroupDetail"/>
+      <p class="includeSubjectDetail"/>
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
       <p class="privilegeName">admin</p>
       <p class="privilegeType">access</p>
-      <p class="stemName" />
-      <p class="stemUuid" />
-      <p class="subjectAttributeNames" />
+      <p class="stemName"/>
+      <p class="stemUuid"/>
+      <p class="subjectAttributeNames"/>
       <p class="subjectId">test.subject.0</p>
-      <p class="subjectIdentifier" />
-      <p class="subjectSourceId" />
+      <p class="subjectIdentifier"/>
+      <p class="subjectSourceId"/>
     </div>
   </body>
 </html>
@@ -59,16 +59,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
-X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
+Set-Cookie: JSESSIONID=BBF4EB5394288679FCD3E5524D813144;path=/grouper-ws/;HttpOnly
+X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:40:13 GMT
+Date: Tue, 31 Mar 2020 20:35:12 GMT
 Connection: close
+Server: Apache TomEE
 
-29d
+76c
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -77,15 +78,57 @@ Connection: close
   </head>
   <body>
     <div title="WsGetGrouperPrivilegesLiteResult">
+      <ul class="privilegeResults">
+        <li title="WsGrouperPrivilegeResult">
+          <p class="allowed">T</p>
+          <div class="ownerSubject" title="WsSubject">
+            <p class="id">test.subject.0</p>
+            <p class="identifierLookup"/>
+            <p class="memberId"/>
+            <p class="name">my name is test.subject.0</p>
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
+          </div>
+          <p class="privilegeName">admin</p>
+          <p class="privilegeType">access</p>
+          <p class="revokable">T</p>
+          <div class="wsGroup" title="WsGroup">
+            <p class="alternateName"/>
+            <p class="description">a group description</p>
+            <div class="detail" title="WsGroupDetail"/>
+            <p class="disabledTime"/>
+            <p class="displayExtension">a group</p>
+            <p class="displayName">a stem:a group</p>
+            <p class="enabled">T</p>
+            <p class="enabledTime"/>
+            <p class="extension">aGroup</p>
+            <p class="idIndex">10009</p>
+            <p class="name">aStem:aGroup</p>
+            <p class="typeOfGroup">group</p>
+            <p class="uuid">32ca90db41b04a1a9611a214a20bac42</p>
+          </div>
+          <div class="wsStem" title="WsStem"/>
+          <div class="wsSubject" title="WsSubject">
+            <p class="id">test.subject.0</p>
+            <p class="identifierLookup"/>
+            <p class="memberId"/>
+            <p class="name">my name is test.subject.0</p>
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
+          </div>
+        </li>
+      </ul>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">12</p>
-        <p class="resultWarnings" />
+        <p class="millis">29</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS_NOT_ALLOWED</p>
-        <p class="resultCode2" />
-        <p class="resultMessage" />
+        <p class="resultCode">SUCCESS_ALLOWED</p>
+        <p class="resultCode2"/>
+        <p class="resultMessage"/>
         <p class="success">T</p>
       </div>
     </div>
@@ -266,4 +309,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.5.0, result code: SUCCESS_ALLOWED, result message: null

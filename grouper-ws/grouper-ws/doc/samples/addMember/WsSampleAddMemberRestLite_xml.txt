@@ -26,18 +26,17 @@ Content-Length: 0
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=A1A174A4A62D21D40D2B2FDFA7D1F56F;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 15:40:33 GMT
+Date: Tue, 31 Mar 2020 20:13:15 GMT
 Connection: close
+Server: Apache TomEE
 
-3f0
+3f9
 <WsAddMemberLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
@@ -55,8 +54,9 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-    <idIndex>10005</idIndex>
+    <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+    <idIndex>10009</idIndex>
+    <enabled>T</enabled>
   </wsGroupAssigned>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -64,12 +64,12 @@ Connection: close
     <id>10021368</id>
     <name>10021368</name>
     <sourceId>jdbc</sourceId>
-  </wsSubject>
-  <
-94
-responseMetadata>
+  </
+a0
+wsSubject>
+  <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>24</millis>
+    <millis>301</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAddMemberLiteResult>

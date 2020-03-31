@@ -38,14 +38,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=330C9609E1D3E4A45B33D367C5A88F93;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:28 GMT
+Date: Tue, 31 Mar 2020 20:20:33 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsAttributeDefDeleteResults>
@@ -71,7 +72,7 @@ Connection: close
         <resultCode>SUCCESS_ATTRIBUTE_DEF_NOT_FOUND</resultCode>
         <resultMessage>Cant find attribute def: &apos;WsAttributeDefLookup[name=test:test1,
 attributeDefFindResult=ATTRIBUTE_DEF_NOT_FOUND]&apos;.  </resultMessage
-225
+226
 >
         <success>T</success>
       </resultMetadata>
@@ -87,7 +88,7 @@ attributeDefFindResult=ATTRIBUTE_DEF_NOT_FOUND]&apos;.  </resultMessage
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>4</millis>
+    <millis>15</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefDeleteResults>

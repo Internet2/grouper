@@ -42,25 +42,18 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=498A5BA99E88C9474DCC6C653FE40CC9;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
 Content-Length: 975
-Date: Mon, 06 Aug 2018 16:34:51 GMT
+Date: Tue, 31 Mar 2020 20:13:46 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsAttributeDefAssignActionResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS"
-    },
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"199"
-    },
     "actions":[
       {
         "action":"assign",
@@ -84,27 +77,35 @@ Connection: close
       }
     ]
     ,
+    "responseMetadata":{
+      "millis":"616",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "success":"T"
+    },
     "wsAttributeDef":{
-      "attributeDefType":"attr",
       "assignToAttributeDef":"F",
-      "assignToStemAssignment":"F",
-      "extension":"testAttributeAssignDefNameDef",
-      "assignToMemberAssignment":"F",
-      "assignToEffectiveMembership":"F",
-      "uuid":"431a9914cdba4564ad5943c7ec7de988",
-      "assignToImmediateMembershipAssignment":"F",
-      "assignToEffectiveMembershipAssignment":"F",
-      "assignToStem":"F",
-      "assignToGroupAssignment":"F",
-      "assignToMember":"F",
-      "multiAssignable":"F",
-      "valueType":"integer",
-      "name":"test:testAttributeAssignDefNameDef",
       "assignToAttributeDefAssignment":"F",
-      "idIndex":"10044",
-      "multiValued":"T",
+      "assignToEffectiveMembership":"F",
+      "assignToEffectiveMembershipAssignment":"F",
       "assignToGroup":"F",
-      "assignToImmediateMembership":"F"
+      "assignToGroupAssignment":"F",
+      "assignToImmediateMembership":"F",
+      "assignToImmediateMembershipAssignment":"F",
+      "assignToMember":"F",
+      "assignToMemberAssignment":"F",
+      "assignToStem":"F",
+      "assignToStemAssignment":"F",
+      "attributeDefType":"attr",
+      "extension":"testAttributeAssignDefNameDef",
+      "idIndex":"10083",
+      "multiAssignable":"F",
+      "multiValued":"T",
+      "name":"test:testAttributeAssignDefNameDef",
+      "uuid":"3d7adcf55291443d8eb2527d22f6e67c",
+      "valueType":"integer"
     }
   }
 }

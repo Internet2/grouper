@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1001
+Content-Length: 990
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,28 +25,28 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetSubjectsRequest">
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="clientVersion" />
-      <p class="fieldName" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
-      <p class="memberFilter" />
-      <p class="searchString" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup"/>
+      <p class="clientVersion"/>
+      <p class="fieldName"/>
+      <p class="includeGroupDetail"/>
+      <p class="includeSubjectDetail"/>
+      <p class="memberFilter"/>
+      <p class="searchString"/>
       <ul class="subjectAttributeNames">
         <li>description</li>
         <li>loginid</li>
         <li>name</li>
       </ul>
-      <div class="wsGroupLookup" title="WsGroupLookup" />
+      <div class="wsGroupLookup" title="WsGroupLookup"/>
       <ul class="wsSubjectLookups">
         <li title="WsSubjectLookup">
           <p class="subjectId">test.subject.0</p>
-          <p class="subjectIdentifier" />
-          <p class="subjectSourceId" />
+          <p class="subjectIdentifier"/>
+          <p class="subjectSourceId"/>
         </li>
         <li title="WsSubjectLookup">
           <p class="subjectId">test.subject.1</p>
-          <p class="subjectIdentifier" />
+          <p class="subjectIdentifier"/>
           <p class="subjectSourceId">jdbc</p>
         </li>
       </ul>
@@ -64,16 +64,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=0C781D37CB760E8D3FC7477D06050F00;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:42:09 GMT
+Date: Tue, 31 Mar 2020 20:41:53 GMT
 Connection: close
+Server: Apache TomEE
 
-5de
+603
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -83,13 +84,13 @@ Connection: close
   <body>
     <div title="WsGetSubjectsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">25</p>
-        <p class="resultWarnings" />
+        <p class="millis">98</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Queried 2 subjects</p>
         <p class="success">T</p>
       </div>
@@ -98,7 +99,7 @@ Connection: close
         <li>loginid</li>
         <li>name</li>
       </ul>
-      <div class="wsGroup" title="WsGroup" />
+      <div class="wsGroup" title="WsGroup"/>
       <ul class="wsSubjects">
         <li title="WsSubject">
           <ul class="attributeValues">
@@ -107,7 +108,8 @@ Connection: close
             <li>my name is test.subject.0</li>
           </ul>
           <p class="id">test.subject.0</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.0</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -120,7 +122,8 @@ Connection: close
             <li>my name is test.subject.1</li>
           </ul>
           <p class="id">test.subject.1</p>
-          <p class="identifierLookup" />
+          <p class="identifierLookup"/>
+          <p class="memberId"/>
           <p class="name">my name is test.subject.1</p>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>

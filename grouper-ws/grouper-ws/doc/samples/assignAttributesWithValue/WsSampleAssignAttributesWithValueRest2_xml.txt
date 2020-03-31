@@ -33,7 +33,7 @@ Content-Type: application/xml; charset=UTF-8
   </wsAttributeDefNameLookups>
   <wsOwnerMembershipLookups>
     <WsMembershipLookup>
-      <uuid>29053cbf936f41a7b3df504f40884ae8</uuid>
+      <uuid>11b1a84a22f545c0b22d95a65912694b</uuid>
     </WsMembershipLookup>
   </wsOwnerMembershipLookups>
 </WsRestAssignAttributesRequest>
@@ -48,23 +48,24 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=B56FCD260146AF17F37A5DFF196B621C;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:35:47 GMT
+Date: Tue, 31 Mar 2020 20:18:12 GMT
 Connection: close
+Server: Apache TomEE
 
 3f6
 <WsAssignAttributesResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10043</idIndex>
+      <idIndex>10082</idIndex>
       <extension>testAttrNameDef</extension>
       <name>test:testAttrNameDef</name>
-      <uuid>11e00ce273094c209826fba7cad5f027</uuid>
+      <uuid>d79024375c684d259b271906bc1e9f4e</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -87,13 +88,13 @@ Connection: close
 3fe
 wsAttributeDefNames>
     <WsAttributeDefName>
-      <idIndex>10152</idIndex>
+      <idIndex>10278</idIndex>
       <extension>testAttrName</extension>
       <displayExtension>testAttrName</displayExtension>
       <displayName>test:testAttrName</displayName>
       <name>test:testAttrName</name>
-      <uuid>f989f8fcb110440fbdcfbf13722685fc</uuid>
-      <attributeDefId>11e00ce273094c209826fba7cad5f027</attributeDefId>
+      <uuid>e328fe96620b42e58d1ff2b6af86f62e</uuid>
+      <attributeDefId>d79024375c684d259b271906bc1e9f4e</attributeDefId>
       <attributeDefName>test:testAttrNameDef</attributeDefName>
     </WsAttributeDefName>
   </wsAttributeDefNames>
@@ -104,7 +105,7 @@ wsAttributeDefNames>
           <changed>T</changed>
           <deleted>F</deleted>
           <wsAttributeAssignValue>
-            <id>4ff7bf38b1b64d50bc550e25c24cf1ea</id>
+            <id>58fa343643d74db682f6a1a4e9da400b</id>
             <valueSystem>some_value</valueSystem>
           </wsAttributeAssignValue>
         </WsAttributeAssignValueResult>
@@ -114,36 +115,36 @@ wsAttributeDefNames>
           <disallowed>F</disallowed>
           <attributeAssignActionType>immediate</attributeAssignActionType>
           <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-          <attributeAssignActionId>9519231f303343de801a4647855fb496
+          <attributeAssignActionId>7f99b631724f4b239fe0af39c6e56741
 3ff
 </attributeAssignActionId>
           <attributeAssignActionName>assign</attributeAssignActionName>
           <attributeAssignType>imm_mem</attributeAssignType>
-          <attributeDefNameId>f989f8fcb110440fbdcfbf13722685fc</attributeDefNameId>
+          <attributeDefNameId>e328fe96620b42e58d1ff2b6af86f62e</attributeDefNameId>
           <attributeDefNameName>test:testAttrName</attributeDefNameName>
-          <attributeDefId>11e00ce273094c209826fba7cad5f027</attributeDefId>
+          <attributeDefId>d79024375c684d259b271906bc1e9f4e</attributeDefId>
           <attributeDefName>test:testAttrNameDef</attributeDefName>
           <wsAttributeAssignValues>
             <WsAttributeAssignValue>
-              <id>38aebb6011034e97a1d6b42ef4444a96</id>
+              <id>348d5ea6e3ed4d4d917a448f889a2464</id>
               <valueSystem>some_value</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>4ff7bf38b1b64d50bc550e25c24cf1ea</id>
+              <id>58fa343643d74db682f6a1a4e9da400b</id>
               <valueSystem>some_value</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>d56189eef68b4a149e9a7c3e374ebc64</id>
+              <id>9233c05d32ed45809aef1d479cf466d4</id>
               <valueSystem>some_value</valueSystem>
             </WsAttributeAssignValue>
           </wsAttributeAssignValues>
-          <createdOn>2018/08/06 12:35:43.452</createdOn>
+          <createdOn>2020/03/31 13:18:07.773</createdOn>
           <enabled>T</enabled>
-          <id>146a3b54659e4b2fab5279186ef2a285</id>
-          <lastUpdated>2018/08/06 12:35:43.452</lastUpdated>
-          <ownerMembershipId>29053cbf936f41a7b3df5
+          <id>3e928f19552c4ee1af927b49916f8275</id>
+          <lastUpdated>2020/03/31 13:18:07.773</lastUpdated>
+          <ownerMembershipId>11b1a84a22f545c0b22d9
 3ff
-04f40884ae8</ownerMembershipId>
+5a65912694b</ownerMembershipId>
         </WsAttributeAssign>
       </wsAttributeAssigns>
       <changed>F</changed>
@@ -158,27 +159,27 @@ wsAttributeDefNames>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>38</millis>
+    <millis>125</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroups/>
   <wsStems/>
   <wsMemberships>
     <WsMembership>
-      <membershipId>29053cbf936f41a7b3df504f40884ae8:fa3f178adc4b4b3a9995d1b74d540c65</membershipId>
-      <immediateMembershipId>29053cbf936f41a7b3df504f40884ae8</immediateMembershipId>
+      <membershipId>11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f</membershipId>
+      <immediateMembershipId>11b1a84a22f545c0b22d95a65912694b</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>fc6b1899115541038c8194f8bfc3c342</memberId>
-      <groupId>c94e8975d1524eacb3e5f3a7b0b55086</groupId>
+      <memberId>bef6a528fd9143059d1220cf0dc58c04</memberId>
+      <groupId>3befb91c854541f68a4dcb75fe1f92ee</groupId>
       <subjectId>test.subject.0</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>aStem:role</groupName>
-      <createTime>20
-6a
-18/08/06 11:04:03.740</createTime>
+      <createTime>2
+6b
+020/03/31 00:25:10.281</createTime>
     </WsMembership>
   </wsMemberships>
   <wsSubjects/>

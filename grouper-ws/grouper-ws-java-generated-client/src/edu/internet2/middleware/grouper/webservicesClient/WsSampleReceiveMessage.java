@@ -21,6 +21,10 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
@@ -57,6 +61,7 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
      */
   public static void receiveMessage(WsSampleGeneratedType wsSampleGeneratedType) {
     try {
+      
       //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
       GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
       Options options = stub._getServiceClient().getOptions();
@@ -70,9 +75,18 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
       options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
           new Integer(3600000));
 
-      GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("def")
-          .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
-
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          GrouperBuiltinMessagingSystem.allowSendToQueue("def", grouperSession.getSubject());
+          GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("def")
+              .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+          return null;
+        }
+      });
+      
       ReceiveMessage receiveMessage = ReceiveMessage.class.newInstance();
 
       //version, e.g. v1_3_000

@@ -39,537 +39,538 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=6D74BDC95C57BA1764B6E4BB32D5200D;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:35:50 GMT
+Date: Tue, 31 Mar 2020 20:18:17 GMT
 Connection: close
+Server: Apache TomEE
 
 2000
 {
   "WsAssignAttributesLiteResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results."
-    },
-    "wsAttributeDefName":{
-      "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
-      "displayExtension":"testAttributeAssignDefName",
-      "extension":"testAttributeAssignDefName",
-      "displayName":"test:testAttributeAssignDefName",
-      "name":"test:testAttributeAssignDefName",
-      "attributeDefName":"test:testAttributeAssignDefNameDef",
-      "idIndex":"10153",
-      "uuid":"ebb18ed6ee0f4577b5704805fceb7986"
-    },
-    "wsGroup":{
-      "displayExtension":"groupTestAttrAssign",
-      "extension":"groupTestAttrAssign",
-      "displayName":"test:groupTestAttrAssign",
-      "name":"test:groupTestAttrAssign",
-      "description":"description",
-      "typeOfGroup":"group",
-      "idIndex":"10020",
-      "uuid":"1283a3268f654f5e95942676fa6d242f"
-    },
-    "wsAttributeDefs":[
-      {
-        "attributeDefType":"attr",
-        "assignToAttributeDef":"F",
-        "assignToStemAssignment":"F",
-        "extension":"testAttributeAssignDefNameDef",
-        "assignToMemberAssignment":"F",
-        "assignToEffectiveMembership":"F",
-        "uuid":"431a9914cdba4564ad5943c7ec7de988",
-        "assignToImmediateMembershipAssignment":"F",
-        "assignToEffectiveMembershipAssignment":"F",
-        "assignToStem":"F",
-        "assignToGroupAssignment":"F",
-        "assignToMember":"F",
-        "multiAssignable":"F",
-        "valueType":"integer",
-        "name":"test:testAttributeAssignDefNameDef",
-        "assignToAttributeDefAssignment":"F",
-        "idIndex":"10044",
-        "multiValued":"T",
-        "assignToGroup":"F",
-        "assignToImmediateMembership":"F"
-      }
-    ]
-    ,
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"57"
+      "millis":"497",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Found 1 results.",
+      "success":"T"
     },
     "wsAttributeAssignResult":{
+      "changed":"F",
+      "deleted":"F",
+      "valuesChanged":"T",
       "wsAttributeAssignValueResults":[
         {
+          "changed":"T",
           "deleted":"F",
           "wsAttributeAssignValue":{
-            "id":"88b53a0154ce4b9bac4f85ec6fa1d6a1",
+            "id":"d4ee7fff8bab4886be718ea237a8db5c",
             "valueSystem":"54"
-          },
-          "changed":"T"
+          }
         }
       ]
       ,
-      "deleted":"F",
       "wsAttributeAssigns":[
         {
+          "attributeAssignActionId":"f4ea797d82c949c8b026fbb46f9b373d",
+          "attributeAssignActionName":"assign",
+          "attributeAssignActionType":"immediate",
           "attributeAssignDelegatable":"FALSE",
-          "disallowed":"F",
-          "createdOn":"2018/08/06 12:34:54.147",
-          "enabled":"T",
           "attributeAssignType":"group",
-          "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
-          "lastUpdated":"2018/08/06 12:34:54.147",
-          "attributeAssignActionId":"4b87e89855c44780bae4dfb3b71281e2",
+          "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
+          "attributeDefName":"test:testAttributeAssignDefNameDef",
+          "attributeDefNameId":"84c250d8d21c407ba87c779de9ef55dc",
+          "attributeDefNameName":"test:testAttributeAssignDefName",
+          "createdOn":"2020/03/31 13:13:50.762",
+          "disallowed":"F",
+          "enabled":"T",
+          "id":"f455c9b6e95e4d4cb41408e3f2461074",
+          "lastUpdated":"2020/03/31 13:13:50.762",
+          "ownerGroupId":"9c4860dce6a843e18c3de2ef3208082f",
           "ownerGroupName":"test:groupTestAttrAssign",
-          "id":"635f99e61f9e46a6b4e680fcecd1871f",
           "wsAttributeAssignValues":[
             {
-              "id":"051987b270004731bb5a7cc513159412",
+              "id":"00d602b6d7ea445da97358b3fe4750d8",
               "valueSystem":"15"
             },
             {
-              "id":"0ed822d11544415db59ea97b43c58705",
+              "id":"07bdad6d3e324cf3957047418ff3d85d",
               "valueSystem":"15"
             },
             {
-              "id":"2300b93a236b44d3938f4cff7a176660",
+              "id":"0dd19f8842544670b34318fb0523cd32",
               "valueSystem":"15"
             },
             {
-              "id":"24838eb2dcea4343b996e19146af1940",
+              "id":"103813a8e9ea468280865591ffb089b3",
               "valueSystem":"15"
             },
             {
-              "id":"268e3c49a9a64d2f8c7245443e65fa91",
+              "id":"1b7e4aeeb30e40c6bd3d009d761870e3",
               "valueSystem":"15"
             },
             {
-              "id":"3fe09e00e9d449c6a1d11b9c3bb29626",
+              "id":"1c7b55d217744f23b48c964d068c555b",
               "valueSystem":"15"
             },
             {
-              "id":"414a4c1f69ae451dbc7e3f44fc0404cd",
+              "id":"1c9f1ebabfee4d988d054a1a0fdfbe2b",
               "valueSystem":"15"
             },
             {
-              "id":"459ada0ddc7a42c38085d2f386ed68e9",
+              "id":"227b72466e214fa1915b586d5e6a297b",
               "valueSystem":"15"
             },
             {
-              "id":"47490cba828948d1b3364a90ce05d4f1",
+              "id":"2d450030c63a40deba16f8bc5cefecbc",
               "valueSystem":"15"
             },
             {
-              "id":"4838e23fb6b74fa482d9133c29c8e957",
+              "id":"31c35ba1d39c4076bcf9510dd09d7124",
               "valueSystem":"15"
             },
             {
-              "id":"57445e30392f460f973890bebbcfd42f",
+              "id":"34ef204d91a7404fb6bf7058b7d8a843",
               "valueSystem":"15"
             },
             {
-              "id":"58c53f70dda34fb8b28321c7ee096fd9",
+              "id":"358004ea741d4b838644c607dbc359f8",
               "valueSystem":"15"
             },
             {
-              "id":"5a6cd7922469438494eb98fe73ba9482",
+              "id":"38659b8074594f2e8d889383ce7a9a75",
               "valueSystem":"15"
             },
             {
-              "id":"6eb17ac222174ced80e52e106365db06",
+              "id":"3ba21c8ca0394f8b9ea12a98944d98f6",
               "valueSystem":"15"
             },
             {
-              "id":"737cc806208e4dc8924d7e0e2df1c342",
+              "id":"3e40beb484194d49ae8592f74be08cc8",
               "valueSystem":"15"
             },
             {
-              "id":"741d7cd1d1e3413e969d2dadd3afc306",
+              "id":"59ebce553a51454295d57d0d6312d572",
               "valueSystem":"15"
             },
             {
-              "id":"74cf1d44eb77404cb643e04572fce008",
+              "id":"5ccac740ed2a44eb8fadd46e34b54c1b",
               "valueSystem":"15"
             },
             {
-              "id":"7dbad2211d204c6f8dffc6c0f4907f40",
+              "id":"5dbe65aa6f3842028977ae8922cfb584",
               "valueSystem":"15"
             },
             {
-              "id":"8a3d204397104dd4acbbba5f1bec037f",
+              "id":"6354fac5670d4b2daecc81f50a330b53",
               "valueSystem":"15"
             },
             {
-              "id":"98cb4fa38d3c4564a41aad6596896113",
+              "id":"6eab432e02434ff8942eaa4279eade56",
               "valueSystem":"15"
             },
             {
-              "id":"9a1056b9642844c789d151bace8afbfc",
+              "id":"6ec66d774080402993437b33a050e88a",
               "valueSystem":"15"
             },
             {
-              "id":"a1e6419b1d894f98a2929c2a134fbb55",
+              "id":"6f3e6a58630e4507a9130059bcdfe0e6",
               "valueSystem":"15"
             },
             {
-              "id":"a33a9c61ea1f4d46a03adb21f46dfcc9",
+              "id":"767a78eecb034023b05ae0402ea4b15a",
               "valueSystem":"15"
             },
             {
-              "id":"ac863167068c466785e539a5c7ecef17",
+              "id":"7f0db20b271f4f9b8ed90fee180b0d94",
               "valueSystem":"15"
             },
             {
-              "id":"b464ff6a18e74037aeba6016645039bd",
+              "id":"81f506b663804890a14c4c1e4a7581fa",
               "valueSystem":"15"
             },
             {
-              "id":"b81f9050b5ac4ab69cce052de0a70c47",
+              "id":"8283f292f48b48a29c2e54b8f3cdb16b",
               "valueSystem":"15"
             },
             {
-              "id":"b8fb7f2de8d1410dbec694daf408ee58",
+              "id":"8838c018afa9460ea1dbdfc7c48c44f1",
               "valueSystem":"15"
             },
             {
-              "id":"d2b312c8fd0746a0bac76bec614500fa",
+              "id":"99d7c197f9f74ad29d9fd36c436f1bf6",
               "valueSystem":"15"
             },
             {
-              "id":"d5610e8478124f6da9822a1029ac0a7c",
+              "id":"a59baab3d92447ebaa8939dd27596476",
               "valueSystem":"15"
             },
             {
-              "id":"de52befdd8bb43ec850266e81135a689",
+              "id":"a69b6e82323845088f0ebf1668074a27",
               "valueSystem":"15"
             },
             {
-              "id":"e5f7db40270d45858a37db4946169466",
+              "id":"b9e5cafeab5642cdbda72b7059d3cdc6",
               "valueSystem":"15"
             },
             {
-              "id":"e85734757b9e44c1b570888596a5aa5e",
+              "id":"c3d9336e99384a478534bdc71d305afe",
               "valueSystem":"15"
             },
             {
-              "id":"e8ec36f0aad84a238fcfa60fd49d0603",
+              "id":"d6236f1b3063466e97f4fbf98fd83e3e",
               "valueSystem":"15"
             },
             {
-              "id":"9f85fceefefd431a916895f29639cdd5",
+              "id":"269467f014a4411db57fbd4156f958b0",
               "valueSystem":"29"
             },
             {
-              "id":"b4279b0b5dab4d1dbd6c927b73eb8b08",
+              "id":"cd36aa1b0870408388fa2f22accdcc4f",
               "valueSystem":"34"
             },
             {
-              "id":"022e9c490d4f4948bbc2457535d72aa7",
+              "id":"06ef1cdc9e3f457d8520af49333ca76e",
               "valueSystem":"5"
             },
             {
-              "id":"04dc1670cd954aefa1ac2831bcbcd1af",
+              "id":"1738cbe9659344d6ae1b1cfc2072d363",
               "valueSystem":"5"
             },
             {
-              "id":"05825eb830ef40d3917efb6074caa020",
+              "id":"176848cff7944c2b8745c0eace2a1c82",
               "valueSystem":"5"
             },
             {
-              "id":"09a9fe17aa094b57a21afe726e9366ad",
+              "id":"177e35a1cd844899b3910b7c241c2eb2",
               "valueSystem":"5"
             },
             {
-              "id":"0b6b4fe1c66a4568a9ffa4b3beb6f411",
+              "id":"1ef707f5e9e74123b8cfe39f978ca223",
               "valueSystem":"5"
             },
             {
-              "id":"0c8a865b629c44ffb9c1d5bd839dff3f",
+              "id":"2a0d77b5d8db49d1aa2905e97ec33408",
               "valueSystem":"5"
             },
             {
-              "id":"0fb5d61812ae4f269b4521b2f22392e3",
+              "id":"2b76fefe44394a30a5378735940e5bde",
               "valueSystem":"5"
             },
             {
-              "id":"1441a459e9864b0095576d772f01aef9",
+              "id":"2bb8b45585f74462b45af89f6bd70a05",
               "valueSystem":"5"
             },
             {
-              "id":"18854f108d3444ba85b97703dc23f148",
+              "id":"3611a3666b194b95873f1ccb40835220",
               "valueSystem":"5"
             },
             {
-              "id":"1a9c96549a764a1da1d11707e1e5d573",
+              "id":"368016253e374651a5ec648ac7f7a77a",
               "valueSystem":"5"
             },
             {
-              "id":"1c4ec9272a9d4621b00b69011ffb1f89",
+              "id":"3a2375b6e76b44a9bda64e140e8fd84b",
               "valueSystem":"5"
             },
             {
-              "id":"1d4e402fa8004b9bb6629ac23930cd2c",
+              "id":"3d090fa45e0a4a11a9f94bc8580141d7",
               "valueSystem":"5"
             },
             {
-              "id":"1ed52fb84c2d4b08a5bb44d52ac4a570",
+              "id":"40983dd8d38d44a7887bbabed20bbd7e",
               "valueSystem":"5"
             },
             {
-              "id":"267aa3c8f0e44dd48ca6e2fa165811a2",
+              "id":"420e068703bc4ad397f42deff51e2f47",
               "valueSystem":"5"
             },
             {
-              "id":"284df389a967481b8eb6c4b12a86db74",
+              "id":"44c5573698c4419bbe21066666d706d6",
               "valueSystem":"5"
             },
             {
-              "id":"375a0e1a126c4cf387b3cf98327cf54c",
+              "id":"4b7c0c4122a448a6a2a0dcb5f2b369e8",
               "valueSystem":"5"
             },
             {
-              "id":"3e49be905bc2407089b001a71998f76d",
+              "id":"5ad09a325a8f4c43b2b0fac9adb65aaa",
               "valueSystem":"5"
             },
             {
-              "id":"409c76c56f0f488b9f53ede139a97242",
+              "id":"5fcc087282d345099ffdec8ba3479f53",
               "valueSystem":"5"
             },
             {
-              "id":"40b87c75ebf3433bb5e4509cbe5b17e4",
+              "id":"637dd350107e449ba01c694ca881d87e",
               "valueSystem":"5"
             },
             {
-              "id":"419bc023f2f242af828cc54def877784",
+              "id":"641246d961ed4ae8b0127710ea2e8150",
               "valueSystem":"5"
             },
             {
-              "id":"42cea855c5124f2ea1a56de8da25ee2c",
+              "id":"68bcc46bd9d143b79dc8666feede2051",
               "valueSystem":"5"
             },
             {
-              "id":"4b2ceac7023744dfb7e0db2669bd51bf",
+              "id":"6b365205a85e4518a6878a5faee32638",
               "valueSystem":"5"
             },
             {
-              "id":"4ed9d48ebd1c486cbbae5d37507ffb01",
+              "id":"6cda45ca42f4471ba95f6752e2573e13",
               "valueSystem":"5"
             },
             {
-              "id":"51153e6fc5604722bb942cf0ddf54467",
+              "id":"6da667f3ae9045e4aa4a11b722b397f7",
               "valueSystem":"5"
             },
             {
-              "id":"56e0b41a592a49c6836d1c0d5b63c535",
+              "id":"6f6bc9ae3c5f4aafa24165b8e18e93c7",
               "valueSystem":"5"
             },
             {
-              "id":"574a7c6f91c34114a4de59078de005b9",
+              "id":"72772b25719041b187a2fdbe7c150517",
               "valueSystem":"5"
             },
             {
-              "id":"5d89230527ba4542aedb22dd6cdc57b3",
+              "id":"7565198fbdc84622bc0e153e904ce2f7",
               "valueSystem":"5"
             },
             {
-              "id":"613b8ee4cca64f06adb3dd3d64d34338",
+              "id":"771a70c332df4591a8f324ee2551d3ee",
               "valueSystem":"5"
             },
             {
-              "id":"61c926d4ad984893b1b2d21e19ecb868",
+              "id":"79c73ccf94ed4475bc803ffdd3cffdfb",
               "valueSystem":"5"
             },
             {
-              "id":"625c40b8ab594e0b9a19cf08b8210bc3",
+              "id":"7af94eece57e4d4882a29dd85d0a7555",
               "valueSystem":"5"
             },
             {
-              "id":"6972b024f7be4eccba7e4cba01f80bfb",
+              "id":"7b0e8f21454b4852bbc531d733372dd3",
               "valueSystem":"5"
             },
             {
-              "id":"6ce7ef68561a4cd69ab5133192d3b1a1",
+              "id":"7c2940e671844aa69528dcce793434e0",
               "valueSystem":"5"
             },
             {
-              "id":"70272c9198d249c6b48a3646d220b955",
+              "id":"88a8410ea2e54b74a59d074ebb080427",
               "valueSystem":"5"
             },
             {
-              "id":"7a9efb6b6aba4c7f92e1b996ce1c9941",
+              "id":"8dd5985db0474cd299301b1fa67fbb73",
               "valueSystem":"5"
             },
             {
-              "id":"7b89ba24a88d44d28ba8602a18c3cf5b",
+              "id":"9567a531471c4936949d9c394454d4f2",
               "valueSystem":"5"
             },
             {
-              "id":"7f4dfea8676a410a97af3449d145f77d",
+              "id":"98a4f348c94f46088b95953a5f486428",
               "valueSystem":"5"
             },
             {
-              "id":"861a38cfcbdd42809b807c69d96cc119",
+              "id":"9d983ea27880440387df219fbfaaa8a1",
               "valueSystem":"5"
             },
             {
-              "id":"8740712f28bc4c04ae57b4f354a7a254",
+              "id":"a18bc987604840c386da861d2efa75e1",
               "valueSystem":"5"
             },
             {
-              "id":"87461e794097488bb3ae10c605a96fb7",
+              "id":"a8b4b50ca51342b3830d1ce47274911f",
               "valueSystem":"5"
             },
             {
-              "id":"96c17a02955f4f37bcfff0af1c76485d",
+              "id":"a92b0d6217684659a180a57888720d13",
               "valueSystem":"5"
             },
             {
-              "id":"a19153990e144eefbc4e4e6fc2f68300",
+              "id":"a95de5a4930144a6b4d1bd61c0838758",
               "valueSystem":"5"
             },
             {
-              "id":"b18fdbd33243470699bb9fa2860dd703",
+              "id":"aa7e7d3bb682446cb39cd6e52328ca95",
               "valueSystem":"5"
             },
             {
-              "id":"c16bf85c093b4c68a789fe7c054206e5",
+              "id":"ab22a12c10554dc299fceb27e1cbe041",
               "valueSystem":"5"
             },
             {
-              "id":"c6011ecb1e2e41cebfe34caa695afaf3",
+              "id":"ac7ad747ee2b442583d3d6cea34c224a",
               "valueSystem":"5"
             },
             {
-              "id":"c677e6c112a84a29bb1cfece1400f2a9",
+              "id":"b248cffe1bdd4284a1ee473e131f3a2b",
               "valueSystem":"5"
             },
             {
-              "id":"cc4c8b2814434286bcc622811f4e4f83",
+              "id":"b2935f8764c94139a9cfd6d7b683887c",
               "valueSystem":"5"
             },
             {
-              "id":"cce0c90a9b6347958a3217c63431ff24",
+              "id":"b588b2f6500b4b77966f192374b343e7",
               "valueSystem":"5"
             },
             {
-              "id":"cf5de08ac7c343b58592fd7241e180a5",
+              "id":"b6e5c25d98884a5faffd3fe16da7b903",
               "valueSystem":"5"
             },
             {
-              "id":"d5373b2c2a8b42d3972a8335faa40f11",
+              "id":"c51f9558c56d462e881db962d4b56a00",
               "valueSystem":"5"
             },
             {
-              "id":"da23a7adecaf47b8874292d861ee029e",
+              "id":"c643cef937d44eae8a7fe636d13e14a8",
               "valueSystem":"5"
             },
             {
-              "id":"dd37edafe5b244ba8bcc66c8415b0bca",
+              "id":"c71bb5767e70462bbe1db5ac59a6e2d4",
               "valueSystem":"5"
             },
             {
-              "id":"dd732feb4d6d44f0b91d0476cac63ea2",
+              "id":"cc980cf0720e4f5183ea25347d57edb9",
               "valueSystem":"5"
             },
             {
-              "id":"de21162274d64ed08a0370bb8915e6b2",
+              "id":"d0b6bd147b8f49089f35af1fd9a71780",
               "valueSystem":"5"
             },
             {
-              "id":"e5cd3605a179422cbbc4f5b14625a14e",
+              "id":"d2442d76d9a6434a9cf89777a9e6e22c",
               "valueSystem":"5"
             },
             {
-              "id":"e5f3cb06e89d4e09bf66d42c06380c72",
+              "id":"d6d29c48bee74629a53b9194a28442a3",
               "valueSystem":"5"
             },
             {
-              "id":"e65ffaa874af442b8a9de6cf1caf310f",
+              "id":"d96ca594578a4e7b9d9edd5cf69ad92a",
               "valueSystem":"5"
             },
             {
-              "id":"ebb03c28fa8f401bb83e54db8fd96e35",
+              "id":"db47a4df4862439890dfa96656e38ded",
               "valueSystem":"5"
             },
             {
-              "id":"ece3b652b7704fa783f6fc630b4c2539",
+              "id":"deaeaf010ae64786997cde048173130b",
               "valueSystem":"5"
             },
             {
-              "id":"edaed61c97874da2bb7091ca33f5b8b0",
+              "id":"e1ed17f6b3bc422e9c27698cb6d25049",
               "valueSystem":"5"
             },
             {
-              "id":"eeeac16c51854f1cb2f35e6bcde35403",
+              "id":"e585d52c1a3a4203827258ae29858a97",
               "valueSystem":"5"
             },
             {
-              "id":"f2ca01a7c79b43c49a4d46f638713b4f",
+              "id":"e65e1d713f234c5db50ac30f8ada98ec",
               "valueSystem":"5"
             },
             {
-              "id":"f2e29bc3914149cfabb1ada2e347904f",
+              "id":"ea3eb128dc7d4aa4b624167e7a469ad7",
               "valueSystem":"5"
             },
             {
-              "id":"f4deae20746d43a097b616af7c19d835",
+              "id":"f2b8a9c148c245d7a3eec53feb1ff018",
               "valueSystem":"5"
             },
             {
-              "id":"fb60555ec8c845989af9cfd7322635a1",
+              "id":"f30ab9ad6ad640c9b64ce9de04e71904",
               "valueSystem":"5"
             },
             {
-              "id":"fc9e8a4ccf914931a3f68502aadf0ec3",
+              "id":"f5e2c6521e194aa3bd9ab262d5c9a160",
               "valueSystem":"5"
             },
             {
-              "id":"fe099aeb2705460fbbe2a5c748e8c682",
+              "id":"f9063d453fe14a9cbf9f1d51355d16a3",
               "valueSystem":"5"
             },
             {
-              "id":"721cc11952c94477b7ad2
-264
-d903b756750",
+              "id":"5b0f9c11033249b18ad770f09fdce1ab",
               "valueSystem":"54"
             },
             {
-              "id":"88b53a0154ce4b9bac4f85ec6fa1d6a1",
+              "id":"d4ee7fff8bab4886be718ea237a8db5c",
               "valueSystem":"54"
             },
             {
-              "id":"3e420f14c981402ca94e3e3c85c0b6d5",
+              "id":"100d0c0423b6461e927b8939904cae05",
               "valueSystem":"63"
             },
             {
-              "id":"e34f166fcce54a718128b119e7263687",
+              "id":"545d68cad8c94758b2b2bfb5e2a9e95c",
               "valueSystem":"63"
             },
             {
-              "id":"f96149ba5d2f44d5bb71046007ef9fcd",
+              "id":"596035ab55864223ba704e8677906a49",
               "valueSystem":"63"
             }
           ]
-          ,
-          "ownerGroupId":"1283a3268f654f5e95942676fa6d242f",
-          "attributeDefName":"test:testAttributeAssignDefNameDef",
-          "attributeDefNameName":"test:testAttributeAssignDefName",
-          "attributeAssignActionName":"assign",
-          "attributeDefNameId":"ebb18ed6ee0f4577b5704805fceb7986",
-          "attributeAssignActionType":"immediate"
         }
       ]
-      ,
-      "valuesChanged":"T",
-      "changed":"F"
+      
+    },
+    "wsAttributeDefName":{
+      "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
+      "attributeDefName":"test:testAttributeAssignDefNameDef",
+      "displayExtension":"testAttributeAssignDefName",
+      "displayName":"test:testAttributeAssignDefName",
+      "extension":"testAttributeAssignDefName",
+      "idIndex":"10279",
+      "name":"test:testAttributeAssignDefName",
+      "uuid":"84c250d8d21c407ba87c779de9ef55dc"
+    },
+    "wsAttributeDefs":[
+      {
+        "assignToAttributeDef":"F",
+        "assignToAttributeDefAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToGroup":"F",
+        "assignToGroupAssignment":"F",
+        "assignToImmediateMembership":"F",
+        "assignToImmediateMembershipAssignment":"F
+273
+",
+        "assignToMember":"F",
+        "assignToMemberAssignment":"F",
+        "assignToStem":"F",
+        "assignToStemAssignment":"F",
+        "attributeDefType":"attr",
+        "extension":"testAttributeAssignDefNameDef",
+        "idIndex":"10083",
+        "multiAssignable":"F",
+        "multiValued":"T",
+        "name":"test:testAttributeAssignDefNameDef",
+        "uuid":"3d7adcf55291443d8eb2527d22f6e67c",
+        "valueType":"integer"
+      }
+    ]
+    ,
+    "wsGroup":{
+      "description":"description",
+      "displayExtension":"groupTestAttrAssign",
+      "displayName":"test:groupTestAttrAssign",
+      "enabled":"T",
+      "extension":"groupTestAttrAssign",
+      "idIndex":"10033",
+      "name":"test:groupTestAttrAssign",
+      "typeOfGroup":"group",
+      "uuid":"9c4860dce6a843e18c3de2ef3208082f"
     }
   }
 }

@@ -28,21 +28,26 @@ wsLiteObjectType=WsRestGetGroupsLiteRequest&actAsSubjectId=GrouperSystem&include
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=E7C443E408564CBFF5B0072A6A5E8AAA;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 862
-Date: Mon, 06 Aug 2018 16:40:52 GMT
+Content-Length: 861
+Date: Tue, 31 Mar 2020 20:37:31 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetGroupsLiteResult":{
+    "responseMetadata":{
+      "millis":"7",
+      "serverVersion":"2.5.0"
+    },
     "resultMetadata":{
-      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null, field: admins"
+      "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null, field: admins",
+      "success":"T"
     },
     "subjectAttributeNames":[
       "name",
@@ -50,20 +55,16 @@ Connection: close
     ]
     ,
     "wsSubject":{
-      "sourceId":"jdbc",
-      "success":"T",
       "attributeValues":[
         "10021368",
         ""
       ]
       ,
+      "id":"10021368",
       "name":"10021368",
       "resultCode":"SUCCESS",
-      "id":"10021368"
-    },
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"10"
+      "sourceId":"jdbc",
+      "success":"T"
     }
   }
 }

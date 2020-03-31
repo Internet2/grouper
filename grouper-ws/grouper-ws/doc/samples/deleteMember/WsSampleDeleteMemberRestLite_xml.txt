@@ -25,18 +25,17 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=222761986495C9C913BE45331AA73BC3;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:40 GMT
+Date: Tue, 31 Mar 2020 20:25:41 GMT
 Connection: close
+Server: Apache TomEE
 
-3d3
+3e7
 <WsDeleteMemberLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -55,7 +54,7 @@ Connection: close
   </wsSubject>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>174</millis>
+    <millis>131</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroup>
@@ -65,8 +64,9 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-    <idIndex>10005</idIndex>
+    <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+    <idIndex>10009</idIndex>
+    <enabled>T</enabled>
   </wsGroup>
 </WsDeleteMemberLiteResult>
 0

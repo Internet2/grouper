@@ -9,18 +9,19 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_5 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:findAttributeDefNamesLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-16f
+180
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns1:findAttributeDefNamesLite xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns1:findAttributeDefNamesLite xmlns:ns1="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:scope>test:</ns1:scope>
     </ns1:findAttributeDefNamesLite>
@@ -38,244 +39,245 @@ Transfer-Encoding: chunked
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=6E59B9FBF6601AED3F287E04CC98698A;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findAttributeDefNamesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:38:38 GMT
+Date: Tue, 31 Mar 2020 20:28:25 GMT
+Server: Apache TomEE
 
 2000
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns:findAttributeDefNamesLiteResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:findAttributeDefNamesLiteResponse xmlns:ns="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsFindAttributeDefNamesResults">
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 lite soap</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 lite + soap</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 lite + soap</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSaveLite_soap</ns:extension>
-          <ns:idIndex>10205</ns:idIndex>
+          <ns:idIndex>10300</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSaveLite_soap</ns:name>
-          <ns:uuid>44d3d80b2e0a414086e52302c80b352a</ns:uuid>
+          <ns:uuid>58c8007e0b2649c68783c2eefc2aa792</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 rest json</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 rest json</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 rest json</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave1Rest_json</ns:extension>
-          <ns:idIndex>10208</ns:idIndex>
+          <ns:idIndex>10303</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave1Rest_json</ns:name>
-          <ns:uuid>4e98f4c4d5bd4913945352b5de201582</ns:uuid>
+          <ns:uuid>4e6b887b53804f1098626df8cc46eabb</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 rest lite http_json</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 rest lite http_json</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 rest lite http_json</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave1RestLite_http_json</ns:extension>
-          <ns:idIndex>10214</ns:idIndex>
+          <ns:idIndex>10309</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave1RestLite_http_json</ns:name>
-          <ns:uuid>b473af131bbe42ecab53d69f38d0cbd3</ns:uuid>
+          <ns:uuid>dc959e0f7ad944db95fb412fe0082530</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 rest lite json</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 rest lite json</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 rest lite json</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave1RestLite_json</ns:extension>
-          <ns:idIndex>10213</ns:idIndex>
+          <ns:idIndex>10308</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave1RestLite_json</ns:name>
-          <ns:uuid>7728eabde8fa44aabecf2c576201d6bb</ns:uuid>
+          <ns:uuid>8d8301dc2b8b4b47aee1369edaaef548</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 rest lite xhtml</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 rest lite xhtml</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 rest lite xhtml</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave1RestLite_xhtml</ns:extension>
-          <ns:idIndex>10212</ns:idIndex>
+          <ns:idIndex>10307</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave1RestLite_xhtml</ns:name>
-          <ns:uuid>27b6c0c0774848e88eb46370e6f23973</ns:uuid>
+          <ns:uuid>e073130a5d2f4941a627c959f561c304</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 rest lite xml</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 rest lite xml</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 rest lite xml</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave1RestLite_xml</ns:extension>
-          <ns:idIndex>10215</ns:idIndex>
+          <ns:idIndex>10310</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave1RestLite_xml</ns:name>
-          <ns:uuid>d9f4f3d4e2914ec09e43656c8cecdd8c</ns:uuid>
+          <ns:uuid>4793a53ec8e047368253c5ab080df07d</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 rest xhtml</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 rest xhtml</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 rest xhtml</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave1Rest_xhtml</ns:extension>
-          <ns:idIndex>10206</ns:idIndex>
+          <ns:idIndex>10301</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave1Rest_xhtml</ns:name>
-          <ns:uuid>3969a36c2e4d44a0abb1a2ba73cd6c12</ns:uuid>
+          <ns:uuid>8cb292c2141b49ddb8620cc10683d84d</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 rest xml</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 rest xml</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 rest xml</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave1Rest_xml</ns:extension>
-          <ns:idIndex>10210</ns:idIndex>
+          <ns:idIndex>10305</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave1Rest_xml</ns:name>
-          <ns:uuid>d9a76f79806441a2bec48a83e8dbf803</ns:uuid>
+          <ns:uuid>1287eb3ce8f747e9b11fee3f0bc03eae</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 soap</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 soap</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 soap</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave1_soap</ns:extension>
-          <ns:idIndex>10203</ns:idIndex>
+          <ns:idIndex>10298</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave1_soap</ns:name>
-          <ns:uuid>4ece140eae4b4580976dc17068d10201</ns:uuid>
+          <ns:uuid>db140c4de5ee4f1397b1fbd2df3d2734</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 2 rest json</ns:description>
           <ns:displayExtension>My new attribute def name to save 2 rest json</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 2 rest json</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave2Rest_json</ns:extension>
-          <ns:idIndex>10209</ns:idIndex>
+          <ns:idIndex>10304</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave2Rest_json</ns:name>
-          <ns:uuid>df1f342114ca4c0180134e9a56c3c277</ns:uuid>
+          <ns:uuid>e92d3e7d7ab045af979c84ede47b9edd</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 2 rest xhtml</ns:description>
           <ns:displayExtension>My new attribute def name to save 2 rest xhtml</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 2 rest xhtml</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave2Rest_xhtml</ns:extension>
-          <ns:idIndex>10207</ns:idIndex>
+          <ns:idIndex>10302</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave2Rest_xhtml</ns:name>
-          <ns:uuid>afb5e7478c1245308e9e5ff304e68ff8</ns:uuid>
+          <ns:uuid>721f5ed5b8ad4c8997fa76f35a902e4e</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>
-          </ns:attribute
-1475
-DefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e
+1479
+67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 2 rest xml</ns:description>
           <ns:displayExtension>My new attribute def name to save 2 rest xml</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 2 rest xml</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave2Rest_xml</ns:extension>
-          <ns:idIndex>10211</ns:idIndex>
+          <ns:idIndex>10306</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave2Rest_xml</ns:name>
-          <ns:uuid>5186e8d7a45f44bc8050a507d8461784</ns:uuid>
+          <ns:uuid>9ea6b17cd18a43418483560989b45a2d</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 2 soap</ns:description>
           <ns:displayExtension>My new attribute def name to save 2 soap</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 2 soap</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSave2_soap</ns:extension>
-          <ns:idIndex>10204</ns:idIndex>
+          <ns:idIndex>10299</ns:idIndex>
           <ns:name>test:testAttributeAssignDefNameToSave2_soap</ns:name>
-          <ns:uuid>b8097b6b7dfd4c0398db72e957477a6b</ns:uuid>
+          <ns:uuid>8f73df96f4ef49eeaccfa08a3d2fd553</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>11e00ce273094c209826fba7cad5f027</ns:attributeDefId>
-          <ns:attributeDefName>test:testAttrNameDef</ns:attributeDefName>
-          <ns:description xsi:nil="true" />
-          <ns:displayExtension>testAttrName</ns:displayExtension>
-          <ns:displayName>test:testAttrName</ns:displayName>
-          <ns:extension>testAttrName</ns:extension>
-          <ns:idIndex>10152</ns:idIndex>
-          <ns:name>test:testAttrName</ns:name>
-          <ns:uuid>f989f8fcb110440fbdcfbf13722685fc</ns:uuid>
-        </ns:attributeDefNameResults>
-        <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>66e63dafcd504859a8278b512d95aa39</ns:attributeDefId>
+          <ns:attributeDefId>6e57249eb6974c9dbb848172fbd9eb99</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignAssignNameDef</ns:attributeDefName>
-          <ns:description xsi:nil="true" />
+          <ns:description xsi:nil="true"/>
           <ns:displayExtension>testAttributeAssignAssignName</ns:displayExtension>
           <ns:displayName>test:testAttributeAssignAssignName</ns:displayName>
           <ns:extension>testAttributeAssignAssignName</ns:extension>
-          <ns:idIndex>10154</ns:idIndex>
+          <ns:idIndex>10280</ns:idIndex>
           <ns:name>test:testAttributeAssignAssignName</ns:name>
-          <ns:uuid>12509178aa134ca6b5a3afdef93dce26</ns:uuid>
+          <ns:uuid>9416044eb3c7441ea175fc95b2b68c0c</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
-          <ns:description xsi:nil="true" />
+          <ns:description xsi:nil="true"/>
           <ns:displayExtension>testAttributeAssignDefName</ns:displayExtension>
           <ns:displayName>test:testAttributeAssignDefName</ns:displayName>
           <ns:extension>testAttributeAssignDefName</ns:extension>
-          <ns:idIndex>10153</ns:idIndex>
+          <ns:idIndex>10279</ns:idIndex>
           <ns:name>test:testAttributeAssignDefName</ns:name>
-          <ns:uuid>ebb18ed6ee0f4577b5704805fceb7986</ns:uuid>
+          <ns:uuid>84c250d8d21c407ba87c779de9ef55dc</ns:uuid>
+        </ns:attributeDefNameResults>
+        <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
+          <ns:attributeDefId>d79024375c684d259b271906bc1e9f4e</ns:attributeDefId>
+          <ns:attributeDefName>test:testAttrNameDef</ns:attributeDefName>
+          <ns:description xsi:nil="true"/>
+          <ns:displayExtension>testAttrName</ns:displayExtension>
+          <ns:displayName>test:testAttrName</ns:displayName>
+          <ns:extension>testAttrName</ns:extension>
+          <ns:idIndex>10278</ns:idIndex>
+          <ns:name>test:testAttrName</ns:name>
+          <ns:uuid>e328fe96620b42e58d1ff2b6af86f62e</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefs xsi:type="ns:WsAttributeDef">
-          <ns:assignableTos xsi:nil="true" />
+          <ns:assignableTos xsi:nil="true"/>
           <ns:attributeDefType>attr</ns:attributeDefType>
-          <ns:description xsi:nil="true" />
+          <ns:description xsi:nil="true"/>
           <ns:extension>testAttrNameDef</ns:extension>
-          <ns:idIndex>10043</ns:idIndex>
+          <ns:idIndex>10082</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>T</ns:multiValued>
           <ns:name>test:testAttrNameDef</ns:name>
-          <ns:uuid>11e00ce273094c209826fba7cad5f027</ns:uuid>
+          <ns:uuid>d79024375c684d259b271906bc1e9f4e</ns:uuid>
           <ns:valueType>string</ns:valueType>
         </ns:attributeDefs>
         <ns:attributeDefs xsi:type="ns:WsAttributeDef">
-          <ns:assignableTos xsi:nil="true" />
+          <ns:assignableTos xsi:nil="true"/>
           <ns:attributeDefType>attr</ns:attributeDefType>
-          <ns:description xsi:nil="true" />
+          <ns:description xsi:nil="true"/>
           <ns:extension>testAttributeAssignAssignNameDef</ns:extension>
-          <ns:idIndex>10045</ns:idIndex>
+          <ns:idIndex>10084</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>F</ns:multiValued>
           <ns:name>test:testAttributeAssignAssignNameDef</ns:name>
-          <ns:uuid>66e63dafcd504859a8278b512d95aa39</ns:uuid>
+          <ns:uuid>6e57249eb6974c9dbb848172fbd9eb99</ns:uuid>
           <ns:valueType>string</ns:valueType>
         </ns:attributeDefs>
         <ns:attributeDefs xsi:type="ns:WsAttributeDef">
-          <ns:assignableTos xsi:nil="true" />
+          <ns:assignableTos xsi:nil="true"/>
           <ns:attributeDefType>attr</ns:attributeDefType>
-          <ns:description xsi:nil="true" />
+          <ns:description xsi:nil="true"/>
           <ns:extension>testAttributeAssignDefNameDef</ns:extension>
-          <ns:idIndex>10044</ns:idIndex>
+          <ns:idIndex>10083</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>T</ns:multiValued>
           <ns:name>test:testAttributeAssignDefNameDef</ns:name>
-          <ns:uuid>431a9914cdba4564ad5943c7ec7de988</ns:uuid>
+          <ns:uuid>3d7adcf55291443d8eb2527d22f6e67c</ns:uuid>
           <ns:valueType>integer</ns:valueType>
         </ns:attributeDefs>
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
-          <ns:millis xsi:nil="true" />
-          <ns:resultWarnings xsi:nil="true" />
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
           <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
-          <ns:params xsi:nil="true" />
+          <ns:params xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true"/>
           <ns:resultMessage>Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
@@ -329,9 +331,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.FindAttributeDefNamesLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsFindAttributeDefNamesResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.FindAttributeDefNamesLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsFindAttributeDefNamesResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName;
 
 
 /**
@@ -417,23 +419,23 @@ public class WsSampleFindAttributeDefNamesLite implements WsSampleGenerated {
 
 
 WsFindAttributeDefNamesResults[
-  localAttributeDefNameResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@4567e21c,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@18a8df2,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@55b2e291,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@5d25881b,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@27a8f6a1,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@72981abb,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@30fcd813,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@41e8fb47,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@21150025,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@13ea8b7e,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@4580e550,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@43340c64,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@4aa9380f,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@ddfeb5f,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@4fb725d1,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@2c03476f},localAttributeDefNameResultsTracker=true,
-  localAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@5d9ee811,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@2b71d7de,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@1d7fd5e0},localAttributeDefsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@792f0984,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@535ba8d0,localResultMetadataTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 lite soap,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 lite + soap,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 lite + soap,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSaveLite_soap,localExtensionTracker=true,localIdIndex=10205,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSaveLite_soap,localNameTracker=true,localUuid=44d3d80b2e0a414086e52302c80b352a,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest json,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest json,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest json,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1Rest_json,localExtensionTracker=true,localIdIndex=10208,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1Rest_json,localNameTracker=true,localUuid=4e98f4c4d5bd4913945352b5de201582,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest lite http_json,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest lite http_json,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest lite http_json,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1RestLite_http_json,localExtensionTracker=true,localIdIndex=10214,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1RestLite_http_json,localNameTracker=true,localUuid=b473af131bbe42ecab53d69f38d0cbd3,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest lite json,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest lite json,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest lite json,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1RestLite_json,localExtensionTracker=true,localIdIndex=10213,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1RestLite_json,localNameTracker=true,localUuid=7728eabde8fa44aabecf2c576201d6bb,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest lite xhtml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest lite xhtml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest lite xhtml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1RestLite_xhtml,localExtensionTracker=true,localIdIndex=10212,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1RestLite_xhtml,localNameTracker=true,localUuid=27b6c0c0774848e88eb46370e6f23973,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest lite xml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest lite xml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest lite xml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1RestLite_xml,localExtensionTracker=true,localIdIndex=10215,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1RestLite_xml,localNameTracker=true,localUuid=d9f4f3d4e2914ec09e43656c8cecdd8c,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest xhtml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest xhtml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest xhtml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1Rest_xhtml,localExtensionTracker=true,localIdIndex=10206,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1Rest_xhtml,localNameTracker=true,localUuid=3969a36c2e4d44a0abb1a2ba73cd6c12,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest xml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest xml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest xml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1Rest_xml,localExtensionTracker=true,localIdIndex=10210,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1Rest_xml,localNameTracker=true,localUuid=d9a76f79806441a2bec48a83e8dbf803,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 soap,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 soap,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 soap,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1_soap,localExtensionTracker=true,localIdIndex=10203,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1_soap,localNameTracker=true,localUuid=4ece140eae4b4580976dc17068d10201,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 2 rest json,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 2 rest json,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 2 rest json,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave2Rest_json,localExtensionTracker=true,localIdIndex=10209,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave2Rest_json,localNameTracker=true,localUuid=df1f342114ca4c0180134e9a56c3c277,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 2 rest xhtml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 2 rest xhtml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 2 rest xhtml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave2Rest_xhtml,localExtensionTracker=true,localIdIndex=10207,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave2Rest_xhtml,localNameTracker=true,localUuid=afb5e7478c1245308e9e5ff304e68ff8,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 2 rest xml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 2 rest xml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 2 rest xml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave2Rest_xml,localExtensionTracker=true,localIdIndex=10211,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave2Rest_xml,localNameTracker=true,localUuid=5186e8d7a45f44bc8050a507d8461784,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 2 soap,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 2 soap,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 2 soap,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave2_soap,localExtensionTracker=true,localIdIndex=10204,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave2_soap,localNameTracker=true,localUuid=b8097b6b7dfd4c0398db72e957477a6b,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=11e00ce273094c209826fba7cad5f027,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttrNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttrName,localDisplayExtensionTracker=true,localDisplayName=test:testAttrName,localDisplayNameTracker=true,localExtension=testAttrName,localExtensionTracker=true,localIdIndex=10152,localIdIndexTracker=true,localName=test:testAttrName,localNameTracker=true,localUuid=f989f8fcb110440fbdcfbf13722685fc,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=66e63dafcd504859a8278b512d95aa39,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignAssignNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttributeAssignAssignName,localDisplayExtensionTracker=true,localDisplayName=test:testAttributeAssignAssignName,localDisplayNameTracker=true,localExtension=testAttributeAssignAssignName,localExtensionTracker=true,localIdIndex=10154,localIdIndexTracker=true,localName=test:testAttributeAssignAssignName,localNameTracker=true,localUuid=12509178aa134ca6b5a3afdef93dce26,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttributeAssignDefName,localDisplayExtensionTracker=true,localDisplayName=test:testAttributeAssignDefName,localDisplayNameTracker=true,localExtension=testAttributeAssignDefName,localExtensionTracker=true,localIdIndex=10153,localIdIndexTracker=true,localName=test:testAttributeAssignDefName,localNameTracker=true,localUuid=ebb18ed6ee0f4577b5704805fceb7986,localUuidTracker=true]
+  localAttributeDefNameResults={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@57910036,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@5a0b00ed,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@61aaeb08,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@15721264,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@4abd204c,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@48335d9e,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@7ef70d3b,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@7b13d1b3,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@588f21dd,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@a8258ff,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@4cda0241,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@29a1dc20,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@8018100,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@10dc755f,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@c88b50f,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefName@2b6f3862},localAttributeDefNameResultsTracker=true,
+  localAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDef@5c675ba0,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDef@158ebdee,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDef@47702b15},localAttributeDefsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@7d84b8b0,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@1b5856fb,localResultMetadataTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 lite soap,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 lite + soap,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 lite + soap,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSaveLite_soap,localExtensionTracker=true,localIdIndex=10300,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSaveLite_soap,localNameTracker=true,localUuid=58c8007e0b2649c68783c2eefc2aa792,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest json,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest json,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest json,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1Rest_json,localExtensionTracker=true,localIdIndex=10303,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1Rest_json,localNameTracker=true,localUuid=4e6b887b53804f1098626df8cc46eabb,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest lite http_json,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest lite http_json,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest lite http_json,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1RestLite_http_json,localExtensionTracker=true,localIdIndex=10309,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1RestLite_http_json,localNameTracker=true,localUuid=dc959e0f7ad944db95fb412fe0082530,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest lite json,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest lite json,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest lite json,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1RestLite_json,localExtensionTracker=true,localIdIndex=10308,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1RestLite_json,localNameTracker=true,localUuid=8d8301dc2b8b4b47aee1369edaaef548,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest lite xhtml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest lite xhtml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest lite xhtml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1RestLite_xhtml,localExtensionTracker=true,localIdIndex=10307,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1RestLite_xhtml,localNameTracker=true,localUuid=e073130a5d2f4941a627c959f561c304,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest lite xml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest lite xml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest lite xml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1RestLite_xml,localExtensionTracker=true,localIdIndex=10310,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1RestLite_xml,localNameTracker=true,localUuid=4793a53ec8e047368253c5ab080df07d,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest xhtml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest xhtml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest xhtml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1Rest_xhtml,localExtensionTracker=true,localIdIndex=10301,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1Rest_xhtml,localNameTracker=true,localUuid=8cb292c2141b49ddb8620cc10683d84d,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 rest xml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 rest xml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 rest xml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1Rest_xml,localExtensionTracker=true,localIdIndex=10305,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1Rest_xml,localNameTracker=true,localUuid=1287eb3ce8f747e9b11fee3f0bc03eae,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 1 soap,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 1 soap,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 1 soap,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave1_soap,localExtensionTracker=true,localIdIndex=10298,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave1_soap,localNameTracker=true,localUuid=db140c4de5ee4f1397b1fbd2df3d2734,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 2 rest json,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 2 rest json,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 2 rest json,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave2Rest_json,localExtensionTracker=true,localIdIndex=10304,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave2Rest_json,localNameTracker=true,localUuid=e92d3e7d7ab045af979c84ede47b9edd,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 2 rest xhtml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 2 rest xhtml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 2 rest xhtml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave2Rest_xhtml,localExtensionTracker=true,localIdIndex=10302,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave2Rest_xhtml,localNameTracker=true,localUuid=721f5ed5b8ad4c8997fa76f35a902e4e,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 2 rest xml,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 2 rest xml,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 2 rest xml,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave2Rest_xml,localExtensionTracker=true,localIdIndex=10306,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave2Rest_xml,localNameTracker=true,localUuid=9ea6b17cd18a43418483560989b45a2d,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescription=This is a description 2 soap,localDescriptionTracker=true,localDisplayExtension=My new attribute def name to save 2 soap,localDisplayExtensionTracker=true,localDisplayName=test:My new attribute def name to save 2 soap,localDisplayNameTracker=true,localExtension=testAttributeAssignDefNameToSave2_soap,localExtensionTracker=true,localIdIndex=10299,localIdIndexTracker=true,localName=test:testAttributeAssignDefNameToSave2_soap,localNameTracker=true,localUuid=8f73df96f4ef49eeaccfa08a3d2fd553,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=6e57249eb6974c9dbb848172fbd9eb99,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignAssignNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttributeAssignAssignName,localDisplayExtensionTracker=true,localDisplayName=test:testAttributeAssignAssignName,localDisplayNameTracker=true,localExtension=testAttributeAssignAssignName,localExtensionTracker=true,localIdIndex=10280,localIdIndexTracker=true,localName=test:testAttributeAssignAssignName,localNameTracker=true,localUuid=9416044eb3c7441ea175fc95b2b68c0c,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=3d7adcf55291443d8eb2527d22f6e67c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttributeAssignDefName,localDisplayExtensionTracker=true,localDisplayName=test:testAttributeAssignDefName,localDisplayNameTracker=true,localExtension=testAttributeAssignDefName,localExtensionTracker=true,localIdIndex=10279,localIdIndexTracker=true,localName=test:testAttributeAssignDefName,localNameTracker=true,localUuid=84c250d8d21c407ba87c779de9ef55dc,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=d79024375c684d259b271906bc1e9f4e,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttrNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttrName,localDisplayExtensionTracker=true,localDisplayName=test:testAttrName,localDisplayNameTracker=true,localExtension=testAttrName,localExtensionTracker=true,localIdIndex=10278,localIdIndexTracker=true,localName=test:testAttrName,localNameTracker=true,localUuid=e328fe96620b42e58d1ff2b6af86f62e,localUuidTracker=true]

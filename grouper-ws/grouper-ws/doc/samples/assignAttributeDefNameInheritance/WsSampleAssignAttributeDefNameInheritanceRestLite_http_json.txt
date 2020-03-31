@@ -28,25 +28,26 @@ wsLiteObjectType=WsRestAssignAttributeDefNameInheritanceLiteRequest&assign=T&att
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=0AB9A358EF9C22F7FF72D2AE99CB1F30;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 288
-Date: Mon, 06 Aug 2018 16:35:09 GMT
+Content-Length: 289
+Date: Tue, 31 Mar 2020 20:15:17 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsAssignAttributeDefNameInheritanceResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist."
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"4"
+      "millis":"33",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist.",
+      "success":"T"
     }
   }
 }

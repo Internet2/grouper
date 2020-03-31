@@ -41,14 +41,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=66F0BD542D3D83CAEB87AC8C8A6D8D02;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:40:36 GMT
+Date: Tue, 31 Mar 2020 20:37:02 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsGetGroupsResults>
@@ -62,8 +63,9 @@ Connection: close
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-          <idIndex>10005</idIndex>
+          <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+          <idIndex>10009</idIndex>
+          <enabled>T</enabled>
         </WsGroup>
         <WsGroup>
           <extension>aGroup2</extension>
@@ -72,8 +74,9 @@ Connection: close
           <description>a group description2</description>
           <displayName>a stem:a group2</displayName>
           <name>aStem:aGroup2</name>
-          <uuid>08cc1f2ccd3248ff801db35946e03823</uuid>
-          <idIndex>10006</idIndex>
+          <uuid>5819ab9eed78479faedcb72be0987798</uuid>
+          <idIndex>10032</idIndex>
+          <enabled>T</enabled>
         </WsGroup>
         <WsGroup>
           <extension>sysadmingroup</extension>
@@ -81,19 +84,22 @@ Connection: close
           <displayExtension>sysadmingroup</displayExtension>
           <displayName>etc:sysadmingroup</displayName>
           <name>etc:sysadmingroup</name>
-          <uuid>5cbabdd15c1d49ceae302f8e844b0009</uuid>
-          <idIndex>10009</idIndex>
+          <uuid>69b36df0e82f4fee98b760adebed0660</uuid>
+          <idIndex>10008</idIndex>
+          <enabled>T</enabled>
         </WsGroup>
         <WsGroup>
-          <extension>webServiceActAsGroup</extension>
-          <typeOfGroup>group
-3ff
-</typeOfGroup>
+          <
+3fa
+extension>
+          </extension>
+          <typeOfGroup>group</typeOfGroup>
           <displayExtension>webServiceActAsGroup</displayExtension>
           <displayName>etc:webServiceActAsGroup</displayName>
           <name>etc:webServiceActAsGroup</name>
-          <uuid>a3b9b6852757437981d39b7a14a0bfd7</uuid>
-          <idIndex>10008</idIndex>
+          <uuid>28e109afeac74aa0aabcafaf858ce50a</uuid>
+          <idIndex>10007</idIndex>
+          <enabled>T</enabled>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
@@ -120,20 +126,23 @@ Connection: close
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-          <idIndex>10005</idIndex>
+          <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+          <idIndex>10009</idIndex>
+          <enabled>T</enabled>
         </WsGroup>
         <WsGroup>
           <extension>aGroup2</extension>
-          <typeOfGroup>group</typeOfGroup>
-          <displayExtension>a group2</displayExtension>
-          <description>a group descript
+          <
 3ff
-ion2</description>
+typeOfGroup>
+          </typeOfGroup>
+          <displayExtension>a group2</displayExtension>
+          <description>a group description2</description>
           <displayName>a stem:a group2</displayName>
           <name>aStem:aGroup2</name>
-          <uuid>08cc1f2ccd3248ff801db35946e03823</uuid>
-          <idIndex>10006</idIndex>
+          <uuid>5819ab9eed78479faedcb72be0987798</uuid>
+          <idIndex>10032</idIndex>
+          <enabled>T</enabled>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
@@ -161,18 +170,18 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null
 fieldName1: null
 , scope: null, wsStemLookup: null
-, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null
+, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortS
+15b
+tring: null, ascending: null
 , pointInTimeFrom: null, pointInTimeTo: null</resultMessage>
     <success>T</success>
-  </resultMetadata
-dd
->
+  </resultMetadata>
   <subjectAttributeNames>
     <string>description</string>
   </subjectAttributeNames>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>8</millis>
+    <millis>21</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetGroupsResults>

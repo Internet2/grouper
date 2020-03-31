@@ -34,16 +34,17 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=53340B5025894AE885E88E5EEA97181B;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:40:25 GMT
+Date: Tue, 31 Mar 2020 20:35:26 GMT
 Connection: close
+Server: Apache TomEE
 
-3fe
+3f7
 <WsGetGrouperPrivilegesLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -69,8 +70,9 @@ Connection: close
         <description>a group description</description>
         <displayName>a stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-        <idIndex>10005</idIndex>
+        <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+        <idIndex>10009</idIndex>
+        <enabled>T</enabled>
       </wsGroup>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
@@ -82,11 +84,11 @@ Connection: close
     </WsGrouperPrivilegeResult>
   </privilegeResults>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>
+    <resultWarnings>
     </
-61
-millis>
+7c
+resultWarnings>
+    <millis>19</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetGrouperPrivilegesLiteResult>
@@ -300,4 +302,4 @@ Server version: 2.5.0, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=0],
   privilegeResults={subject: jdbc - test.subject.9, ownerSubject: jdbc - test.subject.9, admin, group: aStem:aGroup, },
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=21,millisStart=0,serverVersion=2.5.0]]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=19,millisStart=0,serverVersion=2.5.0]]

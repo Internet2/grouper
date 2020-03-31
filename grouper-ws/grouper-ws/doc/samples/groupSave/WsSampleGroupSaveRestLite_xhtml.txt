@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 867
+Content-Length: 902
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -26,23 +26,25 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGroupSaveLiteRequest">
       <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
-      <p class="alternateName" />
-      <p class="clientVersion" />
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
+      <p class="alternateName"/>
+      <p class="clientVersion"/>
       <p class="description">desc1</p>
+      <p class="disabledTime"/>
       <p class="displayExtension">disp1</p>
-      <p class="groupLookupName" />
-      <p class="groupLookupUuid" />
+      <p class="enabledTime"/>
+      <p class="groupLookupName"/>
+      <p class="groupLookupUuid"/>
       <p class="groupName">aStem:aGroup</p>
-      <p class="groupUuid" />
-      <p class="includeGroupDetail" />
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
-      <p class="saveMode" />
-      <p class="typeOfGroup" />
+      <p class="groupUuid"/>
+      <p class="includeGroupDetail"/>
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
+      <p class="saveMode"/>
+      <p class="typeOfGroup"/>
     </div>
   </body>
 </html>
@@ -57,16 +59,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=0B20688A007C9F9BCFD4F05DCD52C1A1;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 15:25:05 GMT
+Date: Tue, 31 Mar 2020 20:45:38 GMT
 Connection: close
+Server: Apache TomEE
 
-560
+5a5
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -76,13 +79,13 @@ Connection: close
   <body>
     <div title="WsGroupSaveLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">110</p>
-        <p class="resultWarnings" />
+        <p class="millis">371</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_UPDATED</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
 wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
@@ -92,16 +95,19 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
         <p class="success">T</p>
       </div>
       <div class="wsGroup" title="WsGroup">
-        <p class="alternateName" />
+        <p class="alternateName"/>
         <p class="description">desc1</p>
-        <div class="detail" title="WsGroupDetail" />
+        <div class="detail" title="WsGroupDetail"/>
+        <p class="disabledTime"/>
         <p class="displayExtension">disp1</p>
         <p class="displayName">a stem:disp1</p>
+        <p class="enabled">T</p>
+        <p class="enabledTime"/>
         <p class="extension">aGroup</p>
-        <p class="idIndex">10005</p>
+        <p class="idIndex">10009</p>
         <p class="name">aStem:aGroup</p>
         <p class="typeOfGroup">group</p>
-        <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
+        <p class="uuid">32ca90db41b04a1a9611a214a20bac42</p>
       </div>
     </div>
   </body>

@@ -38,16 +38,17 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=0D0487413022EB21608C73498546FDF8;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_NO_CHANGES_NEEDED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:20 GMT
+Date: Tue, 31 Mar 2020 20:23:51 GMT
 Connection: close
+Server: Apache TomEE
 
-3ec
+3ed
 <WsAttributeDefSaveLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_NO_CHANGES_NEEDED</resultCode>
@@ -60,15 +61,15 @@ wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>18</millis>
+    <millis>104</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsAttributeDef>
-    <idIndex>10075</idIndex>
+    <idIndex>10102</idIndex>
     <extension>testAttributeDef</extension>
     <description>This is a test description</description>
     <name>test1:testAttributeDef</name>
-    <uuid>512af2c1c0544263a673e2daee8bcc91</uuid>
+    <uuid>bf9d5454474c4f35acb3bdbaab978028</uuid>
     <attributeDefType>attr</attributeDefType>
     <multiAssignable>F</multiAssignable>
     <multiValued>F</multiValued>

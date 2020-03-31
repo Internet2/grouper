@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1313
+Content-Length: 1697
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,38 +25,49 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetMembershipsRequest">
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="ascending" />
-      <p class="ascendingForMember" />
-      <p class="clientVersion" />
-      <p class="enabled" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup"/>
+      <p class="ascending"/>
+      <p class="ascendingForMember"/>
+      <p class="clientVersion"/>
+      <p class="enabled"/>
       <p class="fieldName">members</p>
-      <p class="fieldType" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
+      <p class="fieldType"/>
+      <p class="includeGroupDetail"/>
+      <p class="includeSubjectDetail"/>
       <p class="memberFilter">Immediate</p>
-      <p class="pageNumber" />
-      <p class="pageNumberForMember" />
-      <p class="pageSize" />
-      <p class="pageSizeForMember" />
-      <p class="scope" />
-      <div class="serviceLookup" title="WsAttributeDefNameLookup" />
-      <p class="serviceRole" />
-      <p class="sortString" />
-      <p class="sortStringForMember" />
-      <p class="stemScope" />
+      <p class="pageCursorFieldIncludesLastRetrieved"/>
+      <p class="pageCursorFieldIncludesLastRetrievedForMember"/>
+      <p class="pageIsCursor"/>
+      <p class="pageIsCursorForMember"/>
+      <p class="pageLastCursorField"/>
+      <p class="pageLastCursorFieldForMember"/>
+      <p class="pageLastCursorFieldType"/>
+      <p class="pageLastCursorFieldTypeForMember"/>
+      <p class="pageNumber"/>
+      <p class="pageNumberForMember"/>
+      <p class="pageSize"/>
+      <p class="pageSizeForMember"/>
+      <p class="pointInTimeFrom"/>
+      <p class="pointInTimeRetrieve"/>
+      <p class="pointInTimeTo"/>
+      <p class="scope"/>
+      <div class="serviceLookup" title="WsAttributeDefNameLookup"/>
+      <p class="serviceRole"/>
+      <p class="sortString"/>
+      <p class="sortStringForMember"/>
+      <p class="stemScope"/>
       <ul class="wsGroupLookups">
         <li title="WsGroupLookup">
           <p class="groupName">aStem:aGroup</p>
-          <p class="idIndex" />
-          <p class="uuid" />
+          <p class="idIndex"/>
+          <p class="uuid"/>
         </li>
       </ul>
-      <div class="wsStemLookup" title="WsStemLookup" />
+      <div class="wsStemLookup" title="WsStemLookup"/>
       <ul class="wsSubjectLookups">
         <li title="WsSubjectLookup">
           <p class="subjectId">test.subject.0</p>
-          <p class="subjectIdentifier" />
+          <p class="subjectIdentifier"/>
           <p class="subjectSourceId">jdbc</p>
         </li>
       </ul>
@@ -74,16 +85,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=8C1703271B1522519B10B245395F2CBB;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:41:32 GMT
+Date: Tue, 31 Mar 2020 20:39:44 GMT
 Connection: close
+Server: Apache TomEE
 
-2b2
+2b0
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -93,13 +105,13 @@ Connection: close
   <body>
     <div title="WsGetMembershipsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">76</p>
-        <p class="resultWarnings" />
+        <p class="millis">58</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Found 0 results involving 0 groups and 0 subjects</p>
         <p class="success">T</p>
       </div>

@@ -52,16 +52,17 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=2394539A10241F27AC943A5ACCC1397C;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 07 Aug 2018 17:41:02 GMT
+Date: Tue, 31 Mar 2020 20:49:13 GMT
 Connection: close
+Server: Apache TomEE
 
-3e7
+3ff
 <WsMemberChangeSubjectResults>
   <results>
     <WsMemberChangeSubjectResult>
@@ -80,6 +81,7 @@ Connection: close
         <identifierLookup>id.test.subject.0</identifierLookup>
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
+        <memberId>47df1e75fe9c4486a77415e1857a302a</memberId>
         <id>test.subject.0</id>
         <sourceId>jdbc</sourceId>
       </wsSubjectOld>
@@ -100,12 +102,13 @@ Connection: close
         <identifierLookup>id.test.subject.2</identifierLookup>
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
+        <memberId>fc301f6730984e8dbb1bb331fe
+380
+f13ecc</memberId>
         <id>test.subject.2</id>
         <sourceId>jdbc</sourceId>
       </wsSubjectOld>
-    </
-32e
-WsMemberChangeSubjectResult>
+    </WsMemberChangeSubjectResult>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -122,7 +125,7 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>272</millis>
+    <millis>289</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsMemberChangeSubjectResults>

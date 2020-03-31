@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1097
+Content-Length: 1086
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -27,29 +27,29 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestAssignAttributeDefNameInheritanceRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-        <p class="subjectSourceId" />
+        <p class="subjectIdentifier"/>
+        <p class="subjectSourceId"/>
       </div>
       <p class="assign">T</p>
-      <p class="clientVersion" />
+      <p class="clientVersion"/>
       <ul class="relatedWsAttributeDefNameLookups">
         <li title="WsAttributeDefNameLookup">
-          <p class="idIndex" />
+          <p class="idIndex"/>
           <p class="name">aStem:permissionDefName3</p>
-          <p class="uuid" />
+          <p class="uuid"/>
         </li>
         <li title="WsAttributeDefNameLookup">
-          <p class="idIndex" />
+          <p class="idIndex"/>
           <p class="name">aStem:permissionDefName4</p>
-          <p class="uuid" />
+          <p class="uuid"/>
         </li>
       </ul>
-      <p class="replaceAllExisting" />
-      <p class="txType" />
+      <p class="replaceAllExisting"/>
+      <p class="txType"/>
       <div class="wsAttributeDefNameLookup" title="WsAttributeDefNameLookup">
-        <p class="idIndex" />
+        <p class="idIndex"/>
         <p class="name">aStem:permissionDefName</p>
-        <p class="uuid" />
+        <p class="uuid"/>
       </div>
     </div>
   </body>
@@ -65,16 +65,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=E24DBD596B33AE7E97D93E9759BD60BC;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:35:00 GMT
+Date: Tue, 31 Mar 2020 20:15:02 GMT
 Connection: close
+Server: Apache TomEE
 
-312
+310
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -84,13 +85,13 @@ Connection: close
   <body>
     <div title="WsAssignAttributeDefNameInheritanceResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">17</p>
-        <p class="resultWarnings" />
+        <p class="millis">96</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Had 0 successful adds, 2 adds which already existed, 0 successful removes, and 0 removes which didnt exist.</p>
         <p class="success">T</p>
       </div>

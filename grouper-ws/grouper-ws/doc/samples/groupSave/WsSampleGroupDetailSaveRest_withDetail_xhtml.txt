@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 3550
+Content-Length: 3844
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,58 +25,64 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGroupSaveRequest">
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="clientVersion" />
-      <p class="includeGroupDetail" />
-      <p class="txType" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup"/>
+      <p class="clientVersion"/>
+      <p class="includeGroupDetail"/>
+      <p class="txType"/>
       <ul class="wsGroupToSaves">
         <li title="WsGroupToSave">
-          <p class="createParentStemsIfNotExist" />
-          <p class="saveMode" />
+          <p class="createParentStemsIfNotExist"/>
+          <p class="saveMode"/>
           <div class="wsGroup" title="WsGroup">
-            <p class="alternateName" />
+            <p class="alternateName"/>
             <p class="description">whateverGroupLeftDesc</p>
-            <div class="detail" title="WsGroupDetail" />
+            <div class="detail" title="WsGroupDetail"/>
+            <p class="disabledTime"/>
             <p class="displayExtension">whateverGroupLeftDispExt</p>
-            <p class="displayName" />
+            <p class="displayName"/>
+            <p class="enabled"/>
+            <p class="enabledTime"/>
             <p class="extension">whateverGroupLeft</p>
-            <p class="idIndex" />
+            <p class="idIndex"/>
             <p class="name">aStem:whateverGroupLeft</p>
-            <p class="typeOfGroup" />
-            <p class="uuid" />
+            <p class="typeOfGroup"/>
+            <p class="uuid"/>
           </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="groupName">aStem:whateverGroupLeft</p>
-            <p class="idIndex" />
-            <p class="uuid" />
+            <p class="idIndex"/>
+            <p class="uuid"/>
           </div>
         </li>
         <li title="WsGroupToSave">
-          <p class="createParentStemsIfNotExist" />
-          <p class="saveMode" />
+          <p class="createParentStemsIfNotExist"/>
+          <p class="saveMode"/>
           <div class="wsGroup" title="WsGroup">
-            <p class="alternateName" />
+            <p class="alternateName"/>
             <p class="description">whateverGroupRightDesc</p>
-            <div class="detail" title="WsGroupDetail" />
+            <div class="detail" title="WsGroupDetail"/>
+            <p class="disabledTime"/>
             <p class="displayExtension">whateverGroupRightDispExt</p>
-            <p class="displayName" />
+            <p class="displayName"/>
+            <p class="enabled"/>
+            <p class="enabledTime"/>
             <p class="extension">whateverGroupRight</p>
-            <p class="idIndex" />
+            <p class="idIndex"/>
             <p class="name">aStem:whateverGroupRight</p>
-            <p class="typeOfGroup" />
-            <p class="uuid" />
+            <p class="typeOfGroup"/>
+            <p class="uuid"/>
           </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="groupName">aStem:whateverGroupRight</p>
-            <p class="idIndex" />
-            <p class="uuid" />
+            <p class="idIndex"/>
+            <p class="uuid"/>
           </div>
         </li>
         <li title="WsGroupToSave">
-          <p class="createParentStemsIfNotExist" />
-          <p class="saveMode" />
+          <p class="createParentStemsIfNotExist"/>
+          <p class="saveMode"/>
           <div class="wsGroup" title="WsGroup">
-            <p class="alternateName" />
+            <p class="alternateName"/>
             <p class="description">desc1</p>
             <div class="detail" title="WsGroupDetail">
               <ul class="attributeNames">
@@ -88,54 +94,63 @@ Content-Type: application/xhtml+xml; charset=UTF-8
                 <li>val2_1</li>
               </ul>
               <p class="compositeType">intersection</p>
-              <p class="createSubjectId" />
-              <p class="createTime" />
+              <p class="createSubjectId"/>
+              <p class="createTime"/>
               <p class="hasComposite">T</p>
-              <p class="isCompositeFactor" />
+              <p class="isCompositeFactor"/>
               <div class="leftGroup" title="WsGroup">
-                <p class="alternateName" />
+                <p class="alternateName"/>
                 <p class="description">whateverGroupLeftDesc</p>
-                <div class="detail" title="WsGroupDetail" />
+                <div class="detail" title="WsGroupDetail"/>
+                <p class="disabledTime"/>
                 <p class="displayExtension">whateverGroupLeftDispExt</p>
-                <p class="displayName" />
+                <p class="displayName"/>
+                <p class="enabled"/>
+                <p class="enabledTime"/>
                 <p class="extension">whateverGroupLeft</p>
-                <p class="idIndex" />
+                <p class="idIndex"/>
                 <p class="name">aStem:whateverGroupLeft</p>
-                <p class="typeOfGroup" />
-                <p class="uuid" />
+                <p class="typeOfGroup"/>
+                <p class="uuid"/>
               </div>
-              <p class="modifySource" />
-              <p class="modifySubjectId" />
-              <p class="modifyTime" />
+              <p class="modifySource"/>
+              <p class="modifySubjectId"/>
+              <p class="modifyTime"/>
               <div class="rightGroup" title="WsGroup">
-                <p class="alternateName" />
+                <p class="alternateName"/>
                 <p class="description">whateverGroupRightDesc</p>
-                <div class="detail" title="WsGroupDetail" />
+                <div class="detail" title="WsGroupDetail"/>
+                <p class="disabledTime"/>
                 <p class="displayExtension">whateverGroupRightDispExt</p>
-                <p class="displayName" />
+                <p class="displayName"/>
+                <p class="enabled"/>
+                <p class="enabledTime"/>
                 <p class="extension">whateverGroupRight</p>
-                <p class="idIndex" />
+                <p class="idIndex"/>
                 <p class="name">aStem:whateverGroupRight</p>
-                <p class="typeOfGroup" />
-                <p class="uuid" />
+                <p class="typeOfGroup"/>
+                <p class="uuid"/>
               </div>
               <ul class="typeNames">
                 <li>aType</li>
                 <li>aType2</li>
               </ul>
             </div>
+            <p class="disabledTime"/>
             <p class="displayExtension">disp1</p>
-            <p class="displayName" />
+            <p class="displayName"/>
+            <p class="enabled"/>
+            <p class="enabledTime"/>
             <p class="extension">whateverGroup</p>
-            <p class="idIndex" />
+            <p class="idIndex"/>
             <p class="name">aStem:whateverGroup</p>
-            <p class="typeOfGroup" />
-            <p class="uuid" />
+            <p class="typeOfGroup"/>
+            <p class="uuid"/>
           </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="groupName">aStem:whateverGroup</p>
-            <p class="idIndex" />
-            <p class="uuid" />
+            <p class="idIndex"/>
+            <p class="uuid"/>
           </div>
         </li>
       </ul>
@@ -153,16 +168,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=EEC0E45DBAB343D7DAA43311CA7DAB83;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 15:23:30 GMT
+Date: Tue, 31 Mar 2020 20:45:16 GMT
 Connection: close
+Server: Apache TomEE
 
-ba8
+c76
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -172,13 +188,13 @@ ba8
   <body>
     <div title="WsGroupSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">93</p>
-        <p class="resultWarnings" />
+        <p class="millis">185</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],
 wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...
@@ -190,61 +206,70 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_NO_CHANGES_NEEDED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
-            <p class="alternateName" />
+            <p class="alternateName"/>
             <p class="description">whateverGroupLeftDesc</p>
-            <div class="detail" title="WsGroupDetail" />
+            <div class="detail" title="WsGroupDetail"/>
+            <p class="disabledTime"/>
             <p class="displayExtension">whateverGroupLeftDispExt</p>
             <p class="displayName">a stem:whateverGroupLeftDispExt</p>
+            <p class="enabled">T</p>
+            <p class="enabledTime"/>
             <p class="extension">whateverGroupLeft</p>
-            <p class="idIndex">10051</p>
+            <p class="idIndex">10048</p>
             <p class="name">aStem:whateverGroupLeft</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">0002fcb01ed14407ba7dd3db1f84ae03</p>
+            <p class="uuid">4cfe65e32086496e8e37991038184c0c</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_NO_CHANGES_NEEDED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
-            <p class="alternateName" />
+            <p class="alternateName"/>
             <p class="description">whateverGroupRightDesc</p>
-            <div class="detail" title="WsGroupDetail" />
+            <div class="detail" title="WsGroupDetail"/>
+            <p class="disabledTime"/>
             <p class="displayExtension">whateverGroupRightDispExt</p>
             <p class="displayName">a stem:whateverGroupRightDispExt</p>
+            <p class="enabled">T</p>
+            <p class="enabledTime"/>
             <p class="extension">whateverGroupRight</p>
-            <p class="idIndex">10052</p>
+            <p class="idIndex">10049</p>
             <p class="name">aStem:whateverGroupRight</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">104d12e7140b481fb03bca2d997b7acf</p>
+            <p class="uuid">e86908fb5e69416280e59c7799c17573</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_NO_CHANGES_NEEDED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
-            <p class="alternateName" />
+            <p class="alternateName"/>
             <p class="description">desc1</p>
-            <div class="detail" title="WsGroupDetail" />
+            <div class="detail" title="WsGroupDetail"/>
+            <p class="disabledTime"/>
             <p class="displayExtension">disp1</p>
             <p class="displayName">a stem:disp1</p>
+            <p class="enabled">T</p>
+            <p class="enabledTime"/>
             <p class="extension">whateverGroup</p>
-            <p class="idIndex">10038</p>
+            <p class="idIndex">10050</p>
             <p class="name">aStem:whateverGroup</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">0b957bb1336e4a9a87e1557d67c0fa15</p>
+            <p class="uuid">09b488181c7d42ba9eb880fd7ad698d3</p>
           </div>
         </li>
       </ul>

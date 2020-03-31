@@ -41,14 +41,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=86139D032AB783887C6D10B8884DD147;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:33 GMT
+Date: Tue, 31 Mar 2020 20:25:31 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsDeleteMemberResults>
@@ -87,14 +88,15 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-    <idIndex>10005</idIndex>
+    <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+    <idIndex>10009</idIndex>
+    <enabled>T</enabled>
   </wsGroup>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.5.0, wsGroupLookup: WsGroupLookup[pitGroups=[],
-1bb
-groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: 2.5.0, wsGroupLookup: WsGroup
+1d0
+Lookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
@@ -103,7 +105,7 @@ groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[sub
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>52</millis>
+    <millis>127</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsDeleteMemberResults>

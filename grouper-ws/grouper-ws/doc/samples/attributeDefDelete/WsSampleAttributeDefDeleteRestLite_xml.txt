@@ -31,14 +31,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=43882DB313E5B4BC6CA27CA84B4A5073;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_ATTRIBUTE_DEF_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:35 GMT
+Date: Tue, 31 Mar 2020 20:20:41 GMT
 Connection: close
+Server: Apache TomEE
 
 3f4
 <WsAttributeDefDeleteLiteResult>
@@ -53,7 +54,7 @@ attributeDefFindResult=ATTRIBUTE_DEF_NOT_FOUND]&apos;.</resultMessage>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>10</millis>
+    <millis>15</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsAttributeDef>

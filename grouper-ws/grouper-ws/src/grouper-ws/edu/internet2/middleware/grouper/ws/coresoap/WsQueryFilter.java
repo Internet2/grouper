@@ -859,7 +859,7 @@ public class WsQueryFilter {
   /**
    * @return true if enabled only, false if disabled only, null if everything
    */
-  public Boolean getEnabledAsBoolean() {
+  public Boolean retrieveEnabledAsBoolean() {
     if (StringUtils.isBlank(this.enabled)) {
       return true;
     }

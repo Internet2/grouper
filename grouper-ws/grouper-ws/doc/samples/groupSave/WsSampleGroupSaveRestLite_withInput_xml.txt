@@ -34,16 +34,17 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=39219FB4554C865434FD9240067858F2;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 15:28:48 GMT
+Date: Tue, 31 Mar 2020 20:46:37 GMT
 Connection: close
+Server: Apache TomEE
 
-395
+3a9
 <WsGroupSaveLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_UPDATED</resultCode>
@@ -57,7 +58,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>102</millis>
+    <millis>224</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroup>
@@ -67,8 +68,9 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
     <description>desc1</description>
     <displayName>a stem:disp1</displayName>
     <name>aStem:aGroup</name>
-    <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
-    <idIndex>10005</idIndex>
+    <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
+    <idIndex>10009</idIndex>
+    <enabled>T</enabled>
   </wsGroup>
 </WsGroupSaveLiteResult>
 0

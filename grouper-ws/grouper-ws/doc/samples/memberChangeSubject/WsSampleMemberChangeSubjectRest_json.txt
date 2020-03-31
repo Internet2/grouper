@@ -55,66 +55,69 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=2EA2721D3A03D449BCAA5270E16D6D82;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1331
-Date: Tue, 07 Aug 2018 17:40:59 GMT
+Content-Length: 1424
+Date: Tue, 31 Mar 2020 20:49:08 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsMemberChangeSubjectResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]\n[1]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE\n, params: null"
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"96"
+      "millis":"291",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]\n[1]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE\n, params: null",
+      "success":"T"
     },
     "results":[
       {
+        "resultMetadata":{
+          "resultCode":"SUCCESS",
+          "success":"T"
+        },
         "wsSubjectNew":{
-          "sourceId":"jdbc",
-          "success":"T",
+          "id":"test.subject.1",
           "name":"my name is test.subject.1",
           "resultCode":"SUCCESS",
-          "id":"test.subject.1"
-        },
-        "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS"
+          "sourceId":"jdbc",
+          "success":"T"
         },
         "wsSubjectOld":{
-          "sourceId":"jdbc",
+          "id":"test.subject.0",
           "identifierLookup":"id.test.subject.0",
-          "success":"T",
+          "memberId":"e67586a03f6e44debfa82e54a2deca76",
           "resultCode":"SUCCESS",
-          "id":"test.subject.0"
+          "sourceId":"jdbc",
+          "success":"T"
         }
         
       },
       {
+        "resultMetadata":{
+          "resultCode":"SUCCESS",
+          "success":"T"
+        },
         "wsSubjectNew":{
-          "sourceId":"jdbc",
-          "success":"T",
+          "id":"test.subject.3",
           "name":"my name is test.subject.3",
           "resultCode":"SUCCESS",
-          "id":"test.subject.3"
-        },
-        "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS"
+          "sourceId":"jdbc",
+          "success":"T"
         },
         "wsSubjectOld":{
-          "sourceId":"jdbc",
+          "id":"test.subject.2",
           "identifierLookup":"id.test.subject.2",
-          "success":"T",
+          "memberId":"fc301f6730984e8dbb1bb331fef13ecc",
           "resultCode":"SUCCESS",
-          "id":"test.subject.2"
+          "sourceId":"jdbc",
+          "success":"T"
         }
       }
     ]

@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1021
+Content-Length: 1007
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -27,29 +27,29 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestHasMemberRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-        <p class="subjectSourceId" />
+        <p class="subjectIdentifier"/>
+        <p class="subjectSourceId"/>
       </div>
-      <p class="clientVersion" />
-      <p class="fieldName" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
-      <p class="memberFilter" />
-      <p class="pointInTimeFrom" />
-      <p class="pointInTimeTo" />
+      <p class="clientVersion"/>
+      <p class="fieldName"/>
+      <p class="includeGroupDetail"/>
+      <p class="includeSubjectDetail"/>
+      <p class="memberFilter"/>
+      <p class="pointInTimeFrom"/>
+      <p class="pointInTimeTo"/>
       <ul class="subjectLookups">
         <li title="WsSubjectLookup">
           <p class="subjectId">10021368</p>
-          <p class="subjectIdentifier" />
-          <p class="subjectSourceId" />
+          <p class="subjectIdentifier"/>
+          <p class="subjectSourceId"/>
         </li>
         <li title="WsSubjectLookup">
           <p class="subjectId">10039438</p>
-          <p class="subjectIdentifier" />
-          <p class="subjectSourceId" />
+          <p class="subjectIdentifier"/>
+          <p class="subjectSourceId"/>
         </li>
       </ul>
-      <div class="wsGroupLookup" title="WsGroupLookup" />
+      <div class="wsGroupLookup" title="WsGroupLookup"/>
     </div>
   </body>
 </html>
@@ -64,16 +64,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=5EF3A8ECCEEE5D098CC3C7584525C41A;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:42:51 GMT
+Date: Tue, 31 Mar 2020 20:47:31 GMT
 Connection: close
+Server: Apache TomEE
 
-933
+99d
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -83,13 +84,13 @@ Connection: close
   <body>
     <div title="WsHasMemberResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">38</p>
-        <p class="resultWarnings" />
+        <p class="millis">142</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
@@ -102,13 +103,14 @@ memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], field
         <li title="WsHasMemberResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">IS_MEMBER</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
             <p class="id">10021368</p>
-            <p class="identifierLookup" />
+            <p class="identifierLookup"/>
+            <p class="memberId"/>
             <p class="name">10021368</p>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
@@ -118,13 +120,14 @@ memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], field
         <li title="WsHasMemberResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">IS_MEMBER</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
             <p class="id">10039438</p>
-            <p class="identifierLookup" />
+            <p class="identifierLookup"/>
+            <p class="memberId"/>
             <p class="name">10039438</p>
             <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
@@ -133,16 +136,19 @@ memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], field
         </li>
       </ul>
       <div class="wsGroup" title="WsGroup">
-        <p class="alternateName" />
+        <p class="alternateName"/>
         <p class="description">a group description</p>
-        <div class="detail" title="WsGroupDetail" />
+        <div class="detail" title="WsGroupDetail"/>
+        <p class="disabledTime"/>
         <p class="displayExtension">a group</p>
         <p class="displayName">a stem:a group</p>
+        <p class="enabled">T</p>
+        <p class="enabledTime"/>
         <p class="extension">aGroup</p>
-        <p class="idIndex">10005</p>
+        <p class="idIndex">10009</p>
         <p class="name">aStem:aGroup</p>
         <p class="typeOfGroup">group</p>
-        <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
+        <p class="uuid">32ca90db41b04a1a9611a214a20bac42</p>
       </div>
     </div>
   </body>

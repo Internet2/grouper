@@ -44,16 +44,17 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=F5697920CDAC9495EE9B75ED2A844C6F;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:42:12 GMT
+Date: Tue, 31 Mar 2020 20:41:57 GMT
 Connection: close
+Server: Apache TomEE
 
-3ff
+3fe
 <WsGetSubjectsResults>
   <subjectAttributeNames>
     <string>description</string>
@@ -93,7 +94,7 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>12</millis>
+    <millis>9</millis>
     <serverVersion>
     </
 38

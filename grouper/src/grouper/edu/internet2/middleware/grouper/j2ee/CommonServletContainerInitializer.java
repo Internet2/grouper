@@ -116,6 +116,10 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           axisServlet.addMapping("/services/*");
           axisServlet.setLoadOnStartup(1);
           
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperWsAxisWssec", false)) {
+            axisServlet.setInitParameter("wssec", "true");
+          }
+          
           String restServletName = "RestServlet";
           Class restServletClass = Class.forName("edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet");
           javax.servlet.ServletRegistration.Dynamic restServlet = context.addServlet(restServletName, restServletClass);

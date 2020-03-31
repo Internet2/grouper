@@ -16,9 +16,10 @@ Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-19a
+1ab
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
     <ns1:getAuditEntriesLite xmlns:ns1="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns1:clientVersion>v2_5_000</ns1:clientVersion>
@@ -39,30 +40,32 @@ Transfer-Encoding: chunked
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=3AB2E3D19EBF8C021E0C08200F98C26D;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getAuditEntriesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 23 Nov 2019 21:40:33 GMT
+Date: Tue, 31 Mar 2020 08:02:10 GMT
+Server: Apache TomEE
 
 2000
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
     <ns:getAuditEntriesLiteResponse xmlns:ns="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetAuditEntriesResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
-          <ns:millis xsi:nil="true" />
-          <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
+          <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
-          <ns:params xsi:nil="true" />
+          <ns:params xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.5.0, auditType: group, auditActionId: addGroup, wsOwnerAttributeDefLookups: null, wsOwnerAttributeDefNameLookups: null, wsOwnerStemLookups: null, wsOwnerGroupLookups: null, wsOwnerSubjectLookups: null, actAsSubject: null
+          <ns:resultCode2 xsi:nil="true"/>
+          <ns:resultMessage>Success for: clientVersion: 2.5.0, auditType: group, auditActionId: addGroup, wsOwnerAttributeDefLookup: null, wsOwnerAttributeDefNameLookup: null, wsOwnerStemLookup: null, wsOwnerGroupLookup: null, wsOwnerSubjectLookup: null, actAsSubject: null
 , paramNames:
 , params: null
 ,</ns:resultMessage>
@@ -73,252 +76,446 @@ Date: Sat, 23 Nov 2019 21:40:33 GMT
           <ns:auditCategory>group</ns:auditCategory>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>7504942b3c3e46768c7ed45c08271b96</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>4431f675c7d04659b7efffa19410b699</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>aStem:role2</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>test:group113</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>c667a0547d2846b19fe49c6139a7585c</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>80f4e55efcdd47df81dd699223435e3f</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>a stem:role2</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>test:group113</ns:valueString>
           </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
+          <ns:id>1cdb05afbff84939ab2066b3b95eda7c</ns:id>
+          <ns:timestamp xsi:nil="true"/>
         </ns:wsAuditEntries>
         <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
           <ns:actionName>addGroup</ns:actionName>
           <ns:auditCategory>group</ns:auditCategory>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>8f0570ede0944e5da5264b1132f7f9d3</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>3befb91c854541f68a4dcb75fe1f92ee</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
+            <ns:valueInt xsi:nil="true"/>
             <ns:valueString>aStem:role</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>c667a0547d2846b19fe49c6139a7585c</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>b7dc7230123c4357ac3be255f74b7d73</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
+            <ns:valueInt xsi:nil="true"/>
             <ns:valueString>a stem:role</ns:valueString>
           </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
+          <ns:id>1fa1bae0658047159620387cb43adcc4</ns:id>
+          <ns:timestamp xsi:nil="true"/>
         </ns:wsAuditEntries>
         <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
           <ns:actionName>addGroup</ns:actionName>
           <ns:auditCategory>group</ns:auditCategory>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>e6eff24fbfec4175816c7cd8132b9c7f</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>5819ab9eed78479faedcb72be0987798</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>test:groupTestAttrAssign2</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>709cdb18758546ff914092d8c163c50e</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>test:groupTestAttrAssign2</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
-        </ns:wsAuditEntries>
-        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
-          <ns:actionName>addGroup</ns:actionName>
-          <ns:auditCategory>group</ns:auditCategory>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>346572535138477cabb75a6ff94de139</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>test:groupTestAttrAssign</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>709cdb18758546ff914092d8c163c50e</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>test:groupTestAttrAssign</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
-        </ns:wsAuditEntries>
-        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
-          <ns:actionName>addGroup</ns:actionName>
-          <ns:auditCategory>group</ns:auditCategory>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>359fd223772d414cae7cf64479c54083</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>etc:webServiceActAsGroup</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>e829c708e95d464bb114ca5ac48ea67e</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>etc:webServiceActAsGroup</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
-        </ns:wsAuditEntries>
-        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
-          <ns:actionName>addGroup</ns:actionName>
-          <ns:auditCategory>group</ns:auditCategory>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>23ef87706cf24770a57c81d052cb3813</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
+            <ns:valueInt xsi:nil="true"/>
             <ns:valueString>aStem:aGroup2</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>c667a0547d2846b19fe49c6139a7585c</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>b7dc7230123c4357ac3be255f74b7d73</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
+            <ns:valueInt xsi:nil="true"/>
             <ns:valueString>a stem:a group2</ns:valueString>
           </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
+          <ns:id>2e919b9986c943efac0b99fe415c55dd</ns:id>
+          <ns:timestamp xsi:nil="true"/>
         </ns:wsAuditEntries>
         <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
           <ns:actionName>addGroup</ns:actionName>
           <ns:auditCategory>group</ns:auditCategory>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>11310be917644d6daa9bd698e30afab2</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>32ca90db41b04a1a9611a214a20bac42</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
+            <ns:valueInt xsi:nil="true"/>
             <ns:valueString>aStem:aGroup</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>c667a0547d2846b19fe49c6139a7585c</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>b7dc7230123c4357ac3be255f74b7d73</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>a stem:a group</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>aStem:aGroup</ns:valueString>
           </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
+          <ns:id>311a105740d64443ae9928446310433b</ns:id>
+          <ns:timestamp xsi:nil="true"/>
         </ns:wsAuditEntries>
         <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
           <ns:actionName>addGroup</ns:actionName>
           <ns:auditCategory>group</ns:auditCategory>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>a257002a0e49437cbe696c808ff5b816</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>69b36df0e82f4fee98b760adebed0660</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>test:testGroup</ns:valueString>
-          </ns:auditEntryCo
-a20
-lumns>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:sysadmingroup</ns:valueString>
+          </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>709cdb18758546ff914092d8c163c50e</ns:valueString>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>a4685db4a7b2400791aac89ca0d64df7</ns:valueString>
           </ns:auditEntryColumns>
           <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
             <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:sysadmingroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>4adc79ff22f443febd8f5bd3b9ef9e9f</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>93697d5e07f34c938d0b95e1a5e3a093</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:webServiceClientUsers</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>a4685db4a7b2400791aac89ca0d64df7</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:webServiceClientUsers</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>51d1328b4f1447bb81d48af6773fee00</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>9c4860dce6a843e18c3de2ef3208082f</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>test:groupTestAttrAssign</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>80f4e55efcdd47df81dd699223435e3f</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>test:groupTestAttrAssign</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>6e11fc4396014941b6c5ed6d9c5d4d86</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns
+2000
+:valueInt xsi:nil="true"/>
+            <ns:valueString>9f0ae86331eb452cbd3749fa36b8f1df</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:deprovisioning:deprovisioningAdmins</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>02c1728a3fa9405bab1c961735ae01ef</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:deprovisioning:deprovisioningAdmins</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>76a682a38f00469689b07e4b02959f8b</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>86bb7ecba7bc42178f3ddd110cde25e9</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>test:groupTestAttrAssign2</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>80f4e55efcdd47df81dd699223435e3f</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>test:groupTestAttrAssign2</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>79b908f47cff4a0ab217b2ea4413daf1</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>3e8e8d848f7e46529a70568ccf8233a7</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:attribute:instrumentationData:instrumentationDataInstancesGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>9980a175ffb949a19daba724259c0eb2</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:attribute:instrumentationData:instrumentationDataInstancesGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>80ad96a961124e2ba6783d8264f15051</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>e3944552bd5148858fb8b77a7b53857e</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:workflowEditors</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>a4685db4a7b2400791aac89ca0d64df7</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:workflowEditors</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>838294e248004694a31cd43648ff3cb6</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>f1828d10b2ab4de381477c44cf5d1182</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>aStem:role2</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>b7dc7230123c4357ac3be255f74b7d73</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>a stem:role2</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>888bf0bd4f19470eaba77d8387fb4788</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>b5f7c5af7c54474bb354c5c17f575143</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:attribute:upgradeTasks:upgradeTasksMetadataGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>21106c273eae437da60ae96df3b9f327</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:attribute:upgradeTasks:upgradeTasksMetadataGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>8d3f63ede5c0498c8a7c03c835d13293</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>8a777b67de424fa386b51e6cb83132ee</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:attribute:instrumentationData:instrumentationDataCollectorsGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>9980a175ffb949a19daba724259c0eb2</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:attribute:instrumentationData:instrumentationDataCollectorsGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>9ba16986c40d47a89b31524e20200080</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>341ad64d708b4fe7a78dab357dcdfff4</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:attribute:messages:grouperMessageRole</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>10615a4871664220b84b1d7a3cd58f24</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:attribute:messages:grouperMessageRole</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>cec892b8eda54f979d7046e4d83b3aa2</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGro
+7db
+up</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>28e109afeac74aa0aabcafaf858ce50a</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:webServiceActAsGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>a4685db4a7b2400791aac89ca0d64df7</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>etc:webServiceActAsGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:id>d7c60be9ce72449f915862f406280fb0</ns:id>
+          <ns:timestamp xsi:nil="true"/>
+        </ns:wsAuditEntries>
+        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
+          <ns:actionName>addGroup</ns:actionName>
+          <ns:auditCategory>group</ns:auditCategory>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>id</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>6488e4e9d11d405598a420954c86fabf</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>name</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>test:testGroup</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>parentStemId</ns:label>
+            <ns:valueInt xsi:nil="true"/>
+            <ns:valueString>80f4e55efcdd47df81dd699223435e3f</ns:valueString>
+          </ns:auditEntryColumns>
+          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
+            <ns:label>displayName</ns:label>
+            <ns:valueInt xsi:nil="true"/>
             <ns:valueString>test:test group</ns:valueString>
           </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
-        </ns:wsAuditEntries>
-        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
-          <ns:actionName>addGroup</ns:actionName>
-          <ns:auditCategory>group</ns:auditCategory>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>da481095de974b9e95210471bc8c2fd4</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>etc:deprovisioning:usersWhoHaveBeenDeprovisioned_employees</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>019dced35be945f5af9bc9ab88b8e375</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>etc:deprovisioning:usersWhoHaveBeenDeprovisioned_employees</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
-        </ns:wsAuditEntries>
-        <ns:wsAuditEntries xsi:type="ns:WsAuditEntry">
-          <ns:actionName>addGroup</ns:actionName>
-          <ns:auditCategory>group</ns:auditCategory>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>id</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>75752012aff94f8fa45a96f946eeb1c9</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>name</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>etc:deprovisioning:managersWhoCanDeprovision_employees</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>parentStemId</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>019dced35be945f5af9bc9ab88b8e375</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:auditEntryColumns xsi:type="ns:WsAuditEntryColumn">
-            <ns:label>displayName</ns:label>
-            <ns:valueInt xsi:nil="true" />
-            <ns:valueString>etc:deprovisioning:managersWhoCanDeprovision_employees</ns:valueString>
-          </ns:auditEntryColumns>
-          <ns:timestamp xsi:nil="true" />
+          <ns:id>e2baecf10b3c466db6927bda94cffc6f</ns:id>
+          <ns:timestamp xsi:nil="true"/>
         </ns:wsAuditEntries>
       </ns:return>
     </ns:getAuditEntriesLiteResponse>
@@ -426,8 +623,8 @@ public class WsSampleGetAuditEntriesLite implements WsSampleGenerated {
 
 
 WsGetAuditEntriesResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@45da40ad,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@11f6a083,localResultMetadataTracker=true,
-  localWsAuditEntries={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@30b91493,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@2771e501,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@3a7abd4,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@3846ba32,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@40a32c25,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@685280dd,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@56957f08,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@5b0fc8c2,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@2140582,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@7ebc2975},localWsAuditEntriesTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@1df8c7f4,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@75a6cdb,localResultMetadataTracker=true,
+  localWsAuditEntries={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@637de489,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@38614875,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@6c09d716,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@734eada1,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@7f9b46ed,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@4d0b8b8b,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@6f18445b,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@69bdcfbc,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@4cb45048,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@5d72dd86,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@70e560ef,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@77228160,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@19faa9dc,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@522fc988,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@996293a,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@6adc90e9,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntry@26247027},localWsAuditEntriesTracker=true]
 WsAuditEntry[localActionName=addGroup,localActionNameTracker=true,localAuditCategory=group,localAuditCategoryTracker=true,
-  localAuditEntryColumns={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntryColumn@2640f5ea,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntryColumn@45accb5,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntryColumn@1b32aaca,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntryColumn@7b5afde5},localAuditEntryColumnsTracker=true,localTimestampTracker=false]
+  localAuditEntryColumns={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntryColumn@320ca97c,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntryColumn@3c592c0c,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntryColumn@3979c6e8,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAuditEntryColumn@6fb3d3bb},localAuditEntryColumnsTracker=true,localId=1cdb05afbff84939ab2066b3b95eda7c,localIdTracker=true,localTimestampTracker=false]

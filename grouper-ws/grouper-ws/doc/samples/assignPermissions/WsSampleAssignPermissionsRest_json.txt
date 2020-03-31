@@ -50,101 +50,102 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=E3C34B3383B708095A85F6066A187D69;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 2025
-Date: Mon, 06 Aug 2018 16:36:15 GMT
+Content-Length: 2039
+Date: Tue, 31 Mar 2020 20:20:15 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsAssignPermissionsResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results."
-    },
-    "wsAttributeDefs":[
-      {
-        "attributeDefType":"perm",
-        "assignToAttributeDef":"F",
-        "assignToStemAssignment":"F",
-        "extension":"permissionDef",
-        "assignToMemberAssignment":"F",
-        "assignToEffectiveMembership":"F",
-        "uuid":"4d46bcc488724fc2b3a40b0b75e14a2b",
-        "assignToImmediateMembershipAssignment":"F",
-        "assignToEffectiveMembershipAssignment":"F",
-        "assignToStem":"F",
-        "assignToGroupAssignment":"F",
-        "assignToMember":"F",
-        "multiAssignable":"F",
-        "valueType":"marker",
-        "name":"aStem:permissionDef",
-        "assignToAttributeDefAssignment":"F",
-        "idIndex":"10046",
-        "multiValued":"F",
-        "assignToGroup":"F",
-        "assignToImmediateMembership":"F"
-      }
-    ]
-    ,
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"26"
+      "millis":"44",
+      "serverVersion":"2.5.0"
     },
-    "wsGroups":[
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Found 1 results.",
+      "success":"T"
+    },
+    "wsAssignPermissionResults":[
       {
-        "displayExtension":"role",
-        "extension":"role",
-        "displayName":"a stem:role",
-        "name":"aStem:role",
-        "typeOfGroup":"role",
-        "idIndex":"10022",
-        "uuid":"c94e8975d1524eacb3e5f3a7b0b55086"
+        "changed":"F",
+        "deleted":"F",
+        "wsAttributeAssigns":[
+          {
+            "attributeAssignActionId":"74f1412a22bf4b239b9421095df79f41",
+            "attributeAssignActionName":"write",
+            "attributeAssignActionType":"immediate",
+            "attributeAssignDelegatable":"FALSE",
+            "attributeAssignType":"group",
+            "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
+            "attributeDefName":"aStem:permissionDef",
+            "attributeDefNameId":"2e849c0f71a446f6bf89a490cf57c376",
+            "attributeDefNameName":"aStem:permissionDefName",
+            "createdOn":"2020/03/31 13:19:27.323",
+            "disallowed":"F",
+            "enabled":"T",
+            "id":"bbc4780f5301439cb1e40765d8955c76",
+            "lastUpdated":"2020/03/31 13:19:27.323",
+            "ownerGroupId":"3befb91c854541f68a4dcb75fe1f92ee",
+            "ownerGroupName":"aStem:role"
+          }
+        ]
       }
     ]
     ,
     "wsAttributeDefNames":[
       {
-        "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
-        "displayExtension":"permissionDefName",
-        "extension":"permissionDefName",
-        "displayName":"a stem:permissionDefName",
-        "name":"aStem:permissionDefName",
+        "attributeDefId":"82bd0a56a05f45d2b49dc5956670d41f",
         "attributeDefName":"aStem:permissionDef",
-        "idIndex":"10155",
-        "uuid":"397ea151404d489aae915be38d0f4b4f"
+        "displayExtension":"permissionDefName",
+        "displayName":"a stem:permissionDefName",
+        "extension":"permissionDefName",
+        "idIndex":"10281",
+        "name":"aStem:permissionDefName",
+        "uuid":"2e849c0f71a446f6bf89a490cf57c376"
       }
     ]
     ,
-    "wsAssignPermissionResults":[
+    "wsAttributeDefs":[
       {
-        "deleted":"F",
-        "wsAttributeAssigns":[
-          {
-            "attributeAssignDelegatable":"FALSE",
-            "disallowed":"F",
-            "createdOn":"2018/08/06 12:36:10.749",
-            "enabled":"T",
-            "attributeAssignType":"group",
-            "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
-            "lastUpdated":"2018/08/06 12:36:10.749",
-            "attributeAssignActionId":"73cb43e7d8634c3c968bf04ca892378e",
-            "ownerGroupName":"aStem:role",
-            "id":"55aed0f4e60c4e589d5ac132fee37d24",
-            "ownerGroupId":"c94e8975d1524eacb3e5f3a7b0b55086",
-            "attributeDefName":"aStem:permissionDef",
-            "attributeDefNameName":"aStem:permissionDefName",
-            "attributeAssignActionName":"write",
-            "attributeDefNameId":"397ea151404d489aae915be38d0f4b4f",
-            "attributeAssignActionType":"immediate"
-          }
-        ]
-        ,
-        "changed":"F"
+        "assignToAttributeDef":"F",
+        "assignToAttributeDefAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToGroup":"F",
+        "assignToGroupAssignment":"F",
+        "assignToImmediateMembership":"F",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToMember":"F",
+        "assignToMemberAssignment":"F",
+        "assignToStem":"F",
+        "assignToStemAssignment":"F",
+        "attributeDefType":"perm",
+        "extension":"permissionDef",
+        "idIndex":"10085",
+        "multiAssignable":"F",
+        "multiValued":"F",
+        "name":"aStem:permissionDef",
+        "uuid":"82bd0a56a05f45d2b49dc5956670d41f",
+        "valueType":"marker"
+      }
+    ]
+    ,
+    "wsGroups":[
+      {
+        "displayExtension":"role",
+        "displayName":"a stem:role",
+        "enabled":"T",
+        "extension":"role",
+        "idIndex":"10035",
+        "name":"aStem:role",
+        "typeOfGroup":"role",
+        "uuid":"3befb91c854541f68a4dcb75fe1f92ee"
       }
     ]
     ,

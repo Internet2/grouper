@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1075
+Content-Length: 1062
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,32 +25,32 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAssignPermissionsRequest">
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup"/>
       <ul class="actions">
         <li>write</li>
       </ul>
-      <p class="assignmentDisabledTime" />
-      <p class="assignmentEnabledTime" />
-      <p class="assignmentNotes" />
-      <p class="clientVersion" />
-      <p class="delegatable" />
-      <p class="disallowed" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
+      <p class="assignmentDisabledTime"/>
+      <p class="assignmentEnabledTime"/>
+      <p class="assignmentNotes"/>
+      <p class="clientVersion"/>
+      <p class="delegatable"/>
+      <p class="disallowed"/>
+      <p class="includeGroupDetail"/>
+      <p class="includeSubjectDetail"/>
       <p class="permissionAssignOperation">assign_permission</p>
       <ul class="permissionDefNameLookups">
         <li title="WsAttributeDefNameLookup">
-          <p class="idIndex" />
+          <p class="idIndex"/>
           <p class="name">aStem:permissionDefName</p>
-          <p class="uuid" />
+          <p class="uuid"/>
         </li>
       </ul>
       <p class="permissionType">role</p>
       <ul class="roleLookups">
         <li title="WsGroupLookup">
           <p class="groupName">aStem:role</p>
-          <p class="idIndex" />
-          <p class="uuid" />
+          <p class="idIndex"/>
+          <p class="uuid"/>
         </li>
       </ul>
     </div>
@@ -67,16 +67,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=2C73D5F89326B14572D8CF553C57523D;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:13 GMT
+Date: Tue, 31 Mar 2020 20:20:13 GMT
 Connection: close
+Server: Apache TomEE
 
-e9e
+ed4
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -86,13 +87,13 @@ e9e
   <body>
     <div title="WsAssignPermissionsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">35</p>
-        <p class="resultWarnings" />
+        <p class="millis">75</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">, Found 1 results.</p>
         <p class="success">T</p>
       </div>
@@ -102,49 +103,49 @@ e9e
           <p class="deleted">F</p>
           <ul class="wsAttributeAssigns">
             <li title="WsAttributeAssign">
-              <p class="attributeAssignActionId">73cb43e7d8634c3c968bf04ca892378e</p>
+              <p class="attributeAssignActionId">74f1412a22bf4b239b9421095df79f41</p>
               <p class="attributeAssignActionName">write</p>
               <p class="attributeAssignActionType">immediate</p>
               <p class="attributeAssignDelegatable">FALSE</p>
               <p class="attributeAssignType">group</p>
-              <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+              <p class="attributeDefId">82bd0a56a05f45d2b49dc5956670d41f</p>
               <p class="attributeDefName">aStem:permissionDef</p>
-              <p class="attributeDefNameId">397ea151404d489aae915be38d0f4b4f</p>
+              <p class="attributeDefNameId">2e849c0f71a446f6bf89a490cf57c376</p>
               <p class="attributeDefNameName">aStem:permissionDefName</p>
-              <p class="createdOn">2018/08/06 12:36:10.749</p>
-              <p class="disabledTime" />
+              <p class="createdOn">2020/03/31 13:19:27.323</p>
+              <p class="disabledTime"/>
               <p class="disallowed">F</p>
               <p class="enabled">T</p>
-              <p class="enabledTime" />
-              <p class="id">55aed0f4e60c4e589d5ac132fee37d24</p>
-              <p class="lastUpdated">2018/08/06 12:36:10.749</p>
-              <p class="notes" />
-              <p class="ownerAttributeAssignId" />
-              <p class="ownerAttributeDefId" />
-              <p class="ownerAttributeDefName" />
-              <p class="ownerGroupId">c94e8975d1524eacb3e5f3a7b0b55086</p>
+              <p class="enabledTime"/>
+              <p class="id">bbc4780f5301439cb1e40765d8955c76</p>
+              <p class="lastUpdated">2020/03/31 13:19:27.323</p>
+              <p class="notes"/>
+              <p class="ownerAttributeAssignId"/>
+              <p class="ownerAttributeDefId"/>
+              <p class="ownerAttributeDefName"/>
+              <p class="ownerGroupId">3befb91c854541f68a4dcb75fe1f92ee</p>
               <p class="ownerGroupName">aStem:role</p>
-              <p class="ownerMemberId" />
-              <p class="ownerMemberSourceId" />
-              <p class="ownerMemberSubjectId" />
-              <p class="ownerMembershipId" />
-              <p class="ownerStemId" />
-              <p class="ownerStemName" />
+              <p class="ownerMemberId"/>
+              <p class="ownerMemberSourceId"/>
+              <p class="ownerMemberSubjectId"/>
+              <p class="ownerMembershipId"/>
+              <p class="ownerStemId"/>
+              <p class="ownerStemName"/>
             </li>
           </ul>
         </li>
       </ul>
       <ul class="wsAttributeDefNames">
         <li title="WsAttributeDefName">
-          <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+          <p class="attributeDefId">82bd0a56a05f45d2b49dc5956670d41f</p>
           <p class="attributeDefName">aStem:permissionDef</p>
-          <p class="description" />
+          <p class="description"/>
           <p class="displayExtension">permissionDefName</p>
           <p class="displayName">a stem:permissionDefName</p>
           <p class="extension">permissionDefName</p>
-          <p class="idIndex">10155</p>
+          <p class="idIndex">10281</p>
           <p class="name">aStem:permissionDefName</p>
-          <p class="uuid">397ea151404d489aae915be38d0f4b4f</p>
+          <p class="uuid">2e849c0f71a446f6bf89a490cf57c376</p>
         </li>
       </ul>
       <ul class="wsAttributeDefs">
@@ -162,28 +163,31 @@ e9e
           <p class="assignToStem">F</p>
           <p class="assignToStemAssignment">F</p>
           <p class="attributeDefType">perm</p>
-          <p class="description" />
+          <p class="description"/>
           <p class="extension">permissionDef</p>
-          <p class="idIndex">10046</p>
+          <p class="idIndex">10085</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
           <p class="name">aStem:permissionDef</p>
-          <p class="uuid">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+          <p class="uuid">82bd0a56a05f45d2b49dc5956670d41f</p>
           <p class="valueType">marker</p>
         </li>
       </ul>
       <ul class="wsGroups">
         <li title="WsGroup">
-          <p class="alternateName" />
-          <p class="description" />
-          <div class="detail" title="WsGroupDetail" />
+          <p class="alternateName"/>
+          <p class="description"/>
+          <div class="detail" title="WsGroupDetail"/>
+          <p class="disabledTime"/>
           <p class="displayExtension">role</p>
           <p class="displayName">a stem:role</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime"/>
           <p class="extension">role</p>
-          <p class="idIndex">10022</p>
+          <p class="idIndex">10035</p>
           <p class="name">aStem:role</p>
           <p class="typeOfGroup">role</p>
-          <p class="uuid">c94e8975d1524eacb3e5f3a7b0b55086</p>
+          <p class="uuid">3befb91c854541f68a4dcb75fe1f92ee</p>
         </li>
       </ul>
     </div>

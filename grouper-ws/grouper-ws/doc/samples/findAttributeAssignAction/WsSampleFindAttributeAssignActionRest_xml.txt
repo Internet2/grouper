@@ -35,40 +35,41 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=7049BBCF18CB54FC93E04A826DFB6707;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:38:25 GMT
+Date: Tue, 31 Mar 2020 20:27:07 GMT
 Connection: close
+Server: Apache TomEE
 
 3f2
 <WsGetAttributeAssignActionsResults>
   <wsAttributeAssignActionTuples>
     <WsAttributeAssignActionTuple>
       <action>view</action>
-      <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
       <nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
     <WsAttributeAssignActionTuple>
       <action>read</action>
-      <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
       <nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
     <WsAttributeAssignActionTuple>
       <action>assign</action>
-      <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
       <nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
   </wsAttributeAssignActionTuples>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10044</idIndex>
+      <idIndex>10083</idIndex>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>431a9914cdba4564ad5943c7ec7de988</uuid>
+      <uuid>3d7adcf55291443d8eb2527d22f6e67c</uuid>
       <attributeDefType>attr</attributeDefType>
       <
 3f8
@@ -97,7 +98,7 @@ multiAssignable>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>39</millis>
+    <millis>57</millis>
     <serverVersion>2.5.0</serverVersion>
   </
 36
@@ -277,5 +278,5 @@ public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
 #########################################
 
 
-<WsGetAttributeAssignActionsResults><wsAttributeAssignActionTuples><WsAttributeAssignActionTuple><action>view</action><attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId><nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef></WsAttributeAssignActionTuple><WsAttributeAssignActionTuple><action>read</action><attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId><nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef></WsAttributeAssignActionTuple><WsAttributeAssignActionTuple><action>assign</action><attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId><nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef></WsAttributeAssignActionTuple></wsAttributeAssignActionTuples><wsAttributeDefs><WsAttributeDef><idIndex>10044</idIndex><extension>testAttributeAssignDefNameDef</extension><name>test:testAttributeAssignDefNameDef</name><uuid>431a9914cdba4564ad5943c7ec7de988</uuid><attributeDefType>attr</attributeDefType><multiAssignable>F</multiAssignable><multiValued>T</multiValued><valueType>integer</valueType><assignToAttributeDef>F</assignToAttributeDef><assignToAttributeDefAssignment>F</assignToAttributeDefAssignment><assignToEffectiveMembership>F</assignToEffectiveMembership><assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment><assignToGroup>F</assignToGroup><assignToGroupAssignment>F</assignToGroupAssignment><assignToImmediateMembership>F</assignToImmediateMembership><assignToImmediateMembershipAssignment>F</assignToImmediateMembershipAssignment><assignToMember>F</assignToMember><assignToMemberAssignment>F</assignToMemberAssignment><assignToStem>F</assignToStem><assignToStemAssignment>F</assignToStemAssignment></WsAttributeDef></wsAttributeDefs><resultMetadata><resultCode>SUCCESS</resultCode><resultMessage>, Found 3 results.  </resultMessage><success>T</success></resultMetadata><responseMetadata><resultWarnings></resultWarnings><millis>39</millis><serverVersion>2.5.0</serverVersion></responseMetadata></WsGetAttributeAssignActionsResults>
+<WsGetAttributeAssignActionsResults><wsAttributeAssignActionTuples><WsAttributeAssignActionTuple><action>view</action><attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId><nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef></WsAttributeAssignActionTuple><WsAttributeAssignActionTuple><action>read</action><attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId><nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef></WsAttributeAssignActionTuple><WsAttributeAssignActionTuple><action>assign</action><attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId><nameOfAttributeDef>test:testAttributeAssignDefNameDef</nameOfAttributeDef></WsAttributeAssignActionTuple></wsAttributeAssignActionTuples><wsAttributeDefs><WsAttributeDef><idIndex>10083</idIndex><extension>testAttributeAssignDefNameDef</extension><name>test:testAttributeAssignDefNameDef</name><uuid>3d7adcf55291443d8eb2527d22f6e67c</uuid><attributeDefType>attr</attributeDefType><multiAssignable>F</multiAssignable><multiValued>T</multiValued><valueType>integer</valueType><assignToAttributeDef>F</assignToAttributeDef><assignToAttributeDefAssignment>F</assignToAttributeDefAssignment><assignToEffectiveMembership>F</assignToEffectiveMembership><assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment><assignToGroup>F</assignToGroup><assignToGroupAssignment>F</assignToGroupAssignment><assignToImmediateMembership>F</assignToImmediateMembership><assignToImmediateMembershipAssignment>F</assignToImmediateMembershipAssignment><assignToMember>F</assignToMember><assignToMemberAssignment>F</assignToMemberAssignment><assignToStem>F</assignToStem><assignToStemAssignment>F</assignToStemAssignment></WsAttributeDef></wsAttributeDefs><resultMetadata><resultCode>SUCCESS</resultCode><resultMessage>, Found 3 results.  </resultMessage><success>T</success></resultMetadata><responseMetadata><resultWarnings></resultWarnings><millis>57</millis><serverVersion>2.5.0</serverVersion></responseMetadata></WsGetAttributeAssignActionsResults>
 Server version: 2.5.0, result code: SUCCESS, result message: , Found 3 results.

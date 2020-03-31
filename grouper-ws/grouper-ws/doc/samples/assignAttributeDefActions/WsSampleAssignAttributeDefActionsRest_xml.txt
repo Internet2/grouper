@@ -39,22 +39,23 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=E15B3DD531101A4655AB12E7D045FD8B;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:34:53 GMT
+Date: Tue, 31 Mar 2020 20:13:49 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsAttributeDefAssignActionResults>
   <wsAttributeDef>
-    <idIndex>10044</idIndex>
+    <idIndex>10083</idIndex>
     <extension>testAttributeAssignDefNameDef</extension>
     <name>test:testAttributeAssignDefNameDef</name>
-    <uuid>431a9914cdba4564ad5943c7ec7de988</uuid>
+    <uuid>3d7adcf55291443d8eb2527d22f6e67c</uuid>
     <attributeDefType>attr</attributeDefType>
     <multiAssignable>F</multiAssignable>
     <multiValued>T</multiValued>
@@ -102,7 +103,7 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>378</millis>
+    <millis>970</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefAssignActionResults>

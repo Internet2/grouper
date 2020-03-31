@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 698
+Content-Length: 688
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,17 +25,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAttributeDefDeleteLiteRequest">
-      <p class="actAsSubjectId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
-      <p class="clientVersion" />
-      <p class="idIndexOfAttributeDef" />
-      <p class="idOfAttributeDef" />
+      <p class="actAsSubjectId"/>
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
+      <p class="clientVersion"/>
+      <p class="idIndexOfAttributeDef"/>
+      <p class="idOfAttributeDef"/>
       <p class="nameOfAttributeDef">test1:testAttributeDef</p>
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
     </div>
   </body>
 </html>
@@ -50,16 +50,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=CD61EAA502FCF67A940E6B28D5767997;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_ATTRIBUTE_DEF_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:29 GMT
+Date: Tue, 31 Mar 2020 20:20:35 GMT
 Connection: close
+Server: Apache TomEE
 
-721
+718
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -69,13 +70,13 @@ Connection: close
   <body>
     <div title="WsAttributeDefDeleteLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">20</p>
-        <p class="resultWarnings" />
+        <p class="millis">19</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_ATTRIBUTE_DEF_NOT_FOUND</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef]
 , actAsSubject: null
 , paramNames:
@@ -96,15 +97,15 @@ attributeDefFindResult=ATTRIBUTE_DEF_NOT_FOUND]'.</p>
         <p class="assignToMemberAssignment">F</p>
         <p class="assignToStem">F</p>
         <p class="assignToStemAssignment">F</p>
-        <p class="attributeDefType" />
-        <p class="description" />
+        <p class="attributeDefType"/>
+        <p class="description"/>
         <p class="extension">testAttributeDef</p>
-        <p class="idIndex" />
-        <p class="multiAssignable" />
-        <p class="multiValued" />
+        <p class="idIndex"/>
+        <p class="multiAssignable"/>
+        <p class="multiValued"/>
         <p class="name">test1:testAttributeDef</p>
-        <p class="uuid" />
-        <p class="valueType" />
+        <p class="uuid"/>
+        <p class="valueType"/>
       </div>
     </div>
   </body>

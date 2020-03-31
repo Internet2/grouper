@@ -28,45 +28,47 @@ wsLiteObjectType=WsRestAssignGrouperPrivilegesLiteRequest&actAsSubjectId=Grouper
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=8B2E6F7B4CFABD0BC047BF3593278DB6;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_ALLOWED_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 949
-Date: Mon, 06 Aug 2018 16:36:06 GMT
+Content-Length: 963
+Date: Tue, 31 Mar 2020 20:19:22 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsAssignGrouperPrivilegesLiteResult":{
+    "privilegeName":"optin",
+    "privilegeType":"access",
+    "responseMetadata":{
+      "millis":"36",
+      "serverVersion":"2.5.0"
+    },
     "resultMetadata":{
-      "success":"T",
       "resultCode":"SUCCESS_ALLOWED_ALREADY_EXISTED",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]\n, group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin\n, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false\n, params: null"
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]\n, group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin\n, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false\n, params: null",
+      "success":"T"
     },
     "wsGroup":{
-      "displayExtension":"a group",
-      "extension":"aGroup",
-      "displayName":"a stem:a group",
-      "name":"aStem:aGroup",
       "description":"a group description",
+      "displayExtension":"a group",
+      "displayName":"a stem:a group",
+      "enabled":"T",
+      "extension":"aGroup",
+      "idIndex":"10009",
+      "name":"aStem:aGroup",
       "typeOfGroup":"group",
-      "idIndex":"10005",
-      "uuid":"03aae7141082467eaaa866e6c6edfda5"
+      "uuid":"32ca90db41b04a1a9611a214a20bac42"
     },
     "wsSubject":{
-      "sourceId":"jdbc",
-      "success":"T",
+      "id":"test.subject.0",
       "name":"my name is test.subject.0",
       "resultCode":"SUCCESS",
-      "id":"test.subject.0"
-    },
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"44"
-    },
-    "privilegeType":"access",
-    "privilegeName":"optin"
+      "sourceId":"jdbc",
+      "success":"T"
+    }
   }
 }
 

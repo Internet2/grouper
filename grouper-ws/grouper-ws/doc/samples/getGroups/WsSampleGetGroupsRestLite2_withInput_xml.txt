@@ -33,14 +33,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=4533C12438CFE7FD001E7A60D800E1EC;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:41:02 GMT
+Date: Tue, 31 Mar 2020 20:37:42 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsGetGroupsLiteResult>
@@ -62,7 +63,7 @@ fieldName1: null
   </subjectAttributeNames>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>84</millis>
+    <millis>188</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsGroups>
@@ -72,19 +73,20 @@ fieldName1: null
       <displayExtension>role</displayExtension>
       <displayName>a stem:role</displayName>
       <name>aStem:role</name>
-      <uuid>c94e8975d1524eacb3e5
-3f6
-f3a7b0b55086</uuid>
+      <uuid>3befb91c854541f68a4
+3ff
+dcb75fe1f92ee</uuid>
       <detail>
         <hasComposite>F</hasComposite>
         <typeNames/>
         <createSubjectId>GrouperSystem</createSubjectId>
-        <createTime>2018/08/06 11:04:03.596</createTime>
+        <createTime>2020/03/31 00:25:09.450</createTime>
         <isCompositeFactor>F</isCompositeFactor>
         <modifySubjectId>GrouperSystem</modifySubjectId>
-        <modifyTime>2018/08/06 11:04:03.601</modifyTime>
+        <modifyTime>2020/03/31 00:25:09.468</modifyTime>
       </detail>
-      <idIndex>10022</idIndex>
+      <idIndex>10035</idIndex>
+      <enabled>T</enabled>
     </WsGroup>
     <WsGroup>
       <extension>grouperMessageRole</extension>
@@ -92,38 +94,63 @@ f3a7b0b55086</uuid>
       <displayExtension>grouperMessageRole</displayExtension>
       <displayName>etc:attribute:messages:grouperMessageRole</displayName>
       <name>etc:attribute:messages:grouperMessageRole</name>
-      <uuid>d318bed9be7d43b5a7d21d1fcc064820</uuid>
+      <uuid>341ad64d708b4fe7a78dab357dcdfff4</uuid>
       <detail>
         <hasComposite>F</hasComposite>
         <typeNames/>
         <createSubjectId>GrouperSystem</createSubjectId>
-        <createTime>2018/08/06 11:03:52.690</createTime>
+        <createTime>2020/03/30 22:58:27.197</createTime>
         <isCompositeFactor>F</isCompositeFactor>
         <modifySubjectId>GrouperSystem</modifySubjectId>
-        <modifyTime>2018/08/06 11:03:52.697</modifyTime>
+        <modifyTime>2020/03/30 22:58:27.226</modifyTime>
       </detail>
-      <idIndex>10001</idIndex>
+      <idIndex>10002</idIndex>
+      <enabled>T</enabled>
+    </WsGroup>
+    <WsGroup>
+      <
+3fc
+extension>
+      </extension>
+      <typeOfGroup>group</typeOfGroup>
+      <displayExtension>group113</displayExtension>
+      <description>description</description>
+      <displayName>test:group113</displayName>
+      <name>test:group113</name>
+      <uuid>4431f675c7d04659b7efffa19410b699</uuid>
+      <detail>
+        <hasComposite>F</hasComposite>
+        <typeNames/>
+        <createSubjectId>GrouperSystem</createSubjectId>
+        <createTime>2020/03/30 22:58:54.934</createTime>
+        <isCompositeFactor>F</isCompositeFactor>
+        <modifySubjectId>GrouperSystem</modifySubjectId>
+        <modifyTime>2020/03/30 22:58:55.500</modifyTime>
+      </detail>
+      <idIndex>10020</idIndex>
+      <enabled>T</enabled>
     </WsGroup>
     <WsGroup>
       <extension>testGroup</extension>
-      <
-33f
-typeOfGroup>
-      </typeOfGroup>
+      <typeOfGroup>group</typeOfGroup>
       <displayExtension>testGroup</displayExtension>
       <displayName>test:testGroup</displayName>
       <name>test:testGroup</name>
-      <uuid>f651723de0f549ed97906e28df006ced</uuid>
+      <uuid>6488e4e9d11d405598a420954c86fabf</uuid>
       <detail>
         <hasComposite>F</hasComposite>
         <typeNames/>
         <createSubjectId>GrouperSystem</createSubjectId>
-        <createTime>2018/08/06 11:04:00.343</createTime>
+        <createTime>2020/03/31 00:25:05.959</createTime>
         <isCompositeFactor>F</isCompositeFactor>
-        <modifySubjectId>GrouperSystem</modifySubjectId>
-        <modifyTime>2018/08/06 12:41:00.546</modifyTime>
+        <
+1da
+modifySubjectId>
+        </modifySubjectId>
+        <modifyTime>2020/03/31 13:37:40.819</modifyTime>
       </detail>
-      <idIndex>10004</idIndex>
+      <idIndex>10031</idIndex>
+      <enabled>T</enabled>
     </WsGroup>
   </wsGroups>
   <wsSubject>

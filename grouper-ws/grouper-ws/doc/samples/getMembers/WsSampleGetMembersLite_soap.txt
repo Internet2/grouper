@@ -9,18 +9,19 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersLite, code 
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_5 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getMembersLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-2da
+2eb
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns1:getMembersLite xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns1:getMembersLite xmlns:ns1="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:groupName>aStem:aGroup</ns1:groupName>
       <ns1:groupUuid></ns1:groupUuid>
@@ -46,29 +47,31 @@ Transfer-Encoding: chunked
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=3E0457ED5FFE115F09CFDCEADFF5F0A6;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getMembersLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:41:06 GMT
+Date: Tue, 31 Mar 2020 20:38:07 GMT
+Server: Apache TomEE
 
-d65
+db8
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns:getMembersLiteResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:getMembersLiteResponse xmlns:ns="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetMembersLiteResult">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
-          <ns:millis xsi:nil="true" />
-          <ns:resultWarnings xsi:nil="true" />
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
           <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
-          <ns:params xsi:nil="true" />
+          <ns:params xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true"/>
           <ns:resultMessage>Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],uuid=,groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], fieldName: null, subjectAttributeNames: null
@@ -78,65 +81,68 @@ d65
 , pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:subjectAttributeNames xsi:nil="true" />
+        <ns:subjectAttributeNames xsi:nil="true"/>
         <ns:wsGroup xsi:type="ns:WsGroup">
-          <ns:alternateName xsi:nil="true" />
+          <ns:alternateName xsi:nil="true"/>
           <ns:description>a group description</ns:description>
           <ns:detail xsi:type="ns:WsGroupDetail">
-            <ns:attributeNames xsi:nil="true" />
-            <ns:attributeValues xsi:nil="true" />
-            <ns:compositeType xsi:nil="true" />
+            <ns:attributeNames xsi:nil="true"/>
+            <ns:attributeValues xsi:nil="true"/>
+            <ns:compositeType xsi:nil="true"/>
             <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-            <ns:createTime>2018/08/06 11:04:00.403</ns:createTime>
+            <ns:createTime>2020/03/30 22:58:53.237</ns:createTime>
             <ns:hasComposite>F</ns:hasComposite>
             <ns:isCompositeFactor>F</ns:isCompositeFactor>
-            <ns:leftGroup xsi:nil="true" />
-            <ns:modifySource xsi:nil="true" />
+            <ns:leftGroup xsi:nil="true"/>
+            <ns:modifySource xsi:nil="true"/>
             <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-            <ns:modifyTime>2018/08/06 11:30:07.572</ns:modifyTime>
-            <ns:params xsi:nil="true" />
-            <ns:rightGroup xsi:nil="true" />
+            <ns:modifyTime>2020/03/31 00:25:06.563</ns:modifyTime>
+            <ns:params xsi:nil="true"/>
+            <ns:rightGroup xsi:nil="true"/>
           </ns:detail>
+          <ns:disabledTime xsi:nil="true"/>
           <ns:displayExtension>a group</ns:displayExtension>
           <ns:displayName>a stem:a group</ns:displayName>
+          <ns:enabled>T</ns:enabled>
+          <ns:enabledTime xsi:nil="true"/>
           <ns:extension>aGroup</ns:extension>
-          <ns:idIndex>10005</ns:idIndex>
+          <ns:idIndex>10009</ns:idIndex>
           <ns:name>aStem:aGroup</ns:name>
           <ns:typeOfGroup>group</ns:typeOfGroup>
-          <ns:uuid>03aae7141082467eaaa866e6c6edfda5</ns:uuid>
+          <ns:uuid>32ca90db41b04a1a9611a214a20bac42</ns:uuid>
         </ns:wsGroup>
         <ns:wsSubjects xsi:type="ns:WsSubject">
-          <ns:attributeValues xsi:nil="true" />
+          <ns:attributeValues xsi:nil="true"/>
           <ns:id>GrouperSystem</ns:id>
-          <ns:identifierLookup xsi:nil="true" />
-          <ns:name xsi:nil="true" />
+          <ns:identifierLookup xsi:nil="true"/>
+          <ns:name xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:sourceId>g:isa</ns:sourceId>
           <ns:success>T</ns:success>
         </ns:wsSubjects>
         <ns:wsSubjects xsi:type="ns:WsSubject">
-          <ns:attributeValues xsi:nil="true" />
-          <ns:id>test.subject.1</ns:id>
-          <ns:identifierLookup xsi:nil="true" />
-          <ns:name xsi:nil="true" />
-          <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:sourceId>jdbc</ns:sourceId>
-          <ns:success>T</ns:success>
-        </ns:wsSubjects>
-        <ns:wsSubjects xsi:type="ns:WsSubject">
-          <ns:attributeValues xsi:nil="true" />
+          <ns:attributeValues xsi:nil="true"/>
           <ns:id>10021368</ns:id>
-          <ns:identifierLookup xsi:nil="true" />
-          <ns:name xsi:nil="true" />
+          <ns:identifierLookup xsi:nil="true"/>
+          <ns:name xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:sourceId>jdbc</ns:sourceId>
           <ns:success>T</ns:success>
         </ns:wsSubjects>
         <ns:wsSubjects xsi:type="ns:WsSubject">
-          <ns:attributeValues xsi:nil="true" />
+          <ns:attributeValues xsi:nil="true"/>
           <ns:id>10039438</ns:id>
-          <ns:identifierLookup xsi:nil="true" />
-          <ns:name xsi:nil="true" />
+          <ns:identifierLookup xsi:nil="true"/>
+          <ns:name xsi:nil="true"/>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>jdbc</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubjects>
+        <ns:wsSubjects xsi:type="ns:WsSubject">
+          <ns:attributeValues xsi:nil="true"/>
+          <ns:id>test.subject.1</ns:id>
+          <ns:identifierLookup xsi:nil="true"/>
+          <ns:name xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:sourceId>jdbc</ns:sourceId>
           <ns:success>T</ns:success>
@@ -188,9 +194,9 @@ import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSe
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedUtils;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.GetMembersLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetMembersLiteResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetMembersLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetMembersLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject;
 
 
 /**
@@ -280,16 +286,16 @@ public class WsSampleGetMembersLite implements WsSampleGenerated {
 
 
 WsGetMembersLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@41654e8,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@7433a5a4,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@62578302,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@4c3fee46,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup@4760b994,localWsGroupTracker=true,
-  localWsSubjects={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@18109189,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@29beb09a,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@6bd01020,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@22da7afa},localWsSubjectsTracker=true]
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroup@21d1170b,localWsGroupTracker=true,
+  localWsSubjects={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject@4cbe43d0,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject@4098b3f7,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject@69d89da0,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject@101cf2e4},localWsSubjectsTracker=true]
 WsSubject[
   localAttributeValues={<null>},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localNameTracker=false,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
-WsSubject[
-  localAttributeValues={<null>},localAttributeValuesTracker=true,localId=test.subject.1,localIdTracker=true,localIdentifierLookupTracker=false,localNameTracker=false,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
   localAttributeValues={<null>},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localNameTracker=false,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
   localAttributeValues={<null>},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localNameTracker=false,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+WsSubject[
+  localAttributeValues={<null>},localAttributeValuesTracker=true,localId=test.subject.1,localIdTracker=true,localIdentifierLookupTracker=false,localNameTracker=false,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]

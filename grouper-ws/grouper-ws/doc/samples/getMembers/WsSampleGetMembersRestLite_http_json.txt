@@ -25,62 +25,66 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=0819F400EFD35B1EA9BA60C48F54017A;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1119
-Date: Mon, 06 Aug 2018 16:41:15 GMT
+Content-Length: 1317
+Date: Tue, 31 Mar 2020 20:38:40 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetMembersLiteResult":{
+    "responseMetadata":{
+      "millis":"15",
+      "serverVersion":"2.5.0"
+    },
     "resultMetadata":{
-      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: null\n, paramNames: \n, params: null\n, sourceIds: null\n, pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending: null"
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: null\n, paramNames: \n, params: null\n, sourceIds: null\n, pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending: null",
+      "success":"T"
     },
     "wsGroup":{
-      "displayExtension":"a group",
-      "extension":"aGroup",
-      "displayName":"a stem:a group",
-      "name":"aStem:aGroup",
       "description":"a group description",
+      "displayExtension":"a group",
+      "displayName":"a stem:a group",
+      "enabled":"T",
+      "extension":"aGroup",
+      "idIndex":"10009",
+      "name":"aStem:aGroup",
       "typeOfGroup":"group",
-      "idIndex":"10005",
-      "uuid":"03aae7141082467eaaa866e6c6edfda5"
-    },
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"13"
+      "uuid":"32ca90db41b04a1a9611a214a20bac42"
     },
     "wsSubjects":[
       {
+        "id":"GrouperSystem",
+        "memberId":"641385a43fc24d2bb97a29c9fad0c41c",
+        "resultCode":"SUCCESS",
         "sourceId":"g:isa",
-        "success":"T",
-        "resultCode":"SUCCESS",
-        "id":"GrouperSystem"
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"10021368",
+        "memberId":"b2a0cd2e12b644e6b678da66c7f06cd8",
         "resultCode":"SUCCESS",
-        "id":"test.subject.1"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"10039438",
+        "memberId":"9dea4c740b3a4eabafe913e3037b101d",
         "resultCode":"SUCCESS",
-        "id":"10021368"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.1",
+        "memberId":"cabdeec9815e4026823943e7d30bebfd",
         "resultCode":"SUCCESS",
-        "id":"10039438"
+        "sourceId":"jdbc",
+        "success":"T"
       }
     ]
   }

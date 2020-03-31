@@ -9,18 +9,19 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_5 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:assignGrouperPrivileges"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-4c0
+4d0
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns1:assignGrouperPrivileges xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns1:assignGrouperPrivileges xmlns:ns1="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:wsSubjectLookups>
         <ns1:subjectId>test.subject.0</ns1:subjectId>
@@ -35,7 +36,7 @@ Transfer-Encoding: chunked
       <ns1:wsGroupLookup>
         <ns1:groupName>aStem:aGroup</ns1:groupName>
       </ns1:wsGroupLookup>
-      <ns1:wsStemLookup />
+      <ns1:wsStemLookup/>
       <ns1:privilegeType>access</ns1:privilegeType>
       <ns1:privilegeNames>read</ns1:privilegeNames>
       <ns1:privilegeNames>update</ns1:privilegeNames>
@@ -61,29 +62,31 @@ Transfer-Encoding: chunked
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=07056C45FA61631F70ABCC3799B30CDC;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignGrouperPrivilegesResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:35:55 GMT
+Date: Tue, 31 Mar 2020 20:18:25 GMT
+Server: Apache TomEE
 
-129f
+12f9
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns:assignGrouperPrivilegesResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:assignGrouperPrivilegesResponse xmlns:ns="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAssignGrouperPrivilegesResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
-          <ns:millis xsi:nil="true" />
-          <ns:resultWarnings xsi:nil="true" />
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
           <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
-          <ns:params xsi:nil="true" />
+          <ns:params xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true"/>
           <ns:resultMessage>Success for: clientVersion: 2.5.0, wsSubjects: Array size: 2: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectIdentifier=,subjectSourceId=j..., group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: WsStemLookup[], privilege: ACCESS-Array size: 2: [0]: read
 [1]: update
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
@@ -91,21 +94,21 @@ Date: Mon, 06 Aug 2018 16:35:55 GMT
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:results xsi:type="ns:WsAssignGrouperPrivilegesResult">
-          <ns:allowed xsi:nil="true" />
-          <ns:params xsi:nil="true" />
+          <ns:allowed xsi:nil="true"/>
+          <ns:params xsi:nil="true"/>
           <ns:privilegeName>read</ns:privilegeName>
           <ns:privilegeType>access</ns:privilegeType>
           <ns:resultMetadata xsi:type="ns:WsResultMeta">
-            <ns:params xsi:nil="true" />
-            <ns:resultCode>SUCCESS_ALLOWED</ns:resultCode>
-            <ns:resultCode2 xsi:nil="true" />
-            <ns:resultMessage xsi:nil="true" />
+            <ns:params xsi:nil="true"/>
+            <ns:resultCode>SUCCESS_ALLOWED_ALREADY_EXISTED</ns:resultCode>
+            <ns:resultCode2 xsi:nil="true"/>
+            <ns:resultMessage xsi:nil="true"/>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsSubject xsi:type="ns:WsSubject">
-            <ns:attributeValues xsi:nil="true" />
+            <ns:attributeValues xsi:nil="true"/>
             <ns:id>test.subject.0</ns:id>
-            <ns:identifierLookup xsi:nil="true" />
+            <ns:identifierLookup xsi:nil="true"/>
             <ns:name>my name is test.subject.0</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>jdbc</ns:sourceId>
@@ -113,19 +116,19 @@ Date: Mon, 06 Aug 2018 16:35:55 GMT
           </ns:wsSubject>
         </ns:results>
         <ns:results xsi:type="ns:WsAssignGrouperPrivilegesResult">
-          <ns:allowed xsi:nil="true" />
-          <ns:params xsi:nil="true" />
+          <ns:allowed xsi:nil="true"/>
+          <ns:params xsi:nil="true"/>
           <ns:privilegeName>read</ns:privilegeName>
           <ns:privilegeType>access</ns:privilegeType>
           <ns:resultMetadata xsi:type="ns:WsResultMeta">
-            <ns:params xsi:nil="true" />
+            <ns:params xsi:nil="true"/>
             <ns:resultCode>SUCCESS_ALLOWED</ns:resultCode>
-            <ns:resultCode2 xsi:nil="true" />
-            <ns:resultMessage xsi:nil="true" />
+            <ns:resultCode2 xsi:nil="true"/>
+            <ns:resultMessage xsi:nil="true"/>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsSubject xsi:type="ns:WsSubject">
-            <ns:attributeValues xsi:nil="true" />
+            <ns:attributeValues xsi:nil="true"/>
             <ns:id>test.subject.1</ns:id>
             <ns:identifierLookup>id.test.subject.1</ns:identifierLookup>
             <ns:name>my name is test.subject.1</ns:name>
@@ -135,21 +138,21 @@ Date: Mon, 06 Aug 2018 16:35:55 GMT
           </ns:wsSubject>
         </ns:results>
         <ns:results xsi:type="ns:WsAssignGrouperPrivilegesResult">
-          <ns:allowed xsi:nil="true" />
-          <ns:params xsi:nil="true" />
+          <ns:allowed xsi:nil="true"/>
+          <ns:params xsi:nil="true"/>
           <ns:privilegeName>update</ns:privilegeName>
           <ns:privilegeType>access</ns:privilegeType>
           <ns:resultMetadata xsi:type="ns:WsResultMeta">
-            <ns:params xsi:nil="true" />
+            <ns:params xsi:nil="true"/>
             <ns:resultCode>SUCCESS_ALLOWED</ns:resultCode>
-            <ns:resultCode2 xsi:nil="true" />
-            <ns:resultMessage xsi:nil="true" />
+            <ns:resultCode2 xsi:nil="true"/>
+            <ns:resultMessage xsi:nil="true"/>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsSubject xsi:type="ns:WsSubject">
-            <ns:attributeValues xsi:nil="true" />
+            <ns:attributeValues xsi:nil="true"/>
             <ns:id>test.subject.0</ns:id>
-            <ns:identifierLookup xsi:nil="true" />
+            <ns:identifierLookup xsi:nil="true"/>
             <ns:name>my name is test.subject.0</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>jdbc</ns:sourceId>
@@ -157,19 +160,19 @@ Date: Mon, 06 Aug 2018 16:35:55 GMT
           </ns:wsSubject>
         </ns:results>
         <ns:results xsi:type="ns:WsAssignGrouperPrivilegesResult">
-          <ns:allowed xsi:nil="true" />
-          <ns:params xsi:nil="true" />
+          <ns:allowed xsi:nil="true"/>
+          <ns:params xsi:nil="true"/>
           <ns:privilegeName>update</ns:privilegeName>
           <ns:privilegeType>access</ns:privilegeType>
           <ns:resultMetadata xsi:type="ns:WsResultMeta">
-            <ns:params xsi:nil="true" />
+            <ns:params xsi:nil="true"/>
             <ns:resultCode>SUCCESS_ALLOWED</ns:resultCode>
-            <ns:resultCode2 xsi:nil="true" />
-            <ns:resultMessage xsi:nil="true" />
+            <ns:resultCode2 xsi:nil="true"/>
+            <ns:resultMessage xsi:nil="true"/>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsSubject xsi:type="ns:WsSubject">
-            <ns:attributeValues xsi:nil="true" />
+            <ns:attributeValues xsi:nil="true"/>
             <ns:id>test.subject.1</ns:id>
             <ns:identifierLookup>id.test.subject.1</ns:identifierLookup>
             <ns:name>my name is test.subject.1</ns:name>
@@ -178,20 +181,23 @@ Date: Mon, 06 Aug 2018 16:35:55 GMT
             <ns:success>T</ns:success>
           </ns:wsSubject>
         </ns:results>
-        <ns:subjectAttributeNames xsi:nil="true" />
+        <ns:subjectAttributeNames xsi:nil="true"/>
         <ns:wsGroup xsi:type="ns:WsGroup">
-          <ns:alternateName xsi:nil="true" />
+          <ns:alternateName xsi:nil="true"/>
           <ns:description>a group description</ns:description>
-          <ns:detail xsi:nil="true" />
+          <ns:detail xsi:nil="true"/>
+          <ns:disabledTime xsi:nil="true"/>
           <ns:displayExtension>a group</ns:displayExtension>
           <ns:displayName>a stem:a group</ns:displayName>
+          <ns:enabled>T</ns:enabled>
+          <ns:enabledTime xsi:nil="true"/>
           <ns:extension>aGroup</ns:extension>
-          <ns:idIndex>10005</ns:idIndex>
+          <ns:idIndex>10009</ns:idIndex>
           <ns:name>aStem:aGroup</ns:name>
           <ns:typeOfGroup>group</ns:typeOfGroup>
-          <ns:uuid>03aae7141082467eaaa866e6c6edfda5</ns:uuid>
+          <ns:uuid>32ca90db41b04a1a9611a214a20bac42</ns:uuid>
         </ns:wsGroup>
-        <ns:wsStem xsi:nil="true" />
+        <ns:wsStem xsi:nil="true"/>
       </ns:return>
     </ns:assignGrouperPrivilegesResponse>
   </soapenv:Body>
@@ -241,13 +247,13 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AssignGrouperPrivileges;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.AssignGrouperPrivileges;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup;
 
 /**
  *
@@ -374,21 +380,21 @@ public class WsSampleAssignGrouperPrivileges implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResults@22b43030[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@61eb38b0
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResults@7c81d13a[
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@2a5c3f1e
   localResponseMetadataTracker=true
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@5881294b
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@7a1238e1
   localResultMetadataTracker=true
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult@7204a392,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult@4a122bda,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult@1b8888a2,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult@7de76d77}
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult@6d9fcc12,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult@2670aa70,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult@4dce4b6f,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult@41bb0a0}
   localResultsTracker=true
   localSubjectAttributeNames={<null>}
   localSubjectAttributeNamesTracker=true
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup@713feb0e
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGroup@34f708d9
   localWsGroupTracker=true
   localWsStem=<null>
   localWsStemTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@5881294b[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@7a1238e1[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS
@@ -403,7 +409,7 @@ edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@5881294b[
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult@7204a392[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult@6d9fcc12[
   localAllowed=<null>
   localAllowedTracker=false
   localParams={<null>}
@@ -412,15 +418,15 @@ edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResul
   localPrivilegeNameTracker=true
   localPrivilegeType=access
   localPrivilegeTypeTracker=true
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@4d6b6368
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@71e4e487
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@1a3822ed
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject@171f17c0
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@4d6b6368[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@71e4e487[
   localParams={<null>}
   localParamsTracker=true
-  localResultCode=SUCCESS_ALLOWED
+  localResultCode=SUCCESS_ALLOWED_ALREADY_EXISTED
   localResultCodeTracker=true
   localResultCode2=<null>
   localResultCode2Tracker=false
@@ -429,7 +435,7 @@ edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@4d6b6368[
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult@4a122bda[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult@2670aa70[
   localAllowed=<null>
   localAllowedTracker=false
   localParams={<null>}
@@ -438,12 +444,12 @@ edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResul
   localPrivilegeNameTracker=true
   localPrivilegeType=access
   localPrivilegeTypeTracker=true
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@4d9257e6
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@761783bf
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@16e63bf3
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject@19592baa
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@4d9257e6[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@761783bf[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS_ALLOWED
@@ -455,7 +461,7 @@ edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@4d9257e6[
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult@1b8888a2[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult@4dce4b6f[
   localAllowed=<null>
   localAllowedTracker=false
   localParams={<null>}
@@ -464,12 +470,12 @@ edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResul
   localPrivilegeNameTracker=true
   localPrivilegeType=access
   localPrivilegeTypeTracker=true
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@e86e8b0
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@2f9d8cc3
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@29986330
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject@7f49f6e1
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@e86e8b0[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@2f9d8cc3[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS_ALLOWED
@@ -481,7 +487,7 @@ edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@e86e8b0[
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult@7de76d77[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAssignGrouperPrivilegesResult@41bb0a0[
   localAllowed=<null>
   localAllowedTracker=false
   localParams={<null>}
@@ -490,12 +496,12 @@ edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResul
   localPrivilegeNameTracker=true
   localPrivilegeType=access
   localPrivilegeTypeTracker=true
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@67a05eff
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@75f3e52
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@d4b20d8
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubject@37113ea6
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@67a05eff[
+edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@75f3e52[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS_ALLOWED

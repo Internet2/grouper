@@ -47,21 +47,26 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=7C7C41890CA938946FD346C7ADE6E5D8;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 671
-Date: Mon, 06 Aug 2018 16:42:11 GMT
+Content-Length: 672
+Date: Tue, 31 Mar 2020 20:41:55 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetSubjectsResults":{
+    "responseMetadata":{
+      "millis":"11",
+      "serverVersion":"2.5.0"
+    },
     "resultMetadata":{
-      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Queried 2 subjects"
+      "resultMessage":"Queried 2 subjects",
+      "success":"T"
     },
     "subjectAttributeNames":[
       "description",
@@ -69,36 +74,32 @@ Connection: close
       "name"
     ]
     ,
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"5"
-    },
     "wsSubjects":[
       {
-        "sourceId":"jdbc",
-        "success":"T",
         "attributeValues":[
           "description.test.subject.0",
           "id.test.subject.0",
           "my name is test.subject.0"
         ]
         ,
+        "id":"test.subject.0",
         "name":"my name is test.subject.0",
         "resultCode":"SUCCESS",
-        "id":"test.subject.0"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
         "attributeValues":[
           "description.test.subject.1",
           "id.test.subject.1",
           "my name is test.subject.1"
         ]
         ,
+        "id":"test.subject.1",
         "name":"my name is test.subject.1",
         "resultCode":"SUCCESS",
-        "id":"test.subject.1"
+        "sourceId":"jdbc",
+        "success":"T"
       }
     ]
   }

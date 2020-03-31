@@ -34,14 +34,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=BF3851F4BE0AB1A639B8F902713D4EA9;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:09 GMT
+Date: Tue, 31 Mar 2020 20:23:33 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsAttributeDefNameSaveLiteResult>
@@ -56,20 +57,20 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>24</millis>
+    <millis>114</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
   <wsAttributeDefName>
-    <idIndex>10215</idIndex>
+    <idIndex>10310</idIndex>
     <extension>testAttributeAssignDefNameToSave1RestLite_xml</extension>
     <displayExtension>My new attribute def name to save 1 rest lite xml</displayExtension>
     <description>This is a description 1 rest lite xml</description>
     <displayName>test:My new attribute def name to save 1 rest lite xml</displayName>
     <name>test:testAttributeAssignDefNameToSave1RestLite_xml</name>
-    <uuid>d
-e6
-9f4f3d4e2914ec09e43656c8cecdd8c</uuid>
-    <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+    <uuid>
+e7
+4793a53ec8e047368253c5ab080df07d</uuid>
+    <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
     <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
   </wsAttributeDefName>
 </WsAttributeDefNameSaveLiteResult>

@@ -31,44 +31,45 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=AA60AAE56C4AB7A5497088A8469105F2;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:42:25 GMT
+Date: Tue, 31 Mar 2020 20:42:13 GMT
 Connection: close
+Server: Apache TomEE
 
-3ff
+3f8
 <WsGetSubjectsResults>
   <wsSubjects>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>1283a3268f654f5e95942676fa6d242f</id>
-      <name>test:groupTestAttrAssign</name>
+      <id>4431f675c7d04659b7efffa19410b699</id>
+      <name>test:group113</name>
       <sourceId>g:gsa</sourceId>
     </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>4f7f93403b53451bbcddeb9a92b27acc</id>
-      <name>aStem:test</name>
+      <id>6488e4e9d11d405598a420954c86fabf</id>
+      <name>test:testGroup</name>
       <sourceId>g:gsa</sourceId>
     </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>a048d305d72744e7acba0e4172ad7921</id>
+      <id>86bb7ecba7bc42178f3ddd110cde25e9</id>
       <name>test:groupTestAttrAssign2</name>
       <sourceId>g:gsa</sourceId>
     </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>f651723de0f549ed97906e28df006ced</id>
-      <name>test:testGroup</name>
+      <id>9c4860dce6a843e18c3de2ef3208082f</id>
+      <name>test:groupTestAttrAssign</name>
       <sourceId>g:gsa</sourceId>
     </WsSubject>
     <WsSubject>
@@ -83,9 +84,10 @@ Connection: close
       <success>T</success>
       <id>test.subject.1</id>
       <name>my name is test.subject.1</name>
-      <sourceId>j
-3fe
-dbc</sourceId>
+      <
+3f6
+sourceId>
+      </sourceId>
     </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
@@ -130,9 +132,10 @@ dbc</sourceId>
       <sourceId>jdbc</sourceId>
     </WsSubject>
     <WsSubject>
-      <resultCode>SUCCESS
-24b
-</resultCode>
+      <
+25d
+resultCode>
+      </resultCode>
       <success>T</success>
       <id>test.subject.8</id>
       <name>my name is test.subject.8</name>
@@ -153,7 +156,7 @@ dbc</sourceId>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>5</millis>
+    <millis>6</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsGetSubjectsResults>

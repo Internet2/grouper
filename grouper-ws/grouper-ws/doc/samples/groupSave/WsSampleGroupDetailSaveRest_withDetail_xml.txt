@@ -93,16 +93,17 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=99AB296BDA7493234B4ED0D9719C6510;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 15:24:33 GMT
+Date: Tue, 31 Mar 2020 20:45:31 GMT
 Connection: close
+Server: Apache TomEE
 
-3ff
+3f8
 <WsGroupSaveResults>
   <results>
     <WsGroupSaveResult>
@@ -113,8 +114,9 @@ Connection: close
         <description>whateverGroupLeftDesc</description>
         <displayName>a stem:whateverGroupLeftDispExt</displayName>
         <name>aStem:whateverGroupLeft</name>
-        <uuid>0002fcb01ed14407ba7dd3db1f84ae03</uuid>
-        <idIndex>10051</idIndex>
+        <uuid>4cfe65e32086496e8e37991038184c0c</uuid>
+        <idIndex>10048</idIndex>
+        <enabled>T</enabled>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_NO_CHANGES_NEEDED</resultCode>
@@ -129,15 +131,17 @@ Connection: close
         <description>whateverGroupRightDesc</description>
         <displayName>a stem:whateverGroupRightDispExt</displayName>
         <name>aStem:whateverGroupRight</name>
-        <uuid>104d12e7140b481fb03bca2d997b7acf</uuid>
-        <idIndex>10052</idIndex>
+        <uuid>e86908fb5e69416280e59c7799c17573</uuid>
+        <idIndex>10049</idIndex>
+        <enabled>T</enabled>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS_NO_CHANGES_NEEDED</resultCode>
+        <resultCode>
+        </
+3ff
+resultCode>
         <success>T</success>
-      </resultMetadata
-3f5
->
+      </resultMetadata>
     </WsGroupSaveResult>
     <WsGroupSaveResult>
       <wsGroup>
@@ -147,8 +151,9 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>0b957bb1336e4a9a87e1557d67c0fa15</uuid>
-        <idIndex>10038</idIndex>
+        <uuid>09b488181c7d42ba9eb880fd7ad698d3</uuid>
+        <idIndex>10050</idIndex>
+        <enabled>T</enabled>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_NO_CHANGES_NEEDED</resultCode>
@@ -167,11 +172,9 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>77</millis>
+    <millis>154</millis>
     <serverVersion>2.5.0</serverVersion>
-  </
-26
-responseMetadata>
+  </responseMetadata>
 </WsGroupSaveResults>
 0
 

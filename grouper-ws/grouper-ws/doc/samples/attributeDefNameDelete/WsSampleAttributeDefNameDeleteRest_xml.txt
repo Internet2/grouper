@@ -41,14 +41,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=9F5C18540CD4967A56AAF2FCA42E9C34;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:46 GMT
+Date: Tue, 31 Mar 2020 20:22:21 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsAttributeDefNameDeleteResults>
@@ -74,7 +75,7 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]&apos;.  </resultMessage
         <resultCode>SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND</resultCode>
         <resultMessage>Cant find attributeDefName: &apos;WsAttributeDefNameLookup[name=test:testAttributeAssignDefNameToDeleteRest2_xml,
 attributeDefNa
-2f5
+2f6
 meFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
       </resultMetadata>
@@ -91,7 +92,7 @@ meFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]&apos;.  </resultMessage>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>7</millis>
+    <millis>29</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefNameDeleteResults>

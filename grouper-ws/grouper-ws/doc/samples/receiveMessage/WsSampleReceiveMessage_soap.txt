@@ -9,18 +9,19 @@ Grouper web service sample of service: receiveMessage, WsSampleReceiveMessage, c
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_5 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:receiveMessage"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-2b3
+2c4
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns1:receiveMessage xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns1:receiveMessage xmlns:ns1="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:queueOrTopicName>def</ns1:queueOrTopicName>
       <ns1:messageSystemName></ns1:messageSystemName>
@@ -46,36 +47,38 @@ Transfer-Encoding: chunked
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=28F417108063B51BCB6D614F551E90AA;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:receiveMessageResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 07 Aug 2018 17:24:36 GMT
+Date: Tue, 31 Mar 2020 23:24:20 GMT
+Server: Apache TomEE
 
-46b
+478
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns:receiveMessageResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:receiveMessageResponse xmlns:ns="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsMessageResults">
         <ns:messageSystemName></ns:messageSystemName>
         <ns:messages xsi:type="ns:WsMessage">
-          <ns:fromMemberId>956e5a4fd1d8436198fa3f17af0b0298</ns:fromMemberId>
-          <ns:id>33d0d1fa236c4637811d5036d787c0e5</ns:id>
+          <ns:fromMemberId>641385a43fc24d2bb97a29c9fad0c41c</ns:fromMemberId>
+          <ns:id>431dd09d3bc7405c9844bbe60ea959c9</ns:id>
           <ns:messageBody>message body</ns:messageBody>
         </ns:messages>
         <ns:queueOrTopicName>def</ns:queueOrTopicName>
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
-          <ns:millis xsi:nil="true" />
-          <ns:resultWarnings xsi:nil="true" />
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
           <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
-          <ns:params xsi:nil="true" />
+          <ns:params xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true"/>
           <ns:resultMessage>1 messages were received from def</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -120,15 +123,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.ReceiveMessage;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessage;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessageResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.ReceiveMessage;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsMessage;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsMessageResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
@@ -157,6 +162,7 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
      */
   public static void receiveMessage(WsSampleGeneratedType wsSampleGeneratedType) {
     try {
+      
       //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
       GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
       Options options = stub._getServiceClient().getOptions();
@@ -170,13 +176,18 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
       options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
           new Integer(3600000));
 
-      GrouperSession.startRootSession();
       
-      GrouperSession.start(SubjectFinder.findById("test.subject.0", true));
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          GrouperBuiltinMessagingSystem.allowSendToQueue("def", grouperSession.getSubject());
+          GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("def")
+              .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+          return null;
+        }
+      });
       
-      GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("def")
-          .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
-
       ReceiveMessage receiveMessage = ReceiveMessage.class.newInstance();
 
       //version, e.g. v1_3_000
@@ -227,7 +238,7 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
 
 
 WsMessageResults[localMessageSystemName=,localMessageSystemNameTracker=true,
-  localMessages={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessage@6c1b82cd},localMessagesTracker=true,localQueueOrTopicName=def,localQueueOrTopicNameTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@acd3460,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@3ea9a091,localResultMetadataTracker=true]
-WsMessage[localFromMemberId=956e5a4fd1d8436198fa3f17af0b0298,localFromMemberIdTracker=true,localId=33d0d1fa236c4637811d5036d787c0e5,localIdTracker=true,localMessageBody=message body,localMessageBodyTracker=true]
+  localMessages={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsMessage@69af938b},localMessagesTracker=true,localQueueOrTopicName=def,localQueueOrTopicNameTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@4cb87009,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@52518ee1,localResultMetadataTracker=true]
+WsMessage[localFromMemberId=641385a43fc24d2bb97a29c9fad0c41c,localFromMemberIdTracker=true,localId=431dd09d3bc7405c9844bbe60ea959c9,localIdTracker=true,localMessageBody=message body,localMessageBodyTracker=true]

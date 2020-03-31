@@ -9,7 +9,7 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-GET /grouper-ws/servicesRest/xhtml/v2_5_000/groups/aStem%3AaGroup/memberships HTTP/1.1
+GET /grouper-ws/servicesRest/xhtml/v2_5_000/groups/test%3AtestGroup/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -25,18 +25,17 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=26319E10958DF4E1BA5BA6BC37E099B6;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:41:37 GMT
+Date: Tue, 31 Mar 2020 20:39:50 GMT
 Connection: close
+Server: Apache TomEE
 
-135c
+8b4
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -46,141 +45,61 @@ Connection: close
   <body>
     <div title="WsGetMembershipsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">21</p>
-        <p class="resultWarnings" />
+        <p class="millis">46</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">Found 4 results involving 1 groups and 4 subjects</p>
+        <p class="resultCode2"/>
+        <p class="resultMessage">Found 1 results involving 1 groups and 1 subjects</p>
         <p class="success">T</p>
       </div>
       <ul class="wsGroups">
         <li title="WsGroup">
-          <p class="alternateName" />
-          <p class="description">a group description</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="displayExtension">a group</p>
-          <p class="displayName">a stem:a group</p>
-          <p class="extension">aGroup</p>
-          <p class="idIndex">10005</p>
-          <p class="name">aStem:aGroup</p>
+          <p class="alternateName"/>
+          <p class="description"/>
+          <div class="detail" title="WsGroupDetail"/>
+          <p class="disabledTime"/>
+          <p class="displayExtension">testGroup</p>
+          <p class="displayName">test:testGroup</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime"/>
+          <p class="extension">testGroup</p>
+          <p class="idIndex">10031</p>
+          <p class="name">test:testGroup</p>
           <p class="typeOfGroup">group</p>
-          <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
+          <p class="uuid">6488e4e9d11d405598a420954c86fabf</p>
         </li>
       </ul>
       <ul class="wsMemberships">
         <li title="WsMembership">
-          <p class="createTime">2018/08/06 11:04:00.594</p>
-          <p class="disabledTime" />
+          <p class="createTime">2020/03/31 13:12:53.816</p>
+          <p class="disabledTime"/>
           <p class="enabled">T</p>
-          <p class="enabledTime" />
-          <p class="groupId">03aae7141082467eaaa866e6c6edfda5</p>
-          <p class="groupName">aStem:aGroup</p>
-          <p class="immediateMembershipId">b203136cf0c845359e49de75093aa74d</p>
+          <p class="enabledTime"/>
+          <p class="groupId">6488e4e9d11d405598a420954c86fabf</p>
+          <p class="groupName">test:testGroup</p>
+          <p class="immediateMembershipId">7d62afc8800e499185023303dfb292c0</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
-          <p class="memberId">181714d1c2464dcdb3b8e4c4bca590ae</p>
-          <p class="membershipId">b203136cf0c845359e49de75093aa74d:86f7a1fbdd5a48ac8653c7affd20c712</p>
+          <p class="memberId">bef6a528fd9143059d1220cf0dc58c04</p>
+          <p class="membershipId">7d62afc8800e499185023303dfb292c0:b2d4ec5c9af547949eef3d57a5a31088</p>
           <p class="membershipType">immediate</p>
-          <p class="ownerIdOfAttributeDef" />
-          <p class="ownerNameOfAttributeDef" />
-          <p class="ownerStemId" />
-          <p class="ownerStemName" />
-          <p class="subjectId">GrouperSystem</p>
-          <p class="subjectSourceId">g:isa</p>
-        </li>
-        <li title="WsMembership">
-          <p class="createTime">2018/08/06 12:37:40.392</p>
-          <p class="disabledTime" />
-          <p class="enabled">T</p>
-          <p class="enabledTime" />
-          <p class="groupId">03aae7141082467eaaa866e6c6edfda5</p>
-          <p class="groupName">aStem:aGroup</p>
-          <p class="immediateMembershipId">c063e7ebe5284fde956d0f53e1d47fbb</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="memberId">8ba2b7659552439c98a8e71e59b36f63</p>
-          <p class="membershipId">c063e7ebe5284fde956d0f53e1d47fbb:86f7a1fbdd5a48ac8653c7affd20c712</p>
-          <p class="membershipType">immediate</p>
-          <p class="ownerIdOfAttributeDef" />
-          <p class="ownerNameOfAttributeDef" />
-          <p class="ownerStemId" />
-          <p class="ownerStemName" />
-          <p class="subjectId">10021368</p>
-          <p class="subjectSourceId">jdbc</p>
-        </li>
-        <li title="WsMembership">
-          <p class="createTime">2018/08/06 12:37:33.628</p>
-          <p class="disabledTime" />
-          <p class="enabled">T</p>
-          <p class="enabledTime" />
-          <p class="groupId">03aae7141082467eaaa866e6c6edfda5</p>
-          <p class="groupName">aStem:aGroup</p>
-          <p class="immediateMembershipId">61dfb849be444fc7b15500d437148cf0</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="memberId">df781653f8ba492ab90bff498a75bce2</p>
-          <p class="membershipId">61dfb849be444fc7b15500d437148cf0:86f7a1fbdd5a48ac8653c7affd20c712</p>
-          <p class="membershipType">immediate</p>
-          <p class="ownerIdOfAttributeDef" />
-          <p class="ownerNameOfAttributeDef" />
-          <p class="ownerStemId" />
-          <p class="ownerStemName" />
-          <p class="subjectId">10039438</p>
-          <p class="subjectSourceId">jdbc</p>
-        </li>
-        <li title="WsMembership">
-          <p class="createTime">2018/08/06 11:30:16.182</p>
-          <p class="disabledTime" />
-          <p class="enabled">T</p>
-          <p class="enabledTime" />
-          <p class="groupId">03aae7141082467eaaa866e6c6edfda5</p>
-          <p class="groupName">aStem:aGroup</p>
-          <p class="immediateMembershipId">efc96a40479a4e0a8994027f9d814254</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="memberId">687f0cd196ce486e830891ffc185e3f2</p>
-          <p class="membershipId">efc96a40479a4e0a8994027f9d814254:86f7a1fbdd5a48ac8653c7affd20c712</p>
-          <p class="membershipType">immediate</p>
-          <p class="ownerIdOfAttributeDef" />
-          <p class="ownerNameOfAttributeDef" />
-          <p class="ownerStemId" />
-          <p class="ownerStemName" />
-          <p class="subjectId">test.subject.1</p>
+          <p class="ownerIdOfAttributeDef"/>
+          <p class="ownerNameOfAttributeDef"/>
+          <p class="ownerStemId"/>
+          <p class="ownerStemName"/>
+          <p class="subjectId">test.subject.0</p>
           <p class="subjectSourceId">jdbc</p>
         </li>
       </ul>
       <ul class="wsSubjects">
         <li title="WsSubject">
-          <p class="id">GrouperSystem</p>
-          <p class="identifierLookup" />
-          <p class="name" />
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">g:isa</p>
-          <p class="success">T</p>
-        </li>
-        <li title="WsSubject">
-          <p class="id">10021368</p>
-          <p class="identifierLookup" />
-          <p class="name" />
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
-        </li>
-        <li title="WsSubject">
-          <p class="id">10039438</p>
-          <p class="identifierLookup" />
-          <p class="name" />
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
-        </li>
-        <li title="WsSubject">
-          <p class="id">test.subject.1</p>
-          <p class="identifierLookup" />
-          <p class="name" />
+          <p class="id">test.subject.0</p>
+          <p class="identifierLookup"/>
+          <p class="memberId">bef6a528fd9143059d1220cf0dc58c04</p>
+          <p class="name"/>
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
           <p class="success">T</p>
@@ -244,7 +163,6 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
    * get members lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  @SuppressWarnings("deprecation")
   public static void getMembershipsLite(WsSampleRestType wsSampleRestType) {
 
     try {
@@ -258,7 +176,7 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
       GetMethod method = new GetMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/memberships");
+            + "/groups/test%3AtestGroup/memberships");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -337,4 +255,4 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Found 4 results involving 1 groups and 4 subjects
+Server version: 2.5.0, result code: SUCCESS, result message: Found 1 results involving 1 groups and 1 subjects

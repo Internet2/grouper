@@ -28,57 +28,60 @@ wsLiteObjectType=WsRestGetGrouperPrivilegesLiteRequest&actAsSubjectId=GrouperSys
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=87E321133EA2C1429F85D1496A08490F;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 743
-Date: Mon, 06 Aug 2018 16:40:23 GMT
+Content-Length: 757
+Date: Tue, 31 Mar 2020 20:35:24 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetGrouperPrivilegesLiteResult":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS"
-    },
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"47"
-    },
     "privilegeResults":[
       {
+        "allowed":"T",
+        "ownerSubject":{
+          "id":"test.subject.9",
+          "name":"my name is test.subject.9",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        },
+        "privilegeName":"admin",
+        "privilegeType":"access",
         "revokable":"T",
         "wsGroup":{
-          "displayExtension":"a group",
-          "extension":"aGroup",
-          "displayName":"a stem:a group",
-          "name":"aStem:aGroup",
           "description":"a group description",
+          "displayExtension":"a group",
+          "displayName":"a stem:a group",
+          "enabled":"T",
+          "extension":"aGroup",
+          "idIndex":"10009",
+          "name":"aStem:aGroup",
           "typeOfGroup":"group",
-          "idIndex":"10005",
-          "uuid":"03aae7141082467eaaa866e6c6edfda5"
+          "uuid":"32ca90db41b04a1a9611a214a20bac42"
         },
-        "ownerSubject":{
-          "sourceId":"jdbc",
-          "success":"T",
-          "name":"my name is test.subject.9",
-          "resultCode":"SUCCESS",
-          "id":"test.subject.9"
-        },
-        "allowed":"T",
         "wsSubject":{
-          "sourceId":"jdbc",
-          "success":"T",
+          "id":"test.subject.9",
           "name":"my name is test.subject.9",
           "resultCode":"SUCCESS",
-          "id":"test.subject.9"
-        },
-        "privilegeType":"access",
-        "privilegeName":"admin"
+          "sourceId":"jdbc",
+          "success":"T"
+        }
       }
     ]
+    ,
+    "responseMetadata":{
+      "millis":"18",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "success":"T"
+    }
   }
 }
 
@@ -290,4 +293,4 @@ Server version: 2.5.0, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=500],
   privilegeResults={subject: jdbc - test.subject.9, ownerSubject: jdbc - test.subject.9, admin, group: aStem:aGroup, },
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=47,millisStart=0,serverVersion=2.5.0]]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=18,millisStart=0,serverVersion=2.5.0]]

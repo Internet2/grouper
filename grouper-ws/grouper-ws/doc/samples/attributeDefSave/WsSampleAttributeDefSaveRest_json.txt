@@ -84,84 +84,85 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=E6510A28C5A9D18387DFDE882D9840EC;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
 Content-Length: 2011
-Date: Mon, 06 Aug 2018 16:37:12 GMT
+Date: Tue, 31 Mar 2020 20:23:40 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsAttributeDefSaveResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[\n  wsAttributeDef=WsAttributeDef[description=This is a description1 rest json,name=test1:testAttributeDef_json,attributeDefType=attr,multiAssignable=F,multi...\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null"
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"109"
+      "millis":"733",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[\n  wsAttributeDef=WsAttributeDef[description=This is a description1 rest json,name=test1:testAttributeDef_json,attributeDefType=attr,multiAssignable=F,multi...\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
+      "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS_INSERTED"
+          "resultCode":"SUCCESS_INSERTED",
+          "success":"T"
         },
         "wsAttributeDef":{
-          "attributeDefType":"attr",
           "assignToAttributeDef":"F",
-          "assignToStemAssignment":"F",
-          "extension":"testAttributeDef_json",
-          "description":"This is a description1 rest json",
-          "assignToMemberAssignment":"F",
-          "assignToEffectiveMembership":"F",
-          "uuid":"ff8cb666bf2548ec80e7594b265242c1",
-          "assignToImmediateMembershipAssignment":"F",
-          "assignToEffectiveMembershipAssignment":"F",
-          "assignToStem":"F",
-          "assignToGroupAssignment":"F",
-          "assignToMember":"F",
-          "multiAssignable":"F",
-          "valueType":"string",
-          "name":"test1:testAttributeDef_json",
           "assignToAttributeDefAssignment":"F",
-          "idIndex":"10071",
-          "multiValued":"F",
+          "assignToEffectiveMembership":"F",
+          "assignToEffectiveMembershipAssignment":"F",
           "assignToGroup":"F",
-          "assignToImmediateMembership":"F"
+          "assignToGroupAssignment":"F",
+          "assignToImmediateMembership":"F",
+          "assignToImmediateMembershipAssignment":"F",
+          "assignToMember":"F",
+          "assignToMemberAssignment":"F",
+          "assignToStem":"F",
+          "assignToStemAssignment":"F",
+          "attributeDefType":"attr",
+          "description":"This is a description1 rest json",
+          "extension":"testAttributeDef_json",
+          "idIndex":"10098",
+          "multiAssignable":"F",
+          "multiValued":"F",
+          "name":"test1:testAttributeDef_json",
+          "uuid":"2b9d4c8be62c4e4fa7c41b9c1c0f8a6c",
+          "valueType":"string"
         }
         
       },
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS_INSERTED"
+          "resultCode":"SUCCESS_INSERTED",
+          "success":"T"
         },
         "wsAttributeDef":{
-          "attributeDefType":"attr",
           "assignToAttributeDef":"F",
-          "assignToStemAssignment":"F",
-          "extension":"testAttributDef2ToSave1Rest_json",
-          "description":"This is a description2 rest json",
-          "assignToMemberAssignment":"F",
-          "assignToEffectiveMembership":"F",
-          "uuid":"7000d332a52b4f65bd76c9c1d0f10a38",
-          "assignToImmediateMembershipAssignment":"F",
-          "assignToEffectiveMembershipAssignment":"F",
-          "assignToStem":"F",
-          "assignToGroupAssignment":"F",
-          "assignToMember":"F",
-          "multiAssignable":"F",
-          "valueType":"string",
-          "name":"test1:testAttributDef2ToSave1Rest_json",
           "assignToAttributeDefAssignment":"F",
-          "idIndex":"10072",
-          "multiValued":"F",
+          "assignToEffectiveMembership":"F",
+          "assignToEffectiveMembershipAssignment":"F",
           "assignToGroup":"F",
-          "assignToImmediateMembership":"F"
+          "assignToGroupAssignment":"F",
+          "assignToImmediateMembership":"F",
+          "assignToImmediateMembershipAssignment":"F",
+          "assignToMember":"F",
+          "assignToMemberAssignment":"F",
+          "assignToStem":"F",
+          "assignToStemAssignment":"F",
+          "attributeDefType":"attr",
+          "description":"This is a description2 rest json",
+          "extension":"testAttributDef2ToSave1Rest_json",
+          "idIndex":"10099",
+          "multiAssignable":"F",
+          "multiValued":"F",
+          "name":"test1:testAttributDef2ToSave1Rest_json",
+          "uuid":"338ef6b67364420a8686b53b39a914ba",
+          "valueType":"string"
         }
       }
     ]

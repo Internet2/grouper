@@ -9,28 +9,29 @@ Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAtt
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_5 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getAttributeAssignActions"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-2c5
+2d4
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns1:getAttributeAssignActions xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns1:getAttributeAssignActions xmlns:ns1="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns1:clientVersion>v2_5_000</ns1:clientVersion>
       <ns1:wsAttributeDefLookups>
         <ns1:name>aStem:permissionDef</ns1:name>
         <ns1:uuid></ns1:uuid>
       </ns1:wsAttributeDefLookups>
-      <ns1:actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1"/>
       <ns1:actAsSubjectLookup>
         <ns1:subjectId>GrouperSystem</ns1:subjectId>
       </ns1:actAsSubjectLookup>
-      <ns1:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1"/>
     </ns1:getAttributeAssignActions>
   </soapenv:Body>
 </soapenv:Envelope>
@@ -46,57 +47,59 @@ Transfer-Encoding: chunked
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=69934BDA47ABF5FD2DC4020168BDAB32;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getAttributeAssignActionsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:39:59 GMT
+Date: Tue, 31 Mar 2020 20:33:52 GMT
+Server: Apache TomEE
 
-85f
+86a
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Header/>
   <soapenv:Body>
-    <ns:getAttributeAssignActionsResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:getAttributeAssignActionsResponse xmlns:ns="http://soap_v2_5.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetAttributeAssignActionsResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
-          <ns:millis xsi:nil="true" />
-          <ns:resultWarnings xsi:nil="true" />
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
           <ns:serverVersion>2.5.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
-          <ns:params xsi:nil="true" />
+          <ns:params xsi:nil="true"/>
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true"/>
           <ns:resultMessage>, Found 3 results.</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:wsAttributeAssignActionTuples xsi:type="ns:WsAttributeAssignActionTuple">
           <ns:action>read</ns:action>
-          <ns:attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</ns:attributeDefId>
+          <ns:attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</ns:attributeDefId>
           <ns:nameOfAttributeDef>aStem:permissionDef</ns:nameOfAttributeDef>
         </ns:wsAttributeAssignActionTuples>
         <ns:wsAttributeAssignActionTuples xsi:type="ns:WsAttributeAssignActionTuple">
           <ns:action>write</ns:action>
-          <ns:attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</ns:attributeDefId>
+          <ns:attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</ns:attributeDefId>
           <ns:nameOfAttributeDef>aStem:permissionDef</ns:nameOfAttributeDef>
         </ns:wsAttributeAssignActionTuples>
         <ns:wsAttributeAssignActionTuples xsi:type="ns:WsAttributeAssignActionTuple">
           <ns:action>assign</ns:action>
-          <ns:attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</ns:attributeDefId>
+          <ns:attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</ns:attributeDefId>
           <ns:nameOfAttributeDef>aStem:permissionDef</ns:nameOfAttributeDef>
         </ns:wsAttributeAssignActionTuples>
         <ns:wsAttributeDefs xsi:type="ns:WsAttributeDef">
-          <ns:assignableTos xsi:nil="true" />
+          <ns:assignableTos xsi:nil="true"/>
           <ns:attributeDefType>perm</ns:attributeDefType>
-          <ns:description xsi:nil="true" />
+          <ns:description xsi:nil="true"/>
           <ns:extension>permissionDef</ns:extension>
-          <ns:idIndex>10046</ns:idIndex>
+          <ns:idIndex>10085</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>F</ns:multiValued>
           <ns:name>aStem:permissionDef</ns:name>
-          <ns:uuid>4d46bcc488724fc2b3a40b0b75e14a2b</ns:uuid>
+          <ns:uuid>82bd0a56a05f45d2b49dc5956670d41f</ns:uuid>
           <ns:valueType>marker</ns:valueType>
         </ns:wsAttributeDefs>
       </ns:return>
@@ -144,12 +147,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.GetAttributeAssignActions;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetAttributeAssignActionsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.GetAttributeAssignActions;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignActionTuple;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsGetAttributeAssignActionsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsSubjectLookup;
 
 /**
  *
@@ -239,10 +242,10 @@ public class WsSampleGetAttributeAssignActions implements WsSampleGenerated {
 
 
 WsGetAttributeAssignActionsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@68d5be65,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@54d96c65,localResultMetadataTracker=true,
-  localWsAttributeAssignActionTuples={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple@23cbfe3e,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple@66a85ab4,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple@790db840},localWsAttributeAssignActionTuplesTracker=true,
-  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@768d63b9},localWsAttributeDefsTracker=true]
-WsAttributeAssignActionTuple[localAction=read,localActionTracker=true,localAttributeDefId=4d46bcc488724fc2b3a40b0b75e14a2b,localAttributeDefIdTracker=true,localNameOfAttributeDef=aStem:permissionDef,localNameOfAttributeDefTracker=true]
-WsAttributeAssignActionTuple[localAction=write,localActionTracker=true,localAttributeDefId=4d46bcc488724fc2b3a40b0b75e14a2b,localAttributeDefIdTracker=true,localNameOfAttributeDef=aStem:permissionDef,localNameOfAttributeDefTracker=true]
-WsAttributeAssignActionTuple[localAction=assign,localActionTracker=true,localAttributeDefId=4d46bcc488724fc2b3a40b0b75e14a2b,localAttributeDefIdTracker=true,localNameOfAttributeDef=aStem:permissionDef,localNameOfAttributeDefTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResponseMeta@5f9d2239,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsResultMeta@595e522f,localResultMetadataTracker=true,
+  localWsAttributeAssignActionTuples={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignActionTuple@687d5078,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignActionTuple@5e473ba4,edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeAssignActionTuple@7523c569},localWsAttributeAssignActionTuplesTracker=true,
+  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_5.xsd.WsAttributeDef@b69ffd4},localWsAttributeDefsTracker=true]
+WsAttributeAssignActionTuple[localAction=read,localActionTracker=true,localAttributeDefId=82bd0a56a05f45d2b49dc5956670d41f,localAttributeDefIdTracker=true,localNameOfAttributeDef=aStem:permissionDef,localNameOfAttributeDefTracker=true]
+WsAttributeAssignActionTuple[localAction=write,localActionTracker=true,localAttributeDefId=82bd0a56a05f45d2b49dc5956670d41f,localAttributeDefIdTracker=true,localNameOfAttributeDef=aStem:permissionDef,localNameOfAttributeDefTracker=true]
+WsAttributeAssignActionTuple[localAction=assign,localActionTracker=true,localAttributeDefId=82bd0a56a05f45d2b49dc5956670d41f,localAttributeDefIdTracker=true,localNameOfAttributeDef=aStem:permissionDef,localNameOfAttributeDefTracker=true]

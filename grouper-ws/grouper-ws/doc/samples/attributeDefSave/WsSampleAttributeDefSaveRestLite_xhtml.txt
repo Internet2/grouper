@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1456
+Content-Length: 1432
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,37 +25,37 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAttributeDefSaveLiteRequest">
-      <p class="actAsSubjectId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
+      <p class="actAsSubjectId"/>
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
       <p class="assignToAttributeDef">T</p>
-      <p class="assignToAttributeDefAssignment" />
-      <p class="assignToEffectiveMembership" />
-      <p class="assignToEffectiveMembershipAssignment" />
-      <p class="assignToGroup" />
-      <p class="assignToGroupAssignment" />
-      <p class="assignToImmediateMembership" />
-      <p class="assignToImmediateMembershipAssignment" />
-      <p class="assignToMember" />
-      <p class="assignToMemberAssignment" />
-      <p class="assignToStem" />
-      <p class="assignToStemAssignment" />
-      <p class="attributeDefLookupName" />
-      <p class="attributeDefLookupUuid" />
+      <p class="assignToAttributeDefAssignment"/>
+      <p class="assignToEffectiveMembership"/>
+      <p class="assignToEffectiveMembershipAssignment"/>
+      <p class="assignToGroup"/>
+      <p class="assignToGroupAssignment"/>
+      <p class="assignToImmediateMembership"/>
+      <p class="assignToImmediateMembershipAssignment"/>
+      <p class="assignToMember"/>
+      <p class="assignToMemberAssignment"/>
+      <p class="assignToStem"/>
+      <p class="assignToStemAssignment"/>
+      <p class="attributeDefLookupName"/>
+      <p class="attributeDefLookupUuid"/>
       <p class="attributeDefType">attr</p>
-      <p class="clientVersion" />
+      <p class="clientVersion"/>
       <p class="createParentStemsIfNotExist">T</p>
       <p class="description">This is a test description</p>
       <p class="multiAssignable">F</p>
       <p class="multiValued">F</p>
       <p class="nameOfAttributeDef">test1:testAttributeDef</p>
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
-      <p class="saveMode" />
-      <p class="txType" />
-      <p class="uuidOfAttributeDef" />
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
+      <p class="saveMode"/>
+      <p class="txType"/>
+      <p class="uuidOfAttributeDef"/>
       <p class="valueType">string</p>
     </div>
   </body>
@@ -71,16 +71,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=BD02D19E67E7F07B066C5546E95DF92E;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:16 GMT
+Date: Tue, 31 Mar 2020 20:23:45 GMT
 Connection: close
+Server: Apache TomEE
 
-751
+74f
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -90,13 +91,13 @@ Connection: close
   <body>
     <div title="WsAttributeDefSaveLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">141</p>
-        <p class="resultWarnings" />
+        <p class="millis">322</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_INSERTED</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
 wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[]],
 wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:testAtt...
@@ -120,11 +121,11 @@ wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:
         <p class="attributeDefType">attr</p>
         <p class="description">This is a test description</p>
         <p class="extension">testAttributeDef</p>
-        <p class="idIndex">10075</p>
+        <p class="idIndex">10102</p>
         <p class="multiAssignable">F</p>
         <p class="multiValued">F</p>
         <p class="name">test1:testAttributeDef</p>
-        <p class="uuid">512af2c1c0544263a673e2daee8bcc91</p>
+        <p class="uuid">bf9d5454474c4f35acb3bdbaab978028</p>
         <p class="valueType">string</p>
       </div>
     </div>

@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 735
+Content-Length: 724
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,17 +25,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetAttributeAssignActionsLiteRequest">
-      <p class="actAsSubjectId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
-      <p class="action" />
-      <p class="clientVersion" />
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
-      <p class="wsIdIndexOfAttributeDef" />
-      <p class="wsIdOfAttributeDef" />
+      <p class="actAsSubjectId"/>
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
+      <p class="action"/>
+      <p class="clientVersion"/>
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
+      <p class="wsIdIndexOfAttributeDef"/>
+      <p class="wsIdOfAttributeDef"/>
       <p class="wsNameOfAttributeDef">aStem:permissionDef</p>
     </div>
   </body>
@@ -51,16 +51,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=ADF082057A17AB26F96060CC2CB4D988;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:40:02 GMT
+Date: Tue, 31 Mar 2020 20:34:37 GMT
 Connection: close
+Server: Apache TomEE
 
-86c
+869
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -70,30 +71,30 @@ Connection: close
   <body>
     <div title="WsGetAttributeAssignActionsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">14</p>
-        <p class="resultWarnings" />
+        <p class="millis">26</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">, Found 3 results.</p>
         <p class="success">T</p>
       </div>
       <ul class="wsAttributeAssignActionTuples">
         <li title="WsAttributeAssignActionTuple">
           <p class="action">read</p>
-          <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+          <p class="attributeDefId">82bd0a56a05f45d2b49dc5956670d41f</p>
           <p class="nameOfAttributeDef">aStem:permissionDef</p>
         </li>
         <li title="WsAttributeAssignActionTuple">
           <p class="action">write</p>
-          <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+          <p class="attributeDefId">82bd0a56a05f45d2b49dc5956670d41f</p>
           <p class="nameOfAttributeDef">aStem:permissionDef</p>
         </li>
         <li title="WsAttributeAssignActionTuple">
           <p class="action">assign</p>
-          <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+          <p class="attributeDefId">82bd0a56a05f45d2b49dc5956670d41f</p>
           <p class="nameOfAttributeDef">aStem:permissionDef</p>
         </li>
       </ul>
@@ -112,13 +113,13 @@ Connection: close
           <p class="assignToStem">F</p>
           <p class="assignToStemAssignment">F</p>
           <p class="attributeDefType">perm</p>
-          <p class="description" />
+          <p class="description"/>
           <p class="extension">permissionDef</p>
-          <p class="idIndex">10046</p>
+          <p class="idIndex">10085</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
           <p class="name">aStem:permissionDef</p>
-          <p class="uuid">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+          <p class="uuid">82bd0a56a05f45d2b49dc5956670d41f</p>
           <p class="valueType">marker</p>
         </li>
       </ul>

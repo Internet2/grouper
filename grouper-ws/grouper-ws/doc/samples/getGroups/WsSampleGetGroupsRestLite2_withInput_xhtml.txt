@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1069
+Content-Length: 1187
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -26,32 +26,36 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGetGroupsLiteRequest">
       <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
-      <p class="ascending" />
-      <p class="clientVersion" />
-      <p class="enabled" />
-      <p class="fieldName" />
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
+      <p class="ascending"/>
+      <p class="clientVersion"/>
+      <p class="enabled"/>
+      <p class="fieldName"/>
       <p class="includeGroupDetail">T</p>
       <p class="includeSubjectDetail">T</p>
-      <p class="memberFilter" />
-      <p class="pageNumber" />
-      <p class="pageSize" />
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
-      <p class="pointInTimeFrom" />
-      <p class="pointInTimeTo" />
-      <p class="scope" />
-      <p class="sortString" />
-      <p class="stemName" />
-      <p class="stemScope" />
-      <p class="stemUuid" />
-      <p class="subjectAttributeNames" />
-      <p class="subjectId" />
-      <p class="subjectIdentifier" />
-      <p class="subjectSourceId" />
+      <p class="memberFilter"/>
+      <p class="pageCursorFieldIncludesLastRetrieved"/>
+      <p class="pageIsCursor"/>
+      <p class="pageLastCursorField"/>
+      <p class="pageLastCursorFieldType"/>
+      <p class="pageNumber"/>
+      <p class="pageSize"/>
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
+      <p class="pointInTimeFrom"/>
+      <p class="pointInTimeTo"/>
+      <p class="scope"/>
+      <p class="sortString"/>
+      <p class="stemName"/>
+      <p class="stemScope"/>
+      <p class="stemUuid"/>
+      <p class="subjectAttributeNames"/>
+      <p class="subjectId"/>
+      <p class="subjectIdentifier"/>
+      <p class="subjectSourceId"/>
     </div>
   </body>
 </html>
@@ -66,16 +70,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=54FCBA13B46E9F3C29C2ACF3A38A04E5;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:40:56 GMT
+Date: Tue, 31 Mar 2020 20:37:36 GMT
 Connection: close
+Server: Apache TomEE
 
-f3f
+136c
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -85,13 +90,13 @@ f3f
   <body>
     <div title="WsGetGroupsLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">43</p>
-        <p class="resultWarnings" />
+        <p class="millis">135</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
@@ -108,73 +113,108 @@ fieldName1: null
       </ul>
       <ul class="wsGroups">
         <li title="WsGroup">
-          <p class="alternateName" />
-          <p class="description" />
+          <p class="alternateName"/>
+          <p class="description"/>
           <div class="detail" title="WsGroupDetail">
-            <p class="compositeType" />
+            <p class="compositeType"/>
             <p class="createSubjectId">GrouperSystem</p>
-            <p class="createTime">2018/08/06 11:04:03.596</p>
+            <p class="createTime">2020/03/31 00:25:09.450</p>
             <p class="hasComposite">F</p>
             <p class="isCompositeFactor">F</p>
-            <div class="leftGroup" title="WsGroup" />
-            <p class="modifySource" />
+            <div class="leftGroup" title="WsGroup"/>
+            <p class="modifySource"/>
             <p class="modifySubjectId">GrouperSystem</p>
-            <p class="modifyTime">2018/08/06 11:04:03.601</p>
-            <div class="rightGroup" title="WsGroup" />
+            <p class="modifyTime">2020/03/31 00:25:09.468</p>
+            <div class="rightGroup" title="WsGroup"/>
           </div>
+          <p class="disabledTime"/>
           <p class="displayExtension">role</p>
           <p class="displayName">a stem:role</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime"/>
           <p class="extension">role</p>
-          <p class="idIndex">10022</p>
+          <p class="idIndex">10035</p>
           <p class="name">aStem:role</p>
           <p class="typeOfGroup">role</p>
-          <p class="uuid">c94e8975d1524eacb3e5f3a7b0b55086</p>
+          <p class="uuid">3befb91c854541f68a4dcb75fe1f92ee</p>
         </li>
         <li title="WsGroup">
-          <p class="alternateName" />
-          <p class="description" />
+          <p class="alternateName"/>
+          <p class="description"/>
           <div class="detail" title="WsGroupDetail">
-            <p class="compositeType" />
+            <p class="compositeType"/>
             <p class="createSubjectId">GrouperSystem</p>
-            <p class="createTime">2018/08/06 11:03:52.690</p>
+            <p class="createTime">2020/03/30 22:58:27.197</p>
             <p class="hasComposite">F</p>
             <p class="isCompositeFactor">F</p>
-            <div class="leftGroup" title="WsGroup" />
-            <p class="modifySource" />
+            <div class="leftGroup" title="WsGroup"/>
+            <p class="modifySource"/>
             <p class="modifySubjectId">GrouperSystem</p>
-            <p class="modifyTime">2018/08/06 11:03:52.697</p>
-            <div class="rightGroup" title="WsGroup" />
+            <p class="modifyTime">2020/03/30 22:58:27.226</p>
+            <div class="rightGroup" title="WsGroup"/>
           </div>
+          <p class="disabledTime"/>
           <p class="displayExtension">grouperMessageRole</p>
           <p class="displayName">etc:attribute:messages:grouperMessageRole</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime"/>
           <p class="extension">grouperMessageRole</p>
-          <p class="idIndex">10001</p>
+          <p class="idIndex">10002</p>
           <p class="name">etc:attribute:messages:grouperMessageRole</p>
           <p class="typeOfGroup">role</p>
-          <p class="uuid">d318bed9be7d43b5a7d21d1fcc064820</p>
+          <p class="uuid">341ad64d708b4fe7a78dab357dcdfff4</p>
         </li>
         <li title="WsGroup">
-          <p class="alternateName" />
-          <p class="description" />
+          <p class="alternateName"/>
+          <p class="description">description</p>
           <div class="detail" title="WsGroupDetail">
-            <p class="compositeType" />
+            <p class="compositeType"/>
             <p class="createSubjectId">GrouperSystem</p>
-            <p class="createTime">2018/08/06 11:04:00.343</p>
+            <p class="createTime">2020/03/30 22:58:54.934</p>
             <p class="hasComposite">F</p>
             <p class="isCompositeFactor">F</p>
-            <div class="leftGroup" title="WsGroup" />
-            <p class="modifySource" />
+            <div class="leftGroup" title="WsGroup"/>
+            <p class="modifySource"/>
             <p class="modifySubjectId">GrouperSystem</p>
-            <p class="modifyTime">2018/08/06 12:40:55.106</p>
-            <div class="rightGroup" title="WsGroup" />
+            <p class="modifyTime">2020/03/30 22:58:55.500</p>
+            <div class="rightGroup" title="WsGroup"/>
           </div>
+          <p class="disabledTime"/>
+          <p class="displayExtension">group113</p>
+          <p class="displayName">test:group113</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime"/>
+          <p class="extension">group113</p>
+          <p class="idIndex">10020</p>
+          <p class="name">test:group113</p>
+          <p class="typeOfGroup">group</p>
+          <p class="uuid">4431f675c7d04659b7efffa19410b699</p>
+        </li>
+        <li title="WsGroup">
+          <p class="alternateName"/>
+          <p class="description"/>
+          <div class="detail" title="WsGroupDetail">
+            <p class="compositeType"/>
+            <p class="createSubjectId">GrouperSystem</p>
+            <p class="createTime">2020/03/31 00:25:05.959</p>
+            <p class="hasComposite">F</p>
+            <p class="isCompositeFactor">F</p>
+            <div class="leftGroup" title="WsGroup"/>
+            <p class="modifySource"/>
+            <p class="modifySubjectId">GrouperSystem</p>
+            <p class="modifyTime">2020/03/31 13:37:33.990</p>
+            <div class="rightGroup" title="WsGroup"/>
+          </div>
+          <p class="disabledTime"/>
           <p class="displayExtension">testGroup</p>
           <p class="displayName">test:testGroup</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime"/>
           <p class="extension">testGroup</p>
-          <p class="idIndex">10004</p>
+          <p class="idIndex">10031</p>
           <p class="name">test:testGroup</p>
           <p class="typeOfGroup">group</p>
-          <p class="uuid">f651723de0f549ed97906e28df006ced</p>
+          <p class="uuid">6488e4e9d11d405598a420954c86fabf</p>
         </li>
       </ul>
       <div class="wsSubject" title="WsSubject">
@@ -183,7 +223,8 @@ fieldName1: null
           <li>description.test.subject.0</li>
         </ul>
         <p class="id">test.subject.0</p>
-        <p class="identifierLookup" />
+        <p class="identifierLookup"/>
+        <p class="memberId"/>
         <p class="name">my name is test.subject.0</p>
         <p class="resultCode">SUCCESS</p>
         <p class="sourceId">jdbc</p>

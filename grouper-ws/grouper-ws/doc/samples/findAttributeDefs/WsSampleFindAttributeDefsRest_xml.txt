@@ -39,48 +39,24 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=925C15CAD8188F41F1BABD52052F66BD;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:38:54 GMT
+Date: Tue, 31 Mar 2020 20:29:06 GMT
 Connection: close
+Server: Apache TomEE
 
-3f9
+3fb
 <WsFindAttributeDefsResults>
   <attributeDefResults>
     <WsAttributeDef>
-      <idIndex>10043</idIndex>
-      <extension>testAttrNameDef</extension>
-      <name>test:testAttrNameDef</name>
-      <uuid>11e00ce273094c209826fba7cad5f027</uuid>
-      <attributeDefType>attr</attributeDefType>
-      <multiAssignable>F</multiAssignable>
-      <multiValued>T</multiValued>
-      <valueType>string</valueType>
-      <assignToAttributeDef>F</assignToAttributeDef>
-      <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
-      <assignToEffectiveMembership>F</assignToEffectiveMembership>
-      <assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment>
-      <assignToGroup>F</assignToGroup>
-      <assignToGroupAssignment>F</assignToGroupAssignment>
-      <assignToImmediateMembership>F</assignToImmediateMembership>
-      <assignToImmediateMembershipAssignment>F</assignToImmediateMembershipAssignment>
-      <assignToMember>F</assignToMember>
-      <assignToMemberAssignment>F</assignToMemberAssignment>
-      <assignToStem>F</assignToStem>
-      <assignToStemAssignment>F</assignToStemAssignment>
-    </WsAttributeDef>
-    <WsAttributeDef>
-      <
-3ff
-idIndex>
-      </idIndex>
+      <idIndex>10084</idIndex>
       <extension>testAttributeAssignAssignNameDef</extension>
       <name>test:testAttributeAssignAssignNameDef</name>
-      <uuid>66e63dafcd504859a8278b512d95aa39</uuid>
+      <uuid>6e57249eb6974c9dbb848172fbd9eb99</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -97,14 +73,14 @@ idIndex>
       <assignToMemberAssignment>F</assignToMemberAssignment>
       <assignToStem>F</assignToStem>
       <assignToStemAssignment>F</assignToStemAssignment>
-    </WsAttributeDef>
-    <WsAttributeDef>
-      <idIndex>10044</idIndex>
-      <extension>test
+    </
 3ff
-AttributeAssignDefNameDef</extension>
+WsAttributeDef>
+    <WsAttributeDef>
+      <idIndex>10083</idIndex>
+      <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>431a9914cdba4564ad5943c7ec7de988</uuid>
+      <uuid>3d7adcf55291443d8eb2527d22f6e67c</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -122,19 +98,43 @@ AttributeAssignDefNameDef</extension>
       <assignToStem>F</assignToStem>
       <assignToStemAssignment>F</assignToStemAssignment>
     </WsAttributeDef>
+    <WsAttributeDef>
+      <idIndex>100
+3ff
+82</idIndex>
+      <extension>testAttrNameDef</extension>
+      <name>test:testAttrNameDef</name>
+      <uuid>d79024375c684d259b271906bc1e9f4e</uuid>
+      <attributeDefType>attr</attributeDefType>
+      <multiAssignable>F</multiAssignable>
+      <multiValued>T</multiValued>
+      <valueType>string</valueType>
+      <assignToAttributeDef>F</assignToAttributeDef>
+      <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
+      <assignToEffectiveMembership>F</assignToEffectiveMembership>
+      <assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment>
+      <assignToGroup>F</assignToGroup>
+      <assignToGroupAssignment>F</assignToGroupAssignment>
+      <assignToImmediateMembership>F</assignToImmediateMembership>
+      <assignToImmediateMembershipAssignment>F</assignToImmediateMembershipAssignment>
+      <assignToMember>F</assignToMember>
+      <assignToMemberAssignment>F</assignToMemberAssignment>
+      <assignToStem>F</assignToStem>
+      <assignToStemAssignment>F</assignToStemAssignment>
+    </WsAttributeDef>
   </attributeDefResults>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for:
-242
-clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[name=test:test1]
+    <resultMessage>Success for: cl
+240
+ientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[name=test:test1]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
 , params: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>16</millis>
+    <millis>15</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsFindAttributeDefsResults>

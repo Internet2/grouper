@@ -175,7 +175,7 @@ public enum WsQueryFilterType {
       Boolean retrieveAscending = wsQueryFilter.retrieveAscending();
       Integer retrievePageNumber = wsQueryFilter.retrievePageNumber();
       Integer retrievePageSize = wsQueryFilter.retrievePageSize();
-      Boolean enabled = wsQueryFilter.getEnabledAsBoolean();
+      Boolean enabled = wsQueryFilter.retrieveEnabledAsBoolean();
       return new GroupNameFilter(groupName, stem, 
           sortString, retrieveAscending, 
           retrievePageNumber, retrievePageSize, wsQueryFilter.retrieveTypeOfGroups(), enabled);
@@ -222,7 +222,7 @@ public enum WsQueryFilterType {
     public QueryFilter retrieveQueryFilter(WsQueryFilter wsQueryFilter) {
 
       Scope scope = wsQueryFilter.retrieveStemScope(StemScope.ONE_LEVEL).convertToScope();
-      Boolean enabled = wsQueryFilter.getEnabledAsBoolean();
+      Boolean enabled = wsQueryFilter.retrieveEnabledAsBoolean();
 
       //fail if the stem is not found, that is probably bad
       return new GroupsInStemFilter(wsQueryFilter.getStemName(), scope, false, 
@@ -272,7 +272,7 @@ public enum WsQueryFilterType {
           //if not passed in, then use root
           stem = StemFinder.findRootStem(wsQueryFilter.retrieveGrouperSession());
         }
-        Boolean enabled = wsQueryFilter.getEnabledAsBoolean();
+        Boolean enabled = wsQueryFilter.retrieveEnabledAsBoolean();
 
         if (!StringUtils.isBlank(wsQueryFilter.getGroupAttributeName())) {
           return new GroupAttributeFilter(wsQueryFilter.getGroupAttributeName(),
@@ -322,7 +322,7 @@ public enum WsQueryFilterType {
         //if not passed in, then use root
         stem = StemFinder.findRootStem(wsQueryFilter.retrieveGrouperSession());
       }
-      Boolean enabled = wsQueryFilter.getEnabledAsBoolean();
+      Boolean enabled = wsQueryFilter.retrieveEnabledAsBoolean();
       return new GroupAttributeExactFilter(wsQueryFilter.getGroupAttributeName(),
           wsQueryFilter.getGroupAttributeValue(), stem, enabled);
     }

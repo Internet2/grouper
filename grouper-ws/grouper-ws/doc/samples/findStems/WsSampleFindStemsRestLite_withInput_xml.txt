@@ -33,26 +33,36 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=F722BBB9FCC0460547B2A92ACBA564AA;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:39:40 GMT
+Date: Tue, 31 Mar 2020 20:32:33 GMT
 Connection: close
+Server: Apache TomEE
 
-316
+3fe
 <WsFindStemsResults>
   <stemResults>
     <WsStem>
-      <idIndex>10031</idIndex>
+      <idIndex>10038</idIndex>
       <extension>aStem</extension>
       <displayExtension>a stem</displayExtension>
       <description>a stem description</description>
       <displayName>a stem</displayName>
       <name>aStem</name>
-      <uuid>16cb864ff207464baf01bc3a3de0c222</uuid>
+      <uuid>b7dc7230123c4357ac3be255f74b7d73</uuid>
+    </WsStem>
+    <WsStem>
+      <idIndex>10039</idIndex>
+      <extension>aStem0</extension>
+      <displayExtension>aStem0</displayExtension>
+      <description></description>
+      <displayName>a stem:aStem0</displayName>
+      <name>aStem:aStem0</name>
+      <uuid>3f1a9f9b33dc4308b81400d6c27ec37d</uuid>
     </WsStem>
   </stemResults>
   <resultMetadata>
@@ -64,10 +74,12 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>8</millis>
+    <millis>16</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
-</WsFindStemsResults>
+</
+13
+WsFindStemsResults>
 0
 
 

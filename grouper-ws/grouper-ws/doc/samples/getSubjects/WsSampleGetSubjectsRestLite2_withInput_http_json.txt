@@ -28,124 +28,125 @@ wsLiteObjectType=WsRestGetSubjectsLiteRequest&searchString=test
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=89F866009A7E7A77F66576557DCD1CD8;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1838
-Date: Mon, 06 Aug 2018 16:42:23 GMT
+Content-Length: 1841
+Date: Tue, 31 Mar 2020 20:42:11 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetSubjectsResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Queried 14 subjects"
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"1"
+      "millis":"4",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Queried 14 subjects",
+      "success":"T"
     },
     "wsSubjects":[
       {
-        "sourceId":"g:gsa",
-        "success":"T",
-        "name":"test:groupTestAttrAssign",
+        "id":"4431f675c7d04659b7efffa19410b699",
+        "name":"test:group113",
         "resultCode":"SUCCESS",
-        "id":"1283a3268f654f5e95942676fa6d242f"
+        "sourceId":"g:gsa",
+        "success":"T"
       },
       {
-        "sourceId":"g:gsa",
-        "success":"T",
-        "name":"aStem:test",
-        "resultCode":"SUCCESS",
-        "id":"4f7f93403b53451bbcddeb9a92b27acc"
-      },
-      {
-        "sourceId":"g:gsa",
-        "success":"T",
-        "name":"test:groupTestAttrAssign2",
-        "resultCode":"SUCCESS",
-        "id":"a048d305d72744e7acba0e4172ad7921"
-      },
-      {
-        "sourceId":"g:gsa",
-        "success":"T",
+        "id":"6488e4e9d11d405598a420954c86fabf",
         "name":"test:testGroup",
         "resultCode":"SUCCESS",
-        "id":"f651723de0f549ed97906e28df006ced"
+        "sourceId":"g:gsa",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"86bb7ecba7bc42178f3ddd110cde25e9",
+        "name":"test:groupTestAttrAssign2",
+        "resultCode":"SUCCESS",
+        "sourceId":"g:gsa",
+        "success":"T"
+      },
+      {
+        "id":"9c4860dce6a843e18c3de2ef3208082f",
+        "name":"test:groupTestAttrAssign",
+        "resultCode":"SUCCESS",
+        "sourceId":"g:gsa",
+        "success":"T"
+      },
+      {
+        "id":"test.subject.0",
         "name":"my name is test.subject.0",
         "resultCode":"SUCCESS",
-        "id":"test.subject.0"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.1",
         "name":"my name is test.subject.1",
         "resultCode":"SUCCESS",
-        "id":"test.subject.1"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.2",
         "name":"my name is test.subject.2",
         "resultCode":"SUCCESS",
-        "id":"test.subject.2"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.3",
         "name":"my name is test.subject.3",
         "resultCode":"SUCCESS",
-        "id":"test.subject.3"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.4",
         "name":"my name is test.subject.4",
         "resultCode":"SUCCESS",
-        "id":"test.subject.4"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.5",
         "name":"my name is test.subject.5",
         "resultCode":"SUCCESS",
-        "id":"test.subject.5"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.6",
         "name":"my name is test.subject.6",
         "resultCode":"SUCCESS",
-        "id":"test.subject.6"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.7",
         "name":"my name is test.subject.7",
         "resultCode":"SUCCESS",
-        "id":"test.subject.7"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.8",
         "name":"my name is test.subject.8",
         "resultCode":"SUCCESS",
-        "id":"test.subject.8"
+        "sourceId":"jdbc",
+        "success":"T"
       },
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.9",
         "name":"my name is test.subject.9",
         "resultCode":"SUCCESS",
-        "id":"test.subject.9"
+        "sourceId":"jdbc",
+        "success":"T"
       }
     ]
   }

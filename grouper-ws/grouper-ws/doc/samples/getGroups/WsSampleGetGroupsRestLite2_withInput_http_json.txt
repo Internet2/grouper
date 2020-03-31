@@ -28,105 +28,132 @@ wsLiteObjectType=WsRestGetGroupsLiteRequest&actAsSubjectId=GrouperSystem&include
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=9F2E40C6D696258301F42459FA485B9A;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 2170
-Date: Mon, 06 Aug 2018 16:41:00 GMT
+Content-Length: 2659
+Date: Tue, 31 Mar 2020 20:37:40 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetGroupsLiteResult":{
+    "responseMetadata":{
+      "millis":"149",
+      "serverVersion":"2.5.0"
+    },
     "resultMetadata":{
-      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null"
+      "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
+      "success":"T"
     },
     "subjectAttributeNames":[
       "name",
       "description"
     ]
     ,
+    "wsGroups":[
+      {
+        "detail":{
+          "createSubjectId":"GrouperSystem",
+          "createTime":"2020/03/31 00:25:09.450",
+          "hasComposite":"F",
+          "isCompositeFactor":"F",
+          "modifySubjectId":"GrouperSystem",
+          "modifyTime":"2020/03/31 00:25:09.468",
+          "typeNames":[
+          ]
+          
+        },
+        "displayExtension":"role",
+        "displayName":"a stem:role",
+        "enabled":"T",
+        "extension":"role",
+        "idIndex":"10035",
+        "name":"aStem:role",
+        "typeOfGroup":"role",
+        "uuid":"3befb91c854541f68a4dcb75fe1f92ee"
+      },
+      {
+        "detail":{
+          "createSubjectId":"GrouperSystem",
+          "createTime":"2020/03/30 22:58:27.197",
+          "hasComposite":"F",
+          "isCompositeFactor":"F",
+          "modifySubjectId":"GrouperSystem",
+          "modifyTime":"2020/03/30 22:58:27.226",
+          "typeNames":[
+          ]
+          
+        },
+        "displayExtension":"grouperMessageRole",
+        "displayName":"etc:attribute:messages:grouperMessageRole",
+        "enabled":"T",
+        "extension":"grouperMessageRole",
+        "idIndex":"10002",
+        "name":"etc:attribute:messages:grouperMessageRole",
+        "typeOfGroup":"role",
+        "uuid":"341ad64d708b4fe7a78dab357dcdfff4"
+      },
+      {
+        "description":"description",
+        "detail":{
+          "createSubjectId":"GrouperSystem",
+          "createTime":"2020/03/30 22:58:54.934",
+          "hasComposite":"F",
+          "isCompositeFactor":"F",
+          "modifySubjectId":"GrouperSystem",
+          "modifyTime":"2020/03/30 22:58:55.500",
+          "typeNames":[
+          ]
+          
+        },
+        "displayExtension":"group113",
+        "displayName":"test:group113",
+        "enabled":"T",
+        "extension":"group113",
+        "idIndex":"10020",
+        "name":"test:group113",
+        "typeOfGroup":"group",
+        "uuid":"4431f675c7d04659b7efffa19410b699"
+      },
+      {
+        "detail":{
+          "createSubjectId":"GrouperSystem",
+          "createTime":"2020/03/31 00:25:05.959",
+          "hasComposite":"F",
+          "isCompositeFactor":"F",
+          "modifySubjectId":"GrouperSystem",
+          "modifyTime":"2020/03/31 13:37:38.460",
+          "typeNames":[
+          ]
+          
+        },
+        "displayExtension":"testGroup",
+        "displayName":"test:testGroup",
+        "enabled":"T",
+        "extension":"testGroup",
+        "idIndex":"10031",
+        "name":"test:testGroup",
+        "typeOfGroup":"group",
+        "uuid":"6488e4e9d11d405598a420954c86fabf"
+      }
+    ]
+    ,
     "wsSubject":{
-      "sourceId":"jdbc",
-      "success":"T",
       "attributeValues":[
         "my name is test.subject.0",
         "description.test.subject.0"
       ]
       ,
+      "id":"test.subject.0",
       "name":"my name is test.subject.0",
       "resultCode":"SUCCESS",
-      "id":"test.subject.0"
-    },
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"235"
-    },
-    "wsGroups":[
-      {
-        "displayExtension":"role",
-        "extension":"role",
-        "displayName":"a stem:role",
-        "name":"aStem:role",
-        "typeOfGroup":"role",
-        "detail":{
-          "typeNames":[
-          ]
-          ,
-          "modifyTime":"2018/08/06 11:04:03.601",
-          "createTime":"2018/08/06 11:04:03.596",
-          "isCompositeFactor":"F",
-          "hasComposite":"F",
-          "createSubjectId":"GrouperSystem",
-          "modifySubjectId":"GrouperSystem"
-        },
-        "idIndex":"10022",
-        "uuid":"c94e8975d1524eacb3e5f3a7b0b55086"
-      },
-      {
-        "displayExtension":"grouperMessageRole",
-        "extension":"grouperMessageRole",
-        "displayName":"etc:attribute:messages:grouperMessageRole",
-        "name":"etc:attribute:messages:grouperMessageRole",
-        "typeOfGroup":"role",
-        "detail":{
-          "typeNames":[
-          ]
-          ,
-          "modifyTime":"2018/08/06 11:03:52.697",
-          "createTime":"2018/08/06 11:03:52.690",
-          "isCompositeFactor":"F",
-          "hasComposite":"F",
-          "createSubjectId":"GrouperSystem",
-          "modifySubjectId":"GrouperSystem"
-        },
-        "idIndex":"10001",
-        "uuid":"d318bed9be7d43b5a7d21d1fcc064820"
-      },
-      {
-        "displayExtension":"testGroup",
-        "extension":"testGroup",
-        "displayName":"test:testGroup",
-        "name":"test:testGroup",
-        "typeOfGroup":"group",
-        "detail":{
-          "typeNames":[
-          ]
-          ,
-          "modifyTime":"2018/08/06 12:40:58.613",
-          "createTime":"2018/08/06 11:04:00.343",
-          "isCompositeFactor":"F",
-          "hasComposite":"F",
-          "createSubjectId":"GrouperSystem",
-          "modifySubjectId":"GrouperSystem"
-        },
-        "idIndex":"10004",
-        "uuid":"f651723de0f549ed97906e28df006ced"
-      }
-    ]
+      "sourceId":"jdbc",
+      "success":"T"
+    }
   }
 }
 

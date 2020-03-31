@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1862
+Content-Length: 1842
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -27,43 +27,43 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestAttributeDefNameSaveRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-        <p class="subjectSourceId" />
+        <p class="subjectIdentifier"/>
+        <p class="subjectSourceId"/>
       </div>
-      <p class="clientVersion" />
-      <p class="txType" />
+      <p class="clientVersion"/>
+      <p class="txType"/>
       <ul class="wsAttributeDefNameToSaves">
         <li title="WsAttributeDefNameToSave">
-          <p class="createParentStemsIfNotExist" />
-          <p class="saveMode" />
+          <p class="createParentStemsIfNotExist"/>
+          <p class="saveMode"/>
           <div class="wsAttributeDefName" title="WsAttributeDefName">
-            <p class="attributeDefId" />
+            <p class="attributeDefId"/>
             <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
             <p class="description">This is a description 1 rest xhtml</p>
             <p class="displayExtension">My new attribute def name to save 1 rest xhtml</p>
-            <p class="displayName" />
-            <p class="extension" />
-            <p class="idIndex" />
+            <p class="displayName"/>
+            <p class="extension"/>
+            <p class="idIndex"/>
             <p class="name">test:testAttributeAssignDefNameToSave1Rest_xhtml</p>
-            <p class="uuid" />
+            <p class="uuid"/>
           </div>
-          <div class="wsAttributeDefNameLookup" title="WsAttributeDefNameLookup" />
+          <div class="wsAttributeDefNameLookup" title="WsAttributeDefNameLookup"/>
         </li>
         <li title="WsAttributeDefNameToSave">
-          <p class="createParentStemsIfNotExist" />
-          <p class="saveMode" />
+          <p class="createParentStemsIfNotExist"/>
+          <p class="saveMode"/>
           <div class="wsAttributeDefName" title="WsAttributeDefName">
-            <p class="attributeDefId" />
+            <p class="attributeDefId"/>
             <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
             <p class="description">This is a description 2 rest xhtml</p>
             <p class="displayExtension">My new attribute def name to save 2 rest xhtml</p>
-            <p class="displayName" />
-            <p class="extension" />
-            <p class="idIndex" />
+            <p class="displayName"/>
+            <p class="extension"/>
+            <p class="idIndex"/>
             <p class="name">test:testAttributeAssignDefNameToSave2Rest_xhtml</p>
-            <p class="uuid" />
+            <p class="uuid"/>
           </div>
-          <div class="wsAttributeDefNameLookup" title="WsAttributeDefNameLookup" />
+          <div class="wsAttributeDefNameLookup" title="WsAttributeDefNameLookup"/>
         </li>
       </ul>
     </div>
@@ -80,16 +80,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=ED3B848ED7169FFEDA67910877D092E8;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:58 GMT
+Date: Tue, 31 Mar 2020 20:23:20 GMT
 Connection: close
+Server: Apache TomEE
 
-aab
+aa5
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -99,13 +100,13 @@ aab
   <body>
     <div title="WsAttributeDefNameSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">153</p>
-        <p class="resultWarnings" />
+        <p class="millis">437</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest xhtml,description=This is a description 1 rest xhtml,...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
@@ -116,39 +117,39 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name
         <li title="WsAttributeDefNameSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_INSERTED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsAttributeDefName" title="WsAttributeDefName">
-            <p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p>
+            <p class="attributeDefId">3d7adcf55291443d8eb2527d22f6e67c</p>
             <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
             <p class="description">This is a description 1 rest xhtml</p>
             <p class="displayExtension">My new attribute def name to save 1 rest xhtml</p>
             <p class="displayName">test:My new attribute def name to save 1 rest xhtml</p>
             <p class="extension">testAttributeAssignDefNameToSave1Rest_xhtml</p>
-            <p class="idIndex">10206</p>
+            <p class="idIndex">10301</p>
             <p class="name">test:testAttributeAssignDefNameToSave1Rest_xhtml</p>
-            <p class="uuid">3969a36c2e4d44a0abb1a2ba73cd6c12</p>
+            <p class="uuid">8cb292c2141b49ddb8620cc10683d84d</p>
           </div>
         </li>
         <li title="WsAttributeDefNameSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_INSERTED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsAttributeDefName" title="WsAttributeDefName">
-            <p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p>
+            <p class="attributeDefId">3d7adcf55291443d8eb2527d22f6e67c</p>
             <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
             <p class="description">This is a description 2 rest xhtml</p>
             <p class="displayExtension">My new attribute def name to save 2 rest xhtml</p>
             <p class="displayName">test:My new attribute def name to save 2 rest xhtml</p>
             <p class="extension">testAttributeAssignDefNameToSave2Rest_xhtml</p>
-            <p class="idIndex">10207</p>
+            <p class="idIndex">10302</p>
             <p class="name">test:testAttributeAssignDefNameToSave2Rest_xhtml</p>
-            <p class="uuid">afb5e7478c1245308e9e5ff304e68ff8</p>
+            <p class="uuid">721f5ed5b8ad4c8997fa76f35a902e4e</p>
           </div>
         </li>
       </ul>

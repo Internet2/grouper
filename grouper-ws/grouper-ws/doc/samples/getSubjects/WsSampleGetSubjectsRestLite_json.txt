@@ -25,35 +25,34 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Cache-Control: private
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=43E84FA6A889F1AFBE1A2C0A39DBC249;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
 Content-Length: 306
-Date: Mon, 06 Aug 2018 16:42:15 GMT
+Date: Tue, 31 Mar 2020 20:42:01 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetSubjectsResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Queried 1 subjects"
-    },
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"0"
+      "millis":"4",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Queried 1 subjects",
+      "success":"T"
     },
     "wsSubjects":[
       {
-        "sourceId":"jdbc",
-        "success":"T",
+        "id":"test.subject.0",
         "name":"my name is test.subject.0",
         "resultCode":"SUCCESS",
-        "id":"test.subject.0"
+        "sourceId":"jdbc",
+        "success":"T"
       }
     ]
   }

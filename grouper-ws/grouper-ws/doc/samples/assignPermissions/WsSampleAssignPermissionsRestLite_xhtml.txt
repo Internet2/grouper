@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1332
+Content-Length: 1310
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -26,34 +26,34 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestAssignPermissionsLiteRequest">
       <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
       <p class="action">read</p>
-      <p class="assignmentDisabledTime" />
-      <p class="assignmentEnabledTime" />
-      <p class="assignmentNotes" />
-      <p class="attributeAssignId" />
-      <p class="clientVersion" />
-      <p class="delegatable" />
-      <p class="disallowed" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
+      <p class="assignmentDisabledTime"/>
+      <p class="assignmentEnabledTime"/>
+      <p class="assignmentNotes"/>
+      <p class="attributeAssignId"/>
+      <p class="clientVersion"/>
+      <p class="delegatable"/>
+      <p class="disallowed"/>
+      <p class="includeGroupDetail"/>
+      <p class="includeSubjectDetail"/>
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
       <p class="permissionAssignOperation">remove_permission</p>
-      <p class="permissionDefNameId" />
+      <p class="permissionDefNameId"/>
       <p class="permissionDefNameName">aStem:permissionDefName</p>
       <p class="permissionType">role_subject</p>
-      <p class="roleId" />
-      <p class="roleName" />
-      <p class="subjectAttributeNames" />
-      <p class="subjectRoleId" />
+      <p class="roleId"/>
+      <p class="roleName"/>
+      <p class="subjectAttributeNames"/>
+      <p class="subjectRoleId"/>
       <p class="subjectRoleName">aStem:role</p>
       <p class="subjectRoleSubjectId">test.subject.4</p>
-      <p class="subjectRoleSubjectIdentifier" />
-      <p class="subjectRoleSubjectSourceId" />
+      <p class="subjectRoleSubjectIdentifier"/>
+      <p class="subjectRoleSubjectSourceId"/>
     </div>
   </body>
 </html>
@@ -68,16 +68,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=955A2526B8C3BF65C7F1D78B4E8274B3;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:36:19 GMT
+Date: Tue, 31 Mar 2020 20:20:20 GMT
 Connection: close
+Server: Apache TomEE
 
-fb6
+1004
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -87,26 +88,26 @@ fb6
   <body>
     <div title="WsAssignPermissionsLiteResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">38</p>
-        <p class="resultWarnings" />
+        <p class="millis">227</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">, Found 1 results.</p>
         <p class="success">T</p>
       </div>
       <div class="wsAttributeDefName" title="WsAttributeDefName">
-        <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+        <p class="attributeDefId">82bd0a56a05f45d2b49dc5956670d41f</p>
         <p class="attributeDefName">aStem:permissionDef</p>
-        <p class="description" />
+        <p class="description"/>
         <p class="displayExtension">permissionDefName</p>
         <p class="displayName">a stem:permissionDefName</p>
         <p class="extension">permissionDefName</p>
-        <p class="idIndex">10155</p>
+        <p class="idIndex">10281</p>
         <p class="name">aStem:permissionDefName</p>
-        <p class="uuid">397ea151404d489aae915be38d0f4b4f</p>
+        <p class="uuid">2e849c0f71a446f6bf89a490cf57c376</p>
       </div>
       <ul class="wsAttributeDefs">
         <li title="WsAttributeDef">
@@ -123,67 +124,71 @@ fb6
           <p class="assignToStem">F</p>
           <p class="assignToStemAssignment">F</p>
           <p class="attributeDefType">perm</p>
-          <p class="description" />
+          <p class="description"/>
           <p class="extension">permissionDef</p>
-          <p class="idIndex">10046</p>
+          <p class="idIndex">10085</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
           <p class="name">aStem:permissionDef</p>
-          <p class="uuid">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+          <p class="uuid">82bd0a56a05f45d2b49dc5956670d41f</p>
           <p class="valueType">marker</p>
         </li>
       </ul>
       <div class="wsGroup" title="WsGroup">
-        <p class="alternateName" />
-        <p class="description" />
-        <div class="detail" title="WsGroupDetail" />
+        <p class="alternateName"/>
+        <p class="description"/>
+        <div class="detail" title="WsGroupDetail"/>
+        <p class="disabledTime"/>
         <p class="displayExtension">role</p>
         <p class="displayName">a stem:role</p>
+        <p class="enabled">T</p>
+        <p class="enabledTime"/>
         <p class="extension">role</p>
-        <p class="idIndex">10022</p>
+        <p class="idIndex">10035</p>
         <p class="name">aStem:role</p>
         <p class="typeOfGroup">role</p>
-        <p class="uuid">c94e8975d1524eacb3e5f3a7b0b55086</p>
+        <p class="uuid">3befb91c854541f68a4dcb75fe1f92ee</p>
       </div>
       <div class="wsPermissionAssignResult" title="WsAssignPermissionResult">
         <p class="changed">T</p>
         <p class="deleted">T</p>
         <ul class="wsAttributeAssigns">
           <li title="WsAttributeAssign">
-            <p class="attributeAssignActionId">167c62b76fbe4cd9b5a47c842e5d2223</p>
+            <p class="attributeAssignActionId">1033e7c3142b4fafaa8b0ddb09144e78</p>
             <p class="attributeAssignActionName">read</p>
             <p class="attributeAssignActionType">immediate</p>
             <p class="attributeAssignDelegatable">FALSE</p>
             <p class="attributeAssignType">any_mem</p>
-            <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
+            <p class="attributeDefId">82bd0a56a05f45d2b49dc5956670d41f</p>
             <p class="attributeDefName">aStem:permissionDef</p>
-            <p class="attributeDefNameId">397ea151404d489aae915be38d0f4b4f</p>
+            <p class="attributeDefNameId">2e849c0f71a446f6bf89a490cf57c376</p>
             <p class="attributeDefNameName">aStem:permissionDefName</p>
-            <p class="createdOn">2018/08/06 12:36:12.293</p>
-            <p class="disabledTime" />
+            <p class="createdOn">2020/03/31 13:19:50.423</p>
+            <p class="disabledTime"/>
             <p class="disallowed">F</p>
             <p class="enabled">T</p>
-            <p class="enabledTime" />
-            <p class="id">b14c5153b95144ec9667edd8b049b452</p>
-            <p class="lastUpdated">2018/08/06 12:36:12.293</p>
-            <p class="notes" />
-            <p class="ownerAttributeAssignId" />
-            <p class="ownerAttributeDefId" />
-            <p class="ownerAttributeDefName" />
-            <p class="ownerGroupId">c94e8975d1524eacb3e5f3a7b0b55086</p>
+            <p class="enabledTime"/>
+            <p class="id">36ceea3d2380427f9c0482690c192547</p>
+            <p class="lastUpdated">2020/03/31 13:19:50.423</p>
+            <p class="notes"/>
+            <p class="ownerAttributeAssignId"/>
+            <p class="ownerAttributeDefId"/>
+            <p class="ownerAttributeDefName"/>
+            <p class="ownerGroupId">3befb91c854541f68a4dcb75fe1f92ee</p>
             <p class="ownerGroupName">aStem:role</p>
-            <p class="ownerMemberId">5b34ea68677949b981671e5e9f9825b1</p>
+            <p class="ownerMemberId">ce094a9b07464b15ac6837b6bca23869</p>
             <p class="ownerMemberSourceId">jdbc</p>
             <p class="ownerMemberSubjectId">test.subject.4</p>
-            <p class="ownerMembershipId" />
-            <p class="ownerStemId" />
-            <p class="ownerStemName" />
+            <p class="ownerMembershipId"/>
+            <p class="ownerStemId"/>
+            <p class="ownerStemName"/>
           </li>
         </ul>
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="id">test.subject.4</p>
-        <p class="identifierLookup" />
+        <p class="identifierLookup"/>
+        <p class="memberId"/>
         <p class="name">my name is test.subject.4</p>
         <p class="resultCode">SUCCESS</p>
         <p class="sourceId">jdbc</p>

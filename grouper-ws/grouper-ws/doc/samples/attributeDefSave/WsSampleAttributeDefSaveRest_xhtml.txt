@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 2625
+Content-Length: 2611
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -27,15 +27,15 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestAttributeDefSaveRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-        <p class="subjectSourceId" />
+        <p class="subjectIdentifier"/>
+        <p class="subjectSourceId"/>
       </div>
-      <p class="clientVersion" />
-      <p class="txType" />
+      <p class="clientVersion"/>
+      <p class="txType"/>
       <ul class="wsAttributeDefsToSave">
         <li title="WsAttributeDefToSave">
           <p class="createParentStemsIfNotExist">T</p>
-          <p class="saveMode" />
+          <p class="saveMode"/>
           <div class="wsAttributeDef" title="WsAttributeDef">
             <p class="assignToAttributeDef">T</p>
             <p class="assignToAttributeDefAssignment">F</p>
@@ -51,19 +51,19 @@ Content-Type: application/xhtml+xml; charset=UTF-8
             <p class="assignToStemAssignment">F</p>
             <p class="attributeDefType">attr</p>
             <p class="description">This is a description1 rest xhtml</p>
-            <p class="extension" />
-            <p class="idIndex" />
+            <p class="extension"/>
+            <p class="idIndex"/>
             <p class="multiAssignable">F</p>
             <p class="multiValued">F</p>
             <p class="name">test1:testAttributeDef_xhtml</p>
-            <p class="uuid" />
+            <p class="uuid"/>
             <p class="valueType">string</p>
           </div>
-          <div class="wsAttributeDefLookup" title="WsAttributeDefLookup" />
+          <div class="wsAttributeDefLookup" title="WsAttributeDefLookup"/>
         </li>
         <li title="WsAttributeDefToSave">
           <p class="createParentStemsIfNotExist">T</p>
-          <p class="saveMode" />
+          <p class="saveMode"/>
           <div class="wsAttributeDef" title="WsAttributeDef">
             <p class="assignToAttributeDef">T</p>
             <p class="assignToAttributeDefAssignment">F</p>
@@ -79,15 +79,15 @@ Content-Type: application/xhtml+xml; charset=UTF-8
             <p class="assignToStemAssignment">F</p>
             <p class="attributeDefType">attr</p>
             <p class="description">This is a description2 rest xhtml</p>
-            <p class="extension" />
-            <p class="idIndex" />
+            <p class="extension"/>
+            <p class="idIndex"/>
             <p class="multiAssignable">F</p>
             <p class="multiValued">F</p>
             <p class="name">test1:testAttributDef2ToSave1Rest_xhtml</p>
-            <p class="uuid" />
+            <p class="uuid"/>
             <p class="valueType">string</p>
           </div>
-          <div class="wsAttributeDefLookup" title="WsAttributeDefLookup" />
+          <div class="wsAttributeDefLookup" title="WsAttributeDefLookup"/>
         </li>
       </ul>
     </div>
@@ -104,16 +104,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=E79506ED33BB3B8A03D373D7740CB30D;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:11 GMT
+Date: Tue, 31 Mar 2020 20:23:37 GMT
 Connection: close
+Server: Apache TomEE
 
-ce3
+cde
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -123,13 +124,13 @@ ce3
   <body>
     <div title="WsAttributeDefSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">171</p>
-        <p class="resultWarnings" />
+        <p class="millis">1292</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
 wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name=test1:testAttributeDef_xhtml,attributeDefType=attr,multiAssignable=F,mul...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
@@ -140,8 +141,8 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name
         <li title="WsAttributeDefSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_INSERTED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsAttributeDef" title="WsAttributeDef">
@@ -160,19 +161,19 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name
             <p class="attributeDefType">attr</p>
             <p class="description">This is a description1 rest xhtml</p>
             <p class="extension">testAttributeDef_xhtml</p>
-            <p class="idIndex">10069</p>
+            <p class="idIndex">10096</p>
             <p class="multiAssignable">F</p>
             <p class="multiValued">F</p>
             <p class="name">test1:testAttributeDef_xhtml</p>
-            <p class="uuid">ba405edde8304bf4a8f2e2b2b996cc53</p>
+            <p class="uuid">e612ca2d3e04445fb0ba734750f702dc</p>
             <p class="valueType">string</p>
           </div>
         </li>
         <li title="WsAttributeDefSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_INSERTED</p>
-            <p class="resultCode2" />
-            <p class="resultMessage" />
+            <p class="resultCode2"/>
+            <p class="resultMessage"/>
             <p class="success">T</p>
           </div>
           <div class="wsAttributeDef" title="WsAttributeDef">
@@ -191,11 +192,11 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name
             <p class="attributeDefType">attr</p>
             <p class="description">This is a description2 rest xhtml</p>
             <p class="extension">testAttributDef2ToSave1Rest_xhtml</p>
-            <p class="idIndex">10070</p>
+            <p class="idIndex">10097</p>
             <p class="multiAssignable">F</p>
             <p class="multiValued">F</p>
             <p class="name">test1:testAttributDef2ToSave1Rest_xhtml</p>
-            <p class="uuid">7147e64f22124a39b7de9bba19eaa814</p>
+            <p class="uuid">4ccffab5d70b48e09f272af2d4fb6343</p>
             <p class="valueType">string</p>
           </div>
         </li>

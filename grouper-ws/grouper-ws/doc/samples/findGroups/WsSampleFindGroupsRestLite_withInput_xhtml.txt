@@ -14,7 +14,7 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 972
+Content-Length: 1115
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -25,28 +25,33 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestFindGroupsLiteRequest">
-      <p class="actAsSubjectId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="actAsSubjectSourceId" />
-      <p class="ascending" />
-      <p class="clientVersion" />
-      <p class="groupAttributeName" />
-      <p class="groupAttributeValue" />
+      <p class="actAsSubjectId"/>
+      <p class="actAsSubjectIdentifier"/>
+      <p class="actAsSubjectSourceId"/>
+      <p class="ascending"/>
+      <p class="clientVersion"/>
+      <p class="enabled"/>
+      <p class="groupAttributeName"/>
+      <p class="groupAttributeValue"/>
       <p class="groupName">aGr</p>
-      <p class="groupTypeName" />
-      <p class="groupUuid" />
-      <p class="includeGroupDetail" />
-      <p class="pageNumber" />
-      <p class="pageSize" />
-      <p class="paramName0" />
-      <p class="paramName1" />
-      <p class="paramValue0" />
-      <p class="paramValue1" />
+      <p class="groupTypeName"/>
+      <p class="groupUuid"/>
+      <p class="includeGroupDetail"/>
+      <p class="pageCursorFieldIncludesLastRetrieved"/>
+      <p class="pageIsCursor"/>
+      <p class="pageLastCursorField"/>
+      <p class="pageLastCursorFieldType"/>
+      <p class="pageNumber"/>
+      <p class="pageSize"/>
+      <p class="paramName0"/>
+      <p class="paramName1"/>
+      <p class="paramValue0"/>
+      <p class="paramValue1"/>
       <p class="queryFilterType">FIND_BY_GROUP_NAME_APPROXIMATE</p>
-      <p class="sortString" />
+      <p class="sortString"/>
       <p class="stemName">aStem</p>
-      <p class="stemNameScope" />
-      <p class="typeOfGroups" />
+      <p class="stemNameScope"/>
+      <p class="typeOfGroups"/>
     </div>
   </body>
 </html>
@@ -61,16 +66,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=19EB5A74722CB3C52CFCF06B1D5F2E06;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:39:21 GMT
+Date: Tue, 31 Mar 2020 23:00:58 GMT
 Connection: close
+Server: Apache TomEE
 
-6a6
+732
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -81,38 +87,44 @@ Connection: close
     <div title="WsFindGroupsResults">
       <ul class="groupResults">
         <li title="WsGroup">
-          <p class="alternateName" />
+          <p class="alternateName"/>
           <p class="description">a group description</p>
-          <div class="detail" title="WsGroupDetail" />
+          <div class="detail" title="WsGroupDetail"/>
+          <p class="disabledTime"/>
           <p class="displayExtension">a group</p>
           <p class="displayName">a stem:a group</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime"/>
           <p class="extension">aGroup</p>
-          <p class="idIndex">10005</p>
+          <p class="idIndex">10009</p>
           <p class="name">aStem:aGroup</p>
           <p class="typeOfGroup">group</p>
-          <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
+          <p class="uuid">32ca90db41b04a1a9611a214a20bac42</p>
         </li>
         <li title="WsGroup">
-          <p class="alternateName" />
+          <p class="alternateName"/>
           <p class="description">a group description2</p>
-          <div class="detail" title="WsGroupDetail" />
+          <div class="detail" title="WsGroupDetail"/>
+          <p class="disabledTime"/>
           <p class="displayExtension">a group2</p>
           <p class="displayName">a stem:a group2</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime"/>
           <p class="extension">aGroup2</p>
-          <p class="idIndex">10006</p>
+          <p class="idIndex">10032</p>
           <p class="name">aStem:aGroup2</p>
           <p class="typeOfGroup">group</p>
-          <p class="uuid">08cc1f2ccd3248ff801db35946e03823</p>
+          <p class="uuid">5819ab9eed78479faedcb72be0987798</p>
         </li>
       </ul>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">24</p>
-        <p class="resultWarnings" />
+        <p class="millis">40</p>
+        <p class="resultWarnings"/>
         <p class="serverVersion">2.5.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
+        <p class="resultCode2"/>
         <p class="resultMessage">Success for: clientVersion: 2.5.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
 , includeGroupDetail: false, actAsSubject: null, paramNames:
 , params: null

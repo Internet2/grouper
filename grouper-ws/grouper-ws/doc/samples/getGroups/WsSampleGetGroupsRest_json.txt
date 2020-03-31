@@ -44,128 +44,137 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=33A914AB5F1EE44270359AF04EC2AD09;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 2385
-Date: Mon, 06 Aug 2018 16:40:35 GMT
+Content-Length: 2469
+Date: Tue, 31 Mar 2020 20:37:00 GMT
 Connection: close
+Server: Apache TomEE
 
 {
   "WsGetGroupsResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: null\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null"
-    },
-    "subjectAttributeNames":[
-      "description"
-    ]
-    ,
     "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"22"
+      "millis":"23",
+      "serverVersion":"2.5.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: null\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
+      "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS"
+          "resultCode":"SUCCESS",
+          "success":"T"
         },
+        "wsGroups":[
+          {
+            "description":"a group description",
+            "displayExtension":"a group",
+            "displayName":"a stem:a group",
+            "enabled":"T",
+            "extension":"aGroup",
+            "idIndex":"10009",
+            "name":"aStem:aGroup",
+            "typeOfGroup":"group",
+            "uuid":"32ca90db41b04a1a9611a214a20bac42"
+          },
+          {
+            "description":"a group description2",
+            "displayExtension":"a group2",
+            "displayName":"a stem:a group2",
+            "enabled":"T",
+            "extension":"aGroup2",
+            "idIndex":"10032",
+            "name":"aStem:aGroup2",
+            "typeOfGroup":"group",
+            "uuid":"5819ab9eed78479faedcb72be0987798"
+          },
+          {
+            "displayExtension":"sysadmingroup",
+            "displayName":"etc:sysadmingroup",
+            "enabled":"T",
+            "extension":"sysadmingroup",
+            "idIndex":"10008",
+            "name":"etc:sysadmingroup",
+            "typeOfGroup":"group",
+            "uuid":"69b36df0e82f4fee98b760adebed0660"
+          },
+          {
+            "displayExtension":"webServiceActAsGroup",
+            "displayName":"etc:webServiceActAsGroup",
+            "enabled":"T",
+            "extension":"webServiceActAsGroup",
+            "idIndex":"10007",
+            "name":"etc:webServiceActAsGroup",
+            "typeOfGroup":"group",
+            "uuid":"28e109afeac74aa0aabcafaf858ce50a"
+          }
+        ]
+        ,
         "wsSubject":{
-          "sourceId":"jdbc",
-          "success":"T",
           "attributeValues":[
             ""
           ]
           ,
+          "id":"10021368",
           "name":"10021368",
           "resultCode":"SUCCESS",
-          "id":"10021368"
-        },
-        "wsGroups":[
-          {
-            "displayExtension":"a group",
-            "extension":"aGroup",
-            "displayName":"a stem:a group",
-            "name":"aStem:aGroup",
-            "description":"a group description",
-            "typeOfGroup":"group",
-            "idIndex":"10005",
-            "uuid":"03aae7141082467eaaa866e6c6edfda5"
-          },
-          {
-            "displayExtension":"a group2",
-            "extension":"aGroup2",
-            "displayName":"a stem:a group2",
-            "name":"aStem:aGroup2",
-            "description":"a group description2",
-            "typeOfGroup":"group",
-            "idIndex":"10006",
-            "uuid":"08cc1f2ccd3248ff801db35946e03823"
-          },
-          {
-            "displayExtension":"sysadmingroup",
-            "extension":"sysadmingroup",
-            "displayName":"etc:sysadmingroup",
-            "name":"etc:sysadmingroup",
-            "typeOfGroup":"group",
-            "idIndex":"10009",
-            "uuid":"5cbabdd15c1d49ceae302f8e844b0009"
-          },
-          {
-            "displayExtension":"webServiceActAsGroup",
-            "extension":"webServiceActAsGroup",
-            "displayName":"etc:webServiceActAsGroup",
-            "name":"etc:webServiceActAsGroup",
-            "typeOfGroup":"group",
-            "idIndex":"10008",
-            "uuid":"a3b9b6852757437981d39b7a14a0bfd7"
-          }
-        ]
+          "sourceId":"jdbc",
+          "success":"T"
+        }
         
       },
       {
         "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS"
+          "resultCode":"SUCCESS",
+          "success":"T"
         },
+        "wsGroups":[
+          {
+            "description":"a group description",
+            "displayExtension":"a group",
+            "displayName":"a stem:a group",
+            "enabled":"T",
+            "extension":"aGroup",
+            "idIndex":"10009",
+            "name":"aStem:aGroup",
+            "typeOfGroup":"group",
+            "uuid":"32ca90db41b04a1a9611a214a20bac42"
+          },
+          {
+            "description":"a group description2",
+            "displayExtension":"a group2",
+            "displayName":"a stem:a group2",
+            "enabled":"T",
+            "extension":"aGroup2",
+            "idIndex":"10032",
+            "name":"aStem:aGroup2",
+            "typeOfGroup":"group",
+            "uuid":"5819ab9eed78479faedcb72be0987798"
+          }
+        ]
+        ,
         "wsSubject":{
-          "sourceId":"jdbc",
-          "success":"T",
           "attributeValues":[
             ""
           ]
           ,
+          "id":"10039438",
           "name":"10039438",
           "resultCode":"SUCCESS",
-          "id":"10039438"
-        },
-        "wsGroups":[
-          {
-            "displayExtension":"a group",
-            "extension":"aGroup",
-            "displayName":"a stem:a group",
-            "name":"aStem:aGroup",
-            "description":"a group description",
-            "typeOfGroup":"group",
-            "idIndex":"10005",
-            "uuid":"03aae7141082467eaaa866e6c6edfda5"
-          },
-          {
-            "displayExtension":"a group2",
-            "extension":"aGroup2",
-            "displayName":"a stem:a group2",
-            "name":"aStem:aGroup2",
-            "description":"a group description2",
-            "typeOfGroup":"group",
-            "idIndex":"10006",
-            "uuid":"08cc1f2ccd3248ff801db35946e03823"
-          }
-        ]
+          "sourceId":"jdbc",
+          "success":"T"
+        }
       }
+    ]
+    ,
+    "subjectAttributeNames":[
+      "description"
     ]
   }
 }

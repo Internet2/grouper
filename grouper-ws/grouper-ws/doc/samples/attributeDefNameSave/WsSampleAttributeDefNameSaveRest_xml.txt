@@ -51,28 +51,29 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+Set-Cookie: JSESSIONID=12F9A28AA3808947A10016A244935EA6;path=/grouper-ws/;HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 06 Aug 2018 16:37:02 GMT
+Date: Tue, 31 Mar 2020 20:23:25 GMT
 Connection: close
+Server: Apache TomEE
 
 3ff
 <WsAttributeDefNameSaveResults>
   <results>
     <WsAttributeDefNameSaveResult>
       <wsAttributeDefName>
-        <idIndex>10210</idIndex>
+        <idIndex>10305</idIndex>
         <extension>testAttributeAssignDefNameToSave1Rest_xml</extension>
         <displayExtension>My new attribute def name to save 1 rest xml</displayExtension>
         <description>This is a description 1 rest xml</description>
         <displayName>test:My new attribute def name to save 1 rest xml</displayName>
         <name>test:testAttributeAssignDefNameToSave1Rest_xml</name>
-        <uuid>d9a76f79806441a2bec48a83e8dbf803</uuid>
-        <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+        <uuid>1287eb3ce8f747e9b11fee3f0bc03eae</uuid>
+        <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
         <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
       </wsAttributeDefName>
       <resultMetadata>
@@ -82,7 +83,7 @@ Connection: close
     </WsAttributeDefNameSaveResult>
     <WsAttributeDefNameSaveResult>
       <wsAttributeDefName>
-        <idIndex>10211</idIndex>
+        <idIndex>10306</idIndex>
         <extension>testAttributeAssignDefNameToSave2Rest_xml</extension>
         <displayExtension>My new attribute def name to save 2 rest xml</displayExtension>
         <description>This is a d
@@ -90,8 +91,8 @@ Connection: close
 escription 2 rest xml</description>
         <displayName>test:My new attribute def name to save 2 rest xml</displayName>
         <name>test:testAttributeAssignDefNameToSave2Rest_xml</name>
-        <uuid>5186e8d7a45f44bc8050a507d8461784</uuid>
-        <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
+        <uuid>9ea6b17cd18a43418483560989b45a2d</uuid>
+        <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
         <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
       </wsAttributeDefName>
       <resultMetadata>
@@ -113,7 +114,7 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name
     </
 7a
 resultWarnings>
-    <millis>213</millis>
+    <millis>250</millis>
     <serverVersion>2.5.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefNameSaveResults>
