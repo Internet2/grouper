@@ -159,6 +159,12 @@ public class GrouperDdlEngine {
   boolean done = false;
   
   private String thisDdlDatabaseLockingUuid;
+  private boolean deepCheck;
+  
+  public GrouperDdlEngine assignDeepCheck(boolean theDeepCheck) {
+    this.deepCheck = theDeepCheck;
+    return this;
+  }
   
   private Boolean runDdlForObjectName(String objectName, Connection connection, String schema, Platform platform, StringBuilder result) {
 
@@ -196,7 +202,7 @@ public class GrouperDdlEngine {
     StringBuilder historyBuilder = GrouperDdlUtils.retrieveHistory(objectName);
     
     //this is the version in the db
-    int realDbVersion = GrouperDdlUtils.retrieveDdlDbVersion(objectName);
+    int realDbVersion = this.deepCheck ? 0 : GrouperDdlUtils.retrieveDdlDbVersion(objectName);
     
     String versionStatus = null;
     GrouperVersion grouperVersionDatabase = null;
@@ -310,10 +316,13 @@ public class GrouperDdlEngine {
 //        
 //        //if there was no override
 //        if (StringUtils.isBlank(script)) {
-          
+
+      
+      
       //it needs a name, just use "grouper"
       Database oldDatabase = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
           null, null);
+      
       GrouperDdlUtils.dropAllForeignKeys(oldDatabase);
       
       Database newDatabase = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
@@ -327,7 +336,8 @@ public class GrouperDdlEngine {
       
       //get this to the previous version, dont worry about additional scripts
       GrouperDdlUtils.upgradeDatabaseVersion(oldDatabase, null, 0, objectName, dbVersion, 
-          new StringBuilder(), result, platform, connection, schema, sqlBuilder);
+        new StringBuilder(), result, platform, connection, schema, sqlBuilder);
+      
       GrouperDdlUtils.upgradeDatabaseVersion(newDatabase, null, 0, objectName, dbVersion, 
           new StringBuilder(), result, platform, connection, schema, sqlBuilder);
       
@@ -453,12 +463,27 @@ public class GrouperDdlEngine {
     }
   }
 
+//  /**
+//   * 
+//   */
+//  private boolean recreateViewsAndForeignKeys;
+//
+//  /**
+//   * 
+//   * @param theRecreateViewsAndForeignKeys
+//   * @return this for chaining
+//   */
+//  public GrouperDdlEngine assignRecreateViewsAndForeignKeys(boolean theRecreateViewsAndForeignKeys) {
+//    this.recreateViewsAndForeignKeys = theRecreateViewsAndForeignKeys;
+//    return this;
+//  }
+  
   private boolean dropViewsAndForeignKeysIfNeeded(String objectName,
       Connection connection, String schema, Platform platform, StringBuilder result,
       int javaVersion, DdlVersionable ddlVersionableJava, int dbVersion,
       DbMetadataBean dbMetadataBean, SqlBuilder sqlBuilder) {
     // see if we really need to recreate views/keys
-    boolean recreateViewsAndForeignKeys = true;
+    boolean theRecreateViewsAndForeignKeys = true;
     if (!dropBeforeCreate && !dropOnly) {
       boolean reallyNeedToRecreate = false;
       for (int version = dbVersion+1; version<=javaVersion; version++) {
@@ -470,12 +495,18 @@ public class GrouperDdlEngine {
       }
       
       if (!reallyNeedToRecreate) {
-        recreateViewsAndForeignKeys = false;
+        theRecreateViewsAndForeignKeys = false;
       }
     }
 
+    if (this.deepCheck) {
+      theRecreateViewsAndForeignKeys = false;
+    }
+//    if (this.recreateViewsAndForeignKeys) {
+//      theRecreateViewsAndForeignKeys = true;
+//    }
     {
-      if (recreateViewsAndForeignKeys) {
+      if (theRecreateViewsAndForeignKeys) {
         if (fromStartup && dbVersion > 0) {
           // dont run a script that will go off the rails
           writeAndRunScript = false;
@@ -493,7 +524,7 @@ public class GrouperDdlEngine {
         }
       }
     }
-    return recreateViewsAndForeignKeys;
+    return theRecreateViewsAndForeignKeys;
   }
 
   private Boolean checkIfChangeLogEmptyRequired(String objectName, int javaVersion,

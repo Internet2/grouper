@@ -85,7 +85,9 @@ public class RegistryInitializeSchema {
       boolean runForTests = false;
       boolean runSqlFile = false;
       boolean runBootstrap = true;
+      boolean theDeepCheck = false;
       boolean installDefaultGrouperData = true;
+      //boolean theRecreateViewsAndForeignKeys = false;
       Map<String, DdlVersionable> maxVersions = null;
       boolean promptUser = true;
       HashSet<String> argsSet = new HashSet<String>();
@@ -96,8 +98,11 @@ public class RegistryInitializeSchema {
         theDropBeforeCreate = true;
       }
       if (argsSet.contains("-deep")) {
-        GrouperDdlUtils.deepCheck = true;
+        theDeepCheck = true;
       }
+      //if (argsSet.contains("-recreateviewsandforeignkeys")) {
+      //  theRecreateViewsAndForeignKeys = true;
+      //}
       if (argsSet.contains("-dontinstall")) {
         installDefaultGrouperData = false;
       }
@@ -172,8 +177,8 @@ public class RegistryInitializeSchema {
         
         if (runBootstrap) {
           //run the bootstrap
-          new GrouperDdlEngine().assignCallFromCommandLine(callFromCommandLine).assignFromUnitTest(fromUnitTest)
-            .assignCompareFromDbVersion(theCompareFromDbVersion)
+          new GrouperDdlEngine().assignCallFromCommandLine(callFromCommandLine).assignFromUnitTest(fromUnitTest).assignDeepCheck(theDeepCheck)
+            .assignCompareFromDbVersion(theCompareFromDbVersion)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
             .assignDropBeforeCreate(theDropBeforeCreate).assignWriteAndRunScript(theWriteAndRunScript)
             .assignDropOnly(dropOnly)
             .assignInstallDefaultGrouperData(installDefaultGrouperData).assignPromptUser(promptUser).runDdl();
@@ -197,7 +202,6 @@ public class RegistryInitializeSchema {
       }
 
     } finally {
-      GrouperDdlUtils.deepCheck = false;
     }
   }
 
