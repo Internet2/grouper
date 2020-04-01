@@ -1240,6 +1240,23 @@ public class GrouperDdlUtils {
           + " for db view: " + viewName);
     }
 
+    // theres no discovery here, have to keep track
+    GrouperDdlCompareResult grouperDdlCompareResult = ddlVersionBean.getGrouperDdlCompareResult();
+    if (grouperDdlCompareResult != null) {
+      
+      GrouperDdlCompareView grouperDdlCompareView = new GrouperDdlCompareView();
+      
+      grouperDdlCompareView.setName(viewName);
+      for (String alias : aliases) {
+
+        GrouperDdlCompareColumn grouperDdlCompareColumn = new GrouperDdlCompareColumn();
+        grouperDdlCompareColumn.setName(alias);
+        grouperDdlCompareView.getGrouperDdlCompareColumns().add(grouperDdlCompareColumn);
+      }
+      
+      grouperDdlCompareResult.getGrouperViewsInJava().put(grouperDdlCompareView.getName().toLowerCase(), grouperDdlCompareView);
+      
+    }
     // views are required now
     // if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.disableViews", false)) {
     //  return;
@@ -1676,7 +1693,7 @@ public class GrouperDdlUtils {
     String objectName = className.substring(0, className.length()-3);
     return objectName;
   }
-  
+
   /**
    * get a database object of a certain version based on the existing database, and tack on
    * all the enums up to the version we want (if any)
@@ -1695,6 +1712,31 @@ public class GrouperDdlUtils {
   public static void upgradeDatabaseVersion(Database baseVersion, Database oldVersion, int baseDatabaseVersion, 
       String objectName, int upgradeToVersion, StringBuilder additionalScripts, 
       StringBuilder fullScript, Platform platform, Connection connection, String schema, SqlBuilder sqlBuilder) {
+    upgradeDatabaseVersion(baseVersion, oldVersion, baseDatabaseVersion, 
+        objectName, upgradeToVersion, additionalScripts, 
+        fullScript, platform, connection, schema, sqlBuilder, null);
+  }
+
+  /**
+   * get a database object of a certain version based on the existing database, and tack on
+   * all the enums up to the version we want (if any)
+   * @param baseVersion
+   * @param oldVersion old version if there is one, null if not
+   * @param baseDatabaseVersion
+   * @param objectName
+   * @param upgradeToVersion eventual upgrade version
+   * @param additionalScripts 
+   * @param fullScript so far
+   * @param platform 
+   * @param connection 
+   * @param schema 
+   * @param sqlBuilder 
+   */
+  public static void upgradeDatabaseVersion(Database baseVersion, Database oldVersion, int baseDatabaseVersion, 
+      String objectName, int upgradeToVersion, StringBuilder additionalScripts, 
+      StringBuilder fullScript, Platform platform, Connection connection, String schema, 
+      SqlBuilder sqlBuilder, GrouperDdlCompareResult grouperDdlCompareResult) {
+
     if (baseDatabaseVersion == upgradeToVersion) {
       return;
     }
@@ -1705,6 +1747,8 @@ public class GrouperDdlUtils {
       //do an incremental update
       DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldVersion, baseVersion, additionalScripts, 
           version == upgradeToVersion, upgradeToVersion, fullScript, baseDatabaseVersion);
+      ddlVersionBean.setGrouperDdlCompareResult(grouperDdlCompareResult);
+
       ddlVersionBeanThreadLocalAssign(ddlVersionBean);
       try {
         ddlVersionable.updateVersionFromPrevious(baseVersion, ddlVersionBean);
