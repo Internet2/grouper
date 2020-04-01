@@ -285,6 +285,7 @@
                                 <source>src/grouper-ws_v2_2</source>
                                 <source>src/grouper-ws_v2_3</source>
                                 <source>src/grouper-ws_v2_4</source>
+                                <source>src/grouper-ws_v2_5</source>
                             </sources>
                         </configuration>
                     </execution>
