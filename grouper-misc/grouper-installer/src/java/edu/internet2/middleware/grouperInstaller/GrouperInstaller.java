@@ -9991,7 +9991,34 @@ public class GrouperInstaller {
       editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.scim.basicAuthn", "true", false);
     } 
     
-    // init the database
+    // ask from user here if they want to auto init the database for this container and 
+    // the subsequent containers (y|n) y: 
+    // if yes
+    // editPropertiesFile(grouperHibernatePropertiesFile, "registry.auto.ddl.upToVersion", "<2.5.*>", false);
+    // also; just run the following docker command
+    
+    // if no;
+    
+    // ask again if they want to init the db one time now? (y|n) y:
+    // if y: keep doing what we are already doing
+    // if no; then skip initting the db (the following docker command)
+    
+    System.out.print("Do you want to auto init the database for this container and the subsequent containers (t|f)? [t] ");
+    boolean autoInitDatabase = readFromStdInBoolean(true, "Placeholder");
+    boolean initDbDocker = false;
+    if (autoInitDatabase) {
+      String versionWithAnyPatch = dockerImageVersion.substring(0, dockerImageVersion.lastIndexOf("."));
+      versionWithAnyPatch = versionWithAnyPatch + ".*";
+      editPropertiesFile(grouperHibernatePropertiesFile, "registry.auto.ddl.upToVersion", versionWithAnyPatch, false);
+      initDbDocker = true;
+    } else {
+      System.out.print("Do you want to init the database one time now (t|f)? [t] ");
+      boolean initDatabaseOneTime = readFromStdInBoolean(true, "Placeholder");
+      if (initDatabaseOneTime == true) {
+        initDbDocker = true;
+      }
+    }
+    
     contentToWrite = new StringBuilder();
     contentToWrite.append("Run the following command to init the database. It is not a required step.");
     contentToWrite.append("\n");
@@ -10020,9 +10047,7 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
-    System.out.print("Would you like to init the database (t|f)? [f]: ");
-    boolean initdb = readFromStdInBoolean(false, "Placeholder");
-    if (initdb) {
+    if (initDbDocker) {
       boolean dbInitialized = false;
       try {
         commands = new ArrayList<String>();
@@ -10046,8 +10071,7 @@ public class GrouperInstaller {
         System.out.println(buildInitCommand.toString());
         System.out.print("Press any key to continue once the command has been run: ");
         readFromStdIn("Placeholder");
-      } 
-      
+      }
     }
     
     // Add passwords for grouper ui
