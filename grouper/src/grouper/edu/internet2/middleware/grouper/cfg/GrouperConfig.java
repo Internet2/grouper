@@ -197,7 +197,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                       AttributeDef attributeDef = AttributeDefFinder.findByName(nameOfAttributeDef, false);
                       
                       if (attributeDef == null) {
-                        LOG().error("Attribute def not found: " + nameOfAttributeDef);
+                        LOG().info("Attribute def not found: " + nameOfAttributeDef + " in attribute churn reduction.  Thats ok.");
                         continue;
                       }
                       
