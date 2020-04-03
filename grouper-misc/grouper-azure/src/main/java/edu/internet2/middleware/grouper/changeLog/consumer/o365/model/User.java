@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.changeLog.consumer.model;
+package edu.internet2.middleware.grouper.changeLog.consumer.o365.model;
 
 public class User {
     public final String id;

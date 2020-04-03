@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.changeLog.consumer.model;
+package edu.internet2.middleware.grouper.changeLog.consumer.o365.model;
 
 import java.util.Collection;
 

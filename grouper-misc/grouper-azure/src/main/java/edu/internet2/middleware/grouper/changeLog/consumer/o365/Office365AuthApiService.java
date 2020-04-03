@@ -1,6 +1,6 @@
-package edu.internet2.middleware.grouper.changeLog.consumer;
+package edu.internet2.middleware.grouper.changeLog.consumer.o365;
 
-import edu.internet2.middleware.grouper.changeLog.consumer.model.OAuthTokenInfo;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.OAuthTokenInfo;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;

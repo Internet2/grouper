@@ -1,14 +1,13 @@
-package edu.internet2.middleware.grouper.changeLog.consumer;
+package edu.internet2.middleware.grouper.changeLog.consumer.o365;
 
-import edu.internet2.middleware.grouper.changeLog.consumer.model.Group;
-import edu.internet2.middleware.grouper.changeLog.consumer.model.GroupsOdata;
-import edu.internet2.middleware.grouper.changeLog.consumer.model.OdataIdContainer;
-import edu.internet2.middleware.grouper.changeLog.consumer.model.User;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.GroupsOdata;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.OdataIdContainer;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.User;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
 
-import java.util.List;
 import java.util.Map;
 
 public interface Office365GraphApiService {

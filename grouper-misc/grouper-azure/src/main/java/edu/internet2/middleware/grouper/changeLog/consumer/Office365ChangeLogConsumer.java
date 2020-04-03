@@ -8,10 +8,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.consumer.model.GroupsOdata;
-import edu.internet2.middleware.grouper.changeLog.consumer.model.OAuthTokenInfo;
-import edu.internet2.middleware.grouper.changeLog.consumer.model.OdataIdContainer;
-import edu.internet2.middleware.grouper.changeLog.consumer.model.User;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.Office365AuthApiService;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.Office365GraphApiService;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.GroupsOdata;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.OAuthTokenInfo;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.OdataIdContainer;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.User;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.subject.Subject;
 import okhttp3.Interceptor;
@@ -193,7 +195,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         }
              */
             retrofit2.Response response = invoke(this.service.createGroup(
-                    new edu.internet2.middleware.grouper.changeLog.consumer.model.Group(
+                    new edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group(
                             null,
                             this.getJexlGroupName(group),
                             false,
@@ -206,7 +208,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
 
             AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:office365:o365Id", false);
             group.getAttributeDelegate().assignAttribute(attributeDefName);
-            group.getAttributeValueDelegate().assignValue("etc:attribute:office365:o365Id", ((edu.internet2.middleware.grouper.changeLog.consumer.model.Group) response.body()).id);
+            group.getAttributeValueDelegate().assignValue("etc:attribute:office365:o365Id", ((edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group) response.body()).id);
         } catch (IOException e) {
             logger.error(e);
         }
@@ -228,7 +230,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
             Map options = new TreeMap<>();
             //TODO: fix this
             options.put("$filter", "displayName eq '" + finalName + "'");
-            edu.internet2.middleware.grouper.changeLog.consumer.model.Group group = ((GroupsOdata) invoke(this.service.getGroups(options)).body()).groups.get(0);
+            edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group group = ((GroupsOdata) invoke(this.service.getGroups(options)).body()).groups.get(0);
             invoke(this.service.deleteGroup(group.id));
         } catch (IOException e) {
             logger.error(e);
