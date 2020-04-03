@@ -8,14 +8,22 @@ Note that this currently only supports security groups. Support for other group 
 1. build
 
     ```
-    ./gradlew clean distZip
+    mvn clean package
+    mvn dependency:copy-dependencies
     ```
 
 1. copy contents of file to grouper home
 
+    (2.5+ Docker container)
     ```
-    unzip build/distributions/office-365-azure-ad-grouper-provisioner-1.0.0.zip -d /tmp
-    cp /tmp/office-365-azure-ad-grouper-provisioner-1.0.0/*.jar /opt/grouper.apiBinary-2.3.0/lib/custom
+    cp target/office-365-azure-ad-grouper-provisioner-2.5.0-SNAPSHOT.jar /opt/grouperContainer/lib/
+    cp target/dependency/* /opt/grouperContainer/lib/
+    ```
+
+    (2.3, 2.4)
+    ```
+    cp target/office-365-azure-ad-grouper-provisioner-2.5.0-SNAPSHOT.jar /opt/grouper.apiBinary-{version}/lib/custom
+    cp target/dependency/* /opt/grouper.apiBinary-{version}/lib/custom
     ```
 
 1. Set up stem for provisioning and ID attribute
