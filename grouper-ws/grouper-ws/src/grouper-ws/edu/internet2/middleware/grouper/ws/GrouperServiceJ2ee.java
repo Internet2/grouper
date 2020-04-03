@@ -18,8 +18,6 @@
  */
 package edu.internet2.middleware.grouper.ws;
 
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-
 import java.io.IOException;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
@@ -40,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.codec.binary.Base64;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -80,6 +77,7 @@ import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLongRunningLog;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -946,7 +944,8 @@ public class GrouperServiceJ2ee implements Filter {
         boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
         
         if (!isValid) {
-          ((HttpServletResponse) response).setStatus(SC_UNAUTHORIZED);
+          ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
+          ((HttpServletResponse) response).sendError(401, "Unauthorized");          
           return;
         } else {
           String userName = Authentication.retrieveUsername(authHeader);

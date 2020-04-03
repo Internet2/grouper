@@ -1523,6 +1523,7 @@ public class GrouperInstaller {
     },
 
     /** install grouper */
+    @Deprecated //TODO delete it.
     install {
 
       @Override
@@ -9966,6 +9967,33 @@ public class GrouperInstaller {
             }
           }
         }
+        
+        if (newDbUrl.contains("oracle")) {
+          
+          System.out.print("Have you reviewed and agreed to the Oracle's terms https://www.oracle.com/downloads/licenses/distribution-license.html (t|f)? [t] ");
+          boolean oracleTermsAgreed = readFromStdInBoolean(true, "Placeholder");
+          File oracleLibPath = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
+              File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"lib");
+          if (!oracleTermsAgreed) {
+            System.out.print("Place the oracle jdbc jar in " + oracleLibPath.getAbsolutePath() + " and press any key to continue ");
+            readFromStdIn("Placeholder");
+          } else {
+            System.out.print("Do you want the installer to install the oracle jar (t|f)? [t] ");
+            boolean shouldContinue = readFromStdInBoolean(true, "Placeholder");
+            if (shouldContinue) {
+              
+              File oracleLibJarPath = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
+                  File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"lib"+File.separator+"ojdbc8-19.3.0.0.jar");
+              
+              GrouperInstallerUtils.createParentDirectories(oracleLibJarPath);
+              
+              downloadFile("https://repo1.maven.org/maven2/com/oracle/ojdbc/ojdbc8/19.3.0.0/ojdbc8-19.3.0.0.jar", oracleLibJarPath.getAbsolutePath(), "");
+            }
+          }
+          
+          
+        }
+        
       }
       System.out.print("Database user: ");
       String newDbUser = readFromStdIn("grouperInstaller.autorun.dbUser");
@@ -9998,12 +10026,11 @@ public class GrouperInstaller {
     // also; just run the following docker command
     
     // if no;
-    
     // ask again if they want to init the db one time now? (y|n) y:
     // if y: keep doing what we are already doing
     // if no; then skip initting the db (the following docker command)
     
-    System.out.print("Do you want to auto init the database for this container and the subsequent containers (t|f)? [t] ");
+    System.out.print("Do you want to init the database and auto-upgrade for subsequent containers of the same major and minor version of Grouper (t|f)? [t] ");
     boolean autoInitDatabase = readFromStdInBoolean(true, "Placeholder");
     boolean initDbDocker = false;
     if (autoInitDatabase) {
@@ -10227,10 +10254,6 @@ public class GrouperInstaller {
       grouperUiSystemPasswordSh.delete();
       
     }
-    
-    
-    
-    
     
     // Add passwords for grouper ws
     contentToWrite = new StringBuilder();    
@@ -10656,7 +10679,7 @@ public class GrouperInstaller {
     }
     
     // now download all the grouper project jars
-    downloadGrouperJarsIntoLibDirectory(libDir);
+    downloadGrouperJarsIntoLibDirectory(webInfDir);
     
     // take care of conflicting jars
     reportOnConflictingJars(libDir.getAbsolutePath());
@@ -10681,6 +10704,8 @@ public class GrouperInstaller {
   /**
    * 
    */
+  //TODO delete everything related to install
+  @Deprecated
   private void mainInstallLogic() {
     
     //####################################
@@ -13072,23 +13097,57 @@ public class GrouperInstaller {
     return grouperSourceCodeFile;
   }
   
-  private void downloadGrouperJarsIntoLibDirectory(File destinationPath) {
+  private void downloadGrouperJarsIntoLibDirectory(File webInfDir) {
     
     String basePath = "https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/";
     
-    List<String> urlsToDownload = new ArrayList<String>();
-    urlsToDownload.add(basePath+"grouper/"+this.version+"/grouper-"+this.version+".jar");
-    urlsToDownload.add(basePath+"grouperClient/"+this.version+"/grouperClient-"+this.version+".jar");
-    urlsToDownload.add(basePath+"grouper-ws/"+this.version+"/grouper-ws-"+this.version+".jar");
-    urlsToDownload.add(basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar");
-    urlsToDownload.add(basePath+"grouper-ws-scim/"+this.version+"/grouper-ws-scim-"+this.version+".jar");
-    urlsToDownload.add(basePath+"grouper-messaging-aws/"+this.version+"/grouper-messaging-aws-"+this.version+".jar");
-    urlsToDownload.add(basePath+"grouper-messaging-rabbitmq/"+this.version+"/grouper-messaging-rabbitmq-"+this.version+".jar");
-    urlsToDownload.add(basePath+"grouper-activemq/"+this.version+"/grouper-activemq-"+this.version+".jar");
+    {
+      File libDir = new File(webInfDir+File.separator+"lib");
+      
+      List<String> urlsToDownload = new ArrayList<String>();
+      urlsToDownload.add(basePath+"grouper/"+this.version+"/grouper-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouperClient/"+this.version+"/grouperClient-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-messaging-aws/"+this.version+"/grouper-messaging-aws-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-messaging-rabbitmq/"+this.version+"/grouper-messaging-rabbitmq-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-activemq/"+this.version+"/grouper-activemq-"+this.version+".jar");
+      
+      for (String urlToDownload: urlsToDownload) {
+        String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
+        downloadFile(urlToDownload, libDir.getAbsolutePath() + File.separator+ fileName, "");
+      }
+    }
     
-    for (String urlToDownload: urlsToDownload) {
-      String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
-      downloadFile(urlToDownload, destinationPath.getAbsolutePath() + File.separator+ fileName, "");
+    {
+      File libUiAndDaemonDir = new File(webInfDir+File.separator+"libUiAndDaemon");
+      List<String> urlsToDownload = new ArrayList<String>();
+      urlsToDownload.add(basePath+"grouper-messaging-aws/"+this.version+"/grouper-messaging-aws-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-messaging-rabbitmq/"+this.version+"/grouper-messaging-rabbitmq-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-activemq/"+this.version+"/grouper-activemq-"+this.version+".jar");
+      for (String urlToDownload: urlsToDownload) {
+        String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
+        downloadFile(urlToDownload, libUiAndDaemonDir.getAbsolutePath() + File.separator+ fileName, "");
+      }
+    }
+    
+    {
+      File libWsDir = new File(webInfDir+File.separator+"libWs");
+      String wsUrlToDownload = basePath+"grouper-ws/"+this.version+"/grouper-ws-"+this.version+".jar";
+      String wsJarfileName = wsUrlToDownload.substring(wsUrlToDownload.lastIndexOf(File.separator)+1, wsUrlToDownload.length());
+      downloadFile(wsUrlToDownload, libWsDir.getAbsolutePath() + File.separator+ wsJarfileName, "");
+    }
+    
+    {
+      File libUiAndDaemonDir = new File(webInfDir+File.separator+"libUiAndDaemon");
+      String uiUrlToDownload = basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar";
+      String uiJarfileName = uiUrlToDownload.substring(uiUrlToDownload.lastIndexOf(File.separator)+1, uiUrlToDownload.length());
+      downloadFile(uiUrlToDownload, libUiAndDaemonDir.getAbsolutePath() + File.separator+ uiJarfileName, "");
+    }
+    
+    {
+      File libScimDir = new File(webInfDir+File.separator+"libScim");
+      String scimUrlToDownload = basePath+"grouper-ws-scim/"+this.version+"/grouper-ws-scim-"+this.version+".jar";
+      String scimJarfileName = scimUrlToDownload.substring(scimUrlToDownload.lastIndexOf(File.separator)+1, scimUrlToDownload.length());
+      downloadFile(scimUrlToDownload, libScimDir.getAbsolutePath() + File.separator+ scimJarfileName, "");
     }
     
   }
@@ -13604,34 +13663,6 @@ public class GrouperInstaller {
     Set<File> shFiles = new LinkedHashSet<File>();
     for (String shFileName : shFileNames) {
       shFiles.add(new File(shFileName));
-    }
-    
-    // dos2unix(shFiles, "tomee sh files", "OnTomeeFiles");
-    
-    File serverXmlFile = new File(tommeDir.getAbsolutePath()
-        + File.separator + "conf" + File.separator + "server.xml");
-    
-    String tomeeGrouperPath = "grouper";
-    
-    String shouldBeDocBase = webAppDir.getAbsolutePath();
-
-    System.out.println("Editing tomee config file: " + serverXmlFile.getAbsolutePath());
-    
-    String contextDocBase = GrouperInstallerUtils.propertiesValue("grouperInstaller.webAppWillBeInContainer", false);
-    
-    if (GrouperInstallerUtils.isNotBlank(contextDocBase)) {
-      shouldBeDocBase = contextDocBase;
-    }
-    
-    addToXmlFile(serverXmlFile, ">", new String[]{"<Host "}, 
-        "<Context docBase=\"" + shouldBeDocBase + "\" path=\"/" + tomeeGrouperPath + "\" reloadable=\"false\"/>", "tomee context for grouper webapp");
-    
-    String currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
-        "Server/Service/Engine/Host/Context[@path='/" + tomeeGrouperPath + "']", "docBase");
-    
-    if (!GrouperInstallerUtils.equals(currentDocBase, shouldBeDocBase)) {
-      System.out.println("Tried to edit server.xml but it didnt work, should have context of: '" 
-          + shouldBeDocBase + "', but was: '" + currentDocBase + "'");
     }
     
   }
@@ -14313,9 +14344,9 @@ public class GrouperInstaller {
         (GrouperInstallerMainFunction)promptForEnum(
             "Do you want to 'install' a new installation of grouper, 'upgrade' an existing installation,\n"
                 + "  'patch' an existing installation, 'admin' utilities, 'buildContainer', 'installContainer', or 'createPatch' for Grouper developers\n" 
-                + "  (enter: 'install', 'upgrade', 'patch', 'admin', 'createPatch', 'buildContainer', 'installContainer', or blank for the default) ",
+                + "  (enter: 'installContainer', 'upgrade', 'patch', 'admin', 'createPatch', 'buildContainer', or blank for the default) ",
             "grouperInstaller.autorun.actionEgInstallUpgradePatch", GrouperInstallerMainFunction.class, 
-            GrouperInstallerMainFunction.install, "grouperInstaller.default.installOrUpgrade");
+            GrouperInstallerMainFunction.installContainer, "grouperInstaller.default.installOrUpgrade");
     return grouperInstallerMainFunctionLocal;
   }
 

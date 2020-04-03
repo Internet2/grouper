@@ -126,7 +126,8 @@ public class TierFilter implements Filter {
           boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
           
           if (!isValid) {
-            ((HttpServletResponse) response).setStatus(SC_UNAUTHORIZED);
+            ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
+            ((HttpServletResponse) response).sendError(401, "Unauthorized");
             return;
           } else {
             String userName = Authentication.retrieveUsername(authHeader);
