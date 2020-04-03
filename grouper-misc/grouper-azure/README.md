@@ -83,3 +83,9 @@ Use the following request parameters:
 * grant_type - specify client_credentials, this value implies "Application Permissions" (as opposed to "Delegated Permissions")
 * redirect_uri - specify http://localhost/grouper
 * scope - specify https://graph.microsoft.com/.default
+
+# Acknowledgments
+
+The Office365/Azure provisioner for Grouper originated as a project from Unicon, Inc. Primary developers were Bill
+Thompson, Jj, and John Gasper, with other contributions by Chris Hyzer and Russ Trotter. The source project can be
+found at https://github.com/Unicon/office365-and-azure-ad-grouper-provisioner .
