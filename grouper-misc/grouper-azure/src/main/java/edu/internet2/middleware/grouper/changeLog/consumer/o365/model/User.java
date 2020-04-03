@@ -18,4 +18,10 @@ public class User {
         this.passwordProfile = passwordProfile;
         this.userPrincipalName = userPrincipalName;
     }
+
+    @Override
+    public String toString() {
+        return "Azure User {id: " + this.id + ", userPrincipalName: " + this.userPrincipalName
+                + ", displayName: " + this.displayName + "}";
+    }
 }

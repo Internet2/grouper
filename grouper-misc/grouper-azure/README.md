@@ -1,9 +1,10 @@
-# office365-and-azure-ad-grouper-provisioner
-This project is an Internet2 Grouper connector (full sync and changelog consumer) that synchronizes Grouper groups and users to Microsoft Azure Active Directory/Office 365.
+# Azure AD Provisioner
+
+This project is an Internet2 Grouper connector that synchronizes Grouper groups and users to Microsoft Azure Active Directory/Office 365.
 
 Note that this currently only supports security groups. Support for other group types is planned.
 
-# Running
+# Installing
 
 1. build
 
@@ -12,19 +13,27 @@ Note that this currently only supports security groups. Support for other group 
     mvn dependency:copy-dependencies
     ```
 
-1. copy contents of file to grouper home
+2. copy contents of file to grouper home
 
     (2.5+ Docker container)
     ```
-    cp target/office-365-azure-ad-grouper-provisioner-2.5.0-SNAPSHOT.jar /opt/grouperContainer/lib/
+    cp target/grouper-azure-provisioner-2.5.0-SNAPSHOT.jar /opt/grouperContainer/lib/
     cp target/dependency/* /opt/grouperContainer/lib/
     ```
 
     (2.3, 2.4)
     ```
-    cp target/office-365-azure-ad-grouper-provisioner-2.5.0-SNAPSHOT.jar /opt/grouper.apiBinary-{version}/lib/custom
+    cp target/grouper-azure-provisioner-2.5.0-SNAPSHOT.jar /opt/grouper.apiBinary-{version}/lib/custom
     cp target/dependency/* /opt/grouper.apiBinary-{version}/lib/custom
     ```
+
+# Configuring
+
+The provisioning attribute to add to the provisionable object is `etc:attribute:office365:o365Sync`. If set on a folder,
+all groups under this folder (recursively) will be automatically provisioned. Alternatively, the attribute can be set on
+an individual group. _It is not recommended to assign directly to a group_, as there is currently a race condition that
+may occur in the current version of this code (i.e., if the changelog consumer runs after group creation but before
+attribute assignment, provisioning will not occur).
 
 1. Set up stem for provisioning and ID attribute
 
@@ -114,3 +123,6 @@ Use the following request parameters:
 The Office365/Azure provisioner for Grouper originated as a project from Unicon, Inc. Primary developers were Bill
 Thompson, Jj, and John Gasper, with other contributions by Chris Hyzer and Russ Trotter. The source project can be
 found at https://github.com/Unicon/office365-and-azure-ad-grouper-provisioner .
+
+This project includes contributions from Kansas State University, project https://github.com/kstateome/office365-and-azure-ad-grouper-provisioner.git.
+Principal development was done by David Malia, with contribution by Kurt Zoglmann.

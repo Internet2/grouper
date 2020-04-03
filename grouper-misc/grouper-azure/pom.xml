@@ -37,22 +37,13 @@
       <artifactId>commons-jexl</artifactId>
       <version>2.1.1</version>
     </dependency>
+    <!-- if we starting uing com.microsoft.graph:microsoft-graph:jar, it will include this same gson library -->
     <dependency>
-      <groupId>com.microsoft.alm</groupId>
-      <artifactId>oauth2-useragent</artifactId>
-      <version>0.11.3</version>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.8.2</version>
     </dependency>
-      <dependency>
-          <groupId>com.microsoft.graph</groupId>
-          <artifactId>microsoft-graph</artifactId>
-          <version>1.7.1</version>
-          <exclusions>
-              <exclusion>
-                  <groupId>com.sun.jersey</groupId>
-                  <artifactId>jersey-server</artifactId>
-              </exclusion>
-          </exclusions>
-      </dependency>
+
     <dependency>
       <groupId>edu.internet2.middleware.grouper</groupId>
       <artifactId>grouper</artifactId>

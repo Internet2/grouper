@@ -1,9 +1,6 @@
 package edu.internet2.middleware.grouper.changeLog.consumer.o365;
 
-import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group;
-import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.GroupsOdata;
-import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.OdataIdContainer;
-import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.User;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.*;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -26,6 +23,9 @@ public interface Office365GraphApiService {
     @POST("groups/{groupId}/members/$ref")
     Call<ResponseBody> addGroupMember(@Path("groupId") String groupId, @Body OdataIdContainer member);
 
+    @GET("groups/{groupId}/members/")
+    Call<Members> getGroupMembers(@Path("groupId") String groupId);
+    
     @GET("users/{upn}")
     Call<User> getUserByUPN(@Path("upn") String upn);
 
