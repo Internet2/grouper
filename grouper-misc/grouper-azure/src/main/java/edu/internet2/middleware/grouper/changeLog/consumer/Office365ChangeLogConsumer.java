@@ -48,7 +48,6 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
     private final String domain;
 
     private final String groupJexl;
-    private final String userJexl;
 
     private final Office365GraphApiService service;
 
@@ -67,7 +66,6 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         this.domain = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".domain", this.tenantId);
 
         this.groupJexl = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".groupJexl");
-        this.userJexl = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".groupJexl");
 
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);

@@ -41,11 +41,28 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
     changeLog.consumer.o365.quartzCron =  0,5,10,15,20,25,30,35,40,45,50,55 * * * * ?
     changeLog.consumer.o365.syncAttributeName = etc:attribute:office365:o365Sync
     changeLog.consumer.o365.retryOnError = true
+    changeLog.consumer.o365.tenantId = @o365.tenantId@
     changeLog.consumer.o365.clientId = @o365.clientId@
     changeLog.consumer.o365.clientSecret = @o365.clientSecret@
+    #changeLog.consumer.o365.idAttribute =
+    #changeLog.consumer.o365.groupJexl =
+
     ```
 
-    Replace `@o365.clientId@` and `@o365.clientSecret@` with appropriate values from the application configuration.
+    Replace `@o365.tenantId@`, `@o365.clientId@` and `@o365.clientSecret@` with appropriate values from the application configuration.
+
+    The property `idAttribute` specifies what attribute is used to build the Azure user principal, and will default to "uid" if not set.
+    The Azure principal will get built as idattribute + "@" + tenantId. Whatever attribute is used must be available as a key as
+    returned in `subject.getAttributes()`; i.e., if you want to use the subject's id or identifier, it needs to be defined in the
+    subject attributes too.
+
+    If `groupJexl` is defined, it will be used to calculate the Azure group name, instead of the group name including
+    the path. The variable `group` is available within the jexl scriptlet to represent the group object. Brackets are
+    not needed around the scriptlet. For example:
+
+        `group.name.replaceAll("^app:azure:", "").replaceAll(":", "_")`
+
+    will remove the initial prefix "app:azure:" from the group path, and replace all folder separators with underscores.
 
 # Office 365 Notes
 
