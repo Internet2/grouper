@@ -36,6 +36,27 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 public class DdlVersionBean {
 
   /**
+   * grouper ddl compare result
+   */
+  private GrouperDdlCompareResult grouperDdlCompareResult = null;
+
+  /**
+   * 
+   * @return
+   */
+  public GrouperDdlCompareResult getGrouperDdlCompareResult() {
+    return this.grouperDdlCompareResult;
+  }
+  
+  /**
+   * 
+   * @param grouperDdlCompareResult
+   */
+  public void setGrouperDdlCompareResult(GrouperDdlCompareResult grouperDdlCompareResult) {
+    this.grouperDdlCompareResult = grouperDdlCompareResult;
+  }
+
+  /**
    * keep track if we already did something
    */
   private Map<String, Boolean> alreadyDone = new HashMap<String, Boolean>();

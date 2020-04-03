@@ -765,6 +765,21 @@ public class GrouperDdlEngine {
         }
         upToDate = true;
       }
+      
+      if (this.deepCheck) {
+
+        GrouperDdlCompareResult grouperDdlCompareResult = new GrouperDdlCompare().compareDatabase();
+
+        String script = grouperDdlCompareResult.getResult().toString();
+
+        if (LOG.isErrorEnabled()) {
+          LOG.error(script);
+        } else {
+          System.err.println(script);
+        }
+
+      }
+      
       ConfigPropertiesCascadeBase.assignInitted();
       if (installDefaultGrouperData && !dropOnly && (upToDate || writeAndRunScript)) {
         registryInstall();
