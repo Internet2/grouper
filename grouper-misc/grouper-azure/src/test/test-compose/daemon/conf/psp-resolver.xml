@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AttributeResolver
+  xmlns="urn:mace:shibboleth:2.0:resolver"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+  xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad"
+  xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+  xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
+  xmlns:psp="http://grouper.internet2.edu/psp"
+  xmlns:psp-grouper-ldap="http://grouper.internet2.edu/psp-grouper-ldap"
+  xmlns:psp-grouper-changelog="http://grouper.internet2.edu/psp-grouper-changelog"
+  xmlns:psp-grouper-source="http://grouper.internet2.edu/psp-grouper-source"
+  xsi:schemaLocation="
+   urn:mace:shibboleth:2.0:resolver classpath:/schema/shibboleth-2.0-attribute-resolver.xsd
+   urn:mace:shibboleth:2.0:resolver:dc classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd
+   urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
+   http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd
+   http://grouper.internet2.edu/psp classpath:/schema/psp.xsd
+   http://grouper.internet2.edu/psp-grouper-ldap classpath:/schema/psp-grouper-ldap.xsd
+   http://grouper.internet2.edu/psp-grouper-changelog classpath:/schema/psp-grouper-changelog.xsd
+   http://grouper.internet2.edu/psp-grouper-source classpath:/schema/psp-grouper-source.xsd">
+
+  <!-- Grouper data connectors. -->
+
+  <!-- The GroupDataConnector returns attributes representing the group whose name is the principal name. The returned group 
+    must be a child of the stem whose name is the edu.internet2.middleware.psp.baseStem property. Groups under the "etc" stem 
+    are omitted. -->
+  <resolver:DataConnector
+    id="GroupDataConnector"
+    xsi:type="grouper:GroupDataConnector">
+    <!-- The MINUS filter matches stems which match the first child filter and not the second. -->
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <!-- The GroupInStem filter matches groups which are children of the given stem. -->
+      <grouper:Filter
+        xsi:type="grouper:GroupInStem"
+        name="${edu.internet2.middleware.psp.baseStem}"
+        scope="SUB" />
+      <grouper:Filter
+        xsi:type="grouper:GroupInStem"
+        name="etc"
+        scope="SUB" />
+    </grouper:Filter>
+    <!-- The "members" attribute values are equivalent to group.getMembers(). -->
+    <grouper:Attribute id="members" />
+    <!-- The "groups" attribute values are equivalent to group.getGroups(). -->
+    <grouper:Attribute id="groups" />
+  </resolver:DataConnector>
+
+  <!-- The GroupWithoutMermbershipsDataConnector returns attributes representing the group whose name is the principal name. 
+    The returned group must be a child of the stem whose name is the edu.internet2.middleware.psp.baseStem property. Groups under 
+    the "etc" stem are omitted. No memberships (groups or members) should be returned by this data connector to improve performance 
+    of identifier resolution. -->
+  <resolver:DataConnector
+    id="GroupWithoutMermbershipsDataConnector"
+    xsi:type="grouper:GroupDataConnector">
+    <!-- The MINUS filter matches stems which match the first child filter and not the second. -->
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <!-- The GroupInStem filter matches groups which are children of the given stem. -->
+      <grouper:Filter
+        xsi:type="grouper:GroupInStem"
+        name="${edu.internet2.middleware.psp.baseStem}"
+        scope="SUB" />
+      <grouper:Filter
+        xsi:type="grouper:GroupInStem"
+        name="etc"
+        scope="SUB" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- The StemDataConnector returns attributes representing the stem whose name is the principal name. The returned stem 
+    must be a child of the stem whose name is the edu.internet2.middleware.psp.baseStem property. The "etc" stem and all children 
+    are omitted. -->
+  <resolver:DataConnector
+    id="StemDataConnector"
+    xsi:type="grouper:StemDataConnector">
+    <!-- The MINUS filter matches stems which match the first child filter and not the second. -->
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <!-- The StemInStem filter matches stems which are children of the given stem. -->
+      <grouper:Filter
+        xsi:type="grouper:StemInStem"
+        name="${edu.internet2.middleware.psp.baseStem}"
+        scope="SUB" />
+      <!-- The OR filter matches stems which match either the first or second child filter. -->
+      <grouper:Filter xsi:type="grouper:OR">
+        <!-- The StemInStem filter matches stems which are children of the given stem. -->
+        <grouper:Filter
+          xsi:type="grouper:StemInStem"
+          name="etc"
+          scope="SUB" />
+        <!-- The StemNameExact filter matches stems with the given name. -->
+        <grouper:Filter
+          xsi:type="grouper:StemNameExact"
+          name="etc" />
+      </grouper:Filter>
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- The MemberDataConnector returns attributes representing the member whose subject id or identifier is the principal 
+    name. -->
+  <resolver:DataConnector
+    id="MemberDataConnector"
+    xsi:type="grouper:MemberDataConnector">
+    <!-- Return members from the "ldap" source only. -->
+    <grouper:Filter
+      xsi:type="grouper:MemberSource"
+      sourceId="ldap" />
+    <!-- Return the "dn" attribute of members whose subject source id is "ldap". -->
+    <grouper:Attribute
+      id="dn"
+      source="ldap" />
+  </resolver:DataConnector>
+
+
+  <!-- Returns a single "groupNames" attribute whose values are the names of all groups matching the filter. The groups returned 
+    are children of the stem whose name is the edu.internet2.middleware.psp.baseStem property. Groups under the "etc" stem are 
+    omitted. -->
+  <resolver:DataConnector
+    id="AllGroupNamesConnector"
+    xsi:type="psp-grouper-source:AllGroupNamesDataConnector">
+    <!-- The MINUS filter matches stems which match the first child filter and not the second. -->
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <!-- The GroupInStem filter matches groups which are children of the given stem. -->
+      <grouper:Filter
+        xsi:type="grouper:GroupInStem"
+        name="${edu.internet2.middleware.psp.baseStem}"
+        scope="SUB" />
+      <grouper:Filter
+        xsi:type="grouper:GroupInStem"
+        name="etc"
+        scope="SUB" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- The names of all groups matching the data connector filter. -->
+  <resolver:AttributeDefinition
+    id="groupNames"
+    xsi:type="ad:Simple">
+    <resolver:Dependency ref="AllGroupNamesConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- Returns a single "stemNames" attribute whose values are the names of all stems matching the filter. The stems returned 
+    are children of the stem whose name is the edu.internet2.middleware.psp.baseStem property. The "etc" stem and all children 
+    are omitted. -->
+  <resolver:DataConnector
+    id="AllStemNamesConnector"
+    xsi:type="psp-grouper-source:AllStemNamesDataConnector">
+    <!-- The MINUS filter matches stems which match the first child filter and not the second. -->
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <!-- The StemInStem filter matches stems which are children of the given stem. -->
+      <grouper:Filter
+        xsi:type="grouper:StemInStem"
+        name="${edu.internet2.middleware.psp.baseStem}"
+        scope="SUB" />
+      <!-- The OR filter matches stems which match either the first or second child filter. -->
+      <grouper:Filter xsi:type="grouper:OR">
+        <!-- The StemInStem filter matches stems which are children of the given stem. -->
+        <grouper:Filter
+          xsi:type="grouper:StemInStem"
+          name="etc"
+          scope="SUB" />
+        <!-- The StemNameExact filter matches stems with the given name. -->
+        <grouper:Filter
+          xsi:type="grouper:StemNameExact"
+          name="etc" />
+      </grouper:Filter>
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- The names of all stems matching the data connector filter. -->
+  <resolver:AttributeDefinition
+    id="stemNames"
+    xsi:type="ad:Simple">
+    <resolver:Dependency ref="AllStemNamesConnector" />
+  </resolver:AttributeDefinition>
+
+
+  <!-- ChangeLogDataConnectors return attributes representing the change log entry whose sequence number is the principal 
+    name. -->
+
+  <!-- Returns change log attributes representing the deletion of a stem. -->
+  <resolver:DataConnector
+    id="DeleteStemChangeLogDataConnector"
+    xsi:type="psp-grouper-changelog:ChangeLogDataConnector">
+    <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+    <grouper:Filter
+      xsi:type="psp-grouper-changelog:ChangeLogEntry"
+      category="stem"
+      action="deleteStem" />
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing the changing of a stem's name. -->
+  <resolver:DataConnector
+    id="UpdateStemNameChangeLogDataConnector"
+    xsi:type="psp-grouper-changelog:ChangeLogDataConnector">
+    <!-- The AND filter matches both child filters. -->
+    <grouper:Filter xsi:type="grouper:AND">
+      <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+      <grouper:Filter
+        xsi:type="psp-grouper-changelog:ChangeLogEntry"
+        category="stem"
+        action="updateStem" />
+      <!-- The ChangeLogExactAttribute filter matches change log entries with the given attribute and value. -->
+      <grouper:Filter
+        xsi:type="psp-grouper-changelog:ChangeLogExactAttribute"
+        name="propertyChanged"
+        value="name" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing the changing of a stem's description. -->
+  <resolver:DataConnector
+    id="UpdateStemDescriptionChangeLogDataConnector"
+    xsi:type="psp-grouper-changelog:ChangeLogDataConnector">
+    <!-- The AND filter matches both child filters. -->
+    <grouper:Filter xsi:type="grouper:AND">
+      <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+      <grouper:Filter
+        xsi:type="psp-grouper-changelog:ChangeLogEntry"
+        category="stem"
+        action="updateStem" />
+      <!-- The ChangeLogExactAttribute filter matches change log entries with the given attribute and value. -->
+      <grouper:Filter
+        xsi:type="psp-grouper-changelog:ChangeLogExactAttribute"
+        name="propertyChanged"
+        value="description" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing the deletion of a group. -->
+  <resolver:DataConnector
+    id="DeleteGroupChangeLogDataConnector"
+    xsi:type="psp-grouper-changelog:ChangeLogDataConnector">
+    <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+    <grouper:Filter
+      xsi:type="psp-grouper-changelog:ChangeLogEntry"
+      category="group"
+      action="deleteGroup" />
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing the changing of a group's name. -->
+  <resolver:DataConnector
+    id="UpdateGroupNameChangeLogDataConnector"
+    xsi:type="psp-grouper-changelog:ChangeLogDataConnector">
+    <!-- The AND filter matches both child filters. -->
+    <grouper:Filter xsi:type="grouper:AND">
+      <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+      <grouper:Filter
+        xsi:type="psp-grouper-changelog:ChangeLogEntry"
+        category="group"
+        action="updateGroup" />
+      <!-- The ChangeLogExactAttribute filter matches change log entries with the given attribute and value. -->
+      <grouper:Filter
+        xsi:type="psp-grouper-changelog:ChangeLogExactAttribute"
+        name="propertyChanged"
+        value="name" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing the changing of a group's description. -->
+  <resolver:DataConnector
+    id="UpdateGroupDescriptionChangeLogDataConnector"
+    xsi:type="psp-grouper-changelog:ChangeLogDataConnector">
+    <!-- The AND filter matches both child filters. -->
+    <grouper:Filter xsi:type="grouper:AND">
+      <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+      <grouper:Filter
+        xsi:type="psp-grouper-changelog:ChangeLogEntry"
+        category="group"
+        action="updateGroup" />
+      <!-- The ChangeLogExactAttribute filter matches change log entries with the given attribute and value. -->
+      <grouper:Filter
+        xsi:type="psp-grouper-changelog:ChangeLogExactAttribute"
+        name="propertyChanged"
+        value="description" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing a membership addition. -->
+  <resolver:DataConnector
+    id="AddMembershipChangeLogDataConnector"
+    xsi:type="psp-grouper-changelog:ChangeLogDataConnector">
+    <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+    <grouper:Filter
+      xsi:type="psp-grouper-changelog:ChangeLogEntry"
+      category="membership"
+      action="addMembership" />
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing a membership deletion. -->
+  <resolver:DataConnector
+    id="DeleteMembershipChangeLogDataConnector"
+    xsi:type="psp-grouper-changelog:ChangeLogDataConnector">
+    <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+    <grouper:Filter
+      xsi:type="psp-grouper-changelog:ChangeLogEntry"
+      category="membership"
+      action="deleteMembership" />
+  </resolver:DataConnector>
+
+  <!-- Static data connector. -->
+  <resolver:DataConnector
+    id="StaticDataConnector"
+    xsi:type="dc:Static">
+    <!-- Group LDAP objectclass. -->
+    <dc:Attribute id="staticGroupObjectclass">
+      <dc:Value>top</dc:Value>
+      <dc:Value>${edu.internet2.middleware.psp.groupObjectClass}</dc:Value>
+      <!-- <dc:Value>eduMember</dc:Value> -->
+    </dc:Attribute>
+    <!-- Stem LDAP objectclass. -->
+    <dc:Attribute id="staticStemObjectclass">
+      <dc:Value>top</dc:Value>
+      <dc:Value>organizationalUnit</dc:Value>
+    </dc:Attribute>
+    <!-- The member LDAP eduMember objectclass. -->
+    <dc:Attribute id="memberObjectclass">
+      <dc:Value>eduMember</dc:Value>
+    </dc:Attribute>
+  </resolver:DataConnector>
+
+
+  <!-- Stem identifier and attributes. -->
+
+  <!-- The LDAP DN of a stem. For example, "ou=stemExtension,ou=groups,dc=example,dc=edu". -->
+  <resolver:AttributeDefinition
+    id="stemDn"
+    xsi:type="psp-grouper-ldap:LdapDnFromGrouperNamePSOIdentifier"
+    structure="flat"
+    sourceAttributeID="stemNameInStem"
+    rdnAttributeName="ou"
+    stemRdnAttributeName="ou"
+    baseDn="${edu.internet2.middleware.psp.groupsBaseDn}"
+    baseStem="${edu.internet2.middleware.psp.baseStem}">
+    <!-- Dependencies which return a "stemNameInStem" attribute whose value is the stem name. -->
+    <resolver:Dependency ref="stemNameInStem" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the "stemNameInStem" attribute is the name of a stem. The name of the stem is returned only if the stem 
+    is a child of the stem whose name is the edu.internet2.middleware.psp.baseStem property. If the edu.internet2.middleware.psp.baseStem 
+    property is the root stem, stems under the "etc" stem are omitted. -->
+  <resolver:AttributeDefinition
+    id="stemNameInStem"
+    xsi:type="grouper:FilteredName"
+    sourceAttributeID="name">
+    <!-- Dependencies which return a "name" attribute whose value is the stem name. -->
+    <resolver:Dependency ref="StemDataConnector" />
+    <resolver:Dependency ref="DeleteStemChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateStemNameChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateStemDescriptionChangeLogDataConnector" />
+    <!-- The MINUS filter matches names which match the first child filter and not the second. -->
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <!-- The NameInStem filter matches names which are children of the given stem. -->
+      <grouper:Filter
+        xsi:type="grouper:NameInStem"
+        name="${edu.internet2.middleware.psp.baseStem}"
+        scope="SUB" />
+      <!-- The OR filter matches names which match either the first or second child filter. -->
+      <grouper:Filter xsi:type="grouper:OR">
+        <!-- The NameInStem filter matches names which are children of the given stem. -->
+        <grouper:Filter
+          xsi:type="grouper:NameInStem"
+          name="etc"
+          scope="SUB" />
+        <!-- The NameExact filter matches names with the given name. -->
+        <grouper:Filter
+          xsi:type="grouper:NameExact"
+          name="etc" />
+      </grouper:Filter>
+    </grouper:Filter>
+  </resolver:AttributeDefinition>
+
+  <!-- The alternate LDAP DN of a stem via the change log. For example, the DN of a stem before it is renamed. -->
+  <resolver:AttributeDefinition
+    id="stemDnAlternateChangeLog"
+    xsi:type="psp-grouper-ldap:LdapDnFromGrouperNamePSOIdentifier"
+    structure="flat"
+    sourceAttributeID="propertyOldValue"
+    rdnAttributeName="ou"
+    stemRdnAttributeName="ou"
+    baseDn="${edu.internet2.middleware.psp.groupsBaseDn}"
+    baseStem="${edu.internet2.middleware.psp.baseStem}">
+    <!-- Dependency which returns a "propertyOldValue" attribute whose value is the old stem name. -->
+    <resolver:Dependency ref="UpdateStemNameChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The stem objectclass attribute. If a change log entry is resolved, do not return dependencies from the static data 
+    connector. -->
+  <resolver:AttributeDefinition
+    id="stemObjectclass"
+    xsi:type="ad:Script">
+    <resolver:Dependency ref="StaticDataConnector" />
+    <resolver:Dependency ref="UpdateStemNameChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateStemDescriptionChangeLogDataConnector" />
+    <!-- <resolver:Dependency ref="AttributeAssignValueChangeLogDataConnector" /> -->
+    <ad:Script><![CDATA[
+        // Import Shibboleth attribute provider.
+        importPackage(Packages.edu.internet2.middleware.shibboleth.common.attribute.provider);
+        
+        // Create the attribute to be returned.
+        stemObjectclass = new BasicAttribute("stemObjectclass");
+        
+        // Include values from 'staticStemObjectclass' if a change log entry is not being processed.
+        if (typeof changeLogCategory != "undefined" && changeLogCategory != null) {
+            // return nothing        
+        } else {
+            stemObjectclass.getValues().addAll(staticStemObjectclass.getValues());
+        }                       
+    ]]></ad:Script>
+  </resolver:AttributeDefinition>
+
+  <!-- The value of stem "stemOu" attribute is the stem extension. -->
+  <resolver:AttributeDefinition
+    id="stemOu"
+    xsi:type="ad:Simple"
+    sourceAttributeID="extension">
+    <resolver:Dependency ref="StemDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the stem "description" attribute is the stem description. -->
+  <resolver:AttributeDefinition
+    id="stemDescription"
+    xsi:type="ad:Simple"
+    sourceAttributeID="description">
+    <resolver:Dependency ref="StemDataConnector" />
+    <resolver:Dependency ref="UpdateStemDescriptionChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+
+  <!-- Group identifier and attributes. -->
+
+  <!-- The LDAP DN of a group. For example, "cn=groupExtension,ou=stem,ou=groups,dc=example,dc=edu". -->
+  <resolver:AttributeDefinition
+    id="groupDn"
+    xsi:type="psp-grouper-ldap:LdapDnFromGrouperNamePSOIdentifier"
+    structure="${edu.internet2.middleware.psp.structure}"
+    sourceAttributeID="groupNameInStem"
+    rdnAttributeName="cn"
+    stemRdnAttributeName="ou"
+    baseDn="${edu.internet2.middleware.psp.groupsBaseDn}"
+    baseStem="${edu.internet2.middleware.psp.baseStem}">
+    <!-- Dependencies which return a "groupNameInStem" attribute whose value is the group name. -->
+    <resolver:Dependency ref="groupNameInStem" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the "groupNameInStem" attribute is the name of a group. The name of the group is returned only if the 
+    group is a child of the stem whose name is the edu.internet2.middleware.psp.baseStem property. If the edu.internet2.middleware.psp.baseStem 
+    property is the root stem, groups under the "etc" stem are omitted. -->
+  <resolver:AttributeDefinition
+    id="groupNameInStem"
+    xsi:type="grouper:FilteredName"
+    sourceAttributeID="name">
+    <!-- Dependencies which return a "name" attribute whose value is the group name. -->
+    <resolver:Dependency ref="GroupWithoutMermbershipsDataConnector" />
+    <resolver:Dependency ref="DeleteGroupChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateGroupNameChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateGroupDescriptionChangeLogDataConnector" />
+    <!-- The MINUS filter matches stems which match the first child filter and not the second. -->
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <!-- The NameInStem filter matches names which are children of the given stem. -->
+      <grouper:Filter
+        xsi:type="grouper:NameInStem"
+        name="${edu.internet2.middleware.psp.baseStem}"
+        scope="SUB" />
+      <grouper:Filter
+        xsi:type="grouper:NameInStem"
+        name="etc"
+        scope="SUB" />
+    </grouper:Filter>
+  </resolver:AttributeDefinition>
+
+  <!-- The alternate LDAP DN of a group. For example, the DN of a group before it is renamed. -->
+  <resolver:AttributeDefinition
+    id="groupDnAlternate"
+    xsi:type="psp-grouper-ldap:LdapDnFromGrouperNamePSOIdentifier"
+    structure="${edu.internet2.middleware.psp.structure}"
+    sourceAttributeID="alternateName"
+    rdnAttributeName="cn"
+    stemRdnAttributeName="ou"
+    baseDn="${edu.internet2.middleware.psp.groupsBaseDn}"
+    baseStem="${edu.internet2.middleware.psp.baseStem}">
+    <!-- Dependency which returns an "alternateName" attribute whose value is the old group name. -->
+    <resolver:Dependency ref="GroupWithoutMermbershipsDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The alternate LDAP DN of a group via the change log. For example, the DN of a group before it is renamed. -->
+  <resolver:AttributeDefinition
+    id="groupDnAlternateChangeLog"
+    xsi:type="psp-grouper-ldap:LdapDnFromGrouperNamePSOIdentifier"
+    structure="${edu.internet2.middleware.psp.structure}"
+    sourceAttributeID="propertyOldValue"
+    rdnAttributeName="cn"
+    stemRdnAttributeName="ou"
+    baseDn="${edu.internet2.middleware.psp.groupsBaseDn}"
+    baseStem="${edu.internet2.middleware.psp.baseStem}">
+    <!-- Dependency which returns a "propertyOldValue" attribute whose value is the old group name. -->
+    <resolver:Dependency ref="UpdateGroupNameChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The group objectclass attribute. If a change log entry is resolved, do not return dependencies from the static data 
+    connector unless the change log entry is a membership change. -->
+  <resolver:AttributeDefinition
+    id="groupObjectclass"
+    xsi:type="ad:Script">
+    <resolver:Dependency ref="StaticDataConnector" />
+    <resolver:Dependency ref="AddMembershipChangeLogDataConnector" />
+    <resolver:Dependency ref="DeleteMembershipChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateGroupNameChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateGroupDescriptionChangeLogDataConnector" />
+    <!-- <resolver:Dependency ref="AttributeAssignValueChangeLogDataConnector" /> -->
+    <ad:Script><![CDATA[
+        // Import Shibboleth attribute provider.
+        importPackage(Packages.edu.internet2.middleware.shibboleth.common.attribute.provider);
+        
+        // Create the attribute to be returned.
+        groupObjectclass = new BasicAttribute("groupObjectclass");
+        
+        // Include values from 'staticGroupObjectClass' if the change log category is 'membership'.
+        if (typeof changeLogCategory != "undefined" && changeLogCategory != null) {
+            if (changeLogCategory.getValues().contains("membership")) {          
+                groupObjectclass.getValues().addAll(staticGroupObjectclass.getValues());
+            }
+        // Include values from 'staticGroupObjectClass' if a change log entry is not being processed.
+        } else {
+            groupObjectclass.getValues().addAll(staticGroupObjectclass.getValues());
+        }                       
+    ]]></ad:Script>
+  </resolver:AttributeDefinition>
+
+  <!-- The group objectclass attribute with eduMember. -->
+  <resolver:AttributeDefinition
+    id="groupObjectclassEduMember"
+    xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the group "cn" attribute is the group extension. -->
+  <!-- If the group DN structure is "bushy" the sourceAttributeID should be "extension". -->
+  <!-- If the group DN structure is "flat" the sourceAttributeID should be "name". -->
+  <resolver:AttributeDefinition
+    id="cn"
+    xsi:type="ad:Simple"
+    sourceAttributeID="${edu.internet2.middleware.psp.cnSourceAttributeID}">
+    <resolver:Dependency ref="GroupWithoutMermbershipsDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the group "description" attribute is the group description. -->
+  <resolver:AttributeDefinition
+    id="groupDescription"
+    xsi:type="ad:Simple"
+    sourceAttributeID="description">
+    <resolver:Dependency ref="GroupWithoutMermbershipsDataConnector" />
+    <resolver:Dependency ref="UpdateGroupDescriptionChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The values of the "membersLdap" attribute are the subject ids of group members from the "ldap" source. -->
+  <resolver:AttributeDefinition
+    id="membersLdap"
+    xsi:type="grouper:Member"
+    sourceAttributeID="members">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <!-- The values of the "id" attribute are the identifiers of subjects whose source id is "ldap". -->
+    <grouper:Attribute
+      id="id"
+      source="ldap" />
+  </resolver:AttributeDefinition>
+
+  <!-- The values of the "membersGsa" attribute are the names of group members which are grouper groups. -->
+  <resolver:AttributeDefinition
+    id="membersGsa"
+    xsi:type="grouper:Member"
+    sourceAttributeID="members">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <!-- The values of the "name" attribute are the names of groups whose source is "g:gsa". -->
+    <grouper:Attribute
+      id="name"
+      source="g:gsa" />
+  </resolver:AttributeDefinition>
+
+
+  <!-- Member identifier. -->
+
+  <!-- The LDAP DN of a member. The value of this attribute is the "dn" of subjects whose source id is "ldap". -->
+  <resolver:AttributeDefinition
+    id="memberDn"
+    xsi:type="psp:PSOIdentifier"
+    sourceAttributeID="dn">
+    <resolver:Dependency ref="MemberDataConnector" />
+  </resolver:AttributeDefinition>
+
+
+  <!-- Change log group membership. -->
+
+  <!-- The value of the "changeLogMembershipGroupDn" attribute is a pso identifier whose ID is the ldap DN of the group of 
+    a membership change log entry. -->
+  <resolver:AttributeDefinition
+    id="changeLogMembershipGroupDn"
+    xsi:type="psp-grouper-ldap:LdapDnFromGrouperNamePSOIdentifier"
+    structure="${edu.internet2.middleware.psp.structure}"
+    sourceAttributeID="changeLogMembershipGroupName"
+    rdnAttributeName="cn"
+    stemRdnAttributeName="ou"
+    baseDn="${edu.internet2.middleware.psp.groupsBaseDn}"
+    baseStem="${edu.internet2.middleware.psp.baseStem}">
+    <resolver:Dependency ref="changeLogMembershipGroupName" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the "changeLogMembershipGroupName" attribute is the name of the group of a membership change log entry. 
+    The name of the group is returned only if the group is a child of the stem whose name is the edu.internet2.middleware.psp.baseStem 
+    property. If the edu.internet2.middleware.psp.baseStem property is the root stem, groups under the "etc" stem are omitted. -->
+  <resolver:AttributeDefinition
+    id="changeLogMembershipGroupName"
+    xsi:type="grouper:FilteredName"
+    sourceAttributeID="groupName">
+    <resolver:Dependency ref="AddMembershipChangeLogDataConnector" />
+    <resolver:Dependency ref="DeleteMembershipChangeLogDataConnector" />
+    <!-- The MINUS filter matches stems which match the first child filter and not the second. -->
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <!-- The GroupInStem filter matches groups which are children of the given stem. -->
+      <grouper:Filter
+        xsi:type="grouper:NameInStem"
+        name="${edu.internet2.middleware.psp.baseStem}"
+        scope="SUB" />
+      <grouper:Filter
+        xsi:type="grouper:NameInStem"
+        name="etc"
+        scope="SUB" />
+    </grouper:Filter>
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the "changeLogMembershipGroupSubjectName" attribute is the name of the group member of a membership change 
+    log entry. -->
+  <resolver:AttributeDefinition
+    id="changeLogMembershipGroupSubjectName"
+    xsi:type="ad:Script">
+    <resolver:Dependency ref="AddMembershipChangeLogDataConnector" />
+    <resolver:Dependency ref="DeleteMembershipChangeLogDataConnector" />
+    <ad:Script><![CDATA[
+        // Import Shibboleth attribute provider.
+        importPackage(Packages.edu.internet2.middleware.shibboleth.common.attribute.provider);
+        
+        // Create the attribute to be returned.
+        changeLogMembershipGroupSubjectName = new BasicAttribute("changeLogMembershipGroupSubjectName");
+        
+        // Return 'subjectName' attribute values if the 'sourceId' attribute is 'g:gsa'.
+        if (typeof sourceId != "undefined" && sourceId != null ){            
+            if (sourceId.getValues().contains("g:gsa")) {
+                if (typeof subjectName != "undefined" && subjectName != null ){
+                    changeLogMembershipGroupSubjectName.getValues().add(subjectName.getValues().get(0));
+                }
+            }          
+        }
+    ]]></ad:Script>
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the "changeLogMembershipLdapSubjectId" attribute is the subject identifier of the "ldap" source member 
+    of a membership change log entry. -->
+  <resolver:AttributeDefinition
+    id="changeLogMembershipLdapSubjectId"
+    xsi:type="ad:Script">
+    <resolver:Dependency ref="AddMembershipChangeLogDataConnector" />
+    <resolver:Dependency ref="DeleteMembershipChangeLogDataConnector" />
+    <ad:Script><![CDATA[
+        // Import Shibboleth attribute provider.
+        importPackage(Packages.edu.internet2.middleware.shibboleth.common.attribute.provider);
+        
+        // Create the attribute to be returned.
+        changeLogMembershipLdapSubjectId = new BasicAttribute("changeLogMembershipLdapSubjectId");
+        
+        // Return 'subjectId' attribute values if the 'sourceId' attribute is 'ldap'.
+        if (typeof sourceId != "undefined" && sourceId != null ){            
+            if (sourceId.getValues().contains("ldap")) {
+                if (typeof subjectId != "undefined" && subjectId != null ){
+                    changeLogMembershipLdapSubjectId.getValues().add(subjectId.getValues().get(0));
+                }
+            }
+        }
+    ]]></ad:Script>
+  </resolver:AttributeDefinition>
+
+</AttributeResolver>
