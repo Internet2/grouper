@@ -13098,7 +13098,6 @@ public class GrouperInstaller {
   }
   
   private void downloadGrouperJarsIntoLibDirectory(File webInfDir) {
-    
     String basePath = "https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/";
     
     {
@@ -13107,13 +13106,10 @@ public class GrouperInstaller {
       List<String> urlsToDownload = new ArrayList<String>();
       urlsToDownload.add(basePath+"grouper/"+this.version+"/grouper-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouperClient/"+this.version+"/grouperClient-"+this.version+".jar");
-      urlsToDownload.add(basePath+"grouper-messaging-aws/"+this.version+"/grouper-messaging-aws-"+this.version+".jar");
-      urlsToDownload.add(basePath+"grouper-messaging-rabbitmq/"+this.version+"/grouper-messaging-rabbitmq-"+this.version+".jar");
-      urlsToDownload.add(basePath+"grouper-activemq/"+this.version+"/grouper-activemq-"+this.version+".jar");
       
       for (String urlToDownload: urlsToDownload) {
         String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
-        downloadFile(urlToDownload, libDir.getAbsolutePath() + File.separator+ fileName, "");
+        downloadFile(urlToDownload, libDir.getAbsolutePath() + File.separator+ fileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
       }
     }
     
@@ -13125,7 +13121,7 @@ public class GrouperInstaller {
       urlsToDownload.add(basePath+"grouper-activemq/"+this.version+"/grouper-activemq-"+this.version+".jar");
       for (String urlToDownload: urlsToDownload) {
         String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
-        downloadFile(urlToDownload, libUiAndDaemonDir.getAbsolutePath() + File.separator+ fileName, "");
+        downloadFile(urlToDownload, libUiAndDaemonDir.getAbsolutePath() + File.separator+ fileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
       }
     }
     
@@ -13133,21 +13129,21 @@ public class GrouperInstaller {
       File libWsDir = new File(webInfDir+File.separator+"libWs");
       String wsUrlToDownload = basePath+"grouper-ws/"+this.version+"/grouper-ws-"+this.version+".jar";
       String wsJarfileName = wsUrlToDownload.substring(wsUrlToDownload.lastIndexOf(File.separator)+1, wsUrlToDownload.length());
-      downloadFile(wsUrlToDownload, libWsDir.getAbsolutePath() + File.separator+ wsJarfileName, "");
+      downloadFile(wsUrlToDownload, libWsDir.getAbsolutePath() + File.separator+ wsJarfileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
     }
     
     {
       File libUiAndDaemonDir = new File(webInfDir+File.separator+"libUiAndDaemon");
       String uiUrlToDownload = basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar";
       String uiJarfileName = uiUrlToDownload.substring(uiUrlToDownload.lastIndexOf(File.separator)+1, uiUrlToDownload.length());
-      downloadFile(uiUrlToDownload, libUiAndDaemonDir.getAbsolutePath() + File.separator+ uiJarfileName, "");
+      downloadFile(uiUrlToDownload, libUiAndDaemonDir.getAbsolutePath() + File.separator+ uiJarfileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
     }
     
     {
       File libScimDir = new File(webInfDir+File.separator+"libScim");
       String scimUrlToDownload = basePath+"grouper-ws-scim/"+this.version+"/grouper-ws-scim-"+this.version+".jar";
       String scimJarfileName = scimUrlToDownload.substring(scimUrlToDownload.lastIndexOf(File.separator)+1, scimUrlToDownload.length());
-      downloadFile(scimUrlToDownload, libScimDir.getAbsolutePath() + File.separator+ scimJarfileName, "");
+      downloadFile(scimUrlToDownload, libScimDir.getAbsolutePath() + File.separator+ scimJarfileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
     }
     
   }
@@ -13663,6 +13659,23 @@ public class GrouperInstaller {
     Set<File> shFiles = new LinkedHashSet<File>();
     for (String shFileName : shFileNames) {
       shFiles.add(new File(shFileName));
+    }
+    
+    // create grouper.xml in conf/Catalina/localhost/grouper.xml
+    File tomeeGrouperFile = new File(tommeDir.getAbsolutePath() + File.separator + "conf" + File.separator +
+        "Catalina" + File.separator + "localhost" + File.separator + "grouper.xml");
+    
+    GrouperInstallerUtils.createParentDirectories(tomeeGrouperFile);
+    GrouperInstallerUtils.fileCreate(tomeeGrouperFile);
+    
+    String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/grouperWebapp\" reloadable=\"false\">\n" + 
+        "<Resources allowLinking=\"true\" />\n" + 
+        "</Context>";
+    
+    try {      
+      Files.write(Paths.get(tomeeGrouperFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to grouper.xml file.");
     }
     
   }
@@ -14342,7 +14355,7 @@ public class GrouperInstaller {
 
     GrouperInstallerMainFunction grouperInstallerMainFunctionLocal = 
         (GrouperInstallerMainFunction)promptForEnum(
-            "Do you want to 'install' a new installation of grouper, 'upgrade' an existing installation,\n"
+            "Do you want to install ('installContainer') a new grouper container , 'upgrade' an existing installation,\n"
                 + "  'patch' an existing installation, 'admin' utilities, 'buildContainer', 'installContainer', or 'createPatch' for Grouper developers\n" 
                 + "  (enter: 'installContainer', 'upgrade', 'patch', 'admin', 'createPatch', 'buildContainer', or blank for the default) ",
             "grouperInstaller.autorun.actionEgInstallUpgradePatch", GrouperInstallerMainFunction.class, 
