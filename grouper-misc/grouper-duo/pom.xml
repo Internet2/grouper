@@ -45,6 +45,12 @@
             <groupId>com.duosecurity</groupId>
             <artifactId>duo-client</artifactId>
             <version>0.2.1</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>com.squareup.okhttp</groupId>
+            		<artifactId>okhttp</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -59,6 +65,10 @@
             <artifactId>json-lib</artifactId>
             <classifier>jdk15</classifier>
         </dependency>
+        <dependency>
+	        <groupId>com.squareup.okhttp3</groupId>
+	        <artifactId>logging-interceptor</artifactId>
+	    </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>grouper</artifactId>

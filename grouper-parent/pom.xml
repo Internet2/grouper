@@ -185,6 +185,7 @@
         <taglibs.standard.version>1.1.2</taglibs.standard.version>
         <jsp.version>2.3.2-b02</jsp.version>
         <xercesimpl.version>2.11.0</xercesimpl.version>
+        <okhttp.version>3.14.7</okhttp.version>
     </properties>
 
     <repositories>
@@ -679,6 +680,11 @@
                 <artifactId>xml-apis</artifactId>
                 <version>${xml.apis.version}</version>
             </dependency>
+            <dependency>
+		      <groupId>com.squareup.okhttp3</groupId>
+		      <artifactId>logging-interceptor</artifactId>
+		      <version>${okhttp.version}</version>
+		    </dependency>
 
 
             <!-- Provided Dependencies -->

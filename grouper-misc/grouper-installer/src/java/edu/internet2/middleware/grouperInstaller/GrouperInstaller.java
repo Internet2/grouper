@@ -13118,8 +13118,8 @@ public class GrouperInstaller {
       List<String> urlsToDownload = new ArrayList<String>();
       urlsToDownload.add(basePath+"grouper-messaging-aws/"+this.version+"/grouper-messaging-aws-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-messaging-rabbitmq/"+this.version+"/grouper-messaging-rabbitmq-"+this.version+".jar");
-      urlsToDownload.add(basePath+"grouper-activemq/"+this.version+"/grouper-activemq-"+this.version+".jar");
-      
+      urlsToDownload.add(basePath+"grouper-messaging-activemq/"+this.version+"/grouper-messaging-activemq-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-pspng/"+this.version+"/grouper-pspng-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-box/"+this.version+"/grouper-box-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-duo/"+this.version+"/grouper-duo-"+this.version+".jar");
@@ -13135,13 +13135,6 @@ public class GrouperInstaller {
       String wsUrlToDownload = basePath+"grouper-ws/"+this.version+"/grouper-ws-"+this.version+".jar";
       String wsJarfileName = wsUrlToDownload.substring(wsUrlToDownload.lastIndexOf(File.separator)+1, wsUrlToDownload.length());
       downloadFile(wsUrlToDownload, libWsDir.getAbsolutePath() + File.separator+ wsJarfileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
-    }
-    
-    {
-      File libUiAndDaemonDir = new File(webInfDir+File.separator+"libUiAndDaemon");
-      String uiUrlToDownload = basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar";
-      String uiJarfileName = uiUrlToDownload.substring(uiUrlToDownload.lastIndexOf(File.separator)+1, uiUrlToDownload.length());
-      downloadFile(uiUrlToDownload, libUiAndDaemonDir.getAbsolutePath() + File.separator+ uiJarfileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
     }
     
     {
