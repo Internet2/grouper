@@ -60,6 +60,11 @@
       <artifactId>grouper-duo</artifactId>
       <version>${grouper.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>grouper-azure-provisioner</artifactId>
+      <version>${grouper.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

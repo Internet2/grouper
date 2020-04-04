@@ -13119,6 +13119,11 @@ public class GrouperInstaller {
       urlsToDownload.add(basePath+"grouper-messaging-aws/"+this.version+"/grouper-messaging-aws-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-messaging-rabbitmq/"+this.version+"/grouper-messaging-rabbitmq-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-activemq/"+this.version+"/grouper-activemq-"+this.version+".jar");
+      
+      urlsToDownload.add(basePath+"grouper-pspng/"+this.version+"/grouper-pspng-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-box/"+this.version+"/grouper-box-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-duo/"+this.version+"/grouper-duo-"+this.version+".jar");
+      urlsToDownload.add(basePath+"grouper-azure-provisioner/"+this.version+"/grouper-azure-provisioner-"+this.version+".jar");
       for (String urlToDownload: urlsToDownload) {
         String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
         downloadFile(urlToDownload, libUiAndDaemonDir.getAbsolutePath() + File.separator+ fileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
