@@ -78,22 +78,70 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
 //    Platform platform = GrouperDdlUtils.retrievePlatform(false);
 //    
+//    
+//    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+//    
+//    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+//
+//    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+//
+//    //to be safe lets only deal with tables related to this object
+//    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+//    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+//    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+//      
+//    SqlBuilder sqlBuilder = platform.getSqlBuilder();
+//
+//    
 //    //convenience to get the url, user, etc of the grouper db, helps get db connection
 //    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
 //    
 //    Connection connection = null;
-//    Index index = null;
+////    Index index = null;
+////    PreparedStatement preparedStatement = null;
+////    ResultSet resultSet = null;
+////    ResultSet resultSet2 = null;
 //    try {
 //      connection = grouperDb.connection();
 //
+//////      String sql = "select * from authzadm.grouper_stems where name = ':'";
+//////      
+//////      preparedStatement = connection.prepareStatement(sql);
+//////      resultSet = preparedStatement.executeQuery();
+//////        
+//////      ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+//////
+//////      System.out.println(resultSetMetaData.getColumnCount());
+//////      System.out.println(resultSetMetaData.getColumnName(1));
+//////      System.out.println(resultSetMetaData.getSchemaName(1));
+//////      System.out.println(resultSetMetaData.getTableName(1));
+////      
+////      DatabaseMetaData databaseMetaData = connection.getMetaData();
+////      
+////      resultSet2 = databaseMetaData.getTables(null, null, "GROUPER_GROUPS", null);
+////      while(resultSet2.next())
+////      {
+////        for (int i=1;i<=resultSet2.getMetaData().getColumnCount();i++) {
+////          //Print
+////          System.out.println(resultSet2.getMetaData().getColumnName(i) + ": " + resultSet2.getString(i));
+////        }
+////      }      
 //      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
 //        "AUTHZADM", null);
 //    
 //      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
 //  
-//      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), "member_subjidentifier0_idx");
-//      
+////      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), "member_subjidentifier0_idx");
+////      
+////    } catch (Exception e) {
+////      if (e instanceof RuntimeException) {
+////        throw (RuntimeException)e;
+////      }
+////      throw new RuntimeException("error", e);
 //    } finally {
+////      GrouperUtil.closeQuietly(resultSet);
+////      GrouperUtil.closeQuietly(resultSet2);
+////      GrouperUtil.closeQuietly(preparedStatement);
 //      GrouperUtil.closeQuietly(connection);
 //    }
 //
@@ -314,6 +362,17 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     Platform platform = GrouperDdlUtils.retrievePlatform(false);
     
+    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+    
+    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+
+    //to be safe lets only deal with tables related to this object
+    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+
     //convenience to get the url, user, etc of the grouper db, helps get db connection
     GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
     
