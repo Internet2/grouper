@@ -121,7 +121,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     }
 
     sql = sql.replace("{inclause}", "1=1");
-    sql = "select " + this.subjectIDAttributeName + " from ( " + sql + " ) as subjects";
+    sql = "select " + this.subjectIDAttributeName + " from ( " + sql + " ) subjects";
 
     Connection conn = null;
     PreparedStatement stmt = null;
