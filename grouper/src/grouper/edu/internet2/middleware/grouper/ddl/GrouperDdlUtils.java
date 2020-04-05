@@ -796,84 +796,91 @@ public class GrouperDdlUtils {
   
       resultString = result.toString();
       
-      String scriptDirName = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.directory.for.scripts");
-      
-      File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
-      GrouperUtil.saveStringIntoFile(scriptFile, resultString);
-
-      String logMessage = (runScript ? "Ran" : "Run") + " this DDL:\n" + scriptFile.getAbsolutePath();
-      if (LOG.isErrorEnabled()) {
-        LOG.error(logMessage);
-      } else {
-        System.err.println(logMessage);
-      }
-      
-      if (runScript) {
-        logMessage = "";
-  
-        PrintStream err = System.err;
-        PrintStream out = System.out;
-        InputStream in = System.in;
-  
-        //dont let ant mess up or close the streams
-        ByteArrayOutputStream baosOutErr = new ByteArrayOutputStream();
-        PrintStream newOutErr = new PrintStream(baosOutErr);
-  
-        System.setErr(newOutErr);
-        System.setOut(newOutErr);
-        
-        SQLExec sqlExec = new SQLExec();
-        
-        sqlExec.setSrc(scriptFile);
-        
-        sqlExec.setDriver(grouperDb.getDriver());
-  
-        sqlExec.setUrl(grouperDb.getUrl());
-        sqlExec.setUserid(grouperDb.getUser());
-        sqlExec.setPassword(grouperDb.getPass());
-  
-        Project project = new GrouperAntProject();
-  
-        //tell output where to go
-        DefaultLogger defaultLogger = new DefaultLogger();
-        defaultLogger.setErrorPrintStream(newOutErr);
-        defaultLogger.setOutputPrintStream(newOutErr);
-        project.addBuildListener(defaultLogger);
-        
-        try {
-          sqlExec.setProject(project);
-  
-          sqlExec.execute();
-  
-          logMessage += "Script was executed successfully\n";
-        } catch (Exception e) {
-          throw new RuntimeException("Error running script", e);
-        } finally {
-        
-          newOutErr.flush();
-          newOutErr.close();
-          
-          System.setErr(err);
-          System.setOut(out);
-          System.setIn(in);
-        }
-        
-        String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
-  
-        if (!StringUtils.isBlank(antOutput)) {
-          logMessage += antOutput + "\n";
-        }
-        //if call from command line, print to screen
-        if (LOG.isErrorEnabled()) {
-          LOG.error(logMessage);
-        } else {
-          System.out.println(logMessage);
-        }
-      }
+      runScriptIfShould(resultString, runScript);
     } finally {
       insideBootstrap = false;
     }
     return resultString;
+  }
+
+  public static void runScriptIfShould(String script, boolean runScript) {
+    
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+
+    String scriptDirName = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.directory.for.scripts");
+    
+    File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
+    GrouperUtil.saveStringIntoFile(scriptFile, script);
+
+    String logMessage = (runScript ? "Ran" : "Run") + " this DDL:\n" + scriptFile.getAbsolutePath();
+    if (LOG.isErrorEnabled()) {
+      LOG.error(logMessage);
+    } else {
+      System.err.println(logMessage);
+    }
+    if (!runScript) {
+      return;
+    }
+    logMessage = "";
+ 
+    PrintStream err = System.err;
+    PrintStream out = System.out;
+    InputStream in = System.in;
+ 
+    //dont let ant mess up or close the streams
+    ByteArrayOutputStream baosOutErr = new ByteArrayOutputStream();
+    PrintStream newOutErr = new PrintStream(baosOutErr);
+ 
+    System.setErr(newOutErr);
+    System.setOut(newOutErr);
+    
+    SQLExec sqlExec = new SQLExec();
+    
+    sqlExec.setSrc(scriptFile);
+    
+    sqlExec.setDriver(GrouperDdlUtils.convertUrlToDriverClassIfNeeded(grouperDb.getUrl(), grouperDb.getDriver()));
+ 
+    sqlExec.setUrl(grouperDb.getUrl());
+    sqlExec.setUserid(grouperDb.getUser());
+    sqlExec.setPassword(grouperDb.getPass());
+ 
+    Project project = new GrouperAntProject();
+ 
+    //tell output where to go
+    DefaultLogger defaultLogger = new DefaultLogger();
+    defaultLogger.setErrorPrintStream(newOutErr);
+    defaultLogger.setOutputPrintStream(newOutErr);
+    project.addBuildListener(defaultLogger);
+    
+    try {
+      sqlExec.setProject(project);
+ 
+      sqlExec.execute();
+ 
+      logMessage += "Script was executed successfully\n";
+    } catch (Exception e) {
+      throw new RuntimeException("Error running script", e);
+    } finally {
+    
+      newOutErr.flush();
+      newOutErr.close();
+      
+      System.setErr(err);
+      System.setOut(out);
+      System.setIn(in);
+    }
+    
+    String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
+ 
+    if (!StringUtils.isBlank(antOutput)) {
+      logMessage += antOutput + "\n";
+    }
+    //if call from command line, print to screen
+    if (LOG.isErrorEnabled()) {
+      LOG.error(logMessage);
+    } else {
+      System.out.println(logMessage);
+    }
   }
 
   /**
@@ -1602,6 +1609,23 @@ public class GrouperDdlUtils {
 
   }
 
+  public static String findScriptOverrideDatabase() {
+    if (isHsql()) {
+      return "hsql";
+    }
+    if (isPostgres()) {
+      return "postgres";
+    }
+    if (isOracle()) {
+      return "oracle";
+    }
+    if (isMysql()) {
+      return "mysql";
+    }
+    throw new RuntimeException("Not expecting database type, should be hsql, oracle, mysql, or postgres! '" + 
+        GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url") + "'");
+  }
+  
   /**
    * <pre>
    * File name must be objectName.V#.dbname.sql
@@ -2698,4 +2722,5 @@ public class GrouperDdlUtils {
       return 0;
     }
   }
+
 }

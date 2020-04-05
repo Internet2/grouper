@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,8 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
@@ -31,6 +34,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
@@ -663,6 +667,171 @@ public class GrouperDdlEngine {
     }
   }
   
+  public static void addDllWorkerTableIfNeeded() {
+    try {
+      // if you cant connrc to it, its not there
+      HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
+      return;
+    } catch (Exception e) {
+      //not found
+    }
+      
+    // this is added on startup...
+    
+    boolean runScript = GrouperDdlUtils.autoDdl2_5orAbove();
+    GrouperDdl2_5.addDdlWorkerTableViaScript(runScript);
+  }
+  
+  public void updateDdlIfNeeded() {
+
+    StringBuilder script = new StringBuilder();
+    
+    boolean runScript = false;
+    
+    boolean okForDdl = false;
+    this.done = false;
+    GrouperDdlUtils.insideBootstrap = true;
+    
+    try {
+    
+      //System.err.println(GrouperUtil.toStringForLog(objectNames));
+      for (String objectName : new String[] {"Grouper", "Subject"}) {
+        
+        //this is the version in java
+        int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion(objectName); 
+        DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion(objectName, javaVersion);
+        GrouperVersion grouperVersionJava = new GrouperVersion(ddlVersionableJava.getGrouperVersion());
+        
+        StringBuilder historyBuilder = GrouperDdlUtils.retrieveHistory(objectName);
+        
+        //this is the version in the db
+        int dbVersion = GrouperDdlUtils.retrieveDdlDbVersion(objectName);
+  
+        String versionStatus = null;
+        GrouperVersion grouperVersionDatabase = null;
+        {
+          DdlVersionable dbDdlVersionable = GrouperDdlUtils.retieveVersion(objectName, dbVersion);
+          grouperVersionDatabase = dbDdlVersionable == null ? null : new GrouperVersion(dbDdlVersionable.getGrouperVersion());
+          versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
+            + dbVersion + " (" + grouperVersionDatabase + ") and java version: " + javaVersion + " (" + grouperVersionJava + ")";
+        }          
+        boolean versionMismatch = javaVersion != dbVersion;
+  
+        boolean okIfSameMajorAndMinorVersion = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.okIfSameMajorAndMinorVersion", true);
+        boolean sameMajorAndMinorVersion = grouperVersionDatabase == null ? false : grouperVersionDatabase.sameMajorMinorArg(grouperVersionJava);
+  
+        if (versionMismatch && okIfSameMajorAndMinorVersion && sameMajorAndMinorVersion) {
+          versionMismatch = false;
+        }
+        
+        if (versionMismatch) {
+          if (GrouperDdlUtils.internal_printDdlUpdateMessage) {
+            System.err.println(versionStatus);
+            LOG.error(versionStatus);
+          }
+        } else {
+          LOG.warn(versionStatus);
+        }
+        
+        //reset to take into account if starting from scratch
+        versionMismatch = javaVersion != dbVersion;
+        
+        //see if same version, just continue, all good
+        if (!versionMismatch) {
+          continue;
+        }
+        
+        //if the java is less than db, then grouper was rolled back... that might not be good
+        if (javaVersion < dbVersion && sameMajorAndMinorVersion && okIfSameMajorAndMinorVersion) {
+          LOG.warn("Java version of db object name: " + objectName + " is " 
+              + javaVersion + " (" + grouperVersionJava + ") which is less than the dbVersion " + dbVersion
+              + " (" + grouperVersionDatabase + ").  This is probably ok, another JVM has a slightly higher version.");
+          continue;
+        }
+        
+        //if the java is less than db, then grouper was rolled back... that might not be good
+        if (javaVersion < dbVersion) {
+          LOG.error("Java version of db object name: " + objectName + " is " 
+              + javaVersion + " (" + grouperVersionJava + ") which is less than the dbVersion " + dbVersion
+              + " (" + grouperVersionDatabase + ").  This means grouper was upgraded and rolled back?  "
+                  + "Check for details on if things are compatible.");
+          //not much we can do here... good luck!
+          continue;
+        }
+        {
+          Boolean hasResult = checkIfChangeLogEmptyRequired(objectName, javaVersion, dbVersion);
+          if (hasResult != null) {
+            return;
+          }
+        }
+        runScript = runScript || ("Grouper".equals(objectName) && GrouperDdlUtils.autoDdlFor(grouperVersionJava));
+        // lets lock until we can make changes
+        if (runScript && !okForDdl) {
+          
+          Boolean hasResult = waitForOtherJvmsOrLockInDatabase();
+          if (hasResult != null) {
+            return;
+          }
+          okForDdl = true;
+        }
+        String scriptOverrideDatabase = GrouperDdlUtils.findScriptOverrideDatabase();
+        
+        List<String> resources = new ArrayList<String>();
+        List<Integer> fromVersions = new ArrayList<Integer>();
+        List<Integer> toVersions = new ArrayList<Integer>();
+        
+        boolean upgradeDdlTable = false;
+        
+        if (dbVersion == 0) {
+          upgradeDdlTable = true;
+          resources.add("ddl/GrouperDdl_" + objectName + "_install_" + scriptOverrideDatabase + ".sql");
+          fromVersions.add(0);
+          toVersions.add(javaVersion);
+        } else if ("Grouper".equals(objectName) && dbVersion >= 30) {
+          for (int i=dbVersion;i<javaVersion;i++) {
+            resources.add("ddl/GrouperDdl_" + objectName + "_" + i + "_upgradeTo_" + (i+1) 
+                + "_" + scriptOverrideDatabase + ".sql");
+            fromVersions.add(i);
+            toVersions.add(i+i);
+          }
+        } else {
+          throw new RuntimeException("Cant start this Grouper version against a database before 2.3.  Upgrade to 2.3 first!");
+        }
+  
+        for (int i=0 ;i<resources.size();i++) {
+          String localScript = GrouperUtil.readResourceIntoString(resources.get(i), false);
+  
+          script.append(localScript).append("\n");
+          
+          //make sure no single quotes in any of these...
+          String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+          //is this db independent?  if not, figure out what the issues are and fix so we can have comments
+          String summary = timestamp + ": upgrade " + objectName + " from V" + (fromVersions.get(i)) + " to V" + toVersions.get(i);
+          
+          addGrouperDdlLogEntryIfNeeded(objectName, script, historyBuilder, javaVersion,
+              timestamp, summary, upgradeDdlTable);
+          
+   
+        }
+        
+      }
+      
+      GrouperDdlUtils.runScriptIfShould(script.toString(), runScript);
+    } finally {
+      GrouperDdlUtils.insideBootstrap = false;
+      
+      // tell the heartbeat we are done
+      this.done=true;
+      
+      // wait for the heartbeat to return
+      if (heartbeatThread != null) {
+        GrouperUtil.threadJoin(heartbeatThread);
+      }
+
+    }
+
+  }
+  
   /**
    * @return true if up to date, false if needs to run a script
    */
@@ -783,6 +952,11 @@ public class GrouperDdlEngine {
       ConfigPropertiesCascadeBase.assignInitted();
       if (installDefaultGrouperData && !dropOnly && (upToDate || writeAndRunScript)) {
         registryInstall();
+      }
+      if (writeAndRunScript) {
+        GrouperDdlUtils.cachedDdls = null;
+        EhcacheController.ehcacheController().flushCache();
+        SubjectSourceCache.clearCache();
       }
     } finally {
       GrouperDdlUtils.insideBootstrap = false;

@@ -69,32 +69,35 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_3"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_3"));
     
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
 
-    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
-    //convenience to get the url, user, etc of the grouper db, helps get db connection
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
     
-    Connection connection = null;
-    Index index = null;
-    try {
-      connection = grouperDb.connection();
-
-      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
-        "AUTHZADM", null);
-    
-      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
-  
-      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), "member_subjidentifier0_idx");
-      
-    } finally {
-      GrouperUtil.closeQuietly(connection);
-    }
-
-    assertNotNull(index);
+//    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+//    
+//    //convenience to get the url, user, etc of the grouper db, helps get db connection
+//    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+//    
+//    Connection connection = null;
+//    Index index = null;
+//    try {
+//      connection = grouperDb.connection();
+//
+//      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+//        "AUTHZADM", null);
+//    
+//      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
+//  
+//      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), "member_subjidentifier0_idx");
+//      
+//    } finally {
+//      GrouperUtil.closeQuietly(connection);
+//    }
+//
+//    assertNotNull(index);
 
     
   }
@@ -274,12 +277,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     GrouperDdlUtils.sqlRun(scriptToGetTo2_4, true, true);
 
-    GrouperDdl2_5.addDdlWorkerTableIfNotThere();
-
-    new GrouperDdlEngine().assignFromUnitTest(true)
-      .assignCompareFromDbVersion(true)
-      .assignInstallDefaultGrouperData(true).assignPromptUser(true)
-      .assignFromStartup(true).runDdl();
+    GrouperDdlEngine.addDllWorkerTableIfNeeded();
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeeded();
 
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
     
@@ -305,13 +305,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     GrouperDdlUtils.sqlRun(scriptToGetTo2_3, true, true);
 
-    GrouperDdl2_5.addDdlWorkerTableIfNotThere();
+    GrouperDdlEngine.addDllWorkerTableIfNeeded();
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeeded();
 
-    new GrouperDdlEngine().assignFromUnitTest(true)
-      .assignCompareFromDbVersion(true)
-      .assignInstallDefaultGrouperData(true).assignPromptUser(true)
-      .assignFromStartup(true).runDdl();
-
+    
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
     
     Platform platform = GrouperDdlUtils.retrievePlatform(false);
@@ -867,12 +865,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       .assignFromStartup(false).runDdl();
   
     
-    GrouperDdl2_5.addDdlWorkerTableIfNotThere();
-  
-    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
-      .assignCompareFromDbVersion(true).assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
-      .assignInstallDefaultGrouperData(true).assignMaxVersions(null).assignPromptUser(true)
-      .assignFromStartup(true).runDdl();
+    GrouperDdlEngine.addDllWorkerTableIfNeeded();
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeeded();
   
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
         

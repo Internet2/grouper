@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdl2_5;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -364,10 +365,9 @@ public class GrouperStartup {
         GrouperDdlUtils.autoDdl2_5orAbove();
 
         if (runDdlBootstrap) {
-          
-          GrouperDdl2_5.addDdlWorkerTableIfNotThere();
+          GrouperDdlEngine.addDllWorkerTableIfNeeded();
           //first make sure the DB ddl is up to date
-          GrouperDdlUtils.bootstrap(false, false, false, true);
+          new GrouperDdlEngine().updateDdlIfNeeded();
         }
 
         // we are ready to use the database

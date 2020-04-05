@@ -1654,5 +1654,37 @@ public class GrouperDdl2_5 {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ExternalSubject.TABLE_GROUPER_EXT_SUBJ, 
         "grouper_ext_subj_idfr_idx", true, ExternalSubject.COLUMN_IDENTIFIER+"(255)");
   }
+
+  public static void addDdlWorkerTableViaScript(boolean runScript) {
+  
+      if (!runScript) {
+        LOG.error("You need to add the grouper_ddl_worker table!");
+      }
+      try {
+        
+        String scriptOverrideDatabase = GrouperDdlUtils.findScriptOverrideDatabase();
+        
+        String resource = "ddl/GrouperDdl_Grouper_createDdlWorker_" + scriptOverrideDatabase + ".sql";
+        
+        String script = GrouperUtil.readResourceIntoString(resource, false);
+        
+        GrouperDdlUtils.runScriptIfShould(script, runScript);
+  
+      } catch (Exception e2) {
+  
+        GrouperUtil.sleep(3000);
+  
+        try {
+          // if you cant connect to it, its not there
+          HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
+          return;
+        } catch (Exception e) {
+          //not found
+        }
+  
+        LOG.error("error creating the grouper_ddl_worker table", e2);
+      }
+  
+    }
   
 }
