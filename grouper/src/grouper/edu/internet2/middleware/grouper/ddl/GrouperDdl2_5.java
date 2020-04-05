@@ -5,7 +5,6 @@ import java.sql.Types;
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -1417,7 +1416,11 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v", false);
+    // we only need to drop in hsql
+    if (ddlVersionBean.isHsql() || ddlVersionBean.isPostgres()) {
+    
+      GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v", false);
+    }
   }
   static void dropViewGrouperRolesV(DdlVersionBean ddlVersionBean) {
 
@@ -1429,7 +1432,10 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v", false);
+    // we only need to drop in hsql
+    if (ddlVersionBean.isHsql() || ddlVersionBean.isPostgres()) {
+      GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v", false);
+    }
   }
   
 

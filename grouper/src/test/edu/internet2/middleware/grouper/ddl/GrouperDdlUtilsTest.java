@@ -69,9 +69,34 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_3"));
+    //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_3"));
     
+    //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
 
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    Connection connection = null;
+    Index index = null;
+    try {
+      connection = grouperDb.connection();
+
+      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        "AUTHZADM", null);
+    
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
+  
+      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), "member_subjidentifier0_idx");
+      
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+
+    assertNotNull(index);
+
+    
   }
 
   /**

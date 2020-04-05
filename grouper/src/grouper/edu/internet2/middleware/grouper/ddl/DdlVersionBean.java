@@ -407,6 +407,11 @@ public class DdlVersionBean {
     this.buildingToVersion = buildingToVersion;
     this.fullScript = fullScript;
     this.buildingFromVersion = theBuildingFromVersion;
+    
+    if (!this.isHsql() && !this.isMysql() && !this.isPostgres() && !this.isOracle()) {
+      throw new RuntimeException("Only postgres, mysql, oracle, and hsql (hsql for dev/test only) are supported!");
+    }
+    
   }
 
   /**

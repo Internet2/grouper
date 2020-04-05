@@ -1273,12 +1273,11 @@ public class GrouperDdlUtils {
     String aliasesString = StringUtils.join(aliases.iterator(), ", ");
     
     String fullSql;
-//    if (ddlVersionBean.isHsql()) {
+    if (ddlVersionBean.isHsql()) {
       fullSql = "\nCREATE VIEW ";
-//    } else {
-//      // since views are being dropped before creation, maybe this should just be "CREATE VIEW" also...
-//      fullSql = "\nCREATE OR REPLACE VIEW ";
-//    }
+    } else {
+      fullSql = "\nCREATE OR REPLACE VIEW ";
+    }
     
     fullSql += viewName + " (" + aliasesString + ") AS " + sql + ";\n";
     if (ddlVersionBean.isSqlServer()) {
