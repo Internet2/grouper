@@ -789,7 +789,7 @@ public class XmlExportAttributeDef {
         Query query = session.createQuery(
             "select distinct theAttributeDef " + exportFromOnQuery(xmlExportMain, true));
   
-        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
   
         //this is an efficient low-memory way to iterate through a resultset
         ScrollableResults results = null;
@@ -925,7 +925,7 @@ public class XmlExportAttributeDef {
         Query query = session.createQuery(
             "select distinct theAttributeDef " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         try {
           writer.write("  <attributeDefs>\n");
   

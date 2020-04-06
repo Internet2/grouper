@@ -109,9 +109,9 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
     xmlExportAttributeAssign.setOwnerStemId("ownerStemId");
     xmlExportAttributeAssign.setUuid("uuid");
     
-    String xml = xmlExportAttributeAssign.toXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    String xml = xmlExportAttributeAssign.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
     
-    xmlExportAttributeAssign = XmlExportAttributeAssign.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
+    xmlExportAttributeAssign = XmlExportAttributeAssign.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
     
     assertEquals("disallowed", xmlExportAttributeAssign.getDisallowed());
     assertEquals("attributeAssignActionId", xmlExportAttributeAssign.getAttributeAssignActionId());
@@ -142,7 +142,7 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
   public void testConvertToAttributeAssign() {
     AttributeAssign attributeAssign = AttributeAssignTest.exampleAttributeAssign();
     
-    XmlExportAttributeAssign xmlExportAttributeAssign = attributeAssign.xmlToExportAttributeAssign(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    XmlExportAttributeAssign xmlExportAttributeAssign = attributeAssign.xmlToExportAttributeAssign(new GrouperVersion(GrouperVersion.grouperVersion()));
 
     //now go back
     attributeAssign = xmlExportAttributeAssign.toAttributeAssign();

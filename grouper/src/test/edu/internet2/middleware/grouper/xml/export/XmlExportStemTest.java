@@ -103,9 +103,9 @@ public class XmlExportStemTest extends GrouperTest {
     xmlExportStem.setParentStem("parentStem");
     xmlExportStem.setUuid("uuid");
     
-    String xml = xmlExportStem.toXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    String xml = xmlExportStem.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
     
-    xmlExportStem = XmlExportStem.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
+    xmlExportStem = XmlExportStem.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
     
     assertEquals("alternateName", xmlExportStem.getAlternateName());
     assertEquals("contextId", xmlExportStem.getContextId());
@@ -131,7 +131,7 @@ public class XmlExportStemTest extends GrouperTest {
   public void testConvertToStem() {
     Stem stem = TestStem.exampleStem();
     
-    XmlExportStem xmlExportStem = stem.xmlToExportStem(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    XmlExportStem xmlExportStem = stem.xmlToExportStem(new GrouperVersion(GrouperVersion.grouperVersion()));
 
     //now go back
     stem = xmlExportStem.toStem();

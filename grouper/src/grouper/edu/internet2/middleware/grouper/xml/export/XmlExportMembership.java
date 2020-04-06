@@ -565,7 +565,7 @@ public class XmlExportMembership {
         Query query = session.createQuery(
             "select distinct theMembership " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         try {
           writer.write("  <memberships>\n");
   
@@ -739,7 +739,7 @@ public class XmlExportMembership {
             + " ( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theMembership.ownerAttrDefId ), "
             + " theMembership.enabledTimeDb, theMembership.disabledTimeDb " + exportFromOnQuery(xmlExportMain, false));
 
-        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
 
         //this is an efficient low-memory way to iterate through a resultset
         ScrollableResults results = null;

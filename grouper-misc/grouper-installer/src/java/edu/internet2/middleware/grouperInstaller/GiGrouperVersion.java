@@ -97,16 +97,6 @@ public class GiGrouperVersion {
     return result;
   }
   
-  /** 
-   * current version
-   * this must be three integers separated by dots for major version, minor version, and build number.
-   * update this before each
-   * non-release-candidate release (e.g. in preparation for it)
-   * e.g. 1.5.0
-   * DEV NOTE: this cant be read from version file since in dev there is no grouper jar so I dont know the version
-   */
-  public static final String GROUPER_VERSION = "2.5.0";
-  
   /**
    * se we dont have to keep constructing this
    */
@@ -118,10 +108,11 @@ public class GiGrouperVersion {
    */
   public static GiGrouperVersion currentVersion() {
     if (currentVersion == null) {
-      currentVersion = valueOfIgnoreCase(GROUPER_VERSION);
+      currentVersion = valueOfIgnoreCase(GrouperInstallerUtils.grouperInstallerVersion());
     }
     return currentVersion;
   }
+  
   
   /** major number */
   private int major;
@@ -221,7 +212,7 @@ public class GiGrouperVersion {
    * @return true if the grouper version is greater than or equal to a certain version
    */
   public static boolean grouperVersionGreaterOrEqual(String version) {
-    return _grouperVersionGreaterOrEqualHelper(GROUPER_VERSION, version);
+    return _grouperVersionGreaterOrEqualHelper(currentVersion().toString(), version);
   }
   
   /**

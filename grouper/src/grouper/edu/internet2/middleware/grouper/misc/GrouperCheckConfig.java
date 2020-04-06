@@ -34,21 +34,16 @@ import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfi
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,10 +80,10 @@ import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttribute
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
@@ -523,8 +518,6 @@ public class GrouperCheckConfig {
       GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
       
       checkGrouperConfigs();
-      
-      checkGrouperVersion();
       
       checkConfigProperties();
       
@@ -1797,39 +1790,6 @@ public class GrouperCheckConfig {
       }
     }
     return foundOne;
-  }
-  
-  /**
-   * make sure grouper versions match up
-   */
-  private static void checkGrouperVersion() {
-    //grouper version must match in grouper.version.properties,
-    //the manifest, and GrouperVersion class
-    String grouperVersionFromClass = GrouperVersion.GROUPER_VERSION;
-    String grouperVersionFromProperties = null;
-    String grouperManifestVersion = null;
-    try {
-      Properties properties = GrouperUtil.propertiesFromResourceName("grouper.version.properties");
-      grouperVersionFromProperties = GrouperUtil.propertiesValue(properties, "version");
-      grouperManifestVersion = jarVersion(GrouperCheckConfig.class);
-      
-    } catch (Exception e) {
-      
-    }
-    if (!StringUtils.equals(grouperVersionFromClass, grouperVersionFromProperties)
-        || !StringUtils.equals(grouperVersionFromClass, grouperManifestVersion)) {
-      if (grouperVersionFromProperties == null || grouperManifestVersion == null) {
-        File jarFile = GrouperUtil.jarFile(GrouperCheckConfig.class, true);
-        if (jarFile == null || !jarFile.exists() || jarFile.isDirectory()) {
-          return;
-        }
-      }
-      String error = "grouper versions do not match, GrouperVersion.class: " + grouperVersionFromClass
-        + ", grouper.version.properties: " + grouperVersionFromProperties
-        + ", manifest: " + grouperManifestVersion;
-      System.out.println("Grouper error: " + error);
-      LOG.error(error);
-    }
   }
   
   /** properties in manifest for version */

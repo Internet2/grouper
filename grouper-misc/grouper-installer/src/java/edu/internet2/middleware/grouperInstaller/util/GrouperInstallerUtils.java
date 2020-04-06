@@ -10846,6 +10846,93 @@ public class GrouperInstallerUtils  {
     return (compare >= 0 ? jar1 : jar2);
   }
   
+  /** properties in manifest for version */
+  private static final String[] versionProperties = new String[]{
+    "Implementation-Version","Version"};
+  
+  /**
+   * get the version from the manifest of a jar
+   * @param sampleClass
+   * @return the version
+   * @throws Exception
+   */
+  public static String jarVersion(Class sampleClass) throws Exception {
+    return manifestProperty(sampleClass, versionProperties);
+  }
+
+
+  private static String grouperVersionString = null;
+  
+  /**
+   * get the version from jar e.g. 2.5.12
+   * @return the version
+   */
+  public static String grouperInstallerVersion() {
+    if (grouperVersionString == null) {
+
+      try {
+        grouperVersionString = GrouperInstallerUtils.jarVersion(GiGrouperVersion.class);
+      } catch (Exception e) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Can't find version of grouper jar, using 2.5.0", e);
+        } else {
+          LOG.warn("Can't find version of grouper jar, using 2.5.0");
+        }
+      }
+      if (grouperVersionString == null) {
+        grouperVersionString = "2.5.0";
+      }
+    }
+    return grouperVersionString;
+  }
+  
+
+  /**
+   * get the version from the manifest of a jar
+   * @param sampleClass
+   * @param propertyNames that we are looking for (usually just one)
+   * @return the version
+   * @throws Exception
+   */
+  public static String manifestProperty(Class sampleClass, String[] propertyNames) throws Exception {
+    File jarFile = jarFile(sampleClass);
+    URL manifestUrl = new URL("jar:file:" + jarFile.getCanonicalPath() + "!/META-INF/MANIFEST.MF");
+    Manifest manifest = new Manifest(manifestUrl.openStream());
+    Map<String, Attributes> attributeMap = manifest.getEntries();
+    String value = null;
+    for (String propertyName : propertyNames) {
+      value = manifest.getMainAttributes().getValue(propertyName);
+      if (!isBlank(value)) {
+        break;
+      }
+    }
+    if (value == null) {
+      OUTER:
+      for (Attributes attributes: attributeMap.values()) {
+        for (String propertyName : propertyNames) {
+          value = attributes.getValue(propertyName);
+          if (!isBlank(value)) {
+            break OUTER;
+          }
+        }
+      }
+    }
+    if (value == null) {
+      
+      for (Attributes attributes: attributeMap.values()) {
+        for (Object key : attributes.keySet()) {
+          LOG.info(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+        }
+      }
+      Attributes attributes = manifest.getMainAttributes();
+      for (Object key : attributes.keySet()) {
+        LOG.info(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+      }
+    }
+    return value;
+  }
+
+
   /**
    * 
    * @param jarFile

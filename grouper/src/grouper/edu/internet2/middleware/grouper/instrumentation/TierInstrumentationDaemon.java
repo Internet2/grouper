@@ -58,7 +58,7 @@ public class TierInstrumentationDaemon extends OtherJobBase {
     runDaemonStandalone();
     
     /*
-    String release = "NON_PACKAGE_" + GrouperVersion.GROUPER_VERSION;
+    String release = "NON_PACKAGE_" + GrouperVersion.grouperVersion();
 
     Map<String, Set<Integer>> patchesInstalled = new java.util.TreeMap<String, Set<Integer>>();
     patchesInstalled.put("api", new java.util.HashSet<Integer>());
@@ -150,12 +150,12 @@ public class TierInstrumentationDaemon extends OtherJobBase {
     dataForTier.put("msgName", "TIER");
     dataForTier.put("msgVersion", "1.0");
     dataForTier.put("tbProduct", "Grouper");
-    dataForTier.put("tbProductVersion", GrouperVersion.GROUPER_VERSION);
+    dataForTier.put("tbProductVersion", GrouperVersion.grouperVersion());
         
     if (!StringUtils.isEmpty(System.getenv("GROUPER_CONTAINER_VERSION"))) {
       dataForTier.put("tbTIERRelease", "PACKAGE_" + System.getenv("GROUPER_CONTAINER_VERSION"));
     } else {
-      String release = "NON_PACKAGE_" + GrouperVersion.GROUPER_VERSION;
+      String release = "NON_PACKAGE_" + GrouperVersion.grouperVersion();
       
       Map<String, Set<Integer>> patchesInstalled = GrouperVersion.patchesInstalled();
 
@@ -265,7 +265,7 @@ public class TierInstrumentationDaemon extends OtherJobBase {
     data.put("environment", GrouperConfig.retrieveConfig().getProperty("grouper.env.name", ""));
     
     if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.version", false)) {
-      data.put("version", GrouperVersion.GROUPER_VERSION);
+      data.put("version", GrouperVersion.grouperVersion());
     }
     
     data.put("platformWindows", SystemUtils.IS_OS_WINDOWS);
@@ -427,7 +427,7 @@ public class TierInstrumentationDaemon extends OtherJobBase {
     
     Properties props = GrouperUtil.propertiesFromFile(patchIndexFile, false);
     
-    Pattern patchStatePattern = Pattern.compile("^grouper_v" + GrouperVersion.GROUPER_VERSION.replace(".", "_") + "_api_patch_(.*)\\.state$");
+    Pattern patchStatePattern = Pattern.compile("^grouper_v" + GrouperVersion.grouperVersion().replace(".", "_") + "_api_patch_(.*)\\.state$");
     for (String key : (Set<String>)(Object)props.keySet()) {
       Matcher matcher = patchStatePattern.matcher(key);
 

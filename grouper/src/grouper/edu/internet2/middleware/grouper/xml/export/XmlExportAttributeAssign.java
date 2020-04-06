@@ -614,7 +614,7 @@ public class XmlExportAttributeAssign {
         Query query = session.createQuery(
             "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true, false, true, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         
         Set<AttributeAssign> attributeAssignsOfAssigns = new LinkedHashSet<AttributeAssign>();
         
@@ -908,7 +908,7 @@ public class XmlExportAttributeAssign {
         Query query = session.createQuery(
             "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true, false, true, false));
   
-        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         
         
         //this is an efficient low-memory way to iterate through a resultset
@@ -966,7 +966,7 @@ public class XmlExportAttributeAssign {
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         
         Set<AttributeAssign> attributeAssignsOfAssigns = new LinkedHashSet<AttributeAssign>();
         

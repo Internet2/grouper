@@ -95,9 +95,9 @@ public class XmlExportMemberTest extends GrouperTest {
     xmlExportMember.setSubjectType("subjectType");
     xmlExportMember.setUuid("uuid");
     
-    String xml = xmlExportMember.toXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    String xml = xmlExportMember.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
     
-    xmlExportMember = XmlExportMember.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
+    xmlExportMember = XmlExportMember.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
     
     assertEquals("contextId", xmlExportMember.getContextId());
     assertEquals(3L, xmlExportMember.getHibernateVersionNumber());
@@ -114,7 +114,7 @@ public class XmlExportMemberTest extends GrouperTest {
   public void testConvertToMember() {
     Member member = TestMember.exampleMember();
     
-    XmlExportMember xmlExportMember = member.xmlToExportMember(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    XmlExportMember xmlExportMember = member.xmlToExportMember(new GrouperVersion(GrouperVersion.grouperVersion()));
 
     //now go back
     member = xmlExportMember.toMember();

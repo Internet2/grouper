@@ -96,9 +96,9 @@ public class XmlExportAttributeDefNameSetTest extends GrouperTest {
     xmlExportAttributeDefNameSet.setType("type");
     xmlExportAttributeDefNameSet.setUuid("uuid");
     
-    String xml = xmlExportAttributeDefNameSet.toXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    String xml = xmlExportAttributeDefNameSet.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
     
-    xmlExportAttributeDefNameSet = XmlExportAttributeDefNameSet.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
+    xmlExportAttributeDefNameSet = XmlExportAttributeDefNameSet.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
     
     assertEquals("contextId", xmlExportAttributeDefNameSet.getContextId());
     assertEquals("createTime", xmlExportAttributeDefNameSet.getCreateTime());
@@ -129,7 +129,7 @@ public class XmlExportAttributeDefNameSetTest extends GrouperTest {
     attributeDefNameSet.setId("id");
     
     
-    XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = attributeDefNameSet.xmlToExportAttributeDefNameSet(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = attributeDefNameSet.xmlToExportAttributeDefNameSet(new GrouperVersion(GrouperVersion.grouperVersion()));
 
     //now go back
     attributeDefNameSet = xmlExportAttributeDefNameSet.toAttributeDefNameSet();

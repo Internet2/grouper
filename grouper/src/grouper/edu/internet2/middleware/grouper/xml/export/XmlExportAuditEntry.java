@@ -708,7 +708,7 @@ public class XmlExportAuditEntry {
         Query query = session.createQuery(
             "select theAuditEntry from AuditEntry as theAuditEntry order by theAuditEntry.lastUpdatedDb");
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         try {
           writer.write("  <auditEntries>\n");
   

@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 
 /**
- * keep track of which version grouper is.  Update this file (the GROUPER_VERSION constant) before each
+ * keep track of which version grouper is.  Update this file (the GrouperVersion.grouperVersion() constant) before each
  * non-release-candidate release
  */
 public class GrouperVersion {
@@ -105,15 +105,30 @@ public class GrouperVersion {
     return result;
   }
   
-  /** 
-   * current version
-   * this must be three integers separated by dots for major version, minor version, and build number.
-   * update this before each
-   * non-release-candidate release (e.g. in preparation for it)
-   * e.g. 1.5.0
-   * DEV NOTE: this cant be read from version file since in dev there is no grouper jar so I dont know the version
+  private static String grouperVersionString = null;
+  
+  /**
+   * get the version from jar e.g. 2.5.12
+   * @return the version
    */
-  public static final String GROUPER_VERSION = "2.5.0";
+  public static String grouperVersion() {
+    if (grouperVersionString == null) {
+
+      try {
+        grouperVersionString = GrouperCheckConfig.jarVersion(GrouperVersion.class);
+      } catch (Exception e) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Can't find version of grouper jar, using 2.5.0", e);
+        } else {
+          LOG.warn("Can't find version of grouper jar, using 2.5.0");
+        }
+      }
+      if (grouperVersionString == null) {
+        grouperVersionString = "2.5.0";
+      }
+    }
+    return grouperVersionString;
+  }
   
   /**
    * se we dont have to keep constructing this
@@ -126,7 +141,7 @@ public class GrouperVersion {
    */
   public static GrouperVersion currentVersion() {
     if (currentVersion == null) {
-      currentVersion = valueOfIgnoreCase(GROUPER_VERSION);
+      currentVersion = valueOfIgnoreCase(grouperVersion());
     }
     return currentVersion;
   }
@@ -215,7 +230,7 @@ public class GrouperVersion {
    * @return true if the grouper version is greater than or equal to a certain version
    */
   public static boolean grouperVersionGreaterOrEqual(String version) {
-    return _grouperVersionGreaterOrEqualHelper(GROUPER_VERSION, version);
+    return _grouperVersionGreaterOrEqualHelper(GrouperVersion.grouperVersion(), version);
   }
   
   /**
@@ -418,7 +433,7 @@ public class GrouperVersion {
             if (patchIndexFile.exists()) {
               Properties props = GrouperUtil.propertiesFromFile(patchIndexFile, false);
               
-              Pattern patchStatePattern = Pattern.compile("^grouper_v" + GROUPER_VERSION.replace(".", "_") + "_(.*)_patch_(.*)\\.state$");
+              Pattern patchStatePattern = Pattern.compile("^grouper_v" + GrouperVersion.grouperVersion().replace(".", "_") + "_(.*)_patch_(.*)\\.state$");
               for (String key : (Set<String>)(Object)props.keySet()) {
                 Matcher matcher = patchStatePattern.matcher(key);
 

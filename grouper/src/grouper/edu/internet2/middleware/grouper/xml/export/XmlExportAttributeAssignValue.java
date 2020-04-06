@@ -387,7 +387,7 @@ public class XmlExportAttributeAssignValue {
         Query query = session.createQuery(
             "select theAttributeAssignValue from AttributeAssignValue as theAttributeAssignValue order by theAttributeAssignValue.id");
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         try {
           writer.write("  <attributeAssignValues>\n");
   
@@ -440,7 +440,7 @@ public class XmlExportAttributeAssignValue {
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         try {
           writer.write("  <attributeAssignValues>\n");
   

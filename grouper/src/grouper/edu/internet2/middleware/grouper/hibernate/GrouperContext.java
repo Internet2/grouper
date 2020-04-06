@@ -99,7 +99,7 @@ public class GrouperContext {
 
     auditEntry.setCreatedOn(new Timestamp(System.currentTimeMillis()));
     auditEntry.setEnvName(GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name"));
-    auditEntry.setGrouperVersion(GrouperVersion.GROUPER_VERSION);
+    auditEntry.setGrouperVersion(GrouperVersion.grouperVersion());
     auditEntry.setServerUserName(System.getProperty("user.name"));
     String serverHost = null;
     try {

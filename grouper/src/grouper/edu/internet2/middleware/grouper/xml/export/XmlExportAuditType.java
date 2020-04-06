@@ -468,7 +468,7 @@ public class XmlExportAuditType {
         Query query = session.createQuery(
             "select theAuditType from AuditType as theAuditType order by theAuditType.auditCategory, theAuditType.actionName");
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         try {
           writer.write("  <auditTypes>\n");
   

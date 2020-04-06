@@ -101,9 +101,9 @@ public class XmlExportMembershipTest extends GrouperTest {
     xmlExportMembership.setViaCompositeId("viaCompositeId");
     xmlExportMembership.setUuid("uuid");
     
-    String xml = xmlExportMembership.toXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    String xml = xmlExportMembership.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
     
-    xmlExportMembership = XmlExportMembership.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
+    xmlExportMembership = XmlExportMembership.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
     
     assertEquals("contextId", xmlExportMembership.getContextId());
     assertEquals("createTime", xmlExportMembership.getCreateTime());
@@ -144,7 +144,7 @@ public class XmlExportMembershipTest extends GrouperTest {
     membership.setImmediateMembershipId("uuid");
     membership.setViaCompositeId("viaCompositeId");
     
-    XmlExportMembership xmlExportMembership = membership.xmlToExportMembership(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    XmlExportMembership xmlExportMembership = membership.xmlToExportMembership(new GrouperVersion(GrouperVersion.grouperVersion()));
 
     //now go back
     membership = xmlExportMembership.toMembership();

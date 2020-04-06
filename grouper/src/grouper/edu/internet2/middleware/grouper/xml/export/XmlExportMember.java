@@ -160,7 +160,7 @@ public class XmlExportMember {
         
         Query query = session.createQuery("select distinct theMember " + exportFromOnQuery(xmlExportMain, true));
 
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         try {
           writer.write("  <members>\n");
 

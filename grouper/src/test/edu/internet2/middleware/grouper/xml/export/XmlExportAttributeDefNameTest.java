@@ -99,9 +99,9 @@ public class XmlExportAttributeDefNameTest extends GrouperTest {
     xmlExportAttributeDefName.setParentStem("parentStem");
     xmlExportAttributeDefName.setUuid("uuid");
     
-    String xml = xmlExportAttributeDefName.toXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    String xml = xmlExportAttributeDefName.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
     
-    xmlExportAttributeDefName = XmlExportAttributeDefName.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
+    xmlExportAttributeDefName = XmlExportAttributeDefName.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
     
     assertEquals("attributeDefId", xmlExportAttributeDefName.getAttributeDefId());
     assertEquals("contextId", xmlExportAttributeDefName.getContextId());
@@ -138,7 +138,7 @@ public class XmlExportAttributeDefNameTest extends GrouperTest {
     attributeDefName.setStemId("parentUuid");
     attributeDefName.setId("uuid");
     
-    XmlExportAttributeDefName xmlExportAttributeDefName = attributeDefName.xmlToExportAttributeDefName(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    XmlExportAttributeDefName xmlExportAttributeDefName = attributeDefName.xmlToExportAttributeDefName(new GrouperVersion(GrouperVersion.grouperVersion()));
 
     //now go back
     attributeDefName = xmlExportAttributeDefName.toAttributeDefName();

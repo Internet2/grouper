@@ -103,9 +103,9 @@ public class XmlExportGroupTest extends GrouperTest {
     xmlExportGroup.setTypeOfGroup("typeOfGroup");
     xmlExportGroup.setUuid("uuid");
     
-    String xml = xmlExportGroup.toXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    String xml = xmlExportGroup.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
     
-    xmlExportGroup = XmlExportGroup.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
+    xmlExportGroup = XmlExportGroup.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
     
     assertEquals("alternateName", xmlExportGroup.getAlternateName());
     assertEquals("contextId", xmlExportGroup.getContextId());
@@ -132,7 +132,7 @@ public class XmlExportGroupTest extends GrouperTest {
   public void testConvertToGroup() {
     Group group = TestGroup.exampleGroup();
     
-    XmlExportGroup xmlExportGroup = group.xmlToExportGroup(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
+    XmlExportGroup xmlExportGroup = group.xmlToExportGroup(new GrouperVersion(GrouperVersion.grouperVersion()));
 
     //now go back
     group = xmlExportGroup.toGroup();

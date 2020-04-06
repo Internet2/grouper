@@ -473,7 +473,7 @@ public class XmlExportStem {
         Query query = session.createQuery(
             "select distinct theStem " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
         try {
           writer.write("  <stems>\n");
   
@@ -608,7 +608,7 @@ public class XmlExportStem {
         Query query = session.createQuery(
             "select distinct theStem " + exportFromOnQuery(xmlExportMain, true));
   
-        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
   
         //this is an efficient low-memory way to iterate through a resultset
         ScrollableResults results = null;

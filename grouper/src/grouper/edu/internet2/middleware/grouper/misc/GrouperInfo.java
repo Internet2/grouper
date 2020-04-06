@@ -199,7 +199,7 @@ public class GrouperInfo {
     
     String env = GrouperUtil.propertiesValue(properties, "grouper.env.name");
     env = StringUtils.defaultIfEmpty(env, "<no label configured>");
-    String grouperStartup = "version: " + GrouperVersion.GROUPER_VERSION 
+    String grouperStartup = "version: " + GrouperVersion.grouperVersion() 
       + ", build date: " + buildTimestamp + ", env: " + env;
     
     return grouperStartup;
