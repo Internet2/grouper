@@ -361,15 +361,17 @@ public class GrouperStartup {
           GrouperCheckConfig.checkGrouperDb();
         }
         
-        // this prints the message about autoddl if not printed
-        GrouperDdlUtils.autoDdl2_5orAbove();
-
-        if (runDdlBootstrap) {
-          GrouperDdlEngine.addDllWorkerTableIfNeeded();
-          //first make sure the DB ddl is up to date
-          new GrouperDdlEngine().updateDdlIfNeeded();
+        if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.ignoreAtStartup", false)) {
+          // this prints the message about autoddl if not printed
+          GrouperDdlUtils.autoDdl2_5orAbove();
+  
+          if (runDdlBootstrap) {
+            GrouperDdlEngine.addDllWorkerTableIfNeeded();
+            //first make sure the DB ddl is up to date
+            new GrouperDdlEngine().updateDdlIfNeeded();
+          }
         }
-
+        
         // we are ready to use the database
         ConfigPropertiesCascadeBase.assignInitted();
         

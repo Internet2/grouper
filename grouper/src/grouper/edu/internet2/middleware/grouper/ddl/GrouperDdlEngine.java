@@ -691,6 +691,7 @@ public class GrouperDdlEngine {
     boolean okForDdl = false;
     this.done = false;
     GrouperDdlUtils.insideBootstrap = true;
+    boolean didSomething = false;
     
     try {
     
@@ -797,8 +798,12 @@ public class GrouperDdlEngine {
         } else {
           throw new RuntimeException("Cant start this Grouper version against a database before 2.3.  Upgrade to 2.3 first!");
         }
-  
+
+        
         for (int i=0 ;i<resources.size();i++) {
+          
+          didSomething = true;
+
           String localScript = GrouperUtil.readResourceIntoString(resources.get(i), false);
   
           script.append(localScript).append("\n");
@@ -815,7 +820,9 @@ public class GrouperDdlEngine {
         }
         
       }
-      
+      if (!didSomething || script.length() == 0) {
+        return;
+      }
       GrouperDdlUtils.runScriptIfShould(script.toString(), runScript);
     } finally {
       GrouperDdlUtils.insideBootstrap = false;
@@ -919,7 +926,13 @@ public class GrouperDdlEngine {
         writeAndRunScript(resultString, grouperDb);
       } else {
         boolean printed = false;
-        String note = "NOTE: database table/object structure (ddl) is up to date";
+        String note = null;
+        if (this.dropOnly) {
+          note = "NOTE: script was run.  Grouper database objects should be dropped.";
+        } else {
+          note = "NOTE: database table/object structure (ddl) should be to date";
+        }
+        
         if (!compareFromDbVersion) {
           //no script to update
           if (LOG.isErrorEnabled()) {
