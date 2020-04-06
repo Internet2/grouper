@@ -9707,7 +9707,10 @@ public class GrouperInstallerUtils  {
     Properties properties = null;
     try {
       properties = propertiesFromResourceName(
-        "grouper.installer.properties", true, true, GrouperInstallerUtils.class, null);
+        "grouper.installer.properties", true, false, GrouperInstallerUtils.class, null);
+      if (properties == null) {
+        properties = new Properties();
+      }
     } catch (Exception e) {
       throw new RuntimeException("Error accessing file: grouper.installer.properties  " +
           "This properties file needs to be in the same directory as grouperInstaller.jar, or on your Java classpath", e);
