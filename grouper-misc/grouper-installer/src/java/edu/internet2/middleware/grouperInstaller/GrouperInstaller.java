@@ -11152,6 +11152,9 @@ public class GrouperInstaller {
     // now download all the grouper project jars
     downloadGrouperJarsIntoLibDirectory(webInfDir);
     
+    // delete slf4j-api-1.6.1.jar from all the lib dirs
+    deleteJarsFromLibDirs(webInfDir, new String[] {"slf4j-api-1.6.1.jar"});
+    
     // take care of conflicting jars
     reportOnConflictingJars(libDir.getAbsolutePath());
     reportOnConflictingJars(libUiAndDaemonDir.getAbsolutePath());
@@ -13573,6 +13576,24 @@ public class GrouperInstaller {
     File grouperSourceCodeFile = new File(this.grouperTarballDirectoryString + "GROUPER_RELEASE_"+this.version+".tar.gz");
     downloadFile("https://github.com/Internet2/grouper/archive/GROUPER_RELEASE_"+this.version+".tar.gz", grouperSourceCodeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
     return grouperSourceCodeFile;
+  }
+  
+  private void deleteJarsFromLibDirs(File webInfDir, String[] jarsToBeDeleted) {
+    
+    for (String jarName: jarsToBeDeleted) {
+      File jarInLibDir = new File(webInfDir+File.separator+"lib" + File.separator + jarName);
+      GrouperInstallerUtils.fileDelete(jarInLibDir);
+      
+      File jarInLibUiAndDaemonDir = new File(webInfDir+File.separator+"libUiAndDaemon" + File.separator + jarName );
+      GrouperInstallerUtils.fileDelete(jarInLibUiAndDaemonDir);
+      
+      File jarInLibWsDir = new File(webInfDir+File.separator+"libWs" + File.separator + jarName );
+      GrouperInstallerUtils.fileDelete(jarInLibWsDir);
+      
+      File jarInLibScimDir = new File(webInfDir+File.separator+"libScim" + File.separator + jarName );
+      GrouperInstallerUtils.fileDelete(jarInLibScimDir);
+    }
+    
   }
   
   private void downloadGrouperJarsIntoLibDirectory(File webInfDir) {
