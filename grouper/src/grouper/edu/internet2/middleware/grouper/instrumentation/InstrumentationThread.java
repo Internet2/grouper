@@ -69,13 +69,16 @@ public class InstrumentationThread {
       public void run() {
 
         GrouperSession rootSession = null;
-
+        long increment;
+        AttributeAssign parentAssignment;
+        File instanceFile;
+        
         try {
           GrouperStartup.waitForGrouperStartup();
           
           rootSession = GrouperSession.startRootSession(true);
           
-          File instanceFile = getInstanceFile(grouperEngineIdentifier);
+          instanceFile = getInstanceFile(grouperEngineIdentifier);
           
           if (instanceFile == null) {
             LOG.warn("Unable to save an instance id for this instance.");
@@ -89,9 +92,9 @@ public class InstrumentationThread {
             throw new RuntimeException(e);
           }
           
-          AttributeAssign parentAssignment = InstrumentationDataUtils.grouperInstrumentationInstanceParentAttributeAssignment(grouperEngineIdentifier, uuid);
+          parentAssignment = InstrumentationDataUtils.grouperInstrumentationInstanceParentAttributeAssignment(grouperEngineIdentifier, uuid);
 
-          long increment = GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.updateIncrements", 3600) * 1000L;
+          increment = GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.updateIncrements", 3600) * 1000L;
           if (3600000 % increment != 0) {
             LOG.warn("instrumentation.updateIncrements must be divisible by 3600.  Using 3600 (1 hour) instead");
             increment = 3600000;
@@ -100,20 +103,29 @@ public class InstrumentationThread {
           initCounts(customTypes);
 
           InstrumentationDataUtils.setCollectingStats(true);
+        } catch (RuntimeException re) {
+          LOG.error("error in thread", re);
+          throw re;
+        } finally {
+          GrouperSession.stopQuietly(rootSession);
+        }
+        
 
-          while (true) {
-                        
-            if (Thread.currentThread().isInterrupted()) {
-              return;
-            }
+        while (true) {
+          if (Thread.currentThread().isInterrupted()) {
+            return;
+          }
+          
+          try {
+            Thread.sleep(GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.updateGrouperIntervalInSeconds", 3600) * 1000L);
+          } catch (InterruptedException e) {
+            LOG.info("Received interrupt to shutdown instrumentation thread.");
+            Thread.currentThread().interrupt();
+          }
             
-            try {
-              Thread.sleep(GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.updateGrouperIntervalInSeconds", 3600) * 1000L);
-            } catch (InterruptedException e) {
-              LOG.info("Received interrupt to shutdown instrumentation thread.");
-              Thread.currentThread().interrupt();
-            }
-            
+          try {
+            rootSession = GrouperSession.startRootSession(true);
+
             long daemonStartTime = System.currentTimeMillis();
             
             Map<MultiKey, Long> allCounts = new HashMap<MultiKey, Long>();
@@ -148,7 +160,7 @@ public class InstrumentationThread {
               Map<String, Long> data = new LinkedHashMap<String, Long>();
               data.put("startTime", startTime);
               data.put("duration", increment);
-
+  
               for (MultiKey multiKey : allCounts.keySet()) {
                 String key = (String)multiKey.getKey(0);
                 Long thisStartTime = (Long)multiKey.getKey(1);
@@ -169,12 +181,11 @@ public class InstrumentationThread {
             } catch (IOException e) {
               LOG.warn("Non fatal error while touching file " + instanceFile.getAbsolutePath() + " for the purposes of making sure the file doesn't get cleaned up by the system.");
             }
+          } catch (RuntimeException re) {
+            LOG.error("error in thread", re);
+          } finally {
+            GrouperSession.stopQuietly(rootSession);
           }
-        } catch (RuntimeException re) {
-          LOG.error("error in thread", re);
-          throw re;
-        } finally {
-          GrouperSession.stopQuietly(rootSession);
         }
       }
     });
