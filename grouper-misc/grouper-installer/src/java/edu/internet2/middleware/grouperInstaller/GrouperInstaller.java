@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9430,34 +9431,108 @@ public class GrouperInstaller {
    */
   private void mainInstallContainerLogic() {
     
-    System.out.print("Use default path for external mount /opt/grouperMount (t|f) [t]: ");
-    boolean useDefaultPath = readFromStdInBoolean(true, "Placeholder");
-    
-    String path = File.separator + "opt" + File.separator + "grouperMount";
-    if (useDefaultPath == false) {
-      System.out.print("Please enter the full absolute path to external mounted directory: ");
+    boolean validBaseDirectoryFound = false;
+    String path = null;
+    do {
+      File grouperContainerBaseDirectory = new File(new File("").getAbsolutePath());
       
-      path = readFromStdIn("Placeholder");
-      while (true) {
-        if (GrouperInstallerUtils.isBlank(path) || !new File(path).exists()) {
-          System.out.print("Path is invalid. Please try again ");
-          path = readFromStdIn("Placeholder");
+      System.out.print("Where do you want your host grouper container base directory (e.g. /opt/grouperContainer)? ["+grouperContainerBaseDirectory.getAbsolutePath()+"]: ");
+      String localGrouperContainerBaseDirectoryString = readFromStdIn("Placeholder");
+      if (!GrouperInstallerUtils.isBlank(localGrouperContainerBaseDirectoryString)) {
+        File grouperContainerBaseDirectoryFile = new File(localGrouperContainerBaseDirectoryString);
+        if (!grouperContainerBaseDirectoryFile.exists() || !grouperContainerBaseDirectoryFile.isDirectory()) { 
+          System.out.println("Error: cant find directory: '" + grouperContainerBaseDirectoryFile.getAbsolutePath() + "'");
         } else {
-          break;
+          path = grouperContainerBaseDirectoryFile.getAbsolutePath();
+          validBaseDirectoryFound = true;
         }
+      } else {
+        path = grouperContainerBaseDirectory.getAbsolutePath();
+        validBaseDirectoryFound = true;
       }
-    }
+      
+    } while (validBaseDirectoryFound == false);
+    
     
     // create README.txt file at the path
     File readmeFile = new File(path + File.separator + "README.txt");
-    while (readmeFile.exists()) {
-      System.out.print("README.txt already exists at "+path);
-      System.out.print("Please delete it first and then press any key ");
-      readFromStdIn("Placeholder");
+    if (readmeFile.exists()) {
+      String newFileName = "README_" + new Date().toString().replace(" ", "_") + ".txt";
+      System.out.println("README.txt already exists. Going to rename to "+newFileName);
+      readmeFile.renameTo(new File(path + File.separator + newFileName));
       readmeFile = new File(path + File.separator + "README.txt");
     }
         
     GrouperInstallerUtils.fileCreate(readmeFile);
+    
+    // create logs directory
+    StringBuilder contentToWrite = new StringBuilder();
+    contentToWrite.append("Create logs directory in "+path);
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    File logsDirectory = new File(path+File.separator+"logs"+File.separator+"nothing");
+    GrouperInstallerUtils.createParentDirectories(logsDirectory);
+    
+    // create log4j.properties file
+    File log4jPropertiesFile = new File(path+File.separator+"conf"+File.separator+"log4j.properties");
+    
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Create log4j.properties file in "+log4jPropertiesFile.getAbsolutePath());
+    contentToWrite.append("\n\n");
+    contentToWrite.append("Copy the content from https://spaces.at.internet2.edu/display/Grouper/Install+the+Grouper+v2.5+container+with+maturity+level+0+using+installer");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    GrouperInstallerUtils.createParentDirectories(log4jPropertiesFile);
+    boolean reuseLog4jPropertiesFile = false;
+    while(true) {
+      if (log4jPropertiesFile.exists()) {
+        System.out.print("log4j.properties already exists at '"+log4jPropertiesFile.getParent()+"' ");
+        System.out.print("Do you want to reuse it (t|f) [t]: ");
+        reuseLog4jPropertiesFile = readFromStdInBoolean(true, "Placeholder");
+        if (reuseLog4jPropertiesFile) {
+          System.out.println("Going to reuse existing log4j.properties file. ");
+          break;
+        } else {
+          System.out.print("Delete log4j.properties and press any key to continue ");
+          readFromStdIn("nothing");
+          log4jPropertiesFile = new File(path+File.separator+"conf"+File.separator+"log4j.properties");
+          continue;
+        }
+      } else {
+        GrouperInstallerUtils.fileCreate(log4jPropertiesFile);
+        break;
+      }
+    }
+    
+    try {
+      InputStream in = getClass().getResourceAsStream("/log4j.sample.properties"); 
+      BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+      StringBuilder log4jContent = new StringBuilder();
+      String line;
+      while( (line = reader.readLine()) != null) {
+        log4jContent.append(line);
+        log4jContent.append("\n");
+      }
+      Files.write(Paths.get(log4jPropertiesFile.getAbsolutePath()), log4jContent.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write content to "+log4jPropertiesFile.getAbsolutePath());
+      System.out.println("Go to https://spaces.at.internet2.edu/display/Grouper/Install+the+Grouper+v2.5+container+with+maturity+level+0+using+installer to copy the log4j.properties section manually. ");
+      System.out.print("Press any key to continue ");
+      readFromStdIn("Placeholder");
+    }
+    
     
     String dockerImageVersion = GrouperInstallerUtils.propertiesValue("grouperInstaller.docker.image.version", false);
     
@@ -9469,7 +9544,7 @@ public class GrouperInstaller {
       dockerImageVersion = GrouperInstallerUtils.propertiesValue("grouper.version", true);
     }
     
-    StringBuilder contentToWrite = new StringBuilder("Make sure docker is installed and running. Run the following command to check if docker is installed.");
+    contentToWrite = new StringBuilder("Make sure docker is installed and running. Run the following command to check if docker is installed.");
     contentToWrite.append("\n\n");
     contentToWrite.append("which docker");
     contentToWrite.append("\n\n");
@@ -9501,81 +9576,82 @@ public class GrouperInstaller {
     commands.add("-c");
     commands.add("which docker");
     
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(
-        GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-        new File("."), null, false, false, true);
-    
     String dockerLocation = null;
+    boolean errorDetectingDocker = false;
+    String errorMessageDetectingDocker = null;
     
-    while (true) {
+    try {
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(
+          GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+          new File("."), null, false, false, true);
       
       if (commandResult.getExitCode() != 0) {
-        String error = commandResult.getErrorText();
-        
-        System.out.print("Could not detect if docker is installed.");
-        if (GrouperInstallerUtils.isNotBlank(error)) {
-          System.out.println("Received error message: "+error);
-        }
-        
-        System.out.print("If you have docker installed, enter 't' otherwise enter 'f' ");
-        boolean isDockerInstalled = readFromStdInBoolean(null, "Placeholder");
-        
-        if (isDockerInstalled) {
-          System.out.print("Please enter the full absolute path to docker. eg: /usr/local/bin/docker ");
-          dockerLocation = readFromStdIn("Placeholder");
-          
-          while (true) {
-            if (GrouperInstallerUtils.isBlank(dockerLocation) || !new File(dockerLocation).exists()) {
-              System.out.print("Path is invalid. Please try again. ");
-              dockerLocation = readFromStdIn("Placeholder");
-            } else {
-              break;
-            }
-          }
-          
-        } else {
-          System.out.print("Please install docker then come back and press any key to continue ");
-          readFromStdIn("Placeholder");
-          commandResult = GrouperInstallerUtils.execCommand(
-              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-              new File("."), null, false, false, true);
-          continue;
-        }
-        
+        errorMessageDetectingDocker = commandResult.getErrorText();
+        errorDetectingDocker = true;
       } else {
-        // docker is installed
         dockerLocation = commandResult.getOutputText();
-        System.out.println("We detected docker is installed at: "+commandResult.getOutputText());
-        System.out.print("Is the path above correct? (t|f) [t]: ");
-        boolean correctDockerLocationDetected = readFromStdInBoolean(true, "Placeholder");
-        
-        if (correctDockerLocationDetected == false) {
-          System.out.print("Please enter the full absolute path to docker. eg: /usr/local/bin/docker ");
-          dockerLocation = readFromStdIn("Placeholder");
-          
-          while (true) {
-            if (GrouperInstallerUtils.isBlank(dockerLocation) || !new File(dockerLocation).exists()) {
-              System.out.print("Path is invalid. Please try again. ");
-              dockerLocation = readFromStdIn("Placeholder");
-            } else {
-              break;
-            }
-          }
-        }
-        
       }
       
-      break;
-      
+    } catch (Throwable e) {
+      errorDetectingDocker = true;
     }
+    
+    if (errorDetectingDocker) {
+      System.out.println("Could not detect if docker is installed with command 'which docker' ");
+      if (GrouperInstallerUtils.isNotBlank(errorMessageDetectingDocker)) {
+        System.out.println("Received error message: "+errorMessageDetectingDocker+ " ");
+      }
+      
+      System.out.println("Make sure you are running the installer as the user that runs docker ");
+      
+      System.out.print("If you have docker installed, enter 't' otherwise enter 'f' ");
+      boolean isDockerInstalled = readFromStdInBoolean(null, "Placeholder");
+      
+      if (isDockerInstalled) {
+        System.out.print("Please enter the full absolute path to docker. eg: /usr/local/bin/docker ");
+        dockerLocation = readFromStdIn("Placeholder");
+        
+        while (true) {
+          if (GrouperInstallerUtils.isBlank(dockerLocation) || !new File(dockerLocation).exists()) {
+            System.out.print("Path is invalid. Please try again. ");
+            dockerLocation = readFromStdIn("Placeholder");
+          } else {
+            break;
+          }
+        }
+      } else {
+        System.out.print("Please install docker first and try again. ");
+        return;
+      }
+    } else {
+      // docker is installed
+      System.out.println("We detected docker is installed at: "+dockerLocation);
+      System.out.print("Is the path above correct? (t|f) [t]: ");
+      boolean correctDockerLocationDetected = readFromStdInBoolean(true, "Placeholder");
+      
+      if (correctDockerLocationDetected == false) {
+        System.out.print("Please enter the full absolute path to docker. eg: /usr/local/bin/docker ");
+        dockerLocation = readFromStdIn("Placeholder");
+        
+        while (true) {
+          if (GrouperInstallerUtils.isBlank(dockerLocation) || !new File(dockerLocation).exists()) {
+            System.out.print("Path is invalid. Please try again. ");
+            dockerLocation = readFromStdIn("Placeholder");
+          } else {
+            break;
+          }
+        }
+      }
+    }
+    
     
     dockerLocation = dockerLocation.trim();
     
     // check if docker is running or not. 
     
-    System.out.println("Going to check if docker is running.");
+    System.out.println("Going to check if docker is running. ");
     boolean dockerIsRunning = false;
-    
+    CommandResult commandResult = null;
     while (true) {
       try {
         commandResult = GrouperInstallerUtils.execCommand(
@@ -9600,7 +9676,7 @@ public class GrouperInstaller {
         }
         
       } else {
-        System.out.println("docker is running.");
+        System.out.println("docker is running. ");
         System.out.println(commandResult.getOutputText());
         break;
       }
@@ -9614,7 +9690,7 @@ public class GrouperInstaller {
     contentToWrite.append("\n\n");
     contentToWrite.append("docker ps --all --format \"{{.Names}}\" ");
     contentToWrite.append("\n");
-    contentToWrite.append("If you have gsh, ws, gsh-ui-password, gsh-ws-password, grouper or ui containers already there. Please stop them, remove them and then continue.");
+    contentToWrite.append("If you have gsh, ws, grouper or ui containers already there. Please stop them, remove them and then continue.");
     contentToWrite.append("\n");
     
     contentToWrite.append("To stop a running container, run the following command. ");
@@ -9637,7 +9713,7 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
-    System.out.println("Going to check if gsh, ws, gsh-ui-password, gsh-ws-password, grouper or ui containers already exist.");
+    System.out.println("Going to check if gsh, ws, grouper, or ui containers already exist.");
     List<String> conflictingNames = new ArrayList<String>();
     boolean conflictingNamesRanSuccessfully = false;
     try {
@@ -9650,7 +9726,7 @@ public class GrouperInstaller {
         if (GrouperInstallerUtils.isNotBlank(containerNamesString)) {
           String[] containerNames = containerNamesString.split("\n");
           
-          List<String> containersThatCanCauseConflict = Arrays.asList("gsh", "ui", "ws", "gsh-ui-password", "gsh-ws-password", "grouper");
+          List<String> containersThatCanCauseConflict = Arrays.asList("gsh", "ui", "ws", "grouper");
           
           for (String containerName: containerNames) {
             if (containersThatCanCauseConflict.contains(containerName)) {
@@ -9663,15 +9739,18 @@ public class GrouperInstaller {
     
     if (conflictingNamesRanSuccessfully == false) {
       System.out.println("There was an error trying to figure out if gsh, ui, or ws containers already exist.");
-      System.out.println("Run docker ps --all --format \"{{.Names}}\" to see if gsh, ws, or ui already exist. Please delete them before proceeding.");
+      System.out.println("Run 'docker ps --all --format \"{{.Names}}\"' to see if gsh, ws, or ui already exist. Please delete them before proceeding. ");
       System.out.println("Run docker rm -f <container name> to force remove a docker container");
     }
     
     if (conflictingNames.size() > 0) {
-      System.out.println("We found that containers with names "+String.join(", ", conflictingNames) + " already exist. Please delete them before proceeding.");
+      System.out.println("We found that containers with names "+String.join(", ", conflictingNames) + " already exist. Please delete them before proceeding. ");
       System.out.println("Command to delete a docker container is 'docker rm <container name>'. Use -f flag to force remove. ");
       System.out.print("Press any key once you have deleted the conflicting containers. ");
       readFromStdIn("Placeholder");
+    }
+    if (conflictingNamesRanSuccessfully && conflictingNames.size() == 0) {
+      System.out.println("No conflicting containers found. ");
     }
     
     // pull grouper docker image
@@ -9715,20 +9794,6 @@ public class GrouperInstaller {
       System.out.print("Press any key when done ");
       readFromStdIn("Placeholder");
     }
-    
-    // create logs directory
-    contentToWrite = new StringBuilder();
-    contentToWrite.append("Create logs directory in "+path);
-    contentToWrite.append("\n\n");
-    try {      
-      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
-    } catch (Exception e) {
-      System.out.println("Could not write to README.txt file.");
-    }
-    
-    File logsDirectory = new File(path+File.separator+"logs"+File.separator+"nothing");
-    GrouperInstallerUtils.createParentDirectories(logsDirectory);
-    
     
     // create slashRoot directory
     contentToWrite = new StringBuilder();
@@ -10019,17 +10084,6 @@ public class GrouperInstaller {
       editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.scim.basicAuthn", "true", false);
     } 
     
-    // ask from user here if they want to auto init the database for this container and 
-    // the subsequent containers (y|n) y: 
-    // if yes
-    // editPropertiesFile(grouperHibernatePropertiesFile, "registry.auto.ddl.upToVersion", "<2.5.*>", false);
-    // also; just run the following docker command
-    
-    // if no;
-    // ask again if they want to init the db one time now? (y|n) y:
-    // if y: keep doing what we are already doing
-    // if no; then skip initting the db (the following docker command)
-    
     System.out.print("Do you want to init the database and auto-upgrade for subsequent containers of the same major and minor version of Grouper (t|f)? [t] ");
     boolean autoInitDatabase = readFromStdInBoolean(true, "Placeholder");
     boolean initDbDocker = false;
@@ -10074,6 +10128,7 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
+    boolean removeDockerGshContainer = false;
     if (initDbDocker) {
       boolean dbInitialized = false;
       try {
@@ -10083,11 +10138,11 @@ public class GrouperInstaller {
         
         commands.add(buildInitCommand.toString());
         
-        commandResult = GrouperInstallerUtils.execCommand(
+        CommandResult dockerDbInitCommandResult = GrouperInstallerUtils.execCommand(
             GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
             new File("."), null, false, false, true);
         
-        if (commandResult.getExitCode() == 0) {
+        if (dockerDbInitCommandResult.getExitCode() == 0) {
           dbInitialized = true;
         }
         
@@ -10098,7 +10153,145 @@ public class GrouperInstaller {
         System.out.println(buildInitCommand.toString());
         System.out.print("Press any key to continue once the command has been run: ");
         readFromStdIn("Placeholder");
+      } else {
+        removeDockerGshContainer = true;
+        StringBuilder dockerPsCommand = new StringBuilder();
+        dockerPsCommand.append("docker ps -a --filter \"name=gsh\" --format \"{{.Status}}\" ");
+        
+        for (int i=0; i<100; i++) {
+          System.out.println("Waiting for docker command to finish.");
+          GrouperInstallerUtils.sleep(2000);
+          
+          commands = new ArrayList<String>();
+          commands.add(shCommand());
+          commands.add("-c");
+          
+          commands.add(dockerPsCommand.toString());
+          
+          CommandResult dockerPsCommandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File("."), null, false, false, true);
+          
+          if (dockerPsCommandResult.getExitCode() == 0) {
+            
+            String output = dockerPsCommandResult.getOutputText();
+            if (output.contains("Exited")) {
+              
+              commands = new ArrayList<String>();
+              commands.add(shCommand());
+              commands.add("-c");
+              
+              StringBuilder dockerLogsCommand = new StringBuilder();
+              dockerLogsCommand.append("docker logs gsh ");
+              
+              commands.add(dockerLogsCommand.toString());
+              
+              CommandResult dockerLogsCommandResult = GrouperInstallerUtils.execCommand(
+                  GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                  new File("."), null, false, false, true);
+              
+              if (dockerLogsCommandResult.getExitCode() == 0) {
+                String logs = dockerLogsCommandResult.getOutputText();
+                
+                File dbInitLogsFile = new File(path+File.separator+"docker_logs_init_db_"+new Date().toString().replace(" ", "_")+".log");
+                GrouperInstallerUtils.fileCreate(dbInitLogsFile);
+                
+                try {      
+                  Files.write(Paths.get(dbInitLogsFile.getAbsolutePath()), logs.getBytes(), StandardOpenOption.APPEND);
+                } catch (Exception e) {
+                  System.out.println("Could not write logs to "+dbInitLogsFile.getAbsolutePath()+" file. ");
+                }
+                
+                System.out.println("docker database initialization logs are at: "+dbInitLogsFile.getAbsolutePath());
+                
+                if (logs.contains("Script was executed successfully") && !logs.contains("Exception") && !logs.contains("exception")) {
+                  System.out.println("From the logs: Script was executed successfully");
+                  System.out.print("Press any key to continue. ");
+                  readFromStdIn("Placeholder");
+                } else {
+                  System.out.println("Could not find success in docker logs. Look in the logs at the location above and make sure there are no exceptions. ");
+                  System.out.print("Press any key to continue. ");
+                  readFromStdIn("Placeholder");
+                }
+                
+                try (BufferedReader reader = new BufferedReader(new FileReader(dbInitLogsFile))) {
+                  StringBuilder logContent = new StringBuilder();
+                  String line;
+                  int lineNumber =0;
+                  while( (line = reader.readLine()) != null) {
+                    logContent.append(line);
+                    logContent.append("\n");
+                    lineNumber++;
+                    
+                    if (lineNumber > 24) {
+                      break;
+                    }
+                  }
+                  System.out.println("First 25 lines of logs are below: ");
+                  System.out.println(logContent);
+                } catch (Exception e) {}
+                
+              } else {
+                System.out.println("Could not retrieve logs for 'gsh' container. Please run 'docker logs gsh' manually and make sure there are no exceptions before proceeding. ");
+                System.out.print("Press any key to continue. ");
+                readFromStdIn("Placeholder");
+              }
+              
+              break;
+            } 
+            
+          } else {
+            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press any key to continue. ");
+            readFromStdIn("Placeholder");
+            break;
+          }
+          
+        }
+        
       }
+      
+    }
+    
+    // remove gsh docker container
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Run 'docker rm -f gsh' to remove the gsh container.");
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    try {
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
+    if (removeDockerGshContainer) {
+      commands = new ArrayList<String>();
+      commands.add(shCommand());
+      commands.add("-c");
+      commands.add("docker rm -f gsh");
+      
+      boolean dockerRemovedGshContainer = false;
+      String dockerRmCommandError = null;
+      try {
+        CommandResult dockerRmCommandResult = GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+            new File("."), null, false, false, true);
+        if (dockerRmCommandResult.getExitCode() == 0) {
+          dockerRemovedGshContainer = true;
+        } else if (GrouperInstallerUtils.isNotBlank(dockerRmCommandResult.getErrorText())) {
+          dockerRmCommandError = dockerRmCommandResult.getErrorText();
+        }
+      } catch (Exception e) {
+        dockerRemovedGshContainer = false;
+      }
+      
+      if (dockerRemovedGshContainer) {
+        System.out.println("Removed 'gsh' container successfully. ");
+      } else if (dockerRmCommandError != null) {
+        System.out.println("Could not remove docker gsh container. Please run 'docker rm -f gsh' in another terminal window before proceeding. ");
+      }
+      
+      System.out.print("Press any key to continue ");
+      readFromStdIn("Placeholder");
     }
     
     // Add passwords for grouper ui
@@ -10137,7 +10330,7 @@ public class GrouperInstaller {
     boolean useGrouperAuthenticationUi = true;
     
     if (useGrouperAuthenticationUi) {
-      System.out.print("Enter the password for user GrouperSystem for grouper UI: ");
+      System.out.print("Enter the password for user 'GrouperSystem' for grouper UI: ");
       String uiPassword = readFromStdIn("Placeholder");
       
       while (true) {
@@ -10203,7 +10396,7 @@ public class GrouperInstaller {
       uiPasswordDockerCommand.append("--mount type=bind,src=");
       uiPasswordDockerCommand.append(path+File.separator);
       uiPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
-      uiPasswordDockerCommand.append("--name gsh-ui-password ");
+      uiPasswordDockerCommand.append("--name gsh ");
       uiPasswordDockerCommand.append("i2incommon/grouper:"+dockerImageVersion );
       uiPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordUi.gsh");
       contentToWrite.append(uiPasswordDockerCommand.toString());
@@ -10215,7 +10408,7 @@ public class GrouperInstaller {
         System.out.println("Could not write to README.txt file.");
       }
       
-      
+      removeDockerGshContainer = false;
       boolean uiPasswordCreated = false;
       try {
         commands = new ArrayList<String>();
@@ -10233,12 +10426,140 @@ public class GrouperInstaller {
       } catch (Exception e) {}
       
       if (uiPasswordCreated == false) {
-        System.out.println("Could not create password for grouper UI. Run the following command manually.");
+        System.out.println("Could not create password for grouper UI. Run the following command manually. ");
         System.out.println(uiPasswordDockerCommand.toString());
-        System.out.print("Press any key to continue");
+        System.out.print("Press any key to continue ");
         readFromStdIn("Placeholder");
+      } else {
+        
+        removeDockerGshContainer = true;
+        StringBuilder dockerPsCommand = new StringBuilder();
+        dockerPsCommand.append("docker ps -a --filter \"name=gsh\" --format \"{{.Status}}\" ");
+        
+        for (int i=0; i<100; i++) {
+          System.out.println("Waiting for docker command to finish.");
+          GrouperInstallerUtils.sleep(2000);
+          
+          commands = new ArrayList<String>();
+          commands.add(shCommand());
+          commands.add("-c");
+          
+          commands.add(dockerPsCommand.toString());
+          
+          CommandResult dockerPsCommandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File("."), null, false, false, true);
+          
+          if (dockerPsCommandResult.getExitCode() == 0) {
+            
+            String output = dockerPsCommandResult.getOutputText();
+            if (output.contains("Exited")) {
+              
+              commands = new ArrayList<String>();
+              commands.add(shCommand());
+              commands.add("-c");
+              
+              StringBuilder dockerLogsCommand = new StringBuilder();
+              dockerLogsCommand.append("docker logs gsh ");
+              
+              commands.add(dockerLogsCommand.toString());
+              
+              CommandResult dockerLogsCommandResult = GrouperInstallerUtils.execCommand(
+                  GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                  new File("."), null, false, false, true);
+              
+              if (dockerLogsCommandResult.getExitCode() == 0) {
+                String logs = dockerLogsCommandResult.getOutputText();
+                
+                File uiPasswordLogsFile = new File(path+File.separator+"docker_logs_ui_password_"+new Date().toString().replace(" ", "_")+".log");
+                GrouperInstallerUtils.fileCreate(uiPasswordLogsFile);
+                
+                try {      
+                  Files.write(Paths.get(uiPasswordLogsFile.getAbsolutePath()), logs.getBytes(), StandardOpenOption.APPEND);
+                } catch (Exception e) {
+                  System.out.println("Could not write logs to "+uiPasswordLogsFile.getAbsolutePath()+" file. ");
+                }
+                
+                System.out.println("docker ui password setup logs are at: "+uiPasswordLogsFile.getAbsolutePath());
+                
+                if (logs.contains("===> null\n" + 
+                    "groovy:000> :exit") && !logs.contains("Exception") && !logs.contains("exception")) {
+                  System.out.println("Password was created successfully.");
+                  System.out.print("Press any key to continue. ");
+                  readFromStdIn("Placeholder");
+                } else {
+                  System.out.println("Could not find success in docker logs. Look in the logs at the location above and make sure there are no exceptions. ");
+                  System.out.print("Press any key to continue. ");
+                  readFromStdIn("Placeholder");
+                }
+                
+                try (BufferedReader reader = new BufferedReader(new FileReader(uiPasswordLogsFile))) {
+                  StringBuilder logContent = new StringBuilder();
+                  String line;
+                  int lineNumber =0;
+                  while( (line = reader.readLine()) != null) {
+                    logContent.append(line);
+                    logContent.append("\n");
+                    lineNumber++;
+                    
+                    if (lineNumber > 24) {
+                      break;
+                    }
+                  }
+                  System.out.println("First 25 lines of logs are below: ");
+                  System.out.println(logContent);
+                } catch (Exception e) {}
+                
+              } else {
+                System.out.println("Could not retrieve logs for 'gsh' container. Please run 'docker logs gsh' manually and make sure there are no exceptions before proceeding. ");
+                System.out.print("Press any key to continue. ");
+                readFromStdIn("Placeholder");
+              }
+              
+              break;
+            } 
+            
+          } else {
+            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press any key to continue. ");
+            readFromStdIn("Placeholder");
+            break;
+          }
+          
+        }
+        
       }
       
+      if (removeDockerGshContainer) {
+        commands = new ArrayList<String>();
+        commands.add(shCommand());
+        commands.add("-c");
+        commands.add("docker rm -f gsh");
+        
+        boolean dockerRemovedGshContainer = false;
+        String dockerRmCommandError = null;
+        try {
+          CommandResult dockerRmCommandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File("."), null, false, false, true);
+          if (dockerRmCommandResult.getExitCode() == 0) {
+            dockerRemovedGshContainer = true;
+          } else if (GrouperInstallerUtils.isNotBlank(dockerRmCommandResult.getErrorText())) {
+            dockerRmCommandError = dockerRmCommandResult.getErrorText();
+          }
+        } catch (Exception e) {
+          dockerRemovedGshContainer = false;
+        }
+        
+        if (dockerRemovedGshContainer) {
+          System.out.println("Removed gsh container successfully. ");
+        } else if (dockerRmCommandError != null) {
+          System.out.println("Could not remove docker gsh container. Please run 'docker rm -f gsh' in another terminal window before proceeding. ");
+        }
+        
+        System.out.print("Press any key to continue ");
+        readFromStdIn("Placeholder");
+      }
+        
       // remove createGrouperSystemPasswordUi.sh file
       contentToWrite = new StringBuilder();    
       contentToWrite.append("Delete createGrouperSystemPasswordUi.gsh file from "+path+File.separator+"slashRoot"+File.separator+"opt"+
@@ -10290,7 +10611,7 @@ public class GrouperInstaller {
     boolean useGrouperAuthenticationWs = true;
     
     if (useGrouperAuthenticationWs) {
-      System.out.print("Please enter the password for user GrouperSystem for grouper web services: ");
+      System.out.print("Please enter the password for user 'GrouperSystem' for grouper web services: ");
       String wsPassword = readFromStdIn("Placeholder");
       
       while (true) {
@@ -10356,7 +10677,7 @@ public class GrouperInstaller {
       wsPasswordDockerCommand.append("--mount type=bind,src=");
       wsPasswordDockerCommand.append(path+File.separator);
       wsPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
-      wsPasswordDockerCommand.append("--name gsh-ws-password ");
+      wsPasswordDockerCommand.append("--name gsh ");
       wsPasswordDockerCommand.append("i2incommon/grouper:"+dockerImageVersion );
       wsPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordWs.gsh");
       contentToWrite.append(wsPasswordDockerCommand.toString());
@@ -10369,6 +10690,7 @@ public class GrouperInstaller {
       }
       
       boolean wsPasswordCreated = false;
+      removeDockerGshContainer = false;
       try {
         commands = new ArrayList<String>();
         commands.add(shCommand());
@@ -10390,6 +10712,134 @@ public class GrouperInstaller {
         System.out.println("Could not create password for WS. Run the following command manually.");
         System.out.println(wsPasswordDockerCommand.toString());
         System.out.print("Press any key to continue");
+        readFromStdIn("Placeholder");
+      } else {
+
+        removeDockerGshContainer = true;
+        StringBuilder dockerPsCommand = new StringBuilder();
+        dockerPsCommand.append("docker ps -a --filter \"name=gsh\" --format \"{{.Status}}\" ");
+        
+        for (int i=0; i<100; i++) {
+          System.out.println("Waiting for docker command to finish.");
+          GrouperInstallerUtils.sleep(2000);
+          
+          commands = new ArrayList<String>();
+          commands.add(shCommand());
+          commands.add("-c");
+          
+          commands.add(dockerPsCommand.toString());
+          
+          CommandResult dockerPsCommandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File("."), null, false, false, true);
+          
+          if (dockerPsCommandResult.getExitCode() == 0) {
+            
+            String output = dockerPsCommandResult.getOutputText();
+            if (output.contains("Exited")) {
+              
+              commands = new ArrayList<String>();
+              commands.add(shCommand());
+              commands.add("-c");
+              
+              StringBuilder dockerLogsCommand = new StringBuilder();
+              dockerLogsCommand.append("docker logs gsh ");
+              
+              commands.add(dockerLogsCommand.toString());
+              
+              CommandResult dockerLogsCommandResult = GrouperInstallerUtils.execCommand(
+                  GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                  new File("."), null, false, false, true);
+              
+              if (dockerLogsCommandResult.getExitCode() == 0) {
+                String logs = dockerLogsCommandResult.getOutputText();
+                
+                File wsPasswordLogsFile = new File(path+File.separator+"docker_logs_ws_password_"+new Date().toString().replace(" ", "_")+".log");
+                GrouperInstallerUtils.fileCreate(wsPasswordLogsFile);
+                
+                try {      
+                  Files.write(Paths.get(wsPasswordLogsFile.getAbsolutePath()), logs.getBytes(), StandardOpenOption.APPEND);
+                } catch (Exception e) {
+                  System.out.println("Could not write logs to "+wsPasswordLogsFile.getAbsolutePath()+" file. ");
+                }
+                
+                System.out.println("docker ws password setup logs are at: "+wsPasswordLogsFile.getAbsolutePath());
+                
+                if (logs.contains("===> null\n" + 
+                    "groovy:000> :exit") && !logs.contains("Exception") && !logs.contains("exception")) {
+                  System.out.println("Password was created successfully.");
+                  System.out.print("Press any key to continue. ");
+                  readFromStdIn("Placeholder");
+                } else {
+                  System.out.println("Could not find success in docker logs. Look in the logs at the location above and make sure there are no exceptions. ");
+                  System.out.print("Press any key to continue. ");
+                  readFromStdIn("Placeholder");
+                }
+                
+                try (BufferedReader reader = new BufferedReader(new FileReader(wsPasswordLogsFile))) {
+                  StringBuilder logContent = new StringBuilder();
+                  String line;
+                  int lineNumber = 0;
+                  while( (line = reader.readLine()) != null) {
+                    logContent.append(line);
+                    logContent.append("\n");
+                    lineNumber++;
+                    
+                    if (lineNumber > 24) {
+                      break;
+                    }
+                  }
+                  System.out.println("First 25 lines of logs are below: ");
+                  System.out.println(logContent);
+                } catch (Exception e) {}
+                
+              } else {
+                System.out.println("Could not retrieve logs for 'gsh' container. Please run 'docker logs gsh' manually and make sure there are no exceptions before proceeding. ");
+                System.out.print("Press any key to continue. ");
+                readFromStdIn("Placeholder");
+              }
+              
+              break;
+            } 
+            
+          } else {
+            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press any key to continue. ");
+            readFromStdIn("Placeholder");
+            break;
+          }
+          
+        }
+      
+      }
+      
+      if (removeDockerGshContainer) {
+        commands = new ArrayList<String>();
+        commands.add(shCommand());
+        commands.add("-c");
+        commands.add("docker rm -f gsh");
+        
+        boolean dockerRemovedGshContainer = false;
+        String dockerRmCommandError = null;
+        try {
+          CommandResult dockerRmCommandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File("."), null, false, false, true);
+          if (dockerRmCommandResult.getExitCode() == 0) {
+            dockerRemovedGshContainer = true;
+          } else if (GrouperInstallerUtils.isNotBlank(dockerRmCommandResult.getErrorText())) {
+            dockerRmCommandError = dockerRmCommandResult.getErrorText();
+          }
+        } catch (Exception e) {
+          dockerRemovedGshContainer = false;
+        }
+        
+        if (dockerRemovedGshContainer) {
+          System.out.println("Removed 'gsh' container successfully. ");
+        } else if (dockerRmCommandError != null) {
+          System.out.println("Could not remove docker gsh container. Please run 'docker rm -f gsh' in another terminal window before proceeding. ");
+        }
+        
+        System.out.print("Press any key to continue ");
         readFromStdIn("Placeholder");
       }
       
@@ -10463,6 +10913,8 @@ public class GrouperInstaller {
     } else {
       System.out.println("Inside container grouper runs on port 8080");
     }
+    
+    System.out.println("Logs are at: "+new File(path+File.separator+"logs").getAbsolutePath());
     
     System.out.print("Press any key to exit ");
     readFromStdIn("Placeholder");
@@ -10695,6 +11147,13 @@ public class GrouperInstaller {
     } catch (Exception e) {
       throw new RuntimeException("Could not copy untarred tomee into container/tomee", e);
     }
+    
+    // put logging related jars in tomee/bin directory
+    File tomeeBinDir = new File(containerTomeeDir + File.separator + "bin");
+    
+    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.13.1/log4j-core-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-core-2.13.1.jar", "");
+    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.13.1/log4j-jul-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-jul-2.13.1.jar", "");
+    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.13.1/log4j-api-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-api-2.13.1.jar", "");
     
     // point tomee to downloaded webpp
     configureTomeeGrouperUberWebapp(containerTomeeDir, webAppDir);
@@ -13666,7 +14125,7 @@ public class GrouperInstaller {
     GrouperInstallerUtils.createParentDirectories(tomeeGrouperFile);
     GrouperInstallerUtils.fileCreate(tomeeGrouperFile);
     
-    String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/grouperWebapp\" reloadable=\"false\">\n" + 
+    String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/grouper\" reloadable=\"false\">\n" + 
         "<Resources allowLinking=\"true\" />\n" + 
         "</Context>";
     
