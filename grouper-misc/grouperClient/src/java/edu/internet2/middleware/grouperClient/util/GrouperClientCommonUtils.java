@@ -78,14 +78,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
-import edu.internet2.middleware.morphString.Morph;
 
 
 
@@ -6117,12 +6121,7 @@ public class GrouperClientCommonUtils  {
   }
 
   public static void main(String[] args) {
-    System.out.println(Morph.encrypt("abc"));
-    System.out.println(Morph.decryptIfFile("AAARL8cd/rh9CJ+UFqVyrQ=="));
-    System.out.println(Morph.decryptIfFile("file:c:/temp/pass.txt"));
-    System.out.println(Morph.decryptIfFile("c:/temp/pass.txt"));
-    System.out.println(Morph.decryptIfFile("c:/whatever"));
-    
+    System.out.println(grouperWsVersionConvert(grouperClientVersion()));
   }
   
   /**
@@ -9724,6 +9723,161 @@ public class GrouperClientCommonUtils  {
    */
   public static boolean isSQLServer(String connectionUrl) {
     return ConfigDatabaseLogic.isSQLServer(connectionUrl);
+  }
+  
+  private static String grouperVersionString = null;
+
+  /**
+   * <pre>
+   * start of string, optional v or V, first digit, period or underscore, second digit, period or underscore, third digit, end of string
+   * parens are for capturing
+   * ^(\\d+)\\.(\\d+)\\.(\\d+)$
+   * </pre>
+   */
+  private static Pattern versionPattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)$");
+
+  /**
+   * 
+   * @param jarVersion
+   * @return v2_5_001 if version is 2.5.1
+   */
+  public static String grouperWsVersionConvert(String jarVersion) {
+    
+    if (isBlank(jarVersion)) {
+      return jarVersion;
+    }
+    
+    Matcher grouperMatcher = versionPattern.matcher(jarVersion);
+    if (!grouperMatcher.matches()) {
+      throw new RuntimeException("Invalid grouper version: " + jarVersion
+          + ", expecting something like: 1.2.3");
+    }
+    //get the grouper versions
+    String major = grouperMatcher.group(1);
+    String minor = grouperMatcher.group(2);
+    String build = grouperMatcher.group(3);
+
+    return "v" + major + "_" + minor + "_" + leftPad(build, 3, '0');
+  }
+  
+  /**
+   * get the version from jar e.g. 2.5.12
+   * @return the version
+   */
+  public static String grouperClientVersion() {
+    if (grouperVersionString == null) {
+
+      try {
+        grouperVersionString = jarVersion(GrouperClientCommonUtils.class);
+      } catch (Exception e) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Can't find version of grouperClient jar, using 2.5.0", e);
+        } else {
+          LOG.warn("Can't find version of grouperClient jar, using 2.5.0");
+        }
+      }
+      if (grouperVersionString == null) {
+        grouperVersionString = "2.5.0";
+      }
+    }
+    return grouperVersionString;
+  }
+
+  /** properties in manifest for version */
+  private static final String[] versionProperties = new String[]{
+    "Implementation-Version","Version"};
+  
+  /**
+   * get the version from the manifest of a jar
+   * @param sampleClass
+   * @return the version
+   * @throws Exception
+   */
+  public static String jarVersion(Class sampleClass) throws Exception {
+    return manifestProperty(sampleClass, versionProperties);
+  }
+
+  /**
+   * get a jar file from a sample class
+   * @param sampleClass
+   * @param printError if error should be printed when there is a problem
+   * @return the jar file
+   */
+  public static File jarFile(Class sampleClass, boolean printError) {
+    try {
+      CodeSource codeSource = sampleClass.getProtectionDomain().getCodeSource();
+      if (codeSource != null && codeSource.getLocation() != null) {
+        return new File(codeSource.getLocation().getFile());
+      }
+      String resourcePath = sampleClass.getName();
+      resourcePath = resourcePath.replace('.', '/') + ".class";
+      URL url = computeUrl(resourcePath, true);
+      String urlPath = url.toString();
+
+      if (urlPath.startsWith("jar:")) {
+        urlPath = urlPath.substring(4);
+      }
+      if (urlPath.startsWith("file:")) {
+        urlPath = urlPath.substring(5);
+      }
+      urlPath = prefixOrSuffix(urlPath, "!", true);
+
+      File file = new File(urlPath);
+      if (urlPath.endsWith(".jar") && file.exists() && file.isFile()) {
+        return file;
+      }
+    } catch (Exception e) {
+      if (printError) {
+        e.printStackTrace();
+        System.err.println("Cant find jar for class: " + sampleClass + ", " + e.getMessage());
+      }
+    }
+    return null;
+  }
+
+  /**
+   * get the version from the manifest of a jar
+   * @param sampleClass
+   * @param propertyNames that we are looking for (usually just one)
+   * @return the version
+   * @throws Exception
+   */
+  public static String manifestProperty(Class sampleClass, String[] propertyNames) throws Exception {
+    File jarFile = jarFile(sampleClass, true);
+    URL manifestUrl = new URL("jar:file:" + jarFile.getCanonicalPath() + "!/META-INF/MANIFEST.MF");
+    Manifest manifest = new Manifest(manifestUrl.openStream());
+    Map<String, Attributes> attributeMap = manifest.getEntries();
+    String value = null;
+    for (String propertyName : propertyNames) {
+      value = manifest.getMainAttributes().getValue(propertyName);
+      if (!StringUtils.isBlank(value)) {
+        break;
+      }
+    }
+    if (value == null) {
+      OUTER:
+      for (Attributes attributes: attributeMap.values()) {
+        for (String propertyName : propertyNames) {
+          value = attributes.getValue(propertyName);
+          if (!StringUtils.isBlank(value)) {
+            break OUTER;
+          }
+        }
+      }
+    }
+    if (value == null) {
+      
+      for (Attributes attributes: attributeMap.values()) {
+        for (Object key : attributes.keySet()) {
+          LOG.info(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+        }
+      }
+      Attributes attributes = manifest.getMainAttributes();
+      for (Object key : attributes.keySet()) {
+        LOG.info(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+      }
+    }
+    return value;
   }
 
 }

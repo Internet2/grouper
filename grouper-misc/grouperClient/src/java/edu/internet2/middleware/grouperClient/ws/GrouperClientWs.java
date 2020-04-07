@@ -829,8 +829,9 @@ public class GrouperClientWs {
     
     url = GrouperClientUtils.stripEnd(url, "/");
     
-    String webServiceVersion = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.client.version");
-
+    // grouperClient.webService.client.version = v2_5_000
+    String webServiceVersion = GrouperClientUtils.grouperClientVersion();
+        
     if (!GrouperClientUtils.isBlank(clientVersion)) {
       webServiceVersion = clientVersion;
     }
