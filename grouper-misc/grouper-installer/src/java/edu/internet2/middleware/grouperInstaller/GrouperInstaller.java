@@ -580,12 +580,31 @@ public class GrouperInstaller {
     
     
     GrouperInstaller grouperInstaller = new GrouperInstaller();
+    
+//    File tommeDir = new File("/Users/vsachdeva/git/i2-grouper-new/grouper/grouper-misc/grouper-installer/container/tomee");
+//    File serverXmlFile = new File(tommeDir.getAbsolutePath()
+//        + File.separator + "conf" + File.separator + "server.xml");
+//    
+//    //<Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+//    String newConnectorString = "<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" "
+//        + "tomcatAuthentication=\"false\" URIEncoding=\"UTF-8\" scheme=\"https\" secure=\"true\" />";
+//    
+//    System.out.println("Editing tomee config file: " + serverXmlFile.getAbsolutePath());
+    
+//    editFile(serverXmlFile, "port=\"8009\"", new String[]{"<Connector"}, 
+//        null, newConnectorString, "connector modifications in server.xml");
+    
+  //<Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+    //editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Connector", "protocol=\"AJP/1.3\""}, null, "", "tomcat JK port");
+    
+    
+    
 //    String str1 = new Crypto("Urg4lyLGawLdwEvByGmf").encrypt("admin123");
 //    System.out.println(str1);
 //    String str = new Crypto("Urg4lyLGawLdwEvByGmf").decrypt("Y8iDZWF8RdowIiCgVKNg9Q==");
 //    System.out.println(str);
 
-    grouperInstaller.mainLogic();
+     grouperInstaller.mainLogic();
 
 //    grouperInstaller.upgradeExistingApplicationDirectoryString = "D:\\temp\\temp\\grouperJarCopyDest\\";
 //    grouperInstaller.grouperBaseBakDir = "D:\\temp\\temp\\grouperJarBak\\";
@@ -14134,6 +14153,24 @@ public class GrouperInstaller {
     } catch (Exception e) {
       System.out.println("Could not write to grouper.xml file.");
     }
+    
+    // edit server.xml in tomee/conf dir
+    File serverXmlFile = new File(tommeDir.getAbsolutePath()
+        + File.separator + "conf" + File.separator + "server.xml");
+    
+    Map<String, String> expectedAttribute = new HashMap<String, String>();
+
+    expectedAttribute.put("port", "8009");
+    expectedAttribute.put("protocol", "AJP/1.3");
+
+    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "tomcatAuthentication", "false", 
+         "Set tomcatAuthentication to false");
+    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "URIEncoding", "UTF-8", 
+        "Set URIEncoding to UTF-8");
+    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "scheme", "https", 
+        "Set scheme to https");
+    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "secure", "true", 
+        "Set secure to true");
     
   }
   
