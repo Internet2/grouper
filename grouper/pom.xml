@@ -471,7 +471,6 @@
                         <include>**/edu/internet2/middleware/grouper/AllTests.java</include>
                     </includes>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>${basedir}/confForTest</additionalClasspathElement>
                         <additionalClasspathElement>${basedir}/conf</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
