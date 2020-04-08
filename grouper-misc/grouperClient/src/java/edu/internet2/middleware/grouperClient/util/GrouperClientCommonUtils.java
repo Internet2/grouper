@@ -84,8 +84,6 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -9850,7 +9848,7 @@ public class GrouperClientCommonUtils  {
     String value = null;
     for (String propertyName : propertyNames) {
       value = manifest.getMainAttributes().getValue(propertyName);
-      if (!StringUtils.isBlank(value)) {
+      if (!isBlank(value)) {
         break;
       }
     }
@@ -9859,7 +9857,7 @@ public class GrouperClientCommonUtils  {
       for (Attributes attributes: attributeMap.values()) {
         for (String propertyName : propertyNames) {
           value = attributes.getValue(propertyName);
-          if (!StringUtils.isBlank(value)) {
+          if (!isBlank(value)) {
             break OUTER;
           }
         }
