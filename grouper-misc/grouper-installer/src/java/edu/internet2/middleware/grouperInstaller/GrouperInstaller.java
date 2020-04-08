@@ -9450,6 +9450,15 @@ public class GrouperInstaller {
    */
   private void mainInstallContainerLogic() {
     
+    System.out.print("The Grouper Installer will install a \"maturity level 0\" Grouper environment using Docker. You do not have to use Docker to run Grouper, but you need Docker for this Grouper Installer. Do you have Docker installed and running? (t|f) [t]: ");
+    
+    boolean dockerInstalledAndRunning = readFromStdInBoolean(true, "");
+    
+    if (!dockerInstalledAndRunning) {
+      System.out.println("Please install and run docker before proceeding. Thanks! ");
+      return;
+    }
+    
     boolean validBaseDirectoryFound = false;
     String path = null;
     do {
