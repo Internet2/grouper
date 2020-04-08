@@ -9498,8 +9498,11 @@ public class GrouperInstaller {
     File logsDirectory = new File(path+File.separator+"logs"+File.separator+"nothing");
     GrouperInstallerUtils.createParentDirectories(logsDirectory);
     
-    // create log4j.properties file
-    File log4jPropertiesFile = new File(path+File.separator+"conf"+File.separator+"log4j.properties");
+    // create log4j.properties file in <path>/slashRoot/opt/grouper/grouperWebapp/WEB-INF/classes
+    File classesDir = new File(path+File.separator+"slashRoot"+File.separator+"opt"+File.separator+"grouper"
+        +File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"classes");
+    
+    File log4jPropertiesFile = new File(classesDir.getAbsolutePath()+File.separator+"log4j.properties");
     
     contentToWrite = new StringBuilder();
     contentToWrite.append("Create log4j.properties file in "+log4jPropertiesFile.getAbsolutePath());
@@ -9824,12 +9827,9 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
-    File slashRootDirectory = new File(path+File.separator+"slashRoot"+File.separator+"nothing");
-    GrouperInstallerUtils.createParentDirectories(slashRootDirectory);
-    
-    // create morphString.properties file
+    // create morphString.properties file in slashRoot/opt/grouper/grouperWebapp/WEB-INF/classes/
     contentToWrite = new StringBuilder();
-    contentToWrite.append("Create morphString.properties file in "+path+"/conf");
+    contentToWrite.append("Create morphString.properties file in "+path+"/slashRoot/opt/grouper/grouperWebapp/WEB-INF/classes/");
     contentToWrite.append("\n");
     contentToWrite.append("Add the following lines to morphString.properties file. Replace the placeholders below with actual values");
     contentToWrite.append("\n");
@@ -9843,8 +9843,7 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
-    
-    File morphStringPropertiesFile = new File(path+File.separator+"conf"+File.separator+"morphString.properties");
+    File morphStringPropertiesFile = new File(classesDir+File.separator+"morphString.properties");
     
     GrouperInstallerUtils.createParentDirectories(morphStringPropertiesFile);
     boolean reuseMorphStringPropertiesFile = false;
@@ -9905,7 +9904,7 @@ public class GrouperInstaller {
     
     // create grouper.hibernate.properties file
     contentToWrite = new StringBuilder();
-    contentToWrite.append("Create grouper.hibernate.properties file in " +path+"/conf");
+    contentToWrite.append("Create grouper.hibernate.properties file in " +path+"/" + classesDir.getAbsolutePath());
     contentToWrite.append("\n");
     contentToWrite.append("Add the following lines to grouper.hibernate.properties file. Replace the placeholders below with actual values");
     contentToWrite.append("\n");
@@ -9933,9 +9932,9 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
-    System.out.println("Going to create grouper.hibernate.properties file in "+path + File.separator+ "conf");
+    System.out.println("Going to create grouper.hibernate.properties file in " + path + File.separator+ classesDir.getAbsolutePath());
     
-    File grouperHibernatePropertiesFile = new File(path+File.separator+"conf"+File.separator+"grouper.hibernate.properties");
+    File grouperHibernatePropertiesFile = new File(classesDir+File.separator+"grouper.hibernate.properties");
     boolean reuseHibernatePropertiesFile = false;
     while(true) {
       GrouperInstallerUtils.createParentDirectories(grouperHibernatePropertiesFile);
@@ -9949,7 +9948,7 @@ public class GrouperInstaller {
         } else {
           System.out.print("Delete grouper.hibernate.properties and press any key to continue ");
           readFromStdIn("nothing");
-          grouperHibernatePropertiesFile = new File(path+File.separator+"conf"+File.separator+"grouper.hibernate.properties");
+          grouperHibernatePropertiesFile = new File(classesDir+File.separator+"grouper.hibernate.properties");
           continue;
         }
       } else {
@@ -9960,7 +9959,7 @@ public class GrouperInstaller {
     
     // create a blank grouper.client.properties
     contentToWrite = new StringBuilder();
-    contentToWrite.append("Create a blank grouper.client.properties file in " +path+"/conf");
+    contentToWrite.append("Create a blank grouper.client.properties file in " +path+File.separator+classesDir.getAbsolutePath());
     contentToWrite.append("\n");
     contentToWrite.append("\n");
     contentToWrite.append("\n");
@@ -9970,7 +9969,7 @@ public class GrouperInstaller {
     } catch (Exception e) {
       System.out.println("Could not write to README.txt file.");
     }
-    File grouperClientPropertiesFile = new File(path+File.separator+"conf"+File.separator+"grouper.client.properties");
+    File grouperClientPropertiesFile = new File(classesDir+File.separator+"grouper.client.properties");
     boolean reuseClientPropertiesFile = false;
     while(true) {
       GrouperInstallerUtils.createParentDirectories(grouperClientPropertiesFile);
@@ -9984,7 +9983,7 @@ public class GrouperInstaller {
         } else {
           System.out.print("Delete grouper.client.properties and press any key to continue ");
           readFromStdIn("nothing");
-          grouperClientPropertiesFile = new File(path+File.separator+"conf"+File.separator+"grouper.client.properties");
+          grouperClientPropertiesFile = new File(classesDir+File.separator+"grouper.client.properties");
           continue;
         }
       } else {
@@ -9995,7 +9994,7 @@ public class GrouperInstaller {
     
     // create a blank subject.properties
     contentToWrite = new StringBuilder();
-    contentToWrite.append("Create a blank subject.properties file in " +path+"/conf");
+    contentToWrite.append("Create a blank subject.properties file in " +path+File.separator+classesDir.getAbsolutePath());
     contentToWrite.append("\n");
     contentToWrite.append("\n");
     contentToWrite.append("\n");
@@ -10005,7 +10004,7 @@ public class GrouperInstaller {
     } catch (Exception e) {
       System.out.println("Could not write to README.txt file.");
     }
-    File grouperSubjectPropertiesFile = new File(path+File.separator+"conf"+File.separator+"subject.properties");
+    File grouperSubjectPropertiesFile = new File(classesDir+File.separator+"subject.properties");
     boolean reuseSubjectPropertiesFile = false;
     while(true) {
       GrouperInstallerUtils.createParentDirectories(grouperSubjectPropertiesFile);
@@ -10019,7 +10018,7 @@ public class GrouperInstaller {
         } else {
           System.out.print("Delete subject.properties and press any key to continue ");
           readFromStdIn("nothing");
-          grouperSubjectPropertiesFile = new File(path+File.separator+"conf"+File.separator+"subject.properties");
+          grouperSubjectPropertiesFile = new File(classesDir+File.separator+"subject.properties");
           continue;
         }
       } else {
@@ -10124,9 +10123,7 @@ public class GrouperInstaller {
     contentToWrite.append("\n");
     
     StringBuilder buildInitCommand = new StringBuilder();
-    buildInitCommand.append("docker run --detach --mount type=bind,src=");
-    buildInitCommand.append(path+File.separator);
-    buildInitCommand.append("conf,dst=/opt/grouper/conf ");
+    buildInitCommand.append("docker run --detach ");
     buildInitCommand.append("--mount type=bind,src=");
     buildInitCommand.append(path+File.separator);
     buildInitCommand.append("logs,dst=/opt/grouper/logs ");
@@ -10179,7 +10176,7 @@ public class GrouperInstaller {
         
         for (int i=0; i<100; i++) {
           System.out.println("Waiting for docker command to finish.");
-          GrouperInstallerUtils.sleep(2000);
+          GrouperInstallerUtils.sleep(4000);
           
           commands = new ArrayList<String>();
           commands.add(shCommand());
@@ -10195,6 +10192,8 @@ public class GrouperInstaller {
             
             String output = dockerPsCommandResult.getOutputText();
             if (output.contains("Exited")) {
+              
+              GrouperInstallerUtils.sleep(20000);
               
               commands = new ArrayList<String>();
               commands.add(shCommand());
@@ -10212,7 +10211,7 @@ public class GrouperInstaller {
               if (dockerLogsCommandResult.getExitCode() == 0) {
                 String logs = dockerLogsCommandResult.getOutputText();
                 
-                File dbInitLogsFile = new File(path+File.separator+"docker_logs_init_db_"+new Date().toString().replace(" ", "_")+".log");
+                File dbInitLogsFile = new File(path+File.separator+"docker_logs_init_db_"+new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date())+".log");
                 GrouperInstallerUtils.fileCreate(dbInitLogsFile);
                 
                 try {      
@@ -10223,7 +10222,9 @@ public class GrouperInstaller {
                 
                 System.out.println("docker database initialization logs are at: "+dbInitLogsFile.getAbsolutePath());
                 
-                if (logs.contains("Script was executed successfully") && !logs.contains("Exception") && !logs.contains("exception")) {
+                if (logs.contains("Script was executed successfully")
+                    && logs.contains("SQL statements executed successfully")
+                    && !logs.contains("Exception") && !logs.contains("exception")) {
                   System.out.println("From the logs: Script was executed successfully");
                   System.out.print("Press any key to continue. ");
                   readFromStdIn("Placeholder");
@@ -10406,9 +10407,7 @@ public class GrouperInstaller {
       contentToWrite.append("Run the following command to add UI password to grouper.");
       contentToWrite.append("\n");
       StringBuilder uiPasswordDockerCommand = new StringBuilder();
-      uiPasswordDockerCommand.append("docker run --detach --mount type=bind,src=");
-      uiPasswordDockerCommand.append(path+File.separator);
-      uiPasswordDockerCommand.append("conf,dst=/opt/grouper/conf ");
+      uiPasswordDockerCommand.append("docker run --detach ");
       uiPasswordDockerCommand.append("--mount type=bind,src=");
       uiPasswordDockerCommand.append(path+File.separator);
       uiPasswordDockerCommand.append("logs,dst=/opt/grouper/logs ");
@@ -10457,7 +10456,7 @@ public class GrouperInstaller {
         
         for (int i=0; i<100; i++) {
           System.out.println("Waiting for docker command to finish.");
-          GrouperInstallerUtils.sleep(2000);
+          GrouperInstallerUtils.sleep(4000);
           
           commands = new ArrayList<String>();
           commands.add(shCommand());
@@ -10473,6 +10472,8 @@ public class GrouperInstaller {
             
             String output = dockerPsCommandResult.getOutputText();
             if (output.contains("Exited")) {
+              
+              GrouperInstallerUtils.sleep(20000);
               
               commands = new ArrayList<String>();
               commands.add(shCommand());
@@ -10490,7 +10491,7 @@ public class GrouperInstaller {
               if (dockerLogsCommandResult.getExitCode() == 0) {
                 String logs = dockerLogsCommandResult.getOutputText();
                 
-                File uiPasswordLogsFile = new File(path+File.separator+"docker_logs_ui_password_"+new Date().toString().replace(" ", "_")+".log");
+                File uiPasswordLogsFile = new File(path+File.separator+"docker_logs_ui_password_"+new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date())+".log");
                 GrouperInstallerUtils.fileCreate(uiPasswordLogsFile);
                 
                 try {      
@@ -10687,9 +10688,7 @@ public class GrouperInstaller {
       contentToWrite.append("Run the following command to add WS password to grouper.");
       contentToWrite.append("\n");
       StringBuilder wsPasswordDockerCommand = new StringBuilder();
-      wsPasswordDockerCommand.append("docker run --detach --mount type=bind,src=");
-      wsPasswordDockerCommand.append(path+File.separator);
-      wsPasswordDockerCommand.append("conf,dst=/opt/grouper/conf ");
+      wsPasswordDockerCommand.append("docker run --detach ");
       wsPasswordDockerCommand.append("--mount type=bind,src=");
       wsPasswordDockerCommand.append(path+File.separator);
       wsPasswordDockerCommand.append("logs,dst=/opt/grouper/logs ");
@@ -10740,7 +10739,7 @@ public class GrouperInstaller {
         
         for (int i=0; i<100; i++) {
           System.out.println("Waiting for docker command to finish.");
-          GrouperInstallerUtils.sleep(2000);
+          GrouperInstallerUtils.sleep(4000);
           
           commands = new ArrayList<String>();
           commands.add(shCommand());
@@ -10756,6 +10755,8 @@ public class GrouperInstaller {
             
             String output = dockerPsCommandResult.getOutputText();
             if (output.contains("Exited")) {
+              
+              GrouperInstallerUtils.sleep(20000);
               
               commands = new ArrayList<String>();
               commands.add(shCommand());
@@ -10773,7 +10774,7 @@ public class GrouperInstaller {
               if (dockerLogsCommandResult.getExitCode() == 0) {
                 String logs = dockerLogsCommandResult.getOutputText();
                 
-                File wsPasswordLogsFile = new File(path+File.separator+"docker_logs_ws_password_"+new Date().toString().replace(" ", "_")+".log");
+                File wsPasswordLogsFile = new File(path+File.separator+"docker_logs_ws_password_"+new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date())+".log");
                 GrouperInstallerUtils.fileCreate(wsPasswordLogsFile);
                 
                 try {      
@@ -10878,6 +10879,22 @@ public class GrouperInstaller {
       
     }
     
+    Integer portNumberInt = 8080;
+    System.out.print("Please provide the host HTTP (not HTTPS) port number to run the UI container (default 8080): ");
+    while (true) {
+      String portNumber = readFromStdIn("Placeholder");
+      if (GrouperInstallerUtils.isNotBlank(portNumber)) {
+        try {
+          portNumberInt = Integer.valueOf(portNumber);
+          break;
+        } catch (Exception e) {
+          System.out.print("Invalid port number '"+portNumber+"'. Please try again. (default 8080): ");
+        }
+      } else {
+        break;
+      }
+    }
+    
     // start the container
     contentToWrite = new StringBuilder();
     contentToWrite.append("Run the following command to start the container.");
@@ -10886,16 +10903,14 @@ public class GrouperInstaller {
     grouperContainerStartDockerCommand.append("docker run");
     //grouperContainerStartDockerCommand.append(" -e GROUPER_UI='true' -e GROUPER_WS='true' -e GROUPER_DAEMON='true' -e GROUPER_SCIM='true' ");
     //grouperContainerStartDockerCommand.append("-e RUN_APACHE='true' -e RUN_SHIB_SP='false' -e RUN_TOMEE='true' ");
-    grouperContainerStartDockerCommand.append(" --detach --publish 8080:8080 --mount type=bind,src=");
-    grouperContainerStartDockerCommand.append(path+File.separator);
-    grouperContainerStartDockerCommand.append("conf,dst=/opt/grouper/conf ");
+    grouperContainerStartDockerCommand.append(" --detach --publish "+portNumberInt.toString()+":8080 ");
     grouperContainerStartDockerCommand.append("--mount type=bind,src=");
     grouperContainerStartDockerCommand.append(path+File.separator);
     grouperContainerStartDockerCommand.append("logs,dst=/opt/grouper/logs ");
     grouperContainerStartDockerCommand.append("--mount type=bind,src=");
     grouperContainerStartDockerCommand.append(path+File.separator);
     grouperContainerStartDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
-    grouperContainerStartDockerCommand.append("--restart always --name grouper ");
+    grouperContainerStartDockerCommand.append("--restart always --name grouper-ui ");
     grouperContainerStartDockerCommand.append("i2incommon/grouper:"+dockerImageVersion );
     grouperContainerStartDockerCommand.append(" ui" );
     contentToWrite.append(grouperContainerStartDockerCommand.toString());
@@ -10906,7 +10921,9 @@ public class GrouperInstaller {
     } catch (Exception e) {
       System.out.println("Could not write to README.txt file.");
     }
-    System.out.print("Press any key to start the container: ");
+    
+    
+    System.out.print("Press any key to start the UI container: ");
     readFromStdIn("Placeholder");
     boolean dockerGrouperContainerStarted = false;
     try {
@@ -10934,7 +10951,8 @@ public class GrouperInstaller {
     }
     
     System.out.println("Logs are at: "+new File(path+File.separator+"logs").getAbsolutePath());
-    
+    System.out.println("Command history and documentation are in "+ readmeFile.getAbsolutePath());
+    System.out.println("Grouper UI is running at : http://localhost:"+portNumberInt+"/grouper/");
     System.out.print("Press any key to exit ");
     readFromStdIn("Placeholder");
   }
