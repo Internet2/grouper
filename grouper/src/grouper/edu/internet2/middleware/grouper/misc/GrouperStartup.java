@@ -368,7 +368,7 @@ public class GrouperStartup {
           if (runDdlBootstrap) {
             GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
             //first make sure the DB ddl is up to date
-            new GrouperDdlEngine().updateDdlIfNeededWithStaticSql();
+            new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
           }
         }
         

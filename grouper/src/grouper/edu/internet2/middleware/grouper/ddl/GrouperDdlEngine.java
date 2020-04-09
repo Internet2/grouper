@@ -698,11 +698,11 @@ public class GrouperDdlEngine {
    * return if up to date
    * @return true if up to date
    */
-  public boolean updateDdlIfNeededWithStaticSql() {
+  public boolean updateDdlIfNeededWithStaticSql(Boolean runScriptOverride) {
 
     StringBuilder script = new StringBuilder();
     
-    boolean runScript = false;
+    boolean runScript = runScriptOverride != null && runScriptOverride;
     
     boolean okForDdl = false;
     this.done = false;
@@ -882,7 +882,7 @@ public class GrouperDdlEngine {
     if (!this.useDdlUtils && !this.dropOnly && !this.dropBeforeCreate && !this.deepCheck) {
       System.out.println("############## Running static SQL");
       GrouperDdlEngine.addDllWorkerTableIfNeeded(this.writeAndRunScript ? this.writeAndRunScript : null);
-      boolean upToDate = updateDdlIfNeededWithStaticSql();
+      boolean upToDate = updateDdlIfNeededWithStaticSql(this.writeAndRunScript);
       initRegistryAndClearCache(upToDate);
       return upToDate;
     }

@@ -327,7 +327,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
     //first make sure the DB ddl is up to date
-    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql();
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
 
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
     
@@ -355,7 +355,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
     //first make sure the DB ddl is up to date
-    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql();
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
 
     
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
@@ -926,7 +926,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
     //first make sure the DB ddl is up to date
-    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql();
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
   
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
         
