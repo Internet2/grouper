@@ -28,12 +28,11 @@ import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
 
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -46,6 +45,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import junit.textui.TestRunner;
 
 
 /**
@@ -69,7 +69,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_3static"));
+    TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
 
@@ -289,13 +289,26 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    */
   @Override
   protected void setUp() {
+    super.setUp();
+    GrouperDdlUtils.autoDdl2_5orAbove = null;
     //dont print annoying messages to user
     GrouperDdlUtils.internal_printDdlUpdateMessage = false;
     
+
+
+  }
+
+  
+  
+  @Override
+  protected void setupConfigs() {
     // do a normal startup
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "2.5.*");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "2.5.*");
+  }
 
-
+  @Override
+  protected void setupInitDb() {
+    
   }
 
   /**
@@ -303,8 +316,10 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    */
   @Override
   protected void tearDown() {
+    super.tearDown();
     //yes print annoying messages to user again
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
+    GrouperDdlUtils.autoDdl2_5orAbove = null;
   }
 
   /**

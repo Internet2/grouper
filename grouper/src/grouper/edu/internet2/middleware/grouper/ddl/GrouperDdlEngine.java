@@ -880,14 +880,11 @@ public class GrouperDdlEngine {
 
     // see if we are doing this with static sql
     if (!this.useDdlUtils && !this.dropOnly && !this.dropBeforeCreate && !this.deepCheck) {
-      System.out.println("############## Running static SQL");
       GrouperDdlEngine.addDllWorkerTableIfNeeded(this.writeAndRunScript ? this.writeAndRunScript : null);
       boolean upToDate = updateDdlIfNeededWithStaticSql(this.writeAndRunScript);
       initRegistryAndClearCache(upToDate);
       return upToDate;
     }
-
-    System.out.println("############# Running DDL utils");
 
     boolean upToDate = false;
     String resultString = null;
