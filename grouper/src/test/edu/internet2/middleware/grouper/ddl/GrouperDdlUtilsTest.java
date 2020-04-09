@@ -69,7 +69,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_3"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_3static"));
     
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
 
@@ -310,7 +310,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   /**
    * 
    */
-  public void testUpgradeFrom2_4() {
+  public void testUpgradeFrom2_4static() {
     
     
     // drop everything
@@ -325,9 +325,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     GrouperDdlUtils.sqlRun(scriptToGetTo2_4, true, true);
 
-    GrouperDdlEngine.addDllWorkerTableIfNeeded();
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
     //first make sure the DB ddl is up to date
-    new GrouperDdlEngine().updateDdlIfNeeded();
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql();
 
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
     
@@ -338,7 +338,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   /**
    * 
    */
-  public void testUpgradeFrom2_3() {
+  public void testUpgradeFrom2_3static() {
     
     
     // drop everything
@@ -353,9 +353,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     GrouperDdlUtils.sqlRun(scriptToGetTo2_3, true, true);
 
-    GrouperDdlEngine.addDllWorkerTableIfNeeded();
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
     //first make sure the DB ddl is up to date
-    new GrouperDdlEngine().updateDdlIfNeeded();
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql();
 
     
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
@@ -924,12 +924,111 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       .assignFromStartup(false).runDdl();
   
     
-    GrouperDdlEngine.addDllWorkerTableIfNeeded();
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
     //first make sure the DB ddl is up to date
-    new GrouperDdlEngine().updateDdlIfNeeded();
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql();
   
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
         
+  }
+
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_3ddlUtils() {
+    
+    
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_3_hsql.sql
+    // get to 2.3
+    File scriptToGetTo2_3 = retrieveScriptFile("GrouperDdl_2_3_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_3, true, true);
+  
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true).assignDeepCheck(false)
+      .assignCompareFromDbVersion(true)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(true)
+      .assignUseDdlUtils(true)
+      .assignDropOnly(false)
+      .assignInstallDefaultGrouperData(false).assignPromptUser(false).runDdl();
+  
+    
+    HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
+    
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    
+    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+    
+    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+  
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+  
+    //to be safe lets only deal with tables related to this object
+    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+  
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    Connection connection = null;
+    Index index = null;
+    try {
+      connection = grouperDb.connection();
+  
+      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        null, null);
+    
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
+  
+      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), "member_subjidentifier0_idx");
+      
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+  
+    assertNotNull(index);
+    
+    HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_config");
+  
+    scriptToGetTo2_3.delete();
+    
+  }
+
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_4ddlUtils() {
+    
+    
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_4_hsql.sql
+    // get to 2.4
+    File scriptToGetTo2_4 = retrieveScriptFile("GrouperDdl_2_4_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_4, true, true);
+  
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true).assignDeepCheck(false)
+      .assignCompareFromDbVersion(true)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(true)
+      .assignUseDdlUtils(true)
+      .assignDropOnly(false)
+      .assignInstallDefaultGrouperData(false).assignPromptUser(false).runDdl();
+  
+    HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
+    
+    scriptToGetTo2_4.delete();
+    
   }
   
 }

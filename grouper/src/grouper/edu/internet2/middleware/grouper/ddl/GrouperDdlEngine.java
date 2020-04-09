@@ -163,6 +163,15 @@ public class GrouperDdlEngine {
   boolean done = false;
   
   private String thisDdlDatabaseLockingUuid;
+  
+  private boolean useDdlUtils;
+  
+  
+  public GrouperDdlEngine assignUseDdlUtils(boolean theUseDdlUtils) {
+    this.useDdlUtils = theUseDdlUtils;
+    return this;
+  }
+  
   private boolean deepCheck;
   
   public GrouperDdlEngine assignDeepCheck(boolean theDeepCheck) {
@@ -667,7 +676,7 @@ public class GrouperDdlEngine {
     }
   }
   
-  public static void addDllWorkerTableIfNeeded() {
+  public static void addDllWorkerTableIfNeeded(Boolean runScriptOverride) {
     try {
       // if you cant connrc to it, its not there
       HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
@@ -679,10 +688,17 @@ public class GrouperDdlEngine {
     // this is added on startup...
     
     boolean runScript = GrouperDdlUtils.autoDdl2_5orAbove();
+    if (!runScript) {
+      runScript = runScriptOverride != null && runScriptOverride;
+    }
     GrouperDdl2_5.addDdlWorkerTableViaScript(runScript);
   }
   
-  public void updateDdlIfNeeded() {
+  /**
+   * return if up to date
+   * @return true if up to date
+   */
+  public boolean updateDdlIfNeededWithStaticSql() {
 
     StringBuilder script = new StringBuilder();
     
@@ -762,7 +778,7 @@ public class GrouperDdlEngine {
         {
           Boolean hasResult = checkIfChangeLogEmptyRequired(objectName, javaVersion, dbVersion);
           if (hasResult != null) {
-            return;
+            return false;
           }
         }
         runScript = runScript || ("Grouper".equals(objectName) && GrouperDdlUtils.autoDdlFor(grouperVersionJava));
@@ -771,7 +787,7 @@ public class GrouperDdlEngine {
           
           Boolean hasResult = waitForOtherJvmsOrLockInDatabase();
           if (hasResult != null) {
-            return;
+            return true;
           }
           okForDdl = true;
         }
@@ -821,9 +837,10 @@ public class GrouperDdlEngine {
         
       }
       if (!didSomething || script.length() == 0) {
-        return;
+        return true;
       }
       GrouperDdlUtils.runScriptIfShould(script.toString(), runScript);
+      return runScript;
     } finally {
       GrouperDdlUtils.insideBootstrap = false;
       
@@ -860,6 +877,18 @@ public class GrouperDdlEngine {
      GrouperUtil.promptUserAboutDbChanges(prompt, true);
  
     }
+
+    // see if we are doing this with static sql
+    if (!this.useDdlUtils && !this.dropOnly && !this.dropBeforeCreate && !this.deepCheck) {
+      System.out.println("############## Running static SQL");
+      GrouperDdlEngine.addDllWorkerTableIfNeeded(this.writeAndRunScript ? this.writeAndRunScript : null);
+      boolean upToDate = updateDdlIfNeededWithStaticSql();
+      initRegistryAndClearCache(upToDate);
+      return upToDate;
+    }
+
+    System.out.println("############# Running DDL utils");
+
     boolean upToDate = false;
     String resultString = null;
     
@@ -962,15 +991,7 @@ public class GrouperDdlEngine {
 
       }
       
-      ConfigPropertiesCascadeBase.assignInitted();
-      if (installDefaultGrouperData && !dropOnly && (upToDate || writeAndRunScript)) {
-        registryInstall();
-      }
-      if (writeAndRunScript) {
-        GrouperDdlUtils.cachedDdls = null;
-        EhcacheController.ehcacheController().flushCache();
-        SubjectSourceCache.clearCache();
-      }
+      initRegistryAndClearCache(upToDate);
     } finally {
       GrouperDdlUtils.insideBootstrap = false;
       GrouperDdlUtils.isDropBeforeCreate = false;
@@ -986,6 +1007,18 @@ public class GrouperDdlEngine {
     }
     return false;
 
+  }
+
+  private void initRegistryAndClearCache(boolean upToDate) {
+    ConfigPropertiesCascadeBase.assignInitted();
+    if (installDefaultGrouperData && !dropOnly && (upToDate || writeAndRunScript)) {
+      registryInstall();
+    }
+    if (writeAndRunScript) {
+      GrouperDdlUtils.cachedDdls = null;
+      EhcacheController.ehcacheController().flushCache();
+      SubjectSourceCache.clearCache();
+    }
   }
 
   private void writeAndRunScript(String resultString, GrouperLoaderDb grouperDb) {
