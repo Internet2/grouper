@@ -5709,6 +5709,10 @@ public class GrouperUtil {
    * @return the created file
    */
   public static File newFileUniqueName(String parentDirName, String namePrefix, String nameSuffix, boolean createFile) {
+    
+    String errorMessage = "\n\nError: grouper needs to be able to write files, make sure your directories are owned and writable by 'tomcat.tomcat' perhaps need to set this in Dockerfile if applicable"
+        + "\nRUN chown -R tomcat:tomcat /opt/grouper/grouperWebapp\n\n";
+    
     DateFormat fileNameFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss_SSS");
     if (!isBlank(parentDirName)) {
       parentDirName=fixRelativePath(parentDirName);
@@ -5720,7 +5724,7 @@ public class GrouperUtil {
       File parentDir = new File(parentDirName);
       if (!parentDir.exists()) {
         if (!parentDir.mkdirs()) {
-          throw new RuntimeException("Cant make dir: " + parentDir.getAbsolutePath());
+          throw new RuntimeException("Cant make dir: " + parentDir.getAbsolutePath() + errorMessage);
         }
       } else {
         if (!parentDir.isDirectory()) {
@@ -5763,11 +5767,11 @@ public class GrouperUtil {
     if (createFile) {
       try {
         if (!theFile.createNewFile()) {
-          throw new RuntimeException("Cant create file, it returned false");
+          throw new RuntimeException("Cant create file, it returned false.  ");
         }
       } catch (Exception e) {
         throw new RuntimeException("Cant create file: " + fileName + ", make sure " +
-            "permissions and such are ok, or change file location in grouper.properties if applicable", e);
+            "permissions and such are ok, or change file location in grouper.properties if applicable.  " + errorMessage, e);
       }
     }
     return theFile;
