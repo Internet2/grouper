@@ -7,6 +7,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapConfiguration;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
@@ -15,6 +17,7 @@ import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapModificationResult;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * access LDAP or dry run or testing
@@ -23,6 +26,11 @@ import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
  */
 public abstract class LdapSyncDao {
 
+  /**
+   * logger
+   */
+  private static final Log LOG = GrouperUtil.getLog(LdapSyncDao.class);
+      
   /**
    * do a filter search
    * @param ldapPoolName
@@ -78,11 +86,9 @@ public abstract class LdapSyncDao {
    * @return the result
    */
   public final LdapModificationResult modify(String ldapPoolName, String dn, List<LdapModificationItem> ldapModificationItems) {
-    throw new RuntimeException("not implemented yet"); // this is not done or tested yet.
-    /*
     // sort - want to make sure the list is in an expected way (sort attributes together and have deletes before adds)
     List<LdapModificationItem> ldapModificationItemsSorted = new ArrayList<LdapModificationItem>();
-    List<String> ldapModificationItemsUniqueAttributes = new ArrayList<String>();
+    Set<String> ldapModificationItemsUniqueAttributes = new LinkedHashSet<String>();
     for (LdapModificationItem ldapModificationItem : ldapModificationItems) {
       ldapModificationItemsUniqueAttributes.add(ldapModificationItem.getAttribute().getName());
     }
@@ -174,6 +180,7 @@ public abstract class LdapSyncDao {
         }
       } else if (ldapModificationItem.getLdapModificationType() == LdapModificationType.REPLACE_ATTRIBUTE) {
         // this all has to happen together
+        ldapModificationItemForBatch.getAttribute().addValues(ldapModificationItem.getAttribute().getValues());
         currentBatchSize[0] += ldapModificationItem.getAttribute().getValues().size();
         if (currentBatchSize[0] >= batchSize) {
           processBatch(ldapPoolName, dn, ldapModificationItemsBatch, false, currentBatchSize, result);
@@ -194,6 +201,7 @@ public abstract class LdapSyncDao {
               Object addValue = addValuesIterator.next();
               addValuesIterator.remove();
               ldapModificationItemForBatchAdd.getAttribute().addValue(addValue);
+              ldapModificationItemsBatch.add(ldapModificationItemForBatchAdd);
             }
             processBatch(ldapPoolName, dn, ldapModificationItemsBatch, valueIterator.hasNext(), currentBatchSize, result);
           }
@@ -206,20 +214,23 @@ public abstract class LdapSyncDao {
       processBatch(ldapPoolName, dn, ldapModificationItemsBatch, false, currentBatchSize, result);
     }
             
-    return result;*/
+    return result;
   }
   
-  /*
   private void processBatch(String ldapPoolName, String dn, List<LdapModificationItem> ldapModificationItemsBatch, boolean attributeHasMoreValues, int[] currentBatchSize, LdapModificationResult result) {
     
     try {
       this.internal_modifyHelper(ldapPoolName, dn, ldapModificationItemsBatch);
     } catch (Exception e) {
+      LOG.info("Error during batch update.  Going to try each update individually", e);
+      
       // try individually
       Set<String> attributeNames = new LinkedHashSet<String>();
       for (LdapModificationItem item : ldapModificationItemsBatch) {
-        if (item.getLdapModificationType() != LdapModificationType.REPLACE_ATTRIBUTE ||
+        if (item.getLdapModificationType() == LdapModificationType.REPLACE_ATTRIBUTE ||
             (item.getLdapModificationType() == LdapModificationType.REMOVE_ATTRIBUTE && item.getAttribute().getValues().size() == 0)) {
+          // no need to get the attribute in this case since we wouldn't need to check existing values
+        } else {
           attributeNames.add(item.getAttribute().getName());
         }
       }
@@ -283,7 +294,6 @@ public abstract class LdapSyncDao {
       ldapModificationItemsBatch.clear();
     }
   }
-  */
 
   /**
    * modify attributes for an object.  this should be done in bulk, and if there is an error, throw it
