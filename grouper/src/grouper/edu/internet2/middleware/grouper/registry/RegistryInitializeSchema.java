@@ -80,6 +80,7 @@ public class RegistryInitializeSchema {
       boolean theCompareFromDbVersion = true;
       boolean theDropBeforeCreate = false;
       boolean theWriteAndRunScript = false;
+      boolean useDdlUtils = false;
       boolean dropOnly = false;
       boolean runReset = false;
       boolean runForTests = false;
@@ -88,7 +89,7 @@ public class RegistryInitializeSchema {
       boolean theDeepCheck = false;
       boolean installDefaultGrouperData = true;
       //boolean theRecreateViewsAndForeignKeys = false;
-      Map<String, DdlVersionable> maxVersions = null;
+
       boolean promptUser = true;
       HashSet<String> argsSet = new HashSet<String>();
       for (int i = 0; i < args.length; i++) {
@@ -114,6 +115,9 @@ public class RegistryInitializeSchema {
       }
       if (argsSet.contains("-runscript")) {
         theWriteAndRunScript = true;
+      }
+      if (argsSet.contains("-useddlutils")) {
+        useDdlUtils = true;
       }
       if (argsSet.contains("-check")) {
       }
@@ -176,12 +180,36 @@ public class RegistryInitializeSchema {
         }
         
         if (runBootstrap) {
-          //run the bootstrap
-          new GrouperDdlEngine().assignCallFromCommandLine(callFromCommandLine).assignFromUnitTest(fromUnitTest).assignDeepCheck(theDeepCheck)
-            .assignCompareFromDbVersion(theCompareFromDbVersion)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
-            .assignDropBeforeCreate(theDropBeforeCreate).assignWriteAndRunScript(theWriteAndRunScript)
-            .assignDropOnly(dropOnly)
-            .assignInstallDefaultGrouperData(installDefaultGrouperData).assignPromptUser(promptUser).runDdl();
+          if (!dropOnly && theDropBeforeCreate && !useDdlUtils) {
+
+            //drop
+            new GrouperDdlEngine().assignCallFromCommandLine(callFromCommandLine).assignFromUnitTest(fromUnitTest).assignDeepCheck(theDeepCheck)
+              .assignCompareFromDbVersion(theCompareFromDbVersion)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
+              .assignUseDdlUtils(useDdlUtils)
+              .assignDropBeforeCreate(false).assignWriteAndRunScript(theWriteAndRunScript)
+              .assignDropOnly(true)
+              .assignInstallDefaultGrouperData(installDefaultGrouperData).assignPromptUser(promptUser).runDdl();
+            
+            //create
+            new GrouperDdlEngine().assignCallFromCommandLine(callFromCommandLine).assignFromUnitTest(fromUnitTest).assignDeepCheck(theDeepCheck)
+              .assignCompareFromDbVersion(theCompareFromDbVersion)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
+              .assignDropBeforeCreate(false).assignWriteAndRunScript(theWriteAndRunScript)
+              .assignUseDdlUtils(useDdlUtils)
+              .assignDropOnly(false)
+              .assignInstallDefaultGrouperData(installDefaultGrouperData).assignPromptUser(promptUser).runDdl();
+            
+            
+          } else {
+            
+            //run the bootstrap
+            new GrouperDdlEngine().assignCallFromCommandLine(callFromCommandLine).assignFromUnitTest(fromUnitTest).assignDeepCheck(theDeepCheck)
+              .assignCompareFromDbVersion(theCompareFromDbVersion)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
+              .assignDropBeforeCreate(theDropBeforeCreate).assignWriteAndRunScript(theWriteAndRunScript)
+              .assignUseDdlUtils(useDdlUtils)
+              .assignDropOnly(dropOnly)
+              .assignInstallDefaultGrouperData(installDefaultGrouperData).assignPromptUser(promptUser).runDdl();
+            
+          }
           
         }
         
@@ -296,6 +324,8 @@ public class RegistryInitializeSchema {
         + GrouperConfig.NL
 
         + "  -check,            Verifies status of the registry based on DDL version number"
+        + GrouperConfig.NL
+        + "  -useddlutils,      If DdlUtils should be used or if static SQL should be used"
         + GrouperConfig.NL
         + "  -deep,             Verifies status of the registry based on database objects"
         + GrouperConfig.NL

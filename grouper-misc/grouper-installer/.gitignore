@@ -1,8 +1,10 @@
 /bin
 /conf/grouper.installer.properties
 /conf/grouper.installer.properties.*
+/container
 /dist
 /target
+/tarballs
 /conf/log4j.properties
 .classpath
 .project

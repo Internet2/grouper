@@ -1797,7 +1797,7 @@ public class GrouperDdlUtils {
     return table;
   }
 
-  private static Boolean autoDdl2_5orAbove = null;
+  static Boolean autoDdl2_5orAbove = null;
   
   public static boolean autoDdl2_5orAbove() {
     if (autoDdl2_5orAbove == null) {

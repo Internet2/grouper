@@ -1131,15 +1131,20 @@ public class GrouperTest extends TestCase {
     //dont send emails
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("mail.smtp.server", "testing");
 
-    setupConfigs();
-    
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    GrouperTest.initGroupsAndAttributes();
+    setupInitDb();
 
     GrouperEmail.testingEmails().clear();
 
   }
 
+  protected void setupInitDb() {
+    setupConfigs();
+    
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+    
+  }
+  
   /**
    * make sure a result set has a privilege from a user and stem
    * @param result set of object arrays of membership, stem, member
