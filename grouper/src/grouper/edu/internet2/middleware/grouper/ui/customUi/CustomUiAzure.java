@@ -86,8 +86,8 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
   
       postMethod.addParameter("grant_type", "client_credentials");
   
-      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphEndpoint");
-      postMethod.addParameter("resource", graphEndpoint);
+      String resource = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".resource");
+      postMethod.addParameter("resource", resource);
   
       int code = -1;
       String json = null;
