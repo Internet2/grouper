@@ -1,2 +1,0 @@
-change the zIndez in dhtmlxcalendar.js (not css) to 9999, 
-which is higher than the simplemodal

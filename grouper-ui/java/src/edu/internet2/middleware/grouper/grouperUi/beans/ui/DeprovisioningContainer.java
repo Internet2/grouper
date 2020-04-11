@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
