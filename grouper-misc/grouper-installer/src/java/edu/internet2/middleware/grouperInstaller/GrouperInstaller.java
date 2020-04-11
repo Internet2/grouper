@@ -9744,7 +9744,7 @@ public class GrouperInstaller {
       System.out.println("Could not write to README.txt file.");
     }
     
-    System.out.println("Going to check if gsh, ws, grouper, or ui containers already exist.");
+    System.out.println("Going to check if gsh, ws, grouper-ui, or ui containers already exist.");
     List<String> conflictingNames = new ArrayList<String>();
     boolean conflictingNamesRanSuccessfully = false;
     try {
@@ -9757,7 +9757,7 @@ public class GrouperInstaller {
         if (GrouperInstallerUtils.isNotBlank(containerNamesString)) {
           String[] containerNames = containerNamesString.split("\n");
           
-          List<String> containersThatCanCauseConflict = Arrays.asList("gsh", "ui", "ws", "grouper");
+          List<String> containersThatCanCauseConflict = Arrays.asList("gsh", "ui", "ws", "grouper", "grouper-ui");
           
           for (String containerName: containerNames) {
             if (containersThatCanCauseConflict.contains(containerName)) {
@@ -9770,7 +9770,7 @@ public class GrouperInstaller {
     
     if (conflictingNamesRanSuccessfully == false) {
       System.out.println("There was an error trying to figure out if gsh, ui, or ws containers already exist.");
-      System.out.println("Run 'docker ps --all --format \"{{.Names}}\"' to see if gsh, ws, or ui already exist. Please delete them before proceeding. ");
+      System.out.println("Run 'docker ps --all --format \"{{.Names}}\"' to see if gsh, ws, grouper, grouper-ui, or ui already exist. Please delete them before proceeding. ");
       System.out.println("Run docker rm -f <container name> to force remove a docker container");
     }
     
