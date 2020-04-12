@@ -43,7 +43,7 @@
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
-			                    ${guiGrouperExternalSystem.grouperExternalSystem.type}
+			                    ${guiGrouperExternalSystem.grouperExternalSystem.title}
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
@@ -59,15 +59,15 @@
 			                     <div class="btn-group">
 			                           <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
 			                             aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
-			                             ${textContainer.text['stemViewActionsButton'] }
+			                             ${textContainer.text['grouperExternalSystemRowActionsButton'] }
 			                             <span class="caret"></span>
 			                           </a>
-			                           <%-- <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-			                             <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow }">
+			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
+			                             <%-- <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow }">
 			                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableEditDetailsActionOption'] }</a></li>                             
-			                             </c:if>
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewWorkflowConfigDetails&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableViewDetailsActionOption'] }</a></li>
-			                           </ul> --%>
+			                             </c:if> --%>
+			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
+			                           </ul>
 			                         </div>
 			                   </td>
 			              </c:forEach>
@@ -78,7 +78,7 @@
 			      </c:when>
 			      <c:otherwise>
 			        <div class="row-fluid">
-			          <div class="span9"> <p><b>${textContainer.text['grouperExternalSystemsNoConfiguredExternalSystemsFound'] }</b></p></div>
+			          <div class="span9"> <p><b>${textContainer.text['grouperExternalSystemNoConfiguredExternalSystemsFound'] }</b></p></div>
 			        </div>
 			      </c:otherwise>
 			    </c:choose>

@@ -12,7 +12,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class ExternalSystemContainer {
   
+  /**
+   * grouper external system user is currently viewing/editing 
+   */
+  private GuiGrouperExternalSystem guiGrouperExternalSystem;
   
+  /**
+   * all external systems
+   */
   private List<GuiGrouperExternalSystem> guiGrouperExternalSystems = new ArrayList<GuiGrouperExternalSystem>();
   
   
@@ -25,6 +32,18 @@ public class ExternalSystemContainer {
       List<GuiGrouperExternalSystem> guiGrouperExternalSystems) {
     this.guiGrouperExternalSystems = guiGrouperExternalSystems;
   }
+  
+  
+  public GuiGrouperExternalSystem getGuiGrouperExternalSystem() {
+    return guiGrouperExternalSystem;
+  }
+
+
+  
+  public void setGuiGrouperExternalSystem(
+      GuiGrouperExternalSystem guiGrouperExternalSystem) {
+    this.guiGrouperExternalSystem = guiGrouperExternalSystem;
+  }
 
 
   /**
@@ -36,7 +55,6 @@ public class ExternalSystemContainer {
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
-    
     return false;
   }
 

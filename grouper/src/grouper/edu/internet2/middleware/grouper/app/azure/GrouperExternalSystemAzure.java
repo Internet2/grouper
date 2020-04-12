@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.app.azure;
 
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
@@ -26,12 +24,6 @@ public class GrouperExternalSystemAzure extends GrouperExternalSystem {
   @Override
   public String getConfigIdRegex() {
     return "^(grouper\\.azureConnector)\\.([^.]+)\\.(.*)$";
-  }
-
-  @Override
-  public String getType() {
-    
-    return "Azure";
   }
 
 }

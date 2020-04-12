@@ -17,12 +17,16 @@ public class GuiGrouperExternalSystem {
     return this.grouperExternalSystem;
   }
   
+  public static GuiGrouperExternalSystem convertFromGrouperExternalSystem(GrouperExternalSystem grouperExternalSystem) {
+    return new GuiGrouperExternalSystem(grouperExternalSystem);
+  }
+  
   public static List<GuiGrouperExternalSystem> convertFromGrouperExternalSystem(List<GrouperExternalSystem> grouperExternalSystems) {
     
     List<GuiGrouperExternalSystem> guiGrouperExternalSystems = new ArrayList<GuiGrouperExternalSystem>();
     
     for (GrouperExternalSystem grouperExternalSystem: grouperExternalSystems) {
-      guiGrouperExternalSystems.add(new GuiGrouperExternalSystem(grouperExternalSystem));
+      guiGrouperExternalSystems.add(convertFromGrouperExternalSystem(grouperExternalSystem));
     }
     
     return guiGrouperExternalSystems;

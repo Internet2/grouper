@@ -27,8 +27,6 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 
 public abstract class GrouperExternalSystem {
   
-  public abstract String getType();
-
   private String configId;
   
   private boolean enabled;
@@ -44,6 +42,58 @@ public abstract class GrouperExternalSystem {
   public List<String> test() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
+  
+  
+  public String getHtml() {
+    
+    Map<String, GrouperExternalSystemAttribute> attributes = this.retrieveAttributes();
+    
+    
+    StringBuilder html = new StringBuilder();
+    html.append("<table class='table table-condensed table-striped'>");
+    
+    for (GrouperExternalSystemAttribute attribute: attributes.values()) {
+      
+      html.append("<tr>");
+      html.append("<td style='vertical-align: top; white-space: nowrap;'>");
+      html.append("<strong><label>");
+      html.append(attribute.getLabel());
+      html.append("</label></strong></td>");
+      html.append("<td>");
+      html.append(buildHtmlFormElement(attribute));
+      html.append("</td></tr>");
+    }
+    html.append("</table>");
+    
+    
+    return html.toString();
+  }
+  
+  
+  private String buildHtmlFormElement(GrouperExternalSystemAttribute attribute) {
+    
+    StringBuilder field = new StringBuilder();
+    if (attribute.getFormElement() == ConfigItemFormElement.TEXT) {
+      
+      String value = null;
+      if (attribute.getValue() != null) {
+        value = attribute.getValue();
+      } else if (attribute.getDefaultValue() != null) {
+        value = attribute.getDefaultValue();
+      }
+      
+      field.append(
+          "<input type='text' name= 'config_" + attribute.getConfigSuffix() + "'");
+      if (value != null) {
+        field.append(" value = '"+GrouperUtil.xmlEscape(value)+"'");
+      }
+      field.append("></input>");
+    }
+    
+    return field.toString();
+  }
+  
+  
   
   /**
    * save the attribute in an insert.  Note, if theres a failure, you should see if any made it
@@ -62,7 +112,7 @@ public abstract class GrouperExternalSystem {
     
     Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
     if (!configIdPattern.matcher(this.getConfigId()).matches()) {
-      throw new RuntimeException("Config it must be alphanumeric or underscore!");
+      throw new RuntimeException("Config id must be alphanumeric or underscore!");
     }
 
     Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");

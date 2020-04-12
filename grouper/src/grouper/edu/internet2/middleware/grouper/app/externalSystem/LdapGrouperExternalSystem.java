@@ -8,11 +8,6 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
   
   
   @Override
-  public String getType() {
-    return "Ldap";
-  }
-  
-  @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
   }
@@ -29,7 +24,5 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
   public String getConfigIdRegex() {
     return "^(ldap)\\.([^.]+)\\.(.*)$";
   }
-
-
 
 }
