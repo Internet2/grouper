@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -238,6 +239,21 @@ public class ConfigItemMetadata {
         jsonObject.remove("defaultValue");
       }
       
+      if (jsonObject.containsKey("formElement")) {
+        String formElementString = jsonObject.getString("formElement");
+        this.formElement = ConfigItemFormElement.valueOfIgnoreCase(formElementString, true);
+        jsonObject.remove("formElement");
+      }
+      
+      if (jsonObject.containsKey("optionValues")) {
+        JSONArray jsonArray = jsonObject.getJSONArray("optionValues");
+        this.optionValues = new String[jsonArray.size()];
+        for (int i=0;i<this.optionValues.length;i++) {
+          this.optionValues[i] = jsonArray.getString(i);
+        }
+        jsonObject.remove("optionValues");
+      }
+      
       if (jsonObject.keySet().size() > 0) {
         this.metadataError = "Extra keys from json (unexpected): " + GrouperUtil.join(jsonObject.keySet().iterator(), ", ");
         throw new RuntimeException(this.metadataError);
@@ -309,13 +325,13 @@ public class ConfigItemMetadata {
   /**
    * must be in ConfigItemFormElement enum
    */
-  private String formElement;
+  private ConfigItemFormElement formElement;
 
   /**
    * must be in ConfigItemFormElement enum
    * @return config item form element
    */
-  public String getFormElement() {
+  public ConfigItemFormElement getFormElement() {
     return formElement;
   }
 
@@ -323,7 +339,7 @@ public class ConfigItemMetadata {
    * must be in ConfigItemFormElement enum
    * @param formElement1
    */
-  public void setFormElement(String formElement1) {
+  public void setFormElement(ConfigItemFormElement formElement1) {
     this.formElement = formElement1;
   }
 
@@ -525,11 +541,5 @@ public class ConfigItemMetadata {
     this.mustImplementInterface = mustImplementInterface1;
   }
 
-  public ConfigItemFormElement formElementEnum() {
-    
-    return ConfigItemFormElement.valueOfIgnoreCase(this.getFormElement(), false);
-  }
-  
-  
   
 }

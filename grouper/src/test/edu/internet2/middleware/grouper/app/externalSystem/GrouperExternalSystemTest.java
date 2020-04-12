@@ -27,7 +27,9 @@ import junit.textui.TestRunner;
 public class GrouperExternalSystemTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzureInsertEditDelete"));
+    
+    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzure"));
+//    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzureInsertEditDelete"));
   }
   
   /**
@@ -130,13 +132,13 @@ public class GrouperExternalSystemTest extends GrouperTest {
       assertEquals(false, loginEndpointAttribute.isExpressionLanguage());
       assertEquals(ConfigItemFormElement.TEXT, loginEndpointAttribute.getFormElement());
     }
-    {
-      GrouperExternalSystemAttribute clientSecretAttribute = grouperExternalSystemAttributes.get("client_secret");
-      assertEquals("client_secret", clientSecretAttribute.getConfigSuffix());
-      assertEquals(false, clientSecretAttribute.isExpressionLanguage());
-      assertEquals(true, clientSecretAttribute.isPassword());
-      assertEquals(ConfigItemFormElement.PASSWORD, clientSecretAttribute.getFormElement());
-    }
+//    {
+//      GrouperExternalSystemAttribute clientSecretAttribute = grouperExternalSystemAttributes.get("client_secret");
+//      assertEquals("client_secret", clientSecretAttribute.getConfigSuffix());
+//      assertEquals(false, clientSecretAttribute.isExpressionLanguage());
+//      assertEquals(true, clientSecretAttribute.isPassword());
+//      assertEquals(ConfigItemFormElement.PASSWORD, clientSecretAttribute.getFormElement());
+//    }
     
     
     {
@@ -144,6 +146,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
       assertEquals("DirectoryID", directoryIdAttribute.getConfigSuffix());
       assertEquals(true, directoryIdAttribute.isExpressionLanguage());
       assertEquals("${'someDirectoryId'}", directoryIdAttribute.getExpressionLanguageScript());
+      assertEquals(ConfigItemFormElement.TEXTAREA, directoryIdAttribute.getFormElement());
     }
     
     {
