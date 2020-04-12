@@ -309,13 +309,13 @@ public class ConfigItemMetadata {
   /**
    * must be in ConfigItemFormElement enum
    */
-  private ConfigItemFormElement formElement;
+  private String formElement;
 
   /**
    * must be in ConfigItemFormElement enum
    * @return config item form element
    */
-  public ConfigItemFormElement getFormElement() {
+  public String getFormElement() {
     return formElement;
   }
 
@@ -323,7 +323,7 @@ public class ConfigItemMetadata {
    * must be in ConfigItemFormElement enum
    * @param formElement1
    */
-  public void setFormElement(ConfigItemFormElement formElement1) {
+  public void setFormElement(String formElement1) {
     this.formElement = formElement1;
   }
 
@@ -523,6 +523,11 @@ public class ConfigItemMetadata {
    */
   public void setMustImplementInterface(String mustImplementInterface1) {
     this.mustImplementInterface = mustImplementInterface1;
+  }
+
+  public ConfigItemFormElement formElementEnum() {
+    
+    return ConfigItemFormElement.valueOfIgnoreCase(this.getFormElement(), false);
   }
   
   

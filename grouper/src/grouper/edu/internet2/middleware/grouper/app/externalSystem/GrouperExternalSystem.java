@@ -413,7 +413,7 @@ public abstract class GrouperExternalSystem {
             grouperExternalSystemAttribute.setFormElement(ConfigItemFormElement.PASSWORD);
           } else {
             
-            ConfigItemFormElement configItemFormElement = configItemMetadata.getFormElement();
+            ConfigItemFormElement configItemFormElement = configItemMetadata.formElementEnum();
             if (configItemFormElement != null) {
               grouperExternalSystemAttribute.setFormElement(configItemFormElement);
             } else {
