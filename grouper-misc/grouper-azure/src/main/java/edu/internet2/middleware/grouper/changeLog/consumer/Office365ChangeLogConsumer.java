@@ -165,7 +165,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
     protected void removeMembership(Subject subject, Group group, ChangeLogEntry changeLogEntry) {
         logger.debug("removing " + subject + " from " + group);
         try {
-            User user = apiClient.lookupMSUser(subject.getAttributeValue("uid").trim() + "@" + tenantId);
+            User user = apiClient.lookupMSUser(subject.getAttributeValue(this.idAttribute).trim() + "@" + tenantId);
             String groupId = group.getAttributeValueDelegate().retrieveValueString("etc:attribute:office365:o365Id");
             apiClient.removeUserFromGroupInMS(groupId, user.id);
         } catch (IOException e) {
