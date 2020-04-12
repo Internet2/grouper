@@ -4,9 +4,13 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Configure;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -129,13 +133,12 @@ public class GrouperDbConfig {
     Boolean[] error = new Boolean[]{null};
     Boolean[] added = new Boolean[]{null};
     message = new StringBuilder();
-    UiV2Configure.configurationFileAddEditHelper2(this.configFileName, this.propertyName,
-        Boolean.toString(this.propertyName.endsWith(".elConfig")), this.value, null, message, added, error, false, this.comment);
+    DbConfigEngine.configurationFileAddEditHelper2(this.configFileName, this.propertyName,
+        Boolean.toString(this.propertyName.endsWith(".elConfig")), this.value, null, message, added, error, false, 
+        this.comment, new ArrayList<String>(), new HashMap<String, String>(), true);
     if (error[0] != null && error[0]) {
       throw new RuntimeException("Has error.  Message: " + message);
     }
-    // get the latest and greatest
-    ConfigPropertiesCascadeBase.clearCache();
 
     return message == null ? null : message.toString();
 
@@ -159,9 +162,8 @@ public class GrouperDbConfig {
     if (!StringUtils.isBlank(this.comment)) {
       throw new RuntimeException("Cant set comment on delete");
     }
-    UiV2Configure.configurationFileItemDeleteHelper(this.configFileName, this.propertyName, false);
-    // get the latest and greatest
-    ConfigPropertiesCascadeBase.clearCache();
+    // this clears the cache if necessary
+    DbConfigEngine.configurationFileItemDeleteHelper(this.configFileName, this.propertyName, false, true);
 
     return message == null ? null : message.toString();
 

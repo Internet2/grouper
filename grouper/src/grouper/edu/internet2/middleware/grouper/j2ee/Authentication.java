@@ -16,8 +16,11 @@ import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword.EncryptionType;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 
 /**
@@ -60,11 +63,32 @@ public class Authentication {
     return null;
   }
   
+  /**
+   * system enum, user, and encrypted password
+   */
+  private static ExpirableCache<MultiKey, Boolean> authenticationCache = null;
+
+  /**
+   * 
+   * @return the cache
+   */
+  private static ExpirableCache<MultiKey, Boolean> authenticationCache() {
+
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.authentication.cache", true)) {
+      if (authenticationCache == null) {
+        authenticationCache = new ExpirableCache<MultiKey, Boolean>(GrouperConfig.retrieveConfig().propertyValueInt("grouper.authentication.cacheTimeMinutes", 2));
+      }
+    }
+    return authenticationCache;
+  }
+  
   public boolean authenticate(final String authHeader, GrouperPassword.Application application) {
     
     if (StringUtils.isBlank(authHeader)) {
       return false;
     }
+    
+    ExpirableCache<MultiKey, Boolean> authenticationCache = authenticationCache();
     
     try {
       StringTokenizer st = new StringTokenizer(authHeader);
@@ -77,18 +101,40 @@ public class Authentication {
           if (p != -1) {
             String user = credentials.substring(0, p).trim();
             String password = credentials.substring(p + 1).trim();
-                
+    
+
+            MultiKey cacheKey = null;
+            
+            if (authenticationCache != null) {
+              
+              cacheKey = new MultiKey(application, user, Morph.encrypt(password));
+              Boolean result = authenticationCache.get(cacheKey);
+              if (result != null && result) {
+                return true;
+              }
+              
+            }
+            
             GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(user, application.name());
                 
-            if (grouperPassword == null) {
-              return false;
+            boolean correctPassword = false;
+            
+            if (grouperPassword != null) {
+              String generatedHash = grouperPassword.getEncryptionType().generateHash(grouperPassword.getTheSalt()+password);
+              
+              String encryptedPassword = Morph.encrypt(generatedHash);
+                  
+              correctPassword = StringUtils.equals(encryptedPassword, grouperPassword.getThePassword());
+            } else {
+              String configKey = "grouperPasswordConfigOverride_" + application.name() + "_" + user+ "_pass";
+              String configPassword = GrouperHibernateConfig.retrieveConfig().propertyValueString(configKey);
+              configPassword = Morph.decryptIfFile(configPassword);
+              correctPassword = StringUtils.equals(password, configPassword);
             }
-                
-            String generatedHash = grouperPassword.getEncryptionType().generateHash(grouperPassword.getTheSalt()+password);
-                
-            String encryptedPassword = Morph.encrypt(generatedHash);
-                
-            return StringUtils.equals(encryptedPassword, grouperPassword.getThePassword());
+            if (correctPassword && authenticationCache != null) {
+              authenticationCache.put(cacheKey, true);
+            }
+            return correctPassword;
 
           }
         }

@@ -1564,6 +1564,22 @@ public class GrouperUtil {
   }
 
   /**
+   * strip the prefix off
+   * @param string
+   * @param prefix
+   * @return the string without the suffix
+   */
+  public static String stripPrefix(String string, String prefix) {
+    if (string == null || prefix == null) {
+      return string;
+    }
+    if (string.startsWith(prefix)) {
+      return string.substring(prefix.length(), string.length());
+    }
+    return string;
+  }
+
+  /**
    * get the prefix or suffix of a string based on a separator
    *
    * @param startString

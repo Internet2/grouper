@@ -26,6 +26,10 @@ import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
  */
 public class GrouperTextContainer {
 
+  public GrouperTextContainer() {
+    super();
+  }
+
   /** logger */
   protected static final Log LOG = LogFactory.getLog(GrouperTextContainer.class);
 

@@ -286,6 +286,48 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * if this is a drop down, these are the acceptable values
+   */
+  private String[] optionValues; 
+  
+  /**
+   * if this is a drop down, these are the acceptable values
+   * @return option values
+   */
+  public String[] getOptionValues() {
+    return optionValues;
+  }
+
+  /**
+   * if this is a drop down, these are the acceptable values
+   * @param optionValues
+   */
+  public void setOptionValues(String[] optionValues) {
+    this.optionValues = optionValues;
+  }
+
+  /**
+   * must be in ConfigItemFormElement enum
+   */
+  private ConfigItemFormElement formElement;
+
+  /**
+   * must be in ConfigItemFormElement enum
+   * @return config item form element
+   */
+  public ConfigItemFormElement getFormElement() {
+    return formElement;
+  }
+
+  /**
+   * must be in ConfigItemFormElement enum
+   * @param formElement1
+   */
+  public void setFormElement(ConfigItemFormElement formElement1) {
+    this.formElement = formElement1;
+  }
+
+  /**
    * value type, e.g. boolean, string, group, subject, integer, floating, etc
    */
   private ConfigItemMetadataType valueType;
