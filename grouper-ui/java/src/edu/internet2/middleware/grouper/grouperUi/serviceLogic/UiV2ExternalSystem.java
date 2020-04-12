@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
-import edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ExternalSystemContainer;
@@ -44,9 +42,7 @@ public class UiV2ExternalSystem {
         throw new RuntimeException("Not allowed!!!!!");
       }
       
-      List<GrouperExternalSystem> grouperExternalSystems = new ArrayList<GrouperExternalSystem>();
-      //TODO replace me with the actual call
-      grouperExternalSystems.addAll(generateFakeGrouperExternalSystemsForTesting());
+      List<GrouperExternalSystem> grouperExternalSystems = GrouperExternalSystem.retrieveAllGrouperExternalSystems();
       
       List<GuiGrouperExternalSystem> guiGrouperExternalSystems = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystems);
       
@@ -66,7 +62,7 @@ public class UiV2ExternalSystem {
    * @param request
    * @param response
    */
-  public void viewExternalSystemConfigDetails(final HttpServletRequest request, final HttpServletResponse response) {
+  public void editExternalSystemConfigDetails(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -90,33 +86,28 @@ public class UiV2ExternalSystem {
         throw new RuntimeException("externalSystemConfigId cannot be blank");
       }
       
-      //TODO replace me with the actual call
-      GrouperExternalSystem grouperExternalSystem = generateFakeGrouperExternalSystemsForTesting().get(0);
-      GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
+      GrouperExternalSystem matchingExternalSystem = null;
+      for (GrouperExternalSystem externalSystem: GrouperExternalSystem.retrieveAllGrouperExternalSystems()) {
+        if (externalSystem.getConfigId().equals(externalSystemConfigId)) {
+          matchingExternalSystem = externalSystem;
+          break;
+        }
+      }
+      
+      if (matchingExternalSystem == null) {
+        throw new RuntimeException("No external system found for config id: "+externalSystemConfigId);
+      }
+      
+      GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(matchingExternalSystem);
       
       externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/externalSystems/externalSystemConfigDetails.jsp"));
+          "/WEB-INF/grouperUi2/externalSystems/editExternalSystemConfigDetails.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-  }
-  
-  private static List<GrouperExternalSystem> generateFakeGrouperExternalSystemsForTesting() {
-    
-    List<GrouperExternalSystem> grouperExternalSystems = new ArrayList<GrouperExternalSystem>();
-    
-    LdapGrouperExternalSystem ldapGrouperExternalSystem = new LdapGrouperExternalSystem();
-    ldapGrouperExternalSystem.setConfigId("test-ldap");
-    ldapGrouperExternalSystem.setEnabled(true);
-    
-    grouperExternalSystems.add(ldapGrouperExternalSystem);
-    
-    return grouperExternalSystems;
-    
-    
   }
 
 }

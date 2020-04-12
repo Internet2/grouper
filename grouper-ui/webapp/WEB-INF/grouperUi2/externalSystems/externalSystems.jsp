@@ -63,10 +63,8 @@
 			                             <span class="caret"></span>
 			                           </a>
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-			                             <%-- <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow }">
-			                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableEditDetailsActionOption'] }</a></li>                             
-			                             </c:if> --%>
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
+			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.editExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}');">${textContainer.text['grouperExternalSystemTableEditDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>
 			                   </td>
