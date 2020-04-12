@@ -7,3 +7,5 @@
 /tarballs
 /conf/log4j.properties
 /temp
+.classpath
+.project
