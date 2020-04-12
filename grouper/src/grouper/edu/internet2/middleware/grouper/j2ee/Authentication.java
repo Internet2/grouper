@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouper.j2ee;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.codec.binary.Hex;
@@ -66,20 +68,40 @@ public class Authentication {
   /**
    * system enum, user, and encrypted password
    */
-  private static ExpirableCache<MultiKey, Boolean> authenticationCache = null;
+  private static Map<GrouperPassword.Application, ExpirableCache<MultiKey, Boolean>> authenticationCache = 
+      new HashMap<GrouperPassword.Application, ExpirableCache<MultiKey, Boolean>>();
 
   /**
    * 
    * @return the cache
    */
-  private static ExpirableCache<MultiKey, Boolean> authenticationCache() {
+  private static ExpirableCache<MultiKey, Boolean> authenticationCache(GrouperPassword.Application application) {
 
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.authentication.cache", true)) {
-      if (authenticationCache == null) {
-        authenticationCache = new ExpirableCache<MultiKey, Boolean>(GrouperConfig.retrieveConfig().propertyValueInt("grouper.authentication.cacheTimeMinutes", 2));
+    GrouperUtil.assertion(application != null, "application cant be null");
+    
+    //  # if we should cache UI authns
+    //  # {valueType: "boolean", required : true}
+    //  grouper.authentication.UI.cache = false
+    //
+    //  # if we should cache WS authns
+    //  # {valueType: "boolean", required : true}
+    //  grouper.authentication.WS.cache = false
+    //
+    //  # {valueType: "integer", required: true}
+    //  grouper.authentication.UI.cacheTimeMinutes = 2
+    //
+    //  # {valueType: "integer", required: true}
+    //  grouper.authentication.WS.cacheTimeMinutes = 2
+    ExpirableCache<MultiKey, Boolean> localAuthenticationCache = null;
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.authentication." + application.name() + ".cache", true)) {
+      localAuthenticationCache = authenticationCache.get(application);
+      if (localAuthenticationCache == null) {
+        localAuthenticationCache = new ExpirableCache<MultiKey, Boolean>(GrouperConfig.retrieveConfig().propertyValueInt(
+            "grouper.authentication." + application.name() + ".cacheTimeMinutes", 2));
+        authenticationCache.put(application, localAuthenticationCache);
       }
     }
-    return authenticationCache;
+    return localAuthenticationCache;
   }
   
   public boolean authenticate(final String authHeader, GrouperPassword.Application application) {
@@ -88,7 +110,7 @@ public class Authentication {
       return false;
     }
     
-    ExpirableCache<MultiKey, Boolean> authenticationCache = authenticationCache();
+    ExpirableCache<MultiKey, Boolean> authenticationCache = authenticationCache(application);
     
     try {
       StringTokenizer st = new StringTokenizer(authHeader);
