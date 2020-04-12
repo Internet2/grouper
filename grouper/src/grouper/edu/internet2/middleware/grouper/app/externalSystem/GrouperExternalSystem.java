@@ -11,6 +11,25 @@ public abstract class GrouperExternalSystem {
   
   private boolean enabled;
   
+  public String getConfigId() {
+    return configId;
+  }
+  
+  public void setConfigId(String configId) {
+    this.configId = configId;
+  }
+  
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+  
+  public abstract String getType();
+ 
+
   public List<String> validate(boolean isAdd) {
     List<String> errors = new ArrayList<String>();
     if(StringUtils.isBlank(configId)) {

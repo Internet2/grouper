@@ -58,8 +58,8 @@
                       
                     </c:if>
                     
-                    <c:if test="${grouperRequestContainer.configurationContainer.configureShow}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Configure.index');" style="white-space: nowrap;">
+                    <c:if test="${grouperRequestContainer.externalSystemContainer.canViewExternalSystems}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystems');" style="white-space: nowrap;">
                       	${textContainer.text['adminExternalSystemsLink'] }</a>
                     </c:if>
                     
