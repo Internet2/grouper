@@ -194,8 +194,7 @@ public abstract class GrouperExternalSystem {
     
       GrouperExternalSystemAttribute grouperExternalSystemAttribute = attributesToSave.get(suffix);
       
-      if (!StringUtils.isBlank(grouperExternalSystemAttribute.getValue()) 
-          || !StringUtils.isBlank(grouperExternalSystemAttribute.getExpressionLanguageScript())) {
+      if (grouperExternalSystemAttribute.isHasValue()) {
         
         StringBuilder localMessage = new StringBuilder();
         
@@ -266,13 +265,12 @@ public abstract class GrouperExternalSystem {
     
     Map<String, GrouperExternalSystemAttribute> attributesToSave = new HashMap<String, GrouperExternalSystemAttribute>();
     
-    // add all the possible ones
-    for (String suffix : attributesToSave.keySet()) {
+    // remove the edited ones
+    for (String suffix : attributes.keySet()) {
     
-      GrouperExternalSystemAttribute grouperExternalSystemAttribute = attributesToSave.get(suffix);
+      GrouperExternalSystemAttribute grouperExternalSystemAttribute = attributes.get(suffix);
       
-      if (!StringUtils.isBlank(grouperExternalSystemAttribute.getValue()) 
-          || !StringUtils.isBlank(grouperExternalSystemAttribute.getExpressionLanguageScript())) {
+      if (grouperExternalSystemAttribute.isHasValue()) {
         propertyNamesToDelete.remove(grouperExternalSystemAttribute.getFullPropertyName());
         attributesToSave.put(suffix, grouperExternalSystemAttribute);
       }
@@ -463,7 +461,11 @@ public abstract class GrouperExternalSystem {
             grouperExternalSystemAttribute.setExpressionLanguageScript(rawExpressionLanguage);
           }
         }
-        grouperExternalSystemAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+        if (DbConfigEngine.isPasswordHelper(configItemMetadata, configPropertiesCascadeBase.propertyValueString(propertyName))) {
+          grouperExternalSystemAttribute.setValue(DbConfigEngine.ESCAPED_PASSWORD);
+        } else {
+          grouperExternalSystemAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+        }
         {
           // use the metadata
           grouperExternalSystemAttribute.setDefaultValue(configItemMetadata.getDefaultValue());

@@ -86,6 +86,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -1141,6 +1142,12 @@ public class GrouperTest extends TestCase {
     setupConfigs();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    
+    // clear config cache
+    ConfigPropertiesCascadeBase.clearCache();
+    EhcacheController.ehcacheController().flushCache();
+    SubjectSourceCache.clearCache();
+    
     GrouperTest.initGroupsAndAttributes();
     
   }

@@ -28,8 +28,8 @@ public class GrouperExternalSystemTest extends GrouperTest {
 
   public static void main(String[] args) {
     
-    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzure"));
-//    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzureInsertEditDelete"));
+//    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzure"));
+    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzureInsertEditDelete"));
   }
   
   /**
@@ -132,13 +132,13 @@ public class GrouperExternalSystemTest extends GrouperTest {
       assertEquals(false, loginEndpointAttribute.isExpressionLanguage());
       assertEquals(ConfigItemFormElement.TEXT, loginEndpointAttribute.getFormElement());
     }
-//    {
-//      GrouperExternalSystemAttribute clientSecretAttribute = grouperExternalSystemAttributes.get("client_secret");
-//      assertEquals("client_secret", clientSecretAttribute.getConfigSuffix());
-//      assertEquals(false, clientSecretAttribute.isExpressionLanguage());
-//      assertEquals(true, clientSecretAttribute.isPassword());
-//      assertEquals(ConfigItemFormElement.PASSWORD, clientSecretAttribute.getFormElement());
-//    }
+    {
+      GrouperExternalSystemAttribute clientSecretAttribute = grouperExternalSystemAttributes.get("client_secret");
+      assertEquals("client_secret", clientSecretAttribute.getConfigSuffix());
+      assertEquals(false, clientSecretAttribute.isExpressionLanguage());
+      assertEquals(true, clientSecretAttribute.isPassword());
+      assertEquals(ConfigItemFormElement.PASSWORD, clientSecretAttribute.getFormElement());
+    }
     
     
     {
@@ -146,7 +146,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
       assertEquals("DirectoryID", directoryIdAttribute.getConfigSuffix());
       assertEquals(true, directoryIdAttribute.isExpressionLanguage());
       assertEquals("${'someDirectoryId'}", directoryIdAttribute.getExpressionLanguageScript());
-      assertEquals(ConfigItemFormElement.TEXTAREA, directoryIdAttribute.getFormElement());
+      assertEquals(ConfigItemFormElement.TEXT, directoryIdAttribute.getFormElement());
     }
     
     {
@@ -166,8 +166,10 @@ public class GrouperExternalSystemTest extends GrouperTest {
     Map<String, GrouperExternalSystemAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
     
     suffixToAttribute.get("loginEndpoint").setValue("https://test.whatever.com");
+    suffixToAttribute.get("DirectoryID").setExpressionLanguage(true);
     suffixToAttribute.get("DirectoryID").setExpressionLanguageScript("${'someDirectoryId'}");
-    suffixToAttribute.get("client_secret").setExpressionLanguageScript("someSecret");
+    suffixToAttribute.get("client_secret").setValue("someSecret");
+    suffixToAttribute.get("graphEndpoint").setValue("myGraphEndpoint");
 
     boolean fail = false;
     try {
@@ -207,6 +209,43 @@ public class GrouperExternalSystemTest extends GrouperTest {
     assertEquals("${'someDirectoryId'}", suffixToAttribute.get("DirectoryID").getExpressionLanguageScript());
     assertEquals(DbConfigEngine.ESCAPED_PASSWORD, suffixToAttribute.get("client_secret").getValue());
     
+    // lets test by adding, deleting editing
+    
+    suffixToAttribute.get("resource").setValue("myResource");
+    suffixToAttribute.get("loginEndpoint").setValue(null);
+    suffixToAttribute.get("graphEndpoint").setValue("myGraphEndpoint1");
+    
+    grouperExternalSystemAzure.editConfig(false, suffixToAttribute, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    message.setLength(0);
+    errorsToDisplay.clear();
+    validationErrorsToDisplay.clear();
+    
+    grouperExternalSystemAzure = new GrouperExternalSystemAzure();
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    
+    assertEquals("myResource", suffixToAttribute.get("resource").getValue());
+    assertNull(suffixToAttribute.get("loginEndpoint").getValue());
+    assertEquals("myGraphEndpoint1", suffixToAttribute.get("graphEndpoint").getValue());
+    
+    // delete
+    grouperExternalSystemAzure.deleteConfig(false);
+    
+    message.setLength(0);
+    errorsToDisplay.clear();
+    validationErrorsToDisplay.clear();
+    
+    grouperExternalSystemAzure = new GrouperExternalSystemAzure();
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+
+    assertNull(suffixToAttribute.get("resource").getValue());
+    assertNull(suffixToAttribute.get("loginEndpoint").getValue());
+    assertNull(suffixToAttribute.get("graphEndpoint").getValue());
+    
+    assertFalse(grouperExternalSystemAzure.retrieveConfigurationConfigIds().contains("azureConnector2"));
+
   }
 
 }

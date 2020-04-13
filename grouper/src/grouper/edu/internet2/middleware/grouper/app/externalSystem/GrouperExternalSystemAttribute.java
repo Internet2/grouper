@@ -12,6 +12,11 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperExternalSystemAttribute {
   
+  public boolean isHasValue() {
+    return (!this.isExpressionLanguage() && !StringUtils.isBlank(this.getValue()))
+        || (this.isExpressionLanguage() && !StringUtils.isBlank(this.getExpressionLanguageScript()));
+  }
+  
   private  ConfigItemMetadataType type;
   
   private boolean required;

@@ -417,7 +417,7 @@ public class DbConfigEngine {
    * @param configItemMetadata
    * @return true if password
    */
-  private static boolean isPasswordHelper(ConfigItemMetadata configItemMetadata) {
+  public static boolean isPasswordHelper(ConfigItemMetadata configItemMetadata) {
     
     if (configItemMetadata != null) {
       return configItemMetadata.isSensitive() || configItemMetadata.getValueType() == ConfigItemMetadataType.PASSWORD;
@@ -509,6 +509,23 @@ public class DbConfigEngine {
   
     
     return true;
+  }
+
+  /**
+   * if the value is a file and it exists, then this is not a password to be escaped
+   * @param configItemMetadata
+   * @param propertyValueString
+   * @return true if should be escaped
+   */
+  public static boolean isPasswordHelper(ConfigItemMetadata configItemMetadata,
+      String propertyValueString) {
+    if (StringUtils.isBlank(propertyValueString)) {
+      return false;
+    }
+    if (propertyValueString.length() > 5 && new File(propertyValueString).exists()) {
+      return false;
+    }
+    return isPasswordHelper(configItemMetadata);
   }
   
 
