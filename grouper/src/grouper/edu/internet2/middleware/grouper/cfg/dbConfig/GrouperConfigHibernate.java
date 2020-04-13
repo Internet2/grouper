@@ -102,6 +102,12 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   /** constant for field name for: configValue */
   public static final String FIELD_CONFIG_VALUE = "configValue";
 
+  /** constant for field name for: configValueClob */
+  public static final String FIELD_CONFIG_VALUE_CLOB = "configValueClob";
+
+  /** constant for field name for: configValueClobBytes */
+  public static final String FIELD_CONFIG_VALUE_CLOB_BYTES = "configValueClobBytes";
+
   /** constant for field name for: configVersionIndex */
   public static final String FIELD_CONFIG_VERSION_INDEX = "configVersionIndex";
 
@@ -119,7 +125,8 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CONFIG_COMMENT, FIELD_CONFIG_ENCRYPTED, FIELD_CONFIG_FILE_HIERARCHY, FIELD_CONFIG_FILE_NAME, 
-      FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VERSION_INDEX, 
+      FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VALUE_CLOB, 
+      FIELD_CONFIG_VALUE_CLOB_BYTES, FIELD_CONFIG_VERSION_INDEX, 
       FIELD_CONTEXT_ID, FIELD_ID, FIELD_LAST_UPDATED_DB);
 
   /**
@@ -127,7 +134,8 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONFIG_COMMENT, FIELD_CONFIG_ENCRYPTED, FIELD_CONFIG_FILE_HIERARCHY, FIELD_CONFIG_FILE_NAME, 
-      FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VERSION_INDEX, 
+      FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VALUE_CLOB, 
+      FIELD_CONFIG_VALUE_CLOB_BYTES, FIELD_CONFIG_VERSION_INDEX, 
       FIELD_CONTEXT_ID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, 
       FIELD_LAST_UPDATED_DB);
 
@@ -141,6 +149,12 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
 
   /** value of the property */
   public static final String COLUMN_CONFIG_VALUE = "config_value";
+  
+  /** value of the property if longer than 3.5k */
+  public static final String COLUMN_CONFIG_VALUE_CLOB = "config_value_clob";
+  
+  /** size of clob in bytes */
+  public static final String COLUMN_CONFIG_VALUE_CLOB_BYTES = "config_value_clob_bytes";
   
   /** comment of the property */
   public static final String COLUMN_CONFIG_COMMENT = "config_comment";
@@ -233,6 +247,49 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   private String configValue;
   
+
+  /**
+   * value of the property if clob
+   */
+  private String configValueClob;
+  
+  /**
+   * number of bytes in clob
+   */
+  private Long configValueClobBytes;
+  
+  /**
+   * number of bytes in clob
+   * @return bytes
+   */
+  public Long getConfigValueClobBytes() {
+    return this.configValueClobBytes;
+  }
+
+  /**
+   * number of bytes in clob
+   * @param configValueClobBytes1
+   */
+  public void setConfigValueClobBytes(Long configValueClobBytes1) {
+    this.configValueClobBytes = configValueClobBytes1;
+  }
+
+  /**
+   * value of the property if clob
+   * @return
+   */
+  public String getConfigValueClobDb() {
+    return configValueClob;
+  }
+
+  /**
+   * value of the property if clob
+   * @param configValueClob
+   */
+  public void setConfigValueClobDb(String configValueClob) {
+    this.configValueClob = configValueClob;
+  }
+
   /**
    * value of the property
    * @return the configValue
@@ -245,8 +302,17 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    * value of the property
    * @return the configValue
    */
+  public String getConfigValueOrClobRaw() {
+    return GrouperUtil.defaultIfBlank(this.configValue, this.configValueClob);
+  }
+  
+  
+  /**
+   * value of the property
+   * @return the configValue
+   */
   public String getConfigValue() {
-    String theConfigValueUnencrypted = this.configValue;
+    String theConfigValueUnencrypted = GrouperUtil.defaultIfBlank(this.configValue, this.configValueClob);
     
     if (this.isConfigEncrypted()) {
       throw new RuntimeException("Implement this");
@@ -502,11 +568,23 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   public void truncate() {
     this.configComment = GrouperUtil.truncateAscii(this.configComment, 4000);
+    
+    
     String originalValue = this.configValue;
+    
     String newValue = GrouperUtil.truncateAscii(this.configValue, 4000);
+
+    // we want one or the other and only if too long
+    this.configValueClob = null;
+    
     if (!StringUtils.equals(originalValue, newValue)) {
-      throw new RuntimeException("config value is too long: '" + this.configValue + "'");
+      this.configValueClob = this.configValue;
+      this.configValue = null;
     }
+    
+    // keep a null size if not a clob
+    long clobLenth = StringUtils.length(this.configValueClob);
+    this.configValueClobBytes = clobLenth == 0 ? null : clobLenth;
   }
 
   /**

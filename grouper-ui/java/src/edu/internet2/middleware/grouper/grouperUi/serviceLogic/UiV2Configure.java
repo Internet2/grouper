@@ -516,9 +516,9 @@ public class UiV2Configure {
     grouperConfigHibernate.delete();
     
     boolean isValueEncrypted = ConfigUtils.isPassword(configFileName, null, grouperConfigHibernate.getConfigKey(), 
-        grouperConfigHibernate.getConfigValueDb(), true, grouperConfigHibernate.isConfigEncrypted());
+        grouperConfigHibernate.getConfigValueOrClobRaw(), true, grouperConfigHibernate.isConfigEncrypted());
 
-    String valueForAudit = isValueEncrypted ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
+    String valueForAudit = isValueEncrypted ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueOrClobRaw();
 
     AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CONFIGURATION_DELETE, "id", 
         grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
@@ -1047,7 +1047,7 @@ public class UiV2Configure {
         added[0] = true;
       } else {
         
-        if (StringUtils.equals(valueString, grouperConfigHibernate.getConfigValueDb())) {
+        if (StringUtils.equals(valueString, grouperConfigHibernate.getConfigValueOrClobRaw())) {
           added[0] = null;
         } else {
           added[0] = false;
@@ -1075,7 +1075,7 @@ public class UiV2Configure {
         message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesEdited")).append(fromUi ? "<br />" : "\n");
       }
   
-      String valueForAudit = grouperConfigHibernate.isConfigEncrypted() ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
+      String valueForAudit = grouperConfigHibernate.isConfigEncrypted() ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValue();
       if (added[0] != null) {
   
         AuditTypeBuiltin auditTypeBuiltin = added[0] ? AuditTypeBuiltin.CONFIGURATION_ADD : AuditTypeBuiltin.CONFIGURATION_UPDATE;

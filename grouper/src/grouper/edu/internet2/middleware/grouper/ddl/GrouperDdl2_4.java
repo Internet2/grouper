@@ -177,6 +177,8 @@ public class GrouperDdl2_4 {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
         Types.BIGINT, null, false, true);
 
+    GrouperDdl2_5_30.addConfigClobColumns(ddlVersionBean, database);
+
     
   }
   

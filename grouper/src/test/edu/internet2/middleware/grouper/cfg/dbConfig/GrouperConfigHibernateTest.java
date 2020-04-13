@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouper.cfg.dbConfig;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -137,6 +139,20 @@ public class GrouperConfigHibernateTest extends GrouperTest {
     
     assertNull(grouperConfigHibernate2);
     
+    grouperConfigHibernate = new GrouperConfigHibernate();
+    grouperConfigHibernate.setConfigComment("comment");
+    grouperConfigHibernate.setConfigEncrypted(false);
+    grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.ENVIRONMENT);
+    grouperConfigHibernate.setConfigFileName(ConfigFileName.GROUPER_PROPERTIES);
+    grouperConfigHibernate.setConfigKey("some.key");
+    String longValue = StringUtils.repeat("a", 500000);
+    assertEquals(500000, longValue.length());
+    grouperConfigHibernate.setConfigValue(longValue);
+    grouperConfigHibernate.saveOrUpdate();
+    
+    grouperConfigHibernate2 = GrouperDAOFactory.getFactory().getConfig().findById(grouperConfigHibernate.getId(), true);
+
+    assertEquals(longValue, grouperConfigHibernate2.getConfigValue());
   }
 
 }

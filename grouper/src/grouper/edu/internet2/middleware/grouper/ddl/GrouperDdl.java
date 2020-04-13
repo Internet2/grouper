@@ -2515,6 +2515,38 @@ public enum GrouperDdl implements DdlVersionable {
     public String getGrouperVersion() {
       return "2.5.0";
     }
+  }, 
+  /**
+   * <pre>
+   * Grouper 2.5.30
+   * </pre>
+   */
+  V33{
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      GrouperDdl2_5_30.addConfigClobColumns(ddlVersionBean, database);
+      GrouperDdl2_5_30.addConfigClobComments(ddlVersionBean, database);
+    
+    }
+  
+    /**
+     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#recreateViewsAndForeignKeys()
+     */
+    public boolean recreateViewsAndForeignKeys() {
+      return false;
+    }
+  
+    @Override
+    public String getGrouperVersion() {
+      return "2.5.30";
+    }
   };
   
   

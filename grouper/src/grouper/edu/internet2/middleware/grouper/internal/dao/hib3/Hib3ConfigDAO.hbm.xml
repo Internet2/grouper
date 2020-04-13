@@ -63,6 +63,8 @@
     <property name="configKey" column="config_key"/>    
     <property name="configSequence" column="config_sequence"/>    
     <property name="configValueDb" column="config_value"/>    
+    <property name="configValueClobDb" column="config_value_clob"/>    
+    <property name="configValueClobBytes" column="config_value_clob_bytes"/>    
     <property name="configVersionIndex" column="config_version_index"/>    
     <property name="lastUpdatedDb" column="last_updated"/>    
     
