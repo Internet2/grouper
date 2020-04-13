@@ -20,6 +20,8 @@
               
 			<div class="row-fluid">
 			  <div class="span12">
+			  	<form class="form-inline form-small form-filter">
 				${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.html}
+				</form>
 			  </div>
 			</div>

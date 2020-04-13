@@ -71,7 +71,15 @@ public abstract class GrouperExternalSystem {
   private String buildHtmlFormElement(GrouperExternalSystemAttribute attribute) {
     
     StringBuilder field = new StringBuilder();
+    
+    field.append("<td style='vertical-align: top; white-space: nowrap;' >");
+    field.append("<input style='vertical-align: top; min-height: 10px;' type='checkbox' name='config_el_"+attribute.getConfigSuffix()+"'>");
+    field.append("</input>");
+    field.append(GrouperTextContainer.textOrNull("grouperExternalSystemAttributesIsElLabel"));
+    field.append("</td>");
+    
     field.append("<td>");
+    
     if (attribute.getFormElement() == ConfigItemFormElement.TEXT) {
       
       String value = null;
