@@ -728,7 +728,7 @@ public class GrouperDdlEngine {
         GrouperVersion grouperVersionDatabase = null;
         {
           DdlVersionable dbDdlVersionable = GrouperDdlUtils.retieveVersion(objectName, dbVersion);
-          grouperVersionDatabase = dbDdlVersionable == null ? null : new GrouperVersion(dbDdlVersionable.getGrouperVersion());
+          grouperVersionDatabase = (dbDdlVersionable == null || StringUtils.isBlank(dbDdlVersionable.getGrouperVersion())) ? null : new GrouperVersion(dbDdlVersionable.getGrouperVersion());
           versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
             + dbVersion + " (" + grouperVersionDatabase + ") and java version: " + javaVersion + " (" + grouperVersionJava + ")";
         }          
