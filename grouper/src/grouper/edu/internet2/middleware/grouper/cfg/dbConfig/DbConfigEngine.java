@@ -265,16 +265,20 @@ public class DbConfigEngine {
             }
           }
           boolean deleted = false;
+          String message = null;
           if (grouperConfigHibernate != null) {
             textReplaceMap.put("currentConfigPropertyName", grouperConfigHibernate.getConfigKey());
-            configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi);
+            message = configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi);
             deleted = true;
           }
           if (grouperConfigHibernateEl != null) {
             if (textReplaceMap.get("currentConfigPropertyName") == null) {
               textReplaceMap.put("currentConfigPropertyName", GrouperUtil.stripSuffix(grouperConfigHibernateEl.getConfigKey(), ".elConfig"));
             }
-            configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName, fromUi);
+            if (message!=null) {
+              message += "<br />";
+            }
+            message = configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName, fromUi);
             deleted = true;
           }
           if (!deleted) {
@@ -284,7 +288,7 @@ public class DbConfigEngine {
               ConfigPropertiesCascadeBase.clearCache();
             }
           }
-          return null;
+          return message;
         }
       });
       

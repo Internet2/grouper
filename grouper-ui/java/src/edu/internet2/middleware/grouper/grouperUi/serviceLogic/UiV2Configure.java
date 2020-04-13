@@ -380,7 +380,13 @@ public class UiV2Configure {
       
       
       final String configFileString = request.getParameter("configFile");
-  
+
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+
+      configurationContainer.setConfigFileName(configFileName);
+
       String propertyNameString = StringUtils.trim(request.getParameter("propertyNameName"));
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -409,6 +415,10 @@ public class UiV2Configure {
   public static void configurationFileItemDeleteHelper(GrouperConfigHibernate grouperConfigHibernate, 
       ConfigFileName configFileName, boolean fromUi) {
   
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+    
+    configurationContainer.setConfigFileName(configFileName);
+
     String message = DbConfigEngine.configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi);
     if (!StringUtils.isBlank(message) && fromUi) {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -828,6 +838,11 @@ public class UiV2Configure {
 
     GuiResponseJs guiResponseJs = fromUi ? GuiResponseJs.retrieveGuiResponseJs() : null;
     
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+    
+    ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+    configurationContainer.setConfigFileName(configFileName);
+
     List<String> errorsToDisplay = new ArrayList<String>();
     Map<String, String> validationErrorsToDisplay = new LinkedHashMap<String, String>();
     
@@ -837,7 +852,7 @@ public class UiV2Configure {
     
     if (fromUi) {
       for (String errorToDisplay: errorsToDisplay) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message.toString()));
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
       }
       for (String validationKey: validationErrorsToDisplay.keySet()) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
