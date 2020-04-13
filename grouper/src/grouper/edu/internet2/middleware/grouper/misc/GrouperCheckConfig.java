@@ -1315,7 +1315,7 @@ public class GrouperCheckConfig {
       } catch (Exception e) {
         String error = "Error finding database driver class from " + databaseDescription + ": " 
           + driverClassName
-          + ", perhaps you did not put the database driver jar in the lib/custom dir or lib dir, " +
+          + ", perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, " +
               "or you have the wrong driver listed";
         System.err.println("Grouper error: " + error + ": " + ExceptionUtils.getFullStackTrace(e));
         LOG.error(error, e);
@@ -1335,7 +1335,7 @@ public class GrouperCheckConfig {
         } catch (Exception e) {
           String error = "Error finding database driver class from spy.properties: '" 
             + driverClassName
-            + "', perhaps you did not put the database driver jar in the lib/custom dir or lib dir, " +
+            + "', perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, " +
                 "or you have the wrong driver listed";
           System.err.println("Grouper error: " + error + ": " + ExceptionUtils.getFullStackTrace(e));
           LOG.error(error, e);

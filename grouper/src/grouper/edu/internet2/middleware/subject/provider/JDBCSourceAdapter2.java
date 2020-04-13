@@ -178,7 +178,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
           String theError = error
               + "Error finding database driver class: "
               + driver
-              + ", perhaps you did not put the database driver jar in the lib/custom dir or lib dir, "
+              + ", perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, "
               + "or you have the wrong driver listed";
           System.err.println("Subject API error: " + theError + ": "
               + ExceptionUtils.getFullStackTrace(e));
@@ -203,7 +203,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
             String theError = error
                 + "Error finding database driver class from spy.properties: "
                 + driver
-                + ", perhaps you did not put the database driver jar in the lib/custom dir or lib dir, "
+                + ", perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, "
                 + "or you have the wrong driver listed";
             System.err.println("Subject API error: " + theError + ": "
                 + ExceptionUtils.getFullStackTrace(e));
