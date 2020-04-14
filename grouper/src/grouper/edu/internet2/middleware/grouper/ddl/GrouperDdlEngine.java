@@ -839,7 +839,7 @@ public class GrouperDdlEngine {
       if (!didSomething || script.length() == 0) {
         return true;
       }
-      GrouperDdlUtils.runScriptIfShould(script.toString(), runScript);
+      GrouperDdlUtils.runScriptIfShouldAndPrintOutput(script.toString(), runScript);
       return runScript;
     } finally {
       GrouperDdlUtils.insideBootstrap = false;

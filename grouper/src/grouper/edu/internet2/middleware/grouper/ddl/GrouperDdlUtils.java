@@ -796,30 +796,33 @@ public class GrouperDdlUtils {
   
       resultString = result.toString();
       
-      runScriptIfShould(resultString, runScript);
+      runScriptIfShouldAndPrintOutput(resultString, runScript);
     } finally {
       insideBootstrap = false;
     }
     return resultString;
   }
 
-  public static void runScriptIfShould(String script, boolean runScript) {
-    
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+  public static String runScriptIfShouldReturnString(String script, boolean runScript, boolean deleteFileAfterwards) {
 
     String scriptDirName = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.directory.for.scripts");
     
     File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
     GrouperUtil.saveStringIntoFile(scriptFile, script);
+    String result = runScriptFileIfShouldReturnString(scriptFile, runScript);
+    if (deleteFileAfterwards) {
+      GrouperUtil.deleteFile(scriptFile);
+    }
+    return result;
+  }
+
+  public static String runScriptFileIfShouldReturnString(File scriptFile, boolean runScript) {
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
 
     String logMessage = (runScript ? "Ran" : "Run") + " this DDL:\n" + scriptFile.getAbsolutePath();
-    if (LOG.isErrorEnabled()) {
-      LOG.error(logMessage);
-    } else {
-      System.err.println(logMessage);
-    }
+
     if (!runScript) {
-      return;
+      return logMessage;
     }
     logMessage = "";
  
@@ -875,6 +878,15 @@ public class GrouperDdlUtils {
     if (!StringUtils.isBlank(antOutput)) {
       logMessage += antOutput + "\n";
     }
+    
+    return logMessage;
+
+  }
+  
+  public static void runScriptIfShouldAndPrintOutput(String script, boolean runScript) {
+
+    String logMessage = runScriptIfShouldReturnString(script, runScript, false);
+    
     //if call from command line, print to screen
     if (LOG.isErrorEnabled()) {
       LOG.error(logMessage);

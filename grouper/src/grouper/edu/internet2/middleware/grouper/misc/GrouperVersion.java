@@ -207,20 +207,22 @@ public class GrouperVersion {
    * @param versionString
    */
   public GrouperVersion(String versionString) {
-    Matcher grouperMatcher = pattern.matcher(versionString);
-    if (!grouperMatcher.matches()) {
-      grouperMatcher = rcPattern.matcher(versionString);
+    if (versionString != null) {
+      Matcher grouperMatcher = pattern.matcher(versionString);
       if (!grouperMatcher.matches()) {
-        
-        throw new RuntimeException("Invalid grouper version: " + versionString
-            + ", expecting something like: 1.2.3 or 1.2.3rc4");
+        grouperMatcher = rcPattern.matcher(versionString);
+        if (!grouperMatcher.matches()) {
+          
+          throw new RuntimeException("Invalid grouper version: " + versionString
+              + ", expecting something like: 1.2.3 or 1.2.3rc4");
+        }
+        this.rc = GrouperUtil.intValue(grouperMatcher.group(4));
       }
-      this.rc = GrouperUtil.intValue(grouperMatcher.group(4));
+      //get the grouper versions
+      this.major = GrouperUtil.intValue(grouperMatcher.group(1));
+      this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
+      this.build = GrouperUtil.intValue(grouperMatcher.group(3));
     }
-    //get the grouper versions
-    this.major = GrouperUtil.intValue(grouperMatcher.group(1));
-    this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
-    this.build = GrouperUtil.intValue(grouperMatcher.group(3));
 
   }
   

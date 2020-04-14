@@ -37,6 +37,16 @@ public class GrouperAntProject extends Project {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperAntProject.class);
 
+  private static ThreadLocal<StringBuilder> threadLocalLog = new InheritableThreadLocal<StringBuilder>();
+  
+  public static void assignLoggingThreadLocal(StringBuilder theLog) {
+    threadLocalLog.set(theLog);
+  }
+
+  public static void clearLoggingThreadLocal() {
+    threadLocalLog.remove();
+  }
+  
   /**
    * @see org.apache.tools.ant.Project#log(java.lang.String, int)
    */
@@ -49,6 +59,9 @@ public class GrouperAntProject extends Project {
    * @see org.apache.tools.ant.Project#log(java.lang.String, java.lang.Throwable, int)
    */
   public void log(String message, Throwable throwable, int msgLevel) {
+    
+    StringBuilder externalLog = threadLocalLog.get();
+    
     message = StringUtils.trimToEmpty(message);
     if (StringUtils.isBlank(message) && throwable == null) {
       return;
@@ -60,19 +73,57 @@ public class GrouperAntProject extends Project {
       case MSG_VERBOSE:
       case MSG_INFO:
       case MSG_WARN:
-        //always log or print to screen
-        if (LOG.isWarnEnabled()) {
-          LOG.warn(message, throwable);
+        
+        // external log is for caller
+        if (externalLog != null) {
+
+          if (!StringUtils.isBlank(message)) {
+            externalLog.append(message).append("\n");
+          }
+          if (throwable != null) {
+            externalLog.append(ExceptionUtils.getFullStackTrace(throwable)).append("\n");
+          }
+          
+          //log to info because caller is doing this
+          if (LOG.isInfoEnabled()) {
+            LOG.info(message, throwable);
+          }
+          
+          
         } else {
-          System.err.println(message + (throwable == null ? "" : ("\n" + ExceptionUtils.getFullStackTrace(throwable))));
+          //always log or print to screen
+          if (LOG.isWarnEnabled()) {
+            LOG.warn(message, throwable);
+          } else {
+            System.err.println(message + (throwable == null ? "" : ("\n" + ExceptionUtils.getFullStackTrace(throwable))));
+          }
         }
         break;
       case MSG_ERR:
-        //always log or print to screen
-        if (LOG.isErrorEnabled()) {
-          LOG.error(message, throwable);
+        
+        // external log is for caller
+        if (externalLog != null) {
+
+          if (!StringUtils.isBlank(message)) {
+            externalLog.append(message).append("\n");
+          }
+          if (throwable != null) {
+            externalLog.append(ExceptionUtils.getFullStackTrace(throwable)).append("\n");
+          }
+          
+          //log to info because caller is doing this
+          if (LOG.isErrorEnabled()) {
+            LOG.error(message, throwable);
+          }
+          
+          
         } else {
-          System.err.println(message  + (throwable == null ? "" : ("\n" + ExceptionUtils.getFullStackTrace(throwable))));
+          //always log or print to screen
+          if (LOG.isErrorEnabled()) {
+            LOG.error(message, throwable);
+          } else {
+            System.err.println(message  + (throwable == null ? "" : ("\n" + ExceptionUtils.getFullStackTrace(throwable))));
+          }
         }
         break;
         
