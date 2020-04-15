@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.internal.SessionImpl;
 
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -45,6 +46,7 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
   private boolean readOnly;
   
   /**
+   * TODO at the beginning of a release (e.g. 2.6?) get rid of this and just use grouper pool
    * bean to hold connection
    */
   public static class GrouperJdbcConnectionBean implements JdbcConnectionBean {
@@ -89,16 +91,86 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
     
   }
 
+  /**
+   * bean to hold connection
+   */
+  public static class GrouperLoaderConnectionBean implements JdbcConnectionBean {
+    
+    /**
+     * connection we gave out
+     */
+    private Connection connection;
+    
+    /**
+     * connection id we are using
+     */
+    private String connectionId;
+    
+    /**
+     * construct
+     * @param theHibernateSession
+     */
+    public GrouperLoaderConnectionBean(String theConnectionId) {
+      this.connectionId = theConnectionId;
+    }
+
+    /**
+     * @see edu.internet2.middleware.subject.provider.JdbcConnectionBean#connection()
+     */
+    public Connection connection() throws SQLException {
+
+      // give out the same one?  i dont think this is an issue...
+      if (this.connection != null) {
+        GrouperUtil.closeQuietly(this.connection);
+        throw new RuntimeException("Already got a connection!");
+      }
+      this.connection = new GrouperLoaderDb(this.connectionId).connection();
+      return this.connection;
+
+    }
+
+    /**
+     * @see edu.internet2.middleware.subject.provider.JdbcConnectionBean#doneWithConnection()
+     */
+    public void doneWithConnection() throws SQLException {
+      GrouperUtil.closeQuietly(this.connection);
+    }
+
+    /**
+     * @see edu.internet2.middleware.subject.provider.JdbcConnectionBean#doneWithConnectionError(java.lang.Throwable)
+     */
+    public void doneWithConnectionError(Throwable t) {
+      GrouperUtil.closeQuietly(this.connection);
+      if (t instanceof RuntimeException) {
+        throw (RuntimeException)t;
+      }
+      throw new RuntimeException("error", t);
+    }
+
+    /**
+     * @see edu.internet2.middleware.subject.provider.JdbcConnectionBean#doneWithConnectionFinally()
+     */
+    public void doneWithConnectionFinally() {
+      GrouperUtil.closeQuietly(this.connection);
+    }
+    
+  }
+
   /** logger */
   private static Log log = GrouperUtil.getLog(GrouperJdbcConnectionProvider.class);
 
   /**
-   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(Properties, java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean)
+   * "grouper" or blank for grouper database, otherwise its the grouper-loader.properties database entry
+   */
+  private String jdbcConfigId = null;
+  
+  /**
+   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(Properties, java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean, String)
    */
   public void init(Properties properties, String sourceId, String driver, Integer maxActive, int defaultMaxActive,
       Integer maxIdle, int defaultMaxIdle, Integer maxWaitSeconds,
       int defaultMaxWaitSeconds, String dbUrl, String dbUser, String dbPassword,
-      Boolean readOnly, boolean readOnlyDefault) throws SourceUnavailableException {
+      Boolean readOnly, boolean readOnlyDefault, String theJdbcConfigId) throws SourceUnavailableException {
     
     if (!StringUtils.isBlank(driver)) {
       log.warn("shouldnt set driver for GrouperJdbcConnectionProvider: " + sourceId + ", " + driver);
@@ -130,6 +202,7 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
 
     this.readOnly = SubjectUtils.defaultIfNull(readOnly, readOnlyDefault);
     
+    this.jdbcConfigId = theJdbcConfigId;
     //nothing to do...
   }
 
@@ -138,12 +211,16 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
    */
   public JdbcConnectionBean connectionBean() throws SQLException {
     
-    GrouperTransactionType grouperTransactionType = this.readOnly ? GrouperTransactionType.READONLY_OR_USE_EXISTING 
-        : GrouperTransactionType.READ_WRITE_OR_USE_EXISTING;
-
-    HibernateSession hibernateSession = null;
-    hibernateSession = HibernateSession._internal_hibernateSession(grouperTransactionType);
-    return new GrouperJdbcConnectionBean(hibernateSession);
+    if (StringUtils.isBlank(this.jdbcConfigId) || StringUtils.equalsIgnoreCase("grouper", this.jdbcConfigId)) {
+      GrouperTransactionType grouperTransactionType = this.readOnly ? GrouperTransactionType.READONLY_OR_USE_EXISTING 
+          : GrouperTransactionType.READ_WRITE_OR_USE_EXISTING;
+  
+      HibernateSession hibernateSession = null;
+      hibernateSession = HibernateSession._internal_hibernateSession(grouperTransactionType);
+      return new GrouperJdbcConnectionBean(hibernateSession);
+    }
+    
+    return new GrouperLoaderConnectionBean(this.jdbcConfigId);
   }
 
   /**

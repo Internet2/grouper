@@ -946,6 +946,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     String dbUrl = null;
     log.debug("Initializing connection factory.");
     dbUrl = props.getProperty("dbUrl");
+
+    String jdbcConfigId = props.getProperty("jdbcConfigId");
+
     String dbUser = props.getProperty("dbUser");
     String dbPwd = props.getProperty("dbPwd");
     dbPwd = Morph.decryptIfFile(dbPwd);
@@ -974,7 +977,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
     this.jdbcConnectionProvider = SubjectUtils.newInstance(jdbcConnectionProviderClass);
     this.jdbcConnectionProvider.init(props, this.getId(), driver, maxActive, 2, maxIdle, 2,
-        maxWaitSeconds, 5, dbUrl, dbUser, dbPwd, readOnly, true);
+        maxWaitSeconds, 5, dbUrl, dbUser, dbPwd, readOnly, true, jdbcConfigId);
 
     log.info("Data Source initialized.");
     this.nameAttributeName = props.getProperty("Name_AttributeType");

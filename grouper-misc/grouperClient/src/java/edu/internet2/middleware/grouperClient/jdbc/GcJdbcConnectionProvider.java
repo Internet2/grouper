@@ -31,11 +31,13 @@ public interface GcJdbcConnectionProvider {
    * @param dbPassword password for the database (unencrypted)
    * @param readOnly if conn should be readonly
    * @param readOnlyDefault default if not specified and needed
+   * @param jdbcConfigId if blank or "grouper" then its the grouper database, otherwise its the configId
+   * in the grouper-loader.properties database entry
    * @throws SourceUnavailableException if something is not right or not available
    */
   public void init(Properties properties, String sourceId, String driver, Integer maxActive, int defaultMaxActive, Integer maxIdle, int defaultMaxIdle,
       Integer maxWaitSeconds, int defaultMaxWaitSeconds, String dbUrl, String dbUser, 
-      String dbPassword, Boolean readOnly, boolean readOnlyDefault);
+      String dbPassword, Boolean readOnly, boolean readOnlyDefault, String jdbcConfigId);
   
   /**
    * get a connection (dont close this when done, just call "doneWithConnection()"
