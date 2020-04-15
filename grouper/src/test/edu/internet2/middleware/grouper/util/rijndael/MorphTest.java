@@ -21,9 +21,12 @@ package edu.internet2.middleware.grouper.util.rijndael;
 
 import junit.textui.TestRunner;
 
+import java.io.File;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
 
 
@@ -62,6 +65,25 @@ public class MorphTest extends GrouperTest {
     assertFalse(StringUtils.equals(morphed, "whatever"));
     String unmorphed = Morph.decrypt(morphed);
     assertEquals(unmorphed, "whatever");
+  }
+  
+  /**
+   * 
+   */
+  public void testMorphFromFile() {
+    Morph.testMorphKey = "ert234mN54";
+    String morphed = Morph.encrypt("whatever");
+    File tempFile = new File(GrouperUtil.tmpDir(true) + "morph_" + GrouperUtil.uniqueId() + ".pass");
+    try {
+      GrouperUtil.saveStringIntoFile(tempFile, morphed);
+      
+      assertFalse(StringUtils.equals(morphed, "whatever"));
+  
+      String unmorphed = Morph.decryptIfFile(tempFile.getAbsolutePath());
+      assertEquals(unmorphed, "whatever");
+    } finally {    
+      GrouperUtil.deleteFile(tempFile);
+    }
   }
   
 }

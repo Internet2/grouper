@@ -532,16 +532,14 @@ public class GrouperCheckConfig {
       
       postSteps();
       
-      GrouperSession grouperSession = GrouperSession.startRootSession(false);
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-      //delegate to subject APIconfigs
-      SubjectCheckConfig.checkConfig();
+          //delegate to subject APIconfigs
+          SubjectCheckConfig.checkConfig();
           return null;
         }
       });
-      GrouperSession.stopQuietly(grouperSession);
     } finally {
       inCheckConfig = false;
     }
