@@ -1242,6 +1242,11 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       String dbUrl = props.getProperty("dbUrl");
       String dbUser = props.getProperty("dbUser");
       dbResult = dbUser + "@" + dbUrl;
+    } else { 
+      String jdbcConfigId = props.getProperty("jdbcConfigId");
+      if (!StringUtils.isBlank(jdbcConfigId)) {
+        dbResult += " " + jdbcConfigId;
+      }
     }
     String message = "subject.properties jdbc" + 
         ((this instanceof JDBCSourceAdapter2) ? "2" : "")+ " source id:   " + this.getId() + ": " + dbResult;
