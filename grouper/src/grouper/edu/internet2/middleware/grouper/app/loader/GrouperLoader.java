@@ -118,23 +118,7 @@ public class GrouperLoader {
     GrouperCheckConfig.checkGrouperLoaderConsumers();
     GrouperCheckConfig.checkGrouperLoaderOtherJobs();
     
-    //this will find all schedulable groups, and schedule them
-    GrouperLoaderType.scheduleLoads();
-    
-    GrouperLoaderType.scheduleAttributeLoads();
-    
-    GrouperLoaderType.scheduleLdapLoads();
-
-    scheduleMaintenanceJobs();
-    scheduleChangeLogJobs();
-    scheduleMessagingListeners();
-    
-    scheduleOtherJobs();
-    
-    //this will schedule ESB listener jobs if enabled
-    scheduleEsbListenerJobs();
-    
-    schedulePspFullSyncJob();
+    scheduleJobs();
     
     InstrumentationThread.startThread(GrouperContext.retrieveDefaultContext().getGrouperEngine(), null);
     
@@ -144,6 +128,37 @@ public class GrouperLoader {
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * 
+   * @return the number of changes made
+   */
+  public static int scheduleJobs() {
+    
+    int changesMade = 0;
+    
+    //this will find all schedulable groups, and schedule them
+    changesMade += GrouperLoaderType.scheduleLoads();
+    
+    changesMade += GrouperLoaderType.scheduleAttributeLoads();
+    
+    changesMade += GrouperLoaderType.scheduleLdapLoads();
+
+    changesMade += scheduleMaintenanceJobs();
+    changesMade += scheduleChangeLogJobs();
+    changesMade += scheduleMessagingListeners();
+    
+    changesMade += scheduleOtherJobs();
+    
+    //this will schedule ESB listener jobs if enabled
+    changesMade += scheduleEsbListenerJobs();
+    
+    if (schedulePspFullSyncJob()) {
+      changesMade++;
+    }
+    
+    return changesMade;
   }
 
   /**
@@ -376,28 +391,47 @@ public class GrouperLoader {
   /**
    * schedule maintenance jobs
    */
-  public static void scheduleMaintenanceJobs() {
+  public static int scheduleMaintenanceJobs() {
 
-    scheduleLogCleanerJob();
-    scheduleDailyReportJob();
-    scheduleEnabledDisabledJob();
-    scheduleBuiltinMessagingDaemonJob();
-    scheduleRulesJob();
-    scheduleGroupSyncJobs();
+    int changesMade = 0;
+    
+    if (scheduleLogCleanerJob()) {
+      changesMade++;
+    }
+    
+    if (scheduleDailyReportJob()) {
+      changesMade++;
+    }
+    if (scheduleEnabledDisabledJob()) {
+      changesMade++;
+    }
+    if (scheduleBuiltinMessagingDaemonJob()) {
+      changesMade++;
+    }
+    if (scheduleRulesJob()) {
+      changesMade++;
+    }
+    changesMade += scheduleGroupSyncJobs();
+
+    return changesMade;
   }
 
   /**
    * schedule change log jobs
    */
-  public static void scheduleChangeLogJobs() {
-    scheduleChangeLogTempToChangeLogJob();
-    scheduleChangeLogConsumers();
+  public static int scheduleChangeLogJobs() {
+    int changesMade = 0;
+    if (scheduleChangeLogTempToChangeLogJob()) {
+      changesMade++;
+    }
+    changesMade += scheduleChangeLogConsumers();
+    return changesMade;
   }
   
   /**
    * schedule maintenance job for moving records from change log to change log temp
    */
-  public static void scheduleChangeLogTempToChangeLogJob() {
+  public static boolean scheduleChangeLogTempToChangeLogJob() {
 
     String cronString = null;
 
@@ -412,8 +446,7 @@ public class GrouperLoader {
       if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.changeLogTempToChangeLog.enable", false)) {
         LOG.warn("grouper-loader.properties key: changeLog.changeLogTempToChangeLog.enable is not " +
           "filled in or false so the change log temp to change log daemon will not run");
-        scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
-        return;
+        return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
       }
       
       cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.changeLogTempToChangeLog.quartz.cron");
@@ -436,7 +469,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduleJobIfNeeded(jobDetail, trigger);
+      return scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -460,14 +493,16 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
-
+    return false;
   }
 
   /**
    * schedule change log consumer jobs
    */
-  public static void scheduleChangeLogConsumers() {
+  public static int scheduleChangeLogConsumers() {
 
+    int changesMade = 0;
+    
     //changeLog.consumer.ldappc.class = 
     //changeLog.consumer.ldappc.quartz.cron
     
@@ -538,7 +573,9 @@ public class GrouperLoader {
 
         Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerChangeLog_" + jobName, priority, cronString, null);
 
-        scheduleJobIfNeeded(jobDetail, trigger);
+        if (scheduleJobIfNeeded(jobDetail, trigger)) {
+          changesMade++;
+        }
 
       } catch (Exception e) {
 
@@ -580,7 +617,9 @@ public class GrouperLoader {
         if (jobName.startsWith(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX) && !changeLogJobNames.contains(jobName)) {
           try {
             String triggerName = "triggerChangeLog_" + jobName;
-            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+            if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
+              changesMade++;
+            }
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
@@ -619,13 +658,16 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+    return changesMade;
   }
   
   /**
    * schedule messaging listener jobs
    */
-  public static void scheduleMessagingListeners() {
+  public static int scheduleMessagingListeners() {
 
+    int changesMade = 0;
+    
     //#messaging.listener.messagingListener.class = edu.internet2.middleware.grouper.messaging.MessagingListener
     //#messaging.listener.messagingListener.quartzCron = 0 * * * * ?
 
@@ -702,7 +744,9 @@ public class GrouperLoader {
 
         Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerMessaging_" + jobName, priority, cronString, null);
 
-        scheduleJobIfNeeded(jobDetail, trigger);
+        if (scheduleJobIfNeeded(jobDetail, trigger)) {
+          changesMade++;
+        }
 
       } catch (Exception e) {
 
@@ -742,7 +786,9 @@ public class GrouperLoader {
         if (jobName.startsWith(GrouperLoaderType.GROUPER_MESSAGING_LISTENER_PREFIX) && !messagingListenerJobNames.contains(jobName)) {
           try {
             String triggerName = "triggerMessaging_" + jobName;
-            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+            if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
+              changesMade++;
+            }
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
@@ -781,12 +827,13 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+    return changesMade;
   }
   
   /**
    * schedule other jobs
    */
-  public static void scheduleOtherJobs() {
+  public static int scheduleOtherJobs() {
     
     //otherJob.duo.class = 
     //otherJob.duo.quartzCron = 
@@ -798,6 +845,8 @@ public class GrouperLoader {
     
     Set<String> otherJobNames = new HashSet<String>();
         
+    int changesMade = 0;
+    
     while (otherJobMap.size() > 0) {
             
       //get one
@@ -861,7 +910,9 @@ public class GrouperLoader {
 
         Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerOtherJob_" + jobName, priority, cronString, null);
 
-        scheduleJobIfNeeded(jobDetail, trigger);        
+        if (scheduleJobIfNeeded(jobDetail, trigger)) {
+          changesMade++;
+        }
       } catch (Exception e) {
 
         String errorMessage = "Could not schedule job: '" + jobName + "'";
@@ -902,7 +953,9 @@ public class GrouperLoader {
         if (jobName.startsWith(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX) && !otherJobNames.contains(jobName)) {
           try {
             String triggerName = "triggerOtherJob_" + jobName;
-            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+            if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
+              changesMade++;
+            }
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
@@ -941,13 +994,14 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+    return changesMade;
   }
 
 
   /**
    * schedule maintenance job
    */
-  public static void scheduleDailyReportJob() {
+  public static boolean scheduleDailyReportJob() {
 
     String cronString = null;
 
@@ -964,9 +1018,8 @@ public class GrouperLoader {
       if (StringUtils.isBlank(cronString)) {
         LOG.warn("grouper-loader.properties key: daily.report.quartz.cron is not " +
         		"filled in so the daily report will not run");
-        scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+        return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
 
-        return;
       }
       
       //at this point we have all the attributes and we know the required ones are there, and logged when 
@@ -982,8 +1035,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduleJobIfNeeded(jobDetail, trigger);
-
+      return scheduleJobIfNeeded(jobDetail, trigger);
 
     } catch (Exception e) {
       String errorMessage = "Could not schedule job: '" + GrouperLoaderType.GROUPER_REPORT + "'";
@@ -1006,13 +1058,13 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
-
+    return false;
   }
 
   /**
    * schedule rules job
    */
-  public static void scheduleRulesJob() {
+  public static boolean scheduleRulesJob() {
 
     String cronString = null;
 
@@ -1030,7 +1082,6 @@ public class GrouperLoader {
         LOG.warn("grouper.properties key: rules.enable is false " +
           "so the rules engine/daemon will not run");
         unscheduleAndReturn = true;
-        return;
       }
 
       cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("rules.quartz.cron");
@@ -1039,12 +1090,10 @@ public class GrouperLoader {
         LOG.warn("grouper-loader.properties key: rules.quartz.cron is not " +
             "filled in so the rules daemon will not run");
         unscheduleAndReturn = true;
-        return;
       }
       
       if (unscheduleAndReturn) {
-        scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
-        return;
+        return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
       }
       
       //at this point we have all the attributes and we know the required ones are there, and logged when 
@@ -1060,7 +1109,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduleJobIfNeeded(jobDetail, trigger);
+      return scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -1084,7 +1133,7 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
-
+    return false;
   }
 
 
@@ -1092,7 +1141,7 @@ public class GrouperLoader {
   /**
    * schedule enabled/disabled job
    */
-  public static void scheduleEnabledDisabledJob() {
+  public static boolean scheduleEnabledDisabledJob() {
 
     String cronString = null;
 
@@ -1109,9 +1158,8 @@ public class GrouperLoader {
       if (StringUtils.isBlank(cronString)) {
         LOG.warn("grouper-loader.properties key: changeLog.enabledDisabled.quartz.cron is not " +
             "filled in so the enabled/disabled daemon will not run");
-        scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+        return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
 
-        return;
       }
       
       //at this point we have all the attributes and we know the required ones are there, and logged when 
@@ -1127,7 +1175,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduleJobIfNeeded(jobDetail, trigger);
+      return scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -1151,13 +1199,13 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
-
+    return false;
   }
   
   /**
    * schedule enabled/disabled job
    */
-  public static void scheduleBuiltinMessagingDaemonJob() {
+  public static boolean scheduleBuiltinMessagingDaemonJob() {
 
     String cronString = null;
 
@@ -1174,9 +1222,8 @@ public class GrouperLoader {
       if (StringUtils.isBlank(cronString)) {
         LOG.warn("grouper-loader.properties key: changeLog.builtinMessagingDaemon.quartz.cron is not " +
             "filled in so the builtin messaging daemon will not run");
-        scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+        return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
 
-        return;
       }
       
       //at this point we have all the attributes and we know the required ones are there, and logged when 
@@ -1192,7 +1239,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduleJobIfNeeded(jobDetail, trigger);
+      return scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -1216,7 +1263,7 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
-
+    return false;
   }
   
   /**
@@ -1286,8 +1333,9 @@ public class GrouperLoader {
 
   /**
    * schedule maintenance job
+   * @return true if made change
    */
-  public static void scheduleLogCleanerJob() {
+  public static boolean scheduleLogCleanerJob() {
     
     //schedule daily anytime
     //6am daily: "0 0 6 * * ?"
@@ -1313,7 +1361,7 @@ public class GrouperLoader {
       
       Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerMaintenance_cleanLogs", priority, cronString, null);
 
-      scheduleJobIfNeeded(jobDetail, trigger);
+      return scheduleJobIfNeeded(jobDetail, trigger);
 
       
     } catch (Exception e) {
@@ -1337,14 +1385,16 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
-
+    return false;
   }
 
   /**
    * 
    */
-  public static void scheduleEsbListenerJobs() {
+  public static int scheduleEsbListenerJobs() {
 
+    int changesMade = 0;
+    
     int priority = 1;
     GregorianCalendar cal = new GregorianCalendar();
     cal.add(GregorianCalendar.SECOND, 5);
@@ -1404,7 +1454,9 @@ public class GrouperLoader {
           .withPriority(priority)
           .build();
 
-        scheduleJobIfNeeded(jobDetail, trg);
+        if (scheduleJobIfNeeded(jobDetail, trg)) {
+          changesMade++;
+        }
       } else {
         LOG.info("Not starting experimental HTTP(S) listener");
        
@@ -1485,7 +1537,9 @@ public class GrouperLoader {
             .withPriority(priority)
             .build();
 
-          scheduleJobIfNeeded(jobDetail, trg);
+          if (scheduleJobIfNeeded(jobDetail, trg)) {
+            changesMade++;
+          }
         } else {
           unschedule = true;
         }
@@ -1520,6 +1574,7 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+    return changesMade;
   }
   
   /**
@@ -1717,11 +1772,13 @@ public class GrouperLoader {
   /**
    * schedule rules job
    */
-  public static void scheduleGroupSyncJobs() {
+  public static int scheduleGroupSyncJobs() {
   
     Map<String, ClientGroupConfigBean> clientGroupConfigBeanCache = ClientConfig.clientGroupConfigBeanCache();
     
     Set<String> groupSyncJobNames = new HashSet<String>();
+    
+    int changesMade = 0;
     
     //loop through all of them configured
     for (String localGroupName : clientGroupConfigBeanCache.keySet()) {
@@ -1751,7 +1808,9 @@ public class GrouperLoader {
     
         Trigger trigger = grouperLoaderScheduleType.createTrigger("trigger_" + jobName, Trigger.DEFAULT_PRIORITY, clientGroupConfigBean.getCron(), null);
         
-        scheduleJobIfNeeded(jobDetail, trigger);
+        if (scheduleJobIfNeeded(jobDetail, trigger)) {
+          changesMade++;
+        }
     
     
       } catch (Exception e) {
@@ -1792,7 +1851,9 @@ public class GrouperLoader {
         if (jobName.startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC + "__") && !groupSyncJobNames.contains(jobName)) {
           try {
             String triggerName = "trigger_" + jobName;
-            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+            if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
+              changesMade++;
+            }
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
@@ -1831,12 +1892,13 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+    return changesMade;
   }
 
   /**
    * schedule psp full sync job
    */
-  public static void schedulePspFullSyncJob() {
+  public static boolean schedulePspFullSyncJob() {
   
     String cronString = null;
     
@@ -1864,8 +1926,7 @@ public class GrouperLoader {
       }
       
       if (unscheduleAndReturn) {
-        scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
-        return;
+        return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
       }
       
       LOG.info("Scheduling " + GrouperLoaderType.PSP_FULL_SYNC.name());
@@ -1883,7 +1944,7 @@ public class GrouperLoader {
   
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
   
-      scheduleJobIfNeeded(jobDetail, trigger);
+      return scheduleJobIfNeeded(jobDetail, trigger);
   
     } catch (Exception e) {
       String errorMessage = "Could not schedule job: '" + GrouperLoaderType.PSP_FULL_SYNC.name() + "'";
@@ -1906,7 +1967,7 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
-  
+    return false;
   }
   
    /**

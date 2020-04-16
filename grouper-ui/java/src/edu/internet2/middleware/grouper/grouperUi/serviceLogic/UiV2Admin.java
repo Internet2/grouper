@@ -189,6 +189,39 @@ public class UiV2Admin extends UiServiceLogicBase {
   }
   
   /**
+   * schedule jobs
+   * @param request
+   * @param response
+   */
+  public void daemonJobsSchedule(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+
+      int changesMade = GrouperLoader.scheduleJobs();
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer().setScheduleChanges(changesMade);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("adminJobScheduleSuccess")));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
    * daemon jobs
    * @param request
    * @param response
@@ -205,7 +238,9 @@ public class UiV2Admin extends UiServiceLogicBase {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      daemonJobsHelper(request, response);
+      if (!daemonJobsHelper(request, response)) {
+        return;
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminDaemonJobs.jsp"));          
       
@@ -240,7 +275,9 @@ public class UiV2Admin extends UiServiceLogicBase {
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("daemonJobsFilterShowExtendedResults", ""));
       
       //get the unfiltered jobs
-      daemonJobsHelper(request, response);
+      if (!daemonJobsHelper(request, response)) {
+        return;
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
 
@@ -265,7 +302,9 @@ public class UiV2Admin extends UiServiceLogicBase {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      daemonJobsHelper(request, response);
+      if (!daemonJobsHelper(request, response)) {
+        return;
+      }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -281,8 +320,9 @@ public class UiV2Admin extends UiServiceLogicBase {
    * show daemon jobs screen
    * @param request
    * @param response
+   * @return true if ok, false if not allowed
    */
-  private void daemonJobsHelper(HttpServletRequest request, HttpServletResponse response) {
+  private boolean daemonJobsHelper(HttpServletRequest request, HttpServletResponse response) {
         
     //initialize the bean
     GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -292,7 +332,7 @@ public class UiV2Admin extends UiServiceLogicBase {
     try {      
       //if the user is allowed
       if (!daemonJobsAllowed()) {
-        return;
+        return false;
       }
       
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
@@ -405,6 +445,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       adminContainer.setGuiDaemonJobs(guiDaemonJobs);
       
+      return true;
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }

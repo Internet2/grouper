@@ -2430,8 +2430,9 @@ public enum GrouperLoaderType {
    * @param group
    * @param jobNames
    * @param logErrorsToDb
+   * @return true if made changes
    */
-  public static void validateAndScheduleSqlLoad(Group group, Set<String> jobNames, boolean logErrorsToDb) {
+  public static boolean validateAndScheduleSqlLoad(Group group, Set<String> jobNames, boolean logErrorsToDb) {
     String jobName = null;
     String groupUuid = null;
     String grouperLoaderScheduleType = null;
@@ -2462,7 +2463,7 @@ public enum GrouperLoaderType {
       grouperLoaderIntervalSeconds = grouperLoaderTypeEnum.attributeValueValidateRequiredInteger(group, GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS);
       grouperLoaderPriority = grouperLoaderTypeEnum.attributeValueValidateRequiredInteger(group, GrouperLoader.GROUPER_LOADER_PRIORITY);
       
-      scheduleJob(jobName, false, grouperLoaderScheduleType, grouperLoaderQuartzCron,
+      return scheduleJob(jobName, false, grouperLoaderScheduleType, grouperLoaderQuartzCron,
           grouperLoaderIntervalSeconds, grouperLoaderPriority);
       
     } catch (Exception e) {
@@ -2500,6 +2501,7 @@ public enum GrouperLoaderType {
         } catch (Exception e2) {
           LOG.error("Problem logging to loader db log", e2);
         }
+        return false;
       } else {
         throw new RuntimeException(e);
       }
@@ -2508,11 +2510,14 @@ public enum GrouperLoaderType {
 
   /**
    * for all jobs in this loader type, schedule them with quartz
+   * @return number of changes made
    */
-  public static void scheduleLoads() {
+  public static int scheduleLoads() {
     
     GrouperSession grouperSession = null;
     Set<String> jobNames = new HashSet<String>();
+
+    int changesMade = 0;
     
     try {
       grouperSession = GrouperSession.startRootSession();
@@ -2520,7 +2525,9 @@ public enum GrouperLoaderType {
       Set<Group> groups = retrieveGroups(grouperSession);
       
       for (Group group : groups) {
-        validateAndScheduleSqlLoad(group, jobNames, true);
+        if (validateAndScheduleSqlLoad(group, jobNames, true)) {
+          changesMade++;
+        }
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -2540,7 +2547,9 @@ public enum GrouperLoaderType {
             jobName.startsWith(GrouperLoaderType.SQL_GROUP_LIST.name() + "__")) && !jobNames.contains(jobName)) {
           try {
             String triggerName = "triggerFor_" + jobName;
-            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+            if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
+              changesMade++;
+            }
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
@@ -2577,6 +2586,7 @@ public enum GrouperLoaderType {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+    return changesMade;
   }
     
   /**
@@ -4132,19 +4142,22 @@ public enum GrouperLoaderType {
 
   /**
    * for all attribute jobs in this loader type, schedule them with quartz
+   * @return changes made
    */
-  public static void scheduleAttributeLoads() {
+  public static int scheduleAttributeLoads() {
     
     GrouperSession grouperSession = null;
     Set<String> jobNames = new HashSet<String>();
 
+    int changesMade = 0;
+    
     try {
       grouperSession = GrouperSession.startRootSession();
 
       //lets see if there is configuration
       String attrRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
       if (StringUtils.isBlank(attrRootStem)) {
-        return;
+        return changesMade;
       }
       
       AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
@@ -4152,7 +4165,7 @@ public enum GrouperLoaderType {
       
       //see if attributeDef
       if (attributeDefName == null) {
-        return;
+        return changesMade;
       }
       
       //lets get the attributeDefs which have this type
@@ -4192,8 +4205,10 @@ public enum GrouperLoaderType {
           grouperLoaderIntervalSeconds = grouperLoaderTypeEnum.attributeValueValidateRequiredAttrDefInteger(attributeDef, GrouperLoader.ATTRIBUTE_LOADER_INTERVAL_SECONDS);
           grouperLoaderPriority = grouperLoaderTypeEnum.attributeValueValidateRequiredAttrDefInteger(attributeDef, GrouperLoader.ATTRIBUTE_LOADER_PRIORITY);
           
-          scheduleJob(jobName, false, grouperLoaderScheduleType, grouperLoaderQuartzCron,
-              grouperLoaderIntervalSeconds, grouperLoaderPriority);
+          if (scheduleJob(jobName, false, grouperLoaderScheduleType, grouperLoaderQuartzCron,
+              grouperLoaderIntervalSeconds, grouperLoaderPriority)) {
+            changesMade++;
+          }
           
         } catch (Exception e) {
           String errorMessage = null;
@@ -4250,7 +4265,9 @@ public enum GrouperLoaderType {
         if ((jobName.startsWith(GrouperLoaderType.ATTR_SQL_SIMPLE.name() + "__")) && !jobNames.contains(jobName)) {
           try {
             String triggerName = "triggerFor_" + jobName;
-            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+            if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
+              changesMade++;
+            }
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
@@ -4287,14 +4304,16 @@ public enum GrouperLoaderType {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+    return changesMade;
   }
   
   /**
    * @param attributeAssign
    * @param jobNames
    * @param logErrorsToDb
+   * @return true if made change
    */
-  public static void validateAndScheduleLdapLoad(AttributeAssign attributeAssign, Set<String> jobNames, boolean logErrorsToDb) {
+  public static boolean validateAndScheduleLdapLoad(AttributeAssign attributeAssign, Set<String> jobNames, boolean logErrorsToDb) {
     String jobName = null;
     String groupId = null;
     String grouperLoaderAndGroups = null;
@@ -4374,7 +4393,7 @@ public enum GrouperLoaderType {
       grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
           LoaderLdapUtils.grouperLoaderLdapGroupAttrUpdatersName());
       
-      scheduleJob(jobName, false, "CRON", grouperLoaderQuartzCron,
+      return scheduleJob(jobName, false, "CRON", grouperLoaderQuartzCron,
           null, grouperLoaderPriority);
       
     } catch (Exception e) {
@@ -4415,27 +4434,33 @@ public enum GrouperLoaderType {
         throw new RuntimeException(e);
       }
     }
+    return false;
   }
 
   /**
    * for all ldap jobs in this loader type, schedule them with quartz
+   * @return changes made
    */
-  public static void scheduleLdapLoads() {
+  public static int scheduleLdapLoads() {
     
     GrouperSession grouperSession = null;
     Set<String> jobNames = new HashSet<String>();
 
+    int changesMade = 0;
+    
     try {
       grouperSession = GrouperSession.startRootSession();
 
       Set<AttributeAssign> attributeAssigns = retrieveLdapAttributeAssigns();
 
       if (GrouperUtil.isBlank(attributeAssigns)) {
-        return;
+        return changesMade;
       }
       
       for (AttributeAssign attributeAssign : attributeAssigns) {
-        validateAndScheduleLdapLoad(attributeAssign, jobNames, true);
+        if (validateAndScheduleLdapLoad(attributeAssign, jobNames, true)) {
+          changesMade++;
+        }
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -4456,7 +4481,9 @@ public enum GrouperLoaderType {
             jobName.startsWith(GrouperLoaderType.LDAP_SIMPLE + "__")) && !jobNames.contains(jobName)) {
           try {
             String triggerName = "triggerFor_" + jobName;
-            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+            if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
+              changesMade++;
+            }
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
@@ -4493,6 +4520,7 @@ public enum GrouperLoaderType {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+    return changesMade;
   }
 
   public static Set<AttributeAssign> retrieveLdapAttributeAssigns() {
@@ -4524,9 +4552,9 @@ public enum GrouperLoaderType {
    * @param grouperLoaderIntervalSeconds 
    * @param grouperLoaderPriority 
    * @throws SchedulerException 
-   * 
+   * @return true if made changes
    */
-  static void scheduleJob(String jobName, boolean unschedule, String grouperLoaderScheduleType,
+  static boolean scheduleJob(String jobName, boolean unschedule, String grouperLoaderScheduleType,
       String grouperLoaderQuartzCron, Integer grouperLoaderIntervalSeconds, 
       Integer grouperLoaderPriority) throws SchedulerException {
     
@@ -4567,12 +4595,15 @@ public enum GrouperLoaderType {
       LOG.debug("Starting job " + jobName + " at " + ((SimpleTrigger)trigger).getStartTime());
     }
     
+    boolean madeChanges = false;
     if (unschedule) {
-      scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+      if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
+        madeChanges = true;
+      }
     }
-    //scheduler.unscheduleJob()
-    GrouperLoader.scheduleJobIfNeeded(jobDetail, trigger);
+    madeChanges = GrouperLoader.scheduleJobIfNeeded(jobDetail, trigger) || madeChanges;
 
+    return madeChanges;
   }
   
   /**

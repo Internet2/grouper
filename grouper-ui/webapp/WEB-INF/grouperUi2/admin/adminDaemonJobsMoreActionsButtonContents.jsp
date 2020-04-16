@@ -19,6 +19,11 @@
                         <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.jobHistoryChart'); return false;"
                             >${textContainer.text['adminJobHistoryChart'] }</a></li>
 
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobsSchedule'); return false;"
+                            >${textContainer.text['adminJobSchedule'] }</a></li>
+
+
+
                       </ul>
                     </div>
 

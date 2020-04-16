@@ -34,6 +34,16 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class AdminContainer {
 
+  private int scheduleChanges;
+  
+  public int getScheduleChanges() {
+    return scheduleChanges;
+  }
+  
+  public void setScheduleChanges(int scheduleChanges) {
+    this.scheduleChanges = scheduleChanges;
+  }
+
   private List<GuiInstrumentationDataInstance> guiInstrumentationDataInstances;
   
   private Map<String, Map<String, Long>> guiInstrumentationGraphResults;
