@@ -426,6 +426,15 @@ public class UiV2Admin extends UiServiceLogicBase {
       GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
       boolean canSeeLoader = grouperLoaderContainer.isCanSeeLoader();
 
+      if (!canSeeLoader) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("adminJobHistoryErrorNotAllowed")));
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/index/indexMain.jsp"));
+        return;
+      }
+      
       // todo return message if can't view
 
       jobHistoryChartHelper(request, response);
@@ -544,17 +553,35 @@ public class UiV2Admin extends UiServiceLogicBase {
 
       StringBuilder tooltipBuilder = new StringBuilder()
         .append(log.getJobName())
-        .append("<br/>").append("Status: ").append(log.getStatus())
-        .append("<br/>").append("Started ").append(dateFormat.format(log.getStartedTime()));
+        .append("<br/>")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipStatus"))
+        .append(": ").append(log.getStatus())
+        .append("<br/>")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipStarted"))
+        .append(": ").append(dateFormat.format(log.getStartedTime()));
       if (log.getEndedTime() != null) {
-        tooltipBuilder.append("<br/>Finished " + dateFormat.format(log.getEndedTime()));
+        tooltipBuilder.append("<br/>")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipFinished"))
+        .append(": " + dateFormat.format(log.getEndedTime()));
         Duration duration = Duration.between(log.getStartedTime().toInstant(), log.getEndedTime().toInstant());
-        tooltipBuilder.append("<br/>Elapsed:" + duration.getSeconds() + " sec");
+        tooltipBuilder.append("<br/>")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipElapsed"))
+        .append(":" + duration.getSeconds() + " ")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipSecondsSuffix"))
+        ;
       }
-      tooltipBuilder.append("<br/>i:" + log.getInsertCount())
-        .append(" u:" + log.getUpdateCount())
-        .append(" d:" + log.getDeleteCount())
-        .append(" t:" + log.getTotalCount());
+      tooltipBuilder.append("<br/>")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipInsertPrefix"))
+        .append(":" + log.getInsertCount())
+        .append(" ")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipUpdatePrefix"))
+        .append(":" + log.getUpdateCount())
+        .append(" ")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipDeletePrefix"))
+        .append(":" + log.getDeleteCount())
+        .append(" ")
+        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipTotalPrefix"))
+        .append(":" + log.getTotalCount());
 
       ganttJob.put("tooltip", tooltipBuilder.toString());
 

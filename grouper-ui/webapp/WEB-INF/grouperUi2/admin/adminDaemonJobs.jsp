@@ -7,7 +7,14 @@
                 <li class="active">${textContainer.text['adminDaemonJobsBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
-                <h1>${textContainer.text['adminDaemonJobsTitle'] }</h1>
+                <div class="row-fluid">
+              
+                <div class="span2 pull-right" id="daemonMoreActionsButtonContentsDivId">
+                  <%@ include file="adminDaemonJobsMoreActionsButtonContents.jsp"%>
+                </div>
+                <div class="span10 pull-left">
+                  <h1>${textContainer.text['adminDaemonJobsTitle'] }</h1>
+                </div>
               </div>
 
             </div>
@@ -40,13 +47,6 @@
             </script>
             <div class="row-fluid">
               <div class="span12">
-                <div class="row-fluid">
-                  <div class="span1">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Admin.jobHistoryChart');" style="white-space: nowrap;"
-                      >${textContainer.text['adminJobHistoryChart'] }</a>
-                  </div>
-                </div>
-
                 <form class="form-inline form-filter" id="daemonJobsFilterFormId"
                     onsubmit="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">
                   <div class="row-fluid">

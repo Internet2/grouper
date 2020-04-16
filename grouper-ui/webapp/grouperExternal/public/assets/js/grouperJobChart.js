@@ -17,9 +17,12 @@ var jobHistoryChartSettings = {};
 
 function jobHistoryChartInit() {
   if (jobHistoryTasks.length < 1) {
-    $('#jobHistoryChartPaneDiv').text("No data to display for this time period");
+    $('#jobHistoryChartPaneDiv').hide();
+    $('#jobHistoryNoData').show();
     return;
   }
+  $('#jobHistoryChartPaneDiv').show();
+  $('#jobHistoryNoData').hide();
 
     jobHistoryTasks.forEach(function(element){
         element.startDate = new Date(element.startDateString);
