@@ -510,6 +510,8 @@ public class USDU {
 
     Set<Member> members = new LinkedHashSet<Member>();
 
+    // removing this code that was added recently to make sure we resolve all members again to update grouper_members table
+    /*
     Set<MultiKey> resolvedSourceIdsSubjectIds = new HashSet<MultiKey>();
     
     for (Source currentSource : SourceManager.getInstance().getSources()) {
@@ -526,16 +528,19 @@ public class USDU {
         }
       }
     }
+    */
     
     for (Object m : MemberFinder.findAllUsed(s, source)) {
 
       Member member = (Member) m;
 
+      /*
       //see if in the bulk retrieve
       MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
       if (resolvedSourceIdsSubjectIds.contains(multiKey)) {
         continue;
       }
+      */
       
       if (!isMemberResolvable(s, member)) {
         members.add(member);
