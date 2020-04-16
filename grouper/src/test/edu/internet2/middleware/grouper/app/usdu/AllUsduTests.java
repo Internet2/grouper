@@ -36,6 +36,8 @@ public class AllUsduTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.usdu");
     //$JUnit-BEGIN$
     suite.addTestSuite(TestUSDU.class);
+    suite.addTestSuite(UsduJobTest.class);
+    suite.addTestSuite(UsduServiceTest.class);
     //$JUnit-END$
     return suite;
   }
