@@ -181,6 +181,11 @@ public class GrouperLoaderIncrementalJob implements Job {
         Map<String, Map<MultiKey, Row>> rowsByGroup = new LinkedHashMap<String, Map<MultiKey, Row>>();
         
         while (resultSet.next()) {
+          
+          synchronized (hib3GrouperloaderLog) {
+            hib3GrouperloaderLog.addTotalCount(1);
+          }
+          
           long id = resultSet.getLong("id");
           long timestamp = resultSet.getLong("timestamp");
           String loaderGroupName = resultSet.getString("loader_group_name");
