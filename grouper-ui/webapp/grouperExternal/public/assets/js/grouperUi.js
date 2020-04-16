@@ -872,6 +872,20 @@ function ajax(theUrl, options) {
     }
   }
 
+  if (typeof options.formElementNamesToSend != 'undefined' && options.formElementNamesToSend != null) { 
+    
+    //add additional form element names to filter based on other things on the screen 
+    var additionalFormElementNamesArray = guiSplitTrim(options.formElementNamesToSend, ","); 
+    for (var i = 0; i<additionalFormElementNamesArray.length; i++) { 
+      var additionalFormElementName = additionalFormElementNamesArray[i]; 
+
+      var element = document.getElementsByName(additionalFormElementName)[0];
+      
+      options.requestParams[element.name] = guiFieldValues(element);
+    } 
+  } 
+
+  
   //add owasp token
   
   

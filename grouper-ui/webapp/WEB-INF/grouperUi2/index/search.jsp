@@ -3,12 +3,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
             <div class="bread-header-container">
-              <%--
-              <ul class="breadcrumb">
-                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li class="active">Search Results</li>
-              </ul>
-              --%>
               <ul class="breadcrumb">
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['searchBreadcrumb'] }</li>
@@ -20,14 +14,9 @@
             </div>
             <div class="row-fluid">
               <div class="span12">
-                <form class="form-inline form-small form-filter" id="searchPageForm"
-                    onsubmit="ajax('../app/UiV2Main.searchFormSubmit', {formIds: 'searchPageForm'}); return false;">
+                <form class="form-inline form-small form-filter" id="searchPageForm" name="searchPageFormName"
+                    onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery,filterType'});">
                   <div class="row-fluid">
-	             	 <%-- HJ 20150319
-                    <div class="span2">
-                      <label for="searchFormSearch">Search for:</label>
-                    </div>
-	            	 --%>                 
                     <div class="span2">
                       <label for="searchFormSearch">${textContainer.text['find.search-for'] }</label>
                     </div>
@@ -36,11 +25,6 @@
                     </div>
                   </div>
                   <div class="row-fluid" style="margin-top: 5px">
-	             	 <%-- HJ 20150319
-                    <div class="span2">
-                      <label for="people-filter">Filter for:</label>
-                    </div>
-	            	 --%>                 
                     <div class="span2">
                       <label for="people-filter">${textContainer.text['groupFilterFor'] }</label>
                     </div>
@@ -58,7 +42,7 @@
                   </div>
                   <div class="form-actions">
                     <div class="span2">&nbsp;</div>
-                    <a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Main.searchFormSubmit', {formIds: 'searchPageForm'}); return false;">${textContainer.text['searchButton'] }</a>
+                    <a href="#" class="btn btn-primary" onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery,filterType'});">${textContainer.text['searchButton'] }</a>
                     &nbsp;
                     <a href="#" onclick="ajax('../app/UiV2Main.searchReset'); return false;" class="btn btn-cancel">${textContainer.text['searchResetButton'] }</a>
                   </div>

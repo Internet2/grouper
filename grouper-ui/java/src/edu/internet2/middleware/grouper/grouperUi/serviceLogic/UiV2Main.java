@@ -122,7 +122,9 @@ public class UiV2Main extends UiServiceLogicBase {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
       String searchQuery = StringUtils.trimToEmpty(request.getParameter("searchQuery"));
-      
+      String searchQuery2 = StringUtils.trimToEmpty(request.getParameter("searchQuery2"));
+      searchQuery = StringUtils.defaultIfBlank(searchQuery, searchQuery2);
+
       IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
       
       indexContainer.setSearchQuery(searchQuery);
@@ -130,8 +132,13 @@ public class UiV2Main extends UiServiceLogicBase {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/index/search.jsp"));
 
-      searchHelper(request, response);
+//      GRP-2677: Have searchQuery submit query by URL
+//      guiResponseJs.addAction(GuiScreenAction.newScript("$('#searchQueryId').val($('#searchQueryTopId').val());"));
+//      guiResponseJs.addAction(GuiScreenAction.newScript("if ($('#searchQueryId').val().length>0) { $('#searchPageForm').submit(); }"));
+//      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("searchQueryTop", ""));
       
+      searchHelper(request, response);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -147,6 +154,8 @@ public class UiV2Main extends UiServiceLogicBase {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     String searchQuery = StringUtils.trimToEmpty(request.getParameter("searchQuery"));
+    String searchQuery2 = StringUtils.trimToEmpty(request.getParameter("searchQuery2"));
+    searchQuery = StringUtils.defaultIfBlank(searchQuery, searchQuery2);
     
     IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
     
@@ -156,7 +165,7 @@ public class UiV2Main extends UiServiceLogicBase {
 
       guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#searchQueryId",
           TextContainer.retrieveFromRequest().getText().get("searchErrorNotEnoughChars")));
-      
+        
       //clear out the results
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsId", ""));
 
