@@ -102,8 +102,19 @@ public class Morph {
       throw new RuntimeException("You must have a decrypt key in the morphString.properties file under " + ENCRYPT_KEY);
     }
     
+    String fileNamePossibly = decryptKey;
+    
     decryptKey = GrouperClientUtils.readFromFileIfFileUtf8(decryptKey, false);
     
+    if (MorphStringConfig.retrieveConfig().propertyValueBoolean("encrypt.trimWhitespaceFromMorphSecretFile", true)) {
+      decryptKey = GrouperClientUtils.trim(decryptKey);
+    }
+
+    if (GrouperClientUtils.isBlank(decryptKey)) {
+      throw new RuntimeException("You must have a decrypt key in the morphString.properties file under " 
+          + ENCRYPT_KEY + " and if using external file, must have a key in the file: '" + fileNamePossibly + "'");
+    }
+
     return decryptKey + "w";
   }
 

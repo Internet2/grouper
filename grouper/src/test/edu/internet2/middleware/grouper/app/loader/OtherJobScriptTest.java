@@ -35,11 +35,16 @@ public class OtherJobScriptTest extends GrouperTest {
   
   public void testSqlScriptSource() {
     
+    GrouperLoader.scheduleJobs();
+    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.scriptSql.class", "edu.internet2.middleware.grouper.app.loader.OtherJobScript");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.scriptSql.quartzCron", "0 0 0 * * ?");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.scriptSql.scriptType", "sql");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.scriptSql.scriptSource", "update grouper_groups set description = 'whatever';$newline$update grouper_stems set description = 'whatever';$newline$commit;");
 
+    assertEquals(1, GrouperLoader.scheduleJobs());
+    assertEquals(0, GrouperLoader.scheduleJobs());
+    
     OtherJobScript otherJobScript = new OtherJobScript();
     otherJobScript.execute("OTHER_JOB_scriptSql", null);
     
