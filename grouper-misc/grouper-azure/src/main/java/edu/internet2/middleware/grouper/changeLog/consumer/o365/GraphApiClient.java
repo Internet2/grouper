@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.changeLog.consumer.o365;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.*;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group.Visibility;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
@@ -31,13 +32,18 @@ public class GraphApiClient {
     private final OkHttpClient graphApiHttpClient;
     private final OkHttpClient graphTokenHttpClient;
     private final Office365ChangeLogConsumer.AzureGroupType azureGroupType;
+    private final Visibility visibility;
 
-    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope, Office365ChangeLogConsumer.AzureGroupType azureGroupType, String proxyType, String proxyHost, Integer proxyPort) {
+    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope,
+                          Office365ChangeLogConsumer.AzureGroupType azureGroupType,
+                          Visibility visibility,
+                          String proxyType, String proxyHost, Integer proxyPort) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.tenantId = tenantId;
         this.scope = scope;
         this.azureGroupType = azureGroupType;
+        this.visibility = visibility;
 
         final Proxy proxy;
 
@@ -200,7 +206,8 @@ public class GraphApiClient {
                             mailNickname,
                             securityEnabled,
                             groupTypes,
-                            description
+                            description,
+                            visibility
                     )
             ));
 

@@ -64,7 +64,8 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
     changeLog.consumer.o365.clientSecret = @o365.clientSecret@
     #changeLog.consumer.o365.idAttribute =
     #changeLog.consumer.o365.groupJexl =
-    #changeLog.consumer.o365.groupType = Security
+    #changeLog.consumer.o365.groupType = [Security* | Unified]
+    #changeLog.consumer.o365.visibility = [Public* | Private | Hiddenmembership]
     #changeLog.consumer.o365.proxyType = [http | socks]
     #changeLog.consumer.o365.proxyHost =
     #changeLog.consumer.o365.proxyPort =
@@ -88,6 +89,10 @@ will remove the initial prefix "app:azure:" from the group path, and replace all
 The optional `groupType` property can set the provisioned groups as either a security group (`groupType = Security`)
 or an Office 365 group (`groupType = Unified`). If not set, the default will be a security group. Mail-enabled groups
 are not currently available, as they cannot be set through the Microsoft web service API.
+
+For a Unified group provisioner only, the `visibility` property sets the Office 365 visibility. Possible values are Public (default),
+Private, or Hiddenmembership. See [Microsoft's documentation on the option](https://docs.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#group-visibility-options)
+for more information.
 
 If the daemon server requires a proxy to access the internet, a HTTP or SOCKS proxy can be defined using proxyType,
 proxyHost, and proxyPort. Currently, the SOCKS5 proxy only supports anonymous access.

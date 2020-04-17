@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.GraphApiClient;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group.Visibility;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.User;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.subject.Subject;
@@ -65,6 +66,21 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
             logger.error("Invalid option for property " + CONFIG_PREFIX + name + ".groupType: " + groupTypeString + " - reverting to type " + groupType.name());
         }
 
+        Visibility visibility = null;
+        String visibilityString = config.propertyValueString(CONFIG_PREFIX + name + ".visibility");
+        if (visibilityString != null) {
+            if (groupType == AzureGroupType.Unified) {
+                try {
+                    visibility = Visibility.valueOf(visibilityString);
+                } catch (IllegalArgumentException e) {
+                    visibility = Visibility.Public;
+                    logger.error("Invalid option for property " + CONFIG_PREFIX + name + ".visibility: " + visibilityString + " - reverting to type " + visibility.name());
+                }
+            } else {
+                logger.error("Property " + CONFIG_PREFIX + name + ".visibility is only valid for Unified group type -- ignoring");
+            }
+        }
+
         String proxyType = config.propertyValueString(CONFIG_PREFIX + name + ".proxyType");
         String proxyHost;
         Integer proxyPort;
@@ -77,7 +93,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         }
 
         this.grouperSession = GrouperSession.startRootSession();
-        this.apiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope, groupType, proxyType, proxyHost, proxyPort);
+        this.apiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope, groupType, visibility, proxyType, proxyHost, proxyPort);
 
         return super.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
     }
