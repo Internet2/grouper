@@ -38,6 +38,7 @@ public class AllUsduTests {
     suite.addTestSuite(TestUSDU.class);
     suite.addTestSuite(UsduJobTest.class);
     suite.addTestSuite(UsduServiceTest.class);
+    suite.addTestSuite(UsduJobProvisionerSyncTest.class);
     //$JUnit-END$
     return suite;
   }

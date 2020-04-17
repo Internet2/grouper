@@ -496,7 +496,7 @@ public class USDU {
 
     return list2priv.get(field.getName());
   }
-
+  
   /**
    * Find members whose subjects can not be found by their source.
    * 
@@ -507,6 +507,21 @@ public class USDU {
    * @return unresolvable members
    */
   public static Set<Member> getUnresolvableMembers(GrouperSession s, Source source) {
+    return getUnresolvableMembers(s, source, null);
+  }
+
+  /**
+   * Find members whose subjects can not be found by their source.
+   * 
+   * @param s
+   *          GrouperSession
+   * @param source
+   *          if null will find members from all sources
+   * @param memberIdToSubjectMap 
+   *          if you'd like this map filled with subjects as they are resolved
+   * @return unresolvable members
+   */
+  public static Set<Member> getUnresolvableMembers(GrouperSession s, Source source, Map<String, Subject> memberIdToSubjectMap) {
 
     Set<Member> members = new LinkedHashSet<Member>();
 
@@ -542,14 +557,14 @@ public class USDU {
       }
       */
       
-      if (!isMemberResolvable(s, member)) {
+      if (!isMemberResolvable(s, member, memberIdToSubjectMap)) {
         members.add(member);
       }
     }
 
     return members;
   }
-
+  
   /**
    * Check if this member's subject can be found in a source.
    * 
@@ -558,6 +573,18 @@ public class USDU {
    * @return Boolean true if member's subject is found in source
    */
   public static boolean isMemberResolvable(GrouperSession s, Member member) {
+    return isMemberResolvable(s, member, null);
+  }
+
+  /**
+   * Check if this member's subject can be found in a source.
+   * 
+   * @param s
+   * @param member
+   * @param memberIdToSubjectMap if you'd like this map filled with subjects as they are resolved
+   * @return Boolean true if member's subject is found in source
+   */
+  public static boolean isMemberResolvable(GrouperSession s, Member member, Map<String, Subject> memberIdToSubjectMap) {
 
     /*
      * Speedup ala Gary Brown: Calling member.getSubject() causes a
@@ -578,7 +605,10 @@ public class USDU {
     try {
       // Changed because member.getSubject now always returns a LazySubject
       //member.getSubject();
-      SubjectFinder.findByIdAndSource(member.getSubjectId(),member.getSubjectSourceId(), true);
+      Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(),member.getSubjectSourceId(), true);
+      if (memberIdToSubjectMap != null) {
+        memberIdToSubjectMap.put(member.getId(), subject);
+      }
       return true;
     } catch (SubjectNotFoundException e) {
       return false;
