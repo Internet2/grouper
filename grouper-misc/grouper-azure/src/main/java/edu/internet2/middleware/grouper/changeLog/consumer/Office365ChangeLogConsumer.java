@@ -31,16 +31,10 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
     public static final String GROUP_ID_ATTRIBUTE_NAME = "etc:attribute:office365:o365Id";
 
     private GraphApiClient apiClient;
-    private String clientId;
-    private String clientSecret;
     private String tenantId;
-    private String scope;
     private String idAttribute;
     private String domain;
     private String groupJexl;
-    private String proxyType;
-    private String proxyHost;
-    private Integer proxyPort;
 
     private GrouperSession grouperSession;
 
@@ -54,10 +48,10 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         String name = changeLogProcessorMetadata.getConsumerName();
         GrouperLoaderConfig config = GrouperLoaderConfig.retrieveConfig();
 
-        this.clientId = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".clientId");
-        this.clientSecret = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".clientSecret");
+        String clientId = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".clientId");
+        String clientSecret = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".clientSecret");
         this.tenantId = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".tenantId");
-        this.scope = config.propertyValueString(CONFIG_PREFIX + name + ".scope", "https://graph.microsoft.com/.default");
+        String scope = config.propertyValueString(CONFIG_PREFIX + name + ".scope", "https://graph.microsoft.com/.default");
         this.idAttribute = config.propertyValueString(CONFIG_PREFIX + name + ".idAttribute", DEFAULT_ID_ATTRIBUTE);
         this.domain = config.propertyValueString(CONFIG_PREFIX + name + ".domain", this.tenantId);
         this.groupJexl = config.propertyValueString(CONFIG_PREFIX + name + ".groupJexl");
@@ -71,10 +65,12 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
             logger.error("Invalid option for property " + CONFIG_PREFIX + name + ".groupType: " + groupTypeString + " - reverting to type " + groupType.name());
         }
 
-        this.proxyType = config.propertyValueString(CONFIG_PREFIX + name + ".proxyType");
-        if (this.proxyType != null) {
-            this.proxyHost = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".proxyHost");
-            this.proxyPort = config.propertyValueIntRequired(CONFIG_PREFIX + name + ".proxyPort");
+        String proxyType = config.propertyValueString(CONFIG_PREFIX + name + ".proxyType");
+        String proxyHost;
+        Integer proxyPort;
+        if (proxyType != null) {
+            proxyHost = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".proxyHost");
+            proxyPort = config.propertyValueIntRequired(CONFIG_PREFIX + name + ".proxyPort");
         } else {
             proxyHost = null;
             proxyPort = null;
