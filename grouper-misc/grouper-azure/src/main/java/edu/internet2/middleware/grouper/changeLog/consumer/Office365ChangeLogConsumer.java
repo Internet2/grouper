@@ -37,8 +37,11 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
     private final String scope;
     private final String idAttribute;
     private final String domain;
-
     private final String groupJexl;
+
+    private final String proxyType;
+    private final String proxyHost;
+    private final Integer proxyPort;
 
     private final GrouperSession grouperSession;
 
@@ -53,14 +56,20 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         this.scope = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".scope", "https://graph.microsoft.com/.default");
         this.idAttribute = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".idAttribute", DEFAULT_ID_ATTRIBUTE);
         this.domain = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".domain", this.tenantId);
-
         this.groupJexl = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".groupJexl");
 
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        this.proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".proxyType");
+
+        if (this.proxyType != null) {
+            this.proxyHost = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(CONFIG_PREFIX + name + ".proxyHost");
+            this.proxyPort = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired(CONFIG_PREFIX + name + ".proxyPort");
+        } else {
+            proxyHost = null;
+            proxyPort = null;
+        }
 
         this.grouperSession = GrouperSession.startRootSession();
-        this.apiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope,  grouperSession);
+        this.apiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope, proxyType, proxyHost, proxyPort);
     }
 
     private String getJexlGroupName(Object group) {

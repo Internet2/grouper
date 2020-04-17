@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.changeLog.consumer.o365;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.*;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
@@ -11,6 +10,8 @@ import org.apache.log4j.Logger;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.io.IOException;
 import java.util.*;
 
@@ -25,14 +26,71 @@ public class GraphApiClient {
     private final String scope;
     private final Office365GraphApiService service;
     String token = null;
+    private final OkHttpClient graphApiHttpClient;
+    private final OkHttpClient graphTokenHttpClient;
 
-    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope, GrouperSession grouperSession) {
+    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope, String proxyType, String proxyHost, Integer proxyPort) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.tenantId = tenantId;
         this.scope = scope;
 
-        // without our logger, this defaults to java.util.logging which is stdout
+        final Proxy proxy;
+
+        if (proxyType == null) {
+            proxy = null; // probably works too: Proxy.NO_PROXY
+        } else if ("http".equals(proxyType)) {
+            proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyHost, proxyPort));
+        } else if ("socks".equals(proxyType)) {
+            proxy = new Proxy(Proxy.Type.SOCKS,new InetSocketAddress(proxyHost, proxyPort));
+        } else {
+            logger.warn("Unable to determine proxy type from '" + proxyType + "'; Valid proxy types for this consumer are 'http' or 'socks'");
+            proxy = null;
+        }
+
+        graphTokenHttpClient = buildBaseOkHttpClient(proxy);
+        graphApiHttpClient = buildGraphOkHttpClient(graphTokenHttpClient);
+
+        RetrofitWrapper retrofit = buildRetrofit(graphApiHttpClient);
+
+        this.service = retrofit.create(Office365GraphApiService.class);
+    }
+
+    protected RetrofitWrapper buildRetrofit(OkHttpClient okHttpClient) {
+        return new RetrofitWrapper((new Retrofit
+                .Builder()
+                .baseUrl("https://graph.microsoft.com/v1.0/")
+                .addConverterFactory(MoshiConverterFactory.create())
+                .client(okHttpClient)
+                .build()));
+    }
+
+    protected RetrofitWrapper buildRetrofitAuth(OkHttpClient okHttpClient) {
+        return new RetrofitWrapper((new Retrofit
+                .Builder()
+                .baseUrl("https://login.microsoftonline.com/" + this.tenantId + "/")
+                .addConverterFactory(MoshiConverterFactory.create())
+                .client(okHttpClient)
+                .build()));
+    }
+
+    protected OkHttpClient buildBaseOkHttpClient(Proxy proxy) {
+        logger.trace("Building OkHttpClient: proxy=" + proxy);
+
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+        if (proxy != null) {
+            builder.proxy(proxy);
+        }
+
+        return builder.build();
+    }
+
+    /*
+     * customize a shared OkHttpClient instance, which will share the same connection pool, thread pools, and
+     * configuration as the parent
+     */
+    protected OkHttpClient buildGraphOkHttpClient(OkHttpClient okHttpClient) {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor((msg) -> {
             logger.debug(msg);
         });
@@ -40,48 +98,23 @@ public class GraphApiClient {
         // strips out the Bearer token and replaces with U+2588 (a black square)
         loggingInterceptor.redactHeader("Authorization");
 
-        RetrofitWrapper retrofit = buildRetroFit(loggingInterceptor);
-
-        this.service = retrofit.create(Office365GraphApiService.class);
-    }
-
-    protected RetrofitWrapper buildRetroFit(HttpLoggingInterceptor loggingInterceptor) {
-        if (loggingInterceptor != null) {
-            logger.trace("using client to build retrofit.");
-            OkHttpClient client = buildOkHttpClient(loggingInterceptor);
-            return new RetrofitWrapper((new Retrofit
-                    .Builder()
-                    .baseUrl("https://graph.microsoft.com/v1.0/")
-                    .addConverterFactory(MoshiConverterFactory.create())
-                    .client(client)
-                    .build()));
-        } else {
-            logger.trace("not using client to build retrofit.");
-            Retrofit data = new Retrofit.Builder()
-                .baseUrl("https://login.microsoftonline.com/" + this.tenantId + "/")
-                .addConverterFactory(MoshiConverterFactory.create())
-                .build();
-            return new RetrofitWrapper(data);
-        }
-    }
-
-    protected OkHttpClient buildOkHttpClient(HttpLoggingInterceptor loggingInterceptor) {
-        return new OkHttpClient.Builder()
+        return okHttpClient.newBuilder()
                 .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request().newBuilder().header("Authorization", "Bearer " + token).build();
-                        return chain.proceed(request);
-                    }
-                })
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Request request = chain.request().newBuilder().header("Authorization", "Bearer " + token).build();
+                    return chain.proceed(request);
+                }
+            })
                 .addInterceptor(loggingInterceptor)
                 .build();
     }
 
+
     public String getToken() throws IOException {
         logger.debug("Token client ID: " + this.clientId);
         logger.debug("Token tenant ID: " + this.tenantId);
-        RetrofitWrapper retrofit = buildRetroFit(null);
+        RetrofitWrapper retrofit = buildRetrofitAuth(this.graphTokenHttpClient);
         Office365AuthApiService service = retrofit.create(Office365AuthApiService.class);
         retrofit2.Response<OAuthTokenInfo> response = service.getOauth2Token(
                 "client_credentials",

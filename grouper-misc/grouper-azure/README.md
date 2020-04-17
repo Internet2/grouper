@@ -52,7 +52,7 @@ attribute assignment, provisioning will not occur).
 2. Configure loader job in `grouper-loader.properties`. Note that you will need to set up an application with access to your domain.
 See documentation at [http://graph.microsoft.io/en-us/docs].
 
-    ```
+```
     changeLog.consumer.o365.class = edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogConsumer
     # fire every 5 seconds
     changeLog.consumer.o365.quartzCron =  0,5,10,15,20,25,30,35,40,45,50,55 * * * * ?
@@ -63,23 +63,28 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
     changeLog.consumer.o365.clientSecret = @o365.clientSecret@
     #changeLog.consumer.o365.idAttribute =
     #changeLog.consumer.o365.groupJexl =
+    #changeLog.consumer.o365.proxyType = [http | socks]
+    #changeLog.consumer.o365.proxyHost =
+    #changeLog.consumer.o365.proxyPort =
+```
 
-    ```
+Replace `@o365.tenantId@`, `@o365.clientId@` and `@o365.clientSecret@` with appropriate values from the application configuration.
 
-    Replace `@o365.tenantId@`, `@o365.clientId@` and `@o365.clientSecret@` with appropriate values from the application configuration.
+The property `idAttribute` specifies what attribute is used to build the Azure user principal, and will default to "uid" if not set.
+The Azure principal will get built as idattribute + "@" + tenantId. Whatever attribute is used must be available as a key as
+returned in `subject.getAttributes()`; i.e., if you want to use the subject's id or identifier, it needs to be defined in the
+subject attributes too.
 
-    The property `idAttribute` specifies what attribute is used to build the Azure user principal, and will default to "uid" if not set.
-    The Azure principal will get built as idattribute + "@" + tenantId. Whatever attribute is used must be available as a key as
-    returned in `subject.getAttributes()`; i.e., if you want to use the subject's id or identifier, it needs to be defined in the
-    subject attributes too.
+If `groupJexl` is defined, it will be used to calculate the Azure group name, instead of the group name including
+the path. The variable `group` is available within the jexl scriptlet to represent the group object. Brackets are
+not needed around the scriptlet. For example:
 
-    If `groupJexl` is defined, it will be used to calculate the Azure group name, instead of the group name including
-    the path. The variable `group` is available within the jexl scriptlet to represent the group object. Brackets are
-    not needed around the scriptlet. For example:
+`group.name.replaceAll("^app:azure:", "").replaceAll(":", "_")`
 
-        `group.name.replaceAll("^app:azure:", "").replaceAll(":", "_")`
+will remove the initial prefix "app:azure:" from the group path, and replace all folder separators with underscores.
 
-    will remove the initial prefix "app:azure:" from the group path, and replace all folder separators with underscores.
+If the daemon server requires a proxy to access the internet, a HTTP or SOCKS proxy can be defined using proxyType,
+proxyHost, and proxyPort. Currently, the SOCKS5 proxy only supports anonymous access.
 
 # Office 365 Notes
 
