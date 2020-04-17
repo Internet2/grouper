@@ -8,11 +8,11 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.GraphApiClient;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.User;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.subject.Subject;
-import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
@@ -29,48 +29,61 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
     private static final String CONFIG_PREFIX = "changeLog.consumer.";
     private static final String DEFAULT_ID_ATTRIBUTE = "uid";
     public static final String GROUP_ID_ATTRIBUTE_NAME = "etc:attribute:office365:o365Id";
-    private final GraphApiClient apiClient;
 
-    private String token = null;
-    private final String clientId;
-    private final String clientSecret;
-    private final String tenantId;
-    private final String scope;
-    private final String idAttribute;
-    private final String domain;
-    private final String groupJexl;
+    private GraphApiClient apiClient;
+    private String clientId;
+    private String clientSecret;
+    private String tenantId;
+    private String scope;
+    private String idAttribute;
+    private String domain;
+    private String groupJexl;
+    private String proxyType;
+    private String proxyHost;
+    private Integer proxyPort;
 
-    private final String proxyType;
-    private final String proxyHost;
-    private final Integer proxyPort;
-
-    private final GrouperSession grouperSession;
+    private GrouperSession grouperSession;
 
     private final JexlEngine jexlEngine = new JexlEngine();
 
-    public Office365ChangeLogConsumer() {
-        // TODO: this.getConsumerName() isn't working for some reason. track down
-        String name = this.getConsumerName() != null ? this.getConsumerName() : "o365";
-        this.clientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(CONFIG_PREFIX + name + ".clientId");
-        this.clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(CONFIG_PREFIX + name + ".clientSecret");
-        this.tenantId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(CONFIG_PREFIX + name + ".tenantId");
-        this.scope = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".scope", "https://graph.microsoft.com/.default");
-        this.idAttribute = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".idAttribute", DEFAULT_ID_ATTRIBUTE);
-        this.domain = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".domain", this.tenantId);
-        this.groupJexl = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".groupJexl");
+    public enum AzureGroupType {Security, Unified, MailEnabled, MailEnabledSecurity}
 
-        this.proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString(CONFIG_PREFIX + name + ".proxyType");
+    @Override
+    public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
+                                        ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+        String name = changeLogProcessorMetadata.getConsumerName();
+        GrouperLoaderConfig config = GrouperLoaderConfig.retrieveConfig();
 
+        this.clientId = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".clientId");
+        this.clientSecret = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".clientSecret");
+        this.tenantId = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".tenantId");
+        this.scope = config.propertyValueString(CONFIG_PREFIX + name + ".scope", "https://graph.microsoft.com/.default");
+        this.idAttribute = config.propertyValueString(CONFIG_PREFIX + name + ".idAttribute", DEFAULT_ID_ATTRIBUTE);
+        this.domain = config.propertyValueString(CONFIG_PREFIX + name + ".domain", this.tenantId);
+        this.groupJexl = config.propertyValueString(CONFIG_PREFIX + name + ".groupJexl");
+
+        AzureGroupType groupType;
+        String groupTypeString = config.propertyValueString(CONFIG_PREFIX + name + ".groupType", AzureGroupType.Security.name());
+        try {
+            groupType = AzureGroupType.valueOf(groupTypeString);
+        } catch (IllegalArgumentException e) {
+            groupType = AzureGroupType.Security;
+            logger.error("Invalid option for property " + CONFIG_PREFIX + name + ".groupType: " + groupTypeString + " - reverting to type " + groupType.name());
+        }
+
+        this.proxyType = config.propertyValueString(CONFIG_PREFIX + name + ".proxyType");
         if (this.proxyType != null) {
-            this.proxyHost = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(CONFIG_PREFIX + name + ".proxyHost");
-            this.proxyPort = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired(CONFIG_PREFIX + name + ".proxyPort");
+            this.proxyHost = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".proxyHost");
+            this.proxyPort = config.propertyValueIntRequired(CONFIG_PREFIX + name + ".proxyPort");
         } else {
             proxyHost = null;
             proxyPort = null;
         }
 
         this.grouperSession = GrouperSession.startRootSession();
-        this.apiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope, proxyType, proxyHost, proxyPort);
+        this.apiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope, groupType, proxyType, proxyHost, proxyPort);
+
+        return super.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
     }
 
     private String getJexlGroupName(Object group) {
@@ -117,10 +130,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
 
         retrofit2.Response response = apiClient.addGroup(
                         this.getJexlGroupName(group),
-                        false,
                         group.getUuid(),
-                        true,
-                        new ArrayList<String>(),
                         group.getId()
                 );
 

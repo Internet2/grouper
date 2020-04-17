@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogCon
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.*;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.log4j.Logger;
@@ -29,12 +30,14 @@ public class GraphApiClient {
     String token = null;
     private final OkHttpClient graphApiHttpClient;
     private final OkHttpClient graphTokenHttpClient;
+    private final Office365ChangeLogConsumer.AzureGroupType azureGroupType;
 
-    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope, String proxyType, String proxyHost, Integer proxyPort) {
+    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope, Office365ChangeLogConsumer.AzureGroupType azureGroupType, String proxyType, String proxyHost, Integer proxyPort) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.tenantId = tenantId;
         this.scope = scope;
+        this.azureGroupType = azureGroupType;
 
         final Proxy proxy;
 
@@ -169,14 +172,31 @@ public class GraphApiClient {
         throw new IOException("Retry failed for: " + call.request().url());
     }
 
-    public retrofit2.Response addGroup(String displayName, boolean mailEnabled, String mailNickname, boolean securityEnabled, Collection<String> groupTypes, String description) {
-        logger.debug("Creating group " + displayName);
+    public retrofit2.Response addGroup(String displayName, String mailNickname, String description) {
+        logger.debug("Creating group " + displayName + ", group type: " + this.azureGroupType.name());
+        boolean securityEnabled;
+        Collection<String> groupTypes = new ArrayList<>();
+
+        switch (this.azureGroupType) {
+            case Security:
+                securityEnabled = true;
+                break;
+            case Unified:
+                groupTypes.add("Unified");
+                securityEnabled = false;
+                break;
+            case MailEnabled:
+            case MailEnabledSecurity:
+                throw new UnableToPerformException("Mail enabled Azure groups are currently not supported");
+            default:
+                throw new IllegalStateException("Unexpected value: " + this.azureGroupType);
+        }
         try {
             return invoke(this.service.createGroup(
                     new edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group(
                             null,
                             displayName,
-                            mailEnabled,
+                            false,
                             mailNickname,
                             securityEnabled,
                             groupTypes,

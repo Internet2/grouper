@@ -2,7 +2,8 @@
 
 This project is an Internet2 Grouper connector that synchronizes Grouper groups and users to Microsoft Azure Active Directory/Office 365.
 
-Note that this currently only supports security groups. Support for other group types is planned.
+This currently only supports security or Office 365 (unified) groups. Support for mail-enabled groups is unavailable due
+to lack of support in the Microsoft API.
 
 # Installing
 
@@ -29,7 +30,7 @@ Note that this currently only supports security groups. Support for other group 
 
 # Configuring
 
-The provisioning attribute to add to the provisionable object is `etc:attribute:office365:o365Sync`. If set on a folder,
+The provisioning attribute to add to the provisionable object is, by default, `etc:attribute:office365:o365Sync`. If set on a folder,
 all groups under this folder (recursively) will be automatically provisioned. Alternatively, the attribute can be set on
 an individual group. _It is not recommended to assign directly to a group_, as there is currently a race condition that
 may occur in the current version of this code (i.e., if the changelog consumer runs after group creation but before
@@ -63,6 +64,7 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
     changeLog.consumer.o365.clientSecret = @o365.clientSecret@
     #changeLog.consumer.o365.idAttribute =
     #changeLog.consumer.o365.groupJexl =
+    #changeLog.consumer.o365.groupType = Security
     #changeLog.consumer.o365.proxyType = [http | socks]
     #changeLog.consumer.o365.proxyHost =
     #changeLog.consumer.o365.proxyPort =
@@ -83,8 +85,41 @@ not needed around the scriptlet. For example:
 
 will remove the initial prefix "app:azure:" from the group path, and replace all folder separators with underscores.
 
+The optional `groupType` property can set the provisioned groups as either a security group (`groupType = Security`)
+or an Office 365 group (`groupType = Unified`). If not set, the default will be a security group. Mail-enabled groups
+are not currently available, as they cannot be set through the Microsoft web service API.
+
 If the daemon server requires a proxy to access the internet, a HTTP or SOCKS proxy can be defined using proxyType,
 proxyHost, and proxyPort. Currently, the SOCKS5 proxy only supports anonymous access.
+
+## Multiple Provisioners
+
+It is possible to set up multiple Azure provisioners, each with different settings. One scenario for this would be to
+have one folder for security groups and another for Office 365 groups. Or, different folders can have different
+Jexl expressions, etc. To distinguish them, they need separate consumer attributes created. Then, each loader
+configuration would reference their respective attribute names, and folders would set the distinguishing
+syncAttributeName attribute to select a provisioner. Other required properties need to be repeated for each provisioner
+For example:
+
+```
+    # Creates security groups
+    changeLog.consumer.o365.class = edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogConsumer
+    changeLog.consumer.o365.tenantId = my-tenant.onmicrosoft.com
+    changeLog.consumer.o365.clientId = ...
+    changeLog.consumer.o365.clientSecret = ...
+    ...
+    changeLog.consumer.o365.syncAttributeName = etc:attribute:office365:o365Sync
+    changeLog.consumer.o365.groupJexl = ...
+
+    # Creates Office 365 groups
+    changeLog.consumer.o365Unified.class = edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogConsumer
+    changeLog.consumer.o365Unified.tenantId = my-tenant.onmicrosoft.com
+    changeLog.consumer.o365Unified.clientId = ...
+    changeLog.consumer.o365Unified.clientSecret = ...
+    ...
+    changeLog.consumer.o365Unified.syncAttributeName = etc:attribute:office365:o365SyncUnified
+    changeLog.consumer.o365Unified.groupType = Unified
+```
 
 # Office 365 Notes
 
