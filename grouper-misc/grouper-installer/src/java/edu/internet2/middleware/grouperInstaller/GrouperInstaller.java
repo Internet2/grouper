@@ -15780,7 +15780,7 @@ public class GrouperInstaller {
         "grouper-ws" + File.separator + "build" + File.separator + "dist" + File.separator + "grouper-ws"
         + File.separator,
         this.upgradeExistingApplicationDirectoryString,
-        GrouperInstallerUtils.toSet("WEB-INF/lib", "WEB-INF/web.xml", "WEB-INF/classes",
+        GrouperInstallerUtils.toSet("WEB-INF/lib", "WEB-INF/web.xml", "WEB-INF/web.wsTomcatAuthn.xml", "WEB-INF/server.wsTomcatAuthn.xml", "WEB-INF/classes",
             "WEB-INF/bin/gsh", "WEB-INF/bin/gsh.bat", "WEB-INF/bin/gsh.sh"));
 
     {
