@@ -20,8 +20,21 @@
               
 			<div class="row-fluid">
 			  <div class="span12">
-			  	<form class="form-inline form-small form-filter">
-				${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.html}
+			  	<form class="form-inline form-small form-filter" id="editConfigDetails">
+			  		<input type="hidden" name="previousExternalSystemConfigId" value="${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.configId}" />
+					${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.html}
+					
+					<div class="span6">
+                   
+                     <input type="submit" class="btn btn-primary"
+                          aria-controls="workflowConfigSubmitId" id="submitId"
+                          value="${textContainer.text['workflowJoinGroupInitiateWorkflowButtonSubmit'] }"
+                          onclick="ajax('../app/UiV2ExternalSystem.editExternalSystemConfigDetailsSubmit?externalSystemConfigId=${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.configId}&&externalSystemType=${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem['class'].name}', {formIds: 'editConfigDetails'}); return false;">
+                          &nbsp; <a class="btn btn-cancel" role="button"
+                          onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewForms&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          >${textContainer.text['workflowConfigButtonCancel'] }</a>
+                   
+                   </div>
 				</form>
 			  </div>
 			</div>

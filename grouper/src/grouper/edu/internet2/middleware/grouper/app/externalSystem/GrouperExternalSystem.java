@@ -51,15 +51,7 @@ public abstract class GrouperExternalSystem {
     html.append("<table class='table table-condensed table-striped'>");
     
     for (GrouperExternalSystemAttribute attribute: attributes.values()) {
-      
-      html.append("<tr>");
-      html.append("<td style='vertical-align: top; white-space: nowrap;'>");
-      html.append("<strong><label>");
-      html.append(attribute.getLabel());
-      html.append("</label></strong></td>");
-      
-      html.append(buildHtmlFormElement(attribute));
-      html.append("</tr>");
+      html.append(buildHtmlFormElement(attribute));      
     }
     html.append("</table>");
     
@@ -72,8 +64,21 @@ public abstract class GrouperExternalSystem {
     
     StringBuilder field = new StringBuilder();
     
+    field.append("<tr>");
+    field.append("<td style='vertical-align: top; white-space: nowrap;'>");
+    field.append("<strong><label for='config_"+attribute.getConfigSuffix()+"_id'>");
+    field.append(attribute.getLabel());
+    field.append("</label></strong></td>");
+    
     field.append("<td style='vertical-align: top; white-space: nowrap;' >");
-    field.append("<input style='vertical-align: top; min-height: 10px;' type='checkbox' name='config_el_"+attribute.getConfigSuffix()+"'>");
+    field.append("<input style='vertical-align: top; min-height: 10px; margin-right: 2px;' type='checkbox' ");
+    
+    if (attribute.isExpressionLanguage()) {
+      field.append(" checked ");
+    }
+        
+    field.append("onchange=\"ajax('../app/UiV2ExternalSystem.editExternalSystemConfigDetails?externalSystemConfigId="+this.getConfigId()+"&externalSystemType="+this.getClass().getName()+"', {formIds: 'editConfigDetails'}); return false;\""
+        + " name='config_el_"+attribute.getConfigSuffix()+"'>");
     field.append("</input>");
     field.append(GrouperTextContainer.textOrNull("grouperExternalSystemAttributesIsElLabel"));
     field.append("</td>");
@@ -83,14 +88,19 @@ public abstract class GrouperExternalSystem {
     if (attribute.getFormElement() == ConfigItemFormElement.TEXT) {
       
       String value = null;
-      if (attribute.getValue() != null) {
+      
+      if (attribute.isExpressionLanguage()) {
+        value = attribute.getExpressionLanguageScript() != null? attribute.getExpressionLanguageScript(): null;
+      } else if (attribute.getValue() != null) {
         value = attribute.getValue();
-      } else if (attribute.getDefaultValue() != null) {
+      } 
+      
+      if (value == null && attribute.getDefaultValue() != null) {
         value = attribute.getDefaultValue();
       }
       
       field.append(
-          "<input type='text' name= 'config_" + attribute.getConfigSuffix() + "'");
+          "<input style='width:30em;' type='text' id='config_"+attribute.getConfigSuffix()+"_id' name='config_" + attribute.getConfigSuffix() + "'");
       if (value != null) {
         field.append(" value = '"+GrouperUtil.xmlEscape(value)+"'");
       }
@@ -107,7 +117,7 @@ public abstract class GrouperExternalSystem {
         value = attribute.getDefaultValue();
       }
       
-      field.append("<textarea cols='20' rows='3' name='config_"
+      field.append("<textarea style='width:30em;' cols='20' rows='3' id='config_"+attribute.getConfigSuffix()+"_id' name='config_"
           + attribute.getConfigSuffix() + "'>");
       if (value != null) {
         field.append(GrouperUtil.xmlEscape(value));
@@ -125,7 +135,7 @@ public abstract class GrouperExternalSystem {
       }
       
       field.append(
-          "<input type='password' name= 'config_" + attribute.getConfigSuffix() + "'");
+          "<input style='width:30em;' type='password' id='config_"+attribute.getConfigSuffix()+"_id' name= 'config_" + attribute.getConfigSuffix() + "'");
       if (value != null) {
         field.append(" value = '"+GrouperUtil.xmlEscape(value)+"'");
       }
@@ -134,7 +144,7 @@ public abstract class GrouperExternalSystem {
     
     if (attribute.getFormElement() == ConfigItemFormElement.DROPDOWN) {
       
-      field.append("<select name = 'config_"+attribute.getConfigSuffix()+"'>");
+      field.append("<select style='width:30em;' id='config_"+attribute.getConfigSuffix()+"_id' name='config_"+attribute.getConfigSuffix()+"'>");
       
       List<MultiKey> valuesAndLabels = attribute.getDropdownValuesAndLabels();
       for (MultiKey multiKey: valuesAndLabels) {
@@ -161,6 +171,7 @@ public abstract class GrouperExternalSystem {
     field.append("</span>");
     
     field.append("</td>");
+    field.append("</tr>");
     
     return field.toString();
   }
@@ -233,8 +244,7 @@ public abstract class GrouperExternalSystem {
    * @param validationErrorsToDisplay call from ui: guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
    *      validationErrorsToDisplay.get(validationKey)));
    */
-  public void editConfig(boolean fromUi, Map<String, GrouperExternalSystemAttribute> attributesFromUser,
-      StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+  public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
 
     if (!this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
       throw new RuntimeException("Why doesn't this config id already exist??? '" + this.getConfigId() + "'");
@@ -633,16 +643,18 @@ public abstract class GrouperExternalSystem {
     return result;
   }
   
-
-  final static String[] externalSystemClassNames = new String[] { 
-      "edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem", 
-      "edu.internet2.middleware.grouper.app.azure.GrouperExternalSystemAzure" };
+  
+  public final static Set<String> externalTypeClassNames = new HashSet<String>();
+  static {
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.azure.GrouperExternalSystemAzure");
+  }
   
   public static List<GrouperExternalSystem> retrieveAllGrouperExternalSystems() {
     
     List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();
     
-    for (String className: externalSystemClassNames) {       
+    for (String className: externalTypeClassNames) {       
         Class<GrouperExternalSystem> externalSystemClass = (Class<GrouperExternalSystem>) GrouperUtil.forName(className);
         GrouperExternalSystem externalSystem = GrouperUtil.newInstance(externalSystemClass);
         result.addAll(externalSystem.listAllExternalSystemsOfThisType());

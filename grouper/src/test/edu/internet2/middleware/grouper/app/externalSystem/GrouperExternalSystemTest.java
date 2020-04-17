@@ -186,7 +186,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     
     fail = false;
     try {
-      grouperExternalSystemAzure.editConfig(false, suffixToAttribute, message, errorsToDisplay, validationErrorsToDisplay);
+      grouperExternalSystemAzure.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
       fail = true;
     } catch (RuntimeException re) {
       // good
@@ -215,7 +215,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     suffixToAttribute.get("loginEndpoint").setValue(null);
     suffixToAttribute.get("graphEndpoint").setValue("myGraphEndpoint1");
     
-    grouperExternalSystemAzure.editConfig(false, suffixToAttribute, message, errorsToDisplay, validationErrorsToDisplay);
+    grouperExternalSystemAzure.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
     
     message.setLength(0);
     errorsToDisplay.clear();

@@ -63,8 +63,8 @@
 			                             <span class="caret"></span>
 			                           </a>
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.editExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}');">${textContainer.text['grouperExternalSystemTableEditDetailsActionOption'] }</a></li>
+			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
+			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.editExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableEditDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>
 			                   </td>
