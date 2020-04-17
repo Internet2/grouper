@@ -144,12 +144,12 @@ public class GraphApiClient {
     }
 
     private void logTokenInfo(OAuthTokenInfo info) {
-        logger.debug("Token scope: " + info.scope);
-        logger.debug("Token expiresIn: " + info.expiresIn);
-        logger.debug("Token expiresOn: " + info.expiresOn);
-        logger.debug("Token resource: " + info.resource);
-        logger.debug("Token tokenType: " + info.tokenType);
-        logger.debug("Token notBefore: " + info.notBefore);
+        logger.trace("Token scope: " + info.scope);
+        logger.trace("Token expiresIn: " + info.expiresIn);
+        logger.trace("Token expiresOn: " + info.expiresOn);
+        logger.trace("Token resource: " + info.resource);
+        logger.trace("Token tokenType: " + info.tokenType);
+        logger.trace("Token notBefore: " + info.notBefore);
     }
 
     /*
@@ -217,10 +217,9 @@ public class GraphApiClient {
         }
     }
 
-    public void removeGroup(Map options) {
+public void removeGroup(String groupId) {
         try {
-            edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group group = ((GroupsOdata) invoke(this.service.getGroups(options)).body()).groups.get(0);
-            invoke(this.service.deleteGroup(group.id));
+            invoke(this.service.deleteGroup(groupId));
         } catch (IOException e) {
             logger.error(e);
             throw new RuntimeException("service.deleteGroup failed", e);
@@ -281,6 +280,4 @@ public class GraphApiClient {
     public void removeUserFromGroupInMS(String groupId, String userId) throws IOException {
         invoke(this.service.removeGroupMember(groupId, userId));
     }
-
-
 }

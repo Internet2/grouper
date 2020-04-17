@@ -34,20 +34,25 @@ The provisioning attribute to add to the provisionable object is, by default, `e
 all groups under this folder (recursively) will be automatically provisioned. Alternatively, the attribute can be set on
 an individual group. _It is not recommended to assign directly to a group_, as there is currently a race condition that
 may occur in the current version of this code (i.e., if the changelog consumer runs after group creation but before
-attribute assignment, provisioning will not occur).
+attribute assignment, provisioning will not occur). It is also required to create attribute `etc:attribute:office365:o365Id`,
+which will store the Azure group Id on the Grouper group to be kept in sync.
 
 1. Set up stem for provisioning and ID attribute
 
     ```
     GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    /* the sync marker attribute */
     AttributeDef provisioningMarkerAttributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("etc:attribute:office365:o365SyncDef").assignToStem(true).assignToGroup(true).save();
     AttributeDefName provisioningMarkerAttributeName = new AttributeDefNameSave(grouperSession, provisioningMarkerAttributeDef).assignName("etc:attribute:office365:o365Sync").save();
 
-    rootStem = addStem("", "test", "test");
-    rootStem.getAttributeDelegate().assignAttribute(provisioningMarkerAttributeName);
-
+    /* the Azure groupId to store with provisioned groups */
     AttributeDef o365Id = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("etc:attribute:office365:o365IdDef").assignToGroup(true).assignValueType(AttributeDefValueType.string).save();
     AttributeDefName o365IdName = new AttributeDefNameSave(grouperSession, o365Id).assignName("etc:attribute:office365:o365Id").save();
+
+    /* add the marker attribute at the folder level */
+    rootStem = addStem("", "test", "test");
+    rootStem.getAttributeDelegate().assignAttribute(provisioningMarkerAttributeName);
     ```
 
 2. Configure loader job in `grouper-loader.properties`. Note that you will need to set up an application with access to your domain.
@@ -64,6 +69,8 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
     changeLog.consumer.o365.clientSecret = @o365.clientSecret@
     #changeLog.consumer.o365.idAttribute =
     #changeLog.consumer.o365.groupJexl =
+    #changeLog.consumer.o365.mailNicknameJexl =
+    #changeLog.consumer.o365.descriptionJexl =
     #changeLog.consumer.o365.groupType = [Security* | Unified]
     #changeLog.consumer.o365.visibility = [Public* | Private | Hiddenmembership]
     #changeLog.consumer.o365.proxyType = [http | socks]
@@ -71,20 +78,52 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
     #changeLog.consumer.o365.proxyPort =
 ```
 
-Replace `@o365.tenantId@`, `@o365.clientId@` and `@o365.clientSecret@` with appropriate values from the application configuration.
+## Custom configuration parameters
 
-The property `idAttribute` specifies what attribute is used to build the Azure user principal, and will default to "uid" if not set.
+### tenantId, clientId, clientSecret
+
+Replace `@o365.tenantId@`, `@o365.clientId@` and `@o365.clientSecret@` with appropriate values from the application
+configuration. Note that the clientSecret is sensitive information.
+
+### idAttribute
+
+Optional property `idAttribute` specifies what attribute is used to build the Azure user principal, and will default to "uid" if not set.
 The Azure principal will get built as idattribute + "@" + tenantId. Whatever attribute is used must be available as a key as
 returned in `subject.getAttributes()`; i.e., if you want to use the subject's id or identifier, it needs to be defined in the
 subject attributes too.
 
-If `groupJexl` is defined, it will be used to calculate the Azure group name, instead of the group name including
-the path. The variable `group` is available within the jexl scriptlet to represent the group object. Brackets are
-not needed around the scriptlet. For example:
+### groupJexl, mailNicknameJexl, and descriptionJexl 
 
-`group.name.replaceAll("^app:azure:", "").replaceAll(":", "_")`
+Optional properties `groupJexl`, `mailNicknameJexl`, and `descriptionJexl` support jexl2 expressions in deriving custom display
+name, email nickname, and description, respectively. Variable `group` is provided to the jexl expression for
+use in computing the resulting string. Note that brackets are not needed around the expression.
 
-will remove the initial prefix "app:azure:" from the group path, and replace all folder separators with underscores.
+| property         | associated Azure property | default    | default example |
+| ---------------- | ------------------------- | ---------- | ----------      |
+| groupJexl        | displayName               | group.name | app:azure:provisioned:groupTypes:o365Sync:group1 |
+| mailNicknameJexl | mailNickname              | group.uuid | ec3d7d285be34e3f921a6e89a1514a94 |
+| descriptionJexl  | description               | group.uuid | ec3d7d285be34e3f921a6e89a1514a94 |
+
+Examples:
+
+```
+group.name.replaceAll("^app:test:grp-2607:provision:", "").replaceAll(":", " / ")
+  => groupTypes / o365Sync / group5
+
+(group.name.length() <= 64 + 11) ? "GROUPER-SECURITY-" + group.name.replaceAll("^app:test:grp-2607:provision:", "").replaceAll(":", "-") : group.name.length().toString() + ":" + group.id
+  => GROUPER-SECURITY-groupTypes-o365Sync-group5
+  => Note: the length checking is to ensure the mail nickname does not exceed 64 characters
+
+group.parentStem.parentStem.displayExtension + " - " + group.parentStem.displayExtension + " - " + group.displayExtension + (group.description ? ": " + group.description : "")
+  => Group Types - Security Groups - Group 5: Testing of Azure Security Groups
+
+```
+
+To aid in developing jexl expressions, the method `Office365ChangeLogConsumer.evaluateJexlExpression(Group group, String expressionString, String defaultIfExpressionNull)`
+can be called with gsh, passing in a group and expression string and returning a value. The `defaultIfExpressionNull` parameter is mainly useful for caller code to avoid
+extra tests for null.
+
+### groupType, visibility
 
 The optional `groupType` property can set the provisioned groups as either a security group (`groupType = Security`)
 or an Office 365 group (`groupType = Unified`). If not set, the default will be a security group. Mail-enabled groups
@@ -94,8 +133,10 @@ For a Unified group provisioner only, the `visibility` property sets the Office 
 Private, or Hiddenmembership. See [Microsoft's documentation on the option](https://docs.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#group-visibility-options)
 for more information.
 
-If the daemon server requires a proxy to access the internet, a HTTP or SOCKS proxy can be defined using proxyType,
-proxyHost, and proxyPort. Currently, the SOCKS5 proxy only supports anonymous access.
+### proxyType, proxyHost, proxyPort
+
+If the daemon server requires a proxy to access the internet, a HTTP or SOCKS proxy can be defined using `proxyType`,
+`proxyHost`, and `proxyPort`. Currently, the SOCKS5 proxy only supports anonymous access.
 
 ## Multiple Provisioners
 
@@ -124,6 +165,7 @@ For example:
     ...
     changeLog.consumer.o365Unified.syncAttributeName = etc:attribute:office365:o365SyncUnified
     changeLog.consumer.o365Unified.groupType = Unified
+    changeLog.consumer.o365Unified.visibility = Private
 ```
 
 # Office 365 Notes
@@ -163,10 +205,29 @@ Use the following request parameters:
 * redirect_uri - specify http://localhost/grouper
 * scope - specify https://graph.microsoft.com/.default
 
+# Official description of relevant group fields
+
+Maximum lengths for displayName, description, and mailNickname for provisioned groups must be within the length limits
+as described by Microsoft (https://github.com/microsoftgraph/microsoft-graph-docs/blob/master/api-reference/v1.0/api/group-post-groups.md),
+otherwise group creation will fail.
+
+| Property              | Type                | Description |
+| --------------------- | ------------------- | ------------|
+| displayName           | string              | The name to display in the address book for the group. Maximum length: 256 characters. Required. |
+| description           | string              | A description for the group. Max. length: 1024 characters. Optional. |
+| mailEnabled           | boolean             | Set to true for mail-enabled groups. Required. |
+| mailNickname          | string              | The mail alias for the group. Max. length: 64 characters. Required. |
+| securityEnabled       | boolean             | Set to true for security-enabled groups, including Office 365 groups. Required. |
+| owners                | string collection   | This property represents the owners for the group at creation time. Optional. |
+| members               | string collection   | This property represents the members for the group at creation time. Optional. |
+| visibility            | String              | Specifies the visibility of an Office 365 group. Possible values are: Private, Public, HiddenMembership, or empty (which is interpreted as Public). |
+
+
+
 # Acknowledgments
 
 The Office365/Azure provisioner for Grouper originated as a project from Unicon, Inc. Primary developers were Bill
-Thompson, Jj, and John Gasper, with other contributions by Chris Hyzer and Russ Trotter. The source project can be
+Thompson, Jj!, and John Gasper, with other contributions by Chris Hyzer and Russ Trotter. The source project can be
 found at https://github.com/Unicon/office365-and-azure-ad-grouper-provisioner .
 
 This project includes contributions from Kansas State University, project https://github.com/kstateome/office365-and-azure-ad-grouper-provisioner.git.
