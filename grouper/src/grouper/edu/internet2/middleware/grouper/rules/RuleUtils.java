@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -976,6 +977,45 @@ public class RuleUtils {
     }
     
   }
+  
+  /**
+   * 
+   * @param groupId
+   * @param groupName
+   * @param alternateGroupId
+   * 
+   * @return the error message or null if ok
+   */
+  public static String validateInteger(String theInteger ) {
+    try {
+      GrouperUtil.intValue(theInteger);
+    } catch (Exception e) {
+      return e.getMessage();
+    }
+    return null;
+  }
+  
+  
+  /**
+   * 
+   * @param groupId
+   * @param groupName
+   * @param alternateGroupId
+   * 
+   * @return the error message or null if ok
+   */
+  public static String validateSources(String sourceIdsCommaSeparated ) {
+    try {
+      String[] sourceIds = GrouperUtil.splitTrim(sourceIdsCommaSeparated, ",");
+      for (String sourceId : sourceIds) {
+        SourceManager.getInstance().getSource(sourceId);
+      }
+    } catch (Exception e) {
+      return e.getMessage();
+    }
+    return null;
+  }
+  
   
   /**
    * 

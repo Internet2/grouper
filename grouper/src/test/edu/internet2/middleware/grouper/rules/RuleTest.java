@@ -94,7 +94,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleFixVetoIfNotInFolderDaemon"));
+    TestRunner.run(new RuleTest("testRuleMaxGroupMembersOtherGroup"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -4569,6 +4569,7 @@ public class RuleTest extends GrouperTest {
     
   }
 
+
   /**
    * 
    */
@@ -4651,6 +4652,153 @@ public class RuleTest extends GrouperTest {
     
     assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
   
+  }
+
+  /**
+   * 
+   */
+  public void testRuleMaxGroupMembers() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group maxGroup = new GroupSave(grouperSession).assignName("stem:maxGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = maxGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
+        
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasTooManyMembers.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumArg0Name(), "1");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.group.has.too.many.members");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Group has too many members");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    maxGroup.addMember(SubjectTestHelper.SUBJ0);
+    
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      maxGroup.addMember(SubjectTestHelper.SUBJ1);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Group has too many members"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+      
+  }
+
+  /**
+   * 
+   */
+  public void testRuleMaxGroupMembersOtherGroup() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group maxGroup = new GroupSave(grouperSession).assignName("stem:maxGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group memberGroup = new GroupSave(grouperSession).assignName("stem:memberGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    maxGroup.addMember(memberGroup.toSubject());
+    
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = memberGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasTooManyMembers.name());
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), maxGroup.getName());
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumArg0Name(), "1");
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumArg1Name(), "jdbc");
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.group.has.too.many.members");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Group has too many members");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    memberGroup.addMember(SubjectTestHelper.SUBJ0);
+    
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      memberGroup.addMember(SubjectTestHelper.SUBJ1);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Group has too many members"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+      
   }
 
   /**
