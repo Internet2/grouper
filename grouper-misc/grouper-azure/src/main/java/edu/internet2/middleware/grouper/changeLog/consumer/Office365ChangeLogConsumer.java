@@ -28,6 +28,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
     private static final Logger logger = Logger.getLogger(Office365ChangeLogConsumer.class);
     private static final String CONFIG_PREFIX = "changeLog.consumer.";
     private static final String DEFAULT_ID_ATTRIBUTE = "uid";
+    public static final String GROUP_ID_ATTRIBUTE_NAME = "etc:attribute:office365:o365Id";
     private final GraphApiClient apiClient;
 
     private String token = null;
@@ -124,16 +125,16 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
                 );
 
         // todo capture exception
-        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:office365:o365Id", false);
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GROUP_ID_ATTRIBUTE_NAME, false);
         group.getAttributeDelegate().assignAttribute(attributeDefName);
-        group.getAttributeValueDelegate().assignValue("etc:attribute:office365:o365Id", ((edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group) response.body()).id);
+        group.getAttributeValueDelegate().assignValue(GROUP_ID_ATTRIBUTE_NAME, ((edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group) response.body()).id);
     }
 
     // TODO: find out how to induce and implement (if necessary)
     @Override
     protected void removeGroup(Group group, ChangeLogEntry changeLogEntry) {
         logger.debug("removing group " + group);
-        String id = group.getAttributeValueDelegate().retrieveValuesString("etc:attribute:office365:o365Id").get(0);
+        String id = group.getAttributeValueDelegate().retrieveValuesString(GROUP_ID_ATTRIBUTE_NAME).get(0);
         logger.debug("removing id: " + id);
     }
 
@@ -156,7 +157,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
     protected void addMembership(Subject subject, Group group, ChangeLogEntry changeLogEntry) {
         logger.debug("adding " + subject + " to " + group);
 
-        String groupId = group.getAttributeValueDelegate().retrieveValueString("etc:attribute:office365:o365Id");
+        String groupId = group.getAttributeValueDelegate().retrieveValueString(GROUP_ID_ATTRIBUTE_NAME);
         logger.debug("groupId: " + groupId);
 
         String userPrincipalName = subject.getAttributeValue(this.idAttribute) + "@" + this.domain;
@@ -175,7 +176,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         logger.debug("removing " + subject + " from " + group);
         try {
             User user = apiClient.lookupMSUser(subject.getAttributeValue(this.idAttribute).trim() + "@" + tenantId);
-            String groupId = group.getAttributeValueDelegate().retrieveValueString("etc:attribute:office365:o365Id");
+            String groupId = group.getAttributeValueDelegate().retrieveValueString(GROUP_ID_ATTRIBUTE_NAME);
             apiClient.removeUserFromGroupInMS(groupId, user.id);
         } catch (IOException e) {
             logger.error(e);

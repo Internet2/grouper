@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.changeLog.consumer.o365;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.*;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
@@ -214,7 +215,7 @@ public class GraphApiClient {
     }
 
     protected String lookupOffice365GroupId(Group group) {
-        return group.getAttributeValueDelegate().retrieveValueString("etc:attribute:office365:o365Id");
+        return group.getAttributeValueDelegate().retrieveValueString(Office365ChangeLogConsumer.GROUP_ID_ATTRIBUTE_NAME);
     }
 
     public void addMemberToMS(String groupId, String userPrincipalName) {
