@@ -78,4 +78,8 @@ public class ExternalSystemContainer {
     return GrouperExternalSystem.retrieveAllGrouperExternalSystems();
   }
 
+  public List<GrouperExternalSystem> getAllExternalSystemTypes() {
+    return GrouperExternalSystem.retrieveAllGrouperExternalSystemTypes();
+  }
+
 }

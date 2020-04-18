@@ -149,6 +149,29 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * put a label to group items together.  if blank then all in default section
+   */
+  private String section;
+  
+  
+  
+  /**
+   * put a label to group items together.  if blank then all in default section
+   * @return
+   */
+  public String getSection() {
+    return section;
+  }
+
+  /**
+   * put a label to group items together.  if blank then all in default section
+   * @param section
+   */
+  public void setSection(String section) {
+    this.section = section;
+  }
+
+  /**
    * raw json string in the properties file
    */
   private String rawMetadataJson;
@@ -171,6 +194,32 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is shown or not
+   */
+  private String showEl;
+
+  
+  
+  /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is shown or not
+   * @return
+   */
+  public String getShowEl() {
+    return showEl;
+  }
+
+  /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is shown or not
+   * @param showEl
+   */
+  public void setShowEl(String showEl) {
+    this.showEl = showEl;
+  }
+
+  /**
    * 
    */
   public void processMetadata() {
@@ -184,6 +233,10 @@ public class ConfigItemMetadata {
     this.sampleValue = null;
     this.sensitive = false;
     this.valueType = null;
+    this.section = null;
+    this.showEl = null;
+    this.formElement = null;
+    this.optionValues = null;
     
     if (!StringUtils.isBlank(this.rawMetadataJson)) {
       
@@ -212,6 +265,7 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("required")) {
         this.required = jsonObject.getBoolean("required");
         jsonObject.remove("required");
+        
       }
       
       if (jsonObject.containsKey("requiresRestart")) {
@@ -222,6 +276,11 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("sampleValue")) {
         this.sampleValue = jsonObject.getString("sampleValue");
         jsonObject.remove("sampleValue");
+      }
+      
+      if (jsonObject.containsKey("section")) {
+        this.section = jsonObject.getString("section");
+        jsonObject.remove("section");
       }
       
       if (jsonObject.containsKey("sensitive")) {
@@ -239,6 +298,11 @@ public class ConfigItemMetadata {
         jsonObject.remove("defaultValue");
       }
       
+      if (jsonObject.containsKey("showEl")) {
+        this.showEl = jsonObject.getString("showEl");
+        jsonObject.remove("showEl");
+      }
+      
       if (jsonObject.containsKey("formElement")) {
         String formElementString = jsonObject.getString("formElement");
         this.formElement = ConfigItemFormElement.valueOfIgnoreCase(formElementString, true);
@@ -253,6 +317,7 @@ public class ConfigItemMetadata {
         }
         jsonObject.remove("optionValues");
       }
+      
       
       if (jsonObject.keySet().size() > 0) {
         this.metadataError = "Extra keys from json (unexpected): " + GrouperUtil.join(jsonObject.keySet().iterator(), ", ");

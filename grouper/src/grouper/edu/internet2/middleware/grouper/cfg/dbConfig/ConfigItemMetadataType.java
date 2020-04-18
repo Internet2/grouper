@@ -19,6 +19,13 @@ public enum ConfigItemMetadataType {
     public String getStringForUi() {
       return "boolean (true or false)";
     }
+
+    @Override
+    public Object convertValue(String valueString) {
+      return GrouperUtil.booleanValue(valueString, false);
+    }
+    
+    
   }, 
   
   /** any string */
@@ -82,6 +89,12 @@ public enum ConfigItemMetadataType {
     public String getStringForUi() {
       return "integer";
     }
+    
+    @Override
+    public Object convertValue(String valueString) {
+      return GrouperUtil.intValue(valueString, -1);
+    }
+
   }, 
   
   /** floating point number in system */
@@ -91,6 +104,12 @@ public enum ConfigItemMetadataType {
     public String getStringForUi() {
       return "decimal";
     }
+    
+    @Override
+    public Object convertValue(String valueString) {
+      return GrouperUtil.defaultIfNull(GrouperUtil.doubleObjectValue(valueString, true), -1.0);
+    }
+
   }, 
   
   /** password, or encrypted, or file name, or script */
@@ -129,5 +148,14 @@ public enum ConfigItemMetadataType {
    * 
    */
   public abstract String getStringForUi();
+
+  /**
+   * for EL types, convert to boolean or integers
+   * @param valueString
+   * @return object
+   */
+  public Object convertValue(String valueString) {
+    return valueString;
+  }
   
 }

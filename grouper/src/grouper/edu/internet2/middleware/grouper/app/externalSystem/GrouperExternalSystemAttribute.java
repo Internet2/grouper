@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.externalSystem;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -8,6 +10,8 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperExternalSystemAttribute {
@@ -37,7 +41,65 @@ public class GrouperExternalSystemAttribute {
   
   private GrouperExternalSystem grouperExternalSystem;
   
+  public Object getObjectValue() {
+    
+    ConfigItemMetadataType valueType =  GrouperUtil.defaultIfNull(this.getConfigItemMetadata().getValueType(), ConfigItemMetadataType.STRING);
+    
+    return valueType.convertValue(this.getValueOrExpressionEvaluation());
+    
+  }
   
+  /**
+   * get the value or the expression language evaluation
+   * @return the value
+   */
+  public String getValueOrExpressionEvaluation() {
+    String value = null;
+    
+    if (this.isExpressionLanguage()) {
+      value = this.getExpressionLanguageScript() != null? this.getExpressionLanguageScript(): null;
+    } else if (this.getValue() != null) {
+      value = this.getValue();
+    } 
+    
+    if (value == null && this.getDefaultValue() != null) {
+      value = this.getDefaultValue();
+    }
+    return value;
+  }
+  
+  /**
+   * 
+   * @return if show
+   */
+  public boolean isShow() {
+    
+    {
+      Boolean showOverride = this.grouperExternalSystem.showAttributeOverride(this.configSuffix);
+      if (showOverride != null) {
+        return showOverride;
+      }
+    }
+    
+    String showEl = this.getConfigItemMetadata().getShowEl();
+    if (StringUtils.isBlank(showEl)) {
+      return true;
+    }
+    
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+
+    variableMap.put("gruoperUtil", new GrouperUtilElSafe());
+    
+    for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
+      
+      variableMap.put(grouperExternalSystemAttribute.getConfigSuffix(), grouperExternalSystemAttribute.getObjectValue());
+      
+    }
+
+    String showString = GrouperUtil.substituteExpressionLanguage(showEl, variableMap, true, true, true);
+    
+    return GrouperUtil.booleanValue(showString, true);
+  }
   
   
   public GrouperExternalSystem getGrouperExternalSystem() {
