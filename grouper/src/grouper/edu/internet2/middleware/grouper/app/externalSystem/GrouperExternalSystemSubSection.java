@@ -37,7 +37,7 @@ public class GrouperExternalSystemSubSection {
   public String getTitle() {
     String title = GrouperTextContainer.textOrNull("externalSystem." + this.grouperExternalSystem.getClass().getSimpleName() + ".subSection." + this.label +".title");
     if (StringUtils.isBlank(title)) {
-      return this.getClass().getSimpleName();
+      return label;
     }
     return title;
   }
@@ -49,7 +49,7 @@ public class GrouperExternalSystemSubSection {
   public String getDescription() {
     String title = GrouperTextContainer.textOrNull("externalSystem." + this.grouperExternalSystem.getClass().getSimpleName() + ".subSection." + this.label + ".description");
     if (StringUtils.isBlank(title)) {
-      return this.getClass().getSimpleName();
+      return label;
     }
     return title;
   }
@@ -58,7 +58,7 @@ public class GrouperExternalSystemSubSection {
    * return config suffix to attribute
    * @return map
    */
-  private Map<String, GrouperExternalSystemAttribute> retrieveAttributes() {
+  public Map<String, GrouperExternalSystemAttribute> retrieveAttributes() {
     Map<String, GrouperExternalSystemAttribute> results = new LinkedHashMap<String, GrouperExternalSystemAttribute>();
     for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
       if (StringUtils.equals(this.getLabel(), grouperExternalSystemAttribute.getConfigItemMetadata().getSubSection())) {

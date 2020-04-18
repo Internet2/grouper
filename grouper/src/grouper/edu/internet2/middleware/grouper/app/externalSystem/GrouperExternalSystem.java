@@ -46,16 +46,41 @@ public abstract class GrouperExternalSystem {
   
   public String getHtml(String methodName) {
     
-    Map<String, GrouperExternalSystemAttribute> attributes = this.retrieveAttributes();
-    
-    
+    //Map<String, GrouperExternalSystemAttribute> attributes = this.retrieveAttributes();
     StringBuilder html = new StringBuilder();
-    html.append("<table class='table table-condensed table-striped'>");
     
-    for (GrouperExternalSystemAttribute attribute: attributes.values()) {
-      html.append(buildHtmlFormElement(attribute, methodName));   
+    List<GrouperExternalSystemSubSection> sections = this.getSubSections();
+    
+    for (GrouperExternalSystemSubSection section: sections) {
+      String label = section.getLabel();
+      if (StringUtils.isNotBlank(label)) {
+        
+        html.append("<tbody>");
+        html.append("<tr>");
+        html.append("<th colspan='3' >");
+        html.append("<h4>");
+        html.append(section.getTitle());
+        html.append("</h4>");
+        html.append("<p style='font-weight: normal;'>");
+        html.append(section.getDescription());
+        html.append("</p>");
+        
+        html.append("</th>");
+        html.append("</tr>");
+       
+        for (GrouperExternalSystemAttribute attribute: section.retrieveAttributes().values()) {
+          html.append(buildHtmlFormElement(attribute, methodName));   
+        }
+        
+        html.append("</tbody>");
+      } else {
+        for (GrouperExternalSystemAttribute attribute: section.retrieveAttributes().values()) {
+          html.append(buildHtmlFormElement(attribute, methodName));   
+        }
+      }
+      
     }
-    html.append("</table>");
+    
     
     
     return html.toString();
@@ -123,7 +148,9 @@ public abstract class GrouperExternalSystem {
     
     if (attribute.getFormElement() == ConfigItemFormElement.DROPDOWN) {
       
-      field.append("<select style='width:30em;' id='config_"+attribute.getConfigSuffix()+"_id' name='config_"+attribute.getConfigSuffix()+"'>");
+      field.append("<select style='width:30em;' id='config_"+attribute.getConfigSuffix()+"_id' name='config_"+attribute.getConfigSuffix()+"' ");
+      
+      field.append("onchange=\"ajax('../app/UiV2ExternalSystem."+methodName+"?externalSystemConfigId="+this.getConfigId()+"&externalSystemType="+this.getClass().getName()+"', {formIds: 'externalSystemConfigDetails'}); return false;\">");
       
       List<MultiKey> valuesAndLabels = attribute.getDropdownValuesAndLabels();
       for (MultiKey multiKey: valuesAndLabels) {

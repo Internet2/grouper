@@ -23,7 +23,20 @@
 			  	<form class="form-inline form-small form-filter" id="externalSystemConfigDetails">
 			  		<input type="hidden" name="previousExternalSystemConfigId" value="${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.configId}" />
 					
-					${grouperRequestContainer.externalSystemContainer.html}
+					<table class="table table-condensed table-striped">
+              		  <tbody>
+              		  
+              		  	<tr>
+						  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="externalSystemConfigId">${textContainer.text['grouperExternalSystemConfigIdLabel']}</label></strong></td>
+						    <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
+						    <td>
+						     ${grouper:escapeHtml(grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.configId)}
+						    </td>
+						</tr>
+              		  
+              		  	${grouperRequestContainer.externalSystemContainer.html}
+              		  </tbody>
+              		</table>
 					
 					<div class="span6">
                    
