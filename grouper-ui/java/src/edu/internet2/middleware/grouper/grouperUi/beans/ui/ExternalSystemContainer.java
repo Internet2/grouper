@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
@@ -13,7 +14,7 @@ import edu.internet2.middleware.subject.Subject;
 public class ExternalSystemContainer {
   
   /**
-   * grouper external system user is currently viewing/editing 
+   * grouper external system user is currently viewing/editing/adding
    */
   private GuiGrouperExternalSystem guiGrouperExternalSystem;
   
@@ -21,6 +22,12 @@ public class ExternalSystemContainer {
    * all external systems
    */
   private List<GuiGrouperExternalSystem> guiGrouperExternalSystems = new ArrayList<GuiGrouperExternalSystem>();
+  
+  
+  /**
+   * html for external system
+   */
+  private String html;
   
   
   public List<GuiGrouperExternalSystem> getGuiGrouperExternalSystems() {
@@ -44,6 +51,15 @@ public class ExternalSystemContainer {
       GuiGrouperExternalSystem guiGrouperExternalSystem) {
     this.guiGrouperExternalSystem = guiGrouperExternalSystem;
   }
+  
+  
+  public String getHtml() {
+    return html;
+  }
+  
+  public void setHtml(String html) {
+    this.html = html;
+  }
 
 
   /**
@@ -56,6 +72,10 @@ public class ExternalSystemContainer {
       return true;
     }
     return false;
+  }
+  
+  public List<GrouperExternalSystem> getAllExternalSystems() {
+    return GrouperExternalSystem.retrieveAllGrouperExternalSystems();
   }
 
 }

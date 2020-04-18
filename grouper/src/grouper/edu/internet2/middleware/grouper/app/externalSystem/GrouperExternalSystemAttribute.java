@@ -35,9 +35,24 @@ public class GrouperExternalSystemAttribute {
   
   private String fullPropertyName;
   
+  private GrouperExternalSystem grouperExternalSystem;
   
   
   
+  
+  public GrouperExternalSystem getGrouperExternalSystem() {
+    return grouperExternalSystem;
+  }
+
+
+
+  
+  public void setGrouperExternalSystem(GrouperExternalSystem grouperExternalSystem) {
+    this.grouperExternalSystem = grouperExternalSystem;
+  }
+
+
+
   public String getFullPropertyName() {
     return fullPropertyName;
   }
@@ -112,7 +127,8 @@ public class GrouperExternalSystemAttribute {
 
 
   public String getLabel() {
-    String label = GrouperTextContainer.textOrNull("externalSystem." + this.getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".label");
+    
+    String label = GrouperTextContainer.textOrNull("externalSystem." + this.getGrouperExternalSystem().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".label");
     if (StringUtils.isBlank(label)) {
       return this.getConfigSuffix();
     }
@@ -120,7 +136,7 @@ public class GrouperExternalSystemAttribute {
   }
 
   public String getDescription() {
-    String description = GrouperTextContainer.textOrNull("externalSystem." + this.getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description");
+    String description = GrouperTextContainer.textOrNull("externalSystem." + this.getGrouperExternalSystem().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description");
     if (StringUtils.isBlank(description)) {
       return this.getConfigItemMetadata().getComment();
     }

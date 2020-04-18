@@ -42,7 +42,7 @@ public abstract class GrouperExternalSystem {
   }
   
   
-  public String getHtml() {
+  public String getHtml(String methodName) {
     
     Map<String, GrouperExternalSystemAttribute> attributes = this.retrieveAttributes();
     
@@ -51,7 +51,7 @@ public abstract class GrouperExternalSystem {
     html.append("<table class='table table-condensed table-striped'>");
     
     for (GrouperExternalSystemAttribute attribute: attributes.values()) {
-      html.append(buildHtmlFormElement(attribute));      
+      html.append(buildHtmlFormElement(attribute, methodName));   
     }
     html.append("</table>");
     
@@ -60,7 +60,7 @@ public abstract class GrouperExternalSystem {
   }
   
   
-  private String buildHtmlFormElement(GrouperExternalSystemAttribute attribute) {
+  private String buildHtmlFormElement(GrouperExternalSystemAttribute attribute, String methodName) {
     
     StringBuilder field = new StringBuilder();
     
@@ -77,7 +77,7 @@ public abstract class GrouperExternalSystem {
       field.append(" checked ");
     }
         
-    field.append("onchange=\"ajax('../app/UiV2ExternalSystem.editExternalSystemConfigDetails?externalSystemConfigId="+this.getConfigId()+"&externalSystemType="+this.getClass().getName()+"', {formIds: 'editConfigDetails'}); return false;\""
+    field.append("onchange=\"ajax('../app/UiV2ExternalSystem."+methodName+"?externalSystemConfigId="+this.getConfigId()+"&externalSystemType="+this.getClass().getName()+"', {formIds: 'externalSystemConfigDetails'}); return false;\""
         + " name='config_el_"+attribute.getConfigSuffix()+"'>");
     field.append("</input>");
     field.append(GrouperTextContainer.textOrNull("grouperExternalSystemAttributesIsElLabel"));
@@ -455,6 +455,7 @@ public abstract class GrouperExternalSystem {
         GrouperExternalSystemAttribute grouperExternalSystemAttribute = new GrouperExternalSystemAttribute();
 
         grouperExternalSystemAttribute.setFullPropertyName(propertyName);
+        grouperExternalSystemAttribute.setGrouperExternalSystem(this);
         
         result.put(suffix, grouperExternalSystemAttribute);
         
@@ -546,13 +547,24 @@ public abstract class GrouperExternalSystem {
 
   
   public boolean isEnabled() {
-    GrouperExternalSystemAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-    String enabledString = enabledAttribute.getValue();
-    if (StringUtils.isBlank(enabledString)) {
-      enabledString = enabledAttribute.getDefaultValue();
-    }
+   try {
+     GrouperExternalSystemAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
+     String enabledString = enabledAttribute.getValue();
+     if (StringUtils.isBlank(enabledString)) {
+       enabledString = enabledAttribute.getDefaultValue();
+     }
+     
+     return GrouperUtil.booleanValue(enabledString, true);
+   } catch (Exception e) {
+     return false;
+   }
     
-    return GrouperUtil.booleanValue(enabledString, true);
+  }
+  
+  
+  public String propertiesApiProperyValue(String attributeName) {
+    
+    return this.getConfigFileName().getConfig().propertyValueString(this.getConfigItemPrefix()+attributeName);
   }
 
   
@@ -649,6 +661,7 @@ public abstract class GrouperExternalSystem {
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.azure.GrouperExternalSystemAzure");
   }
+  
   
   public static List<GrouperExternalSystem> retrieveAllGrouperExternalSystems() {
     

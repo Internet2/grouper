@@ -47,12 +47,12 @@
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
-			                     <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == true}">
+			                     <%-- <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == true}">
 			                      ${textContainer.text['grouperExternalSystemTableEnabledTrueValue']}
 			                     </c:if>
 			                     <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == false }">
 			                      ${textContainer.text['grouperExternalSystemTableEnabledFalseValue']}
-			                     </c:if>
+			                     </c:if> --%>
 			                   </td>
 			                  
 			                   <td>
@@ -65,6 +65,8 @@
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.editExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableEditDetailsActionOption'] }</a></li>
+			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.deleteExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableDeleteDetailsActionOption'] }</a></li>
+			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.testExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableTestDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>
 			                   </td>

@@ -71,8 +71,10 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
 import edu.internet2.middleware.grouper.ui.NoUserAuthenticatedException;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -206,6 +208,10 @@ public class GrouperUiRestServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+    
+    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.refreshConfigs.onEveryRequest", false)) {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
 
     GrouperUiFilter.assignHttpServlet(this);
     
