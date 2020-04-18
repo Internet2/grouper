@@ -970,6 +970,7 @@ public class UiV2Configure {
           guiConfigSection.setGuiConfigProperties(guiConfigProperties);
           ConfigSectionMetadata configSectionMetadata = new ConfigSectionMetadata();
           guiConfigSection.setConfigSectionMetadata(configSectionMetadata);
+          //TODO externalize
           configSectionMetadata.setTitle("Remaining config");
           configSectionMetadata.setComment("Any configuration not in another section");
           addedRemainingConfigSection = true;

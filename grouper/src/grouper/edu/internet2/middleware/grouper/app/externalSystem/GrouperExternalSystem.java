@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.externalSystem;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -442,7 +443,7 @@ public abstract class GrouperExternalSystem {
     
     ConfigPropertiesCascadeBase configPropertiesCascadeBase = configFileName.getConfig();
     
-    Map<String, GrouperExternalSystemAttribute> result = new HashMap<String, GrouperExternalSystemAttribute>();
+    Map<String, GrouperExternalSystemAttribute> result = new LinkedHashMap<String, GrouperExternalSystemAttribute>();
 
     Pattern pattern = Pattern.compile(this.getConfigIdRegex());
     
