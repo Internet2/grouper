@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,6 +51,10 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -209,6 +214,8 @@ public class UsduJob extends OtherJobBase {
       configNames.add(configName);
     }
     
+    RuntimeException runtimeException = null;
+    
     for (String configName : configNames) {
       boolean isEnabled = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.enabled", true); // what is the default here??
       if (!isEnabled) {
@@ -234,45 +241,115 @@ public class UsduJob extends OtherJobBase {
       }
       
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, configName);
-      List<GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveAll();
-      for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembers) {
-        String memberId = gcGrouperSyncMember.getMemberId();
-        Subject subject = memberIdToSubjectMap.get(memberId);
-        if (subject == null) {
-          // maybe it didn't get resolved, don't mess with the existing cached data.
-          continue;
-        }
-        
-        Map<String, Object> variableMap = new HashMap<String, Object>();
-        variableMap.put("subject", subject);
-        
-        if (autoMemberFromId2 && !StringUtils.isBlank(memberFromId2)) {
-          String memberFromId2Value = GrouperUtil.substituteExpressionLanguage(memberFromId2, variableMap);
-          gcGrouperSyncMember.setMemberFromId2(memberFromId2Value);
-        }
-        
-        if (autoMemberFromId3 && !StringUtils.isBlank(memberFromId3)) {
-          String memberFromId3Value = GrouperUtil.substituteExpressionLanguage(memberFromId3, variableMap);
-          gcGrouperSyncMember.setMemberFromId3(memberFromId3Value);
-        }
-        
-        if (autoMemberToId2 && !StringUtils.isBlank(memberToId2)) {
-          String memberToId2Value = GrouperUtil.substituteExpressionLanguage(memberToId2, variableMap);
-          gcGrouperSyncMember.setMemberToId2(memberToId2Value);
-        }
-        
-        if (autoMemberToId3 && !StringUtils.isBlank(memberToId3)) {
-          String memberToId3Value = GrouperUtil.substituteExpressionLanguage(memberToId3, variableMap);
-          gcGrouperSyncMember.setMemberToId3(memberToId3Value);
-        }
+      
+      GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("usduSubjectCacheUpdater");
+      gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(true);
+
+      GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+      gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
+      
+      //this is not a true full sync, but this means dont defer if another job comes along, finish this until completion
+      //other things can wait
+      gcGrouperSyncHeartbeat.setFullSync(true);
+      if (gcGrouperSyncHeartbeat.isStarted()) {
+        gcGrouperSyncHeartbeat.runHeartbeatThread();
       }
+
+      GcGrouperSyncLog gcGrouperSyncLog = null;
+          
+      long startNanos = System.nanoTime();
       
-      int currentObjectsStored = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
-      LOG.info("Updated " + currentObjectsStored + " objects for configName=" + configName);
+      try {
       
-      totalObjectsStored += currentObjectsStored;
+        gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncJobDao().jobCreateLog(gcGrouperSyncJob);
+        
+        gcGrouperSyncLog.setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
+
+        
+        List<GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveAll();
+        for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembers) {
+          String memberId = gcGrouperSyncMember.getMemberId();
+          Subject subject = memberIdToSubjectMap.get(memberId);
+          if (subject == null) {
+            // maybe it didn't get resolved, don't mess with the existing cached data.
+            continue;
+          }
+          
+          Map<String, Object> variableMap = new HashMap<String, Object>();
+          variableMap.put("subject", subject);
+          
+          if (autoMemberFromId2 && !StringUtils.isBlank(memberFromId2)) {
+            String memberFromId2Value = GrouperUtil.substituteExpressionLanguage(memberFromId2, variableMap);
+            gcGrouperSyncMember.setMemberFromId2(memberFromId2Value);
+          }
+          
+          if (autoMemberFromId3 && !StringUtils.isBlank(memberFromId3)) {
+            String memberFromId3Value = GrouperUtil.substituteExpressionLanguage(memberFromId3, variableMap);
+            gcGrouperSyncMember.setMemberFromId3(memberFromId3Value);
+          }
+          
+          if (autoMemberToId2 && !StringUtils.isBlank(memberToId2)) {
+            String memberToId2Value = GrouperUtil.substituteExpressionLanguage(memberToId2, variableMap);
+            gcGrouperSyncMember.setMemberToId2(memberToId2Value);
+          }
+          
+          if (autoMemberToId3 && !StringUtils.isBlank(memberToId3)) {
+            String memberToId3Value = GrouperUtil.substituteExpressionLanguage(memberToId3, variableMap);
+            gcGrouperSyncMember.setMemberToId3(memberToId3Value);
+          }
+        }
+        
+        gcGrouperSyncLog.setRecordsProcessed(GrouperUtil.length(gcGrouperSyncMembers));
+
+        int currentObjectsStored = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
+
+        gcGrouperSyncLog.setRecordsChanged(currentObjectsStored);
+        
+        LOG.info("Updated " + currentObjectsStored + " objects for configName=" + configName);
+      
+        totalObjectsStored += currentObjectsStored;
+        
+        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
+      } catch (RuntimeException e) {
+        
+        // if one provisioner fails, continue with others
+        GrouperUtil.injectInException(e, "Problem in configName: '" + configName + "'");
+        LOG.error("error", e);
+        runtimeException = e;
+        gcGrouperSyncJob.setErrorMessage(GrouperUtil.getFullStackTrace(e));
+      } finally {
+
+        // end heartbeat thread
+        GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
+
+        // save the job
+        try {
+          gcGrouperSyncJob.assignHeartbeatAndEndJob();
+        } catch (RuntimeException re2) {
+          if (gcGrouperSyncLog != null) {
+            gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+          }
+        }
+        
+        int durationMillis = (int)((System.nanoTime()-startNanos)/1000000);
+
+        // save the log
+        try {
+          if (gcGrouperSyncLog != null) {
+            gcGrouperSyncLog.setJobTookMillis(durationMillis);
+            gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
+          }
+        } catch (RuntimeException re3) {
+        }
+
+      }
     }
 
+    // if any of the parts is a failure, its a failure
+    if (runtimeException != null) {
+      throw runtimeException;
+    }
+    
     return totalObjectsStored;
   }
   
