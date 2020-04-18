@@ -7,7 +7,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 
-public class GrouperExternalSystemSection {
+public class GrouperExternalSystemSubSection {
 
   
   private String label;
@@ -35,7 +35,7 @@ public class GrouperExternalSystemSection {
    * @return
    */
   public String getTitle() {
-    String title = GrouperTextContainer.textOrNull("externalSystem." + this.grouperExternalSystem.getClass().getSimpleName() + ".section." + this.label +".title");
+    String title = GrouperTextContainer.textOrNull("externalSystem." + this.grouperExternalSystem.getClass().getSimpleName() + ".subSection." + this.label +".title");
     if (StringUtils.isBlank(title)) {
       return this.getClass().getSimpleName();
     }
@@ -47,7 +47,7 @@ public class GrouperExternalSystemSection {
    * @return
    */
   public String getDescription() {
-    String title = GrouperTextContainer.textOrNull("externalSystem." + this.grouperExternalSystem.getClass().getSimpleName() + ".section." + this.label + ".description");
+    String title = GrouperTextContainer.textOrNull("externalSystem." + this.grouperExternalSystem.getClass().getSimpleName() + ".subSection." + this.label + ".description");
     if (StringUtils.isBlank(title)) {
       return this.getClass().getSimpleName();
     }
@@ -61,7 +61,7 @@ public class GrouperExternalSystemSection {
   private Map<String, GrouperExternalSystemAttribute> retrieveAttributes() {
     Map<String, GrouperExternalSystemAttribute> results = new LinkedHashMap<String, GrouperExternalSystemAttribute>();
     for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
-      if (StringUtils.equals(this.getLabel(), grouperExternalSystemAttribute.getConfigItemMetadata().getSection())) {
+      if (StringUtils.equals(this.getLabel(), grouperExternalSystemAttribute.getConfigItemMetadata().getSubSection())) {
         results.put(grouperExternalSystemAttribute.getConfigSuffix(), grouperExternalSystemAttribute);
       }
     }

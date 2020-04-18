@@ -149,26 +149,26 @@ public class ConfigItemMetadata {
   }
 
   /**
-   * put a label to group items together.  if blank then all in default section
+   * put a label to group items together.  if blank then all in default subsection
    */
-  private String section;
+  private String subSection;
   
   
   
   /**
-   * put a label to group items together.  if blank then all in default section
+   * put a label to group items together.  if blank then all in default subsection
    * @return
    */
-  public String getSection() {
-    return section;
+  public String getSubSection() {
+    return subSection;
   }
 
   /**
-   * put a label to group items together.  if blank then all in default section
+   * put a label to group items together.  if blank then all in default subsection
    * @param section
    */
-  public void setSection(String section) {
-    this.section = section;
+  public void setSubSection(String section) {
+    this.subSection = section;
   }
 
   /**
@@ -233,7 +233,7 @@ public class ConfigItemMetadata {
     this.sampleValue = null;
     this.sensitive = false;
     this.valueType = null;
-    this.section = null;
+    this.subSection = null;
     this.showEl = null;
     this.formElement = null;
     this.optionValues = null;
@@ -278,9 +278,9 @@ public class ConfigItemMetadata {
         jsonObject.remove("sampleValue");
       }
       
-      if (jsonObject.containsKey("section")) {
-        this.section = jsonObject.getString("section");
-        jsonObject.remove("section");
+      if (jsonObject.containsKey("subSection")) {
+        this.subSection = jsonObject.getString("subSection");
+        jsonObject.remove("subSection");
       }
       
       if (jsonObject.containsKey("sensitive")) {

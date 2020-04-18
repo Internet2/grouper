@@ -397,15 +397,15 @@ public abstract class GrouperExternalSystem {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperExternalSystem.class);
 
-  public List<GrouperExternalSystemSection> getSections() {
+  public List<GrouperExternalSystemSubSection> getSubSections() {
     
-    List<GrouperExternalSystemSection> results = new ArrayList<GrouperExternalSystemSection>();
+    List<GrouperExternalSystemSubSection> results = new ArrayList<GrouperExternalSystemSubSection>();
     
     Set<String> sectionLabelsUsed = new HashSet<String>();
     
     for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.retrieveAttributes().values()) {
       
-      String sectionLabel = grouperExternalSystemAttribute.getConfigItemMetadata().getSection();
+      String sectionLabel = grouperExternalSystemAttribute.getConfigItemMetadata().getSubSection();
       if (StringUtils.isBlank(sectionLabel)) {
         sectionLabel = "NULL";
       }
@@ -414,9 +414,9 @@ public abstract class GrouperExternalSystem {
       }
       sectionLabelsUsed.add(sectionLabel);
       
-      GrouperExternalSystemSection grouperExternalSystemSection = new GrouperExternalSystemSection();
+      GrouperExternalSystemSubSection grouperExternalSystemSection = new GrouperExternalSystemSubSection();
       grouperExternalSystemSection.setGrouperExternalSystem(this);
-      grouperExternalSystemSection.setLabel(grouperExternalSystemAttribute.getConfigItemMetadata().getSection());
+      grouperExternalSystemSection.setLabel(grouperExternalSystemAttribute.getConfigItemMetadata().getSubSection());
       
       results.add(grouperExternalSystemSection);
     }
