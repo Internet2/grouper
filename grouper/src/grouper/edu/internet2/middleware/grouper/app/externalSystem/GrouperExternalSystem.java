@@ -44,9 +44,9 @@ public abstract class GrouperExternalSystem {
   }
   
   
+  
   public String getHtml(String methodName) {
     
-    //Map<String, GrouperExternalSystemAttribute> attributes = this.retrieveAttributes();
     StringBuilder html = new StringBuilder();
     
     List<GrouperExternalSystemSubSection> sections = this.getSubSections();
@@ -68,20 +68,18 @@ public abstract class GrouperExternalSystem {
         html.append("</th>");
         html.append("</tr>");
        
-        for (GrouperExternalSystemAttribute attribute: section.retrieveAttributes().values()) {
+        for (GrouperExternalSystemAttribute attribute: section.getAttributes().values()) {
           html.append(buildHtmlFormElement(attribute, methodName));   
         }
         
         html.append("</tbody>");
       } else {
-        for (GrouperExternalSystemAttribute attribute: section.retrieveAttributes().values()) {
+        for (GrouperExternalSystemAttribute attribute: section.getAttributes().values()) {
           html.append(buildHtmlFormElement(attribute, methodName));   
         }
       }
       
     }
-    
-    
     
     return html.toString();
   }

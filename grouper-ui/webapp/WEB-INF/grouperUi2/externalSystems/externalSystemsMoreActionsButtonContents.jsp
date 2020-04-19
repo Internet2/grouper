@@ -7,6 +7,8 @@
                           ${textContainer.text['grouperExternalSystemMoreActionsButton'] } <span class="caret"></span></a>
 
                       <ul class="dropdown-menu dropdown-menu-right" id="grouper-external-system-more-options">
+                      	<li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystems'); return false;"
+                              >${textContainer.text['grouperExternalSystemMoreActionsViewButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.addExternalSystem'); return false;"
                               >${textContainer.text['grouperExternalSystemMoreActionsAddButton'] }</a></li>
                       </ul>

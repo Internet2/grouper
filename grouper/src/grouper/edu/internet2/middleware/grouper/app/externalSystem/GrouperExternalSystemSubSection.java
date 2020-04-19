@@ -58,7 +58,7 @@ public class GrouperExternalSystemSubSection {
    * return config suffix to attribute
    * @return map
    */
-  public Map<String, GrouperExternalSystemAttribute> retrieveAttributes() {
+  public Map<String, GrouperExternalSystemAttribute> getAttributes() {
     Map<String, GrouperExternalSystemAttribute> results = new LinkedHashMap<String, GrouperExternalSystemAttribute>();
     for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
       if (StringUtils.equals(this.getLabel(), grouperExternalSystemAttribute.getConfigItemMetadata().getSubSection())) {

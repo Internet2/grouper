@@ -92,6 +92,8 @@ public enum ConfigItemMetadataType {
     
     @Override
     public Object convertValue(String valueString) {
+      
+      //TODO: chris, what if the valueString is not int
       return GrouperUtil.intValue(valueString, -1);
     }
 
