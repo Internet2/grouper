@@ -305,7 +305,21 @@ public class UiV2ExternalSystem {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      grouperExternalSystem.insertConfig(true, grouperExternalSystem.retrieveAttributes(), message, errorsToDisplay, validationErrorsToDisplay);
+      grouperExternalSystem.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
       
@@ -317,7 +331,7 @@ public class UiV2ExternalSystem {
     }
     
   }
-  
+
   /**
    * delete external system config
    * @param request

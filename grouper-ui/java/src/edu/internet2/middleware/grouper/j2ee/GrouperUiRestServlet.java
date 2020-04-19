@@ -35,6 +35,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
@@ -209,8 +211,8 @@ public class GrouperUiRestServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     
-    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.refreshConfigs.onEveryRequest", false)) {
-      ConfigPropertiesCascadeBase.clearCache();
+    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.refreshCaches.onEveryRequest", false)) {
+      GrouperCacheUtils.clearAllCaches();
     }
 
     GrouperUiFilter.assignHttpServlet(this);

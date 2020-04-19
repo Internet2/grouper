@@ -193,7 +193,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     }
     assertFalse("cant edit something not there", fail);
 
-    grouperExternalSystemAzure.insertConfig(false, suffixToAttribute, message, errorsToDisplay, validationErrorsToDisplay);
+    grouperExternalSystemAzure.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
 
     
     message.setLength(0);

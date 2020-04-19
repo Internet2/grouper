@@ -44,7 +44,6 @@ public abstract class GrouperExternalSystem {
   }
   
   
-  
   public String getHtml(String methodName) {
     
     StringBuilder html = new StringBuilder();
@@ -186,6 +185,102 @@ public abstract class GrouperExternalSystem {
     return null;
   }
   
+  /**
+   * 
+   * @param isInsert
+   * @param fromUi
+   * @param errorsToDisplay
+   * @param validationErrorsToDisplay
+   */
+  public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    if (isInsert) {
+      if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
+        validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
+      }
+    } else {
+      if (!this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
+        validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdDoesntExist"));
+      }
+    }
+    
+    Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
+    if (!configIdPattern.matcher(this.getConfigId()).matches()) {
+      validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
+    }
+
+    // first check if checked the el checkbox then make sure theres a script there
+    {
+      boolean foundElRequiredError = false;
+      for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.retrieveAttributes().values()) {
+        
+        if (grouperExternalSystemAttribute.isExpressionLanguage() && StringUtils.isBlank(grouperExternalSystemAttribute.getExpressionLanguageScript())) {
+          
+          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperExternalSystemAttribute.getLabel());
+          validationErrorsToDisplay.put(grouperExternalSystemAttribute.getHtmlForElementIdHandle(), 
+              GrouperTextContainer.textOrNull("grouperConfigurationValidationElRequired"));
+          GrouperTextContainer.resetThreadLocalVariableMap();
+          foundElRequiredError = true;
+        }
+        
+      }
+      if (foundElRequiredError) {
+        return;
+      }
+    }
+    
+    // types
+    for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.retrieveAttributes().values()) {
+      
+      ConfigItemMetadataType configItemMetadataType = grouperExternalSystemAttribute.getConfigItemMetadata().getValueType();
+      
+      String value = null;
+      
+      try {
+        value = grouperExternalSystemAttribute.getEvaluatedValueForValidation();
+      } catch (UnsupportedOperationException uoe) {
+        // ignore, it will get validated in the post-save
+        continue;
+      }
+      
+      // required
+      if (StringUtils.isBlank(value)) {
+        if (grouperExternalSystemAttribute.getConfigItemMetadata().isRequired()) {
+
+          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperExternalSystemAttribute.getLabel());
+          validationErrorsToDisplay.put(grouperExternalSystemAttribute.getHtmlForElementIdHandle(), 
+              GrouperTextContainer.textOrNull("grouperConfigurationValidationRequired"));
+          GrouperTextContainer.resetThreadLocalVariableMap();
+          
+        }
+        
+        continue;
+      }
+      String[] valuesToValidate = null;
+      if (grouperExternalSystemAttribute.getConfigItemMetadata().isMultiple()) {
+        valuesToValidate = GrouperUtil.splitTrim(value, ",");
+      } else {
+        valuesToValidate = new String[] {value};
+      }
+
+      for (String theValue : valuesToValidate) {
+        
+        // validate types
+        String externalizedTextKey = configItemMetadataType.validate(theValue);
+        if (!StringUtils.isBlank(externalizedTextKey)) {
+          
+          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperExternalSystemAttribute.getLabel());
+          validationErrorsToDisplay.put(grouperExternalSystemAttribute.getHtmlForElementIdHandle(), 
+              GrouperTextContainer.textOrNull(externalizedTextKey));
+          GrouperTextContainer.resetThreadLocalVariableMap();
+          
+        }
+      }
+    }
+        
+  }
+  
+  
   
   /**
    * save the attribute in an insert.  Note, if theres a failure, you should see if any made it
@@ -195,24 +290,22 @@ public abstract class GrouperExternalSystem {
    * @param validationErrorsToDisplay call from ui: guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
    *      validationErrorsToDisplay.get(validationKey)));
    */
-  public void insertConfig(boolean fromUi, Map<String, GrouperExternalSystemAttribute> attributesToSave,
+  public void insertConfig(boolean fromUi, 
       StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
-    if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
-      throw new RuntimeException("Why does this config id already exist??? '" + this.getConfigId() + "'");
+    validatePreSave(true, fromUi, errorsToDisplay, validationErrorsToDisplay);
+
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+      return;
     }
     
-    Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
-    if (!configIdPattern.matcher(this.getConfigId()).matches()) {
-      throw new RuntimeException("Config id must be alphanumeric or underscore!");
-    }
-
     Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");
     
     // add all the possible ones
-    for (String suffix : attributesToSave.keySet()) {
+    Map<String, GrouperExternalSystemAttribute> attributes = this.retrieveAttributes();
+    for (String suffix : attributes.keySet()) {
     
-      GrouperExternalSystemAttribute grouperExternalSystemAttribute = attributesToSave.get(suffix);
+      GrouperExternalSystemAttribute grouperExternalSystemAttribute = attributes.get(suffix);
       
       if (grouperExternalSystemAttribute.isHasValue()) {
         
@@ -254,11 +347,14 @@ public abstract class GrouperExternalSystem {
    *      validationErrorsToDisplay.get(validationKey)));
    */
   public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    validatePreSave(false, fromUi, errorsToDisplay, validationErrorsToDisplay);
 
-    if (!this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
-      throw new RuntimeException("Why doesn't this config id already exist??? '" + this.getConfigId() + "'");
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+      return;
     }
 
+    
     Map<String, GrouperExternalSystemAttribute> attributes = this.retrieveAttributes();
     
     Set<String> propertyNamesToDelete = new HashSet<String>();

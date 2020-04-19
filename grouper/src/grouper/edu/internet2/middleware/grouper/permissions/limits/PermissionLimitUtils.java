@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitI
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitLabelsContain;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitWeekday9to5Logic;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 
 /**

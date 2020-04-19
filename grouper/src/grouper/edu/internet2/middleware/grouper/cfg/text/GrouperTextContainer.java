@@ -54,6 +54,19 @@ public class GrouperTextContainer {
   }
   
   /**
+   * assign thread local variable map
+   * @param variableMap
+   */
+  public static void assignThreadLocalVariable(String key, Object value) {
+    Map<String, Object> variableMap = threadLocalVariableMap.get();
+    if (variableMap == null) {
+      variableMap = new HashMap<String, Object>();
+      assignThreadLocalVariableMap(variableMap);
+    }
+    variableMap.put(key, value);
+  }
+  
+  /**
    * get the text or null if not found
    * @param key
    * @return the text or null if not found

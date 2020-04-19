@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -1014,9 +1015,7 @@ public class GrouperTest extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
 
-    EhcacheController.ehcacheController().flushCache();
-    
-    SubjectSourceCache.clearCache();
+    GrouperCacheUtils.clearAllCaches();
     
     GrouperSession.stopQuietly(GrouperSession.staticGrouperSession(false));
     GrouperSession.clearGrouperSessions();
@@ -1144,9 +1143,7 @@ public class GrouperTest extends TestCase {
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     
     // clear config cache
-    ConfigPropertiesCascadeBase.clearCache();
-    EhcacheController.ehcacheController().flushCache();
-    SubjectSourceCache.clearCache();
+    GrouperCacheUtils.clearAllCaches();
     
     GrouperTest.initGroupsAndAttributes();
     

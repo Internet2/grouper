@@ -25,8 +25,13 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
@@ -44,32 +49,48 @@ public class GrouperCacheUtils {
    * 
    */
   public static void clearAllCaches() {
-    List<CacheManager> cacheManagers = new ArrayList<CacheManager>(CacheManager.ALL_CACHE_MANAGERS);
-    for (CacheManager cacheManager : GrouperUtil.nonNull(cacheManagers)) {
-      
-      //if not alive we get an exception
-      if (cacheManager.getStatus() == Status.STATUS_ALIVE) {
-        //note we get an exception if the cache is not alive, so do this manually
-        //cacheManager.clearAll();
-        String[] cacheNames = cacheManager.getCacheNames();
-        for (int i = 0; i < cacheNames.length; i++) {
-            String cacheName = cacheNames[i];
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            try {
-              if (cache.getStatus().equals(Status.STATUS_ALIVE) ) {
-                //CH 20110808: Uh, sometimes there is an underlying null pointer here, not sure why?  on Cache.memoryStore
-                cache.removeAll();
-              } else {
-                //i dont know, maybe remove it?
-                cacheManager.removeCache(cacheName);
-              }
-            } catch (Throwable t) {
-              LOG.warn("Problem removing cache (non fatal?)", t);
-            }
-        }
 
-      }
-    }
+    ConfigPropertiesCascadeBase.clearCache();
+    
+    ConfigDatabaseLogic.clearCache();
+
+    ExpirableCache.clearAll();
+    
+    SubjectSourceCache.clearCache();
+
+    SubjectFinder.internalClearSubjectCustomizerCache();
+
+    GrouperUiApiTextConfig.clearCache();
+    
+    // whats the difference between these two?
+    EhcacheController.ehcacheController().flushCache();
+
+//    List<CacheManager> cacheManagers = new ArrayList<CacheManager>(CacheManager.ALL_CACHE_MANAGERS);
+//    for (CacheManager cacheManager : GrouperUtil.nonNull(cacheManagers)) {
+//      
+//      //if not alive we get an exception
+//      if (cacheManager.getStatus() == Status.STATUS_ALIVE) {
+//        //note we get an exception if the cache is not alive, so do this manually
+//        //cacheManager.clearAll();
+//        String[] cacheNames = cacheManager.getCacheNames();
+//        for (int i = 0; i < cacheNames.length; i++) {
+//            String cacheName = cacheNames[i];
+//            Ehcache cache = cacheManager.getEhcache(cacheName);
+//            try {
+//              if (cache.getStatus().equals(Status.STATUS_ALIVE) ) {
+//                //CH 20110808: Uh, sometimes there is an underlying null pointer here, not sure why?  on Cache.memoryStore
+//                cache.removeAll();
+//              } else {
+//                //i dont know, maybe remove it?
+//                cacheManager.removeCache(cacheName);
+//              }
+//            } catch (Throwable t) {
+//              LOG.warn("Problem removing cache (non fatal?)", t);
+//            }
+//        }
+//
+//      }
+//    }
   }
   
 }

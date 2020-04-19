@@ -614,7 +614,7 @@ public class LdaptiveSessionImpl implements LdapSession {
    * @see edu.internet2.middleware.grouper.ldap.LdapSession#authenticate(java.lang.String, java.lang.String, java.lang.String)
    */
   public void authenticate(final String ldapServerId, final String userDn, final String password) {
-      
+          
       callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {

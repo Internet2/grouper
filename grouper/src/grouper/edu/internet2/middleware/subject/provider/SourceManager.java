@@ -25,7 +25,6 @@ package edu.internet2.middleware.subject.provider;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,24 +33,18 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-
-
-import javax.imageio.stream.FileImageInputStream;
-
-import org.apache.commons.digester3.Digester;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.config.SubjectConfig;
-import edu.internet2.middleware.subject.util.ExpirableCache;
 
 /**
  * Factory to load and get Sources.  Sources are defined

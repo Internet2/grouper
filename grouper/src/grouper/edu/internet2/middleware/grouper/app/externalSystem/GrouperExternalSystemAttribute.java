@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.externalSystem;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,11 +42,11 @@ public class GrouperExternalSystemAttribute {
   
   private GrouperExternalSystem grouperExternalSystem;
   
-  public Object getObjectValue() {
+  public Object getObjectValueAllowInvalid() {
     
     ConfigItemMetadataType valueType =  GrouperUtil.defaultIfNull(this.getConfigItemMetadata().getValueType(), ConfigItemMetadataType.STRING);
     
-    return valueType.convertValue(this.getValueOrExpressionEvaluation());
+    return valueType.convertValue(this.getValueOrExpressionEvaluation(), false);
     
   }
   
@@ -68,6 +69,41 @@ public class GrouperExternalSystemAttribute {
     return value;
   }
   
+  public String getHtmlForElementIdHandle() {
+    return "#config_" + this.getConfigSuffix() + "_id";
+  }
+  
+  /**
+   * 
+   * @return
+   */
+  public String getEvaluatedValueForValidation() throws UnsupportedOperationException {
+    
+    if (!this.expressionLanguage) {
+      return this.value;
+    }
+    
+    // if script and certain type (e.g. env var), then validate
+    //${java.lang.System.getenv().get('JAVA_HOME')}
+    Pattern pattern = Pattern.compile("^\\${\\s*java\\.lang\\.System\\.getenv\\(\\)\\.get\\([^)]+\\)\\s*}$");
+    boolean evaluate = false;
+    if (pattern.matcher(this.expressionLanguageScript).matches()) {
+      evaluate = true;
+    }
+    
+    if (evaluate) {
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+
+      variableMap.put("grouperUtil", new GrouperUtilElSafe());
+      
+      String value = GrouperUtil.substituteExpressionLanguage(this.expressionLanguageScript, variableMap, true, true, true);
+
+      return value;
+    }
+    
+    throw new UnsupportedOperationException();
+  }
+  
   /**
    * 
    * @return if show
@@ -88,11 +124,11 @@ public class GrouperExternalSystemAttribute {
     
     Map<String, Object> variableMap = new HashMap<String, Object>();
 
-    variableMap.put("gruoperUtil", new GrouperUtilElSafe());
+    variableMap.put("grouperUtil", new GrouperUtilElSafe());
     
     for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
       
-      variableMap.put(grouperExternalSystemAttribute.getConfigSuffix(), grouperExternalSystemAttribute.getObjectValue());
+      variableMap.put(grouperExternalSystemAttribute.getConfigSuffix(), grouperExternalSystemAttribute.getObjectValueAllowInvalid());
       
     }
 

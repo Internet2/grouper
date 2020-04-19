@@ -40,6 +40,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
 
+  public static void clearCache() {
+    Map<String, ConfigPropertiesCascadeBase> theConfigFileCache = configFileCache;
+    if (theConfigFileCache != null) {
+      theConfigFileCache.clear();
+    }
+  }
   /**
    * 
    * @param args
