@@ -365,6 +365,7 @@ public class ConfigFileMetadata {
       }
     }
     configFileMetadata.setValidConfig(localConfigValid);
+    
     return configFileMetadata;
     
   }

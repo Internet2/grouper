@@ -1458,6 +1458,8 @@ CREATE TABLE grouper_config
     config_version_index BIGINT,
     last_updated BIGINT NOT NULL,
     hibernate_version_number BIGINT NOT NULL,
+    config_value_clob_bytes BIGINT,
+    config_value_clob mediumtext,
     PRIMARY KEY (id)
 );
 

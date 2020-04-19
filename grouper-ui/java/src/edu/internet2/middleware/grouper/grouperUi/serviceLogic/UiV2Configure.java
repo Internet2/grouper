@@ -4,11 +4,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1218,5 +1220,67 @@ public class UiV2Configure {
         
       }
     }
+    
+    // find sections with regexes
+    List<GuiConfigSection> newGuiConfigSections = new ArrayList<GuiConfigSection>();
+    
+    for (int i=0;i<GrouperUtil.length(guiConfigFile.getGuiConfigSections());i++) {
+      
+      GuiConfigSection guiConfigSection  = guiConfigFile.getGuiConfigSections().get(i);
+
+      newGuiConfigSections.add(guiConfigSection);
+      
+      String sectionMetadataRegexPrefix = findSectionMetadataRegexPrefix(guiConfigSection);
+      
+      if (StringUtils.isBlank(sectionMetadataRegexPrefix) || StringUtils.countMatches(sectionMetadataRegexPrefix, "(") > 1) {
+        continue;
+      }
+      
+      adjustSectionsForBlocks(i, guiConfigFile.getGuiConfigSections(), sectionMetadataRegexPrefix);
+    }
+    
+    guiConfigFile.setGuiConfigSections(newGuiConfigSections);
+  }
+
+  public static String findSectionMetadataRegexPrefix(GuiConfigSection guiConfigSection) {
+    // see if there are regexes here
+    for (GuiConfigProperty guiConfigProperty : guiConfigSection.getGuiConfigProperties()) {
+      
+      // ^db\\.([^.]+)\\.user$
+      String regex = guiConfigProperty.getConfigItemMetadata().getRegex();
+      if (!StringUtils.isBlank(regex)) {
+        String regexSearchString = "\\.([^.]+)\\.";
+        if (StringUtils.contains(regex, regexSearchString)) {
+          String sectionPrefixMetadata = regex.substring(0, regex.indexOf(regexSearchString) + regexSearchString.length());
+          return sectionPrefixMetadata;
+        }
+      }
+    }
+    return null;
   }  
+  
+  private static void adjustSectionsForBlocks(int currentSectionIndex, List<GuiConfigSection> guiConfigSections, String sectionMetadataRegexPrefix) {
+
+    Map<String, List<GuiConfigProperty>> configKeyLabelToPropertyList = new TreeMap<String, List<GuiConfigProperty>>();
+  
+    // only go forward in sections
+    for (int i=currentSectionIndex;i<GrouperUtil.length(guiConfigSections);i++) {
+    }
+  
+    Pattern pattern = Pattern.compile(sectionMetadataRegexPrefix);
+  
+  Iterator<GuiConfigProperty> iterator = guiConfigSection.getGuiConfigProperties().iterator();
+  while (iterator.hasNext()) {
+    
+    GuiConfigProperty guiConfigProperty = iterator.next();
+    
+    Matcher matcher = pattern.matcher(guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey());
+    
+    if (matcher.matches()) {
+      
+    }
+    
+  }
+
+  }
 }
