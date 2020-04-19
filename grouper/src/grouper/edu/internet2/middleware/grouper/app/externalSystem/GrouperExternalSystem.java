@@ -808,8 +808,24 @@ public abstract class GrouperExternalSystem {
   static {
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.azure.GrouperExternalSystemAzure");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.changelogconsumer.googleapps.GoogleGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouperBox.BoxGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingActiveMQ.ActiveMqGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingRabbitmq.RabbitMqGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingAWS.SqsGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.file.SftpGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyGrouperExternalSystem");
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyDigitalMarketplaceGrouperExternalSystem");
   }
   
+  /**
+   * list of systems that can be configured
+   * @return
+   */
   public static List<GrouperExternalSystem> retrieveAllGrouperExternalSystemTypes() {
     
     List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();
@@ -824,7 +840,10 @@ public abstract class GrouperExternalSystem {
     return result;
   }
 
-  
+  /**
+   * list of configured external systems
+   * @return
+   */
   public static List<GrouperExternalSystem> retrieveAllGrouperExternalSystems() {
     
     List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();

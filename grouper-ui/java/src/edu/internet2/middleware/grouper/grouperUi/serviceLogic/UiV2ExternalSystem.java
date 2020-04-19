@@ -484,7 +484,15 @@ public class UiV2ExternalSystem {
       
       grouperExternalSystem.setConfigId(externalSystemConfigId);
       
-      List<String> errors = grouperExternalSystem.test();
+      List<String> errors = new ArrayList<String>();
+      
+      try {        
+        errors = grouperExternalSystem.test();
+      } catch (UnsupportedOperationException e) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConnectionNotSupported")));
+        return;
+      }
       
       if (errors.size() > 0) {
         for (String error: errors) {
