@@ -554,6 +554,14 @@ public class VTLdapSessionImpl implements LdapSession {
     }
   }
   
+  @Override
+  public void authenticate(String ldapServerId) {
+    this.authenticate(ldapServerId, 
+        GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".user"),
+        GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pass"));
+    
+  }
+
   /**
    * @see edu.internet2.middleware.grouper.ldap.LdapSession#authenticate(java.lang.String, java.lang.String, java.lang.String)
    */

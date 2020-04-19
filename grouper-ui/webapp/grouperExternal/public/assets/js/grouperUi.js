@@ -1200,7 +1200,12 @@ function guiProcessAction(guiScreenAction) {
     guiScrollTop();
     //put up the validation error thing
     //TODO if the handle doesnt exist, throw error to help develop, sometimes the error is thrown before JSP is drawn wont work
-    var alertText = guiEscapeHtml(guiScreenAction.validationMessage, true);
+    
+    // single quote doesnt get escaped right.  will get converted to double quote.  dont use single quotes in alerts!
+    var alertText = guiScreenAction.validationMessage.replace(/'/g, "\""); 
+      
+    alertText = guiEscapeHtml(alertText, true);
+    
     $(guiScreenAction.innerHtmlJqueryHandle).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + alertText + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
   }
 }

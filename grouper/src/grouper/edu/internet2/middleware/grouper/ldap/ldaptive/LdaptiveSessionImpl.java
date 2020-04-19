@@ -989,4 +989,12 @@ public class LdaptiveSessionImpl implements LdapSession {
       throw re;
     }
   }
+
+  @Override
+  public void authenticate(String ldapServerId) {
+    this.authenticate(ldapServerId, 
+        GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".user"),
+        GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pass"));
+    
+  }
 }

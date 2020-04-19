@@ -118,4 +118,11 @@ public interface LdapSession {
    * @param password
    */
   public abstract void authenticate(final String ldapServerId, final String userDn, final String password);
+  
+  /**
+   * Authenticate a user with the built in user/pass in grouper loader properties
+   * @param ldapServerId 
+   */
+  public abstract void authenticate(final String ldapServerId);
+
 }
