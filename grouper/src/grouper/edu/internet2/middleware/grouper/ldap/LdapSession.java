@@ -103,6 +103,13 @@ public interface LdapSession {
   public abstract boolean move(final String ldapServerId, String oldDn, String newDn);
   
   /**
+   * test a connection
+   * @param ldapServerId
+   * @return true if success, false or exception if not successful (error is in exception)
+   */
+  public abstract boolean testConnection(final String ldapServerId);
+  
+  /**
    * modify attributes for an object.  this should be done in bulk, and if there is an error, throw it
    * @param ldapServerId
    * @param dn
@@ -119,10 +126,4 @@ public interface LdapSession {
    */
   public abstract void authenticate(final String ldapServerId, final String userDn, final String password);
   
-  /**
-   * Authenticate a user with the built in user/pass in grouper loader properties
-   * @param ldapServerId 
-   */
-  public abstract void authenticate(final String ldapServerId);
-
 }

@@ -15,7 +15,11 @@
  */
 package edu.internet2.middleware.grouper.ldap;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -23,8 +27,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LdapSessionUtils {
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(LdapSessionUtils.class);
+
   private static LdapSession ldapSession = null;
 
+  private static boolean loggedErrorNotLdaptive = false;
+  
   /**
    *
    * @return the external subject storable
@@ -34,9 +43,13 @@ public class LdapSessionUtils {
       synchronized (LdapSessionUtils.class) {
         if (ldapSession == null) {
           String className = GrouperConfig.retrieveConfig().propertyValueString("ldap.implementation.className");
-          @SuppressWarnings("unchecked")
-          Class<LdapSession> theClass = GrouperUtil.forName(className);
-          ldapSession = GrouperUtil.newInstance(theClass);
+          
+          if (!StringUtils.equals(className, LdaptiveSessionImpl.class.getName()) && !loggedErrorNotLdaptive) {
+            LOG.error("ldap.implementation.className cannot be anything but " + LdaptiveSessionImpl.class.getName());
+            loggedErrorNotLdaptive = true;
+          }
+          
+          ldapSession = new LdaptiveSessionImpl(); 
         }
       }
     }

@@ -89,6 +89,7 @@ import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
+import edu.vt.middleware.ldap.Ldap;
 /**
  * will handle the ldap config, and inverse of control for pooling
  * 
@@ -252,19 +253,7 @@ public class LdaptiveSessionImpl implements LdapSession {
           
           result.setPruneStrategy(new IdlePruneStrategy(pruneTimerPeriod / 1000, expirationTime / 1000));
           
-          Validator<Connection> validator = null;
-
-          String ldapValidator = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".validator", "SearchValidator");
-
-          if (StringUtils.equalsIgnoreCase(ldapValidator, CompareValidator.class.getSimpleName())
-              || StringUtils.equalsIgnoreCase(ldapValidator, "CompareLdapValidator")) {
-            String validationDn = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareDn");
-            String validationAttribute = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareAttribute");
-            String validationValue = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareValue");
-            validator = new CompareValidator(new CompareRequest(validationDn, new LdapAttribute(validationAttribute, validationValue)));
-          } else if (StringUtils.equalsIgnoreCase(ldapValidator, SearchValidator.class.getSimpleName())) {
-            validator = new SearchValidator();
-          }
+          Validator<Connection> validator = retrieveValidator(ldapServerId);
           
           if (validator != null) {
             result.setValidator(validator);
@@ -286,6 +275,24 @@ public class LdaptiveSessionImpl implements LdapSession {
       }
     }
     return blockingLdapPool;
+  }
+
+  private static Validator<Connection> retrieveValidator(String ldapServerId) {
+    
+    Validator<Connection> validator = null;
+    
+    String ldapValidator = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".validator", "SearchValidator");
+
+    if (StringUtils.equalsIgnoreCase(ldapValidator, CompareValidator.class.getSimpleName())
+        || StringUtils.equalsIgnoreCase(ldapValidator, "CompareLdapValidator")) {
+      String validationDn = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareDn");
+      String validationAttribute = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareAttribute");
+      String validationValue = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareValue");
+      validator = new CompareValidator(new CompareRequest(validationDn, new LdapAttribute(validationAttribute, validationValue)));
+    } else if (StringUtils.equalsIgnoreCase(ldapValidator, SearchValidator.class.getSimpleName())) {
+      validator = new SearchValidator();
+    }
+    return validator;
   }
   
   private static Properties getLdaptiveProperties(String ldapSystemName) {
@@ -991,10 +998,24 @@ public class LdaptiveSessionImpl implements LdapSession {
   }
 
   @Override
-  public void authenticate(String ldapServerId) {
-    this.authenticate(ldapServerId, 
-        GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".user"),
-        GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pass"));
-    
+  public boolean testConnection(final String ldapServerId) {
+    Validator<Connection> validator = retrieveValidator(ldapServerId);
+    boolean valid = false;
+    if (validator != null) {
+      valid = (Boolean)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
+
+        @Override
+        public Object callback(LdapHandlerBean<Connection> ldapHandlerBean)
+            throws Exception {
+          return validator.validate(ldapHandlerBean.getLdap());
+        }
+      });
+    }
+    // if not valid, maybe this will throw a useful exception
+    if (validator == null || !valid) {
+      authenticate(ldapServerId, GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".user"),
+          GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pass"));
+    }
+    return valid;
   }
 }

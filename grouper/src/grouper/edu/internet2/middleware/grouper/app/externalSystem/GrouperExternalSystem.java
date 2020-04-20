@@ -39,6 +39,11 @@ public abstract class GrouperExternalSystem {
     return errors;
   }
   
+  /**
+   * return list of error messages
+   * @return
+   * @throws UnsupportedOperationException
+   */
   public List<String> test() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
