@@ -89,7 +89,6 @@ import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
-import edu.vt.middleware.ldap.Ldap;
 /**
  * will handle the ldap config, and inverse of control for pooling
  * 
@@ -326,35 +325,33 @@ public class LdaptiveSessionImpl implements LdapSession {
         
         _ldaptiveProperties.put("org.ldaptive." + propNameTail, propValue);
 
-        // Some compatibility between old vtldap properties and ldaptive versions
-        // url (vtldap) ==> ldapUrl
         if (propNameTail.equalsIgnoreCase("url")) {
-          LOG.info("Setting org.ldaptive.ldapUrl for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.ldapUrl");
           _ldaptiveProperties.put("org.ldaptive.ldapUrl", propValue);
         }
         // tls (vtldap) ==> useStartTls
         if (propNameTail.equalsIgnoreCase("tls")) {
-          LOG.info("Setting org.ldaptive.useStartTLS for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.useStartTLS");
           _ldaptiveProperties.put("org.ldaptive.useStartTLS", propValue);
         }
         // user (vtldap) ==> bindDn
         if (propNameTail.equalsIgnoreCase("user")) {
-          LOG.info("Setting org.ldaptive.bindDn for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.bindDn");
           _ldaptiveProperties.put("org.ldaptive.bindDn", propValue);
         }
         // pass (vtldap) ==> bindCredential
         if (propNameTail.equalsIgnoreCase("pass")) {
-          LOG.info("Setting org.ldaptive.bindCredential for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.bindCredential");
           _ldaptiveProperties.put("org.ldaptive.bindCredential", propValue);
         }
         // countLimit (vtldap) ==> sizeLimit
         if (propNameTail.equalsIgnoreCase("countLimit")) {
-          LOG.info("Setting org.ldaptive.sizeLimit for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.sizeLimit");
           _ldaptiveProperties.put("org.ldaptive.sizeLimit", propValue);
         }
         // timeout (vtldap) ==> connectTimeout
         if (propNameTail.equalsIgnoreCase("timeout")) {
-          LOG.info("Setting org.ldaptive.connectTimeout for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.connectTimeout");
           _ldaptiveProperties.put("org.ldaptive.connectTimeout", propValue);
         }
       }

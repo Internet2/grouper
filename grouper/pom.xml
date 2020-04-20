@@ -295,16 +295,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>edu.vt.middleware</groupId>
-            <artifactId>vt-ldap</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>dom4j</artifactId>
-                    <groupId>dom4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jandex</artifactId>
         </dependency>

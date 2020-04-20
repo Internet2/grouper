@@ -293,29 +293,6 @@ public class LdapSystem {
           String propNameTail = propName.substring(ldapPropertyPrefix.length());
           _ldaptiveProperties.put("org.ldaptive." + propNameTail, propValue);
           
-          // Some compatibility between old vtldap properties and ldaptive versions
-          // url (vtldap) ==> ldapUrl
-          if ( propNameTail.equalsIgnoreCase("url") ) {
-            LOG.info("Setting org.ldaptive.ldapUrl for compatibility with vt-ldap");
-            _ldaptiveProperties.put("org.ldaptive.ldapUrl", propValue);
-          }
-          // tls (vtldap) ==> useStartTls
-          if ( propNameTail.equalsIgnoreCase("tls") ) {
-            LOG.info("Setting org.ldaptive.useStartTLS for compatibility with vt-ldap");
-            _ldaptiveProperties.put("org.ldaptive.useStartTLS", propValue);
-          }
-          // user (vtldap) ==> bindDn
-          if ( propNameTail.equalsIgnoreCase("user") )
-          {
-            LOG.info("Setting org.ldaptive.bindDn for compatibility with vt-ldap");
-            _ldaptiveProperties.put("org.ldaptive.bindDn", propValue);
-          }
-          // pass (vtldap) ==> bindCredential
-          if ( propNameTail.equalsIgnoreCase("pass") )
-          {
-            LOG.info("Setting org.ldaptive.bindCredential for compatibility with vt-ldap");
-            _ldaptiveProperties.put("org.ldaptive.bindCredential", propValue);
-          }
         }
       }
     }
