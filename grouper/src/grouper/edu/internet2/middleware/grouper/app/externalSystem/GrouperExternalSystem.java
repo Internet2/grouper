@@ -811,7 +811,7 @@ public abstract class GrouperExternalSystem {
   
   public final static Set<String> externalTypeClassNames = new LinkedHashSet<String>();
   static {
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.azure.GrouperExternalSystemAzure");
+    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.changelogconsumer.googleapps.GoogleGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
@@ -835,11 +835,16 @@ public abstract class GrouperExternalSystem {
     
     List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();
     
-    for (String className: externalTypeClassNames) {       
+    for (String className: externalTypeClassNames) {
       
-      Class<GrouperExternalSystem> externalSystemClass = (Class<GrouperExternalSystem>) GrouperUtil.forName(className);
-      GrouperExternalSystem externalSystem = GrouperUtil.newInstance(externalSystemClass);
-      result.add(externalSystem);
+      try {
+        Class<GrouperExternalSystem> externalSystemClass = (Class<GrouperExternalSystem>) GrouperUtil.forName(className);
+        GrouperExternalSystem externalSystem = GrouperUtil.newInstance(externalSystemClass);
+        result.add(externalSystem);  
+      } catch (Exception e) {
+        //TODO ignore for now. 
+      }
+      
     }
     
     return result;
@@ -853,10 +858,14 @@ public abstract class GrouperExternalSystem {
     
     List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();
     
-    for (String className: externalTypeClassNames) {       
+    for (String className: externalTypeClassNames) {    
+      try {
         Class<GrouperExternalSystem> externalSystemClass = (Class<GrouperExternalSystem>) GrouperUtil.forName(className);
         GrouperExternalSystem externalSystem = GrouperUtil.newInstance(externalSystemClass);
         result.addAll(externalSystem.listAllExternalSystemsOfThisType());
+      } catch (Exception e) {
+        // TODO: ignore for now
+      }
     }
     
     return result;

@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.azure.GrouperExternalSystemAzure;
+import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
@@ -41,7 +41,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
 
   public void testNoExternalSystemAzure() {
     
-    GrouperExternalSystemAzure grouperExternalSystemAzure = new GrouperExternalSystemAzure();
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
     assertEquals(0, GrouperUtil.length(grouperExternalSystemAzure.retrieveConfigurationConfigIds()));
     
   }
@@ -109,7 +109,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
 
 
     
-    GrouperExternalSystemAzure grouperExternalSystemAzure = new GrouperExternalSystemAzure();
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
     
     Set<String> propertyNames = grouperExternalSystemAzure.retrieveConfigurationKeysByPrefix("grouper.azureConnector.testAzure.");
     
@@ -159,7 +159,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
 
   public void testExternalSystemAzureInsertEditDelete() {
 
-    GrouperExternalSystemAzure grouperExternalSystemAzure = new GrouperExternalSystemAzure();
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
     
     grouperExternalSystemAzure.setConfigId("azureConnector2");
     
@@ -200,7 +200,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     errorsToDisplay.clear();
     validationErrorsToDisplay.clear();
     
-    grouperExternalSystemAzure = new GrouperExternalSystemAzure();
+    grouperExternalSystemAzure = new AzureGrouperExternalSystem();
     grouperExternalSystemAzure.setConfigId("azureConnector2");
     suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
     
@@ -221,7 +221,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     errorsToDisplay.clear();
     validationErrorsToDisplay.clear();
     
-    grouperExternalSystemAzure = new GrouperExternalSystemAzure();
+    grouperExternalSystemAzure = new AzureGrouperExternalSystem();
     grouperExternalSystemAzure.setConfigId("azureConnector2");
     suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
     
@@ -236,7 +236,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     errorsToDisplay.clear();
     validationErrorsToDisplay.clear();
     
-    grouperExternalSystemAzure = new GrouperExternalSystemAzure();
+    grouperExternalSystemAzure = new AzureGrouperExternalSystem();
     grouperExternalSystemAzure.setConfigId("azureConnector2");
     suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
 

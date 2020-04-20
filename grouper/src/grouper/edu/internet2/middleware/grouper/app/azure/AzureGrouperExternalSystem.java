@@ -6,7 +6,7 @@ import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 
-public class GrouperExternalSystemAzure extends GrouperExternalSystem {
+public class AzureGrouperExternalSystem extends GrouperExternalSystem {
 
   @Override
   public ConfigFileName getConfigFileName() {

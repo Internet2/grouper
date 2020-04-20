@@ -17,7 +17,7 @@ public class SmtpGrouperExternalSystem extends GrouperExternalSystem {
 
   @Override
   public String getConfigIdRegex() {
-    return "^(mail\\.smtp)\\.(.*)$";
+    return "^(mail)\\.(smtp)\\.(.*)$";
   }
 
 }
