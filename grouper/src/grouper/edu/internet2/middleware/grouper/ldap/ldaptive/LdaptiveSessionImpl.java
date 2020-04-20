@@ -592,7 +592,7 @@ public class LdaptiveSessionImpl implements LdapSession {
               List<String> currentBatch = GrouperUtil.batchList(dnList, batchSize, i);
               StringBuilder builder = new StringBuilder();
               for (String dn : currentBatch) {
-                builder.append("(" + config.getDnAttributeForSearches() + "=" + dn + ")");
+                builder.append("(" + config.getDnAttributeForSearches() + "=" + SearchFilter.encodeValue(dn) + ")");
               }
               
               String filter = "(|" + builder.toString() + ")";
