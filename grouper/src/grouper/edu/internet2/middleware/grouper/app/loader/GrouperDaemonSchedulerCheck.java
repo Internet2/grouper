@@ -27,9 +27,6 @@ import org.hibernate.type.StringType;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
-import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -54,28 +51,109 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
     runDaemonStandalone();
   }
 
+  private static Thread daemonSchedulerCheckThread = new Thread(new Runnable() {
+
+    @Override
+    public void run() {
+      
+      try {
+        
+        int rando3_8 = 3 + (int)Math.round((Math.random() * 5.0));
+
+        // sleep a few minutes after daemon starts up
+        Thread.sleep(1000 * 60 * rando3_8);
+
+      } catch (InterruptedException ie) {
+        return;
+      } catch (Exception e) {
+        LOG.error("error in scheduler check thread start", e);
+
+        // continue
+      }
+
+      while (true) {
+        try {
+
+          int maxMinutesSinceSuccess = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.schedulerCheckDaemon.maxMinutesSinceSuccess", 35);
+  
+          // dont worry about it
+          if (maxMinutesSinceSuccess <= 0) {
+            return;
+          }
+
+          Thread.sleep(1000*60*maxMinutesSinceSuccess+1);
+          
+          runDaemonSchedulerCheckNowIfHasntRunRecently();
+        } catch (InterruptedException ie) {
+          return;
+        } catch (Exception e) {
+          LOG.error("error in scheduler check thread", e);
+          // continue
+        }
+      }
+      
+      
+      
+    }
+    
+  });
+
+  /**
+   * if the thread isnt running, and is supposed to run, then start it
+   */
+  public static void startDaemonSchedulerCheckThreadIfNeeded() {
+    int maxMinutesSinceSuccess = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.schedulerCheckDaemon.maxMinutesSinceSuccess", 35);
+    
+    // dont worry about it
+    if (maxMinutesSinceSuccess <= 0) {
+      return;
+    }
+    if (daemonSchedulerCheckThread.isAlive()) {
+      return;
+    }
+    daemonSchedulerCheckThread.setDaemon(true);
+    daemonSchedulerCheckThread.start();
+  }
+  
   /**
    * run standalone
    */
   public static void runDaemonStandalone() {
+    
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    
-    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+  
     String jobName = "OTHER_JOB_schedulerCheckDaemon";
+     
+    GrouperLoader.runOnceByJobName(grouperSession, jobName);
 
-    hib3GrouperLoaderLog.setJobName(jobName);
-    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-    hib3GrouperLoaderLog.store();
+//    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+//    
+//    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+//
+//    hib3GrouperLoaderLog.setJobName(jobName);
+//    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+//    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+//    hib3GrouperLoaderLog.store();
+//    
+//    OtherJobInput otherJobInput = new OtherJobInput();
+//    otherJobInput.setJobName(jobName);
+//    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+//    otherJobInput.setGrouperSession(grouperSession);
+//    new GrouperDaemonSchedulerCheck().run(otherJobInput);
+//    
+//    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+//    hib3GrouperLoaderLog.store();
     
-    OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    otherJobInput.setGrouperSession(grouperSession);
-    new GrouperDaemonSchedulerCheck().run(otherJobInput);
+    
   }
   
+  public static void runDaemonSchedulerCheckNowIfHasntRunRecently() {
+    if (!Hib3GrouperLoaderLog.hasRecentDaemonSchedulerCheck()) {
+      LOG.error("Scheduler check daemon did not run from quartz!!!!!  running by fallback thread");
+      runDaemonStandalone();
+    }
+  }
+
   /**
    * @see edu.internet2.middleware.grouper.app.loader.OtherJobBase#run(edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput)
    */
