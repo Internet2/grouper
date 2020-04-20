@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.ws.security;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,8 +33,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ldaptive.SearchFilter;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
@@ -203,22 +207,38 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
       //ws.authn.ldap.loginIdSuffix = ,ou=entities,dc=upenn,dc=edu
       String loginDnPrefix = StringUtils.trimToEmpty(GrouperWsConfig.getPropertyString("ws.authn.ldap.loginDnPrefix"));
       String loginDnSuffix = StringUtils.trimToEmpty(GrouperWsConfig.getPropertyString("ws.authn.ldap.loginDnSuffix"));
+      String findUserBase = StringUtils.trimToEmpty(GrouperWsConfig.getPropertyString("ws.authn.ldap.findUserBase"));
+      String findUserFilter = StringUtils.trimToEmpty(GrouperWsConfig.getPropertyString("ws.authn.ldap.findUserFilter"));
 
-      userDn = loginDnPrefix + principal + loginDnSuffix;
-      
-      if (LOG.isDebugEnabled()) {
-        debugMap.put("loginDnPrefix", loginDnPrefix);
-        debugMap.put("principal", principal);
-        debugMap.put("loginDnSuffix", loginDnSuffix);
-        debugMap.put("userDn", userDn);
-      }
-      
       String grouperLoaderLdapConfigId = GrouperWsConfig.getPropertyString("ws.authn.ldap.grouperLoaderLdapConfigId");
       if (StringUtils.isBlank(grouperLoaderLdapConfigId)) {
         if (LOG.isDebugEnabled()) {
           debugMap.put("ws.authn.ldap.grouperLoaderLdapConfigName not configured", "true");
         }
         throw new RuntimeException("ws.authn.ldap.grouperLoaderLdapConfigName must be configured in the grouper-ws.properties");
+      }
+      
+      if (!StringUtils.isEmpty(findUserFilter)) {
+        String filter = findUserFilter.replace("{username}", SearchFilter.encodeValue(principal));
+        List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list(grouperLoaderLdapConfigId, findUserBase, LdapSearchScope.SUBTREE_SCOPE, filter, new String[] { }, null);
+        if (ldapEntries.size() != 1) {
+          LOG.warn("error for principal: " + principal + ", filter " + filter + " returned " + ldapEntries.size() + " results");
+          return false;
+        }
+        
+        userDn = ldapEntries.get(0).getDn();
+      } else {
+        // use previous behavior
+        userDn = loginDnPrefix + principal + loginDnSuffix;
+      }
+      
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("findUserBase", findUserBase);
+        debugMap.put("findUserFilter", findUserFilter);
+        debugMap.put("loginDnPrefix", loginDnPrefix);
+        debugMap.put("principal", principal);
+        debugMap.put("loginDnSuffix", loginDnSuffix);
+        debugMap.put("userDn", userDn);
       }
             
       LdapSessionUtils.ldapSession().authenticate(grouperLoaderLdapConfigId, userDn, password);
