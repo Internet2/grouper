@@ -124,7 +124,7 @@ public class RuleFinder {
               }
               if (!privilegeOk) {
 
-                if (!stem.canHavePrivilege(grouperSessionSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
+                if (stem.canHavePrivilege(grouperSessionSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
                   privilegeOk = true;
                 }
               }
@@ -139,7 +139,7 @@ public class RuleFinder {
                   case attributeDefCreate:
 
                     //is there a membership for attribute def?
-                    Membership membership = new MembershipFinder().assignScope(stem.getName()).assignStemScope(scope)
+                    Membership membership = new MembershipFinder().assignStem(stem).assignStemScope(scope)
                       .assignField(AttributeDefPrivilege.ATTR_ADMIN.getField())
                       .assignQueryOptionsForAttributeDef(new QueryOptions().paging(1, 1, false)).findMembership(false);
                     
@@ -149,7 +149,7 @@ public class RuleFinder {
                   case groupCreate:
 
                     //is there a membership for group?
-                    membership = new MembershipFinder().assignScope(stem.getName()).assignStemScope(scope)
+                    membership = new MembershipFinder().assignStem(stem).assignStemScope(scope)
                       .assignField(AccessPrivilege.ADMIN.getField())
                       .assignQueryOptionsForGroup(new QueryOptions().paging(1, 1, false)).findMembership(false);
                     
@@ -159,7 +159,7 @@ public class RuleFinder {
                   case stemCreate:
                     
                     //is there a membership for stem?
-                    membership = new MembershipFinder().assignScope(stem.getName()).assignStemScope(scope)
+                    membership = new MembershipFinder().assignStem(stem).assignStemScope(scope)
                       .assignField(NamingPrivilege.STEM_ADMIN.getField())
                       .assignQueryOptionsForStem(new QueryOptions().paging(1, 1, false)).findMembership(false);
                     
