@@ -188,3 +188,7 @@ div.visualization-text-node {
   border: 2px solid black;
   pointer-events: none;
 }
+
+div.c3.instrumentationGraph  {
+  max-height: 320px;
+}

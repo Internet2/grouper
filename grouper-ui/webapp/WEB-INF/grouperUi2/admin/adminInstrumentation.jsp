@@ -59,7 +59,7 @@
                     <c:forEach items="${grouperRequestContainer.adminContainer.guiInstrumentationGraphResults}" var="type" >
                       <br />
                       <c:set var="typeTextKey" value="adminInstrumentationDataType_${type.key}" />
-                      <div id="chart_${type.key}"></div>
+                      <div id="chart_${type.key}" class="instrumentationGraph"></div>
                       <br /><br />
                       <script type="text/javascript">
                       var dates = ["x"];
