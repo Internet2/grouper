@@ -139,31 +139,31 @@ public class RuleFinder {
                   case attributeDefCreate:
 
                     //is there a membership for attribute def?
-                    Membership membership = new MembershipFinder().assignStem(stem).assignStemScope(scope)
+                    int membershipSize = new MembershipFinder().assignStem(stem).assignStemScope(scope)
                       .assignField(AttributeDefPrivilege.ATTR_ADMIN.getField())
-                      .assignQueryOptionsForAttributeDef(new QueryOptions().paging(1, 1, false)).findMembership(false);
+                      .assignQueryOptionsForAttributeDef(new QueryOptions().paging(1, 1, false)).findMembershipsMembers().size();
                     
-                    privilegeOk = membership != null;
+                    privilegeOk = membershipSize > 0;
                     
                     break;
                   case groupCreate:
 
                     //is there a membership for group?
-                    membership = new MembershipFinder().assignStem(stem).assignStemScope(scope)
+                    membershipSize = new MembershipFinder().assignStem(stem).assignStemScope(scope)
                       .assignField(AccessPrivilege.ADMIN.getField())
-                      .assignQueryOptionsForGroup(new QueryOptions().paging(1, 1, false)).findMembership(false);
+                      .assignQueryOptionsForGroup(new QueryOptions().paging(1, 1, false)).findMembershipsMembers().size();
                     
-                    privilegeOk = membership != null;
+                    privilegeOk = membershipSize > 0;
 
                     break;
                   case stemCreate:
                     
                     //is there a membership for stem?
-                    membership = new MembershipFinder().assignStem(stem).assignStemScope(scope)
+                    membershipSize = new MembershipFinder().assignStem(stem).assignStemScope(scope)
                       .assignField(NamingPrivilege.STEM_ADMIN.getField())
-                      .assignQueryOptionsForStem(new QueryOptions().paging(1, 1, false)).findMembership(false);
+                      .assignQueryOptionsForStem(new QueryOptions().paging(1, 1, false)).findMembershipsMembers().size();
                     
-                    privilegeOk = membership != null;
+                    privilegeOk = membershipSize > 0;
 
                     break;
                   default:
