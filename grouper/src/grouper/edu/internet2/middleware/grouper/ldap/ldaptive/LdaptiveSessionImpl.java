@@ -1013,8 +1013,11 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     // if not valid, maybe this will throw a useful exception
     if (validator == null || !valid) {
-      authenticate(ldapServerId, GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".user"),
-          GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pass"));
+      String user = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".user");
+      String pass = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pass");
+      pass = Morph.decryptIfFile(pass);
+      authenticate(ldapServerId, user,
+          pass);
     }
     return valid;
   }
