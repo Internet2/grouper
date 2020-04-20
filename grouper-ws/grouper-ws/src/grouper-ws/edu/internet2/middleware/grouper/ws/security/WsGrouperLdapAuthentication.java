@@ -220,7 +220,7 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
       
       if (!StringUtils.isEmpty(findUserFilter)) {
         String filter = findUserFilter.replace("{username}", SearchFilter.encodeValue(principal));
-        List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list(grouperLoaderLdapConfigId, findUserBase, LdapSearchScope.SUBTREE_SCOPE, filter, new String[] { }, null);
+        List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list(grouperLoaderLdapConfigId, findUserBase, LdapSearchScope.SUBTREE_SCOPE, filter, new String[] { "1.1" }, null);
         if (ldapEntries.size() != 1) {
           LOG.warn("error for principal: " + principal + ", filter " + filter + " returned " + ldapEntries.size() + " results");
           return false;
