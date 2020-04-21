@@ -32,6 +32,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
@@ -508,12 +510,21 @@ public class RuleEngine {
     return result;
     
   }
-
+  
   /**
    * validate the rules, and run the daemon stuff in rules
    * @return the number of records changed
    */
   public static int daemon() {
+    return daemon(null);
+  }
+
+  /**
+   * validate the rules, and run the daemon stuff in rules
+   * @param hib3GrouperLoaderLog
+   * @return the number of records changed
+   */
+  public static int daemon(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     
     //get all enabled rules
     final Map<AttributeAssign, Set<AttributeAssignValueContainer>> attributeAssignValueContainers 
@@ -524,6 +535,9 @@ public class RuleEngine {
     return (Integer)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Throwable throwable = null;
+        int numberOfErrors = 0;
+        
         GrouperAttributeAssignValueRulesConfigHook.getThreadLocalInValidateRule().set(Boolean.TRUE);
         int rulesChanged = 0;
         try {
@@ -567,12 +581,28 @@ public class RuleEngine {
               }              
 
             } catch (Exception e) {
+              numberOfErrors++;
               LOG.error("Error with daemon on rule: " + ruleDefinition, e);
+              if (throwable == null) {
+                throwable = e;
+              }
             }
           }
         } finally {
           GrouperAttributeAssignValueRulesConfigHook.getThreadLocalInValidateRule().set(Boolean.FALSE);
         }
+        
+        if (hib3GrouperLoaderLog != null) {
+          hib3GrouperLoaderLog.setUpdateCount(rulesChanged);
+          hib3GrouperLoaderLog.setJobMessage("Ran rules daemon, changed " + rulesChanged + " records, there were " + numberOfErrors + " errors.");          
+          if (numberOfErrors > 0) {
+            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+            hib3GrouperLoaderLog.appendJobMessage("  All errors logged but here's one: " + ExceptionUtils.getFullStackTrace(throwable));
+          } else {
+            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name()); 
+          }
+        }
+        
         return rulesChanged;
       }
     });

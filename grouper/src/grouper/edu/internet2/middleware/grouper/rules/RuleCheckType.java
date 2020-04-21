@@ -723,6 +723,14 @@ public enum RuleCheckType {
       //lets get the if enum
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       
+      if (ruleIfConditionEnum == null) {
+        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+        }
+        
+        return;
+      }
+      
       switch (ruleIfConditionEnum) {
         
         case thisGroupHasImmediateEnabledMembership:
@@ -795,6 +803,14 @@ public enum RuleCheckType {
       
       //lets get the if enum
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
+      
+      if (ruleIfConditionEnum == null) {
+        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+        }
+        
+        return;
+      }
       
       switch (ruleIfConditionEnum) {
         
@@ -1308,6 +1324,14 @@ public enum RuleCheckType {
       //lets get the if enum
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      if (ruleIfConditionEnum == null) {
+        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+        }
+        
+        return;
+      }
       
       switch (ruleIfConditionEnum) {
         
@@ -1894,6 +1918,14 @@ public enum RuleCheckType {
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
+      if (ruleIfConditionEnum == null) {
+        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+        }
+        
+        return;
+      }
+      
       switch (ruleIfConditionEnum) {
         
         case groupHasNoImmediateEnabledMembership:
@@ -2257,7 +2289,9 @@ public enum RuleCheckType {
    * @param ruleDefinition
    */
   public void runDaemon(RuleDefinition ruleDefinition) {
-    throw new RuntimeException("Not implemented daemon: " + ruleDefinition);
+    if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+      throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+    }
   }
 
   /**

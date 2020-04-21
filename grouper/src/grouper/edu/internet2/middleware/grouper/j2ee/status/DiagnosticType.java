@@ -130,6 +130,7 @@ public enum DiagnosticType {
         diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__grouperReport", GrouperLoaderType.MAINTENANCE));
       }
       diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE_cleanLogs", GrouperLoaderType.MAINTENANCE));
+      diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__rules", GrouperLoaderType.MAINTENANCE));
 
       if (StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.builtinMessagingDaemon.quartz.cron"))) {
         diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.GROUPER_BUILTIN_MESSAGING_DAEMON, GrouperLoaderType.MAINTENANCE));

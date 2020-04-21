@@ -371,13 +371,7 @@ public enum GrouperLoaderType {
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_RULES, hib3GrouploaderLog.getJobName())) {
-
-          int records = RuleEngine.daemon();
-          hib3GrouploaderLog.setUpdateCount(records);
-
-          hib3GrouploaderLog.setJobMessage("Ran rules daemon, changed " + records + " records");
-          
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+          RuleEngine.daemon(hib3GrouploaderLog);
         } else if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
 
           //strip off the beginning
