@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright 2014 Internet2
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.16 2009-06-24 06:22:24 mchyzer Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouperClient.jdbc.tableSync" default-lazy="false">
+
+  <class name="GcGrouperSyncLog" table="grouper_sync_log" optimistic-lock="version">
+
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <cache usage="read-write"/>
+
+    <!-- id -->
+    <id name="id" unsaved-value="none" column="id">
+      <generator class="assigned" />
+    </id>
+    <!-- id -->
+    
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <version name="lastUpdated" column="last_updated" type="timestamp" />
+
+    <property name="description" column="description"/>
+    <property name="grouperSyncId" column="grouper_sync_id"/>
+    <property name="grouperSyncOwnerId" column="grouper_sync_owner_id"/>
+    <property name="jobTookMillis" column="job_took_millis"/>
+    <property name="recordsChanged" column="records_changed"/>
+    <property name="recordsProcessed" column="records_processed"/>
+    <property name="server" column="server"/>
+    <property name="statusDb" column="status"/>
+    <property name="syncTimestamp" column="sync_timestamp" type="timestamp"/>
+  </class>
+</hibernate-mapping>
