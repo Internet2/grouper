@@ -932,7 +932,7 @@ public class TestGroup extends GrouperTest {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("dao.optimisticLocking", "true");
       
       //re-init
-      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.hibernateInitted().put("grouper", false);
       Hib3DAO.initHibernateIfNotInitted();
       
       final Group group1 = (Group)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
@@ -978,7 +978,7 @@ public class TestGroup extends GrouperTest {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
       
       //re-init
-      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.hibernateInitted().put("grouper", false);
       Hib3DAO.initHibernateIfNotInitted();
 
     }
@@ -995,7 +995,7 @@ public class TestGroup extends GrouperTest {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("dao.optimisticLocking", "false");
       
       //re-init
-      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.hibernateInitted().put("grouper", false);
       Hib3DAO.initHibernateIfNotInitted();
       
       final Group group1 = (Group)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
@@ -1033,7 +1033,7 @@ public class TestGroup extends GrouperTest {
       
       GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
       //re-init
-      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.hibernateInitted().put("grouper", false);
       Hib3DAO.initHibernateIfNotInitted();
       
     }

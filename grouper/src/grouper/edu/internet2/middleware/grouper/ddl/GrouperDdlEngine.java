@@ -682,6 +682,7 @@ public class GrouperDdlEngine {
       HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
       return;
     } catch (Exception e) {
+      e.printStackTrace();
       //not found
     }
       
@@ -1052,7 +1053,7 @@ public class GrouperDdlEngine {
   private void registryInstall() {
     try {
       //lets reset the hibernate configuration so it can get properly configured
-      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.hibernateInitted().put("grouper", false);
       RegistryInstall.install();
     } catch (RuntimeException e) {
       if (!GrouperShell.runFromGsh && callFromCommandLine && !writeAndRunScript) {

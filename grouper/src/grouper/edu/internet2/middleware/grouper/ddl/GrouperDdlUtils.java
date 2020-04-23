@@ -308,6 +308,15 @@ public class GrouperDdlUtils {
    * @return the platform object
    */
   public static Platform retrievePlatform(boolean useCache) {
+    return retrievePlatform(useCache, "grouper");
+  }
+
+  /**
+   * retrieve the ddl utils platform
+   * @param useCache if we should get from cache if it is available
+   * @return the platform object
+   */
+  public static Platform retrievePlatform(boolean useCache, String databaseName) {
     
     if (cachedPlatform == null || !useCache) {
       
@@ -318,7 +327,7 @@ public class GrouperDdlUtils {
       String ddlUtilsDbnameOverride = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.dbname.override");
   
       //convenience to get the url, user, etc of the grouper db
-      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile(databaseName);
   
       if (StringUtils.isBlank(ddlUtilsDbnameOverride)) {
         
@@ -804,12 +813,16 @@ public class GrouperDdlUtils {
   }
 
   public static String runScriptIfShouldReturnString(String script, boolean runScript, boolean deleteFileAfterwards) {
+    return runScriptIfShouldReturnString("grouper", script, runScript, deleteFileAfterwards);
+  }
+
+  public static String runScriptIfShouldReturnString(String connectionName, String script, boolean runScript, boolean deleteFileAfterwards) {
 
     String scriptDirName = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.directory.for.scripts");
     
     File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
     GrouperUtil.saveStringIntoFile(scriptFile, script);
-    String result = runScriptFileIfShouldReturnString(scriptFile, runScript);
+    String result = runScriptFileIfShouldReturnString(connectionName, scriptFile, runScript);
     if (deleteFileAfterwards) {
       GrouperUtil.deleteFile(scriptFile);
     }
@@ -817,7 +830,11 @@ public class GrouperDdlUtils {
   }
 
   public static String runScriptFileIfShouldReturnString(File scriptFile, boolean runScript) {
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    return runScriptFileIfShouldReturnString("grouper", scriptFile, runScript);
+  }
+
+  public static String runScriptFileIfShouldReturnString(String connectionName, File scriptFile, boolean runScript) {
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile(connectionName);
 
     String logMessage = (runScript ? "Ran" : "Run") + " this DDL:\n" + scriptFile.getAbsolutePath();
 
@@ -1622,22 +1639,32 @@ public class GrouperDdlUtils {
   }
 
   public static String findScriptOverrideDatabase() {
-    if (isHsql()) {
+    return findScriptOverrideDatabase("grouper");
+  }
+
+  public static String findScriptOverrideDatabase(String connectionName) {
+    String url = null;
+    if (StringUtils.equals("grouper", connectionName)) {
+      url = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");
+    } else {
+      url = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + connectionName + ".url");
+    }
+    if (isHsql(url)) {
       return "hsql";
     }
-    if (isPostgres()) {
+    if (isPostgres(url)) {
       return "postgres";
     }
-    if (isOracle()) {
+    if (isOracle(url)) {
       return "oracle";
     }
-    if (isMysql()) {
+    if (isMysql(url)) {
       return "mysql";
     }
     throw new RuntimeException("Not expecting database type, should be hsql, oracle, mysql, or postgres! '" + 
-        GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url") + "'");
+        url + "'");
   }
-  
+
   /**
    * <pre>
    * File name must be objectName.V#.dbname.sql

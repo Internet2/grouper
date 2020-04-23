@@ -255,42 +255,7 @@ public class GrouperLoaderDb {
 
     try {
       
-      if (!StringUtils.isBlank(this.connectionName)) {
-        
-        if (databaseConfigType == null) {
-          databaseConfigType = configTypeWithDatabaseConnection(this.connectionName);
-        }
-        
-        String theUrl = databaseConfigType.configValue(this.connectionName, "url");
-        String theDriver = databaseConfigType.configValue(this.connectionName, "driver");
-        String theUser = databaseConfigType.configValue(this.connectionName, "user");
-        String thePass = databaseConfigType.configValue(this.connectionName, "pass");
-        
-        if (!StringUtils.isBlank(this.url) && !StringUtils.equals(this.url, theUrl)) {
-          throw new RuntimeException("In database connectionName '" + this.connectionName + "' the url doesnt match: '" + this.url + "', '" + theUrl + "'");
-        }
-        
-        if (!StringUtils.isBlank(this.url) && !StringUtils.equals(this.user, theUser)) {
-          throw new RuntimeException("In database connectionName '" + this.connectionName + "' the user doesnt match: '" + this.user + "', '" + theUser + "'");
-        }
-        
-        this.url = theUrl;
-        this.driver = theDriver;
-        this.user = theUser;
-        this.pass = thePass;
-
-        this.pass = Morph.decryptIfFile(this.pass);
-
-      }
-      
-      if (StringUtils.isBlank(this.url)) {
-        throw new RuntimeException("Cant find database url in config: " + this);
-      }
-      
-      if (StringUtils.isBlank(this.driver)) {
-        this.driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(this.url, this.driver);
-      }
-      Class.forName(this.driver);
+      initProperties();
       
       if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouperLoader.db.connections.pool", true)) {
         
@@ -405,6 +370,45 @@ public class GrouperLoaderDb {
       throw new RuntimeException("Problems with db: " + this, e);
     }
     
+  }
+
+  public void initProperties() {
+    if (!StringUtils.isBlank(this.connectionName)) {
+      
+      if (databaseConfigType == null) {
+        databaseConfigType = configTypeWithDatabaseConnection(this.connectionName);
+      }
+      
+      String theUrl = databaseConfigType.configValue(this.connectionName, "url");
+      String theDriver = databaseConfigType.configValue(this.connectionName, "driver");
+      String theUser = databaseConfigType.configValue(this.connectionName, "user");
+      String thePass = databaseConfigType.configValue(this.connectionName, "pass");
+      
+      if (!StringUtils.isBlank(this.url) && !StringUtils.equals(this.url, theUrl)) {
+        throw new RuntimeException("In database connectionName '" + this.connectionName + "' the url doesnt match: '" + this.url + "', '" + theUrl + "'");
+      }
+      
+      if (!StringUtils.isBlank(this.url) && !StringUtils.equals(this.user, theUser)) {
+        throw new RuntimeException("In database connectionName '" + this.connectionName + "' the user doesnt match: '" + this.user + "', '" + theUser + "'");
+      }
+      
+      this.url = theUrl;
+      this.driver = theDriver;
+      this.user = theUser;
+      this.pass = thePass;
+
+      this.pass = Morph.decryptIfFile(this.pass);
+
+    }
+    
+    if (StringUtils.isBlank(this.url)) {
+      throw new RuntimeException("Cant find database url in config: " + this);
+    }
+    
+    if (StringUtils.isBlank(this.driver)) {
+      this.driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(this.url, this.driver);
+    }
+    GrouperUtil.forName(this.driver);
   }
 
   /**

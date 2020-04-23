@@ -32,6 +32,8 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -42,6 +44,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -54,6 +57,12 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.morphString.Morph;
 
 /**
@@ -67,12 +76,12 @@ public abstract class Hib3DAO {
   /**
    * 
    */
-  private static Configuration  CFG;
+  private static Map<String, Configuration>  CFG = new HashMap<String, Configuration>();
 
   /**
    * 
    */
-  private static SessionFactory FACTORY;
+  private static Map<String, SessionFactory> FACTORY = new HashMap<String, SessionFactory>();
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Hib3DAO.class);
@@ -92,22 +101,61 @@ public abstract class Hib3DAO {
   /**
    * keep track of if hibernate is initted yet, allow resets... (e.g. for testing)
    */
-  public static boolean hibernateInitted = false;
-  
+  private static Map<String, Boolean> hibernateInittedMap = null;
+
+  public static Map<String, Boolean> hibernateInitted() {
+    if (hibernateInittedMap == null) {
+      hibernateInittedMap = new HashMap<String, Boolean>();
+    }
+    return hibernateInittedMap;
+  }
+
   /**
    * init hibernate if not initted
    */
   public synchronized static void initHibernateIfNotInitted() {
-    if (hibernateInitted) {
+    initHibernateIfNotInitted("grouper");
+  }
+
+  /**
+   * init hibernate if not initted
+   */
+  public synchronized static void initHibernateIfNotInitted(String connectionName) {
+    
+    if (StringUtils.isBlank(connectionName)) {
+      throw new RuntimeException("connectionName is required");
+    }
+    
+    Boolean initted = hibernateInitted().get(connectionName);
+    if (initted != null && initted == Boolean.TRUE) {
       return;
     }
     
     //this might not be completely accurate
-    hibernateInitted = true;
+    hibernateInitted().put(connectionName, Boolean.TRUE);
+    
+    // Find the custom configuration file
+    Properties properties = GrouperHibernateConfig.retrieveConfig().properties();
+    
+    if (!StringUtils.equals(connectionName, "grouper")) {
+      GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(connectionName);
+      grouperLoaderDb.initProperties();
+      
+      if (StringUtils.isBlank(grouperLoaderDb.getUrl())) {
+        throw new RuntimeException("Cant find database in grouper-loader.properties '" + connectionName + "'");
+      }
+      
+      properties.put("hibernate.connection.url", grouperLoaderDb.getUrl());
+      properties.put("hibernate.connection.username", StringUtils.defaultString(grouperLoaderDb.getUser()));
+      properties.put("hibernate.connection.password", StringUtils.defaultString(grouperLoaderDb.getPass()));
+      properties.put("hibernate.connection.driver_class", StringUtils.defaultString(grouperLoaderDb.getDriver()));
+      properties.remove("hibernate.dialect");
+    }
+    initHibernateIfNotInittedHelper(connectionName, properties);
+  }
 
+  private static void initHibernateIfNotInittedHelper(String connectionName, Properties p) {
     try {
-      // Find the custom configuration file
-      Properties  p   = GrouperHibernateConfig.retrieveConfig().properties();
       
       //unencrypt pass
       if (p.containsKey("hibernate.connection.password")) {
@@ -130,94 +178,100 @@ public abstract class Hib3DAO {
       }      
       
       // And now load all configuration information
-      CFG = new Configuration()
-        .addProperties(p);
-      addClass(CFG, Hib3AttributeAssignActionDAO.class);
-      addClass(CFG, Hib3AttributeAssignActionSetDAO.class);
-      addClass(CFG, Hib3AttributeAssignActionSetViewDAO.class);
-      addClass(CFG, Hib3AttributeAssignDAO.class);
-      addClass(CFG, Hib3AttributeAssignValueDAO.class);
-      addClass(CFG, Hib3AttributeDefDAO.class);
-      addClass(CFG, Hib3AttributeDefNameDAO.class);
-      addClass(CFG, Hib3AttributeDefNameSetDAO.class);
-      addClass(CFG, Hib3AttributeDefNameSetViewDAO.class);
-      addClass(CFG, Hib3AttributeDefScopeDAO.class);
-      addClass(CFG, Hib3AuditEntryDAO.class);
-      addClass(CFG, Hib3AuditTypeDAO.class);
-      addClass(CFG, Hib3ChangeLogEntryDAO.class);
-      addClass(CFG, Hib3ChangeLogEntryDAO.class, "Hib3ChangeLogEntryTempDAO");
-      addClass(CFG, Hib3ChangeLogConsumerDAO.class);
-      addClass(CFG, Hib3ChangeLogTypeDAO.class);
-      addClass(CFG, Hib3CompositeDAO.class);
-      addClass(CFG, Hib3ConfigDAO.class);
-      addClass(CFG, Hib3ExternalSubjectDAO.class);
-      addClass(CFG, Hib3ExternalSubjectAttributeDAO.class);
-      addClass(CFG, Hib3FieldDAO.class);
-      addClass(CFG, Hib3GroupDAO.class);
-      addClass(CFG, Hib3MemberDAO.class);
-      addClass(CFG, Hib3MembershipDAO.class);
-      addClass(CFG, Hib3MembershipDAO.class, "Hib3ImmediateMembershipDAO");
-      addClass(CFG, Hib3MessageDAO.class);
-      addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleViewDAO");
-      addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleSubjectViewDAO");
-      addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionAllViewDAO");
-      addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleAssignedViewDAO");
-      addClass(CFG, Hib3RegistrySubjectDAO.class);
-      addClass(CFG, Hib3RegistrySubjectAttributeDAO.class);
-      addClass(CFG, Hib3RoleSetDAO.class);
-      addClass(CFG, Hib3RoleSetViewDAO.class);
-      addClass(CFG, Hib3StemDAO.class);
-      addClass(CFG, Hib3GrouperDdl.class);
-      addClass(CFG, Hib3GrouperDdlWorker.class);
-      addClass(CFG, Hib3GrouperLoaderLog.class);
-      addClass(CFG, Hib3GroupSetDAO.class);
-      addClass(CFG, Hib3PITGroupDAO.class);
-      addClass(CFG, Hib3PITStemDAO.class);
-      addClass(CFG, Hib3PITAttributeDefDAO.class);
-      addClass(CFG, Hib3PITMemberDAO.class);
-      addClass(CFG, Hib3PITFieldDAO.class);
-      addClass(CFG, Hib3PITMembershipDAO.class);
-      addClass(CFG, Hib3PITGroupSetDAO.class);
-      addClass(CFG, Hib3PITMembershipViewDAO.class);
-      addClass(CFG, Hib3PITAttributeAssignValueDAO.class);
-      addClass(CFG, Hib3PITAttributeAssignDAO.class);
-      addClass(CFG, Hib3PITAttributeAssignActionDAO.class);
-      addClass(CFG, Hib3PITAttributeAssignActionSetDAO.class);
-      addClass(CFG, Hib3PITRoleSetDAO.class);
-      addClass(CFG, Hib3PITAttributeDefNameDAO.class);
-      addClass(CFG, Hib3PITAttributeDefNameSetDAO.class);
-      addClass(CFG, Hib3PITPermissionAllViewDAO.class);
-      addClass(CFG, Hib3PITAttributeAssignValueViewDAO.class);
-      addClass(CFG, Hib3ServiceRoleViewDAO.class);
-      addClass(CFG, Hib3StemSetDAO.class);
-      addClass(CFG, Hib3TableIndexDAO.class);
-      addClass(CFG, Hib3GrouperPasswordDAO.class);
-      CFG.setInterceptor(new Hib3SessionInterceptor());
+      Configuration configuration = new Configuration().addProperties(p);
+      CFG.put(connectionName, configuration);
+      addClass(configuration, Hib3AttributeAssignActionDAO.class);
+      addClass(configuration, Hib3AttributeAssignActionSetDAO.class);
+      addClass(configuration, Hib3AttributeAssignActionSetViewDAO.class);
+      addClass(configuration, Hib3AttributeAssignDAO.class);
+      addClass(configuration, Hib3AttributeAssignValueDAO.class);
+      addClass(configuration, Hib3AttributeDefDAO.class);
+      addClass(configuration, Hib3AttributeDefNameDAO.class);
+      addClass(configuration, Hib3AttributeDefNameSetDAO.class);
+      addClass(configuration, Hib3AttributeDefNameSetViewDAO.class);
+      addClass(configuration, Hib3AttributeDefScopeDAO.class);
+      addClass(configuration, Hib3AuditEntryDAO.class);
+      addClass(configuration, Hib3AuditTypeDAO.class);
+      addClass(configuration, Hib3ChangeLogEntryDAO.class);
+      addClass(configuration, Hib3ChangeLogEntryDAO.class, "Hib3ChangeLogEntryTempDAO");
+      addClass(configuration, Hib3ChangeLogConsumerDAO.class);
+      addClass(configuration, Hib3ChangeLogTypeDAO.class);
+      addClass(configuration, Hib3CompositeDAO.class);
+      addClass(configuration, Hib3ConfigDAO.class);
+      addClass(configuration, Hib3ExternalSubjectDAO.class);
+      addClass(configuration, Hib3ExternalSubjectAttributeDAO.class);
+      addClass(configuration, Hib3FieldDAO.class);
+      addClass(configuration, Hib3GroupDAO.class);
+      addClass(configuration, GcGrouperSync.class, "Hib3GrouperSyncDAO");
+      addClass(configuration, GcGrouperSyncGroup.class, "Hib3GrouperSyncGroupDAO");
+      addClass(configuration, GcGrouperSyncJob.class, "Hib3GrouperSyncJobDAO");
+      addClass(configuration, GcGrouperSyncLog.class, "Hib3GrouperSyncLogDAO");
+      addClass(configuration, GcGrouperSyncMember.class, "Hib3GrouperSyncMemberDAO");
+      addClass(configuration, GcGrouperSyncMembership.class, "Hib3GrouperSyncMembershipDAO");
+      addClass(configuration, Hib3MemberDAO.class);
+      addClass(configuration, Hib3MembershipDAO.class);
+      addClass(configuration, Hib3MembershipDAO.class, "Hib3ImmediateMembershipDAO");
+      addClass(configuration, Hib3MessageDAO.class);
+      addClass(configuration, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleViewDAO");
+      addClass(configuration, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleSubjectViewDAO");
+      addClass(configuration, Hib3PermissionEntryDAO.class, "Hib3PermissionAllViewDAO");
+      addClass(configuration, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleAssignedViewDAO");
+      addClass(configuration, Hib3RegistrySubjectDAO.class);
+      addClass(configuration, Hib3RegistrySubjectAttributeDAO.class);
+      addClass(configuration, Hib3RoleSetDAO.class);
+      addClass(configuration, Hib3RoleSetViewDAO.class);
+      addClass(configuration, Hib3StemDAO.class);
+      addClass(configuration, Hib3GrouperDdl.class);
+      addClass(configuration, Hib3GrouperDdlWorker.class);
+      addClass(configuration, Hib3GrouperLoaderLog.class);
+      addClass(configuration, Hib3GroupSetDAO.class);
+      addClass(configuration, Hib3PITGroupDAO.class);
+      addClass(configuration, Hib3PITStemDAO.class);
+      addClass(configuration, Hib3PITAttributeDefDAO.class);
+      addClass(configuration, Hib3PITMemberDAO.class);
+      addClass(configuration, Hib3PITFieldDAO.class);
+      addClass(configuration, Hib3PITMembershipDAO.class);
+      addClass(configuration, Hib3PITGroupSetDAO.class);
+      addClass(configuration, Hib3PITMembershipViewDAO.class);
+      addClass(configuration, Hib3PITAttributeAssignValueDAO.class);
+      addClass(configuration, Hib3PITAttributeAssignDAO.class);
+      addClass(configuration, Hib3PITAttributeAssignActionDAO.class);
+      addClass(configuration, Hib3PITAttributeAssignActionSetDAO.class);
+      addClass(configuration, Hib3PITRoleSetDAO.class);
+      addClass(configuration, Hib3PITAttributeDefNameDAO.class);
+      addClass(configuration, Hib3PITAttributeDefNameSetDAO.class);
+      addClass(configuration, Hib3PITPermissionAllViewDAO.class);
+      addClass(configuration, Hib3PITAttributeAssignValueViewDAO.class);
+      addClass(configuration, Hib3ServiceRoleViewDAO.class);
+      addClass(configuration, Hib3StemSetDAO.class);
+      addClass(configuration, Hib3TableIndexDAO.class);
+      addClass(configuration, Hib3GrouperPasswordDAO.class);
+      configuration.setInterceptor(new Hib3SessionInterceptor());
       
       //if we are testing, map these classes to the table (which may or may not exist)
       Class<?> hibernatableClass = null;
       try {
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
-        addClass(CFG, hibernatableClass);
+        addClass(configuration, hibernatableClass);
       } catch (ClassNotFoundException cnfe) {
         //this is ok
       }
       try {
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoaderGroups");
-        addClass(CFG, hibernatableClass);
+        addClass(configuration, hibernatableClass);
       } catch (ClassNotFoundException cnfe) {
         //this is ok
       }
       try {
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperIncrementalLoader");
-        addClass(CFG, hibernatableClass);
+        addClass(configuration, hibernatableClass);
       } catch (ClassNotFoundException cnfe) {
         //this is ok
       }
       try {
         
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.subj.TestgrouperSubjAttr");
-        addClass(CFG, hibernatableClass);
+        addClass(configuration, hibernatableClass);
         
       } catch (ClassNotFoundException cnfe) {
         //this is ok
@@ -226,7 +280,7 @@ public abstract class Hib3DAO {
       try {
         
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.tableSync.TestgrouperSyncSubjectFrom");
-        addClass(CFG, hibernatableClass);
+        addClass(configuration, hibernatableClass);
         
       } catch (ClassNotFoundException cnfe) {
         //this is ok
@@ -235,7 +289,7 @@ public abstract class Hib3DAO {
       try {
         
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.tableSync.TestgrouperSyncChangeLog");
-        addClass(CFG, hibernatableClass);
+        addClass(configuration, hibernatableClass);
         
       } catch (ClassNotFoundException cnfe) {
         //this is ok
@@ -244,7 +298,7 @@ public abstract class Hib3DAO {
       try {
         
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.tableSync.TestgrouperSyncSubjectTo");
-        addClass(CFG, hibernatableClass);
+        addClass(configuration, hibernatableClass);
         
       } catch (ClassNotFoundException cnfe) {
         //this is ok
@@ -252,7 +306,7 @@ public abstract class Hib3DAO {
       
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
           LifecycleHooks.METHOD_HIBERNATE_INIT, HooksLifecycleHibInitBean.class, 
-          CFG, Configuration.class, null);
+          configuration, Configuration.class, null);
       
       // And finally create our session factory
       //trying to avoid warning of using the same dir
@@ -266,7 +320,8 @@ public abstract class Hib3DAO {
         System.setProperty(GrouperUtil.JAVA_IO_TMPDIR, newTmpdir);
         
         //now it should be using a unique directory
-        FACTORY = CFG.buildSessionFactory();
+        SessionFactory sessionFactory = configuration.buildSessionFactory();
+        FACTORY.put(connectionName, sessionFactory);
       } finally {
         
         //put tmpdir back
@@ -303,7 +358,17 @@ public abstract class Hib3DAO {
    */
   private static void addClass(Configuration _CFG, Class<?> mappedClass, String entityNameXmlFileNameOverride) {
     String resourceName = resourceNameFromClassName(mappedClass, entityNameXmlFileNameOverride);
-    String xml = GrouperUtil.readResourceIntoString(resourceName, false);
+    String xml = GrouperUtil.readResourceIntoString(resourceName, true);
+    if (xml == null) {
+      // worth a shot to try the default location
+      resourceName = "edu/internet2/middleware/grouper/internal/dao/hib3/" + entityNameXmlFileNameOverride + ".hbm.xml";
+      xml = GrouperUtil.readResourceIntoString(resourceName, true);
+      if (xml == null) {
+        // go back to original error message
+        resourceName = resourceNameFromClassName(mappedClass, entityNameXmlFileNameOverride);
+        xml = GrouperUtil.readResourceIntoString(resourceName, false);
+      }
+    }
     
     if (xml.contains("<version")) {
       
@@ -352,7 +417,16 @@ public abstract class Hib3DAO {
    */
   public static Configuration getConfiguration()
     throws  HibernateException {
-    return CFG;
+    return getConfiguration("grouper");
+  }
+
+  /**
+   * @return the configuration
+   * @throws HibernateException
+   */
+  public static Configuration getConfiguration(String databaseName)
+    throws  HibernateException {
+    return CFG.get(databaseName);
   }
 
   /**
@@ -362,11 +436,22 @@ public abstract class Hib3DAO {
    * @return the session
    * @throws HibernateException
    */
-	public static Session session()
+  public static Session session() {
+    return session("grouper");
+  }
+
+  /**
+   * DONT CALL THIS METHOD, IT IS FOR INTERNAL GROUPER FRAMEWORK USE
+   * ONLY.  Use the HibernateSession callback to get a hibernate Session
+   * object
+   * @return the session
+   * @throws HibernateException
+   */
+	public static Session session(String connectionName)
     throws  HibernateException {
 	  //just in case
-	  initHibernateIfNotInitted();
-		return FACTORY.openSession();
+	  initHibernateIfNotInitted(connectionName);
+		return FACTORY.get(connectionName).openSession();
 	} 
 	
   /**
@@ -375,9 +460,18 @@ public abstract class Hib3DAO {
    * @return the session factor
    */
   public static SessionFactory getSessionFactory() {
+    return getSessionFactory("grouper");
+  }
+
+  /**
+   * DONT CALL THIS METHOD, IT IS FOR INTERNAL GROUPER FRAMEWORK USE
+   * ONLY. 
+   * @return the session factor
+   */
+  public static SessionFactory getSessionFactory(String connectionName) {
     //just in case
-    initHibernateIfNotInitted();
-    return FACTORY;
+    initHibernateIfNotInitted(connectionName);
+    return FACTORY.get(connectionName);
   } 
 
 	/**
@@ -385,7 +479,7 @@ public abstract class Hib3DAO {
 	 * @param persistentClass
 	 */
 	public static void evict(Class persistentClass) {
-	  FACTORY.getCache().evictEntityRegion(persistentClass);
+	  FACTORY.get("grouper").getCache().evictEntityRegion(persistentClass);
 	}
 	
   /**
@@ -393,7 +487,7 @@ public abstract class Hib3DAO {
    * @param entityName
    */
   public static void evictEntity(String entityName) {
-    FACTORY.getCache().evictEntityRegion(entityName);
+    FACTORY.get("grouper").getCache().evictEntityRegion(entityName);
   }
   
   /**
@@ -401,7 +495,7 @@ public abstract class Hib3DAO {
    * @param cacheRegion
    */
   public static void evictQueries(String cacheRegion) {
-    FACTORY.getCache().evictQueryRegion(cacheRegion);
+    FACTORY.get("grouper").getCache().evictQueryRegion(cacheRegion);
   }
   
 } 

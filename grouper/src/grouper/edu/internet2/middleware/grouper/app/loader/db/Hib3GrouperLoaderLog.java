@@ -122,6 +122,20 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   private Integer unresolvableSubjectCount = 0;
   
+  private String contextId;
+  
+  
+  
+  
+  public String getContextId() {
+    return contextId;
+  }
+
+  
+  public void setContextId(String contextId) {
+    this.contextId = contextId;
+  }
+
   /** number of records inserted */
   private Integer insertCount = 0;
 
