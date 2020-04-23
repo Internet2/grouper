@@ -718,7 +718,7 @@ function dojoInitMenu(autoSelectNode) {
           cache: true,
           dataType: 'json',
           data: {"id": itemId, "type": itemType},
-          timeout: 15000,
+          timeout: 150000,
           async: true,
           success: function(json){
             openFolderTreePathToObject(json);
@@ -928,7 +928,7 @@ function ajax(theUrl, options) {
     cache: false,
     dataType: 'json',
     data: options.requestParams,
-    timeout: 180000,
+    timeout: 1800000,
     async: true,
     //TODO handle errors success better.  probably non modal disappearing reusable window
     error: function(jqXHR, textStatus, errorThrown) {
