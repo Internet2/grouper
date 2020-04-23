@@ -952,6 +952,23 @@ public class GrouperServiceJ2ee implements Filter {
           ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
         }
         
+      } else {
+        // also return 401 if authentication fails and using custom authentication, not sure about the rampart case
+        String authenticationClassName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS, null);
+        boolean checkAuthentication = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.security.non-rampart.error.401.authentication.error", true);
+        
+        if (!StringUtils.isEmpty(authenticationClassName) && checkAuthentication) {
+          Class<? extends WsCustomAuthentication> theClass = GrouperUtil.forName(authenticationClassName);
+
+          WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
+
+          String userIdLoggedIn = wsAuthentication.retrieveLoggedInSubjectId((HttpServletRequest) request);
+          if (StringUtils.isBlank(userIdLoggedIn)) {
+            ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
+            ((HttpServletResponse) response).sendError(401, "Unauthorized");          
+            return;
+          }
+        }
       }
       
       request.setAttribute("debugMap", debugMap);
