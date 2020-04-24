@@ -682,7 +682,7 @@ public class GrouperDdlEngine {
       HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
       return;
     } catch (Exception e) {
-      e.printStackTrace();
+      //e.printStackTrace();
       //not found
     }
       
@@ -981,10 +981,9 @@ public class GrouperDdlEngine {
 
         String script = grouperDdlCompareResult.getResult().toString();
 
+        System.err.println(script);
         if (LOG.isErrorEnabled()) {
           LOG.error(script);
-        } else {
-          System.err.println(script);
         }
 
       }
