@@ -373,7 +373,8 @@ public class AttributeDefNameSave {
                       throw new RuntimeException("AttributeDefNameName already exists: " + newName);
                     }
                     
-                    theAttributeDefName.setExtension(extensionNew);
+                    theAttributeDefName.setExtensionDb(extensionNew);
+                    theAttributeDefName.setNameDb(newName);
 
                     AttributeDefNameSave.this.saveResultType = SaveResultType.UPDATE;
                     needsSave = true;
