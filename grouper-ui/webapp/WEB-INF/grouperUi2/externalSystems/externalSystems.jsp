@@ -38,8 +38,7 @@
 			              
 			                <tr>
 			                   <td style="white-space: nowrap;">
-			                    <a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewInstances&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
-			                    ${guiGrouperExternalSystem.grouperExternalSystem.configId}</a>
+			                    ${grouper:escapeHtml(guiGrouperExternalSystem.grouperExternalSystem.configId)}
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
@@ -66,6 +65,15 @@
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.editExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableEditDetailsActionOption'] }</a></li>
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.testExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableTestDetailsActionOption'] }</a></li>
+			                             
+			                             <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == true}">
+					                      <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.disableExternalSystem&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableDisableActionOption'] }</a></li>
+					                     </c:if>
+					                     
+					                     <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == false}">
+					                      <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.enableExternalSystem&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableEnableActionOption'] }</a></li>
+					                     </c:if>
+			                             
 			                             <li><a href="#" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['grouperExternalSystemConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ExternalSystem.deleteExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');}">${textContainer.text['grouperExternalSystemTableDeleteDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>

@@ -63,14 +63,24 @@ public class GrouperExternalSystemAttribute {
       value = this.getValue();
     } 
     
-    if (value == null && this.getDefaultValue() != null) {
-      value = this.getDefaultValue();
-    }
+//    if (value == null && this.getDefaultValue() != null) {
+//      value = this.getDefaultValue();
+//    }
     return value;
   }
   
   public String getHtmlForElementIdHandle() {
     return "#config_" + this.getConfigSuffix() + "_id";
+  }
+  
+  
+  public static void main(String[] args) {
+    Pattern pattern = Pattern.compile("^\\$\\{java\\.lang\\.System\\.getenv\\(\\)\\.get\\('([\\w]+)'\\)\\}");
+    boolean evaluate = false;
+    if (pattern.matcher("${java.lang.System.getenv().get('JAVA_HOME')}").matches()) {
+      evaluate = true;
+    }
+    System.out.println(evaluate);
   }
   
   /**
@@ -85,7 +95,7 @@ public class GrouperExternalSystemAttribute {
     
     // if script and certain type (e.g. env var), then validate
     //${java.lang.System.getenv().get('JAVA_HOME')}
-    Pattern pattern = Pattern.compile("^\\${\\s*java\\.lang\\.System\\.getenv\\(\\)\\.get\\([^)]+\\)\\s*}$");
+    Pattern pattern = Pattern.compile("^\\$\\{java\\.lang\\.System\\.getenv\\(\\)\\.get\\('([\\w]+)'\\)\\}");
     boolean evaluate = false;
     if (pattern.matcher(this.expressionLanguageScript).matches()) {
       evaluate = true;

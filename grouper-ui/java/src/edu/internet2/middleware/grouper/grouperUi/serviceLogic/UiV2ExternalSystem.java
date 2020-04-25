@@ -185,6 +185,20 @@ public class UiV2ExternalSystem {
       
       grouperExternalSystem.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
       
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+
+      }
+      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -500,7 +514,7 @@ public class UiV2ExternalSystem {
         return;
       }
       
-      if (errors.size() > 0) {
+      if (errors != null && errors.size() > 0) {
         for (String error: errors) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
         }
@@ -509,6 +523,153 @@ public class UiV2ExternalSystem {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
             TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConnectionTestSuccess")));
       }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * disable external system
+   * @param request
+   * @param response
+   */
+  public void disableExternalSystem(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ExternalSystemContainer externalSystemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getExternalSystemContainer();
+      
+      if (!externalSystemContainer.isCanViewExternalSystems()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      final String externalSystemConfigId = request.getParameter("externalSystemConfigId");
+      final String externalSystemType = request.getParameter("externalSystemType");
+      
+      if (StringUtils.isBlank(externalSystemConfigId)) {
+        throw new RuntimeException("externalSystemConfigId cannot be blank");
+      }
+      
+      if (StringUtils.isBlank(externalSystemType)) {
+        throw new RuntimeException("externalSystemType cannot be blank");
+      }
+      
+      if (!GrouperExternalSystem.externalTypeClassNames.contains(externalSystemType)) {
+        throw new RuntimeException("Invalid externalSystemType "+externalSystemType);
+      }
+      
+      Class<GrouperExternalSystem> klass = (Class<GrouperExternalSystem>) GrouperUtil.forName(externalSystemType);
+      GrouperExternalSystem grouperExternalSystem = (GrouperExternalSystem) GrouperUtil.newInstance(klass);
+      
+      grouperExternalSystem.setConfigId(externalSystemConfigId);
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      grouperExternalSystem.changeStatus(false, message, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigChangeStatusSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * enable external system
+   * @param request
+   * @param response
+   */
+  public void enableExternalSystem(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ExternalSystemContainer externalSystemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getExternalSystemContainer();
+      
+      if (!externalSystemContainer.isCanViewExternalSystems()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      final String externalSystemConfigId = request.getParameter("externalSystemConfigId");
+      final String externalSystemType = request.getParameter("externalSystemType");
+      
+      if (StringUtils.isBlank(externalSystemConfigId)) {
+        throw new RuntimeException("externalSystemConfigId cannot be blank");
+      }
+      
+      if (StringUtils.isBlank(externalSystemType)) {
+        throw new RuntimeException("externalSystemType cannot be blank");
+      }
+      
+      if (!GrouperExternalSystem.externalTypeClassNames.contains(externalSystemType)) {
+        throw new RuntimeException("Invalid externalSystemType "+externalSystemType);
+      }
+      
+      Class<GrouperExternalSystem> klass = (Class<GrouperExternalSystem>) GrouperUtil.forName(externalSystemType);
+      GrouperExternalSystem grouperExternalSystem = (GrouperExternalSystem) GrouperUtil.newInstance(klass);
+      
+      grouperExternalSystem.setConfigId(externalSystemConfigId);
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      grouperExternalSystem.changeStatus(true, message, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigChangeStatusSuccess")));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

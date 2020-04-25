@@ -121,7 +121,7 @@ public abstract class GrouperExternalSystem {
       field.append(
           "<input style='width:30em;' type='text' id='config_"+attribute.getConfigSuffix()+"_id' name='config_" + attribute.getConfigSuffix() + "'");
       if (value != null) {
-        field.append(" value = '"+GrouperUtil.xmlEscape(value)+"'");
+        field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
       }
       field.append("></input>");
       
@@ -132,7 +132,7 @@ public abstract class GrouperExternalSystem {
       field.append("<textarea style='width:30em;' cols='20' rows='3' id='config_"+attribute.getConfigSuffix()+"_id' name='config_"
           + attribute.getConfigSuffix() + "'>");
       if (value != null) {
-        field.append(GrouperUtil.xmlEscape(value));
+        field.append(GrouperUtil.escapeHtml(value, true));
       }
       field.append("</textarea>");
       
@@ -143,7 +143,7 @@ public abstract class GrouperExternalSystem {
       field.append(
           "<input style='width:30em;' type='password' id='config_"+attribute.getConfigSuffix()+"_id' name= 'config_" + attribute.getConfigSuffix() + "'");
       if (value != null) {
-        field.append(" value = '"+GrouperUtil.xmlEscape(value)+"'");
+        field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
       }
       field.append("></input>");
     }
@@ -163,7 +163,7 @@ public abstract class GrouperExternalSystem {
         boolean selected = StringUtils.equals(key, value);
         
         field.append("<option value='"+key+"'" + (selected ? " selected='selected'" : "") + ">");
-        field.append(GrouperUtil.xmlEscape(optionValue));
+        field.append(GrouperUtil.escapeHtml(optionValue, true));
         field.append("</option>");
       }
       
@@ -177,7 +177,17 @@ public abstract class GrouperExternalSystem {
     
     field.append("<br>");
     field.append("<span class='description'>");
-    field.append(attribute.getDescription());
+    if (StringUtils.isNotBlank(attribute.getDescription())) {      
+      field.append(attribute.getDescription());
+    }
+    if (StringUtils.isNotBlank(attribute.getDefaultValue())) {
+      if (attribute.getDescription().endsWith(".") == false) {
+        field.append(".");
+      }
+      field.append(" ").append(GrouperTextContainer.textOrNull("grouperExternalSystemAttributeDefaultValueHintPrefix"))
+      .append(" '").append(attribute.getDefaultValue()).append("'.");
+    }
+    
     field.append("</span>");
     
     field.append("</td>");
@@ -623,6 +633,7 @@ public abstract class GrouperExternalSystem {
 
           if (GrouperUtil.length(configItemMetadata.getOptionValues()) > 0) {
             List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+            valuesAndLabels.add(new MultiKey("", ""));
             for (String value : configItemMetadata.getOptionValues()) {
               
               String label = GrouperTextContainer.textOrNull("externalSystem." 
@@ -706,12 +717,25 @@ public abstract class GrouperExternalSystem {
      if (StringUtils.isBlank(enabledString)) {
        enabledString = enabledAttribute.getDefaultValue();
      }
-     
      return GrouperUtil.booleanValue(enabledString, true);
    } catch (Exception e) {
      return false;
    }
     
+  }
+  
+  public void changeStatus(boolean enable, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    GrouperExternalSystemAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
+    enabledAttribute.setValue(enable? "true": "false");
+    
+    DbConfigEngine.configurationFileAddEditHelper2(this.getConfigFileName().getConfigFileName(), 
+        enabledAttribute.getFullPropertyName(), 
+        enabledAttribute.isExpressionLanguage() ? "true" : "false", 
+        enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
+        enabledAttribute.isPassword(), message, new Boolean[] {false},
+        new Boolean[] {false}, true, "Added from external system editor", errorsToDisplay, validationErrorsToDisplay, false);    
+    ConfigPropertiesCascadeBase.clearCache();
   }
   
   
@@ -840,7 +864,7 @@ public abstract class GrouperExternalSystem {
       try {
         Class<GrouperExternalSystem> externalSystemClass = (Class<GrouperExternalSystem>) GrouperUtil.forName(className);
         GrouperExternalSystem externalSystem = GrouperUtil.newInstance(externalSystemClass);
-        result.add(externalSystem);  
+        result.add(externalSystem);
       } catch (Exception e) {
         //TODO ignore for now. 
       }

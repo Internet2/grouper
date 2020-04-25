@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.loader.db;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +62,7 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
 
     new GcDbAccess().connectionName(this.getConfigId()).sql(query).select(String.class);
 
-    return null;
+    return new ArrayList<String>();
   }
 
   
