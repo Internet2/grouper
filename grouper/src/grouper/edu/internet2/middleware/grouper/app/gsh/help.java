@@ -163,7 +163,7 @@ public class help {
       appendLine(builder, "* XmlExport: type  help(\"XmlExport\")  for more info on xml export");
       appendLine(builder, "* XmlImport: type  help(\"XmlImport\")  for more info on xml import");
       appendLine(builder, "* version()"                                           );
-      appendLine(builder, "* GrouperReport: new GrouperReport().findBadMemberships(boolean).findUnresolvables(boolean).runReport();");
+      appendLine(builder, "* GrouperReport: new GrouperReport().runReport();");
       appendLine(builder, ""                                                      );
       appendLine(builder, "# VARIABLES");
       appendLine(builder, "* GSH_DEBUG=true");

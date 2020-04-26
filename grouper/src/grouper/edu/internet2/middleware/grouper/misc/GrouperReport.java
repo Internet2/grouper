@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionStat;
-import edu.internet2.middleware.grouper.app.usdu.USDU;
 import edu.internet2.middleware.grouper.app.usdu.UsduService;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -49,9 +48,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class GrouperReport {
-  
-  /** whether to find bad memberships */
-  private boolean findBadMemberships = false;
 
   /**
    * logger 
@@ -63,26 +59,7 @@ public class GrouperReport {
    * @param args
    */
   public static void main(String[] args) {
-    System.out.println(report(true, true));
-  }
-  
-  /**
-   * Whether or not to find unresolvable subjects as part of the report.  Defaults to false.
-   * @param findUnresolvables
-   * @return GrouperReport
-   */
-  public GrouperReport findUnresolvables(boolean findUnresolvables) {
-    return this;
-  }
-  
-  /**
-   * Whether or not to find bad memberships as part of the report.  Defaults to false.
-   * @param findBadMemberships
-   * @return GrouperReport
-   */
-  public GrouperReport findBadMemberships(boolean findBadMemberships) {
-    this.findBadMemberships = findBadMemberships;
-    return this;
+    System.out.println(report());
   }
 
   /**
@@ -100,14 +77,11 @@ public class GrouperReport {
   }
 
   /**
-   * @param findUnresolvables 
-   * @param findBadMemberships 
    * @return the report
    * @throws GrouperReportException
    */
-  public static String report(boolean findUnresolvables, boolean findBadMemberships) {
-    return new GrouperReport().findBadMemberships(findBadMemberships)
-      .findUnresolvables(findUnresolvables).runReport();
+  public static String report() {
+    return new GrouperReport().runReport();
   }
   
   /**
@@ -159,30 +133,6 @@ public class GrouperReport {
       }
       result.append("unresolvable subjects: ").append(formatCommas(Long.valueOf(unresolvableResultCount))).append("\n");
       
-      String badMembershipResults = "Not configured to compute this today";
-      String badMembershipGshScript = null;
-      String badMembershipOutput = null;
-      int badMembershipCount = 0;
-      if (findBadMemberships) {
-        ByteArrayOutputStream  baos = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(baos);
-        FindBadMemberships.clearResults();
-        FindBadMemberships.checkAll(printStream);
-        badMembershipOutput = baos.toString();
-        badMembershipGshScript = FindBadMemberships.gshScript == null ? "" : FindBadMemberships.gshScript.toString();
-        if (!StringUtils.isBlank(badMembershipGshScript)) {
-          int theCount = StringUtils.countMatches(badMembershipGshScript, "\n");
-          theCount = theCount == 0 ? 1 : theCount;
-          badMembershipCount += theCount;
-        }
-        if (badMembershipCount == 0) {
-          badMembershipResults = "0";
-        } else {
-          badMembershipResults = badMembershipCount + " lines in report below";
-        }
-      }
-      result.append("bad memberships:       ").append(badMembershipResults).append("\n");
-
       
       result.append("\n----------------\n");
       result.append("WITHIN LAST DAY:\n");
@@ -336,19 +286,6 @@ public class GrouperReport {
             break;
           }
         }
-      }
-      
-      if (badMembershipCount > 0) {
-        result.append("\n----------------\n");
-        result.append("BAD MEMBERSHIPS OUTPUT\n");
-        result.append("----------------\n");
-        result.append(badMembershipOutput);
-
-        result.append("\n----------------\n");
-        result.append("BAD MEMBERSHIPS GSH\n");
-        result.append("----------------\n");
-        result.append(badMembershipGshScript);
-        
       }
       
       result.append("\n----------------\n");

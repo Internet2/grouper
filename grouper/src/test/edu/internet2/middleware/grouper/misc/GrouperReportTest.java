@@ -39,12 +39,7 @@ public class GrouperReportTest extends GrouperTest {
    */
   public void testReport() {
     @SuppressWarnings("unused")
-    String report = GrouperReport.report(false, false);
-    
-    
-    report = GrouperReport.report(true, true);
-
-
+    String report = GrouperReport.report();
   }
   
 }

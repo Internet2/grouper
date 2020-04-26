@@ -281,16 +281,6 @@ public enum GrouperLoaderType {
         if (StringUtils.equals(MAINTENANCE_CLEAN_LOGS, hib3GrouploaderLog.getJobName())) {
           GrouperDaemonDeleteOldRecords.maintenanceDeleteOldRecords(hib3GrouploaderLog);
         } else if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
-
-
-          //how often to run usdu
-          String usduSchedule = StringUtils.defaultString(GrouperLoaderConfig.retrieveConfig().propertyValueString(
-              "daily.report.usdu.daysToRun")).toLowerCase();
-          String badMemberSchedule = StringUtils.defaultString(GrouperLoaderConfig.retrieveConfig().propertyValueString(
-              "daily.report.badMembership.daysToRun")).toLowerCase();
-          
-          boolean isRunUsdu = dayListContainsToday(usduSchedule);
-          boolean isRunBadMember = dayListContainsToday(badMemberSchedule);
           
           String emailTo = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.emailTo");
           String reportDirectory = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.saveInDirectory");
@@ -304,8 +294,7 @@ public enum GrouperLoaderType {
           //keep track if ends up being error
           RuntimeException re = null;
           try {
-            report = new GrouperReport().findBadMemberships(isRunBadMember).findUnresolvables(isRunUsdu)
-              .runReport();
+            report = new GrouperReport().runReport();
           } catch (RuntimeException e) {
             report = e.toString() + "\n\n" + GrouperUtil.getFullStackTrace(e) + "\n\n";
             if (e instanceof GrouperReportException) {
@@ -333,8 +322,7 @@ public enum GrouperLoaderType {
             throw re;
           }
           
-          hib3GrouploaderLog.setJobMessage("Ran the grouper report, isRunUnresolvable: " 
-              + isRunUsdu + ", isRunBadMembershipFinder: " + isRunBadMember + ", sent to: " + emailTo);
+          hib3GrouploaderLog.setJobMessage("Ran the grouper report, sent to: " + emailTo);
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_ENABLED_DISABLED, hib3GrouploaderLog.getJobName())) {
