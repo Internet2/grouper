@@ -128,6 +128,8 @@ public class GrouperStatusServlet extends HttpServlet {
       return;
     }
     
+    boolean sendDetailsInResponse = GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.sendDetailsInResponse", true);
+    
     requestThreadLocal.set(request);
     
     startNanos.set(System.nanoTime());
@@ -136,7 +138,7 @@ public class GrouperStatusServlet extends HttpServlet {
         + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
         + "\n"
         + "<html><head></head><body>\n");
-    StringBuilder result = new StringBuilder("<pre>");
+    StringBuilder result = new StringBuilder("");
     
     List<DiagnosticTask> diagnosticTasksWithErrors = new ArrayList<DiagnosticTask>();
     // key is name
@@ -228,9 +230,14 @@ public class GrouperStatusServlet extends HttpServlet {
       
       try {
         writer = response.getWriter();
-        result.append("</pre>\n");
-        outerResult.append("<h1>Grouper status SUCCESS</h1><br />").append(result).append(
-            "</body></html>");
+        outerResult.append("<h1>Grouper status SUCCESS</h1><br /><pre>");
+        if (sendDetailsInResponse) {
+          outerResult.append(result);
+        } else {
+          LOG.info("Status result: " + result.toString());
+          outerResult.append("See logs or 'All daemon jobs' for details.");
+        }
+        outerResult.append("</pre></body></html>");
         writer.write(outerResult.toString());
       } catch (Exception e) {
         LOG.error("error", e);
@@ -267,10 +274,13 @@ public class GrouperStatusServlet extends HttpServlet {
       response.setStatus(500);
       
       String theLastDiagnosticsError = null;
+      String messageNoDetails = null;
       
       if (diagnosticTasksWithErrors.size() > 0) {
         
         StringBuilder message = new StringBuilder("\n" + diagnosticTasksWithErrors.size() + " errors in the diagnostic tasks:\n\n");
+        messageNoDetails = message.toString() + "See logs or 'All daemon jobs' for details.";
+        
         for (DiagnosticTask diagnosticTask : diagnosticTasksWithErrors) {
           message.append(diagnosticTask.getClass().getSimpleName()  
               + ", " + diagnosticTask.retrieveNameFriendly() + "\n\n"
@@ -292,6 +302,7 @@ public class GrouperStatusServlet extends HttpServlet {
       } else {
 
         theLastDiagnosticsError = "Error in status:\n" + ExceptionUtils.getFullStackTrace(re);
+        messageNoDetails = "Error in status. See logs or 'All daemon jobs' for details.";
         LOG.error("Error in status: ", re);
       }
       
@@ -301,7 +312,7 @@ public class GrouperStatusServlet extends HttpServlet {
       writeToScreen(response, "<?xml version=\"1.0\" ?>\n"
         + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
         + "\n"
-        + "<html><head></head><body><h1>Grouper status error!</h1><br /><pre>" + theLastDiagnosticsError + "</pre></body></html>");
+        + "<html><head></head><body><h1>Grouper status error!</h1><br /><pre>" + (sendDetailsInResponse ? theLastDiagnosticsError : messageNoDetails) + "</pre></body></html>");
       
       
     } finally {
