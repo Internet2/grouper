@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -116,6 +118,15 @@ public class GrouperStatusServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    
+    if (!allowedToViewStatus(request)) { 
+      try {
+        response.sendError(401, "Unauthorized");
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }          
+      return;
+    }
     
     requestThreadLocal.set(request);
     
@@ -338,5 +349,71 @@ public class GrouperStatusServlet extends HttpServlet {
     return " (" + elapsedMillis + "ms elapsed)";
   }
 
+  /**
+   * if allowed to view status
+   * @request request
+   * @return true if allowed to view status
+   */
+  public boolean allowedToViewStatus(HttpServletRequest request) {
 
+    Map<String, Object> debugMap = null;
+    
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "allowedToViewStatus");
+    }
+    try {
+      
+      String networks = GrouperConfig.retrieveConfig().propertyValueString("ws.diagnostic.sourceIpAddresses");
+
+      if (debugMap != null) {
+        debugMap.put("allowFromNetworks", networks);
+      }
+
+      if (!StringUtils.isBlank(networks)) {
+
+        String sourceIp = request.getRemoteAddr();
+        
+        if (debugMap != null) {
+          debugMap.put("sourceIp", sourceIp);
+        }
+
+        Boolean allowed = null;
+        
+        if (!StringUtils.isBlank(sourceIp) && GrouperUtil.ipOnNetworks(sourceIp, networks)) {
+
+          if (debugMap != null) {
+            debugMap.put("ipOnNetworks", true);
+          }
+
+          allowed = true;
+        } else {
+          if (!StringUtils.isBlank(sourceIp)) {
+            if (debugMap != null) {
+              debugMap.put("ipOnNetworks", false);
+            }
+            
+          }
+          allowed = false;
+        }
+        
+        if (debugMap != null) {
+          debugMap.put("allowed", allowed);
+        }
+        if (allowed != Boolean.TRUE) {
+          return false;
+        }
+      }
+      
+      if (debugMap != null) {
+        debugMap.put("allowed", true);
+      }
+      return true;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+
+  }
 }
