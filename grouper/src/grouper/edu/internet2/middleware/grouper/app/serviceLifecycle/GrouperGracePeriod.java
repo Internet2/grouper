@@ -54,22 +54,30 @@ public class GrouperGracePeriod {
       // check the point in time against the grace period days, check that grace period is an integer and check that group name has a colon
       String databasePart = null;
       String regexPart = null;
+      String minEndTimePart = null;
+      
+      databasePart = " and ((gpmship.end_time > $$MIN_END_TIME$$ "
+          + "and gpgs.start_time < gpmship.end_time AND (gpgs.end_time is null or gpgs.end_time > gpmship.end_time)) " + 
+          " OR (gpgs.end_time > $$MIN_END_TIME$$"
+          + " AND gpmship.start_time < gpgs.end_time and (gpmship.end_time is null or gpmship.end_time > gpgs.end_time)))"; 
+      
       if (GrouperDdlUtils.isHsql()) {
         regexPart = " and REGEXP_MATCHES (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_MATCHES (gaaagv_groupName.value_string, '^.+:.+$') ";
-        databasePart = " and gpmship.end_time > 1000*(unix_millis(current_timestamp) - (1000*60*60*24*cast(gaaagv_gracePeriod.value_string as int))) " + regexPart;
+        minEndTimePart = "(1000*(unix_millis(current_timestamp) - (1000*60*60*24*cast(gaaagv_gracePeriod.value_string as int))))";
       } else if (GrouperDdlUtils.isOracle()) {
         regexPart = " and REGEXP_LIKE (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$') ";
-        databasePart = " and gpmship.end_time > (1000000 * (((sysdate - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_gracePeriod.value_string AS number )) ))" + regexPart;
+        minEndTimePart = "(1000000 * (((sysdate - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_gracePeriod.value_string AS number ))))";
       } else if (GrouperDdlUtils.isMysql()) {  
         regexPart = " and gaaagv_gracePeriod.value_string REGEXP '^[0-9]+$' and gaaagv_groupName.value_string REGEXP '^.+:.+$' ";
-        databasePart = " and gpmship.end_time > ((1000000) * (UNIX_TIMESTAMP() - (60*60*24*CONVERT(gaaagv_gracePeriod.value_string,UNSIGNED INTEGER)))) " + regexPart;
+        minEndTimePart = "(1000000 * (UNIX_TIMESTAMP() - (60*60*24*CONVERT(gaaagv_gracePeriod.value_string,UNSIGNED INTEGER))))";
       } else if (GrouperDdlUtils.isPostgres()) {
         regexPart = " and gaaagv_gracePeriod.value_string ~ '^[0-9]+$' and gaaagv_groupName.value_string ~ '^.+:.+$' ";
-        databasePart = "and gpmship.end_time > cast(((1000000) * (extract(EPOCH from clock_timestamp()) - (60*60*24*(cast(gaaagv_gracePeriod.value_string as bigint))))) as bigint) " + regexPart;
+        minEndTimePart = "cast((1000000 * (extract(EPOCH from clock_timestamp()) - (60*60*24*(cast(gaaagv_gracePeriod.value_string as bigint))))) as bigint)";
       } else {
         LOG.error("Cant find database type");
         return;
       }
+      databasePart = StringUtils.replace(databasePart, "$$MIN_END_TIME$$", minEndTimePart) + regexPart;
       query = "select distinct gaaagv_groupName.value_string group_name, gpm.subject_id, gpm.subject_source subject_source_id "
           + "from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf, "
           + "grouper_aval_asn_asn_group_v gaaagv_gracePeriod, grouper_aval_asn_asn_group_v gaaagv_groupName "
@@ -101,8 +109,6 @@ public class GrouperGracePeriod {
   
   public static void setupGracePeriodLoaderJob(Group group) {
     
-    String groupName = gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
-
     boolean gracePeriodEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.gracePeriod.loaderJob.enable", true);
 
     GroupType grouperLoaderType = GroupTypeFinder.find("grouperLoader", true);
