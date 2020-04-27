@@ -79,12 +79,24 @@ public class GrouperGracePeriodTest extends GrouperTest {
       int rows = new GcDbAccess().sql("update grouper_pit_memberships set start_time = ? where member_id = ?")
           .addBindVar(micros9daysAgo).addBindVar(group2daySourceSubMemberId).executeSql();
       assertEquals(1, rows);  
+      String group2daySourcePitGroupId = new GcDbAccess().sql("select id from grouper_pit_groups where name = ?").addBindVar(group2daySource.getName()).select(String.class);
+      String group2daySourceSubPitGroupId = new GcDbAccess().sql("select id from grouper_pit_groups where name = ?").addBindVar(group2daySourceSub.getName()).select(String.class);
+      rows = new GcDbAccess().sql("update grouper_pit_group_set set start_time = ? where owner_id in (?,?)").addBindVar(micros9daysAgo).addBindVar(group2daySourcePitGroupId)
+        .addBindVar(group2daySourceSubPitGroupId).executeSql();
+      // rows for all fields and the relationship
+      assertTrue(rows + "", rows > 10);
     }
     {
       String group4daySourceSubMemberId = new GcDbAccess().sql("select id from grouper_pit_members where subject_id = ?").addBindVar(group4daySourceSub.getId()).select(String.class);
       int rows = new GcDbAccess().sql("update grouper_pit_memberships set start_time = ? where member_id = ?")
           .addBindVar(micros9daysAgo).addBindVar(group4daySourceSubMemberId).executeSql();
       assertEquals(1, rows);  
+      String group4daySourcePitGroupId = new GcDbAccess().sql("select id from grouper_pit_groups where name = ?").addBindVar(group4daySource.getName()).select(String.class);
+      String group4daySourceSubPitGroupId = new GcDbAccess().sql("select id from grouper_pit_groups where name = ?").addBindVar(group4daySourceSub.getName()).select(String.class);
+      rows = new GcDbAccess().sql("update grouper_pit_group_set set start_time = ? where owner_id in (?,?)").addBindVar(micros9daysAgo).addBindVar(group4daySourcePitGroupId)
+        .addBindVar(group4daySourceSubPitGroupId).executeSql();
+      // rows for all fields and the relationship
+      assertTrue(rows + "", rows > 10);
     }
     
     // subj 0 is in both groups for 1 week
@@ -152,7 +164,7 @@ public class GrouperGracePeriodTest extends GrouperTest {
     int incrementalSyncCount = GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount;
     
     runJobs(true, true);
-    GrouperUtil.sleep(20000);
+    GrouperUtil.sleep(10000);
     
     assertEquals(fullSyncCount, GrouperGracePeriodChangeLogConsumer.test_fullSyncCount);
     assertEquals(incrementalSyncCount, GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount);
@@ -170,7 +182,7 @@ public class GrouperGracePeriodTest extends GrouperTest {
     attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodGroupName.getName(), "test:group4dayGrace");
     
     runJobs(true, true);
-    GrouperUtil.sleep(20000);
+    GrouperUtil.sleep(10000);
 
     assertEquals(fullSyncCount+1, GrouperGracePeriodChangeLogConsumer.test_fullSyncCount);
     assertEquals(incrementalSyncCount, GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount);

@@ -10,9 +10,6 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.group.TypeOfGroup;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperGracePeriod {
@@ -58,11 +55,11 @@ public class GrouperGracePeriod {
       String databasePart = null;
       String regexPart = null;
       if (GrouperDdlUtils.isHsql()) {
-        regexPart = " and REGEXP_MATCHES (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_MATCHES (gaaagv_groupName.value_string, '^.+:.+$'') ";
-        databasePart = " and gpmav.membership_end_time > 1000*(unix_millis(current_timestamp) - (1000*60*60*24*5)) " + regexPart;
+        regexPart = " and REGEXP_MATCHES (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_MATCHES (gaaagv_groupName.value_string, '^.+:.+$') ";
+        databasePart = " and gpmship.end_time > 1000*(unix_millis(current_timestamp) - (1000*60*60*24*cast(gaaagv_gracePeriod.value_string as int))) " + regexPart;
       } else if (GrouperDdlUtils.isOracle()) {
-        regexPart = " and REGEXP_LIKE (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$'') ";
-        databasePart = " and gpmav.membership_end_time > (1000000) * ((sysdate - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_gracePeriod.value_string AS number )) " + regexPart;
+        regexPart = " and REGEXP_LIKE (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$') ";
+        databasePart = " and gpmship.end_time > (1000000 * (((sysdate - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_gracePeriod.value_string AS number )) ))" + regexPart;
       } else if (GrouperDdlUtils.isMysql()) {  
         regexPart = " and gaaagv_gracePeriod.value_string REGEXP '^[0-9]+$' and gaaagv_groupName.value_string REGEXP '^.+:.+$' ";
         databasePart = " and gpmship.end_time > ((1000000) * (UNIX_TIMESTAMP() - (60*60*24*CONVERT(gaaagv_gracePeriod.value_string,UNSIGNED INTEGER)))) " + regexPart;
@@ -74,17 +71,20 @@ public class GrouperGracePeriod {
         return;
       }
       query = "select distinct gaaagv_groupName.value_string group_name, gpm.subject_id, gpm.subject_source subject_source_id "
-          + "from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_fields gpf, "
+          + "from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf, "
           + "grouper_aval_asn_asn_group_v gaaagv_gracePeriod, grouper_aval_asn_asn_group_v gaaagv_groupName "
           + "where gaaagv_gracePeriod.group_id = gaaagv_groupName.group_id "
           + "and gaaagv_gracePeriod.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_DAYS + "' "
           + "and gaaagv_groupName.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME + "' "
           + "and gpmship.MEMBER_ID = GPM.ID and GPM.subject_source != 'g:gsa' and gpgs.FIELD_ID = GPF.ID "
-          + "and gpf.name = 'members' " + databasePart + " and gaaagv_gracePeriod.group_id = gpgs.owner_id "
-              + "and gpmship.owner_id = gpgs.member_id AND gpmship.field_id = gpgs.member_field_id "
-              + "and not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id "
-              + "AND mship2.field_id = gs2.member_field_id and mship2.member_id = gpm.source_id and gs2.field_id = gpf.source_id "
-              + "and gs2.owner_id = gaaagv_gracePeriod.group_id and mship2.enabled = 'T' ) ";
+          + "and gpf.name = 'members' " + databasePart + " "
+          + "and gaaagv_groupName.group_name = gpg.name "
+          + "and gpg.id = gpgs.owner_id "
+          + "and gpmship.owner_id = gpgs.member_id "
+          + "AND gpmship.field_id = gpgs.member_field_id " 
+          + "and not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id "
+          + "AND mship2.field_id = gs2.member_field_id and mship2.member_id = gpm.source_id and gs2.field_id = gpf.source_id "
+          + "and gs2.owner_id = gaaagv_gracePeriod.group_id and mship2.enabled = 'T' ) ";
 
       groupQuery = "select gaaagv_gracePeriod.group_id owner_group_id, gaaagv_gracePeriod.group_name owner_group_name, "
           + "gaaagv_gracePeriod.value_string grace_period_days, gaaagv_groupName.value_string group_name "

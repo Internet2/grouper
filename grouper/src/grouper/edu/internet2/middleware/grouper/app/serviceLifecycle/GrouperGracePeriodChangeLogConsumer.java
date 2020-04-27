@@ -1,8 +1,7 @@
 package edu.internet2.middleware.grouper.app.serviceLifecycle;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -11,12 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -24,9 +19,8 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob.Row;
-import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningProcessingResult;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
@@ -61,10 +55,10 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
   /**
    * group ids which have grace periods
    */
-  private static ExpirableCache<Boolean, List<String>> gracePeriodGroupIds = new ExpirableCache<Boolean, List<String>>(5);
+  private static ExpirableCache<Boolean, List<String>> gracePeriodGroupIds = new ExpirableCache<Boolean, List<String>>(1);
 
   public List<String> gracePeriodGroupIds() {
-    // TODO check the 10 second cache clear table in future
+    // TODO check the 10 second cache clear table in future and change to five minute cache
     List<String> result = gracePeriodGroupIds.get(Boolean.TRUE);
     if (result == null) {
       synchronized (GrouperGracePeriodChangeLogConsumer.class) {
@@ -110,13 +104,25 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
     
     int maxUntilFullSync = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer.gracePeriods.maxUntilFullSync", 100);
     
-    //TODO check for last full sync
+    String groupName = GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
+
+    Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+        groupName, true, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
+
+    Timestamp lastSuccess = new GcDbAccess().sql("select max(ended_time) from grouper_loader_log where job_name = ? and status = 'SUCCESS'")
+      //'SQL_GROUP_LIST__etc:attribute:gracePeriod:grouperGracePeriodLoader__b3708fc0a5c347ff8dad78f2b0f7d50e'
+      .addBindVar("SQL_GROUP_LIST__" + groupName + "__" + group.getId()).select(Timestamp.class);
     
     OUTER: for (EsbEventContainer esbEventContainer : esbEventContainers) {
       
       EsbEventType esbEventType = esbEventContainer.getEsbEventType();
       EsbEvent esbEvent = esbEventContainer.getEsbEvent();
 
+      // skip any events that happened before the last full sync
+      if (lastSuccess != null && esbEvent.getCreatedOnMicros() / 1000 < lastSuccess.getTime()) {
+        continue;
+      }
+      
       switch(esbEventType) {
         case MEMBERSHIP_ADD:
         case MEMBERSHIP_DELETE:
@@ -149,18 +155,10 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
 
     if (needsFullSync) {
       test_fullSyncCount++;
-      scheduleGraceLoaderNow(true);
-      if (attributeChange) {
-        // schedule one in 5 minutes after caches clear in case running on another loader
-        scheduleGraceLoaderNow(false);
-      }
+      // schedule one in 5 minutes after caches clear in case running on another loader
+      scheduleGraceLoaderNow(attributeChange, group);
     } else if (GrouperUtil.length(subjectSourceIdAndSubjectIds) > 0) {
-      
-      String groupName = GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
-
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
-          groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
- 
+       
       GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
       
       // send sourceIds and subjectIds to incremental loader
@@ -187,54 +185,70 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
   }
 
   /**
-   * run job now or in 5 minutes
+   * run job now and wait for cache to clear
    * @param now
    */
-  private static void scheduleGraceLoaderNow(boolean now) {
-
-    try {
-      String groupName = GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
+  private static void scheduleGraceLoaderNow(boolean waitForCache, Group group) {
   
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
-          groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
-  
-      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-  
-      String jobName =  GrouperLoaderType.SQL_GROUP_LIST.name() + "__" + group.getName() + "__" + group.getUuid();
-      
-      if (now) {
-        JobKey jobKey = new JobKey(jobName);
-        scheduler.triggerJob(jobKey);
-      } else {
-        
-        Thread thread = new Thread(new Runnable() {
-
-          @Override
-          public void run() {
-            GrouperUtil.sleep(1000*60*5);
-            scheduleGraceLoaderNow(true);
-          }
-          
-        });
-        thread.setDaemon(true);
-        thread.start();
-//        JobKey jobKey = new JobKey(jobName);
-//        JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-//        
-////        JobBuilder.newJob(GrouperLoaderJob.class)
-////            .withIdentity(jobName)
-////            .build();
-//        Trigger trigger = TriggerBuilder.newTrigger()
-//            .startAt(new Date(Calendar.getInstance().getTimeInMillis()+ 1000*60*5)).build();
-////        scheduler.
-////        scheduler.deleteJob();
-//        scheduler.deleteJob(jobKey);
-//        scheduleJob(jobDetail, trigger);
-      }
+    String jobName =  GrouperLoaderType.SQL_GROUP_LIST.name() + "__" + group.getName() + "__" + group.getUuid();
+     
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(true), jobName);
     
-    } catch (Exception e) {
-      throw new RuntimeException("Problem running job now", e);
+    if (waitForCache) {
+      GrouperUtil.sleep(60*1000);
     }
-
   }
+
+  
+//  /**
+//   * run job now or in 5 minutes
+//   * @param now
+//   */
+//  private static void scheduleGraceLoaderNow(boolean now) {
+//
+//    try {
+//      String groupName = GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
+//  
+//      Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+//          groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
+//  
+//      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+//  
+//      String jobName =  GrouperLoaderType.SQL_GROUP_LIST.name() + "__" + group.getName() + "__" + group.getUuid();
+//      
+//      if (now) {
+//        JobKey jobKey = new JobKey(jobName);
+//        scheduler.triggerJob(jobKey);
+//      } else {
+//        
+//        Thread thread = new Thread(new Runnable() {
+//
+//          @Override
+//          public void run() {
+//            GrouperUtil.sleep(1000*60*5);
+//            scheduleGraceLoaderNow(true);
+//          }
+//          
+//        });
+//        thread.setDaemon(true);
+//        thread.start();
+////        JobKey jobKey = new JobKey(jobName);
+////        JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+////        
+//////        JobBuilder.newJob(GrouperLoaderJob.class)
+//////            .withIdentity(jobName)
+//////            .build();
+////        Trigger trigger = TriggerBuilder.newTrigger()
+////            .startAt(new Date(Calendar.getInstance().getTimeInMillis()+ 1000*60*5)).build();
+//////        scheduler.
+//////        scheduler.deleteJob();
+////        scheduler.deleteJob(jobKey);
+////        scheduleJob(jobDetail, trigger);
+//      }
+//    
+//    } catch (Exception e) {
+//      throw new RuntimeException("Problem running job now", e);
+//    }
+//
+//  }
 }
