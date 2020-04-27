@@ -55,6 +55,7 @@ import org.quartz.Job;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -79,6 +80,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSett
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperGracePeriod;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
@@ -543,6 +545,117 @@ public class GrouperCheckConfig {
     } finally {
       inCheckConfig = false;
     }
+  }
+  
+  public static void checkConfig2() {
+    
+    boolean autoconfigure = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.loader.autoconfigure", true);
+    if (!autoconfigure) {
+      return;
+    }
+
+    final boolean wasInCheckConfig = inCheckConfig;
+
+    inCheckConfig = true;
+
+    try {
+      if (configCheckDisabled()) {
+        return;
+      }
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          {
+            
+            String gracePeriodRootStemName = GrouperGracePeriod.gracePeriodStemName();
+            
+            Stem gracePeriodStem = StemFinder.findByName(grouperSession, gracePeriodRootStemName, false);
+            if (gracePeriodStem == null) {
+              gracePeriodStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+                .assignDescription("folder for built in Grouper grace period objects").assignName(gracePeriodRootStemName)
+                .save();
+            }
+
+            //see if attributeDef is there
+            String gracePeriodMarkerDefName = gracePeriodRootStemName + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_MARKER_DEF;
+            AttributeDef gracePeriodMarkerDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+                gracePeriodMarkerDefName, false, new QueryOptions().secondLevelCache(false));
+            if (gracePeriodMarkerDef == null) {
+              gracePeriodMarkerDef = gracePeriodStem.addChildAttributeDef(GrouperGracePeriod.GROUPER_GRACE_PERIOD_MARKER_DEF, AttributeDefType.attr);
+              gracePeriodMarkerDef.setAssignToGroup(true);
+              gracePeriodMarkerDef.setMultiAssignable(true);
+              gracePeriodMarkerDef.store();
+            }
+            
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(gracePeriodMarkerDef);
+            
+
+            //add a name
+            AttributeDefName gracePeriodMarker = checkAttribute(gracePeriodStem, gracePeriodMarkerDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_MARKER, 
+                "has grace period settings", wasInCheckConfig);
+            
+            //lets add some rule attributes
+            String grouperGracePeriodValueDefName = gracePeriodRootStemName + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_VALUE_DEF;
+            AttributeDef grouperGracePeriodValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+                grouperGracePeriodValueDefName, false, new QueryOptions().secondLevelCache(false));
+            if (grouperGracePeriodValueDef == null) {
+              grouperGracePeriodValueDef = gracePeriodStem.addChildAttributeDef(GrouperGracePeriod.GROUPER_GRACE_PERIOD_VALUE_DEF, AttributeDefType.attr);
+              grouperGracePeriodValueDef.setAssignToGroupAssn(true);
+              grouperGracePeriodValueDef.setValueType(AttributeDefValueType.string);
+              grouperGracePeriodValueDef.store();
+            }
+
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(grouperGracePeriodValueDef);
+
+            //the attributes can only be assigned to the type def
+            // try an attribute def dependent on an attribute def name
+            grouperGracePeriodValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(gracePeriodMarker.getName());
+
+            //add some names
+            checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_DAYS, 
+                "Number of days that the grace period lasts", wasInCheckConfig);
+            checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME, 
+                "Fully qualified group name of the grace period group", wasInCheckConfig);
+            
+            String groupName = gracePeriodRootStemName + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
+            Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+                groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
+            
+            String descriptionIfEnabled = "Holds the loader configuration of the grace period job that populates the grace period groups configured by attributes.  This is enabled in grouper.properties";
+            String descriptionIfDisabled = "Holds the loader configuration of the grace period job that populates the grace period groups configured by attributes.  This is not enabled in grouper.properties";
+
+            boolean gracePeriodEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.gracePeriod.loaderJob.enable", true);
+            String descriptionShouldBe = gracePeriodEnabled ? descriptionIfEnabled : descriptionIfDisabled;
+
+            Boolean changeLoader = null;
+
+            if (group != null) {
+              changeLoader = !StringUtils.equals(descriptionShouldBe, group.getDescription());
+            }
+            
+            if (group == null) {
+              changeLoader = (changeLoader != null && changeLoader) || gracePeriodEnabled;
+            }
+            
+            if (group == null) {
+              group = new GroupSave(grouperSession).assignName(groupName)
+                .assignDescription(descriptionShouldBe).save();
+            }
+            
+            // if its new or the state has changed
+            if (changeLoader != null && changeLoader) {
+              GrouperGracePeriod.setupGracePeriodLoaderJob(group);
+            }
+          }
+          return null;
+        }
+      });
+      
+    } finally {
+      inCheckConfig = false;
+    }
+
   }
   
   /**
@@ -2107,6 +2220,8 @@ public class GrouperCheckConfig {
   public static void checkObjects() {
     checkGroups();
     checkAttributes();
+    GrouperStartup.initLoaderType();
+    checkConfig2();
   }
   
   /**
@@ -2114,7 +2229,7 @@ public class GrouperCheckConfig {
    */
   private static void checkAttributes() {
     
-    boolean autoconfigure = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.loader.autoconfigure", false);
+    boolean autoconfigure = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.loader.autoconfigure", true);
     if (!autoconfigure) {
       return;
     }

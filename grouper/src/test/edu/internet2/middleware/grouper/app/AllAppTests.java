@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.app.messaging.AllAppMessagingTests;
 import edu.internet2.middleware.grouper.app.messaging.MessageConsumerDaemonTest;
 import edu.internet2.middleware.grouper.app.provisioning.AllProvisioningTests;
 import edu.internet2.middleware.grouper.app.reports.AllReportsTests;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.AllServiceLifecycleTests;
 import edu.internet2.middleware.grouper.app.tableSync.AllTableSyncTests;
 import edu.internet2.middleware.grouper.app.upgradeTasks.AllUpgradeTasksTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
@@ -63,6 +64,7 @@ public class AllAppTests {
     suite.addTest(AllAppMessagingTests.suite());
     suite.addTest(AllProvisioningTests.suite());
     suite.addTest(AllReportsTests.suite());
+    suite.addTest(AllServiceLifecycleTests.suite());
     suite.addTest(AllUsduTests.suite());
     suite.addTest(AllUpgradeTasksTests.suite());
     return suite;

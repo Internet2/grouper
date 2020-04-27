@@ -402,6 +402,11 @@ public class GrouperStartup {
           initMembershipLiteConfigType();
         }
         
+        if (!ignoreCheckConfig) {
+          //post steps after loader config
+          GrouperCheckConfig.checkConfig2();
+        }
+
         // verify member search and sort config
         verifyMemberSortAndSearchConfig();
         
