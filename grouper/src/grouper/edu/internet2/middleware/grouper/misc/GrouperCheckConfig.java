@@ -617,6 +617,8 @@ public class GrouperCheckConfig {
                 "Number of days that the grace period lasts", wasInCheckConfig);
             checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME, 
                 "Fully qualified group name of the grace period group", wasInCheckConfig);
+            checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE,
+                "true or false if the eligible population should be included in the grace group to reduce provisioning flicker", wasInCheckConfig);
             
             String groupName = gracePeriodRootStemName + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
             Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(

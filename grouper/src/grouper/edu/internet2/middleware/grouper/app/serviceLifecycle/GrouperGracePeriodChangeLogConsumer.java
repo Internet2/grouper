@@ -195,7 +195,7 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(true), jobName);
     
     if (waitForCache) {
-      GrouperUtil.sleep(60*1000);
+      //TODO GrouperUtil.sleep(60*1000);
     }
   }
 

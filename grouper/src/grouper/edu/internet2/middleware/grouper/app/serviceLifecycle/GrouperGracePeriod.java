@@ -32,6 +32,8 @@ public class GrouperGracePeriod {
   
   public static final String GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME = "grouperGracePeriodGroupName";
 
+  public static final String GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE = "grouperGracePeriodIncludeEligible";
+
   public static final String GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME = "grouperGracePeriodLoader";
   
   private static String groupQuery = null;
@@ -56,22 +58,30 @@ public class GrouperGracePeriod {
       String regexPart = null;
       String minEndTimePart = null;
       
-      databasePart = " and ((gpmship.end_time > $$MIN_END_TIME$$ "
+      // mship:    <---->
+      // groupset:    <---->
+      // if we are including active people (eligible), then allow both group set and membership with no end time
+      databasePart = " and ((gaaagv_includeEligible.value_string = 'true' and gpmship.end_time is null and gpgs.end_time is null) "
+          + "or ((gpmship.end_time > $$MIN_END_TIME$$ "
           + "and gpgs.start_time < gpmship.end_time AND (gpgs.end_time is null or gpgs.end_time > gpmship.end_time)) " + 
           " OR (gpgs.end_time > $$MIN_END_TIME$$"
-          + " AND gpmship.start_time < gpgs.end_time and (gpmship.end_time is null or gpmship.end_time > gpgs.end_time)))"; 
+          + " AND gpmship.start_time < gpgs.end_time and (gpmship.end_time is null or gpmship.end_time > gpgs.end_time))))"; 
       
       if (GrouperDdlUtils.isHsql()) {
-        regexPart = " and REGEXP_MATCHES (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_MATCHES (gaaagv_groupName.value_string, '^.+:.+$') ";
+        regexPart = " and REGEXP_MATCHES (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_MATCHES (gaaagv_groupName.value_string, '^.+:.+$') "
+            + "and REGEXP_MATCHES (gaaagv_includeEligible.value_string, '^(true|false)$') ";
         minEndTimePart = "(1000*(unix_millis(current_timestamp) - (1000*60*60*24*cast(gaaagv_gracePeriod.value_string as int))))";
       } else if (GrouperDdlUtils.isOracle()) {
-        regexPart = " and REGEXP_LIKE (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$') ";
+        regexPart = " and REGEXP_LIKE (gaaagv_gracePeriod.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$') "
+            + "and REGEXP_LIKE (gaaagv_includeEligible.value_string, '^(true|false)$') ";
         minEndTimePart = "(1000000 * (((sysdate - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_gracePeriod.value_string AS number ))))";
       } else if (GrouperDdlUtils.isMysql()) {  
-        regexPart = " and gaaagv_gracePeriod.value_string REGEXP '^[0-9]+$' and gaaagv_groupName.value_string REGEXP '^.+:.+$' ";
+        regexPart = " and gaaagv_gracePeriod.value_string REGEXP '^[0-9]+$' and gaaagv_groupName.value_string REGEXP '^.+:.+$' "
+            + "and gaaagv_includeEligible.value_string REGEXP '^(true|false)$' ";
         minEndTimePart = "(1000000 * (UNIX_TIMESTAMP() - (60*60*24*CONVERT(gaaagv_gracePeriod.value_string,UNSIGNED INTEGER))))";
       } else if (GrouperDdlUtils.isPostgres()) {
-        regexPart = " and gaaagv_gracePeriod.value_string ~ '^[0-9]+$' and gaaagv_groupName.value_string ~ '^.+:.+$' ";
+        regexPart = " and gaaagv_gracePeriod.value_string ~ '^[0-9]+$' and gaaagv_groupName.value_string ~ '^.+:.+$' "
+            + "and gaaagv_includeEligible.value_string ~ '^(true|false)$' ";
         minEndTimePart = "cast((1000000 * (extract(EPOCH from clock_timestamp()) - (60*60*24*(cast(gaaagv_gracePeriod.value_string as bigint))))) as bigint)";
       } else {
         LOG.error("Cant find database type");
@@ -80,26 +90,29 @@ public class GrouperGracePeriod {
       databasePart = StringUtils.replace(databasePart, "$$MIN_END_TIME$$", minEndTimePart) + regexPart;
       query = "select distinct gaaagv_groupName.value_string group_name, gpm.subject_id, gpm.subject_source subject_source_id "
           + "from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf, "
-          + "grouper_aval_asn_asn_group_v gaaagv_gracePeriod, grouper_aval_asn_asn_group_v gaaagv_groupName "
-          + "where gaaagv_gracePeriod.group_id = gaaagv_groupName.group_id "
+          + "grouper_aval_asn_asn_group_v gaaagv_gracePeriod, grouper_aval_asn_asn_group_v gaaagv_groupName, grouper_aval_asn_asn_group_v gaaagv_includeEligible "
+          + "where gaaagv_gracePeriod.group_id = gaaagv_groupName.group_id and gaaagv_gracePeriod.group_id = gaaagv_includeEligible.group_id "
           + "and gaaagv_gracePeriod.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_DAYS + "' "
           + "and gaaagv_groupName.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME + "' "
+          + "and gaaagv_includeEligible.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE + "' "
           + "and gpmship.MEMBER_ID = GPM.ID and GPM.subject_source != 'g:gsa' and gpgs.FIELD_ID = GPF.ID "
           + "and gpf.name = 'members' " + databasePart + " "
           + "and gaaagv_groupName.group_name = gpg.name "
           + "and gpg.id = gpgs.owner_id "
           + "and gpmship.owner_id = gpgs.member_id "
           + "AND gpmship.field_id = gpgs.member_field_id " 
-          + "and not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id "
+          + "and (gaaagv_includeEligible.value_string = 'true' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id "
           + "AND mship2.field_id = gs2.member_field_id and mship2.member_id = gpm.source_id and gs2.field_id = gpf.source_id "
-          + "and gs2.owner_id = gaaagv_gracePeriod.group_id and mship2.enabled = 'T' ) ";
+          + "and gs2.owner_id = gaaagv_gracePeriod.group_id and mship2.enabled = 'T' ) ) ";
 
       groupQuery = "select gaaagv_gracePeriod.group_id owner_group_id, gaaagv_gracePeriod.group_name owner_group_name, "
-          + "gaaagv_gracePeriod.value_string grace_period_days, gaaagv_groupName.value_string group_name "
-          + "from grouper_aval_asn_asn_group_v gaaagv_gracePeriod, grouper_aval_asn_asn_group_v gaaagv_groupName "
-          + "where gaaagv_gracePeriod.group_id = gaaagv_groupName.group_id "
+          + "gaaagv_gracePeriod.value_string grace_period_days, gaaagv_groupName.value_string group_name, gaaagv_includeEligible.value_string include_eligible "
+          + "from grouper_aval_asn_asn_group_v gaaagv_gracePeriod, grouper_aval_asn_asn_group_v gaaagv_groupName, grouper_aval_asn_asn_group_v gaaagv_includeEligible "
+          + "where gaaagv_gracePeriod.group_id = gaaagv_groupName.group_id and gaaagv_gracePeriod.group_id = gaaagv_includeEligible.group_id "
           + "and gaaagv_gracePeriod.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_DAYS + "' "
-          + "and gaaagv_groupName.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME + "' " + regexPart;
+          + "and gaaagv_groupName.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME + "' "
+          + "and gaaagv_includeEligible.attribute_def_name_name2 = '" + gracePeriodStemName() + ":" + GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE + "' "
+          + regexPart;
 
 
     }
