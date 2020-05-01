@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.app.loader.ldap;
 
+import java.text.Normalizer;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +39,27 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LoaderLdapElUtils {
 
+  public static void main(String[] args) {
+    String someString = "abc&def";
+    System.out.println(someString.replaceAll("[^a-zA-Z0-9_-]", "_"));
+  }
+  
+  /**
+   * take out accented chars e.g.
+   * loaderLdapElUtils.normalize("NFD", groupAttribute).replaceAll("\\p{M}", "")
+   * @param form
+   * @param text
+   * @return normalized text
+   */
+  public static String normalize(String form, String text) {
+    if (text == null) {
+      return text;
+    }
+    Normalizer.Form formEnum = Normalizer.Form.valueOf(text);
+    return Normalizer.normalize(text, formEnum);
+
+  }
+  
   /**
    * convert from uid=someapp,ou=people,dc=myschool,dc=edu
    * to someapp

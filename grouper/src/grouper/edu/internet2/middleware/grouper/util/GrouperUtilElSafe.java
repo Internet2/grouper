@@ -35,6 +35,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,6 +76,22 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class GrouperUtilElSafe {
+
+  /**
+   * take out accented chars with
+   * grouperUtil.normalize("NFD", groupAttribute).replaceAll("\\p{M}", "")
+   * @param form
+   * @param text
+   * @return the normalized string
+   */
+  public static String normalize(String form, String text) {
+    if (text == null) {
+      return text;
+    }
+    Normalizer.Form formEnum = Normalizer.Form.valueOf(text);
+    return Normalizer.normalize(text, formEnum);
+
+  }
 
   /**
    * null safe to upper method
