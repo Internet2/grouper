@@ -235,7 +235,7 @@ public void removeGroup(String groupId) {
             logger.debug("user = " + (user == null ? "null" : user.toString()));
             return user;
         } catch (IOException e) {
-            logger.debug("user wasn't found on default domain of " + tenantId);
+            logger.debug("user principal " + userPrincipalName + " was not found");
         }
         return null;
     }

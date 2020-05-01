@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.pit.PITAttributeAssignValueView;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefNameFinder;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
@@ -39,17 +40,17 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
     private String tenantId;
     private String idAttribute;
     private String domain;
+    private String upnAttribute;
     private String groupJexl;
     private String mailNicknameJexl;
     private String descriptionJexl;
+    private String subjectJexl;
 
     private GrouperSession grouperSession;
 
     public enum AzureGroupType {Security, Unified, MailEnabled, MailEnabledSecurity}
 
-    @Override
-    public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
-                                        ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+    public void initialize(ChangeLogProcessorMetadata changeLogProcessorMetadata) {
         String name = changeLogProcessorMetadata.getConsumerName();
         GrouperLoaderConfig config = GrouperLoaderConfig.retrieveConfig();
 
@@ -59,9 +60,11 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         String scope = config.propertyValueString(CONFIG_PREFIX + name + ".scope", "https://graph.microsoft.com/.default");
         this.idAttribute = config.propertyValueString(CONFIG_PREFIX + name + ".idAttribute", DEFAULT_ID_ATTRIBUTE);
         this.domain = config.propertyValueString(CONFIG_PREFIX + name + ".domain", this.tenantId);
+        this.upnAttribute = config.propertyValueString(CONFIG_PREFIX + name + ".upnAttribute");
         this.groupJexl = config.propertyValueString(CONFIG_PREFIX + name + ".groupJexl");
         this.mailNicknameJexl = config.propertyValueString(CONFIG_PREFIX + name + ".mailNicknameJexl");
         this.descriptionJexl = config.propertyValueString(CONFIG_PREFIX + name + ".descriptionJexl");
+        this.subjectJexl = config.propertyValueString(CONFIG_PREFIX + name + ".subjectJexl");
 
         AzureGroupType groupType;
         String groupTypeString = config.propertyValueString(CONFIG_PREFIX + name + ".groupType", AzureGroupType.Security.name());
@@ -100,19 +103,16 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
 
         this.grouperSession = GrouperSession.startRootSession();
         this.apiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope, groupType, visibility, proxyType, proxyHost, proxyPort);
+    }
 
+    @Override
+    public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
+                                        ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+        initialize(changeLogProcessorMetadata);
         return super.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
     }
 
-    /**
-     * Evaluate a jexl expression against a group
-     *
-     * @param group
-     * @param expressionString JEXL expression to evaluate. variable "group" is the group parameter in this method
-     * @param defaultIfExpressionNull If expressionString is null, return this value instead. Simplifies syntax for callers
-     * @return
-     */
-    public static String evaluateJexlExpression(Group group, String expressionString, String defaultIfExpressionNull) {
+    public String evaluateGroupJexlExpression(Group group, String expressionString, String defaultIfExpressionNull) {
         if (expressionString == null) {
             return defaultIfExpressionNull;
         }
@@ -120,7 +120,64 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         Expression expression = new JexlEngine().createExpression(expressionString);
         MapContext context = new MapContext();
         context.set("group", group);
-        return (String)expression.evaluate(context);
+        context.set("consumerName", this.getConsumerName());
+        context.set("tenantId", this.tenantId);
+        context.set("domain", this.domain);
+        context.set("idAttribute", this.idAttribute);
+        String result = (String)expression.evaluate(context);
+        logger.trace("evaluated group jexl -> [" + result + "]");
+        return result;
+    }
+
+    public String evaluateSubjectJexlExpression(Subject subject, String expressionString) {
+        if (expressionString == null) {
+            return null;
+        }
+
+        Expression expression = new JexlEngine().createExpression(expressionString);
+        MapContext context = new MapContext();
+        context.set("subject", subject);
+        context.set("subjectIdValue", subject.getAttributeValue(this.idAttribute));
+        context.set("subjectUpnValue", this.upnAttribute == null ? null : subject.getAttributeValue(this.upnAttribute));
+        context.set("consumerName", this.getConsumerName());
+        context.set("tenantId", this.tenantId);
+        context.set("domain", this.domain);
+        context.set("idAttribute", this.idAttribute);
+        String result = (String)expression.evaluate(context);
+        logger.trace("evaluated subject jexl -> [" + result + "]");
+        return result;
+    }
+
+    public String getUserPrincipalName(Subject subject) {
+        String userPrincipalName = null;
+        String method = "N/A";
+
+        if (this.upnAttribute != null) {
+            userPrincipalName = subject.getAttributeValue(this.upnAttribute);
+            method = "upnAttribute";
+        }
+
+        if (GrouperUtil.isBlank(userPrincipalName) && this.subjectJexl != null) {
+            userPrincipalName = evaluateSubjectJexlExpression(subject, subjectJexl);
+            method = "subjectJexl";
+        }
+
+        if (GrouperUtil.isBlank(userPrincipalName)) {
+            String id = subject.getAttributeValue(this.idAttribute);
+            if (!GrouperUtil.isBlank(id)) {
+                userPrincipalName = subject.getAttributeValue(this.idAttribute).trim() + "@" + this.domain;
+                method = "default (idAttribute)";
+            }
+        }
+
+        if (GrouperUtil.isBlank(userPrincipalName)) {
+            logger.error("consumer " + this.getConsumerName() + " unable to determine principal name for subject " + subject);
+            throw new RuntimeException("Failed to calculate principal name for subject " + subject);
+        }
+
+        logger.debug("consumer " + this.getConsumerName() + ": calculated subject principal by method " + method + " as " + userPrincipalName);
+
+        return userPrincipalName;
     }
 
     @Override
@@ -169,18 +226,14 @@ Response
         }
          */
 
-        String displayName = evaluateJexlExpression(group, this.groupJexl, group.getName());
-        if (this.groupJexl != null) {
-            logger.debug("consumer " + this.getConsumerName() + ": calculated displayName as " + displayName);
-        }
-        String mailNickname = evaluateJexlExpression(group, this.mailNicknameJexl, group.getUuid());
-        if (this.mailNicknameJexl != null) {
-            logger.debug("consumer " + this.getConsumerName() + ": calculated mailNickname as " + mailNickname);
-        }
-        String description = evaluateJexlExpression(group, this.descriptionJexl, group.getId());
-        if (this.descriptionJexl != null) {
-            logger.debug("consumer " + this.getConsumerName() + ": calculated description as " + description);
-        }
+        String displayName = evaluateGroupJexlExpression(group, this.groupJexl, group.getName());
+        logger.debug("consumer " + this.getConsumerName() + ": calculated displayName as " + displayName);
+
+        String mailNickname = evaluateGroupJexlExpression(group, this.mailNicknameJexl, group.getUuid());
+        logger.debug("consumer " + this.getConsumerName() + ": calculated mailNickname as " + mailNickname);
+
+        String description = evaluateGroupJexlExpression(group, this.descriptionJexl, group.getId());
+        logger.debug("consumer " + this.getConsumerName() + ": calculated description as " + description);
 
         retrofit2.Response response = apiClient.addGroup(
                         displayName,
@@ -241,7 +294,7 @@ Response
         String groupId = group.getAttributeValueDelegate().retrieveValueString(GROUP_ID_ATTRIBUTE_NAME);
         logger.debug("azure groupId: " + groupId);
 
-        String userPrincipalName = subject.getAttributeValue(this.idAttribute) + "@" + this.domain;
+        String userPrincipalName = getUserPrincipalName(subject);
 
         try {
 
@@ -256,7 +309,7 @@ Response
     protected void removeMembership(Subject subject, Group group, ChangeLogEntry changeLogEntry) {
         logger.info("consumer " + this.getConsumerName() + ": Removing " + subject + " from " + group);
         try {
-            User user = apiClient.lookupMSUser(subject.getAttributeValue(this.idAttribute).trim() + "@" + tenantId);
+            User user = apiClient.lookupMSUser(getUserPrincipalName(subject));
             String groupId = group.getAttributeValueDelegate().retrieveValueString(GROUP_ID_ATTRIBUTE_NAME);
             apiClient.removeUserFromGroupInMS(groupId, user.id);
         } catch (IOException e) {

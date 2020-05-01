@@ -67,10 +67,13 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
     changeLog.consumer.o365.tenantId = @o365.tenantId@
     changeLog.consumer.o365.clientId = @o365.clientId@
     changeLog.consumer.o365.clientSecret = @o365.clientSecret@
+    #changeLog.consumer.o365.domain =
     #changeLog.consumer.o365.idAttribute =
+    #changeLog.consumer.o365.upnAttribute =
     #changeLog.consumer.o365.groupJexl =
     #changeLog.consumer.o365.mailNicknameJexl =
     #changeLog.consumer.o365.descriptionJexl =
+    #changeLog.consumer.o365.subjectJexl =
     #changeLog.consumer.o365.groupType = [Security* | Unified]
     #changeLog.consumer.o365.visibility = [Public* | Private | Hiddenmembership]
     #changeLog.consumer.o365.proxyType = [http | socks]
@@ -85,24 +88,35 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
 Replace `@o365.tenantId@`, `@o365.clientId@` and `@o365.clientSecret@` with appropriate values from the application
 configuration. Note that the clientSecret is sensitive information.
 
+### domain
+
+Property domain defines the domain name to be used with user principals. If not defined, the tenantId property will
+be used to construct user principals.
+
 ### idAttribute
 
 Optional property `idAttribute` specifies what attribute is used to build the Azure user principal, and will default to "uid" if not set.
-The Azure principal will get built as idattribute + "@" + tenantId. Whatever attribute is used must be available as a key as
+The Azure principal will get built as idattribute + "@" + domain or tenantId. Whatever attribute is used must be available as a key as
 returned in `subject.getAttributes()`; i.e., if you want to use the subject's id or identifier, it needs to be defined in the
 subject attributes too.
 
-### groupJexl, mailNicknameJexl, and descriptionJexl 
+### upnAttribute
 
-Optional properties `groupJexl`, `mailNicknameJexl`, and `descriptionJexl` support jexl2 expressions in deriving custom display
-name, email nickname, and description, respectively. Variable `group` is provided to the jexl expression for
-use in computing the resulting string. Note that brackets are not needed around the expression.
+If subjects reliably have the Azure principal name as one of their attributes, setting `upnAttribute` will  use this value
+as is to identify Azure users, rather than calculating it through other methods.
+
+### groupJexl, mailNicknameJexl, descriptionJexl, subjectJexl 
+
+Optional \*Jexl properties support jexl2 expressions in deriving custom values. Variable `group` is provided to the group jexl
+expressions, while `subject` and `subjectIdValue` are for subjectJexl. Variables common to both are `consumerName`,
+`tenantId`, `domain`, and `idAttribute`. Brackets are not needed around the expression.
 
 | property         | associated Azure property | default    | default example |
 | ---------------- | ------------------------- | ---------- | ----------      |
 | groupJexl        | displayName               | group.name | app:azure:provisioned:groupTypes:o365Sync:group1 |
 | mailNicknameJexl | mailNickname              | group.uuid | ec3d7d285be34e3f921a6e89a1514a94 |
 | descriptionJexl  | description               | group.uuid | ec3d7d285be34e3f921a6e89a1514a94 |
+| subjectJexl      | userPrincipalName         | subjectIdValue@domain | wreed@example.onmicrosoft.com |
 
 Examples:
 
@@ -117,11 +131,38 @@ group.name.replaceAll("^app:test:grp-2607:provision:", "").replaceAll(":", " / "
 group.parentStem.parentStem.displayExtension + " - " + group.parentStem.displayExtension + " - " + group.displayExtension + (group.description ? ": " + group.description : "")
   => Group Types - Security Groups - Group 5: Testing of Azure Security Groups
 
+subject.getAttributeValue('azurePrincipal') ?: subjectIdValue + '@' + domain
+  => vsteele@custom.domain.edu
+  => (if the subject has a pre-defined principal, use it, otherwise default to the constructed one)
+
+subjectIdValue + '@' + ({'WGA': 'wga.school.edu', 'WGR': 'west-gr.edu'}.get(subject.getAttributeValue('school')) ?: 'domain.edu')
+  => snelson@wga.school.edu
+  => (map schools to domains, with a fallback value)
 ```
 
-To aid in developing jexl expressions, the method `Office365ChangeLogConsumer.evaluateJexlExpression(Group group, String expressionString, String defaultIfExpressionNull)`
-can be called with gsh, passing in a group and expression string and returning a value. The `defaultIfExpressionNull` parameter is mainly useful for caller code to avoid
-extra tests for null.
+To aid in developing jexl expressions, a minimal consumer instance can be bootstrapped enough to test jexl expressions using gsh.
+All the documented variables, except for consumerName (which is only defined while processing changelog entries), are
+available during evaluation.
+
+```
+import edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogConsumer
+import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata
+
+def changeLogProcessorMetadata = new ChangeLogProcessorMetadata()
+changeLogProcessorMetadata.consumerName = "o365" // should match the consumer definition in grouper-loader
+
+def consumer = new Office365ChangeLogConsumer()
+consumer.initialize(changeLogProcessorMetadata)
+
+def gs = GrouperSession.startRootSession()
+def group = GroupFinder.findByName(gs, "app:test:grp-2607:provision:groupTypes:o365Sync:group7", true)
+consumer.evaluateGroupJexlExpression(group, "group.name + ' (' + group.displayExtension + ')'", defaultIfExpressionNull="nothing defined")
+
+def subject = SubjectFinder.findById("800000023")
+consumer.evaluateSubjectJexlExpression(subject, "subject.getAttributeValue('azurePrincipal') ?: subjectIdValue + '@' + domain")
+```
+
+The `defaultIfExpressionNull` parameter is intended mainly for internal code to avoid extra tests for a null expression.
 
 ### groupType, visibility
 
@@ -137,6 +178,18 @@ for more information.
 
 If the daemon server requires a proxy to access the internet, a HTTP or SOCKS proxy can be defined using `proxyType`,
 `proxyHost`, and `proxyPort`. Currently, the SOCKS5 proxy only supports anonymous access.
+
+## Fallback methods for subject principal name calculations
+
+Methods for determining the subject principal will try properties in the following order, when they are defined. If a
+method returns null or blank, the next method will be tried.
+
+1. upnAttribute
+2. subjectJexl
+3. idAttribute (before appending "@" + domain)
+
+If all three methods return blank values, a runtime exception will be thrown.
+
 
 ## Multiple Provisioners
 
