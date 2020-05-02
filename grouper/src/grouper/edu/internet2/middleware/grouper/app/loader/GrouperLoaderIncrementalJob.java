@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
@@ -60,6 +62,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -181,6 +185,11 @@ public class GrouperLoaderIncrementalJob implements Job {
         Map<String, Map<MultiKey, Row>> rowsByGroup = new LinkedHashMap<String, Map<MultiKey, Row>>();
         
         while (resultSet.next()) {
+          
+          synchronized (hib3GrouperloaderLog) {
+            hib3GrouperloaderLog.addTotalCount(1);
+          }
+          
           long id = resultSet.getLong("id");
           long timestamp = resultSet.getLong("timestamp");
           String loaderGroupName = resultSet.getString("loader_group_name");
@@ -240,7 +249,7 @@ public class GrouperLoaderIncrementalJob implements Job {
           
           if (rowsByGroup.get(loaderGroupName).containsKey(key)) {
             // mark row done
-            setRowCompleted(connection, tableName, id);
+            setRowCompleted(connection, tableName, id, true);
           } else {
             rowsByGroup.get(loaderGroupName).put(key, row);
           }
@@ -308,6 +317,7 @@ public class GrouperLoaderIncrementalJob implements Job {
             final String grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_QUERY);
             final String grouperLoaderAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_AND_GROUPS);
             final String grouperLoaderGroupsLike = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
+            final String grouperLoaderGroupQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUP_QUERY);
 
             for (final Row row : rowsByGroup.get(loaderGroupName).values()) {
   
@@ -317,7 +327,8 @@ public class GrouperLoaderIncrementalJob implements Job {
                 public Void callLogic() {
                   GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
                   processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, 
-                      GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderQuery, grouperLoaderDbName, caseInsensitiveSubjectLookupsInDataSource);
+                      GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups, 
+                      grouperLoaderGroupsLike, grouperLoaderGroupQuery, grouperLoaderQuery, grouperLoaderDbName, caseInsensitiveSubjectLookupsInDataSource, true);
                   return null;
                 }
               };
@@ -534,8 +545,18 @@ public class GrouperLoaderIncrementalJob implements Job {
     }
     
   }
-  
-  private static void setRowCompleted(Connection connection, String tableName, long id) throws SQLException {
+
+  /**
+   * @param connection
+   * @param tableName
+   * @param id
+   * @param updateIncrementalTable if not update incremental table just return
+   * @throws SQLException
+   */
+  private static void setRowCompleted(Connection connection, String tableName, long id, boolean updateIncrementalTable) throws SQLException {
+    if (!updateIncrementalTable) {
+      return;
+    }
     PreparedStatement statement = null;
     try {
       statement = connection.prepareStatement("update " + tableName + " set completed_timestamp = ? where id = ?");
@@ -678,7 +699,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         synchronized (hib3GrouperloaderLog) {
           hib3GrouperloaderLog.addUnresolvableSubjectCount(1);
         }
-        setRowCompleted(connection, tableName, id);
+        setRowCompleted(connection, tableName, id, true);
         return;
       }
       
@@ -700,13 +721,13 @@ public class GrouperLoaderIncrementalJob implements Job {
           }
         }
         
-        handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderType,
-            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource);
+        handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, null, grouperLoaderType,
+            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource, true);
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);
       }
       
-      setRowCompleted(connection, tableName, id);
+      setRowCompleted(connection, tableName, id, true);
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -714,11 +735,11 @@ public class GrouperLoaderIncrementalJob implements Job {
     }
   }
   
-  private static void processOneSQLRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
+  public static void processOneSQLRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
       Group loaderGroup, String grouperLoaderType, 
       Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
-      String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderQuery, String grouperLoaderDbName,
-      boolean caseInsensitiveSubjectLookupsInDataSource) {
+      String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderGroupQuery, String grouperLoaderQuery, String grouperLoaderDbName,
+      boolean caseInsensitiveSubjectLookupsInDataSource, boolean updateIncrementalTable) {
     
     GrouperLoaderDb grouperLoaderDbForLoaderSource = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
 
@@ -741,7 +762,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         synchronized (hib3GrouperloaderLog) {
           hib3GrouperloaderLog.addUnresolvableSubjectCount(1);
         }
-        setRowCompleted(connection, tableName, id);
+        setRowCompleted(connection, tableName, id, updateIncrementalTable);
         return;
       }
       
@@ -844,8 +865,8 @@ public class GrouperLoaderIncrementalJob implements Job {
         }
         
       } else if (GrouperLoaderType.SQL_GROUP_LIST.name().equals(grouperLoaderType)) {
-        if (StringUtils.isEmpty(grouperLoaderGroupsLike)) {
-          throw new RuntimeException("grouperLoaderGroupsLike is required for SQL_GROUP_LIST");
+        if (StringUtils.isEmpty(grouperLoaderGroupsLike) && StringUtils.isEmpty(grouperLoaderGroupQuery)) {
+          throw new RuntimeException("grouperLoaderGroupsLike or grouperLoaderGroupQuery is required for SQL_GROUP_LIST");
         }
   
         String loaderQueryForUser = "select group_name from (" + grouperLoaderQuery + ") innerQuery where ";
@@ -893,13 +914,13 @@ public class GrouperLoaderIncrementalJob implements Job {
           GrouperUtil.closeQuietly(statement);
         }
         
-        handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderType,
-            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource);
+        handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderGroupQuery, grouperLoaderType,
+            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource, updateIncrementalTable);
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);
       }
       
-      setRowCompleted(connection, tableName, id);
+      setRowCompleted(connection, tableName, id, updateIncrementalTable);
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -908,24 +929,48 @@ public class GrouperLoaderIncrementalJob implements Job {
   }
   
   private static void handleGroupList(GrouperSession grouperSession, Connection connection, String tableName, Row row, Group loaderGroup, String grouperLoaderAndGroups, 
-      String grouperLoaderGroupsLike, String grouperLoaderType, Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates, 
-      Subject subject, Set<String> membershipsInSource) throws SchedulerException, SQLException {
+      String grouperLoaderGroupsLike, String grouperLoaderGroupQuery, String grouperLoaderType, Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates, 
+      Subject subject, Set<String> membershipsInSource, boolean updateIncrementalTable) throws SchedulerException, SQLException {
 
-    String sql = "select g.nameDb "
-        + " from Member m, MembershipEntry ms, Group g "
-        + " where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid "
-        + " and g.nameDb like :sqlLike "
-        + " and m.subjectIdDb like :subjectId "
-        + " and m.subjectSourceIdDb like :subjectSourceId "
-        + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
-        + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'";
+//    String sql = "select g.nameDb "
+//        + " from Member m, MembershipEntry ms, Group g "
+//        + " where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid "
+//        + (!StringUtils.isBlank(grouperLoaderGroupsLike) ?  " and g.nameDb like :sqlLike " : " and g.nameDb in (select group_name from (" + grouperLoaderGroupQuery + "))  ")
+//        + " and m.subjectIdDb like :subjectId "
+//        + " and m.subjectSourceIdDb like :subjectSourceId "
+//        + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
+//        + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'";
+
+    String groupNameList = null;
+    if (!StringUtils.isBlank(grouperLoaderGroupsLike)) {
+      groupNameList = " and g123.name like ? ";
+    } else {
+      if (GrouperDdlUtils.isOracle()) {
+        groupNameList = " and g123.name in (select group_name from (" + grouperLoaderGroupQuery + ")) ";
+      } else {
+        groupNameList = " and g123.name in (select group_name from (" + grouperLoaderGroupQuery + ") as some_random_alias ) ";
+      }
+    }
+     
     
-    Set<String> membershipsInGrouper = HibernateSession.byHqlStatic()
-      .createQuery(sql)
-      .setString("sqlLike", grouperLoaderGroupsLike)
-      .setString("subjectId", subject.getId())
-      .setString("subjectSourceId", subject.getSourceId())
-      .listSet(String.class);
+    String sql = "select g123.name " + 
+        "from grouper_members m123, grouper_memberships_all_v ms123, grouper_groups g123 " + 
+        "where ms123.owner_group_id = g123.id and ms123.member_id = m123.id " + 
+        groupNameList +
+        "and m123.subject_id = ? " + 
+        "and m123.subject_source = ? " + 
+        "and ms123.mship_type = 'immediate' and ms123.immediate_mship_enabled = 'T' " + 
+        "and ms123.field_id = '" + Group.getDefaultList().getUuid() + "' ";
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(sql);
+
+    if (!StringUtils.isBlank(grouperLoaderGroupsLike)) {
+      gcDbAccess.addBindVar(grouperLoaderGroupsLike);
+    }
+    
+    Set<String> membershipsInGrouper = new HashSet<String>(gcDbAccess
+      .addBindVar(subject.getId())
+      .addBindVar(subject.getSourceId()).selectList(String.class));
     
     Set<String> membershipsInSourceAfterAndGroupsConsideration = new LinkedHashSet<String>(membershipsInSource);
     if (!StringUtils.isBlank(grouperLoaderAndGroups)) {
@@ -954,7 +999,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         scheduleJobNow(loaderGroup, grouperLoaderType);
         
         // just setting this one row completed instead of all from this group list just in case the full sync takes a long time
-        setRowCompleted(connection, tableName, row.getId());
+        setRowCompleted(connection, tableName, row.getId(), updateIncrementalTable);
         continue;
       }
       

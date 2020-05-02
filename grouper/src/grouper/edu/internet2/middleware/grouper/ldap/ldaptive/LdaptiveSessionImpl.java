@@ -134,9 +134,15 @@ public class LdaptiveSessionImpl implements LdapSession {
           Properties ldaptiveProperties = getLdaptiveProperties(ldapServerId);
           propertiesMap.put(ldapServerId, ldaptiveProperties);
           
+          boolean isActiveDirectory = LdapConfiguration.getConfig(ldapServerId).isActiveDirectory();
+          
           // search result handlers
           LinkedHashSet<Class<SearchEntryHandler>> handlers = new LinkedHashSet<Class<SearchEntryHandler>>();
           String handlerNames = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".searchResultHandlers");
+          if (StringUtils.isEmpty(handlerNames) && isActiveDirectory) {
+            handlerNames = "edu.internet2.middleware.grouper.ldap.ldaptive.GrouperRangeEntryHandler";
+          }
+          
           if (!StringUtils.isBlank(handlerNames)) {
             String[] handlerClassNames = GrouperUtil.splitTrim(handlerNames, ",");
             for (String className : handlerClassNames) {
@@ -586,7 +592,7 @@ public class LdaptiveSessionImpl implements LdapSession {
               List<String> currentBatch = GrouperUtil.batchList(dnList, batchSize, i);
               StringBuilder builder = new StringBuilder();
               for (String dn : currentBatch) {
-                builder.append("(" + config.getDnAttributeForSearches() + "=" + dn + ")");
+                builder.append("(" + config.getDnAttributeForSearches() + "=" + SearchFilter.encodeValue(dn) + ")");
               }
               
               String filter = "(|" + builder.toString() + ")";

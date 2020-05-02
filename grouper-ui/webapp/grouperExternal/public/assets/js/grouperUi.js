@@ -718,7 +718,7 @@ function dojoInitMenu(autoSelectNode) {
           cache: true,
           dataType: 'json',
           data: {"id": itemId, "type": itemType},
-          timeout: 15000,
+          timeout: 150000,
           async: true,
           success: function(json){
             openFolderTreePathToObject(json);
@@ -872,6 +872,20 @@ function ajax(theUrl, options) {
     }
   }
 
+  if (typeof options.formElementNamesToSend != 'undefined' && options.formElementNamesToSend != null) { 
+    
+    //add additional form element names to filter based on other things on the screen 
+    var additionalFormElementNamesArray = guiSplitTrim(options.formElementNamesToSend, ","); 
+    for (var i = 0; i<additionalFormElementNamesArray.length; i++) { 
+      var additionalFormElementName = additionalFormElementNamesArray[i]; 
+
+      var element = document.getElementsByName(additionalFormElementName)[0];
+      
+      options.requestParams[element.name] = guiFieldValues(element);
+    } 
+  } 
+
+  
   //add owasp token
   
   
@@ -914,7 +928,7 @@ function ajax(theUrl, options) {
     cache: false,
     dataType: 'json',
     data: options.requestParams,
-    timeout: 180000,
+    timeout: 1800000,
     async: true,
     //TODO handle errors success better.  probably non modal disappearing reusable window
     error: function(jqXHR, textStatus, errorThrown) {

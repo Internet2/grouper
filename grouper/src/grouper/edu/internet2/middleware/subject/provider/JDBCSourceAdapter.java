@@ -946,6 +946,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     String dbUrl = null;
     log.debug("Initializing connection factory.");
     dbUrl = props.getProperty("dbUrl");
+
+    String jdbcConfigId = props.getProperty("jdbcConfigId");
+
     String dbUser = props.getProperty("dbUser");
     String dbPwd = props.getProperty("dbPwd");
     dbPwd = Morph.decryptIfFile(dbPwd);
@@ -974,7 +977,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
     this.jdbcConnectionProvider = SubjectUtils.newInstance(jdbcConnectionProviderClass);
     this.jdbcConnectionProvider.init(props, this.getId(), driver, maxActive, 2, maxIdle, 2,
-        maxWaitSeconds, 5, dbUrl, dbUser, dbPwd, readOnly, true);
+        maxWaitSeconds, 5, dbUrl, dbUser, dbPwd, readOnly, true, jdbcConfigId);
 
     log.info("Data Source initialized.");
     this.nameAttributeName = props.getProperty("Name_AttributeType");
@@ -1165,7 +1168,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           String theError = error
               + "Error finding database driver class: "
               + driver
-              + ", perhaps you did not put the database driver jar in the lib/custom dir or lib dir, "
+              + ", perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, "
               + "or you have the wrong driver listed";
           System.err.println("Subject API error: " + theError + ": "
               + ExceptionUtils.getFullStackTrace(e));
@@ -1190,7 +1193,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
             String theError = error
                 + "Error finding database driver class from spy.properties: "
                 + driver
-                + ", perhaps you did not put the database driver jar in the lib/custom dir or lib dir, "
+                + ", perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, "
                 + "or you have the wrong driver listed";
             System.err.println("Subject API error: " + theError + ": "
                 + ExceptionUtils.getFullStackTrace(e));
@@ -1239,6 +1242,11 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       String dbUrl = props.getProperty("dbUrl");
       String dbUser = props.getProperty("dbUser");
       dbResult = dbUser + "@" + dbUrl;
+    } else { 
+      String jdbcConfigId = props.getProperty("jdbcConfigId");
+      if (!StringUtils.isBlank(jdbcConfigId)) {
+        dbResult += " " + jdbcConfigId;
+      }
     }
     String message = "subject.properties jdbc" + 
         ((this instanceof JDBCSourceAdapter2) ? "2" : "")+ " source id:   " + this.getId() + ": " + dbResult;

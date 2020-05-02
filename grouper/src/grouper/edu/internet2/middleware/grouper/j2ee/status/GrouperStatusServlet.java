@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -117,6 +119,17 @@ public class GrouperStatusServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     
+    if (!allowedToViewStatus(request)) { 
+      try {
+        response.sendError(401, "Unauthorized");
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }          
+      return;
+    }
+    
+    boolean sendDetailsInResponse = GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.sendDetailsInResponse", true);
+    
     requestThreadLocal.set(request);
     
     startNanos.set(System.nanoTime());
@@ -125,7 +138,7 @@ public class GrouperStatusServlet extends HttpServlet {
         + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
         + "\n"
         + "<html><head></head><body>\n");
-    StringBuilder result = new StringBuilder("<pre>");
+    StringBuilder result = new StringBuilder("");
     
     List<DiagnosticTask> diagnosticTasksWithErrors = new ArrayList<DiagnosticTask>();
     // key is name
@@ -217,9 +230,14 @@ public class GrouperStatusServlet extends HttpServlet {
       
       try {
         writer = response.getWriter();
-        result.append("</pre>\n");
-        outerResult.append("<h1>Grouper status SUCCESS</h1><br />").append(result).append(
-            "</body></html>");
+        outerResult.append("<h1>Grouper status SUCCESS</h1><br /><pre>");
+        if (sendDetailsInResponse) {
+          outerResult.append(result);
+        } else {
+          LOG.info("Status result: " + result.toString());
+          outerResult.append("See logs or 'All daemon jobs' for details.");
+        }
+        outerResult.append("</pre></body></html>");
         writer.write(outerResult.toString());
       } catch (Exception e) {
         LOG.error("error", e);
@@ -256,10 +274,13 @@ public class GrouperStatusServlet extends HttpServlet {
       response.setStatus(500);
       
       String theLastDiagnosticsError = null;
+      String messageNoDetails = null;
       
       if (diagnosticTasksWithErrors.size() > 0) {
         
         StringBuilder message = new StringBuilder("\n" + diagnosticTasksWithErrors.size() + " errors in the diagnostic tasks:\n\n");
+        messageNoDetails = message.toString() + "See logs or 'All daemon jobs' for details.";
+        
         for (DiagnosticTask diagnosticTask : diagnosticTasksWithErrors) {
           message.append(diagnosticTask.getClass().getSimpleName()  
               + ", " + diagnosticTask.retrieveNameFriendly() + "\n\n"
@@ -281,6 +302,7 @@ public class GrouperStatusServlet extends HttpServlet {
       } else {
 
         theLastDiagnosticsError = "Error in status:\n" + ExceptionUtils.getFullStackTrace(re);
+        messageNoDetails = "Error in status. See logs or 'All daemon jobs' for details.";
         LOG.error("Error in status: ", re);
       }
       
@@ -290,7 +312,7 @@ public class GrouperStatusServlet extends HttpServlet {
       writeToScreen(response, "<?xml version=\"1.0\" ?>\n"
         + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
         + "\n"
-        + "<html><head></head><body><h1>Grouper status error!</h1><br /><pre>" + theLastDiagnosticsError + "</pre></body></html>");
+        + "<html><head></head><body><h1>Grouper status error!</h1><br /><pre>" + (sendDetailsInResponse ? theLastDiagnosticsError : messageNoDetails) + "</pre></body></html>");
       
       
     } finally {
@@ -338,5 +360,71 @@ public class GrouperStatusServlet extends HttpServlet {
     return " (" + elapsedMillis + "ms elapsed)";
   }
 
+  /**
+   * if allowed to view status
+   * @request request
+   * @return true if allowed to view status
+   */
+  public boolean allowedToViewStatus(HttpServletRequest request) {
 
+    Map<String, Object> debugMap = null;
+    
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "allowedToViewStatus");
+    }
+    try {
+      
+      String networks = GrouperConfig.retrieveConfig().propertyValueString("ws.diagnostic.sourceIpAddresses");
+
+      if (debugMap != null) {
+        debugMap.put("allowFromNetworks", networks);
+      }
+
+      if (!StringUtils.isBlank(networks)) {
+
+        String sourceIp = request.getRemoteAddr();
+        
+        if (debugMap != null) {
+          debugMap.put("sourceIp", sourceIp);
+        }
+
+        Boolean allowed = null;
+        
+        if (!StringUtils.isBlank(sourceIp) && GrouperUtil.ipOnNetworks(sourceIp, networks)) {
+
+          if (debugMap != null) {
+            debugMap.put("ipOnNetworks", true);
+          }
+
+          allowed = true;
+        } else {
+          if (!StringUtils.isBlank(sourceIp)) {
+            if (debugMap != null) {
+              debugMap.put("ipOnNetworks", false);
+            }
+            
+          }
+          allowed = false;
+        }
+        
+        if (debugMap != null) {
+          debugMap.put("allowed", allowed);
+        }
+        if (allowed != Boolean.TRUE) {
+          return false;
+        }
+      }
+      
+      if (debugMap != null) {
+        debugMap.put("allowed", true);
+      }
+      return true;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+
+  }
 }

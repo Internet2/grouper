@@ -187,6 +187,10 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
+    if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+      return null;
+    }
+    
     //update metadata
     GrouperDeprovisioningLogic.updateDeprovisioningMetadata(StemFinder.findRootStem(grouperSession));
     

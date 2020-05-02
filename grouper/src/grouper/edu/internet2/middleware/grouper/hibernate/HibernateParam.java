@@ -23,7 +23,7 @@ package edu.internet2.middleware.grouper.hibernate;
  * @author mchyzer
  *
  */
-class HibernateParam {
+public class HibernateParam {
 
   /** name of param */
   private String name;

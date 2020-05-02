@@ -1544,7 +1544,7 @@ public class UiV2Group {
       grouperSession = GrouperSession.start(loggedInSubject);
   
   
-      Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      Group group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
       if (group == null) {
         return;

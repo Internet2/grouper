@@ -22,11 +22,13 @@ import jline.TerminalFactory;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.tools.shell.Groovysh;
 import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.Interpreter;
 import org.codehaus.groovy.tools.shell.Main;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import groovy.lang.MissingPropertyException;
 
@@ -96,7 +98,8 @@ public class GrouperGroovysh extends Groovysh {
   }
   
   /**
-   * run a script and return the result.  Note, check for exception and rethrow
+   * run a script and return the result.  Note, check for exception and rethrow.
+   * Note this uses
    * @param script
    * @return the result
    */
@@ -120,7 +123,8 @@ public class GrouperGroovysh extends Groovysh {
       compilerConfiguration.setTolerance(0);
 //      Logger.io = io;
       compilerConfiguration.setParameters(false);
-      shell = new GrouperGroovysh(io, compilerConfiguration, false);
+      boolean exitOnError = GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnProgrammaticError", true);
+      shell = new GrouperGroovysh(io, compilerConfiguration, exitOnError);
       StringBuilder body = new StringBuilder(script);
       body.insert(0, ":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'\n");
       body.append("\n:exit");
@@ -159,6 +163,17 @@ public class GrouperGroovysh extends Groovysh {
   private boolean exitOnError;
   
   /**
+   * dont call this, too much of a performance penalty
+   */
+  public static void addImports(CompilerConfiguration compilerConfiguration) {
+    ImportCustomizer defaultImports = new ImportCustomizer();
+    for (String thePackage : FindImports.ALL_PACKAGES) {
+      defaultImports.addStarImports(thePackage);
+    }
+    compilerConfiguration.addCompilationCustomizers(defaultImports);
+  }
+  
+  /**
    * @param io
    * @param compilerConfiguration
    * @param exitOnError
@@ -183,8 +198,10 @@ public class GrouperGroovysh extends Groovysh {
     this.throwable = cause;
     
     if (exitOnError) {
-      System.err.println(ExceptionUtils.getFullStackTrace(cause));
-      System.exit(1);
+      if (cause instanceof RuntimeException) {
+        throw (RuntimeException)cause;
+      }
+      throw new RuntimeException("error", cause);
     }
 
     if (cause instanceof MissingPropertyException) {

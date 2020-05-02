@@ -25,6 +25,7 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -48,6 +49,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -92,7 +94,7 @@ public class RuleApiTest extends GrouperTest {
 //    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
 //    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
 //    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
-    TestRunner.run(new RuleApiTest("testRuleVetoSubjectAssignInFolderIfNotInGroupChangeLogConsumer"));
+    TestRunner.run(new RuleApiTest("testRuleMaxGroupMembersOtherGroup"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
@@ -3884,6 +3886,84 @@ public class RuleApiTest extends GrouperTest {
     assertTrue(ruleGroup.hasMember(subject1));
   
   }
+
+  /**
+   * 
+   */
+  public void testRuleMaxGroupMembers() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group maxGroup = new GroupSave(grouperSession).assignName("stem:maxGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    Subject actAsSubject = SubjectFinder.findByIdAndSource("GrouperSystem", "g:isa", true);
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    RuleApi.vetoMembershipIfTooManyMembers(actAsSubject, maxGroup, null, 1, null, "rule.group.has.too.many.members", "Group has too many members");
+      
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    maxGroup.addMember(subject0);
+    
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      maxGroup.addMember(subject1);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Group has too many members"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+      
+  }
+
+  /**
+   * 
+   */
+  public void testRuleMaxGroupMembersOtherGroup() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group maxGroup = new GroupSave(grouperSession).assignName("stem:maxGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group memberGroup = new GroupSave(grouperSession).assignName("stem:memberGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    Subject actAsSubject = SubjectFinder.findByIdAndSource("GrouperSystem", "g:isa", true);
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    RuleApi.vetoMembershipIfTooManyMembers(actAsSubject, memberGroup, maxGroup, 1, "jdbc", "rule.group.has.too.many.members", "Group has too many members");
+
+    maxGroup.addMember(memberGroup.toSubject());
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    memberGroup.addMember(subject0);
+    
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      memberGroup.addMember(subject1);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Group has too many members"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+      
+  }
+
 
   /**
    * 

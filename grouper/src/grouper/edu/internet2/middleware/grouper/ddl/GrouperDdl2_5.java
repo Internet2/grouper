@@ -1668,7 +1668,7 @@ public class GrouperDdl2_5 {
         
         String script = GrouperUtil.readResourceIntoString(resource, false);
         
-        GrouperDdlUtils.runScriptIfShould(script, runScript);
+        GrouperDdlUtils.runScriptIfShouldAndPrintOutput(script, runScript);
   
       } catch (Exception e2) {
   

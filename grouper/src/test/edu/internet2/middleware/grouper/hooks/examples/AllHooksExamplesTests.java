@@ -33,6 +33,7 @@ public class AllHooksExamplesTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.hooks.examples");
     //$JUnit-BEGIN$
+    suite.addTestSuite(AttributeAutoCreateHookTest.class);
     suite.addTestSuite(AttributeSecurityFromTypeHookTest.class);
     suite.addTestSuite(GroupAttributeNameValidationHookTest.class);
     suite.addTestSuite(GroupUniqueNameCaseInsensitiveHookTest.class);

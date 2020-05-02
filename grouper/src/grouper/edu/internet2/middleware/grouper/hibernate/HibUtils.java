@@ -29,6 +29,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +40,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -71,6 +73,45 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class HibUtils {
+
+  /**
+   * attach bind values to query
+   * @param query
+   */
+  public static void attachBindValues(Query query, List<HibernateParam> bindVarNameParams) {
+    //note, dont call the method bindVarNameParams() so it doesnt lazyload...
+    if (bindVarNameParams != null) {
+      for (HibernateParam hibernateParam : bindVarNameParams) {
+        
+        if (String.class.equals(hibernateParam.getType())) {
+          query.setString(hibernateParam.getName(), (String)hibernateParam.getValue());
+        } else if (Timestamp.class.equals(hibernateParam.getType())) {
+          query.setTimestamp(hibernateParam.getName(), (Date)hibernateParam.getValue());
+        } else if (Long.class.equals(hibernateParam.getType())) {
+          if (hibernateParam.getValue() == null) {
+            query.setBigDecimal(hibernateParam.getName(), null);
+          } else {
+            query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
+          }
+        } else if (Double.class.equals(hibernateParam.getType())) {
+          if (hibernateParam.getValue() == null) {
+            query.setBigDecimal(hibernateParam.getName(), null);
+          } else {
+            query.setDouble(hibernateParam.getName(), (Double)hibernateParam.getValue());
+          }
+        } else if (Integer.class.equals(hibernateParam.getType())) {
+          if (hibernateParam.getValue() == null) {
+            query.setBigDecimal(hibernateParam.getName(), null);
+          } else {
+            query.setInteger(hibernateParam.getName(), (Integer)hibernateParam.getValue());
+          }
+        } else {
+          throw new RuntimeException("Invalid bind var type: " 
+              + hibernateParam );
+        }
+      }
+    }
+  }
 
   /**
    * Whether the type of the class means that it should be handled as a primitive

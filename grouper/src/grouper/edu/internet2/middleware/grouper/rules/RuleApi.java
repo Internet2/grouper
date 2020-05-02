@@ -319,6 +319,69 @@ public class RuleApi {
   }
 
   /**
+   * 
+   * @param actAs
+   * @param ruleGroup
+   * @param groupToCheckMemberSize null if ruleGroup, else the parent group to check members
+   * @param maxMembers number of members that are the max of owner
+   * @param sources comma separate sourceIds if checking source of members.  e.g. source with your people
+   * @param vetoKey
+   * @param vetoMessage
+   * @return the assignment in case there are edits
+   */
+  public static AttributeAssign vetoMembershipIfTooManyMembers(Subject actAs, 
+      Group ruleGroup, Group groupToCheckMemberSize, int maxMembers, String sources, String vetoKey, String vetoMessage) {
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = ruleGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasTooManyMembers.name());
+    if (groupToCheckMemberSize != null) {
+      attributeValueDelegate.assignValue(
+          RuleUtils.ruleIfOwnerIdName(), groupToCheckMemberSize.getId());
+    }
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumArg0Name(), Integer.toString(maxMembers));
+
+    if (!StringUtils.isBlank(sources)) {
+      attributeValueDelegate.assignValue(
+          RuleUtils.ruleIfConditionEnumArg1Name(), sources);
+    }
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), vetoKey);
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), vetoMessage);
+
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    
+    return attributeAssign;
+
+  }
+
+  /**
    * make sure stem privileges are inherited in a attributeDef
    * @param actAs
    * @param stem

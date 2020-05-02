@@ -55,6 +55,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -82,18 +83,11 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javassist.util.proxy.ProxyObject;
-
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.PropertyFilter;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
@@ -120,7 +114,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -130,10 +123,15 @@ import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperId;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.util.ExpirableCache;
+import javassist.util.proxy.ProxyObject;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
 
 
 /**
@@ -143,6 +141,22 @@ import edu.internet2.middleware.subject.util.ExpirableCache;
  *
  */
 public class GrouperUtil {
+
+  /**
+   * take out accented chars with
+   * grouperUtil.normalize("NFD", groupAttribute).replaceAll("\\p{M}", "")
+   * @param form
+   * @param text
+   * @return the normalized string
+   */
+  public static String normalize(String form, String text) {
+    if (text == null) {
+      return text;
+    }
+    Normalizer.Form formEnum = Normalizer.Form.valueOf(text);
+    return Normalizer.normalize(text, formEnum);
+
+  }
 
 
   /**
@@ -12222,6 +12236,113 @@ public class GrouperUtil {
     return GrouperUtil.replace(input, HTML_REPLACE_NO_SINGLE, HTML_SEARCH_NO_SINGLE);
     
   }
+
+  /**
+   * list files recursively from parent, dont include 
+   * @param parent
+   * @return set of files wont return null
+   */
+  public static List<File> fileListRecursive(File parent) {
+    List<File> results = new ArrayList<File>();
+    fileListRecursiveHelper(parent, results);
+    return results;
+  }
+  
+  /**
+   * helper to add child files to a parent (
+   * @param parent
+   * @param fileList
+   */
+  private static void fileListRecursiveHelper(File parent, List<File> fileList) {
+    if (parent == null || !parent.exists() || !parent.isDirectory()) {
+      return;
+    }
+    List<File> subFiles = nonNull(toList(parent.listFiles()));
+    for (File subFile : subFiles) {
+      if (subFile.isFile()) {
+        fileList.add(subFile);
+      }
+      if (subFile.isDirectory()) {
+        fileListRecursiveHelper(subFile, fileList);
+      }
+    }
+  }
+  
+  /**
+   * list dirs recursively from parent, dont include 
+   * @param parent
+   * @return set of files wont return null
+   */
+  public static List<File> fileListRecursiveDirs(File parent) {
+    List<File> results = new ArrayList<File>();
+    fileListRecursiveDirsHelper(parent, results);
+    return results;
+  }
+  
+  /**
+   * helper to add child dirs to a parent (
+   * @param parent
+   * @param fileList
+   */
+  private static void fileListRecursiveDirsHelper(File parent, List<File> fileList) {
+    if (parent == null || !parent.exists() || !parent.isDirectory()) {
+      return;
+    }
+    List<File> subFiles = nonNull(toList(parent.listFiles()));
+    for (File subFile : subFiles) {
+      if (subFile.isDirectory()) {
+        fileList.add(subFile);
+        fileListRecursiveDirsHelper(subFile, fileList);
+      }
+    }
+  }
+  
+  /**
+   * get the relative paths of descendant files
+   * @param parentDir
+   * @return the relative paths of files underneath, dont start with slash
+   */
+  public static Set<String> fileDescendantDirsRelativePaths(File parentDir) {
+    Set<String> result = new LinkedHashSet<String>();
+    List<File> descendants = fileListRecursiveDirs(parentDir);
+    for (File file : nonNull(descendants)) {
+      String descendantPath = file.getAbsolutePath();
+      String parentPath = parentDir.getAbsolutePath();
+      if (!descendantPath.startsWith(parentPath)) {
+        throw new RuntimeException("Why doesnt descendantPath '" + descendantPath + "' start with parent path '" + parentPath + "'?");
+      }
+      descendantPath = descendantPath.substring(parentPath.length());
+      if (descendantPath.startsWith("/") || descendantPath.startsWith("\\")) {
+        descendantPath = descendantPath.substring(1);
+      }
+      result.add(descendantPath);
+    }
+    return result;
+  }
+
+  /**
+   * get the relative paths of descendant files
+   * @param parentDir
+   * @return the relative paths of files underneath, dont start with slash
+   */
+  public static Set<String> fileDescendantRelativePaths(File parentDir) {
+    Set<String> result = new LinkedHashSet<String>();
+    List<File> descendants = fileListRecursive(parentDir);
+    for (File file : nonNull(descendants)) {
+      String descendantPath = file.getAbsolutePath();
+      String parentPath = parentDir.getAbsolutePath();
+      if (!descendantPath.startsWith(parentPath)) {
+        throw new RuntimeException("Why doesnt descendantPath '" + descendantPath + "' start with parent path '" + parentPath + "'?");
+      }
+      descendantPath = descendantPath.substring(parentPath.length());
+      if (descendantPath.startsWith("/") || descendantPath.startsWith("\\")) {
+        descendantPath = descendantPath.substring(1);
+      }
+      result.add(descendantPath);
+    }
+    return result;
+  }
+
   
 
 }

@@ -117,12 +117,16 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
   }
 
   /**
-   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(Properties, java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean)
+   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(Properties, java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean, String)
    */
   public void init(Properties properties, String sourceId, String driver, Integer maxActive, int defaultMaxActive,
       Integer maxIdle, int defaultMaxIdle, Integer maxWaitSeconds,
       int defaultMaxWaitSeconds, String dbUrl, String dbUser, String dbPassword,
-      Boolean readOnly, boolean readOnlyDefault) throws SourceUnavailableException {
+      Boolean readOnly, boolean readOnlyDefault, String jdbcConfigId) throws SourceUnavailableException {
+
+    if (!StringUtils.isBlank(jdbcConfigId)) {
+      throw new RuntimeException("Cannot pass in jdbcConfigId for C3p0JdbcConnectionProvider, its only valid for GrouperJdbcConnectionProvider!");
+    }
     
     this.comboPooledDataSource = new ComboPooledDataSource(); 
     

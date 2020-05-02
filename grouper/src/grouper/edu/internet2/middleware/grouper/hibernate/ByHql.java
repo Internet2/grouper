@@ -421,7 +421,10 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
           queryCountQueries++;
           String countQueryHql = HibUtils.convertHqlToCountHql(this.query);
           Query countQuery = session.createQuery(countQueryHql);
-          attachBindValues(countQuery);
+          //note, dont call the method bindVarNameParams() so it doesnt lazyload...
+          if (this.bindVarNameParams != null) {
+            HibUtils.attachBindValues(countQuery, this.bindVarNameParams());
+          }
           Long theCount = (Long)countQuery.iterate().next();
           resultSize = theCount.intValue();
         }
@@ -561,8 +564,10 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
         query.setCacheRegion(secondLevelCacheRegion);
       }
     }
-    
-    attachBindValues(query);
+    //note, dont call the method bindVarNameParams() so it doesnt lazyload...
+    if (this.bindVarNameParams != null) {
+      HibUtils.attachBindValues(query, this.bindVarNameParams());
+    }
     return query;
 
   }
@@ -589,46 +594,6 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
     
     return this;
     }
-
-
-  /**
-   * attach bind values to query
-   * @param query
-   */
-  private void attachBindValues(Query query) {
-    //note, dont call the method bindVarNameParams() so it doesnt lazyload...
-    if (this.bindVarNameParams != null) {
-      for (HibernateParam hibernateParam : this.bindVarNameParams()) {
-        
-        if (String.class.equals(hibernateParam.getType())) {
-          query.setString(hibernateParam.getName(), (String)hibernateParam.getValue());
-        } else if (Timestamp.class.equals(hibernateParam.getType())) {
-          query.setTimestamp(hibernateParam.getName(), (Date)hibernateParam.getValue());
-        } else if (Long.class.equals(hibernateParam.getType())) {
-          if (hibernateParam.getValue() == null) {
-            query.setBigDecimal(hibernateParam.getName(), null);
-          } else {
-            query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
-          }
-        } else if (Double.class.equals(hibernateParam.getType())) {
-          if (hibernateParam.getValue() == null) {
-            query.setBigDecimal(hibernateParam.getName(), null);
-          } else {
-            query.setDouble(hibernateParam.getName(), (Double)hibernateParam.getValue());
-          }
-        } else if (Integer.class.equals(hibernateParam.getType())) {
-          if (hibernateParam.getValue() == null) {
-            query.setBigDecimal(hibernateParam.getName(), null);
-          } else {
-            query.setInteger(hibernateParam.getName(), (Integer)hibernateParam.getValue());
-          }
-        } else {
-          throw new RuntimeException("Invalid bind var type: " 
-              + hibernateParam );
-        }
-      }
-    }
-  }
 
 
   /**

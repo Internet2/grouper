@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -287,12 +288,11 @@ public class UiV2AttributeDefName {
         return;
       }
       
-      attributeDefName.setExtensionDb(extension);
-      attributeDefName.setDescription(description);
-      attributeDefName.setDisplayExtensionDb(displayExtension);
-      
-      attributeDefName.store();
-      
+      new AttributeDefNameSave(grouperSession, attributeDefName.getAttributeDef())
+        .assignUuid(attributeDefName.getId())
+        .assignName(attributeDefName.getParentStem().getName() + ":" + extension)
+        .assignDisplayExtension(displayExtension).assignDescription(description).save();
+            
       //go to the view attribute def screen
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName?attributeDefNameId=" + attributeDefName.getId() + "')"));
 

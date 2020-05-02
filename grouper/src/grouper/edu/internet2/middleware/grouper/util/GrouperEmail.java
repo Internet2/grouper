@@ -342,19 +342,46 @@ public class GrouperEmail {
       Session session = Session.getInstance(properties, authenticator);
       Message message = new MimeMessage(session);
       
+      String overrideAddresses = GrouperConfig.retrieveConfig().propertyValueString("mail.sendAllMessagesHere");
+      boolean sendAllMessagesHereOverride = !StringUtils.equals("testing", smtpServer) 
+          && !StringUtils.isBlank(overrideAddresses);
+      StringBuilder sendAllMessagesHereMessage = new StringBuilder();
+      
       String theTo = this.to;
       
       boolean hasRecipient = false;
       
       if (!StringUtils.isBlank(theTo)) {
-        
         theTo = StringUtils.replace(theTo, ";", ",");
         String[] theTos = GrouperUtil.splitTrim(theTo, ",");
+
         for (String aTo : theTos) {
           if (!StringUtils.isBlank(aTo) && !StringUtils.equals("null", aTo)) {
+
+            if (sendAllMessagesHereOverride) {
+              if (hasRecipient) {
+                sendAllMessagesHereMessage.append(", ");
+              } else {
+                sendAllMessagesHereMessage.append("TO: ");
+              }
+              sendAllMessagesHereMessage.append(aTo);
+            } else {
+              message.addRecipient(RecipientType.TO, new InternetAddress(aTo));
+            }
             hasRecipient = true;
-            message.addRecipient(RecipientType.TO, new InternetAddress(aTo));
           }
+        }
+        if (sendAllMessagesHereOverride) {
+          sendAllMessagesHereMessage.append("\n");
+          // refactor so the email goes here
+          overrideAddresses = StringUtils.replace(overrideAddresses, ";", ",");
+          List<InternetAddress> overrideAddressesList = new ArrayList<>();
+          for (String address : GrouperUtil.splitTrim(overrideAddresses, ",")) {
+            if (!StringUtils.isBlank(address)) {
+              overrideAddressesList.add(new InternetAddress(address));
+            }
+          }
+          message.setRecipients(RecipientType.TO, GrouperUtil.toArray(overrideAddressesList, InternetAddress.class));
         }
       }
 
@@ -366,20 +393,52 @@ public class GrouperEmail {
       // add CC addresses if any
       if (!StringUtils.isBlank(this.cc)) {
         String theCc = StringUtils.replace(this.cc, ";", ",");
+
+        boolean foundCc = false;
         for (String address : GrouperUtil.splitTrim(theCc, ",")) {
           if (!StringUtils.isBlank(address)) {
-            message.addRecipient(RecipientType.CC, new InternetAddress(address));
+
+            if (sendAllMessagesHereOverride) {
+              if (foundCc) {
+                sendAllMessagesHereMessage.append(", ");
+              } else {
+                sendAllMessagesHereMessage.append("CC: ");
+              }
+              sendAllMessagesHereMessage.append(address);
+              foundCc = true;
+              
+            } else {
+              message.addRecipient(RecipientType.CC, new InternetAddress(address));
+            }
           }
+        }
+        if (foundCc && sendAllMessagesHereOverride) {
+          sendAllMessagesHereMessage.append("\n");
         }
       }
 
       // add BCC addresses if any
       if (!StringUtils.isBlank(this.bcc)) {
         String theBcc = StringUtils.replace(this.bcc, ";", ",");
+        boolean foundBcc = false;
         for (String address : GrouperUtil.splitTrim(theBcc, ",")) {
           if (!StringUtils.isBlank(address)) {
-            message.addRecipient(RecipientType.BCC, new InternetAddress(address));
+            if (sendAllMessagesHereOverride) {
+              if (foundBcc) {
+                sendAllMessagesHereMessage.append(", ");
+              } else {
+                sendAllMessagesHereMessage.append("BCC: ");
+              }
+              sendAllMessagesHereMessage.append(address);
+              foundBcc = true;
+              
+            } else {
+              message.addRecipient(RecipientType.BCC, new InternetAddress(address));
+            }
           }
+        }
+        if (foundBcc && sendAllMessagesHereOverride) {
+          sendAllMessagesHereMessage.append("\n");
         }
       }
 
@@ -408,12 +467,17 @@ public class GrouperEmail {
       //GRP-912: mail body is badly quoted-printable encoded => accents issues
       String emailContentType = GrouperConfig.retrieveConfig().propertyValueString("grouperEmailContentType");
       emailContentType = StringUtils.isBlank(emailContentType) ? "text/plain; charset=utf-8" : emailContentType;
-      message.setContent(this.body, emailContentType);
-      
+      if (sendAllMessagesHereOverride) {
+        sendAllMessagesHereMessage.append("BODY:\n\n").append(this.body);
+        message.setContent(sendAllMessagesHereMessage.toString(), emailContentType);
+      } else {
+        message.setContent(this.body, emailContentType);
+      }
       testingEmailCount++;
       
       //if you dont have a server, but want to test, then set this
       if (!StringUtils.equals("testing", smtpServer)) {
+        
         Transport.send(message);
       } else {
         LOG.error("Not sending email since smtp server is 'testing'. \nTO: " + this.to + "\nFROM: " + theFrom + "\nSUBJECT: " + theSubject + "\nBODY: " + this.body + "\n");

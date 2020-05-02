@@ -2103,8 +2103,6 @@ ALTER TABLE grouper_sync_membership
 
 ALTER TABLE grouper_sync_log
     ADD CONSTRAINT grouper_sync_log_sy_fk FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync (id);
-update grouper_attribute_def set attribute_def_type = 'service' where attribute_def_type = 'domain';
-commit;
 
 COMMENT ON COLUMN grouper_members.subject_identifier0 IS 'subject identifier of the subject';
 

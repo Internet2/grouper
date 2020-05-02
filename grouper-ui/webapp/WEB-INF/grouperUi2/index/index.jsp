@@ -15,10 +15,18 @@
         <div class="navbar-inner">
           <div class="container-fluid"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a>
             <div class="pull-right">
-              <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" class="navbar-search">
-                <input type="text" name="searchQuery" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
+
+              <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" class="navbar-search">
+                <input type="text" name="searchQuery2" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
               </form>
+
+              <%-- GRP-2677: Have searchQuery submit query by URL (this is the POST option)
+              <form id="searchForm" action="#" onsubmit="guiV2link('operation=UiV2Main.searchSubmit&mil=' + Date.now());return false;" class="navbar-search">
+                <input type="text" name="searchQueryTop" id="searchQueryTopId" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
+                  onclick="guiV2link('operation=UiV2Main.searchSubmit&mil=' + Date.now());return false;" aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
+              </form>
+              --%>
             </div>
             <div class="navbar-text pull-right">${textContainer.text['indexLoggedInAs'] } 
               ${guiSettings.loggedInSubject.shortLink} 

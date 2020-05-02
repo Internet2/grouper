@@ -25,8 +25,11 @@ import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -34,6 +37,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
@@ -305,5 +309,23 @@ public class TestUSDU extends GrouperTest {
     } finally {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.failsafe.maxUnresolvableSubjects", "200");
     }
+  }
+  
+  public void testMemberTableUpdate() {
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignCreateParentStemsIfNotExist(true).assignName("test:group1").save();
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+    assertEquals("name.test.subject.0", member.getSortString0());
+    
+    member.setSortString0("bogus");
+    member.store();
+    
+    SubjectFinder.flushCache();
+    
+    UsduJob.runDaemonStandalone();
+    
+    member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+    assertEquals("name.test.subject.0", member.getSortString0());
   }
 }

@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdl2_5;
@@ -402,6 +403,11 @@ public class GrouperStartup {
           initMembershipLiteConfigType();
         }
         
+        if (!ignoreCheckConfig) {
+          //post steps after loader config
+          GrouperCheckConfig.checkConfig2();
+        }
+
         // verify member search and sort config
         verifyMemberSortAndSearchConfig();
         
@@ -423,7 +429,7 @@ public class GrouperStartup {
           SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
           
         }
-        
+        GrouperCacheUtils.clearAllCaches();
 
         return true;
       }

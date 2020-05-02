@@ -79,6 +79,8 @@
       <column name="job_schedule_quartz_cron"  length="128" />
     </property>
 
+    <property name="contextId" column="context_id" />
+
     <property name="jobScheduleType" type="string">
       <column name="job_schedule_type" length="128" />
     </property>

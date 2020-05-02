@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -25,6 +27,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -46,8 +49,17 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -135,14 +147,18 @@ public class UsduJob extends OtherJobBase {
       return null;
     }
     
+    Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
+    
     LOG.info("Going to mark members as deleted.");
-    long deletedMembers = deleteUnresolvableMembers(grouperSession);
+    long deletedMembers = deleteUnresolvableMembers(grouperSession, memberIdToSubjectMap);
     otherJobInput.getHib3GrouperLoaderLog().store();
     
     long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
     otherJobInput.getHib3GrouperLoaderLog().store();
     
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members");
+    int totalProvisioningObjectsUpdated = syncProvisioningData(memberIdToSubjectMap);
+    
+    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects.");
     
     LOG.info("UsduJob finished successfully.");
     
@@ -180,6 +196,162 @@ public class UsduJob extends OtherJobBase {
     new UsduJob().run(otherJobInput);
   }
   
+  /**
+   * @param memberIdToSubjectMap
+   * @return count of changes
+   */
+  private int syncProvisioningData(Map<String, Subject> memberIdToSubjectMap) {
+
+    int totalObjectsStored = 0;
+    
+    Pattern provisionerPatternWithMemberInfo = Pattern.compile("^provisioner\\.(\\w+)\\.common\\.subjectLink\\.(memberFromId2|memberFromId3|memberToId2|memberToId3)$");    
+    Map<String, String> provisionerPropsWithMemberInfo = GrouperLoaderConfig.retrieveConfig().propertiesMap(provisionerPatternWithMemberInfo);
+    Set<String> configNames = new HashSet<String>();
+    for (String property : provisionerPropsWithMemberInfo.keySet()) {
+      Matcher matcher = provisionerPatternWithMemberInfo.matcher(property);
+      matcher.matches();
+      String configName = matcher.group(1);
+      configNames.add(configName);
+    }
+    
+    RuntimeException runtimeException = null;
+    
+    for (String configName : configNames) {
+      boolean isEnabled = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.enabled", true); // what is the default here??
+      if (!isEnabled) {
+        continue;
+      }
+      
+      String memberFromId2 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.memberFromId2");
+      String memberFromId3 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.memberFromId3");
+      String memberToId2 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.memberToId2");
+      String memberToId3 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.memberToId3");
+
+      boolean autoMemberFromId2 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoMemberFromId2", true);
+      boolean autoMemberFromId3 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoMemberFromId3", true);
+      boolean autoMemberToId2 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoMemberToId2", true);
+      boolean autoMemberToId3 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoMemberToId3", true);
+
+      if ((!autoMemberFromId2 || GrouperUtil.isBlank(memberFromId2)) &&
+          (!autoMemberFromId3 || GrouperUtil.isBlank(memberFromId3)) &&
+          (!autoMemberToId2 || GrouperUtil.isBlank(memberToId2)) &&
+          (!autoMemberToId3 || GrouperUtil.isBlank(memberToId3))) {
+        // nothing to do
+        continue;
+      }
+      
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, configName);
+      
+      GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("usduSubjectCacheUpdater");
+      gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(true);
+
+      GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+      gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
+      
+      //this is not a true full sync, but this means dont defer if another job comes along, finish this until completion
+      //other things can wait
+      gcGrouperSyncHeartbeat.setFullSync(true);
+      if (gcGrouperSyncHeartbeat.isStarted()) {
+        gcGrouperSyncHeartbeat.runHeartbeatThread();
+      }
+
+      GcGrouperSyncLog gcGrouperSyncLog = null;
+          
+      long startNanos = System.nanoTime();
+      
+      try {
+      
+        gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncJobDao().jobCreateLog(gcGrouperSyncJob);
+        
+        gcGrouperSyncLog.setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
+
+        
+        List<GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveAll();
+        for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembers) {
+          String memberId = gcGrouperSyncMember.getMemberId();
+          Subject subject = memberIdToSubjectMap.get(memberId);
+          if (subject == null) {
+            // maybe it didn't get resolved, don't mess with the existing cached data.
+            continue;
+          }
+          
+          Map<String, Object> variableMap = new HashMap<String, Object>();
+          variableMap.put("subject", subject);
+          
+          if (autoMemberFromId2 && !StringUtils.isBlank(memberFromId2)) {
+            String memberFromId2Value = GrouperUtil.substituteExpressionLanguage(memberFromId2, variableMap);
+            gcGrouperSyncMember.setMemberFromId2(memberFromId2Value);
+          }
+          
+          if (autoMemberFromId3 && !StringUtils.isBlank(memberFromId3)) {
+            String memberFromId3Value = GrouperUtil.substituteExpressionLanguage(memberFromId3, variableMap);
+            gcGrouperSyncMember.setMemberFromId3(memberFromId3Value);
+          }
+          
+          if (autoMemberToId2 && !StringUtils.isBlank(memberToId2)) {
+            String memberToId2Value = GrouperUtil.substituteExpressionLanguage(memberToId2, variableMap);
+            gcGrouperSyncMember.setMemberToId2(memberToId2Value);
+          }
+          
+          if (autoMemberToId3 && !StringUtils.isBlank(memberToId3)) {
+            String memberToId3Value = GrouperUtil.substituteExpressionLanguage(memberToId3, variableMap);
+            gcGrouperSyncMember.setMemberToId3(memberToId3Value);
+          }
+        }
+        
+        gcGrouperSyncLog.setRecordsProcessed(GrouperUtil.length(gcGrouperSyncMembers));
+
+        int currentObjectsStored = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
+
+        gcGrouperSyncLog.setRecordsChanged(currentObjectsStored);
+        
+        LOG.info("Updated " + currentObjectsStored + " objects for configName=" + configName);
+      
+        totalObjectsStored += currentObjectsStored;
+        
+        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
+      } catch (RuntimeException e) {
+        
+        // if one provisioner fails, continue with others
+        GrouperUtil.injectInException(e, "Problem in configName: '" + configName + "'");
+        LOG.error("error", e);
+        runtimeException = e;
+        gcGrouperSyncJob.setErrorMessage(GrouperUtil.getFullStackTrace(e));
+      } finally {
+
+        // end heartbeat thread
+        GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
+
+        // save the job
+        try {
+          gcGrouperSyncJob.assignHeartbeatAndEndJob();
+        } catch (RuntimeException re2) {
+          if (gcGrouperSyncLog != null) {
+            gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+          }
+        }
+        
+        int durationMillis = (int)((System.nanoTime()-startNanos)/1000000);
+
+        // save the log
+        try {
+          if (gcGrouperSyncLog != null) {
+            gcGrouperSyncLog.setJobTookMillis(durationMillis);
+            gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
+          }
+        } catch (RuntimeException re3) {
+        }
+
+      }
+    }
+
+    // if any of the parts is a failure, its a failure
+    if (runtimeException != null) {
+      throw runtimeException;
+    }
+    
+    return totalObjectsStored;
+  }
   
   /**
    * clear attributes from members who have become resolvable again.
@@ -211,11 +383,12 @@ public class UsduJob extends OtherJobBase {
   /**
    * delete unresolvable members
    * @param grouperSession
+   * @param memberIdToSubjectMap map will be filled with resolved subjects
    * @return number of members marked as deleted
    */
-  private long deleteUnresolvableMembers(GrouperSession grouperSession) {
+  private long deleteUnresolvableMembers(GrouperSession grouperSession, Map<String, Subject> memberIdToSubjectMap) {
     
-    Set<Member> unresolvableMembers = USDU.getUnresolvableMembers(grouperSession, null);
+    Set<Member> unresolvableMembers = USDU.getUnresolvableMembers(grouperSession, null, memberIdToSubjectMap);
     
     // map to store source id to set of members to be deleted
     Map<String, Set<Member>> sourceIdToMembers = new HashMap<String, Set<Member>>();

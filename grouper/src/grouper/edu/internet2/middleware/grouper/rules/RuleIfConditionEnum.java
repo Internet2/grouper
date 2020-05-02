@@ -33,6 +33,8 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /**
@@ -852,6 +854,115 @@ public enum RuleIfConditionEnum {
       return false;
     }
     
+  }, 
+  
+  /**
+   * make sure a group has no enabled membership
+   */
+  groupHasTooManyMembers {
+  
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+            
+      GrouperSession rootSession = GrouperSession.startRootSession(false);
+      try {
+        
+        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, false);
+        if (group == null) {
+          LOG.error("Group doesnt exist in rule! " + ruleDefinition);
+          return false;
+        }
+        String groupId = group.getId();
+        
+        String maxAllowedString = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+
+        int maxAllowed = GrouperUtil.intValue(maxAllowedString);
+        
+        String sources = ruleDefinition.getIfCondition().getIfConditionEnumArg1();
+
+        String query = "select count(distinct(gm.ID)) from grouper_memberships_all_v gms, grouper_members gm "
+            + "where gms.MEMBER_ID = gm.ID and gms.IMMEDIATE_MSHIP_ENABLED = 'T' and gms.OWNER_GROUP_ID = ? "
+            + "and gms.FIELD_ID = ?";
+
+        GcDbAccess gcDbAccess = new GcDbAccess().addBindVar(groupId).addBindVar(Group.getDefaultList().getId());
+        
+        if (!StringUtils.isBlank(sources)) {
+          String[] sourcesArray = GrouperUtil.splitTrim(sources, ",");
+          query += " and gm.subject_source in ( " + GrouperClientUtils.appendQuestions(sourcesArray.length) + " ) ";
+          for (String source : sourcesArray) {
+            gcDbAccess.addBindVar(source);
+          }
+        }
+        
+        int count = gcDbAccess.sql(query).select(int.class);
+        
+        return count >= maxAllowed;
+        
+      } finally {
+        GrouperSession.stopQuietly(rootSession);
+      }
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+  
+      String error = RuleUtils.validateGroup(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+  
+      if (!StringUtils.isBlank(error)) {
+        return error;
+      }
+      
+      error = RuleUtils.validateInteger(ruleDefinition.getIfCondition().getIfConditionEnumArg0());
+
+      if (!StringUtils.isBlank(error)) {
+        return error;
+      }
+
+      String sources = ruleDefinition.getIfCondition().getIfConditionEnumArg1();
+      if (!StringUtils.isBlank(sources)) {
+        error = RuleUtils.validateSources(sources);
+      }
+
+      if (!StringUtils.isBlank(error)) {
+        return error;
+      }
+
+      return null;
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+  
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+  
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   };
   
   /** logger */

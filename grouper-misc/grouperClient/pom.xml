@@ -113,6 +113,7 @@
                 <includes>
                     <include>*example*</include>
                     <include>grouper.client.base.properties</include>
+                    <include>morphString.base.properties</include>
                 </includes>
             </resource>
             <resource>

@@ -2540,7 +2540,7 @@ public class UiV2GrouperLoader {
               if (!foundSubjectIdCol) {
 
                 loaderReport.append("<font color='orange'>WARNING:</font> Found SUBJECT_ID_OR_IDENTIFIER col, which is fine, but SUBJECT_ID col is has better performance if possible to use\n");
-                subjectCol = "SUBJECT_IDENTIFIER";
+                subjectCol = "SUBJECT_ID_OR_IDENTIFIER";
 
               } else {
                 loaderReport.append("<font color='red'>ERROR:</font> Found SUBJECT_ID_OR_IDENTIFIER col, but already found a subject col!\n");

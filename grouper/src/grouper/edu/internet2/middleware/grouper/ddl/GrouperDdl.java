@@ -2515,7 +2515,344 @@ public enum GrouperDdl implements DdlVersionable {
     public String getGrouperVersion() {
       return "2.5.0";
     }
-  };
+  },
+  V33 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V34 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V35 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V36 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V37 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V38 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V39 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V40 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V41 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V42 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V43 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V44 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V45 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V46 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V47 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V48 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V49 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V50 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V51 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V52 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V53 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V54 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V55 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V56 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V57 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V58 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V59 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  },
+  V60 {
+
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+    }
+  }
+  ;
   
   
   /**
@@ -2601,9 +2938,11 @@ public enum GrouperDdl implements DdlVersionable {
     if (currentVersion == -1) {
       int max = -1;
       for (GrouperDdl grouperDdl : GrouperDdl.values()) {
-        String number = grouperDdl.name().substring(1);
-        int theInt = Integer.parseInt(number);
-        max = Math.max(max, theInt);
+        if (!StringUtils.isBlank(grouperDdl.getGrouperVersion())) {
+          String number = grouperDdl.name().substring(1);
+          int theInt = Integer.parseInt(number);
+          max = Math.max(max, theInt);
+        }
       }
       currentVersion = max;
     }

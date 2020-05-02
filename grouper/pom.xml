@@ -426,16 +426,15 @@
             <resource>
                 <directory>conf</directory>
                 <includes>
-                    <include>ddl/README.txt</include>
                     <include>grouperUtf8.txt</include>
                     <include>grouperRulesEmailTemplates/*.txt</include>
+                    <include>**/*.base.properties</include>
                     <!-- other options, may decide to include later
-                    <include>README.txt</include>
+                    <include>ddl/*.sql</include>
                     <include>*.example.properties</include>
-                    <include>*.example.xml</include>
-                    <include>grouper.version.properties</include>
                     <include>groovysh.profile</include>
                     <include>GSHFileLoad.properties</include>
+                    <include>sqltool.rc</include>
                     -->
                 </includes>
             </resource>
@@ -502,12 +501,6 @@
                             <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
                         </manifestEntries>
                     </archive>
-                    <excludes>
-                        <exclude>*.properties</exclude>
-                        <exclude>*.xml</exclude>
-                        <exclude>README.txt</exclude>
-                        <exclude>sqltool.rc</exclude>
-                    </excludes>
                 </configuration>
                 <executions>
                     <execution>

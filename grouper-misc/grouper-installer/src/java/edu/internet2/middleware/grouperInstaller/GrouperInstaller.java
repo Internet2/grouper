@@ -14209,22 +14209,23 @@ public class GrouperInstaller {
     for (String shFileName : shFileNames) {
       shFiles.add(new File(shFileName));
     }
+    for (String path : new String[] {"grouper", "grouper-ws", "grouper-ws-scim"}) {
+      // create grouper.xml in conf/Catalina/localhost/grouper.xml
+      File tomeeGrouperFile = new File(tommeDir.getAbsolutePath() + File.separator + "conf" + File.separator +
+          "Catalina" + File.separator + "localhost" + File.separator + path + ".xml");
+      
+      GrouperInstallerUtils.createParentDirectories(tomeeGrouperFile);
+      GrouperInstallerUtils.fileCreate(tomeeGrouperFile);
+      
+      String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/" + path + "\" reloadable=\"false\">\n" + 
+          "<Resources allowLinking=\"true\" />\n" + 
+          "</Context>";
     
-    // create grouper.xml in conf/Catalina/localhost/grouper.xml
-    File tomeeGrouperFile = new File(tommeDir.getAbsolutePath() + File.separator + "conf" + File.separator +
-        "Catalina" + File.separator + "localhost" + File.separator + "grouper.xml");
-    
-    GrouperInstallerUtils.createParentDirectories(tomeeGrouperFile);
-    GrouperInstallerUtils.fileCreate(tomeeGrouperFile);
-    
-    String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/grouper\" reloadable=\"false\">\n" + 
-        "<Resources allowLinking=\"true\" />\n" + 
-        "</Context>";
-    
-    try {      
-      Files.write(Paths.get(tomeeGrouperFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
-    } catch (Exception e) {
-      System.out.println("Could not write to grouper.xml file.");
+      try {      
+        Files.write(Paths.get(tomeeGrouperFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+      } catch (Exception e) {
+        System.out.println("Could not write to grouper.xml file.");
+      }
     }
     
     // edit server.xml in tomee/conf dir
@@ -15780,7 +15781,7 @@ public class GrouperInstaller {
         "grouper-ws" + File.separator + "build" + File.separator + "dist" + File.separator + "grouper-ws"
         + File.separator,
         this.upgradeExistingApplicationDirectoryString,
-        GrouperInstallerUtils.toSet("WEB-INF/lib", "WEB-INF/web.xml", "WEB-INF/classes",
+        GrouperInstallerUtils.toSet("WEB-INF/lib", "WEB-INF/web.xml", "WEB-INF/web.wsTomcatAuthn.xml", "WEB-INF/server.wsTomcatAuthn.xml", "WEB-INF/classes",
             "WEB-INF/bin/gsh", "WEB-INF/bin/gsh.bat", "WEB-INF/bin/gsh.sh"));
 
     {

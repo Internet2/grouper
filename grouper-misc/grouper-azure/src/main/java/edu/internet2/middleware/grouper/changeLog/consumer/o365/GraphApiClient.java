@@ -1,16 +1,20 @@
 package edu.internet2.middleware.grouper.changeLog.consumer.o365;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.*;
+import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group.Visibility;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.log4j.Logger;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.io.IOException;
 import java.util.*;
 
@@ -25,14 +29,78 @@ public class GraphApiClient {
     private final String scope;
     private final Office365GraphApiService service;
     String token = null;
+    private final OkHttpClient graphApiHttpClient;
+    private final OkHttpClient graphTokenHttpClient;
+    private final Office365ChangeLogConsumer.AzureGroupType azureGroupType;
+    private final Visibility visibility;
 
-    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope, GrouperSession grouperSession) {
+    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope,
+                          Office365ChangeLogConsumer.AzureGroupType azureGroupType,
+                          Visibility visibility,
+                          String proxyType, String proxyHost, Integer proxyPort) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.tenantId = tenantId;
         this.scope = scope;
+        this.azureGroupType = azureGroupType;
+        this.visibility = visibility;
 
-        // without our logger, this defaults to java.util.logging which is stdout
+        final Proxy proxy;
+
+        if (proxyType == null) {
+            proxy = null; // probably works too: Proxy.NO_PROXY
+        } else if ("http".equals(proxyType)) {
+            proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyHost, proxyPort));
+        } else if ("socks".equals(proxyType)) {
+            proxy = new Proxy(Proxy.Type.SOCKS,new InetSocketAddress(proxyHost, proxyPort));
+        } else {
+            logger.warn("Unable to determine proxy type from '" + proxyType + "'; Valid proxy types for this consumer are 'http' or 'socks'");
+            proxy = null;
+        }
+
+        graphTokenHttpClient = buildBaseOkHttpClient(proxy);
+        graphApiHttpClient = buildGraphOkHttpClient(graphTokenHttpClient);
+
+        RetrofitWrapper retrofit = buildRetrofit(graphApiHttpClient);
+
+        this.service = retrofit.create(Office365GraphApiService.class);
+    }
+
+    protected RetrofitWrapper buildRetrofit(OkHttpClient okHttpClient) {
+        return new RetrofitWrapper((new Retrofit
+                .Builder()
+                .baseUrl("https://graph.microsoft.com/v1.0/")
+                .addConverterFactory(MoshiConverterFactory.create())
+                .client(okHttpClient)
+                .build()));
+    }
+
+    protected RetrofitWrapper buildRetrofitAuth(OkHttpClient okHttpClient) {
+        return new RetrofitWrapper((new Retrofit
+                .Builder()
+                .baseUrl("https://login.microsoftonline.com/" + this.tenantId + "/")
+                .addConverterFactory(MoshiConverterFactory.create())
+                .client(okHttpClient)
+                .build()));
+    }
+
+    protected OkHttpClient buildBaseOkHttpClient(Proxy proxy) {
+        logger.trace("Building OkHttpClient: proxy=" + proxy);
+
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+        if (proxy != null) {
+            builder.proxy(proxy);
+        }
+
+        return builder.build();
+    }
+
+    /*
+     * customize a shared OkHttpClient instance, which will share the same connection pool, thread pools, and
+     * configuration as the parent
+     */
+    protected OkHttpClient buildGraphOkHttpClient(OkHttpClient okHttpClient) {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor((msg) -> {
             logger.debug(msg);
         });
@@ -40,48 +108,23 @@ public class GraphApiClient {
         // strips out the Bearer token and replaces with U+2588 (a black square)
         loggingInterceptor.redactHeader("Authorization");
 
-        RetrofitWrapper retrofit = buildRetroFit(loggingInterceptor);
-
-        this.service = retrofit.create(Office365GraphApiService.class);
-    }
-
-    protected RetrofitWrapper buildRetroFit(HttpLoggingInterceptor loggingInterceptor) {
-        if (loggingInterceptor != null) {
-            logger.trace("using client to build retrofit.");
-            OkHttpClient client = buildOkHttpClient(loggingInterceptor);
-            return new RetrofitWrapper((new Retrofit
-                    .Builder()
-                    .baseUrl("https://graph.microsoft.com/v1.0/")
-                    .addConverterFactory(MoshiConverterFactory.create())
-                    .client(client)
-                    .build()));
-        } else {
-            logger.trace("not using client to build retrofit.");
-            Retrofit data = new Retrofit.Builder()
-                .baseUrl("https://login.microsoftonline.com/" + this.tenantId + "/")
-                .addConverterFactory(MoshiConverterFactory.create())
-                .build();
-            return new RetrofitWrapper(data);
-        }
-    }
-
-    protected OkHttpClient buildOkHttpClient(HttpLoggingInterceptor loggingInterceptor) {
-        return new OkHttpClient.Builder()
+        return okHttpClient.newBuilder()
                 .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request().newBuilder().header("Authorization", "Bearer " + token).build();
-                        return chain.proceed(request);
-                    }
-                })
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Request request = chain.request().newBuilder().header("Authorization", "Bearer " + token).build();
+                    return chain.proceed(request);
+                }
+            })
                 .addInterceptor(loggingInterceptor)
                 .build();
     }
 
+
     public String getToken() throws IOException {
         logger.debug("Token client ID: " + this.clientId);
         logger.debug("Token tenant ID: " + this.tenantId);
-        RetrofitWrapper retrofit = buildRetroFit(null);
+        RetrofitWrapper retrofit = buildRetrofitAuth(this.graphTokenHttpClient);
         Office365AuthApiService service = retrofit.create(Office365AuthApiService.class);
         retrofit2.Response<OAuthTokenInfo> response = service.getOauth2Token(
                 "client_credentials",
@@ -101,12 +144,12 @@ public class GraphApiClient {
     }
 
     private void logTokenInfo(OAuthTokenInfo info) {
-        logger.debug("Token scope: " + info.scope);
-        logger.debug("Token expiresIn: " + info.expiresIn);
-        logger.debug("Token expiresOn: " + info.expiresOn);
-        logger.debug("Token resource: " + info.resource);
-        logger.debug("Token tokenType: " + info.tokenType);
-        logger.debug("Token notBefore: " + info.notBefore);
+        logger.trace("Token scope: " + info.scope);
+        logger.trace("Token expiresIn: " + info.expiresIn);
+        logger.trace("Token expiresOn: " + info.expiresOn);
+        logger.trace("Token resource: " + info.resource);
+        logger.trace("Token tokenType: " + info.tokenType);
+        logger.trace("Token notBefore: " + info.notBefore);
     }
 
     /*
@@ -135,18 +178,36 @@ public class GraphApiClient {
         throw new IOException("Retry failed for: " + call.request().url());
     }
 
-    public retrofit2.Response addGroup(String displayName, boolean mailEnabled, String mailNickname, boolean securityEnabled, Collection<String> groupTypes, String description) {
-        logger.debug("Creating group " + displayName);
+    public retrofit2.Response addGroup(String displayName, String mailNickname, String description) {
+        logger.debug("Creating group " + displayName + ", group type: " + this.azureGroupType.name());
+        boolean securityEnabled;
+        Collection<String> groupTypes = new ArrayList<>();
+
+        switch (this.azureGroupType) {
+            case Security:
+                securityEnabled = true;
+                break;
+            case Unified:
+                groupTypes.add("Unified");
+                securityEnabled = false;
+                break;
+            case MailEnabled:
+            case MailEnabledSecurity:
+                throw new UnableToPerformException("Mail enabled Azure groups are currently not supported");
+            default:
+                throw new IllegalStateException("Unexpected value: " + this.azureGroupType);
+        }
         try {
             return invoke(this.service.createGroup(
                     new edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group(
                             null,
                             displayName,
-                            mailEnabled,
+                            false,
                             mailNickname,
                             securityEnabled,
                             groupTypes,
-                            description
+                            description,
+                            visibility
                     )
             ));
 
@@ -156,10 +217,9 @@ public class GraphApiClient {
         }
     }
 
-    public void removeGroup(Map options) {
+public void removeGroup(String groupId) {
         try {
-            edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group group = ((GroupsOdata) invoke(this.service.getGroups(options)).body()).groups.get(0);
-            invoke(this.service.deleteGroup(group.id));
+            invoke(this.service.deleteGroup(groupId));
         } catch (IOException e) {
             logger.error(e);
             throw new RuntimeException("service.deleteGroup failed", e);
@@ -175,13 +235,13 @@ public class GraphApiClient {
             logger.debug("user = " + (user == null ? "null" : user.toString()));
             return user;
         } catch (IOException e) {
-            logger.debug("user wasn't found on default domain of " + tenantId);
+            logger.debug("user principal " + userPrincipalName + " was not found");
         }
         return null;
     }
 
     protected String lookupOffice365GroupId(Group group) {
-        return group.getAttributeValueDelegate().retrieveValueString("etc:attribute:office365:o365Id");
+        return group.getAttributeValueDelegate().retrieveValueString(Office365ChangeLogConsumer.GROUP_ID_ATTRIBUTE_NAME);
     }
 
     public void addMemberToMS(String groupId, String userPrincipalName) {
@@ -220,6 +280,4 @@ public class GraphApiClient {
     public void removeUserFromGroupInMS(String groupId, String userId) throws IOException {
         invoke(this.service.removeGroupMember(groupId, userId));
     }
-
-
 }

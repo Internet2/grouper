@@ -24,6 +24,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionBean;
 import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionProvider;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -139,8 +141,12 @@ public class NonPooledConnectionProvider implements GcJdbcConnectionProvider {
   public void init(Properties properties, String sourceId, String driver, Integer maxActive, int defaultMaxActive,
       Integer maxIdle, int defaultMaxIdle, Integer maxWaitSeconds,
       int defaultMaxWaitSeconds, String theDbUrl, String theDbUser, String theDbPassword,
-      Boolean readOnly, boolean readOnlyDefault) {
+      Boolean readOnly, boolean readOnlyDefault, String jdbcConfigId) {
     
+    if (!StringUtils.isBlank(jdbcConfigId)) {
+      throw new RuntimeException("Cannot pass in jdbcConfigId for NonPooledConnectionBean, its only valid for GrouperJdbcConnectionProvider!");
+    }
+
     try {
       Class.forName(driver).newInstance();
       log.debug("Loading JDBC driver: " + driver);

@@ -682,6 +682,7 @@ public class GrouperDdlEngine {
       HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
       return;
     } catch (Exception e) {
+      //e.printStackTrace();
       //not found
     }
       
@@ -728,7 +729,7 @@ public class GrouperDdlEngine {
         GrouperVersion grouperVersionDatabase = null;
         {
           DdlVersionable dbDdlVersionable = GrouperDdlUtils.retieveVersion(objectName, dbVersion);
-          grouperVersionDatabase = dbDdlVersionable == null ? null : new GrouperVersion(dbDdlVersionable.getGrouperVersion());
+          grouperVersionDatabase = (dbDdlVersionable == null || StringUtils.isBlank(dbDdlVersionable.getGrouperVersion())) ? null : new GrouperVersion(dbDdlVersionable.getGrouperVersion());
           versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
             + dbVersion + " (" + grouperVersionDatabase + ") and java version: " + javaVersion + " (" + grouperVersionJava + ")";
         }          
@@ -839,7 +840,7 @@ public class GrouperDdlEngine {
       if (!didSomething || script.length() == 0) {
         return true;
       }
-      GrouperDdlUtils.runScriptIfShould(script.toString(), runScript);
+      GrouperDdlUtils.runScriptIfShouldAndPrintOutput(script.toString(), runScript);
       return runScript;
     } finally {
       GrouperDdlUtils.insideBootstrap = false;
@@ -980,10 +981,9 @@ public class GrouperDdlEngine {
 
         String script = grouperDdlCompareResult.getResult().toString();
 
+        System.err.println(script);
         if (LOG.isErrorEnabled()) {
           LOG.error(script);
-        } else {
-          System.err.println(script);
         }
 
       }
@@ -1052,7 +1052,7 @@ public class GrouperDdlEngine {
   private void registryInstall() {
     try {
       //lets reset the hibernate configuration so it can get properly configured
-      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.hibernateInitted().put("grouper", false);
       RegistryInstall.install();
     } catch (RuntimeException e) {
       if (!GrouperShell.runFromGsh && callFromCommandLine && !writeAndRunScript) {

@@ -7,8 +7,15 @@
                   <li class="active">${textContainer.text['miscellaneousGrouperLoaderOverallBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
-                <h1>${textContainer.text['miscellaneousLoaderOverallDecription'] }</h1>
-                <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousLoaderOverallSubtitle']}</p>
+                <div class="row-fluid">
+              
+                <div class="span2 pull-right" id="daemonMoreActionsButtonContentsDivId">
+                  <%@ include file="../admin/adminDaemonJobsMoreActionsButtonContents.jsp"%>
+                </div>
+                <div class="span10 pull-left">
+                  <h1>${textContainer.text['miscellaneousLoaderOverallDecription'] }</h1>
+                  <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousLoaderOverallSubtitle']}</p>
+                </div>
               </div>
             </div>
 

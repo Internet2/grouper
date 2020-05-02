@@ -2079,8 +2079,6 @@ CREATE INDEX grouper_loader_job_name_idx ON grouper_loader_log (job_name(255), s
 CREATE unique INDEX group_name_idx ON grouper_groups (name(255));
 
 CREATE INDEX group_display_name_idx ON grouper_groups (display_name(255));
-update grouper_attribute_def set attribute_def_type = 'service' where attribute_def_type = 'domain';
-commit;
 
 CREATE INDEX grpconfig_config_key_idx ON grouper_config (config_key(100), config_file_name(50));
 

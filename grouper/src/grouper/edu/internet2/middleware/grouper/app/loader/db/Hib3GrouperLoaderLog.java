@@ -24,8 +24,10 @@ import java.sql.Timestamp;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -120,6 +122,20 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   private Integer unresolvableSubjectCount = 0;
   
+  private String contextId;
+  
+  
+  
+  
+  public String getContextId() {
+    return contextId;
+  }
+
+  
+  public void setContextId(String contextId) {
+    this.contextId = contextId;
+  }
+
   /** number of records inserted */
   private Integer insertCount = 0;
 
@@ -713,6 +729,50 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     return this.jobSchedulePriority;
   }
 
+  /**
+   * 
+   * @return true if ok with scheduler check
+   */
+  public static boolean hasRecentDaemonSchedulerCheck() {
+    
+
+    //  # If there hasnt been a success in the last X minutes, then kick this off from thread (not from daemon).  Who is watching the watcher?
+    //  # If this is -1, then do not run a watcher thread
+    //  # {valueType: "integer", defaultValue: "35"}
+    //  otherJob.schedulerCheckDaemon.maxMinutesSinceSuccess = 35
+    
+    int maxMinutesSinceSuccess = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.schedulerCheckDaemon.maxMinutesSinceSuccess", 35);
+
+    // dont worry about it
+    if (maxMinutesSinceSuccess <= 0) {
+      return true;
+    }
+
+    //  
+    //  # If there has been a daemon run in the last X minutes, then dont run manually.  -1 to not include.  Note, if maxMinutesSinceSuccess is -1, then
+    //  # this config will not be used
+    //  # {valueType: "integer", defaultValue: "15"}
+    //  otherJob.schedulerCheckDaemon.minMinutesSinceStarted = 15
+
+    int minMinutesSinceStarted = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.schedulerCheckDaemon.minMinutesSinceStarted", 15);
+    
+    String hql = "select count(hgll) from Hib3GrouperLoaderLog as hgll where hgll.jobName = 'OTHER_JOB_schedulerCheckDaemon' "
+        + "and ( ( hgll.endedTime > :theMinSuccessTime and hgll.status = 'SUCCESS' ) " 
+        + ( minMinutesSinceStarted > 0 ? " or ( hgll.startedTime > :theMinStartedTime ) " : "" ) + " ) ";
+        
+    ByHqlStatic bySqlStatic = HibernateSession.byHqlStatic()
+      .createQuery(hql).setTimestamp("theMinSuccessTime", new Timestamp(System.currentTimeMillis() - 1000*60*maxMinutesSinceSuccess));
+    
+    if (minMinutesSinceStarted > 0) {
+      bySqlStatic.setTimestamp("theMinStartedTime", new Timestamp(System.currentTimeMillis() - 1000*60*minMinutesSinceStarted));
+    }
+    
+    
+    Long count = bySqlStatic.uniqueResult(Long.class);
+
+    return count > 0;
+    
+  }
   
   /**
    * if the quartz threadpool is exhausted, and many jobs are up for scheduling, then

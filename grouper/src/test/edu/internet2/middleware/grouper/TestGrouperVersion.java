@@ -19,8 +19,8 @@
  */
 package edu.internet2.middleware.grouper;
 
+import junit.framework.TestCase;
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 
@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 /**
  *
  */
-public class TestGrouperVersion extends GrouperTest {
+public class TestGrouperVersion extends TestCase {
 
   /**
    * 
@@ -40,15 +40,6 @@ public class TestGrouperVersion extends GrouperTest {
     TestRunner.run(TestGrouperVersion.class);
   }
   
-  protected void setUp () {
-    super.setUp();
-
-  }
-
-  protected void tearDown () {
-    super.tearDown();
-  }
-
   /**
    * @param name
    */
@@ -119,6 +110,19 @@ public class TestGrouperVersion extends GrouperTest {
     assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2", "3.0.2-rc1" ));
     assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc2", "3.0.2-rc1" ));
     assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc1", "3.0.2-rc1" ));
+
+    assertFalse(GrouperVersion._grouperVersionGreaterOrEqualHelper("1.2.3-SNAPSHOT", "1.2.3" ));
+    assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("1.2.3-rc1", "1.2.3-SNAPSHOT" ));
+
+    assertEquals(new GrouperVersion("1.2.3").toString(), "1.2.3");
+    assertEquals(new GrouperVersion("1.2.3-rc1").toString(), "1.2.3-rc1");
+    assertEquals(new GrouperVersion("1.2.3rc1").toString(), "1.2.3rc1");
+    assertEquals(new GrouperVersion("1.2.3-SNAPSHOT").toString(), "1.2.3-SNAPSHOT");
+    assertEquals(new GrouperVersion("0001.0002.0003-rc0004").toString(), "1.2.3-rc0004");
+    assertEquals(new GrouperVersion("1.2.3-SNAPSHOT").toString(), "1.2.3-SNAPSHOT");
+
+    assertTrue(new GrouperVersion("0001.0002.0003rc0004").equals(new GrouperVersion("1.2.3rc4")));
+    assertTrue(new GrouperVersion("1.2.3rc4").equals(new GrouperVersion("1.2.3-rc4")));
   }
   
 }
