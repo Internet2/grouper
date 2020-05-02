@@ -91,6 +91,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
@@ -108,16 +109,24 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hooks.AttributeAssignHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeDefHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeDefNameHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeHooks;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
+import edu.internet2.middleware.grouper.hooks.ExternalSubjectHooks;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
 import edu.internet2.middleware.grouper.hooks.GrouperSessionHooks;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
+import edu.internet2.middleware.grouper.hooks.LoaderHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
@@ -454,17 +463,24 @@ public class GrouperCheckConfig {
     GrouperConfig.retrieveConfig().assertPropertyValueClass("dao.factory", 
         GrouperDAOFactory.class, true);
 
-    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.group.class", GroupHooks.class, false);
-    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.lifecycle.class", LifecycleHooks.class, false);
-    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.membership.class", MembershipHooks.class, false);
-    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.member.class", MemberHooks.class, false);
-    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.stem.class", StemHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.attribute.class", AttributeHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.attributeDef.class", AttributeDefHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.attributeDefName.class", AttributeDefNameHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.attributeAssign.class", AttributeAssignHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.attributeAssignValue.class", AttributeAssignValueHooks.class, false);
     GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.composite.class", CompositeHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.externalSubject.class", ExternalSubjectHooks.class, false);
     GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.field.class", FieldHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.group.class", GroupHooks.class, false);
     GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.grouperSession.class", GrouperSessionHooks.class, false);
     GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.groupType.class", GroupTypeHooks.class, false);
     GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.groupTypeTuple.class", GroupTypeTupleHooks.class, false);
-
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.lifecycle.class", LifecycleHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.loader.class", LoaderHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.membership.class", MembershipHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.member.class", MemberHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.stem.class", StemHooks.class, false);
+    
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.exclude.subject.tables", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.schemaexport.installGrouperData", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.failIfNotRightVersion", true);
@@ -570,6 +586,8 @@ public class GrouperCheckConfig {
             
             String gracePeriodRootStemName = GrouperGracePeriod.gracePeriodStemName();
             
+            boolean assignAutoCreate = false;
+            
             Stem gracePeriodStem = StemFinder.findByName(grouperSession, gracePeriodRootStemName, false);
             if (gracePeriodStem == null) {
               gracePeriodStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
@@ -586,6 +604,7 @@ public class GrouperCheckConfig {
               gracePeriodMarkerDef.setAssignToGroup(true);
               gracePeriodMarkerDef.setMultiAssignable(true);
               gracePeriodMarkerDef.store();
+              assignAutoCreate = true;
             }
             
             Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(gracePeriodMarkerDef);
@@ -613,11 +632,11 @@ public class GrouperCheckConfig {
             grouperGracePeriodValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(gracePeriodMarker.getName());
 
             //add some names
-            checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_DAYS, 
+            AttributeDefName daysAttributeDefName = checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_DAYS, 
                 "Number of days that the grace period lasts", wasInCheckConfig);
-            checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME, 
+            AttributeDefName groupNameAttributeDefName = checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME, 
                 "Fully qualified group name of the grace period group", wasInCheckConfig);
-            checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE,
+            AttributeDefName includeEligibleAttributeDefName = checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE,
                 "true or false if the eligible population should be included in the grace group to reduce provisioning flicker", wasInCheckConfig);
             
             String groupName = gracePeriodRootStemName + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
@@ -649,6 +668,19 @@ public class GrouperCheckConfig {
             if (changeLoader != null && changeLoader) {
               GrouperGracePeriod.setupGracePeriodLoaderJob(group);
             }
+            
+            // these attribute tell a grouper rule to auto assign the three name value pair attributes to the assignment when the marker is assigned
+            if (assignAutoCreate) {
+              AttributeDefName autoCreateMarker = AttributeDefNameFinder.findByName(AttributeAutoCreateHook.attributeAutoCreateStemName() + ":" + AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_MARKER, true);
+              AttributeDefName ifName = AttributeDefNameFinder.findByName(AttributeAutoCreateHook.attributeAutoCreateStemName() + ":" + AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_ATTR_IF_NAME, true);
+              AttributeDefName thenNames = AttributeDefNameFinder.findByName(AttributeAutoCreateHook.attributeAutoCreateStemName() + ":" + AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_ATTR_THEN_NAMES_ON_ASSIGN, true);
+              
+              AttributeAssignResult attributeAssignResult = gracePeriodMarkerDef.getAttributeDelegate().assignAttribute(autoCreateMarker);
+              attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(ifName.getName(), gracePeriodMarker.getName());
+              attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(thenNames.getName(), daysAttributeDefName.getName() 
+                  + ", " + groupNameAttributeDefName.getName() + ", " + includeEligibleAttributeDefName.getName());
+            }
+            
           }
           return null;
         }
@@ -2256,6 +2288,73 @@ public class GrouperCheckConfig {
         
       legacyAttributeBaseStem(grouperSession);
       
+      boolean autoAssignTheAutoAssignAttributes = false;
+      AttributeDefName attributeAutoCreateMarker = null;
+      AttributeDef attributeAutoCreateDef = null;
+      AttributeDefName autoAssignIfName = null;
+      AttributeDefName autoAssignThenNames = null;
+      {
+        
+        String attributeAutoCreateStemName = AttributeAutoCreateHook.attributeAutoCreateStemName();
+        
+        Stem attributeAutoCreateStem = StemFinder.findByName(grouperSession, attributeAutoCreateStemName, false);
+        if (attributeAutoCreateStem == null) {
+          attributeAutoCreateStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for attribute autocreate objects").assignName(attributeAutoCreateStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String attributeAutoCreateDefName = attributeAutoCreateStemName + ":" + AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_MARKER_DEF;
+        attributeAutoCreateDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            attributeAutoCreateDefName, false, new QueryOptions().secondLevelCache(false));
+        if (attributeAutoCreateDef == null) {
+          attributeAutoCreateDef = attributeAutoCreateStem.addChildAttributeDef(AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_MARKER_DEF, 
+              AttributeDefType.attr);
+          attributeAutoCreateDef.setMultiAssignable(true);
+          attributeAutoCreateDef.setAssignToAttributeDef(true);
+          attributeAutoCreateDef.store();
+        }
+        
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(attributeAutoCreateDef);
+        
+
+        //add a name
+        attributeAutoCreateMarker = checkAttribute(attributeAutoCreateStem, attributeAutoCreateDef, 
+            AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_MARKER, 
+            "has autocreate settings settings", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String attributeAutoCreateValueDefName = attributeAutoCreateStemName + ":" + AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_VALUE_DEF;
+        AttributeDef attributeAutoCreateValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            attributeAutoCreateValueDefName, false, new QueryOptions().secondLevelCache(false));
+        
+        if (attributeAutoCreateValueDef == null) {
+          attributeAutoCreateValueDef = attributeAutoCreateStem.addChildAttributeDef(
+              AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_VALUE_DEF, AttributeDefType.attr);
+          attributeAutoCreateValueDef.setAssignToAttributeDefAssn(true);
+          attributeAutoCreateValueDef.setValueType(AttributeDefValueType.string);
+          attributeAutoCreateValueDef.store();
+          autoAssignTheAutoAssignAttributes = true;
+        }
+
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(attributeAutoCreateValueDef);
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        attributeAutoCreateValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(attributeAutoCreateMarker.getName());
+
+        //add some names
+        autoAssignIfName = checkAttribute(attributeAutoCreateStem, attributeAutoCreateValueDef, AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_ATTR_IF_NAME, 
+            "If an attribute is assigned with this name of attribute def name", wasInCheckConfig);
+        autoAssignThenNames = checkAttribute(attributeAutoCreateStem, attributeAutoCreateValueDef, AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_ATTR_THEN_NAMES_ON_ASSIGN, 
+            "Then assign these comma separated names of attribute def names to the assignment of the first name that was assigned", wasInCheckConfig);
+        
+        AttributeAutoCreateHook.registerHookIfNecessary();
+
+      }
+
+      
       {
         String externalSubjectStemName = ExternalSubjectAttrFramework.attributeExternalSubjectInviteStemName();
         
@@ -3837,6 +3936,16 @@ public class GrouperCheckConfig {
           Hib3AttributeDefNameDAO.attributeDefNameCacheAsRootIdsAndNamesAdd(attributeDefName);
         }
       }
+      
+      if (autoAssignTheAutoAssignAttributes) {
+        // these need to be at the end so everything else is initted
+        AttributeAssignResult attributeAssignResult = attributeAutoCreateDef.getAttributeDelegate().assignAttribute(attributeAutoCreateMarker);
+        attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(autoAssignIfName.getName(), attributeAutoCreateMarker.getName());
+        attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(autoAssignThenNames.getName(), autoAssignIfName.getName() 
+            + ", " + autoAssignThenNames.getName());
+      }
+
+      
     } catch (SessionException se) {
       throw new RuntimeException(se);
     } finally {

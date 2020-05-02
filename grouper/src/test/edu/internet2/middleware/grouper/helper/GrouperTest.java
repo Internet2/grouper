@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -1134,6 +1135,8 @@ public class GrouperTest extends TestCase {
     setupInitDb();
 
     GrouperEmail.testingEmails().clear();
+    GrouperCacheUtils.clearAllCaches();
+
 
   }
 
