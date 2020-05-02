@@ -80,7 +80,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSett
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
-import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperGracePeriod;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
@@ -584,70 +584,70 @@ public class GrouperCheckConfig {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           {
             
-            String gracePeriodRootStemName = GrouperGracePeriod.gracePeriodStemName();
+            String recentMembershipsRootStemName = GrouperRecentMemberships.recentMembershipsStemName();
             
             boolean assignAutoCreate = false;
             
-            Stem gracePeriodStem = StemFinder.findByName(grouperSession, gracePeriodRootStemName, false);
-            if (gracePeriodStem == null) {
-              gracePeriodStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-                .assignDescription("folder for built in Grouper grace period objects").assignName(gracePeriodRootStemName)
+            Stem recentMembershipsStem = StemFinder.findByName(grouperSession, recentMembershipsRootStemName, false);
+            if (recentMembershipsStem == null) {
+              recentMembershipsStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+                .assignDescription("folder for built in Grouper recent memberships objects").assignName(recentMembershipsRootStemName)
                 .save();
             }
 
             //see if attributeDef is there
-            String gracePeriodMarkerDefName = gracePeriodRootStemName + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_MARKER_DEF;
-            AttributeDef gracePeriodMarkerDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-                gracePeriodMarkerDefName, false, new QueryOptions().secondLevelCache(false));
-            if (gracePeriodMarkerDef == null) {
-              gracePeriodMarkerDef = gracePeriodStem.addChildAttributeDef(GrouperGracePeriod.GROUPER_GRACE_PERIOD_MARKER_DEF, AttributeDefType.attr);
-              gracePeriodMarkerDef.setAssignToGroup(true);
-              gracePeriodMarkerDef.setMultiAssignable(true);
-              gracePeriodMarkerDef.store();
+            String recentMembershipsMarkerDefName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER_DEF;
+            AttributeDef recentMembershipsMarkerDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+                recentMembershipsMarkerDefName, false, new QueryOptions().secondLevelCache(false));
+            if (recentMembershipsMarkerDef == null) {
+              recentMembershipsMarkerDef = recentMembershipsStem.addChildAttributeDef(GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER_DEF, AttributeDefType.attr);
+              recentMembershipsMarkerDef.setAssignToGroup(true);
+              recentMembershipsMarkerDef.setMultiAssignable(true);
+              recentMembershipsMarkerDef.store();
               assignAutoCreate = true;
             }
             
-            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(gracePeriodMarkerDef);
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(recentMembershipsMarkerDef);
             
 
             //add a name
-            AttributeDefName gracePeriodMarker = checkAttribute(gracePeriodStem, gracePeriodMarkerDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_MARKER, 
-                "has grace period settings", wasInCheckConfig);
+            AttributeDefName recentMembershipsMarker = checkAttribute(recentMembershipsStem, recentMembershipsMarkerDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, 
+                "has recent memberships settings", wasInCheckConfig);
             
             //lets add some rule attributes
-            String grouperGracePeriodValueDefName = gracePeriodRootStemName + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_VALUE_DEF;
-            AttributeDef grouperGracePeriodValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
-                grouperGracePeriodValueDefName, false, new QueryOptions().secondLevelCache(false));
-            if (grouperGracePeriodValueDef == null) {
-              grouperGracePeriodValueDef = gracePeriodStem.addChildAttributeDef(GrouperGracePeriod.GROUPER_GRACE_PERIOD_VALUE_DEF, AttributeDefType.attr);
-              grouperGracePeriodValueDef.setAssignToGroupAssn(true);
-              grouperGracePeriodValueDef.setValueType(AttributeDefValueType.string);
-              grouperGracePeriodValueDef.store();
+            String grouperRecentMembershipsValueDefName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_VALUE_DEF;
+            AttributeDef grouperRecentMembershipsValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+                grouperRecentMembershipsValueDefName, false, new QueryOptions().secondLevelCache(false));
+            if (grouperRecentMembershipsValueDef == null) {
+              grouperRecentMembershipsValueDef = recentMembershipsStem.addChildAttributeDef(GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_VALUE_DEF, AttributeDefType.attr);
+              grouperRecentMembershipsValueDef.setAssignToGroupAssn(true);
+              grouperRecentMembershipsValueDef.setValueType(AttributeDefValueType.string);
+              grouperRecentMembershipsValueDef.store();
             }
 
-            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(grouperGracePeriodValueDef);
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(grouperRecentMembershipsValueDef);
 
             //the attributes can only be assigned to the type def
             // try an attribute def dependent on an attribute def name
-            grouperGracePeriodValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(gracePeriodMarker.getName());
+            grouperRecentMembershipsValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(recentMembershipsMarker.getName());
 
             //add some names
-            AttributeDefName daysAttributeDefName = checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_DAYS, 
-                "Number of days that the grace period lasts", wasInCheckConfig);
-            AttributeDefName groupNameAttributeDefName = checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME, 
-                "Fully qualified group name of the grace period group", wasInCheckConfig);
-            AttributeDefName includeEligibleAttributeDefName = checkAttribute(gracePeriodStem, grouperGracePeriodValueDef, GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE,
-                "true or false if the eligible population should be included in the grace group to reduce provisioning flicker", wasInCheckConfig);
+            AttributeDefName daysAttributeDefName = checkAttribute(recentMembershipsStem, grouperRecentMembershipsValueDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, 
+                "Number of days that the recent memberships lasts", wasInCheckConfig);
+            AttributeDefName groupNameAttributeDefName = checkAttribute(recentMembershipsStem, grouperRecentMembershipsValueDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, 
+                "Fully qualified group name of the recent memberships group", wasInCheckConfig);
+            AttributeDefName includeEligibleAttributeDefName = checkAttribute(recentMembershipsStem, grouperRecentMembershipsValueDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT,
+                "true or false if the eligible population should be included in the recent memberships group to reduce provisioning flicker", wasInCheckConfig);
             
-            String groupName = gracePeriodRootStemName + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
+            String groupName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
             Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
                 groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
             
-            String descriptionIfEnabled = "Holds the loader configuration of the grace period job that populates the grace period groups configured by attributes.  This is enabled in grouper.properties";
-            String descriptionIfDisabled = "Holds the loader configuration of the grace period job that populates the grace period groups configured by attributes.  This is not enabled in grouper.properties";
+            String descriptionIfEnabled = "Holds the loader configuration of the recent memberships job that populates the recent memberships groups configured by attributes.  This is enabled in grouper.properties";
+            String descriptionIfDisabled = "Holds the loader configuration of the recent memberships job that populates the recent memberships groups configured by attributes.  This is not enabled in grouper.properties";
 
-            boolean gracePeriodEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.gracePeriod.loaderJob.enable", true);
-            String descriptionShouldBe = gracePeriodEnabled ? descriptionIfEnabled : descriptionIfDisabled;
+            boolean recentMembershipsEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.recentMemberships.loaderJob.enable", true);
+            String descriptionShouldBe = recentMembershipsEnabled ? descriptionIfEnabled : descriptionIfDisabled;
 
             Boolean changeLoader = null;
 
@@ -656,7 +656,7 @@ public class GrouperCheckConfig {
             }
             
             if (group == null) {
-              changeLoader = (changeLoader != null && changeLoader) || gracePeriodEnabled;
+              changeLoader = (changeLoader != null && changeLoader) || recentMembershipsEnabled;
             }
             
             if (group == null) {
@@ -666,7 +666,7 @@ public class GrouperCheckConfig {
             
             // if its new or the state has changed
             if (changeLoader != null && changeLoader) {
-              GrouperGracePeriod.setupGracePeriodLoaderJob(group);
+              GrouperRecentMemberships.setupRecentMembershipsLoaderJob(group);
             }
             
             // these attribute tell a grouper rule to auto assign the three name value pair attributes to the assignment when the marker is assigned
@@ -675,8 +675,8 @@ public class GrouperCheckConfig {
               AttributeDefName ifName = AttributeDefNameFinder.findByName(AttributeAutoCreateHook.attributeAutoCreateStemName() + ":" + AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_ATTR_IF_NAME, true);
               AttributeDefName thenNames = AttributeDefNameFinder.findByName(AttributeAutoCreateHook.attributeAutoCreateStemName() + ":" + AttributeAutoCreateHook.GROUPER_ATTRIBUTE_AUTO_CREATE_ATTR_THEN_NAMES_ON_ASSIGN, true);
               
-              AttributeAssignResult attributeAssignResult = gracePeriodMarkerDef.getAttributeDelegate().assignAttribute(autoCreateMarker);
-              attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(ifName.getName(), gracePeriodMarker.getName());
+              AttributeAssignResult attributeAssignResult = recentMembershipsMarkerDef.getAttributeDelegate().assignAttribute(autoCreateMarker);
+              attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(ifName.getName(), recentMembershipsMarker.getName());
               attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(thenNames.getName(), daysAttributeDefName.getName() 
                   + ", " + groupNameAttributeDefName.getName() + ", " + includeEligibleAttributeDefName.getName());
             }

@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
-public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
+public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
 
   public static int test_fullSyncCount = 0;
   
@@ -51,29 +51,29 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
   }
 
   /**
-   * group ids which have grace periods
+   * group ids which have recent memberships
    */
-  private static ExpirableCache<Boolean, List<String>> gracePeriodGroupIds = new ExpirableCache<Boolean, List<String>>(1);
+  private static ExpirableCache<Boolean, List<String>> recentMembershipsGroupIds = new ExpirableCache<Boolean, List<String>>(1);
 
-  public List<String> gracePeriodGroupIds() {
+  public List<String> recentMembershipsGroupIds() {
     // TODO check the 10 second cache clear table in future and change to five minute cache
-    List<String> result = gracePeriodGroupIds.get(Boolean.TRUE);
+    List<String> result = recentMembershipsGroupIds.get(Boolean.TRUE);
     if (result == null) {
-      synchronized (GrouperGracePeriodChangeLogConsumer.class) {
-        result = gracePeriodGroupIds.get(Boolean.TRUE);
+      synchronized (GrouperRecentMembershipsChangeLogConsumer.class) {
+        result = recentMembershipsGroupIds.get(Boolean.TRUE);
         if (result == null) {
           
           result = new ArrayList<String>();
-          // gaaagv_gracePeriod.group_id owner_group_id, gaaagv_gracePeriod.group_name owner_group_name, "
-          // + "gaaagv_gracePeriod.value_string grace_period_days, gaaagv_groupName.value_string group_name "
-          String groupQuery = GrouperGracePeriod.groupQuery();
+          // gaaagv_recentMemberships.group_id owner_group_id, gaaagv_recentMemberships.group_name owner_group_name, "
+          // + "gaaagv_recentMemberships.value_string recent_memberships_days, gaaagv_groupName.value_string group_name "
+          String groupQuery = GrouperRecentMemberships.groupQuery();
           
           List<Object[]> rows = new GcDbAccess().sql(groupQuery).selectList(Object[].class);
           for (Object[] row : GrouperUtil.nonNull(rows)) {
             result.add((String)row[0]);
           }
           
-          gracePeriodGroupIds.put(Boolean.TRUE, result);
+          recentMembershipsGroupIds.put(Boolean.TRUE, result);
           
         }
       }
@@ -86,7 +86,7 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
       List<EsbEventContainer> esbEventContainers,
       GrouperProvisioningProcessingResult grouperProvisioningProcessingResult) {
 
-    Set<String> groupIds = new HashSet<String>(gracePeriodGroupIds());
+    Set<String> groupIds = new HashSet<String>(recentMembershipsGroupIds());
     
     
     ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
@@ -98,17 +98,17 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
     boolean needsFullSync = false;
     boolean attributeChange = false;
     
-    String gracePeriodStem = GrouperGracePeriod.gracePeriodStemName();
+    String recentMembershipsStem = GrouperRecentMemberships.recentMembershipsStemName();
     
-    int maxUntilFullSync = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer.gracePeriods.maxUntilFullSync", 100);
+    int maxUntilFullSync = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer.recentMemberships.maxUntilFullSync", 100);
     
-    String groupName = GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
+    String groupName = GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
 
     Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
         groupName, true, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
 
     Timestamp lastSuccess = new GcDbAccess().sql("select max(ended_time) from grouper_loader_log where job_name = ? and status = 'SUCCESS'")
-      //'SQL_GROUP_LIST__etc:attribute:gracePeriod:grouperGracePeriodLoader__b3708fc0a5c347ff8dad78f2b0f7d50e'
+      //'SQL_GROUP_LIST__etc:attribute:recentMemberships:grouperRecentMembershipsLoader__b3708fc0a5c347ff8dad78f2b0f7d50e'
       .addBindVar("SQL_GROUP_LIST__" + groupName + "__" + group.getId()).select(Timestamp.class);
     
     OUTER: for (EsbEventContainer esbEventContainer : esbEventContainers) {
@@ -136,11 +136,11 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
         case ATTRIBUTE_ASSIGN_ADD:
         case ATTRIBUTE_ASSIGN_VALUE_ADD:
         case ATTRIBUTE_ASSIGN_VALUE_DELETE:
-          if (esbEvent.getAttributeDefNameName() != null && esbEvent.getAttributeDefNameName().startsWith(gracePeriodStem)) {
+          if (esbEvent.getAttributeDefNameName() != null && esbEvent.getAttributeDefNameName().startsWith(recentMembershipsStem)) {
             needsFullSync = true;
             attributeChange = true;
             // clear cache
-            gracePeriodGroupIds.clear();
+            recentMembershipsGroupIds.clear();
             break OUTER;
           }
           break;
@@ -154,7 +154,7 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
     if (needsFullSync) {
       test_fullSyncCount++;
       // schedule one in 5 minutes after caches clear in case running on another loader
-      scheduleGraceLoaderNow(attributeChange, group);
+      scheduleRecentMembershipsLoaderNow(attributeChange, group);
     } else if (GrouperUtil.length(subjectSourceIdAndSubjectIds) > 0) {
        
       GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
@@ -172,8 +172,8 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
         GrouperLoaderIncrementalJob.processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, 
             row, null, group, GrouperLoaderType.SQL_GROUP_LIST.name(), 
             this.getEsbConsumer().getChangeLogProcessorMetadata().getHib3GrouperLoaderLog(), groupsRequiringLoaderMetadataUpdates, 
-            null, null, GrouperGracePeriod.groupQuery(),
-            GrouperGracePeriod.query(), "grouper", false, false);
+            null, null, GrouperRecentMemberships.groupQuery(),
+            GrouperRecentMemberships.query(), "grouper", false, false);
         
       }
     }
@@ -186,7 +186,7 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
    * run job now and wait for cache to clear
    * @param now
    */
-  private static void scheduleGraceLoaderNow(boolean waitForCache, Group group) {
+  private static void scheduleRecentMembershipsLoaderNow(boolean waitForCache, Group group) {
   
     String jobName =  GrouperLoaderType.SQL_GROUP_LIST.name() + "__" + group.getName() + "__" + group.getUuid();
      
@@ -202,10 +202,10 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
 //   * run job now or in 5 minutes
 //   * @param now
 //   */
-//  private static void scheduleGraceLoaderNow(boolean now) {
+//  private static void scheduleRecentMembershipsLoaderNow(boolean now) {
 //
 //    try {
-//      String groupName = GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_LOADER_GROUP_NAME;
+//      String groupName = GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
 //  
 //      Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
 //          groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
@@ -224,7 +224,7 @@ public class GrouperGracePeriodChangeLogConsumer extends EsbListenerBase {
 //          @Override
 //          public void run() {
 //            GrouperUtil.sleep(1000*60*5);
-//            scheduleGraceLoaderNow(true);
+//            scheduleRecentMembershipsLoaderNow(true);
 //          }
 //          
 //        });

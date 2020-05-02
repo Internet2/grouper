@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperGracePeriodChangeLogConsumer;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -98,7 +97,7 @@ public class AttributeAutoCreateHook extends AttributeAssignHooks {
   private static ExpirableCache<Boolean, Set<String>> uuidsOfAutoCreateAttributes = new ExpirableCache<Boolean, Set<String>>(60);
 
   /**
-   * group ids which have grace periods
+   * cache of names to attribute def names to keep hook running quickly
    */
   private static ExpirableCache<String, AttributeDefName> nameOfAttributeDefNameToAttributeDefName = new ExpirableCache<String, AttributeDefName>(60);
 
@@ -111,7 +110,7 @@ public class AttributeAutoCreateHook extends AttributeAssignHooks {
 
     Map<String, List<AttributeDefName>> result = autoAssignAttributes.get(Boolean.TRUE);
     if (result == null) {
-      synchronized (GrouperGracePeriodChangeLogConsumer.class) {
+      synchronized (AttributeAutoCreateHook.class) {
         result = autoAssignAttributes.get(Boolean.TRUE);
         if (result == null) {
           

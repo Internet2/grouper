@@ -18,17 +18,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
-public class GrouperGracePeriodTest extends GrouperTest {
+public class GrouperRecentMembershipsTest extends GrouperTest {
 
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperGracePeriodTest("testGracePeriod"));
+    TestRunner.run(new GrouperRecentMembershipsTest("testRecentMemberships"));
   }
   
-  public GrouperGracePeriodTest(String name) {
+  public GrouperRecentMembershipsTest(String name) {
     super(name);
   }
 
@@ -44,9 +44,9 @@ public class GrouperGracePeriodTest extends GrouperTest {
     if (runConsumer) {
       Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
       hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_gracePeriods");
+      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_recentMemberships");
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-      ChangeLogHelper.processRecords("gracePeriods", hib3GrouploaderLog, new EsbConsumer());
+      ChangeLogHelper.processRecords("recentMemberships", hib3GrouploaderLog, new EsbConsumer());
   
       return hib3GrouploaderLog;
     }
@@ -54,7 +54,7 @@ public class GrouperGracePeriodTest extends GrouperTest {
     return null;
   }
 
-  public void testGracePeriodNotIncludeEligible() {
+  public void testRecentMembershipsNotIncludeEligible() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     Group group2daySource = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group2daySource").save();
@@ -160,45 +160,45 @@ public class GrouperGracePeriodTest extends GrouperTest {
         .addBindVar(micros8daysAgo).addBindVar(micros1daysAgo).addBindVar(subject4pitMemberId).executeSql();
     assertEquals(2, rows);  
 
-    int fullSyncCount = GrouperGracePeriodChangeLogConsumer.test_fullSyncCount;
-    int incrementalSyncCount = GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount;
+    int fullSyncCount = GrouperRecentMembershipsChangeLogConsumer.test_fullSyncCount;
+    int incrementalSyncCount = GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount;
     
     runJobs(true, true);
     GrouperUtil.sleep(10000);
     
-    assertEquals(fullSyncCount, GrouperGracePeriodChangeLogConsumer.test_fullSyncCount);
-    assertEquals(incrementalSyncCount, GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount);
+    assertEquals(fullSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_fullSyncCount);
+    assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
 
-    AttributeDefName grouperGracePeriodMarker = AttributeDefNameFinder.findByName(GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_MARKER, true);
-    AttributeDefName grouperGracePeriodDays = AttributeDefNameFinder.findByName(GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_DAYS, true);
-    AttributeDefName grouperGracePeriodGroupName = AttributeDefNameFinder.findByName(GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME, true);
-    AttributeDefName grouperGracePeriodIncludeEligible = AttributeDefNameFinder.findByName(GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE, true);
+    AttributeDefName grouperRecentMembershipsMarker = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, true);
+    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, true);
+    AttributeDefName grouperRecentMembershipsIncludeEligible = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
     
-    AttributeAssignResult attributeAssignResult = group2daySource.getAttributeDelegate().assignAttribute(grouperGracePeriodMarker);
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodDays.getName(), "2");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodGroupName.getName(), "test:group2dayGrace");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodIncludeEligible.getName(), "false");
+    AttributeAssignResult attributeAssignResult = group2daySource.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker);
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsDays.getName(), "2");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupName.getName(), "test:group2dayRecentMemberships");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsIncludeEligible.getName(), "false");
     
-    attributeAssignResult = group4daySource.getAttributeDelegate().assignAttribute(grouperGracePeriodMarker);
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodDays.getName(), "4");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodGroupName.getName(), "test:group4dayGrace");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodIncludeEligible.getName(), "false");
+    attributeAssignResult = group4daySource.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker);
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsDays.getName(), "4");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupName.getName(), "test:group4dayRecentMemberships");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsIncludeEligible.getName(), "false");
     
     runJobs(true, true);
     GrouperUtil.sleep(10000);
 
-    assertEquals(fullSyncCount+1, GrouperGracePeriodChangeLogConsumer.test_fullSyncCount);
-    assertEquals(incrementalSyncCount, GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount);
+    assertEquals(fullSyncCount+1, GrouperRecentMembershipsChangeLogConsumer.test_fullSyncCount);
+    assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
 
-    Group group2dayGrace = GroupFinder.findByName(grouperSession, "test:group2dayGrace", true);
-    Group group4dayGrace = GroupFinder.findByName(grouperSession, "test:group4dayGrace", true);
+    Group group2dayRecentMemberships = GroupFinder.findByName(grouperSession, "test:group2dayRecentMemberships", true);
+    Group group4dayRecentMemberships = GroupFinder.findByName(grouperSession, "test:group4dayRecentMemberships", true);
     
-    assertEquals(2, group4dayGrace.getMembers().size());
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ3));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ4));
+    assertEquals(2, group4dayRecentMemberships.getMembers().size());
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ4));
     
-    assertEquals(1, group2dayGrace.getMembers().size());
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ4));
+    assertEquals(1, group2dayRecentMemberships.getMembers().size());
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ4));
     
     group2daySourceSub.deleteMember(SubjectTestHelper.SUBJ2);
     group4daySourceSub.deleteMember(SubjectTestHelper.SUBJ2);
@@ -206,21 +206,21 @@ public class GrouperGracePeriodTest extends GrouperTest {
     runJobs(true, true);
     GrouperUtil.sleep(10000);
 
-    assertEquals(fullSyncCount+1, GrouperGracePeriodChangeLogConsumer.test_fullSyncCount);
-    assertEquals(incrementalSyncCount+1, GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount);
+    assertEquals(fullSyncCount+1, GrouperRecentMembershipsChangeLogConsumer.test_fullSyncCount);
+    assertEquals(incrementalSyncCount+1, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
     
-    assertEquals(3, group4dayGrace.getMembers().size());
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ2));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ3));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ4));
+    assertEquals(3, group4dayRecentMemberships.getMembers().size());
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ4));
     
-    assertEquals(2, group2dayGrace.getMembers().size());
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ2));
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ4));
+    assertEquals(2, group2dayRecentMemberships.getMembers().size());
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ4));
     
   }
 
-  public void testGracePeriodIncludeEligible() {
+  public void testRecentMembershipsIncludeEligible() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     Group group2daySource = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group2daySource").save();
@@ -326,49 +326,49 @@ public class GrouperGracePeriodTest extends GrouperTest {
         .addBindVar(micros8daysAgo).addBindVar(micros1daysAgo).addBindVar(subject4pitMemberId).executeSql();
     assertEquals(2, rows);  
 
-    int fullSyncCount = GrouperGracePeriodChangeLogConsumer.test_fullSyncCount;
-    int incrementalSyncCount = GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount;
+    int fullSyncCount = GrouperRecentMembershipsChangeLogConsumer.test_fullSyncCount;
+    int incrementalSyncCount = GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount;
     
     runJobs(true, true);
     GrouperUtil.sleep(10000);
     
-    assertEquals(fullSyncCount, GrouperGracePeriodChangeLogConsumer.test_fullSyncCount);
-    assertEquals(incrementalSyncCount, GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount);
+    assertEquals(fullSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_fullSyncCount);
+    assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
 
-    AttributeDefName grouperGracePeriodMarker = AttributeDefNameFinder.findByName(GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_MARKER, true);
-    AttributeDefName grouperGracePeriodDays = AttributeDefNameFinder.findByName(GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_DAYS, true);
-    AttributeDefName grouperGracePeriodGroupName = AttributeDefNameFinder.findByName(GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_GROUP_NAME, true);
-    AttributeDefName grouperGracePeriodIncludeEligible = AttributeDefNameFinder.findByName(GrouperGracePeriod.gracePeriodStemName() + ":" + GrouperGracePeriod.GROUPER_GRACE_PERIOD_ATTR_INCLUDE_ELIGIBLE, true);
+    AttributeDefName grouperRecentMembershipsMarker = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, true);
+    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, true);
+    AttributeDefName grouperRecentMembershipsIncludeEligible = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
     
-    AttributeAssignResult attributeAssignResult = group2daySource.getAttributeDelegate().assignAttribute(grouperGracePeriodMarker);
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodDays.getName(), "2");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodGroupName.getName(), "test:group2dayGrace");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodIncludeEligible.getName(), "true");
+    AttributeAssignResult attributeAssignResult = group2daySource.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker);
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsDays.getName(), "2");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupName.getName(), "test:group2dayRecentMemberships");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsIncludeEligible.getName(), "true");
     
-    attributeAssignResult = group4daySource.getAttributeDelegate().assignAttribute(grouperGracePeriodMarker);
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodDays.getName(), "4");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodGroupName.getName(), "test:group4dayGrace");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperGracePeriodIncludeEligible.getName(), "true");
+    attributeAssignResult = group4daySource.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker);
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsDays.getName(), "4");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupName.getName(), "test:group4dayRecentMemberships");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsIncludeEligible.getName(), "true");
     
     runJobs(true, true);
     GrouperUtil.sleep(10000);
 
-    assertEquals(fullSyncCount+1, GrouperGracePeriodChangeLogConsumer.test_fullSyncCount);
-    assertEquals(incrementalSyncCount, GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount);
+    assertEquals(fullSyncCount+1, GrouperRecentMembershipsChangeLogConsumer.test_fullSyncCount);
+    assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
 
-    Group group2dayGrace = GroupFinder.findByName(grouperSession, "test:group2dayGrace", true);
-    Group group4dayGrace = GroupFinder.findByName(grouperSession, "test:group4dayGrace", true);
+    Group group2dayRecentMemberships = GroupFinder.findByName(grouperSession, "test:group2dayRecentMemberships", true);
+    Group group4dayRecentMemberships = GroupFinder.findByName(grouperSession, "test:group4dayRecentMemberships", true);
     
-    assertEquals(4, group4dayGrace.getMembers().size());
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ0));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ2));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ3));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ4));
+    assertEquals(4, group4dayRecentMemberships.getMembers().size());
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ4));
     
-    assertEquals(3, group2dayGrace.getMembers().size());
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ0));
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ2));
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ4));
+    assertEquals(3, group2dayRecentMemberships.getMembers().size());
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ4));
     
     group2daySourceSub.deleteMember(SubjectTestHelper.SUBJ2);
     group4daySourceSub.deleteMember(SubjectTestHelper.SUBJ2);
@@ -376,19 +376,19 @@ public class GrouperGracePeriodTest extends GrouperTest {
     runJobs(true, true);
     GrouperUtil.sleep(10000);
 
-    assertEquals(fullSyncCount+1, GrouperGracePeriodChangeLogConsumer.test_fullSyncCount);
-    assertEquals(incrementalSyncCount+1, GrouperGracePeriodChangeLogConsumer.test_incrementalSyncCount);
+    assertEquals(fullSyncCount+1, GrouperRecentMembershipsChangeLogConsumer.test_fullSyncCount);
+    assertEquals(incrementalSyncCount+1, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
     
-    assertEquals(4, group4dayGrace.getMembers().size());
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ0));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ2));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ3));
-    assertTrue(group4dayGrace.hasMember(SubjectTestHelper.SUBJ4));
+    assertEquals(4, group4dayRecentMemberships.getMembers().size());
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(group4dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ4));
     
-    assertEquals(3, group2dayGrace.getMembers().size());
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ0));
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ2));
-    assertTrue(group2dayGrace.hasMember(SubjectTestHelper.SUBJ4));
+    assertEquals(3, group2dayRecentMemberships.getMembers().size());
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(group2dayRecentMemberships.hasMember(SubjectTestHelper.SUBJ4));
     
   }
 

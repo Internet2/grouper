@@ -10,7 +10,7 @@ public class AllServiceLifecycleTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite(AllServiceLifecycleTests.class.getName());
     //$JUnit-BEGIN$
-    suite.addTestSuite(GrouperGracePeriodTest.class);
+    suite.addTestSuite(GrouperRecentMembershipsTest.class);
     //$JUnit-END$
     return suite;
   }
