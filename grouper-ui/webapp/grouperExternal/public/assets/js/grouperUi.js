@@ -247,7 +247,7 @@ function guiMessageError(message) {
  * @param messageType must be success, info, error
  * @param message the escaped message for the screen, or could be HTML
  */
-function guiMessageHelper(messageType, message) {
+function guiMessageHelper(messageType, message, shouldEmpty=true) {
   
   if (messageType != 'success' && messageType != 'info' && messageType != 'error') {
     alert('messageType must be success, info, or error: ' + messageType);
@@ -256,7 +256,11 @@ function guiMessageHelper(messageType, message) {
   var finalMessage = '<div role="alert" class="alert alert-' + messageType 
     + '"><button type="button" class="close" data-dismiss="alert">&times;</button>'
     + message + '</div>';
-  $('#messaging').hide().empty().append(finalMessage).slideDown('slow');
+  $('#messaging').hide();
+  if (shouldEmpty) {
+    $('#messaging').empty();
+  }
+  $('#messaging').append(finalMessage).slideDown('slow');
   $('#messaging').focus();
 
 }
@@ -1206,11 +1210,17 @@ function guiProcessAction(guiScreenAction) {
     guiScrollTop();
   }
   if (!guiIsEmpty(guiScreenAction.validationMessage)) {
-    guiMessageHelper(guiScreenAction.messageType, guiScreenAction.validationMessage);
+    guiMessageHelper(guiScreenAction.messageType, guiScreenAction.validationMessage, false);
     guiScrollTop();
     //put up the validation error thing
     //TODO if the handle doesnt exist, throw error to help develop, sometimes the error is thrown before JSP is drawn wont work
-    $(guiScreenAction.innerHtmlJqueryHandle).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + guiEscapeHtml(guiScreenAction.validationMessage, true) + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
+    
+    // single quote doesnt get escaped right.  will get converted to double quote.  dont use single quotes in alerts!
+    var alertText = guiScreenAction.validationMessage.replace(/'/g, "\""); 
+      
+    alertText = guiEscapeHtml(alertText, true);
+    
+    $(guiScreenAction.innerHtmlJqueryHandle).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + alertText + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
   }
 }
 

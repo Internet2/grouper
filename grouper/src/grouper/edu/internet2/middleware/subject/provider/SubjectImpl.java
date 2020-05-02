@@ -38,6 +38,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMap;
@@ -46,7 +47,6 @@ import edu.internet2.middleware.subject.SubjectCaseInsensitiveSet;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveSetImpl;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
-import edu.internet2.middleware.subject.util.ExpirableCache;
 
 /**
  * Base Subject implementation.  Subclass this to change behavior

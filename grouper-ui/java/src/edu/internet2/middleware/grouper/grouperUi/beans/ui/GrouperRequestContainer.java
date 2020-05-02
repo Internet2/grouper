@@ -644,7 +644,24 @@ public class GrouperRequestContainer {
    */
   private SubjectResolutionContainer subjectResolutionContainer;
   
+  /**
+   * container for external systems
+   */
+  private ExternalSystemContainer externalSystemContainer;
   
+  /**
+   * container for external systems
+   * @return the container
+   */
+  public ExternalSystemContainer getExternalSystemContainer() {
+    
+    if (this.externalSystemContainer == null) {
+      this.externalSystemContainer = new ExternalSystemContainer();
+    }
+    
+    return this.externalSystemContainer;
+  }
+
   /**
    * container for deprovisioning screen
    * @return the container

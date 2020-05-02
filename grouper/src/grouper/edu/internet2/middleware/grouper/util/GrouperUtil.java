@@ -128,6 +128,10 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import javassist.util.proxy.ProxyObject;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -1573,6 +1577,22 @@ public class GrouperUtil {
     }
     if (string.endsWith(suffix)) {
       return string.substring(0, string.length() - suffix.length());
+    }
+    return string;
+  }
+
+  /**
+   * strip the prefix off
+   * @param string
+   * @param prefix
+   * @return the string without the suffix
+   */
+  public static String stripPrefix(String string, String prefix) {
+    if (string == null || prefix == null) {
+      return string;
+    }
+    if (string.startsWith(prefix)) {
+      return string.substring(prefix.length(), string.length());
     }
     return string;
   }

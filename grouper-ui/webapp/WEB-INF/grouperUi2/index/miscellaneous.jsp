@@ -15,30 +15,7 @@
               <div class="span12">
                 <div class="row-fluid">
                   <div class="span1">
-                    <c:if test="${grouperRequestContainer.configurationContainer.configureShow}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Configure.index');" style="white-space: nowrap;"
-                      >${textContainer.text['adminConfigureLink'] }</a>
-                    </c:if>
-                    <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showGlobalInheritedPrivilegesLink}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
-                      >${textContainer.text['miscellaneousGlobalInheritedPrivileges'] }</a>
-                    </c:if>
-                    <c:if test="${grouperRequestContainer.adminContainer.subjectApiDiagnosticsShow}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.subjectApiDiagnostics');" style="white-space: nowrap;"
-                      >${textContainer.text['adminSubjectApiDiagnosticsLink'] }</a>
-                    </c:if>
-                    <c:if test="${grouperRequestContainer.adminContainer.instrumentationShow}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.instrumentation');" style="white-space: nowrap;"
-                      >${textContainer.text['adminInstrumentationLink'] }</a>
-                    </c:if>
-                    <c:if test="${grouperRequestContainer.adminContainer.daemonJobsShow}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobs');" style="white-space: nowrap;"
-                      >${textContainer.text['adminDaemonJobsLink'] }</a>
-                    </c:if>
-                    <c:if test="${grouperRequestContainer.grouperLoaderContainer.canSeeLoaderOverall}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderOverall');" style="white-space: nowrap;"
-                      >${textContainer.text['adminLoaderLink'] }</a>
-                    </c:if>
+                    
                     <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall');" style="white-space: nowrap;"
                       >${textContainer.text['miscAttestationLink'] }</a>
                     <c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
@@ -49,12 +26,57 @@
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.forms');" style="white-space: nowrap;"
                       >${textContainer.text['workflowMiscFormsLink'] }</a>
                     
+                    <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showGlobalInheritedPrivilegesLink}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
+                      >${textContainer.text['miscellaneousGlobalInheritedPrivileges'] }</a>
+                    </c:if>
+                    <c:if test="${grouperRequestContainer.adminContainer.instrumentationShow}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.instrumentation');" style="white-space: nowrap;"
+                      >${textContainer.text['adminInstrumentationLink'] }</a>
+                    </c:if>
+                    
+                  </div>
+                </div>
+                
+                <c:if test="${grouperRequestContainer.adminContainer.administrationLinksShow}">
+                	<div class="row-fluid">
+                	<h4 style="color: #1c6070; margin-top: 25px; ">${textContainer.text['miscellaneousPageAdministrationHeader'] }</h4>
+                	
+                	 <c:if test="${grouperRequestContainer.configurationContainer.configureShow}">
+                      <br /><a href="#" onclick="return guiV2link('operation=UiV2Configure.index');" style="white-space: nowrap;">
+                      	${textContainer.text['adminConfigureLink'] }</a>
+                    </c:if>
+                    
+                    <c:if test="${grouperRequestContainer.adminContainer.daemonJobsShow}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobs');" style="white-space: nowrap;"
+                      >${textContainer.text['adminDaemonJobsLink'] }</a>
+                      
+                      <c:if test="${grouperRequestContainer.grouperLoaderContainer.canSeeLoaderOverall}">
+	                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderOverall');" style="white-space: nowrap; margin-left: 20px;"
+	                      >${textContainer.text['adminLoaderLink'] }</a>
+                    	</c:if>
+                      
+                    </c:if>
+                    
+                    <c:if test="${grouperRequestContainer.externalSystemContainer.canViewExternalSystems}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystems');" style="white-space: nowrap;">
+                      	${textContainer.text['adminExternalSystemsLink'] }</a>
+                    </c:if>
+                    
+                    <c:if test="${grouperRequestContainer.adminContainer.subjectApiDiagnosticsShow}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.subjectApiDiagnostics');" style="white-space: nowrap;"
+                      >${textContainer.text['adminSubjectApiDiagnosticsLink'] }</a>
+                    </c:if>
+                    
                     <c:if test="${grouperRequestContainer.subjectResolutionContainer.allowedToSubjectResolution}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.subjectResolutionMain');" style="white-space: nowrap;"
                       >${textContainer.text['subjectResolutionMainLink'] }</a>
                     </c:if>
-                  </div>
-                </div>
+                    
+                    </div>
+                    
+                </c:if>
+                
               </div>
             </div>
 

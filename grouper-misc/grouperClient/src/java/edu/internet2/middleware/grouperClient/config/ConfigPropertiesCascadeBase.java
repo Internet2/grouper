@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1641,5 +1642,67 @@ public abstract class ConfigPropertiesCascadeBase {
    * variables that are allowed to be in the config file
    */
   private static Set<String> whitelistConfigVariables = GrouperClientUtils.toSet("newline", "subjectName", "reportConfigName", "reportLink");
+
+  public boolean hasExpressionLanguage(String propertyName) {
+    
+    List<ConfigFile> configFiles = new ArrayList<ConfigFile>(this.internalRetrieveConfigFiles());
+    Collections.reverse(configFiles);
+     
+    String elKey = propertyName + ".elConfig";
+    
+    //first check threadlocal map
+    Map<String, String> overrideMap = propertiesThreadLocalOverrideMap();
+    
+    if (overrideMap.containsKey(elKey)) {
+      return true;
+    }
+      
+    overrideMap = propertiesOverrideMap();
+      
+    if (overrideMap.containsKey(elKey)) {
+      return true;
+    }
+    
+    for (ConfigFile configFile : configFiles) {
+      Properties properties = configFile.getProperties();
+
+      if (properties.containsKey(elKey)) {
+        return true;
+      }
+      
+    }
+    return false;
+  }
+
+  public String rawExpressionLanguage(String propertyName) {
+    
+    List<ConfigFile> configFiles = new ArrayList<ConfigFile>(this.internalRetrieveConfigFiles());
+    Collections.reverse(configFiles);
+     
+    String elKey = propertyName + ".elConfig";
+    
+    //first check threadlocal map
+    Map<String, String> overrideMap = propertiesThreadLocalOverrideMap();
+    
+    if (overrideMap.containsKey(elKey)) {
+      return overrideMap.get(elKey);
+    }
+      
+    overrideMap = propertiesOverrideMap();
+      
+    if (overrideMap.containsKey(elKey)) {
+      return overrideMap.get(elKey);
+    }
+    
+    for (ConfigFile configFile : configFiles) {
+      Properties properties = configFile.getProperties();
+
+      if (properties.containsKey(elKey)) {
+        return properties.getProperty(elKey);
+      }
+      
+    }
+    return null;
+  }
 
 }

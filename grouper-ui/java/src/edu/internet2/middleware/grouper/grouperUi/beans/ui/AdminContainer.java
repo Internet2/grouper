@@ -5,9 +5,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,6 +66,20 @@ public class AdminContainer {
    * paging for daemon jobs
    */
   private GuiPaging daemonJobsGuiPaging = null;
+  
+  
+  /**
+   * show administration links on misc page based on if the user is admin or not
+   * @return
+   */
+  public boolean isAdministrationLinksShow() {
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    return false;
+  }
 
   /**
    * if import from group

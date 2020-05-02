@@ -26,6 +26,10 @@ import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
  */
 public class GrouperTextContainer {
 
+  public GrouperTextContainer() {
+    super();
+  }
+
   /** logger */
   protected static final Log LOG = LogFactory.getLog(GrouperTextContainer.class);
 
@@ -47,6 +51,19 @@ public class GrouperTextContainer {
    */
   public static void resetThreadLocalVariableMap() {
     threadLocalVariableMap.remove();
+  }
+  
+  /**
+   * assign thread local variable map
+   * @param variableMap
+   */
+  public static void assignThreadLocalVariable(String key, Object value) {
+    Map<String, Object> variableMap = threadLocalVariableMap.get();
+    if (variableMap == null) {
+      variableMap = new HashMap<String, Object>();
+      assignThreadLocalVariableMap(variableMap);
+    }
+    variableMap.put(key, value);
   }
   
   /**

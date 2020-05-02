@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -148,6 +149,29 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * put a label to group items together.  if blank then all in default subsection
+   */
+  private String subSection;
+  
+  
+  
+  /**
+   * put a label to group items together.  if blank then all in default subsection
+   * @return
+   */
+  public String getSubSection() {
+    return subSection;
+  }
+
+  /**
+   * put a label to group items together.  if blank then all in default subsection
+   * @param section
+   */
+  public void setSubSection(String section) {
+    this.subSection = section;
+  }
+
+  /**
    * raw json string in the properties file
    */
   private String rawMetadataJson;
@@ -170,6 +194,32 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is shown or not
+   */
+  private String showEl;
+
+  
+  
+  /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is shown or not
+   * @return
+   */
+  public String getShowEl() {
+    return showEl;
+  }
+
+  /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is shown or not
+   * @param showEl
+   */
+  public void setShowEl(String showEl) {
+    this.showEl = showEl;
+  }
+
+  /**
    * 
    */
   public void processMetadata() {
@@ -183,6 +233,10 @@ public class ConfigItemMetadata {
     this.sampleValue = null;
     this.sensitive = false;
     this.valueType = null;
+    this.subSection = null;
+    this.showEl = null;
+    this.formElement = null;
+    this.optionValues = null;
     
     if (!StringUtils.isBlank(this.rawMetadataJson)) {
       
@@ -211,6 +265,7 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("required")) {
         this.required = jsonObject.getBoolean("required");
         jsonObject.remove("required");
+        
       }
       
       if (jsonObject.containsKey("requiresRestart")) {
@@ -221,6 +276,11 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("sampleValue")) {
         this.sampleValue = jsonObject.getString("sampleValue");
         jsonObject.remove("sampleValue");
+      }
+      
+      if (jsonObject.containsKey("subSection")) {
+        this.subSection = jsonObject.getString("subSection");
+        jsonObject.remove("subSection");
       }
       
       if (jsonObject.containsKey("sensitive")) {
@@ -237,6 +297,27 @@ public class ConfigItemMetadata {
         this.defaultValue = jsonObject.getString("defaultValue");
         jsonObject.remove("defaultValue");
       }
+      
+      if (jsonObject.containsKey("showEl")) {
+        this.showEl = jsonObject.getString("showEl");
+        jsonObject.remove("showEl");
+      }
+      
+      if (jsonObject.containsKey("formElement")) {
+        String formElementString = jsonObject.getString("formElement");
+        this.formElement = ConfigItemFormElement.valueOfIgnoreCase(formElementString, true);
+        jsonObject.remove("formElement");
+      }
+      
+      if (jsonObject.containsKey("optionValues")) {
+        JSONArray jsonArray = jsonObject.getJSONArray("optionValues");
+        this.optionValues = new String[jsonArray.size()];
+        for (int i=0;i<this.optionValues.length;i++) {
+          this.optionValues[i] = jsonArray.getString(i);
+        }
+        jsonObject.remove("optionValues");
+      }
+      
       
       if (jsonObject.keySet().size() > 0) {
         this.metadataError = "Extra keys from json (unexpected): " + GrouperUtil.join(jsonObject.keySet().iterator(), ", ");
@@ -283,6 +364,48 @@ public class ConfigItemMetadata {
    */
   public void setRequired(boolean required1) {
     this.required = required1;
+  }
+
+  /**
+   * if this is a drop down, these are the acceptable values
+   */
+  private String[] optionValues; 
+  
+  /**
+   * if this is a drop down, these are the acceptable values
+   * @return option values
+   */
+  public String[] getOptionValues() {
+    return optionValues;
+  }
+
+  /**
+   * if this is a drop down, these are the acceptable values
+   * @param optionValues
+   */
+  public void setOptionValues(String[] optionValues) {
+    this.optionValues = optionValues;
+  }
+
+  /**
+   * must be in ConfigItemFormElement enum
+   */
+  private ConfigItemFormElement formElement;
+
+  /**
+   * must be in ConfigItemFormElement enum
+   * @return config item form element
+   */
+  public ConfigItemFormElement getFormElement() {
+    return formElement;
+  }
+
+  /**
+   * must be in ConfigItemFormElement enum
+   * @param formElement1
+   */
+  public void setFormElement(ConfigItemFormElement formElement1) {
+    this.formElement = formElement1;
   }
 
   /**
@@ -482,7 +605,6 @@ public class ConfigItemMetadata {
   public void setMustImplementInterface(String mustImplementInterface1) {
     this.mustImplementInterface = mustImplementInterface1;
   }
-  
-  
+
   
 }

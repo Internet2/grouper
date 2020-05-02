@@ -258,19 +258,7 @@ public class LdaptiveSessionImpl implements LdapSession {
           
           result.setPruneStrategy(new IdlePruneStrategy(pruneTimerPeriod / 1000, expirationTime / 1000));
           
-          Validator<Connection> validator = null;
-
-          String ldapValidator = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".validator", "SearchValidator");
-
-          if (StringUtils.equalsIgnoreCase(ldapValidator, CompareValidator.class.getSimpleName())
-              || StringUtils.equalsIgnoreCase(ldapValidator, "CompareLdapValidator")) {
-            String validationDn = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareDn");
-            String validationAttribute = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareAttribute");
-            String validationValue = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareValue");
-            validator = new CompareValidator(new CompareRequest(validationDn, new LdapAttribute(validationAttribute, validationValue)));
-          } else if (StringUtils.equalsIgnoreCase(ldapValidator, SearchValidator.class.getSimpleName())) {
-            validator = new SearchValidator();
-          }
+          Validator<Connection> validator = retrieveValidator(ldapServerId);
           
           if (validator != null) {
             result.setValidator(validator);
@@ -292,6 +280,24 @@ public class LdaptiveSessionImpl implements LdapSession {
       }
     }
     return blockingLdapPool;
+  }
+
+  private static Validator<Connection> retrieveValidator(String ldapServerId) {
+    
+    Validator<Connection> validator = null;
+    
+    String ldapValidator = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".validator", "SearchValidator");
+
+    if (StringUtils.equalsIgnoreCase(ldapValidator, CompareValidator.class.getSimpleName())
+        || StringUtils.equalsIgnoreCase(ldapValidator, "CompareLdapValidator")) {
+      String validationDn = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareDn");
+      String validationAttribute = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareAttribute");
+      String validationValue = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareValue");
+      validator = new CompareValidator(new CompareRequest(validationDn, new LdapAttribute(validationAttribute, validationValue)));
+    } else if (StringUtils.equalsIgnoreCase(ldapValidator, SearchValidator.class.getSimpleName())) {
+      validator = new SearchValidator();
+    }
+    return validator;
   }
   
   private static Properties getLdaptiveProperties(String ldapSystemName) {
@@ -325,35 +331,33 @@ public class LdaptiveSessionImpl implements LdapSession {
         
         _ldaptiveProperties.put("org.ldaptive." + propNameTail, propValue);
 
-        // Some compatibility between old vtldap properties and ldaptive versions
-        // url (vtldap) ==> ldapUrl
         if (propNameTail.equalsIgnoreCase("url")) {
-          LOG.info("Setting org.ldaptive.ldapUrl for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.ldapUrl");
           _ldaptiveProperties.put("org.ldaptive.ldapUrl", propValue);
         }
         // tls (vtldap) ==> useStartTls
         if (propNameTail.equalsIgnoreCase("tls")) {
-          LOG.info("Setting org.ldaptive.useStartTLS for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.useStartTLS");
           _ldaptiveProperties.put("org.ldaptive.useStartTLS", propValue);
         }
         // user (vtldap) ==> bindDn
         if (propNameTail.equalsIgnoreCase("user")) {
-          LOG.info("Setting org.ldaptive.bindDn for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.bindDn");
           _ldaptiveProperties.put("org.ldaptive.bindDn", propValue);
         }
         // pass (vtldap) ==> bindCredential
         if (propNameTail.equalsIgnoreCase("pass")) {
-          LOG.info("Setting org.ldaptive.bindCredential for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.bindCredential");
           _ldaptiveProperties.put("org.ldaptive.bindCredential", propValue);
         }
         // countLimit (vtldap) ==> sizeLimit
         if (propNameTail.equalsIgnoreCase("countLimit")) {
-          LOG.info("Setting org.ldaptive.sizeLimit for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.sizeLimit");
           _ldaptiveProperties.put("org.ldaptive.sizeLimit", propValue);
         }
         // timeout (vtldap) ==> connectTimeout
         if (propNameTail.equalsIgnoreCase("timeout")) {
-          LOG.info("Setting org.ldaptive.connectTimeout for compatibility with vt-ldap");
+          LOG.info("Setting org.ldaptive.connectTimeout");
           _ldaptiveProperties.put("org.ldaptive.connectTimeout", propValue);
         }
       }
@@ -620,7 +624,7 @@ public class LdaptiveSessionImpl implements LdapSession {
    * @see edu.internet2.middleware.grouper.ldap.LdapSession#authenticate(java.lang.String, java.lang.String, java.lang.String)
    */
   public void authenticate(final String ldapServerId, final String userDn, final String password) {
-      
+          
       callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
@@ -994,5 +998,30 @@ public class LdaptiveSessionImpl implements LdapSession {
       GrouperUtil.injectInException(re, "Error modifying entry server id: " + ldapServerId + ", dn: " + dn);
       throw re;
     }
+  }
+
+  @Override
+  public boolean testConnection(final String ldapServerId) {
+    Validator<Connection> validator = retrieveValidator(ldapServerId);
+    boolean valid = false;
+    if (validator != null) {
+      valid = (Boolean)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
+
+        @Override
+        public Object callback(LdapHandlerBean<Connection> ldapHandlerBean)
+            throws Exception {
+          return validator.validate(ldapHandlerBean.getLdap());
+        }
+      });
+    }
+    // if not valid, maybe this will throw a useful exception
+    if (validator == null || !valid) {
+      String user = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".user");
+      String pass = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pass");
+      pass = Morph.decryptIfFile(pass);
+      authenticate(ldapServerId, user,
+          pass);
+    }
+    return valid;
   }
 }

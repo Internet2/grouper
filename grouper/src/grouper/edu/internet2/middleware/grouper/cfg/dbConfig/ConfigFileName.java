@@ -16,7 +16,11 @@
 
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperCacheConfig;
@@ -28,7 +32,6 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.config.SubjectConfig;
-
 
 /**
  *
@@ -123,6 +126,10 @@ public enum ConfigFileName {
     
   };
   
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(ConfigFileName.class);
+
   /**
    * 
    * @param args
@@ -141,14 +148,21 @@ public enum ConfigFileName {
     if (key == null) {
       return null;
     }
+    
+    ConfigItemMetadata result = null;
+
     for (ConfigFileName configFileName : ConfigFileName.values()) {
       
       ConfigItemMetadata configItemMetadata = configFileName.findConfigItemMetdataFromConfig(key);
       if (configItemMetadata != null) {
-        return configItemMetadata;
+        if (result == null) {
+          result = configItemMetadata;
+        } else {
+          LOG.error("Same config key or regex is in multiple files: " + configItemMetadata.getKeyOrSampleKey() + ", " + result.getKeyOrSampleKey());
+        }
       }
     }
-    return null;
+    return result;
   }
   
   /**
@@ -160,18 +174,35 @@ public enum ConfigFileName {
     if (key == null) {
       return null;
     }
+    ConfigItemMetadata result = null;
     ConfigFileMetadata configFileMetadata = this.configFileMetadata();
     for (ConfigSectionMetadata configSectionMetadata : configFileMetadata.getConfigSectionMetadataList()) {
       for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
         
-        if (StringUtils.equals(key, configItemMetadata.getKey())) {
+        boolean matchesRegex = false;
+        {
+          String regex = configItemMetadata.getRegex();
+          if (!StringUtils.isBlank(regex)) {
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(key);
+            if (matcher.matches()) {
+              matchesRegex = true;
+            }
+          }
+        }
+        boolean matchesKey = StringUtils.equals(key, configItemMetadata.getKey());
+
+        if (matchesKey || matchesRegex) {
           
-          return configItemMetadata;
-          
+          if (result == null) {
+            result = configItemMetadata;
+          } else {
+            LOG.error("Same config key or regex is in multiple files: " + configItemMetadata.getKeyOrSampleKey() + ", " + result.getKeyOrSampleKey());
+          }
         }
       }
     }
-    return null;
+    return result;
   }
   
   /**

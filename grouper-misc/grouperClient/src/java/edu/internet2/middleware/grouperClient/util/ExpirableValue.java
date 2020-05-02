@@ -42,10 +42,11 @@ public class ExpirableValue<T> implements Serializable {
    * @param theTimeToLiveInCacheMillis number of millis the items should stay in cache.
    * this cannot be longer than 1 day
    */
-  ExpirableValue(T theContent, long theTimeToLiveInCacheMillis) {
+  public ExpirableValue(T theContent, long theTimeToLiveInCacheMillis) {
     super();
     //cant be longer then the max
-    if (theTimeToLiveInCacheMillis <= ExpirableCache.MAX_TIME_TO_LIVE_MILLIS) {
+    if (theTimeToLiveInCacheMillis > 0 && 
+        theTimeToLiveInCacheMillis <= ExpirableCache.MAX_TIME_TO_LIVE_MILLIS) {
       this.timeToLiveInCacheMillis = theTimeToLiveInCacheMillis;
     }
     this.content = theContent;

@@ -27,6 +27,8 @@ import java.util.Random;
 import java.util.UUID;
 
 import edu.internet2.middleware.grouperClient.config.GrouperHibernateConfigClient;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Validate;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.morphString.Morph;
@@ -160,7 +162,11 @@ public class ConfigDatabaseLogic {
     
     // this is never null
     for (String key : configMap.keySet()) {
-      properties.put(key, configMap.get(key));
+      if (key == null) {
+        throw new RuntimeException("Why is key null???? " + mainConfigFileName);
+      }
+      String value = GrouperClientUtils.defaultString(configMap.get(key));
+      properties.put(key, value);
       
     }
     

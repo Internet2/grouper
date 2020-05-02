@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.app;
 
 import edu.internet2.middleware.grouper.app.attestation.AllAttestationTests;
 import edu.internet2.middleware.grouper.app.deprovisioning.AllDeprovisioningTests;
+import edu.internet2.middleware.grouper.app.externalSystem.AllExternalSystemTests;
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.AllLoaderTests;
 import edu.internet2.middleware.grouper.app.messaging.AllAppMessagingTests;
@@ -54,14 +55,14 @@ public class AllAppTests {
       suite.addTest(AllLoaderTests.suite());
     }
     
-    // TODO change to true in 2.5+
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tableSync", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tableSync", true)) {
       suite.addTest(AllTableSyncTests.suite());
     }
     
+    suite.addTest(AllAppMessagingTests.suite());
     suite.addTest(AllAttestationTests.suite());
     suite.addTest(AllDeprovisioningTests.suite());
-    suite.addTest(AllAppMessagingTests.suite());
+    suite.addTest(AllExternalSystemTests.suite());
     suite.addTest(AllProvisioningTests.suite());
     suite.addTest(AllReportsTests.suite());
     suite.addTest(AllServiceLifecycleTests.suite());

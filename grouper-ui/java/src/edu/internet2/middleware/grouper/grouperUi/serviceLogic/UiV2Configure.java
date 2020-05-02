@@ -22,14 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
-import edu.internet2.middleware.grouper.grouperUi.beans.config.ConfigUtils;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigFile;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigProperty;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigSection;
@@ -47,12 +45,10 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
-import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -384,12 +380,18 @@ public class UiV2Configure {
       
       
       final String configFileString = request.getParameter("configFile");
-  
+
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+
+      configurationContainer.setConfigFileName(configFileName);
+
       String propertyNameString = StringUtils.trim(request.getParameter("propertyNameName"));
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      String result = configurationFileItemDeleteHelper(configFileString, propertyNameString, true);
+      String result = DbConfigEngine.configurationFileItemDeleteHelper(configFileString, propertyNameString, true, true);
       
       if (!StringUtils.isBlank(result)) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
@@ -406,138 +408,25 @@ public class UiV2Configure {
   }
 
   /**
-   * @param configFileString
-   * @param propertyNameStringInput 
-   */
-  public static String configurationFileItemDeleteHelper(final String configFileString, final String propertyNameStringInput, final boolean fromUi) {
-    
-    boolean newlyAssignedUseStaticRequestContainer = false;
-    if (!fromUi) {
-      newlyAssignedUseStaticRequestContainer = GrouperRequestContainer.assignUseStaticRequestContainer(true);
-    }
-    try {
-  
-      final ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
-      final ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
-  
-      configurationContainer.setConfigFileName(configFileName);
-  
-      if (StringUtils.isBlank(configFileString)) {
-      
-        throw new RuntimeException("configFile is not being sent!");
-  
-      }
-  
-      String result = (String)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
-        
-        @Override
-        public Object callback(HibernateHandlerBean hibernateHandlerBean)
-            throws GrouperDAOException {
-  
-          if (StringUtils.isBlank(propertyNameStringInput)) {
-            throw new RuntimeException("Property name does not exist");
-          }
-          
-          String propertyNameString = GrouperUtil.stripSuffix(propertyNameStringInput, ".elConfig");
-          
-          Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(configFileName, null, propertyNameString);
-          Set<GrouperConfigHibernate> grouperConfigHibernatesEl = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString + ".elConfig");
-          
-          GrouperConfigHibernate grouperConfigHibernate = null;
-          GrouperConfigHibernate grouperConfigHibernateEl = null;
-          
-          for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernates)) {
-            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
-              if (grouperConfigHibernate != null) {
-                // why are there two???
-                LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
-                  + ", " + current.getConfigKey() + ", " + current.getConfigValue());
-                current.delete();
-                configurationFileItemDeleteHelper(current, configFileName, fromUi);
-              }
-              grouperConfigHibernate = current;
-            }
-          }
-          
-          for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernatesEl)) {
-            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
-              if (grouperConfigHibernate != null) {
-                // why are there two???
-                LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
-                  + ", " + current.getConfigKey() + ", " + current.getConfigValue());
-                current.delete();
-              }
-              grouperConfigHibernateEl = current;
-            }
-          }
-          boolean deleted = false;
-          if (grouperConfigHibernate != null) {
-            configurationContainer.setCurrentConfigPropertyName(grouperConfigHibernate.getConfigKey());
-            configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi);
-            deleted = true;
-          }
-          if (grouperConfigHibernateEl != null) {
-            if (StringUtils.isBlank(configurationContainer.getCurrentConfigPropertyName())) {
-              configurationContainer.setCurrentConfigPropertyName(GrouperUtil.stripSuffix(grouperConfigHibernateEl.getConfigKey(), ".elConfig"));
-            }
-            configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName, fromUi);
-            deleted = true;
-          }
-          if (!deleted) {
-            return TextContainer.retrieveFromRequest().getText().get("configurationFilesDeletedNotChanged");
-          }
-          return null;
-        }
-      });
-      
-      ConfigPropertiesCascadeBase.clearCache();
-      return result;
-    } finally {
-      if (newlyAssignedUseStaticRequestContainer) {
-        GrouperRequestContainer.assignUseStaticRequestContainer(false);
-      }
-    }
-
-  }
-
-  /**
    * configuration file item delete helper
    * @param grouperConfigHibernate
    * @param configFileName 
    */
-  private static void configurationFileItemDeleteHelper(GrouperConfigHibernate grouperConfigHibernate, 
+  public static void configurationFileItemDeleteHelper(GrouperConfigHibernate grouperConfigHibernate, 
       ConfigFileName configFileName, boolean fromUi) {
-
-    // see if we are creating a new one
-    if (grouperConfigHibernate == null) {
-      return;
-    }
-
-    grouperConfigHibernate.delete();
+  
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
     
-    boolean isValueEncrypted = ConfigUtils.isPassword(configFileName, null, grouperConfigHibernate.getConfigKey(), 
-        grouperConfigHibernate.getConfigValueDb(), true, grouperConfigHibernate.isConfigEncrypted());
+    configurationContainer.setConfigFileName(configFileName);
 
-    String valueForAudit = isValueEncrypted ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
-
-    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CONFIGURATION_DELETE, "id", 
-        grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
-        "key", grouperConfigHibernate.getConfigKey(), "previousValue", 
-        valueForAudit, 
-            "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
-    auditEntry.setDescription("Delete config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
-      + ", " + grouperConfigHibernate.getConfigKey() + " = " + valueForAudit);
-    auditEntry.saveOrUpdate(true);
-
-    final String message = TextContainer.retrieveFromRequest().getText().get("configurationFilesDeleted");
-    if (fromUi) {
+    String message = DbConfigEngine.configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi);
+    if (!StringUtils.isBlank(message) && fromUi) {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-          
+      
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           message));
-    } else {
-      System.out.println(message);
-    }
+  
+    }              
   }
   
   /**
@@ -946,157 +835,32 @@ public class UiV2Configure {
   public static boolean configurationFileAddEditHelper2(String configFileString, String propertyNameString,
       String expressionLanguageString, String valueString, Boolean userSelectedPassword,
       StringBuilder message, Boolean[] added, Boolean[] error, boolean fromUi, String comment) {
-    
-    GuiResponseJs guiResponseJs = fromUi ? GuiResponseJs.retrieveGuiResponseJs() : null;
-    boolean newlyAssignedUseStaticRequestContainer = false;
-    if (!fromUi) {
-      newlyAssignedUseStaticRequestContainer = GrouperRequestContainer.assignUseStaticRequestContainer(true);
-    }
-    try {
-      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
-  
-      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
-      configurationContainer.setConfigFileName(configFileName);
-      
-      // if not sent, thats a problem
-      if (StringUtils.isBlank(configFileString)) {
-        final String errorMessage = TextContainer.retrieveFromRequest().getText().get("configurationFileRequired");
-        if (fromUi) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#configFileSelect", 
-              errorMessage));
-        } else {
-          System.out.println(errorMessage);
-        }
-        return false;
-      }
-      
-      if (StringUtils.isBlank(propertyNameString)) {
-        final String errorMessage = TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyNameRequired");
-        if (fromUi) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#propertyNameId", 
-              errorMessage));
-        } else {
-          System.out.println(errorMessage);
-        }
-        return false;
-      }
-      
-      if (StringUtils.isBlank(expressionLanguageString)) {
-        throw new RuntimeException("Expression language should never be null!");
-      }
-      boolean isExpressionLanguage = GrouperUtil.booleanValue(expressionLanguageString);
-  
-      if (propertyNameString.endsWith(".elConfig") && !isExpressionLanguage) {
-        
-        final String errorMessage = TextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyNameElConfig");
-        if (fromUi) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#propertyNameId", 
-              errorMessage));
-        } else {
-          System.out.println(errorMessage);
-        }
-        return false;
-      }
-      
-      valueString = valueString == null ? null : StringUtils.trim(valueString);
-  
-      String propertyNameToUse = (isExpressionLanguage && !propertyNameString.endsWith(".elConfig")) ? (propertyNameString + ".elConfig") : propertyNameString;
-      
-      configurationContainer.setCurrentConfigPropertyName(propertyNameToUse);
-      
-      GrouperConfigHibernate[] grouperConfigHibernateToReturn = new GrouperConfigHibernate[1];
-  
-      // standard validation
-      if (!ConfigUtils.validateConfigEdit(configurationContainer, configFileName, propertyNameString, 
-          valueString, isExpressionLanguage, message, grouperConfigHibernateToReturn)) {
-        
-        if (fromUi) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message.toString()));
-        } else {
-          System.out.println(message.toString());
-        }
-        
-        error[0] = true;
-        
-        return false;
-      }
-      
-      GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateToReturn[0];
-  
-      boolean isPassword = ConfigUtils.isPassword(configFileName, null, propertyNameString, valueString, true, userSelectedPassword);
-      
-      boolean isAlreadyEncrypted = false;
-      if (!StringUtils.isBlank(valueString)) {
-        try {
-          Morph.decrypt(valueString);
-          isAlreadyEncrypted = true;
-        } catch (Exception e) {
-          // ignore
-        }
-      }
-      
-      if (isPassword || isAlreadyEncrypted) {
-        if (!isAlreadyEncrypted) {
-          valueString = Morph.encrypt(valueString);
-        }
-      }
-  
-      // see if we are creating a new one
-      if (grouperConfigHibernate == null) {
-        grouperConfigHibernate = new GrouperConfigHibernate();
-        added[0] = true;
-      } else {
-        
-        if (StringUtils.equals(valueString, grouperConfigHibernate.getConfigValueDb())) {
-          added[0] = null;
-        } else {
-          added[0] = false;
-        }
-      }
-  
-      grouperConfigHibernate.setConfigEncrypted(isPassword || isAlreadyEncrypted);
-      grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
-      grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
-      // this will switch to or from .elConfig
-      grouperConfigHibernate.setConfigKey(propertyNameToUse);
-      
-  //    grouperConfigHibernate.setConfigComment(comment);
-      
-      grouperConfigHibernate.setConfigValue(valueString);
-      if (added[0] != null) {
-        grouperConfigHibernate.saveOrUpdate();
-      }
-      
-      if (added[0] == null) {
-        message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesEditedNotChanged")).append(fromUi ? "<br />" : "\n");
-      } else if (added[0]) {
-        message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesAdded")).append(fromUi ? "<br />" : "\n");
-      } else {
-        message.append(TextContainer.retrieveFromRequest().getText().get("configurationFilesEdited")).append(fromUi ? "<br />" : "\n");
-      }
-  
-      String valueForAudit = grouperConfigHibernate.isConfigEncrypted() ? GuiConfigProperty.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
-      if (added[0] != null) {
-  
-        AuditTypeBuiltin auditTypeBuiltin = added[0] ? AuditTypeBuiltin.CONFIGURATION_ADD : AuditTypeBuiltin.CONFIGURATION_UPDATE;
-        
-        AuditEntry auditEntry = new AuditEntry(auditTypeBuiltin, "id", 
-            grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
-            "key", grouperConfigHibernate.getConfigKey(), "value", 
-            valueForAudit, "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
-        
-        auditEntry.setDescription((added[0] ? "Add" : "Update") + " config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
-          + ", " + grouperConfigHibernate.getConfigKey() + " = " + valueForAudit);
-        auditEntry.saveOrUpdate(true);
-      }
-    } finally {
-      if (newlyAssignedUseStaticRequestContainer) {
-        GrouperRequestContainer.assignUseStaticRequestContainer(false);
-      }
-    }
-    return true;
 
-  }
+    GuiResponseJs guiResponseJs = fromUi ? GuiResponseJs.retrieveGuiResponseJs() : null;
+    
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+    
+    ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+    configurationContainer.setConfigFileName(configFileName);
+
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new LinkedHashMap<String, String>();
+    
+    boolean result = DbConfigEngine.configurationFileAddEditHelper2(configFileString, propertyNameString, 
+        expressionLanguageString, valueString, userSelectedPassword, message, added, error, 
+        fromUi, comment, errorsToDisplay, validationErrorsToDisplay, true);
+    
+    if (fromUi) {
+      for (String errorToDisplay: errorsToDisplay) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+      }
+      for (String validationKey: validationErrorsToDisplay.keySet()) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+            validationErrorsToDisplay.get(validationKey)));
+      }
+    }
+    return result;
+  } 
 
   /**
    * 
@@ -1206,6 +970,7 @@ public class UiV2Configure {
           guiConfigSection.setGuiConfigProperties(guiConfigProperties);
           ConfigSectionMetadata configSectionMetadata = new ConfigSectionMetadata();
           guiConfigSection.setConfigSectionMetadata(configSectionMetadata);
+          //TODO externalize
           configSectionMetadata.setTitle("Remaining config");
           configSectionMetadata.setComment("Any configuration not in another section");
           addedRemainingConfigSection = true;
