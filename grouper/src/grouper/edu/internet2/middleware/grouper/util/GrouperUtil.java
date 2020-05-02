@@ -12292,7 +12292,7 @@ public class GrouperUtil {
     for (File subFile : subFiles) {
       if (subFile.isDirectory()) {
         fileList.add(subFile);
-        fileListRecursiveHelper(subFile, fileList);
+        fileListRecursiveDirsHelper(subFile, fileList);
       }
     }
   }
