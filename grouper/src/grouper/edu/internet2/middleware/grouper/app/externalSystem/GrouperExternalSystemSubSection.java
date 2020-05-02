@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.externalSystem;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -7,11 +8,19 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 
+/**
+ * grouper external subsection. One to many relationship between external system and subsection 
+ */
 public class GrouperExternalSystemSubSection {
 
-  
+  /**
+   * label to display for the subsection
+   */
   private String label;
   
+  /**
+   * grouper external system this subsection is child of 
+   */
   private GrouperExternalSystem grouperExternalSystem;
   
   public String getLabel() {
@@ -66,6 +75,14 @@ public class GrouperExternalSystemSubSection {
       }
     }
     return results;
+  }
+  
+  /**
+   * get list of attributes for this subsection
+   * @return
+   */
+  public Collection<GrouperExternalSystemAttribute> getAttributesValues() {
+    return this.getAttributes().values();
   }
   
 }

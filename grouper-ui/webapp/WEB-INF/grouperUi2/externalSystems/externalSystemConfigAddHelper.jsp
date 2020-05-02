@@ -37,6 +37,40 @@
     </td>
   </tr>
   
-  <c:if test="${!grouper:isBlank(grouperRequestContainer.externalSystemContainer.html)}">
-  	${grouperRequestContainer.externalSystemContainer.html}
-  </c:if>
+  <c:forEach items="${guiGrouperExternalSystem.grouperExternalSystem.subSections}" var="subSection">
+  		<tbody>
+  			<c:if test="${!grouper:isBlank(subSection.label)}">
+	  			<tr>
+	  				<th colspan="3">
+	  					<h4>${subSection.title}</h4>
+	  					<p style="font-weight: normal;">${subSection.description} </p>
+	  				</th>
+	  			</tr>
+  			
+  			</c:if>
+  			
+  			<c:forEach items="${subSection.attributesValues}" var="attribute">
+  				
+  				<grouper:configFormElement 
+  					formElementType="${attribute.formElement}" 
+  					configId="${attribute.configSuffix}" label="${attribute.label}"
+  					helperText="${attribute.description}"
+  					helperTextDefaultValue="${attribute.defaultValue}"
+  					required="${attribute.required}"
+  					shouldShow="${attribute.show}"
+  					value="${attribute.valueOrExpressionEvaluation}"
+  					hasExpressionLanguage="${attribute.expressionLanguage}"
+  					ajaxCallback="ajax('../app/UiV2ExternalSystem.addExternalSystem?externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}', {formIds: 'externalSystemConfigDetails'}); return false;"
+  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
+  				/>
+  				
+  			</c:forEach>
+  			
+  		</tbody>
+  
+  </c:forEach>
+  
+  
+  
+  
+  

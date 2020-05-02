@@ -187,6 +187,121 @@
 
   </tag>
 
+  <tag>
+    <description>
+      Config form element
+    </description>
+    <name>configFormElement</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.ConfigFormElement
+    </tag-class>
+    <body-content>empty</body-content>
+    
+    <attribute>
+      <description>
+      	Config id for the element. It is used to generate name and id on the html field.  
+      </description>
+      <name>configId</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+       value to render inside the html field.
+        </description>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+        Default value to append to the helper text.
+        </description>
+      <name>helperTextDefaultValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	Is the field required  
+      </description>
+      <name>required</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	Should the field be shown? default is true.
+      </description>
+      <name>shouldShow</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	Is the value of type expression language. Default is false.
+      </description>
+      <name>hasExpressionLanguage</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	helper text that shows under the html element
+      </description>
+      <name>helperText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	Label for the field
+      </description>
+      <name>label</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+       Standard form element type from enum ConfigItemFormElement
+        </description>
+      <name>formElementType</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+        list of multikeys for dropdown
+        </description>
+      <name>valuesAndLabels</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+        ajax callback (on a dropdown)
+        </description>
+      <name>ajaxCallback</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+ 
+  </tag>
+
+
+
+
+
+
   
   <tag>
     <description>

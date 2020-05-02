@@ -29,7 +29,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
   public static void main(String[] args) {
     
 //    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzure"));
-    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzureInsertEditDelete"));
+    TestRunner.run(new GrouperExternalSystemTest("testValidatePreSaveInvalidId"));
   }
   
   /**
@@ -247,5 +247,73 @@ public class GrouperExternalSystemTest extends GrouperTest {
     assertFalse(grouperExternalSystemAzure.retrieveConfigurationConfigIds().contains("azureConnector2"));
 
   }
+  
+  public void testChangeStatus() {
+    
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    
+    Map<String, GrouperExternalSystemAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
 
+    suffixToAttribute.get("enabled").setValue("false");
+        
+    grouperExternalSystemAzure.changeStatus(true, new StringBuilder(), new ArrayList<String>(), new HashMap<String, String>());
+    
+    grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    
+    assertEquals("true", suffixToAttribute.get("enabled").getValue());
+    
+    grouperExternalSystemAzure.changeStatus(false, new StringBuilder(), new ArrayList<String>(), new HashMap<String, String>());
+    
+    grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    
+    assertEquals("false", suffixToAttribute.get("enabled").getValue());
+    
+  }
+  
+  public void testIsEnabled() {
+    
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    
+    Map<String, GrouperExternalSystemAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+
+    suffixToAttribute.get("enabled").setValue("true");
+    
+    assertTrue(grouperExternalSystemAzure.isEnabled());
+    
+    grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    
+    suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+
+    suffixToAttribute.get("enabled").setValue("false");
+    
+    assertFalse(grouperExternalSystemAzure.isEnabled());
+    
+  }
+  
+  
+  public void testValidatePreSaveInvalidId() {
+    
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("!#$@#$!#");
+    
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    grouperExternalSystemAzure.validatePreSave(false, true, errorsToDisplay, validationErrorsToDisplay);
+    
+    assertTrue(validationErrorsToDisplay.containsKey("#externalSystemConfigId"));
+    
+  }
+  
 }

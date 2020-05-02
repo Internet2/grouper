@@ -124,8 +124,6 @@ public class UiV2ExternalSystem {
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
       }
       
-      externalSystemContainer.setHtml(grouperExternalSystem.getHtml("editExternalSystemConfigDetails"));
-      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/externalSystems/editExternalSystemConfigDetails.jsp"));
       
@@ -251,11 +249,10 @@ public class UiV2ExternalSystem {
               "#externalSystemConfigId",
               TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemCreateErrorConfigIdRequired")));
           return;
-        } else {
-          grouperExternalSystem.setConfigId(externalSystemConfigId);
-          populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
-          externalSystemContainer.setHtml(grouperExternalSystem.getHtml("addExternalSystem"));
         }
+        
+        grouperExternalSystem.setConfigId(externalSystemConfigId);
+        populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
         
         GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
