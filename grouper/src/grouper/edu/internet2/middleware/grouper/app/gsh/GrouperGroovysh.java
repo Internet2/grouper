@@ -28,6 +28,7 @@ import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.Interpreter;
 import org.codehaus.groovy.tools.shell.Main;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import groovy.lang.MissingPropertyException;
 
@@ -97,7 +98,8 @@ public class GrouperGroovysh extends Groovysh {
   }
   
   /**
-   * run a script and return the result.  Note, check for exception and rethrow
+   * run a script and return the result.  Note, check for exception and rethrow.
+   * Note this uses
    * @param script
    * @return the result
    */
@@ -121,7 +123,8 @@ public class GrouperGroovysh extends Groovysh {
       compilerConfiguration.setTolerance(0);
 //      Logger.io = io;
       compilerConfiguration.setParameters(false);
-      shell = new GrouperGroovysh(io, compilerConfiguration, true);
+      boolean exitOnError = GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnProgrammaticError", true);
+      shell = new GrouperGroovysh(io, compilerConfiguration, exitOnError);
       StringBuilder body = new StringBuilder(script);
       body.insert(0, ":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'\n");
       body.append("\n:exit");
