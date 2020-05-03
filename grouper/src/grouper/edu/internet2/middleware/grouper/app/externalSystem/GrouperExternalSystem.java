@@ -452,28 +452,31 @@ public abstract class GrouperExternalSystem {
       if (StringUtils.isBlank(configId)) {
         throw new RuntimeException("Why is configId blank??? " + this.getClass().getName());
       }
-      String suffix = matcher.group(3);
-      if (suffix.startsWith("extra.")) {
-        
-        GrouperExternalSystemAttribute grouperExternalSystemAttribute = new GrouperExternalSystemAttribute();
-
-        grouperExternalSystemAttribute.setFullPropertyName(propertyName);
-        grouperExternalSystemAttribute.setGrouperExternalSystem(this);
-        
-        String configSuffix = suffix.substring(6);
-        
-        result.put(configSuffix, grouperExternalSystemAttribute);
-        
-        grouperExternalSystemAttribute.setConfigSuffix(configSuffix);
-
-        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
-        configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
-        configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
-        grouperExternalSystemAttribute.setConfigItemMetadata(configItemMetadata);
-        grouperExternalSystemAttribute.setType(configItemMetadata.getValueType());
-        grouperExternalSystemAttribute.setFormElement(ConfigItemFormElement.TEXT);
-        grouperExternalSystemAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+      
+      String configIdFromProperty = matcher.group(2);
+      
+      if (!StringUtils.equals(configId, configIdFromProperty)) {
+        continue;
       }
+      
+      String suffix = matcher.group(3);
+      
+      GrouperExternalSystemAttribute grouperExternalSystemAttribute = new GrouperExternalSystemAttribute();
+
+      grouperExternalSystemAttribute.setFullPropertyName(propertyName);
+      grouperExternalSystemAttribute.setGrouperExternalSystem(this);
+      
+      result.put(suffix, grouperExternalSystemAttribute);
+      
+      grouperExternalSystemAttribute.setConfigSuffix(suffix);
+
+      ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+      configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
+      configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
+      grouperExternalSystemAttribute.setConfigItemMetadata(configItemMetadata);
+      grouperExternalSystemAttribute.setType(configItemMetadata.getValueType());
+      grouperExternalSystemAttribute.setFormElement(ConfigItemFormElement.TEXT);
+      grouperExternalSystemAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
       
     }
     

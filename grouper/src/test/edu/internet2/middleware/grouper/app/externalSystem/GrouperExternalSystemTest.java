@@ -29,7 +29,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
   public static void main(String[] args) {
     
 //    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzure"));
-    TestRunner.run(new GrouperExternalSystemTest("testValidatePreSaveInvalidId"));
+    TestRunner.run(new GrouperExternalSystemTest("testRetrieveExtraAttributes"));
   }
   
   /**
@@ -313,6 +313,19 @@ public class GrouperExternalSystemTest extends GrouperTest {
     grouperExternalSystemAzure.validatePreSave(false, true, errorsToDisplay, validationErrorsToDisplay);
     
     assertTrue(validationErrorsToDisplay.containsKey("#externalSystemConfigId"));
+    
+  }
+  
+  public void testRetrieveExtraAttributes() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.azureConnector.testAzure.customProperty", "custom value");
+    
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("testAzure");
+    
+    Map<String, GrouperExternalSystemAttribute> grouperExternalSystemAttributes = grouperExternalSystemAzure.retrieveAttributes();
+    
+    assertEquals("custom value", grouperExternalSystemAttributes.get("customProperty").getValue());
     
   }
   

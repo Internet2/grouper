@@ -23,15 +23,6 @@
      <div class="row-fluid">
 	  <div class="span12">
 	   <div id="messages"></div>
-	  	
-	  	<%-- <c:if test="${fn:length(grouperRequestContainer.externalSystemContainer.errors) > 0}">
-           <div class="externalSystemErrors alert alert-error">
-            <button type="button" class="close" data-dismiss="alert">x</button>
-            <c:forEach var="error" items="${grouperRequestContainer.externalSystemContainer.errors}">
-             <div>${error}</div>
-            </c:forEach>
-           </div>
-         </c:if> --%>
          
          <form class="form-inline form-small form-filter" id="externalSystemConfigDetails">
             <table class="table table-condensed table-striped">
