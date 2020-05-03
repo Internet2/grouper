@@ -580,7 +580,7 @@ public class GrouperInstaller {
     
     
     GrouperInstaller grouperInstaller = new GrouperInstaller();
-    
+
 //    File tommeDir = new File("/Users/vsachdeva/git/i2-grouper-new/grouper/grouper-misc/grouper-installer/container/tomee");
 //    File serverXmlFile = new File(tommeDir.getAbsolutePath()
 //        + File.separator + "conf" + File.separator + "server.xml");
@@ -15274,7 +15274,47 @@ public class GrouperInstaller {
     
   }
 
-  
+  private static String removeElConfigFromPropertiesFile(String fileContents, String propertyName) {
+    
+    if (propertyName.endsWith(".elConfig")) {
+      return fileContents;
+    }
+
+    String elConfigPropertyName = propertyName + ".elConfig";
+    
+    //lets look for property in file
+    //this is a newline or form feed then some optional whitespace, and the property name
+    //then some optional whitespace then an equals, then optional whitespace, then some text
+    String elConfigPropertyNameRegex = GrouperInstallerUtils.replace(elConfigPropertyName, ".", "\\.");
+    String regex = "[\\n\\r][ \\t]*(" + elConfigPropertyNameRegex + "[ \\t]*=[ \\t]*[^\\n\\r]*)";
+    Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+    Matcher matcher = pattern.matcher(fileContents);
+
+    if (matcher.find()) {
+      String previousValue = matcher.group(1);
+            
+      int startIndex = matcher.start(1);
+      
+      int endIndex = matcher.end(1);
+      
+      String newContents = fileContents.substring(0, startIndex);
+      
+      //if not the last char
+      if (endIndex < fileContents.length()-1) {
+        newContents += fileContents.substring(endIndex, fileContents.length());
+      }
+
+      //if there is another match, there is a problem
+      if (matcher.find()) {
+        throw new RuntimeException("Why are there multiple matches for " + propertyName + " in propertyFile??????");
+      }
+
+      System.out.println(" - removed property: " 
+          + elConfigPropertyName);
+      return newContents;
+    }
+    return fileContents;
+  }
   /**
    * edit a property in a property file
    * @param file
@@ -15338,6 +15378,9 @@ public class GrouperInstaller {
 
       System.out.println(" - set property: " 
           + propertyName + " from: " + previousValue + " to: " + propertyValue);
+      
+      newContents = removeElConfigFromPropertiesFile(fileContents, newContents);
+      
       GrouperInstallerUtils.writeStringToFile(file, newContents);
       return;
     }
@@ -15369,6 +15412,9 @@ public class GrouperInstaller {
       }
       System.out.println(" - uncommented property: " 
           + propertyName + " from: " + previousValue + " to: " + propertyValue);
+      
+      newContents = removeElConfigFromPropertiesFile(fileContents, newContents);
+
       GrouperInstallerUtils.writeStringToFile(file, newContents);
       
       return;
@@ -15378,6 +15424,9 @@ public class GrouperInstaller {
     //add a newline..
     //add to end in case it was already there, now it will be overwritten
     String newContents = fileContents + newline + "# added by grouper-installer" + newline + propertyName + " = " + propertyValue + newline;
+    
+    newContents = removeElConfigFromPropertiesFile(newContents, propertyName);
+
     GrouperInstallerUtils.writeStringToFile(file, newContents);
 
     System.out.println(" - added to end of property file: " + propertyName + " = " + propertyValue);
