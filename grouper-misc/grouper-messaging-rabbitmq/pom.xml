@@ -44,6 +44,7 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>grouper</artifactId>
         <version>${project.version}</version>
+        <scope>provided</scope>
     </dependency>
 
     <dependency>

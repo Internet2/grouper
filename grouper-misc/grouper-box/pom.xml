@@ -34,6 +34,14 @@
     <packaging>jar</packaging>
 
     <dependencies>
+    
+        <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>grouper</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    
         <dependency>
             <groupId>com.box</groupId>
             <artifactId>box-java-sdk</artifactId>
