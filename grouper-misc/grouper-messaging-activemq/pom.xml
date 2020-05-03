@@ -38,7 +38,7 @@
  
   <dependencies>
   
-      <dependency>
+    <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>grouper</artifactId>
         <version>${project.version}</version>
@@ -50,19 +50,7 @@
 	    <artifactId>xercesImpl</artifactId>
 	    <version>2.10.0</version>
 	</dependency>
-  	
-    <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>grouperClient</artifactId>
-        <version>${project.version}</version>
-        <exclusions>
-            <exclusion>
-                <groupId>xalan</groupId>
-                <artifactId>xalan</artifactId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    
+
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jms_1.1_spec</artifactId>

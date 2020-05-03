@@ -36,12 +36,11 @@
     <dependencies>
     
         <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>grouper</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-    </dependency>
-    
+            <groupId>${project.groupId}</groupId>
+            <artifactId>grouper</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.box</groupId>
             <artifactId>box-java-sdk</artifactId>
@@ -51,11 +50,6 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>${commons.logging.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>grouper</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
