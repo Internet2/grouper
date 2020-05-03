@@ -51,6 +51,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -67,6 +68,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -449,6 +451,53 @@ public class UiV2Admin extends UiServiceLogicBase {
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
+  }
+  
+  /**
+   * show screen to add a new daemon 
+   * @param request
+   * @param response
+   */
+  public void addDaemon(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+    
+      //TODO add some sort of authorization
+      
+      String daemonConfigType = request.getParameter("daemonConfigType");
+      
+      if (StringUtils.isNotBlank(daemonConfigType)) {
+        
+        if (!GrouperDaemonConfiguration.grouperDaemonConfigClassNames.contains(daemonConfigType)) {            
+          throw new RuntimeException("Invalid daemonConfigType "+daemonConfigType);
+        }
+
+        Class<GrouperDaemonConfiguration> klass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(daemonConfigType);
+        GrouperDaemonConfiguration grouperDaemonConfiguration = (GrouperDaemonConfiguration) GrouperUtil.newInstance(klass);
+        
+        // populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+        
+        GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration = GuiGrouperDaemonConfiguration.convertFromGrouperDaemonConfiguration(grouperDaemonConfiguration);
+        adminContainer.setGuiGrouperDaemonConfiguration(guiGrouperDaemonConfiguration);
+        
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobAdd.jsp"));
+      
+      } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    
   }
 
   public void jobHistoryChart(HttpServletRequest request, HttpServletResponse response) {
