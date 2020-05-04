@@ -2660,6 +2660,14 @@ public class GcDbAccess {
     if (grouperIsStarted) {
       return connectionGetFromPool(connectionName, url);
     }
+    try {
+      
+      // try anyways?
+      return connectionGetFromPool(connectionName, url);
+      
+    } catch (Exception e) {
+      // ignore
+    }
     return connectionCreateNew(connectionName, url);
   }
 
