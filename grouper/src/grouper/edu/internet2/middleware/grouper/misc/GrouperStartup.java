@@ -327,6 +327,13 @@ public class GrouperStartup {
         if (started) {
           return false;
         }
+        {
+          int delaySeconds = GrouperHibernateConfig.retrieveConfig().propertyValueInt("grouper.start.delay.seconds", 0);
+          if (delaySeconds > 0) {
+            LOG.error("Delaying start by " + delaySeconds + " seconds");
+            GrouperUtil.sleep(GrouperUtil.intValue(delaySeconds) * 1000);
+          }
+        }
         GcDbAccess.setGrouperIsStarted(false);
         started = true;
         finishedStartupSuccessfully = false;
