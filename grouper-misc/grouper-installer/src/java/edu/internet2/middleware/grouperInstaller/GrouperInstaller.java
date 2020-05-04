@@ -14216,8 +14216,12 @@ public class GrouperInstaller {
       
       GrouperInstallerUtils.createParentDirectories(tomeeGrouperFile);
       GrouperInstallerUtils.fileCreate(tomeeGrouperFile);
-      
-      String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/" + path + "\" reloadable=\"false\">\n" + 
+      String cookiesFalse = "";
+      if ("grouper-ws".equals(path) || "grouper-ws-scim".equals(path)) {
+        cookiesFalse = " cookies=\"false\" ";
+      }
+      String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/" + path + "\" reloadable=\"false\"" 
+            + cookiesFalse + ">\n" + 
           "<Resources allowLinking=\"true\" />\n" + 
           "</Context>";
     
