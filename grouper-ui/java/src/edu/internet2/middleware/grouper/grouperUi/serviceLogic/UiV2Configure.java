@@ -100,7 +100,7 @@ public class UiV2Configure {
         return false;
       }
       
-      String networks = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.configurationEditor.sourceIpAddresses");
+      String networks = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.configurationEditor.sourceIpAddresses", "127.0.0.1/32");
 
       if (debugMap != null) {
         debugMap.put("allowFromNetworks", networks);
