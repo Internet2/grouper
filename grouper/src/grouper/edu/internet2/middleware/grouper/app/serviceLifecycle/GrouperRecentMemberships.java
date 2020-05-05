@@ -168,9 +168,6 @@ public class GrouperRecentMemberships {
       }
     }
     
-    if (hasChange) {
-      GrouperLoaderType.scheduleLoads();
-    }
   }
 
   /** logger */
