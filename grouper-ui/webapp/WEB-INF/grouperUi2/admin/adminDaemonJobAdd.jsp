@@ -48,6 +48,22 @@
 					      <span class="description">${textContainer.text['grouperDaemonTypeHint']}</span>
                       </td>
                     </tr>
+                    
+                    <c:forEach items="${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configAttributes}" var="attribute">
+  				
+		  				<grouper:configFormElement 
+		  					formElementType="${attribute.formElement}" 
+		  					configId="${attribute.configSuffix}" label="${attribute.label}"
+		  					helperText="${attribute.description}"
+		  					helperTextDefaultValue="${attribute.defaultValue}"
+		  					required="${attribute.required}"
+		  					shouldShow="true"
+		  					value="${attribute.value}"
+		  					hasExpressionLanguage="false"
+		  					ajaxCallback="ajax('../app/UiV2ExternalSystem.addExternalSystem?externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}', {formIds: 'externalSystemConfigDetails'}); return false;"
+		  				/>
+		  				
+		  			</c:forEach>
 
                     <tr>
                       <td></td>

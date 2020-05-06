@@ -28,8 +28,10 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import bsh.Interpreter;
-
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonFindBadMembershipsConfiguration;
+import edu.internet2.middleware.grouper.app.daemon.HasGrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -41,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author shilen
  */
 @DisallowConcurrentExecution
-public class FindBadMembershipsDaemon implements Job {
+public class FindBadMembershipsDaemon implements Job, HasGrouperDaemonConfiguration {
   
   private static final Log LOG = GrouperUtil.getLog(FindBadMembershipsDaemon.class);
   
@@ -168,4 +170,11 @@ public class FindBadMembershipsDaemon implements Job {
       }
     }
   }
+
+  @Override
+  public GrouperDaemonConfiguration getGrouperDaemonConfiguration() {
+    return new GrouperDaemonFindBadMembershipsConfiguration();
+  }
+  
+  
 }
