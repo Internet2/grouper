@@ -70,7 +70,7 @@ public class TestGroupType extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupType("testDelete_FieldsDeletedWhenGroupTypeIsDeleted"));
+    TestRunner.run(new TestGroupType("testFindAllTypes"));
   }
   
   // Private Static Class Constants
@@ -82,8 +82,9 @@ public class TestGroupType extends GrouperTest {
 
   public void testFindAllTypes() {
     LOG.info("testFindAllTypes");
-    Set types = GroupTypeFinder.findAll();    
-    T.amount("public group types", 0, types.size());
+    Set<GroupType> types = GroupTypeFinder.findAll();  
+    T.amount("public group types", 1, types.size());
+    assertEquals("grouperLoader", types.iterator().next().getName());
   } // public void testFindAllTypes()
 
   public void testAddAndDeleteCustomTypeAsNonRoot() {
