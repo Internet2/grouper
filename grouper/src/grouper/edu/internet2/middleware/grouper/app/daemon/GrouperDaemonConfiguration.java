@@ -12,12 +12,15 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystemAttribute;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 public abstract class GrouperDaemonConfiguration {
   
@@ -25,6 +28,10 @@ public abstract class GrouperDaemonConfiguration {
    * config id of the daemon
    */
   private String configId;
+  /**
+   * call retrieveAttributes() to get this
+   */
+  private Map<String, GrouperDaemonConfigAttribute> attributeCache = null;
   
   
   public String getConfigId() {
@@ -43,11 +50,11 @@ public abstract class GrouperDaemonConfiguration {
   
   public abstract boolean isMultiple();
   
-  public String getProperySuffixThatIdentifiesThisDaemon() {
+  public String getPropertySuffixThatIdentifiesThisDaemon() {
     return null;
   }
   
-  public String getProperyValueThatIdentifiesThisDaemon() {
+  public String getPropertyValueThatIdentifiesThisDaemon() {
     return null;
   }
   
@@ -101,7 +108,7 @@ public abstract class GrouperDaemonConfiguration {
   }
   
   
-  public Map<String, GrouperDaemonConfigAttribute> retrieveAttributesForEdit(String configId) { 
+  public Map<String, GrouperDaemonConfigAttribute> retrieveAttributes() { 
     
     
     ConfigFileName configFileName = this.getConfigFileName();
@@ -117,6 +124,61 @@ public abstract class GrouperDaemonConfiguration {
     List<ConfigSectionMetadata> configSectionMetadataList = configFileName.configFileMetadata().getConfigSectionMetadataList();
     
     // get the attributes based on the configIdThatIdentifiesThisDaemon
+    String configIdThatIdentifiesThisDaemon = null;
+    
+    if (this.isMultiple() && StringUtils.isBlank(this.configId)) {
+      throw new RuntimeException("Cant have isMultiple and a blank configId! " + this.getClass().getName());
+    }
+    if (!this.isMultiple() && !StringUtils.isBlank(this.configId)) {
+      throw new RuntimeException("Cant have not isMultiple and configId! " + this.getClass().getName());
+    }
+
+    if (this.getPropertySuffixThatIdentifiesThisDaemon() != null) {
+      
+      if (StringUtils.isBlank(this.getPropertyValueThatIdentifiesThisDaemon())) {
+        throw new RuntimeException("getPropertyValueThatIdentifiesThisDaemon is required for " + this.getClass().getName());
+      }
+      
+      if (StringUtils.isNotBlank(this.getConfigIdThatIdentifiesThisDaemon())) {
+        throw new RuntimeException("can't specify ConfigIdThatIdentifiesThisDaemon and PropertySuffixThatIdentifiesThisDaemon for class "+this.getClass().getName());
+      }
+ 
+      if (!this.isMultiple()) {
+        throw new RuntimeException("Cant have getPropertySuffixThatIdentifiesThisDaemon and not be multiple! " + this.getClass().getName());
+      }
+      
+      outer: for (ConfigSectionMetadata configSectionMetadata: configSectionMetadataList) {
+        for (ConfigItemMetadata configItemMetadata: configSectionMetadata.getConfigItemMetadataList()) {
+          
+          Matcher matcher = pattern.matcher(configItemMetadata.getKeyOrSampleKey());
+          if (!matcher.matches()) {
+            continue;
+          }
+          
+          String configId = matcher.group(2);
+          String suffix = matcher.group(3);
+
+          if (StringUtils.equals(suffix, this.getPropertySuffixThatIdentifiesThisDaemon())) {
+            
+            if (StringUtils.equals(configItemMetadata.getValue(), this.getPropertyValueThatIdentifiesThisDaemon())
+                || StringUtils.equals(configItemMetadata.getSampleValue(), this.getPropertyValueThatIdentifiesThisDaemon())) {
+              configIdThatIdentifiesThisDaemon = configId;
+              break outer;
+            }
+            
+          }
+          
+        }
+      }
+      
+      if (StringUtils.isBlank(configIdThatIdentifiesThisDaemon)) {
+        throw new RuntimeException("can't find property in config file that identifies this daemon for " + this.getClass().getName());
+      }
+      
+    } else if (this.getConfigIdThatIdentifiesThisDaemon() != null ) {
+      configIdThatIdentifiesThisDaemon = this.getConfigIdThatIdentifiesThisDaemon();
+    }
+    
     for (ConfigSectionMetadata configSectionMetadata: configSectionMetadataList) {
       for (ConfigItemMetadata configItemMetadata: configSectionMetadata.getConfigItemMetadataList()) {
         
@@ -128,19 +190,27 @@ public abstract class GrouperDaemonConfiguration {
         String prefix = matcher.group(1);
         String propertyName = null;
         String suffix = null;
-        
+                
         if(this.isMultiple()) { // multiple means config id will not be blank on an edit
-          
+
+          if (StringUtils.isBlank(configIdThatIdentifiesThisDaemon)) {
+            throw new RuntimeException("Why is configIdThatIdentifiesThisDaemon blank??? " + this.getClass().getName());
+          }
+
           String currentConfigId = matcher.group(2);
-          if (!StringUtils.equals(currentConfigId, configId)) {
+
+          if (!StringUtils.equals(currentConfigId, configIdThatIdentifiesThisDaemon)) {
             continue;
           }
           
           suffix = matcher.group(3);
-          propertyName = prefix + "." + configId + "." + suffix;
+          propertyName = prefix + "." + this.getConfigId() + "." + suffix;
           
         } else {
           
+          if (!StringUtils.isBlank(configId)) {
+            throw new RuntimeException("Why is configId not blank??? " + this.getClass().getName());
+          }
           suffix = matcher.group(2);
           propertyName = configItemMetadata.getKeyOrSampleKey();
           
@@ -164,7 +234,12 @@ public abstract class GrouperDaemonConfiguration {
         
       }
     }
+    this.attributeCache = result;
     
+    Map<String, GrouperDaemonConfigAttribute> extraAttributes = retrieveExtraAttributes();
+    
+    result.putAll(extraAttributes);
+
     return result;
     
   }
@@ -190,14 +265,14 @@ public abstract class GrouperDaemonConfiguration {
     
     String configIdThatIdentifiesThisDaemon = null;
     
-    if (this.getProperySuffixThatIdentifiesThisDaemon() != null) {
+    if (this.getPropertySuffixThatIdentifiesThisDaemon() != null) {
       
-      if (StringUtils.isBlank(this.getProperyValueThatIdentifiesThisDaemon())) {
-        throw new RuntimeException("getProperyValueThatIdentifiesThisDaemon is required for " + this.getClass().getName());
+      if (StringUtils.isBlank(this.getPropertyValueThatIdentifiesThisDaemon())) {
+        throw new RuntimeException("getPropertyValueThatIdentifiesThisDaemon is required for " + this.getClass().getName());
       }
       
       if (StringUtils.isNotBlank(this.getConfigIdThatIdentifiesThisDaemon())) {
-        throw new RuntimeException("can't specify ConfigIdThatIdentifiesThisDaemon and ProperySuffixThatIdentifiesThisDaemon for class "+this.getClass().getName());
+        throw new RuntimeException("can't specify ConfigIdThatIdentifiesThisDaemon and PropertySuffixThatIdentifiesThisDaemon for class "+this.getClass().getName());
       }
       
       if (StringUtils.isBlank(this.getConfigId())) {
@@ -227,9 +302,9 @@ public abstract class GrouperDaemonConfiguration {
           String suffix = matcher.group(3);
           
           String propertyName = prefix + "." + configId + "." + suffix;
-          if (propertyName.equals(prefix + "." + configId + "." + this.getProperySuffixThatIdentifiesThisDaemon())) {
+          if (propertyName.equals(prefix + "." + configId + "." + this.getPropertySuffixThatIdentifiesThisDaemon())) {
             
-            if (StringUtils.equals(configItemMetadata.getValue(), this.getProperyValueThatIdentifiesThisDaemon())) {
+            if (StringUtils.equals(configItemMetadata.getValue(), this.getPropertyValueThatIdentifiesThisDaemon())) {
               configIdThatIdentifiesThisDaemon = configId;
               break outer;
             }
@@ -294,6 +369,54 @@ public abstract class GrouperDaemonConfiguration {
     }
     
     return result;
+  }
+
+  public Map<String, GrouperDaemonConfigAttribute> retrieveExtraAttributes() {
+    
+    ConfigFileName configFileName = this.getConfigFileName();
+    
+    if (configFileName == null) {
+      throw new RuntimeException("configFileName cant be null for " + this.getClass().getName());
+    }
+    
+    ConfigPropertiesCascadeBase configPropertiesCascadeBase = configFileName.getConfig();
+    
+    Map<String, GrouperDaemonConfigAttribute> result = new LinkedHashMap<String, GrouperDaemonConfigAttribute>();
+    
+    for (String propertyName: configPropertiesCascadeBase.properties().stringPropertyNames()) {
+      
+      if (!propertyName.startsWith(this.getConfigItemPrefix())) {
+        continue;
+      }
+      
+      String suffix = StringUtils.replace(propertyName, this.getConfigItemPrefix(), "");
+
+      // this is not extra
+      if (this.attributeCache.containsKey(suffix)) {
+        continue;
+      }
+      
+      GrouperDaemonConfigAttribute grouperExternalSystemAttribute = new GrouperDaemonConfigAttribute();
+  
+      grouperExternalSystemAttribute.setFullPropertyName(propertyName);
+      grouperExternalSystemAttribute.setGrouperDaemonConfiguration(this);
+      
+      result.put(suffix, grouperExternalSystemAttribute);
+      
+      grouperExternalSystemAttribute.setConfigSuffix(suffix);
+  
+      ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+      configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
+      configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
+      grouperExternalSystemAttribute.setConfigItemMetadata(configItemMetadata);
+      grouperExternalSystemAttribute.setType(configItemMetadata.getValueType());
+      grouperExternalSystemAttribute.setFormElement(ConfigItemFormElement.TEXT);
+      grouperExternalSystemAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+      
+    }
+    
+    return result;
+     
   }
 
 }

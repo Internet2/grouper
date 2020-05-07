@@ -24,12 +24,12 @@ public class GrouperDaemonOtherJobLoaderIncrementalConfiguration extends Grouper
   public String getConfigIdRegex() {
     return "^(otherJob)\\.([^.]+)\\.(.*)$";
   }
-  
-  public String getProperySuffixThatIdentifiesThisDaemon() {
+  @Override
+  public String getPropertySuffixThatIdentifiesThisDaemon() {
     return "class";
   }
-  
-  public String getProperyValueThatIdentifiesThisDaemon() {
+  @Override
+  public String getPropertyValueThatIdentifiesThisDaemon() {
     return GrouperLoaderIncrementalJob.class.getName();
   }
 

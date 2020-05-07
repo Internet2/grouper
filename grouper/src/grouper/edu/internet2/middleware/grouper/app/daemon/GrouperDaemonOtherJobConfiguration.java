@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.daemon;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 // generic other job to add just classname and cron
@@ -30,9 +31,16 @@ public class GrouperDaemonOtherJobConfiguration extends GrouperDaemonConfigurati
     return true;
   }
 
+
+  
   @Override
-  public String getConfigIdThatIdentifiesThisDaemon() {
-    return "jobName";
+  public String getPropertySuffixThatIdentifiesThisDaemon() {
+    return "class";
+  }
+
+  @Override
+  public String getPropertyValueThatIdentifiesThisDaemon() {
+    return "a.b.c.SomethingThatExtendsOtherJobBase";
   }
 
   
