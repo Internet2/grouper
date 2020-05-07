@@ -251,14 +251,15 @@ public class TestGroupType extends GrouperTest {
 
   public void testFindAllAssignableTypes() {
     LOG.info("testFindAllAssignableTypes");
-    Set types = GroupTypeFinder.findAllAssignable();    
-    T.amount("public group types", 0, types.size());
+    Set<GroupType> types = GroupTypeFinder.findAllAssignable();    
+    T.amount("public group types", 1, types.size());
+    assertEquals("grouperLoader", types.iterator().next().getName());
   } // public void testFindAllAssignableTypes()
 
   public void testFindAllAssignableTypesAfterAddition() {
     LOG.info("testFindAllAssignableTypesAfterAddition");
-    Set types = GroupTypeFinder.findAllAssignable();    
-    T.amount("assignable group types before addition", 0, types.size());
+    Set<GroupType> types = GroupTypeFinder.findAllAssignable();    
+    T.amount("assignable group types before addition", 1, types.size());
     GrouperSession s = null;
     try {
       String    name  = "test";
@@ -266,7 +267,7 @@ public class TestGroupType extends GrouperTest {
       GroupType type  = GroupType.createType(s, name);
       Assert.assertTrue("added type: " + type, true);
       types = GroupTypeFinder.findAllAssignable();
-      T.amount("assignable group types after addition", 1, types.size());
+      T.amount("assignable group types after addition", 2, types.size());
     }
     catch (Exception e) {
       Assert.fail(e.getMessage());
@@ -282,7 +283,7 @@ public class TestGroupType extends GrouperTest {
   public void testFindAllTypesAfterAddition() {
     LOG.info("testFindAllTypesAfterAddition");
     Set types = GroupTypeFinder.findAll();    
-    T.amount("public group types before addition", 0, types.size());
+    T.amount("public group types before addition", 1, types.size());
     GrouperSession s = null;
     try {
       String    name  = "test";
@@ -290,7 +291,7 @@ public class TestGroupType extends GrouperTest {
       GroupType type  = GroupType.createType(s, name);
       Assert.assertTrue("added type: " + type, true);
       types = GroupTypeFinder.findAll();
-      T.amount("public group types after addition", 1, types.size());
+      T.amount("public group types after addition", 2, types.size());
     }
     catch (Exception e) {
       Assert.fail(e.getMessage());
