@@ -95,7 +95,7 @@ public class GrouperRecentMemberships {
           + "and gaaagv_recentMemberships.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS + "' "
           + "and gaaagv_groupName.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME + "' "
           + "and gaaagv_includeEligible.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT + "' "
-          + "and gpmship.MEMBER_ID = GPM.ID and GPM.subject_source != 'g:gsa' and gpgs.FIELD_ID = GPF.ID "
+          + "and gpmship.MEMBER_ID = gpm.ID and gpm.subject_source != 'g:gsa' and gpgs.FIELD_ID = gpf.ID "
           + "and gpf.name = 'members' " + databasePart + " "
           + "and gaaagv_groupName.group_name = gpg.name "
           + "and gpg.id = gpgs.owner_id "
