@@ -313,12 +313,22 @@ public class TestMemberAttributes extends GrouperTest {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute4.el", "test8");
       // looks like we're not using this singleton anymore???
       // InternalSourceAdapter.instance().init();
+      
       SubjectFinder.findById("GrouperAll", true).getSource().init();
+      
+      // need a 1 ms sleep here to make sure call to ExpirableCache.clearAll() is effective
+      try {
+        Thread.sleep(1);
+      } catch (InterruptedException e) {
+        // ignore
+      }
+
       ExpirableCache.clearAll();
       SubjectFinder.flushCache();
       Hib3MemberDAO.membersCacheClear();
-  
+
       edu.grantPriv(SubjectFinder.findById("GrouperAll", true), NamingPrivilege.CREATE);
+
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
