@@ -14209,28 +14209,29 @@ public class GrouperInstaller {
     for (String shFileName : shFileNames) {
       shFiles.add(new File(shFileName));
     }
-    for (String path : new String[] {"grouper", "grouper-ws", "grouper-ws-scim"}) {
-      // create grouper.xml in conf/Catalina/localhost/grouper.xml
-      File tomeeGrouperFile = new File(tommeDir.getAbsolutePath() + File.separator + "conf" + File.separator +
-          "Catalina" + File.separator + "localhost" + File.separator + path + ".xml");
-      
-      GrouperInstallerUtils.createParentDirectories(tomeeGrouperFile);
-      GrouperInstallerUtils.fileCreate(tomeeGrouperFile);
-      String cookiesFalse = "";
-      if ("grouper-ws".equals(path) || "grouper-ws-scim".equals(path)) {
-        cookiesFalse = " cookies=\"false\" ";
-      }
-      String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/" + path + "\" reloadable=\"false\"" 
-            + cookiesFalse + ">\n" + 
-          "<Resources allowLinking=\"true\" />\n" + 
-          "</Context>";
-    
-      try {      
-        Files.write(Paths.get(tomeeGrouperFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
-      } catch (Exception e) {
-        System.out.println("Could not write to grouper.xml file.");
-      }
-    }
+// do this in container since its too dynamic
+//    for (String path : new String[] {"grouper", "grouper-ws", "grouper-ws-scim"}) {
+//      // create grouper.xml in conf/Catalina/localhost/grouper.xml
+//      File tomeeGrouperFile = new File(tommeDir.getAbsolutePath() + File.separator + "conf" + File.separator +
+//          "Catalina" + File.separator + "localhost" + File.separator + path + ".xml");
+//      
+//      GrouperInstallerUtils.createParentDirectories(tomeeGrouperFile);
+//      GrouperInstallerUtils.fileCreate(tomeeGrouperFile);
+//      String cookiesFalse = "";
+//      if ("grouper-ws".equals(path) || "grouper-ws-scim".equals(path)) {
+//        cookiesFalse = " cookies=\"false\" ";
+//      }
+//      String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/" + path + "\" reloadable=\"false\"" 
+//            + cookiesFalse + ">\n" + 
+//          "<Resources allowLinking=\"true\" />\n" + 
+//          "</Context>";
+//    
+//      try {      
+//        Files.write(Paths.get(tomeeGrouperFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+//      } catch (Exception e) {
+//        System.out.println("Could not write to grouper.xml file.");
+//      }
+//    }
     
     // edit server.xml in tomee/conf dir
     File serverXmlFile = new File(tommeDir.getAbsolutePath()
