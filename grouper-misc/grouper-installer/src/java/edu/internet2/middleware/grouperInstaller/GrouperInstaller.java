@@ -13668,6 +13668,7 @@ public class GrouperInstaller {
       File libUiAndDaemonDir = new File(webInfDir+File.separator+"libUiAndDaemon");
       List<String> urlsToDownload = new ArrayList<String>();
       urlsToDownload.add(basePath+"grouper-messaging-aws/"+this.version+"/grouper-messaging-aws-"+this.version+".jar");
+      urlsToDownload.add(basePath+"google-apps-provisioner/"+this.version+"/google-apps-provisioner-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-messaging-rabbitmq/"+this.version+"/grouper-messaging-rabbitmq-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-messaging-activemq/"+this.version+"/grouper-messaging-activemq-"+this.version+".jar");
       urlsToDownload.add(basePath+"grouper-ui/"+this.version+"/grouper-ui-"+this.version+".jar");
