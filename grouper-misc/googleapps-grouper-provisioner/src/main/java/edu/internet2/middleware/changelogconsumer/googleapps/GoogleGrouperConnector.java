@@ -125,15 +125,28 @@ public class GoogleGrouperConnector {
         } else {
             httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         }
+        
+        final GoogleCredential googleDirectoryCredential;
+        final GoogleCredential googleGroupssettingsCredential;
+        
+        if (!StringUtils.isBlank(properties.getServiceAccountPKCS12FilePath())) {
+          googleDirectoryCredential = GoogleAppsSdkUtils.getGoogleDirectoryCredential(
+                  properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),
+                  httpTransport, JSON_FACTORY, properties.getDirectoryScopes());
+  
+          googleGroupssettingsCredential = GoogleAppsSdkUtils.getGoogleGroupssettingsCredential(
+                  properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),
+                  httpTransport, JSON_FACTORY);
+        } else {
+          googleDirectoryCredential = GoogleAppsSdkUtils.getGoogleDirectoryCredential(
+              properties.getServiceAccountEmail(), properties.getServiceAccountPrivateKey(), properties.getServiceImpersonationUser(),
+              httpTransport, JSON_FACTORY, properties.getDirectoryScopes());
 
-        final GoogleCredential googleDirectoryCredential = GoogleAppsSdkUtils.getGoogleDirectoryCredential(
-                properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),
-                httpTransport, JSON_FACTORY);
-
-        final GoogleCredential googleGroupssettingsCredential = GoogleAppsSdkUtils.getGoogleGroupssettingsCredential(
-                properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),
-                httpTransport, JSON_FACTORY);
-
+          googleGroupssettingsCredential = GoogleAppsSdkUtils.getGoogleGroupssettingsCredential(
+              properties.getServiceAccountEmail(), properties.getServiceAccountPrivateKey(), properties.getServiceImpersonationUser(),
+              httpTransport, JSON_FACTORY);
+        }
+          
         directoryClient = new Directory.Builder(httpTransport, JSON_FACTORY, googleDirectoryCredential)
                 .setApplicationName("Google Apps Grouper Provisioner")
                 .build();

@@ -112,9 +112,9 @@ public class GoogleAppsFullSync {
             }
 
         } catch (GeneralSecurityException e) {
-            LOG.error("Google Apps Consume '{}' Full Sync - This consumer failed to initialize: {}", consumerName, e.getMessage());
+            LOG.error("Google Apps Consume '{}' Full Sync - This consumer failed to initialize: {}", consumerName, e.getMessage(), e);
         } catch (IOException e) {
-            LOG.error("Google Apps Consume '{}' Full Sync - This consumer failed to initialize: {}", consumerName, e.getMessage());
+            LOG.error("Google Apps Consume '{}' Full Sync - This consumer failed to initialize: {}", consumerName, e.getMessage(), e);
         }
 
         GrouperSession grouperSession = null;
