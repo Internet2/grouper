@@ -185,6 +185,37 @@ public class GrouperLoaderResultset {
       sourceId = StringUtils.defaultString(sourceId, defaultSubjectSourceId);
       subjectIdOrIdentifer = (String) row.getCell(subjectIdCol, false);
 
+      if (StringUtils.isBlank(subjectIdOrIdentifer)) {
+        boolean hasSubjectIdCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_ID_COL);
+        boolean hasSubjectIdentifierCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_IDENTIFIER_COL);
+        boolean hasSubjectIdOrIdentifierCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_ID_OR_IDENTIFIER_COL);
+        if (!hasSubjectIdCol
+            && !hasSubjectIdentifierCol       
+            && !hasSubjectIdOrIdentifierCol) {
+          throw new RuntimeException(
+              "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER! "
+                  + ", "
+                  + GrouperUtil.toStringForLog(GrouperLoaderResultset.this
+                      .getColumnNames()));
+        }
+
+        if (hasSubjectIdCol) {
+          throw new RuntimeException("Result has a null subject_id, please correct the query (maybe just filter where subject_id is not null)");
+        }
+        if (hasSubjectIdentifierCol) {
+          throw new RuntimeException("Result has a null subject_identifer, please correct the query (maybe just filter where subject_identifier is not null)");
+        }
+        if (hasSubjectIdOrIdentifierCol) {
+          throw new RuntimeException("Result has a null subject_id_or_identifer, please correct the query (maybe just filter where subject_id_or_identifier is not null)");
+        }
+        
+        throw new RuntimeException(
+            "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER and the values need to be not null! "
+                + GrouperUtil.toStringForLog(GrouperLoaderResultset.this
+                    .getColumnNames()));
+
+      }
+      
       if (!StringUtils.isBlank(sourceId)) {
         Set<String> subjectIdsOrIdentifiersForSource = sourceToSubjectIdsOrIdentifiers.get(sourceId);
         //lazy load for source
@@ -1453,8 +1484,34 @@ public class GrouperLoaderResultset {
           }
 
         } else {
+          
+          
+          boolean hasSubjectIdCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_ID_COL);
+          boolean hasSubjectIdentifierCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_IDENTIFIER_COL);
+          boolean hasSubjectIdOrIdentifierCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_ID_OR_IDENTIFIER_COL);
+          if (!hasSubjectIdCol
+              && !hasSubjectIdentifierCol       
+              && !hasSubjectIdOrIdentifierCol) {
+            throw new RuntimeException(
+                "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER! "
+                    + jobName
+                    + ", "
+                    + GrouperUtil.toStringForLog(GrouperLoaderResultset.this
+                        .getColumnNames()));
+          }
+
+          if (hasSubjectIdCol) {
+            throw new RuntimeException("Result has a null subject_id, please correct the query (maybe just filter where subject_id is not null)");
+          }
+          if (hasSubjectIdentifierCol) {
+            throw new RuntimeException("Result has a null subject_identifer, please correct the query (maybe just filter where subject_identifier is not null)");
+          }
+          if (hasSubjectIdOrIdentifierCol) {
+            throw new RuntimeException("Result has a null subject_id_or_identifer, please correct the query (maybe just filter where subject_id_or_identifier is not null)");
+          }
+          
           throw new RuntimeException(
-              "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER! "
+              "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER and the values need to be not null! "
                   + jobName
                   + ", "
                   + GrouperUtil.toStringForLog(GrouperLoaderResultset.this
