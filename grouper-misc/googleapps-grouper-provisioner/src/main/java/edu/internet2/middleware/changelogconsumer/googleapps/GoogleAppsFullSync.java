@@ -169,7 +169,7 @@ public class GoogleAppsFullSync {
             GrouperSession.stopQuietly(grouperSession);
 
             synchronized (fullSyncIsRunningLock) {
-                fullSyncIsRunning.put(consumerName, Boolean.toString(true));
+                fullSyncIsRunning.put(consumerName, Boolean.toString(false));
             }
         }
 
