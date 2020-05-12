@@ -27,10 +27,16 @@ public class ConfigItemMetadata {
    * @return key or sample key
    */
   public String getKeyOrSampleKey() {
+    String result = this.key;
     if (StringUtils.isBlank(this.key)) {
-      return this.sampleKey;
+      result = this.sampleKey;
     }
-    return this.key;
+    if (result != null) {
+      if (result.endsWith(".elConfig")) {
+        return GrouperUtil.stripSuffix(result, ".elConfig");
+      }
+    }
+    return result;
   }
   
   /**

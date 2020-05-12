@@ -162,7 +162,7 @@ public class Authentication {
         }
       }
     } catch (Exception e) {
-      LOG.error("Error authenticating");
+      LOG.error("Error authenticating", e);
       return false;
     }
     
