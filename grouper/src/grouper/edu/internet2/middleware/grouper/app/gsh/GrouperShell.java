@@ -33,6 +33,7 @@ import jline.TerminalFactory;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -44,6 +45,7 @@ import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.jline.WindowsTerminal;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -208,6 +210,7 @@ private static boolean handleSpecialCase(String[] args) {
 		  GrouperStartup.ignoreCheckConfig = true;
 		  return false;
 	  }
+	  boolean isLoader = StringUtils.equals("-loader", args[0].toLowerCase());
 	  String mainClass = mainLookups.get(args[0].toLowerCase());
 	  if(mainClass==null) {
 		  return false;
@@ -232,6 +235,14 @@ private static boolean handleSpecialCase(String[] args) {
 			  throw (RuntimeException)e;
 		  }
 		  throw new RuntimeException(e);
+	  } finally {
+	    if (!isLoader) {
+	      try {
+	        GrouperLoader.shutdownIfStarted();
+	      } catch (Exception e) {
+	        LOG.error("error shutting down loader", e);
+	      }
+	    }
 	  }
 	  
 	  return true;

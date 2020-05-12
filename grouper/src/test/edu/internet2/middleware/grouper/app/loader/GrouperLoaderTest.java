@@ -136,9 +136,13 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testConnectionsLoaderAndClient"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderExit"));
   }
 
+  public void testLoaderExit() {
+    GrouperLoader.scheduleJobs();
+  }
+  
   /**
    * 
    */
