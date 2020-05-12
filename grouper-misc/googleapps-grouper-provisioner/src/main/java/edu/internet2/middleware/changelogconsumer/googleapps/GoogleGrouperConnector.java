@@ -228,6 +228,10 @@ public class GoogleGrouperConnector {
         User user = GoogleCacheManager.googleUsers().get(userKey);
         if (user == null) {
             if (!userKey.endsWith(properties.getGoogleDomain())) {
+                if (!properties.getAddExternalUsersToGroups()) {
+                  return null;
+                }
+              
                 user = new User();
                 user.setPrimaryEmail(userKey);
                 return user;
@@ -277,7 +281,7 @@ public class GoogleGrouperConnector {
         final String subjectName = subject.getName();
         final String email = addressFormatter.qualifySubjectAddress(subject);
 
-        User newUser;
+        User newUser = null;
         if (properties.shouldProvisionUsers() && email.endsWith(properties.getGoogleDomain())) {
             LOG.debug("Google Apps Consumer '{}' - Creating organziation Google User {}.", consumerName, email);
 
@@ -300,7 +304,7 @@ public class GoogleGrouperConnector {
 
             newUser = GoogleAppsSdkUtils.addUser(directoryClient, newUser);
             GoogleCacheManager.googleUsers().put(newUser);
-        } else {
+        } else if (properties.getAddExternalUsersToGroups()) {
             LOG.debug("Google Apps Consumer '{}' - Creating a working non-Google user {}.", consumerName, email);
 
             newUser = new User();
@@ -680,8 +684,10 @@ public class GoogleGrouperConnector {
 
         if (user == null) {
             user = createGooUser(subject);
-            LOG.debug("Google Apps Consumer '{}' - Created user {}", consumerName, user);
-
+            
+            if (user != null) {
+              LOG.debug("Google Apps Consumer '{}' - Created user {}", consumerName, user);
+            }
         }
 
         Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName()));

@@ -61,6 +61,9 @@ public class GoogleAppsSyncProperties {
 
     /** Whether or not to provision users. */
     private boolean provisionUsers;
+    
+    /** Whether or not to add external users to groups. */
+    private boolean addExternalUsersToGroups;
 
     /** Whether or not to de-provision users. */
     private boolean deprovisionUsers;
@@ -170,6 +173,10 @@ public class GoogleAppsSyncProperties {
                 GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "provisionUsers", false);
         LOG.debug("Google Apps Consumer - Setting provisionUser to {}", provisionUsers);
 
+        addExternalUsersToGroups =
+            GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "addExternalUsersToGroups", true);
+        LOG.debug("Google Apps Consumer - Setting addExternalUsersToGroups to {}", addExternalUsersToGroups);
+        
         deprovisionUsers =
                 GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "deprovisionUsers", false);
         LOG.debug("Google Apps Consumer - Setting deprovisionUser to {}", deprovisionUsers);
@@ -394,6 +401,10 @@ public class GoogleAppsSyncProperties {
 
     public boolean shouldProvisionUsers() {
         return provisionUsers;
+    }
+    
+    public boolean getAddExternalUsersToGroups() {
+      return addExternalUsersToGroups;
     }
 
     public int getGoogleGroupCacheValidity() {
