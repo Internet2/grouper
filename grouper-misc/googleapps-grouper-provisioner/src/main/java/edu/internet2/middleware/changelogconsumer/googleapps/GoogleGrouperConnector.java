@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -389,6 +390,8 @@ public class GoogleGrouperConnector {
         }
 
         Set<edu.internet2.middleware.grouper.Member> members = grouperGroup.getMembers();
+        members.addAll(grouperGroup.getMembers(AccessPrivilege.ADMIN.getField()));
+        members.addAll(grouperGroup.getMembers(AccessPrivilege.UPDATE.getField()));
         for (edu.internet2.middleware.grouper.Member member : members) {
             LOG.debug("Google Apps Consumer '{}' - Adding all of the members for {}.", consumerName, groupKey);
 
