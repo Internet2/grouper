@@ -939,6 +939,11 @@ public class UiV2Configure {
       {
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setKey(propertyName);
+
+        GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateMap.get(configItemMetadata.getKeyOrSampleKey());
+        if (grouperConfigHibernate != null && grouperConfigHibernate.isConfigEncrypted()) {
+          guiConfigProperty.setEncryptedInDatabase(true);
+        }
         
         guiConfigProperty.setConfigItemMetadata(configItemMetadata);
       }
