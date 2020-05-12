@@ -220,7 +220,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetAuditEntries"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetMembershipsPagingForMember"));
   }
 
   /**
@@ -10628,6 +10628,119 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(group1.getName(), wsGroup.getName());
     assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
     assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+  }
+  
+  /**
+   * test get memberships paging
+   */
+  public void testGetMembershipsPagingForMember() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Group group2 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:group2").assignName("test:group2").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+    Group group3 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:group3").assignName("test:group3").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+    Group group4 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:group4").assignName("test:group4").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+    Group group5 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:group5").assignName("test:group5").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+  
+    // add members
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    group2.addMember(SubjectTestHelper.SUBJ1);    
+    group3.addMember(SubjectTestHelper.SUBJ2);    
+    group4.addMember(SubjectTestHelper.SUBJ3);    
+    group1.addMember(SubjectTestHelper.SUBJ4);    
+    group1.addMember(SubjectTestHelper.SUBJ5);    
+    group1.addMember(SubjectTestHelper.SUBJ6);
+    group3.addMember(SubjectTestHelper.SUBJ7);
+    group4.addMember(SubjectTestHelper.SUBJ8);
+    group5.addMember(SubjectTestHelper.SUBJ9);
+    ChangeLogTempToEntity.convertRecords();
+    
+    WsGroupLookup wsGroupLookup = new WsGroupLookup(group1.getName(), group1.getUuid());
+    WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] {wsGroupLookup};
+
+    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), SubjectTestHelper.SUBJ0.getSourceId(), null);
+    WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {wsSubjectLookup};
+
+    //###############################################
+    //valid query
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    WsGetMembershipsResults wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+        GROUPER_VERSION, wsGroupLookups, null, null, null, 
+        Group.getDefaultList(), true, null, false, null, null, null, null, null, null, null, null, null, null, null, null,
+        null, null,
+        null, null, 
+        2, 1, "m.subjectIdDb", true,
+        null, null, null, null, 
+        null, null, null, null, false,
+        null, null);
+
+    assertEquals(wsGetMembershipsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetMembershipsResults.getResultMetadata().getResultCode());
+
+    assertEquals(2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+    WsGroup wsGroup = wsGetMembershipsResults.getWsGroups()[0];
+    WsSubject wsSubject = wsGetMembershipsResults.getWsSubjects()[0];
+    
+    assertEquals(wsSubject.getId(), group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+    wsSubject = wsGetMembershipsResults.getWsSubjects()[1];
+    
+    assertEquals(wsSubject.getId(), group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ4.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ4.getSourceId(), wsSubject.getSourceId());
+
+  
+    //###############################################
+    //valid query
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+        GROUPER_VERSION, wsGroupLookups, null, null, null, 
+        Group.getDefaultList(), true, null, false, null, null, null, null, null, null, null, null, null, null, null, null,
+        null, null,
+        null, null, 
+        2, 2, "m.subjectIdDb", true,
+        null, null, null, null, 
+        null, null, null, null, false,
+        null, null);
+
+    assertEquals(wsGetMembershipsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetMembershipsResults.getResultMetadata().getResultCode());
+
+    assertEquals(2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+    wsGroup = wsGetMembershipsResults.getWsGroups()[0];
+    wsSubject = wsGetMembershipsResults.getWsSubjects()[0];
+    
+    assertEquals(wsSubject.getId(), group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ5.getSourceId(), wsSubject.getSourceId());
+
+    wsSubject = wsGetMembershipsResults.getWsSubjects()[1];
+    
+    assertEquals(wsSubject.getId(), group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ6.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ6.getSourceId(), wsSubject.getSourceId());
 
   }
   
