@@ -460,6 +460,10 @@ public enum GrouperLoaderType {
           int groupMetadataNumberOfRows = 0;
           Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
           Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
+          
+          boolean loaderManagesDisplayNameForGroupList = false;
+          boolean loaderManagesDescriptionForGroupList = false;
+          
           Map<String, Subject> subjectCache = new HashMap<String, Subject>();
           Map<String, Map<Privilege, List<Subject>>> privsToAdd = new LinkedHashMap<String, Map<Privilege, List<Subject>>>();
           Set<String> groupNamesFromGroupQuery = null;
@@ -471,6 +475,14 @@ public enum GrouperLoaderType {
             final GrouperLoaderResultset grouperLoaderGroupsResultset = new GrouperLoaderResultset(
                 grouperLoaderDb, groupQuery + (orderByGroupName ? " order by group_name" : ""), hib3GrouploaderLogOverall.getJobName(), 
                 hib3GrouploaderLogOverall);
+            
+            if (grouperLoaderGroupsResultset.hasColumnName(GrouperLoaderResultset.GROUP_DISPLAY_NAME_COL)) {
+              loaderManagesDisplayNameForGroupList = true;
+            }
+            
+            if (grouperLoaderGroupsResultset.hasColumnName(GrouperLoaderResultset.GROUP_DESCRIPTION_COL)) {
+              loaderManagesDescriptionForGroupList = true;
+            }
             
             groupMetadataNumberOfRows = grouperLoaderGroupsResultset.numberOfRows();
             for (int i=0;i<groupMetadataNumberOfRows;i++) {
@@ -549,6 +561,14 @@ public enum GrouperLoaderType {
           }
           GrouperLoaderLogger.addLogEntry("overallLog", "metadataRowCount", groupMetadataNumberOfRows);
       
+          if (!loaderManagesDisplayNameForGroupList) {
+            groupNameToDisplayName = null;
+          }
+          
+          if (!loaderManagesDescriptionForGroupList) {
+            groupNameToDescription = null;
+          }
+          
           //End group metadata
           //#######################################
 
@@ -1002,6 +1022,15 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapGroupDescriptionExpression(), groupNameToDisplayName, 
               groupNameToDescription, groupNames);
           
+          if (StringUtils.isBlank(loaderJobBean.getLdapGroupDisplayNameExpression()) && groupNameToDisplayName.size() == 0) {
+            // not managing display name
+            groupNameToDisplayName = null;
+          }
+          
+          if (StringUtils.isBlank(loaderJobBean.getLdapGroupDescriptionExpression()) && groupNameToDescription.size() == 0) {
+            // not managing description
+            groupNameToDescription = null;
+          }
           
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
   
@@ -1136,7 +1165,16 @@ public enum GrouperLoaderType {
               groupNameToDisplayName, groupNameToDescription, loaderJobBean.getLdapAttributeFilterExpression(),
               loaderJobBean.getLdapResultsTransformationClass());
 
-
+          if (StringUtils.isBlank(loaderJobBean.getLdapGroupDisplayNameExpression()) && groupNameToDisplayName.size() == 0) {
+            // not managing display name
+            groupNameToDisplayName = null;
+          }
+          
+          if (StringUtils.isBlank(loaderJobBean.getLdapGroupDescriptionExpression()) && groupNameToDescription.size() == 0) {
+            // not managing description
+            groupNameToDescription = null;
+          }
+          
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
   
           GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
@@ -1925,9 +1963,36 @@ public enum GrouperLoaderType {
  
       hib3GrouploaderLog.store();
       
+      String description = null;
+      String displayName = null;
+      boolean loaderManagesDisplayNameForGroupList = groupNameToDisplayName != null;
+      boolean loaderManagesDescriptionForGroupList = groupNameToDescription != null;
+      
+      if (!loaderManagesDisplayNameForGroupList || !loaderManagesDescriptionForGroupList) {
+        // get the current value of whichever isn't being managed
+        Group theGroup = GroupFinder.findByName(grouperSession, groupName, false);
+        if (theGroup != null) {
+          if (!loaderManagesDisplayNameForGroupList) {
+            displayName = theGroup.getDisplayName();
+          }
+          
+          if (!loaderManagesDescriptionForGroupList) {
+            description = theGroup.getDescription();
+          }
+        }
+      }
+      
+      if (loaderManagesDisplayNameForGroupList) {
+        displayName = groupNameToDisplayName.get(groupName);
+      }
+      
+      if (loaderManagesDescriptionForGroupList) {
+        description = groupNameToDescription.get(groupName);
+      }
+      
       //based on type, run query from the db and sync members
-      syncOneGroupMembership(groupName, groupNameOverall, groupNameToDisplayName.get(groupName), 
-          groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
+      syncOneGroupMembership(groupName, groupNameOverall, displayName, 
+          description, hib3GrouploaderLog, groupStartedMillis,
           grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName));
       
       long endTime = System.currentTimeMillis();
@@ -2632,7 +2697,7 @@ public enum GrouperLoaderType {
         LOG.debug(groupName + " syncing " + numberOfRows + " rows");
       }
       GrouperLoaderLogger.addLogEntry("overallOrSubjobLog", "rowsFromExternal", numberOfRows);
-
+      
       String groupExtension = StringUtils.isBlank(groupDisplayNameForInsert) ? GrouperUtil.extensionFromName(groupName) : 
         GrouperUtil.extensionFromName(groupDisplayNameForInsert);
       
