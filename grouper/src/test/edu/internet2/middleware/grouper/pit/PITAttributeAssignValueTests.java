@@ -67,7 +67,7 @@ public class PITAttributeAssignValueTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITAttributeAssignValueTests("testMembershipEnableDisable"));
+    TestRunner.run(new PITAttributeAssignValueTests("testAttributeAssignEnableDisable"));
   }
   
   /**
@@ -903,9 +903,10 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     attributeAssign1.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
     attributeAssign1.saveOrUpdate(true);
     
-    attributeAssign3.setEnabled(false);
-    attributeAssign3.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
-    attributeAssign3.saveOrUpdate(true);
+    // this should now be disabled automatically
+    //attributeAssign3.setEnabled(false);
+    //attributeAssign3.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
+    //attributeAssign3.saveOrUpdate(true);
     
     // update PIT tables
     ChangeLogTempToEntity.convertRecords();
@@ -917,9 +918,10 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     attributeAssign1.setEnabledTime(null);
     attributeAssign1.saveOrUpdate(true);
     
-    attributeAssign3.setEnabled(true);
-    attributeAssign3.setEnabledTime(null);
-    attributeAssign3.saveOrUpdate(true);
+    // this should now be enabled automatically
+    //attributeAssign3.setEnabled(true);
+    //attributeAssign3.setEnabledTime(null);
+    //attributeAssign3.saveOrUpdate(true);
     
     // update PIT tables
     ChangeLogTempToEntity.convertRecords();

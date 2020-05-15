@@ -2376,13 +2376,7 @@ public class Membership extends GrouperAPI implements
           
           // enable attributes
           Set<AttributeAssign> assignmentsToEnable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipId(this.immediateMembershipId);
-
-          Set<String> immediateAttributeAssignmentIdsToEnable = new LinkedHashSet<String>();
-          for (AttributeAssign assignmentToEnable : assignmentsToEnable) {
-            immediateAttributeAssignmentIdsToEnable.add(assignmentToEnable.getId());
-          }
           
-          assignmentsToEnable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignIds(immediateAttributeAssignmentIdsToEnable));
           for (AttributeAssign assignmentToEnable : assignmentsToEnable) {
             assignmentToEnable.setEnabled(assignmentToEnable.internal_isEnabledUsingTimestamps());
             
@@ -2400,12 +2394,6 @@ public class Membership extends GrouperAPI implements
           // disable attributes
           Set<AttributeAssign> assignmentsToDisable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipId(this.immediateMembershipId);
 
-          Set<String> immediateAttributeAssignmentIdsToDisable = new LinkedHashSet<String>();
-          for (AttributeAssign assignmentToDisable : assignmentsToDisable) {
-            immediateAttributeAssignmentIdsToDisable.add(assignmentToDisable.getId());
-          }
-          
-          assignmentsToDisable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignIds(immediateAttributeAssignmentIdsToDisable));
           for (AttributeAssign assignmentToDisable : assignmentsToDisable) {
             assignmentToDisable.setEnabled(false);
             assignmentToDisable.saveOrUpdate(false);
