@@ -2074,6 +2074,24 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           gtt, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_UPDATE, true, false);
 
     }
+    
+    if (this.isEnabled() && !this.dbVersion().isEnabled()) {
+      Set<AttributeAssign> assignmentsToEnable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignId(this.id);
+      for (AttributeAssign assignmentToEnable : assignmentsToEnable) {
+        assignmentToEnable.setEnabled(assignmentToEnable.internal_isEnabledUsingTimestamps());
+        
+        if (assignmentToEnable.isEnabled()) {
+          assignmentToEnable.saveOrUpdate(false);
+        }
+      }
+    } else if (!this.isEnabled() && this.dbVersion().isEnabled()) {      
+      Set<AttributeAssign> assignmentsToDisable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignId(this.id);
+      for (AttributeAssign assignmentToDisable : assignmentsToDisable) {
+        assignmentToDisable.setEnabled(false);
+        assignmentToDisable.saveOrUpdate(false);
+      }
+    }
+    
   }
 
   /**
@@ -2434,7 +2452,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
   
   /**
-   * e.g. if enabled or disabled is switching, delete this attribute assignment (and child objects)
+   * delete this attribute assignment (and child objects)
    * and recommit it (which will not have the child objects or will have this time)
    */
   public void deleteAndStore() {
@@ -2506,7 +2524,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAllEnabledDisabledMismatch();
     for (AttributeAssign attributeAssign : attributeAssigns) {
-      attributeAssign.deleteAndStore();
+      attributeAssign.setEnabled(attributeAssign.internal_isEnabledUsingTimestamps());
+      GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(attributeAssign);
     }
     return attributeAssigns.size();
   }
