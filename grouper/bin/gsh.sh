@@ -134,9 +134,16 @@ if [ "$MEM_MAX" = "" ]; then
 fi
 
 if [ -n "$JAVA_HOME" ]; then
-	JAVA="$JAVA_HOME/bin/java"
+  JAVA="$JAVA_HOME/bin/java"
 else
-	JAVA=java
+  # if in container just use that
+  if [ -d /usr/lib/jvm/java-1.8.0-amazon-corretto ]; then
+    JAVA_HOME=/usr/lib/jvm/java-1.8.0-amazon-corretto
+    JAVA="$JAVA_HOME/bin/java"
+  else
+    JAVA=java
+
+  fi
 fi
 
 
