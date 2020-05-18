@@ -568,11 +568,36 @@ public class UiV2MembershipAttributeAssignment {
         return;
       }
       
-      Group group = attributeAssign.getOwnerGroup();
-      Member member = attributeAssign.getOwnerMember();
-      if (group == null && member == null) {
-        group = attributeAssign.getOwnerAttributeAssign().getOwnerGroup();
-        member = attributeAssign.getOwnerAttributeAssign().getOwnerMember();
+      Group group = null;;
+      Member member = null;
+      
+      switch(attributeAssign.getAttributeAssignType()) {
+        case any_mem_asgn:
+          {
+            group = attributeAssign.getOwnerAttributeAssign().getOwnerGroup();
+            member = attributeAssign.getOwnerAttributeAssign().getOwnerMember();
+            break;
+          }
+        case any_mem:
+          {            
+            group = attributeAssign.getOwnerGroup();
+            member = attributeAssign.getOwnerMember();
+            break;
+          }
+        case imm_mem_asgn:
+          {
+            group = attributeAssign.getOwnerAttributeAssign().getOwnerMembership().getOwnerGroup();
+            member = attributeAssign.getOwnerAttributeAssign().getOwnerMembership().getMember();
+            break;
+          }
+        case imm_mem:
+          {
+            group = attributeAssign.getOwnerMembership().getOwnerGroup();
+            member = attributeAssign.getOwnerMembership().getMember();
+            break;
+          }
+        default:
+          throw new RuntimeException("Not expecting attributeAssignType: " + attributeAssign.getAttributeAssignType());
       }
       
       attributeAssign.delete();
@@ -834,11 +859,36 @@ public class UiV2MembershipAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignValueSuccessDelete");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      Group group = attributeAssign.getOwnerGroup();
-      Member member = attributeAssign.getOwnerMember();
-      if (group == null && member == null) {
-        group = attributeAssign.getOwnerAttributeAssign().getOwnerGroup();
-        member = attributeAssign.getOwnerAttributeAssign().getOwnerMember();
+      Group group = null;;
+      Member member = null;
+      
+      switch(attributeAssign.getAttributeAssignType()) {
+        case any_mem_asgn:
+          {
+            group = attributeAssign.getOwnerAttributeAssign().getOwnerGroup();
+            member = attributeAssign.getOwnerAttributeAssign().getOwnerMember();
+            break;
+          }
+        case any_mem:
+          {            
+            group = attributeAssign.getOwnerGroup();
+            member = attributeAssign.getOwnerMember();
+            break;
+          }
+        case imm_mem_asgn:
+          {
+            group = attributeAssign.getOwnerAttributeAssign().getOwnerMembership().getOwnerGroup();
+            member = attributeAssign.getOwnerAttributeAssign().getOwnerMembership().getMember();
+            break;
+          }
+        case imm_mem:
+          {
+            group = attributeAssign.getOwnerMembership().getOwnerGroup();
+            member = attributeAssign.getOwnerMembership().getMember();
+            break;
+          }
+        default:
+          throw new RuntimeException("Not expecting attributeAssignType: " + attributeAssign.getAttributeAssignType());
       }
       
       filterHelper(member, group);
