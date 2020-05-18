@@ -36,9 +36,11 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
@@ -843,12 +845,17 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
     if (!this.subject.getSourceId().equals("grouperEntities")) {
       return false;
     }
-    
-    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.subject.getId(), false);
-    if (group == null) {
-      return false;
-    }
-    
-    return !group.isEnabled();
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), GuiSubject.this.subject.getId(), false);
+        if (group == null) {
+          return false;
+        }
+        
+        return !group.isEnabled();
+      }
+    });
   }
 }

@@ -764,7 +764,7 @@ public class GrouperUtil {
         return;
       }
       File fileResource = GrouperUtil.fileFromResourceName(resource);
-      if (!fileResource.exists()) {
+      if (fileResource == null || !fileResource.exists()) {
         throw new RuntimeException("File doesnt exist: " + resource);
       }
       // works, we good
