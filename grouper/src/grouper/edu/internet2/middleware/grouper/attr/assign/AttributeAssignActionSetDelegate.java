@@ -149,7 +149,7 @@ public class AttributeAssignActionSetDelegate implements Serializable {
     //find list which can imply
     AttributeDef attributeDef = this.attributeAssignAction.getAttributeDef();
 
-    Set<String> actionsWhichCanImply = attributeDef.getAttributeDefActionDelegate().allowedActionStrings();
+    Set<String> actionsWhichCanImply = new HashSet<String>(attributeDef.getAttributeDefActionDelegate().allowedActionStrings());
 
     //remove self
     actionsWhichCanImply.remove(this.attributeAssignAction.getName());
@@ -171,7 +171,7 @@ public class AttributeAssignActionSetDelegate implements Serializable {
     //find list which can imply
     AttributeDef attributeDef = this.attributeAssignAction.getAttributeDef();
 
-    Set<String> actionsWhichCanBeImplied = attributeDef.getAttributeDefActionDelegate().allowedActionStrings();
+    Set<String> actionsWhichCanBeImplied = new HashSet<String>(attributeDef.getAttributeDefActionDelegate().allowedActionStrings());
 
     //remove self
     actionsWhichCanBeImplied.remove(this.attributeAssignAction.getName());
