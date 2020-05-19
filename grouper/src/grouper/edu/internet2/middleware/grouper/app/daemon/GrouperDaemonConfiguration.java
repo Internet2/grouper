@@ -632,6 +632,39 @@ public abstract class GrouperDaemonConfiguration {
     
   }
   
+  public abstract boolean matchesQuartzJobName(String jobName);
+  
+  public static GrouperDaemonConfiguration retrieveImplementationFromJobName(String jobName) {
+    
+    GrouperDaemonConfiguration result = null;
+    
+    for (String className: grouperDaemonConfigClassNames) {
+      Class<GrouperDaemonConfiguration> grouperDaemonConfigurationClass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(className);
+      GrouperDaemonConfiguration grouperDaemonConfig = GrouperUtil.newInstance(grouperDaemonConfigurationClass);
+      if (grouperDaemonConfig instanceof GrouperDaemonOtherJobConfiguration) {
+        continue;
+      }
+      if (grouperDaemonConfig.matchesQuartzJobName(jobName)) {          
+        if (result != null) {
+          throw new RuntimeException(jobName + " matches "+ grouperDaemonConfig + " and also " + result);
+        }
+        result = grouperDaemonConfig;
+      }
+    }
+    
+    if (result != null) {
+      return result;
+    }
+    
+    GrouperDaemonOtherJobConfiguration grouperDaemonOtherJobConfiguration = new GrouperDaemonOtherJobConfiguration();
+    if (grouperDaemonOtherJobConfiguration.matchesQuartzJobName(jobName)) {
+      return grouperDaemonOtherJobConfiguration;
+    }
+    
+    throw new RuntimeException("Can't find daemon config for jobName "+jobName);
+    
+  }
+  
   /**
    * save the attribute in an edit.  Note, if theres a failure, you should see if any made it
    * @param attributesFromUser are the attributes from "retrieveAttributes" with values in there

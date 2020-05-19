@@ -711,29 +711,8 @@ public class UiV2Admin extends UiServiceLogicBase {
         throw new RuntimeException("jobName cannnot be blank");
       }
       
-      GrouperDaemonConfiguration configToEdit = null;
-      
-      String daemonId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
-      
-      List<GrouperDaemonConfiguration> daemonTypesConfigurations = GrouperDaemonConfiguration.retrieveAllDaemonTypesConfiguration();
-      for (GrouperDaemonConfiguration config: daemonTypesConfigurations) {
-        String configItemPrefix = config.getConfigItemPrefix();
+      GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
         
-        String[] splits = configItemPrefix.split("\\.");
-        String configId = splits[splits.length - 1];
-        if (StringUtils.equals(configId, daemonId)) {
-          configToEdit = config;
-          if (configToEdit.isMultiple()) {
-            configToEdit.setConfigId(configId);
-          }
-          break;
-        }
-      }
-        
-      if (configToEdit == null) {
-        throw new RuntimeException("could not find config to be deleted from job name "+jobName);
-      }
-      
       String previousJobName = request.getParameter("previousJobName");
       
       // change was made on the form

@@ -46,6 +46,16 @@ public class GrouperDaemonOtherJobConfiguration extends GrouperDaemonConfigurati
     return "a.b.c.SomethingThatExtendsOtherJobBase";
   }
 
+  @Override
+  public boolean matchesQuartzJobName(String jobName) {
+
+    
+    
+    return false;
+  }
+  
+  
+
   
   
 }

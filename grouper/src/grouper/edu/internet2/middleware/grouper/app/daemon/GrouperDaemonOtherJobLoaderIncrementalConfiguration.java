@@ -44,4 +44,12 @@ public class GrouperDaemonOtherJobLoaderIncrementalConfiguration extends Grouper
     return true;
   }
 
+  @Override
+  public boolean matchesQuartzJobName(String jobName) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+  
+  
+
 }

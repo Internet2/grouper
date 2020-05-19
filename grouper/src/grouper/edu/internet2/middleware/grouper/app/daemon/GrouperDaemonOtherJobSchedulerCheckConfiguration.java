@@ -31,4 +31,12 @@ public class GrouperDaemonOtherJobSchedulerCheckConfiguration extends GrouperDae
     return false;
   }
 
+  @Override
+  public boolean matchesQuartzJobName(String jobName) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+  
+  
+
 }

@@ -23,4 +23,9 @@ public class GrouperDaemonChangeLogTempToChangeLogConfiguration extends GrouperD
   public boolean isMultiple() {
     return false;
   }
+
+  @Override
+  public boolean matchesQuartzJobName(String jobName) {
+    return "CHANGE_LOG_changeLogTempToChangeLog".equals(jobName);
+  }
 }
