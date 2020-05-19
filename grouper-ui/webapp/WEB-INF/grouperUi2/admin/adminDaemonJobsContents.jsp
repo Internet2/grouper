@@ -84,6 +84,8 @@
                                   <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=disable&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</a></li>
                                 </c:if>
                                 <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
+                                <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
+                                <li><a href="#" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Admin.deleteDaemon&jobName=${guiDaemonJob.jobName}');}">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
                               </ul>
                             </div>
                           </td>

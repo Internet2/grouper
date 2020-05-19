@@ -97,11 +97,7 @@ public class GrouperExternalSystemAttribute {
       value = this.getExpressionLanguageScript() != null? this.getExpressionLanguageScript(): null;
     } else if (this.getValue() != null) {
       value = this.getValue();
-    } 
-    
-//    if (value == null && this.getDefaultValue() != null) {
-//      value = this.getDefaultValue();
-//    }
+    }
     return value;
   }
   

@@ -426,7 +426,7 @@ public abstract class GrouperExternalSystem {
   }
   
   
-  public Map<String, GrouperExternalSystemAttribute> retrieveExtraAttributes() {
+  public Map<String, GrouperExternalSystemAttribute> retrieveExtraAttributes(Map<String, GrouperExternalSystemAttribute> attributesFromBaseConfig) {
     
     ConfigFileName configFileName = this.getConfigFileName();
     
@@ -461,22 +461,27 @@ public abstract class GrouperExternalSystem {
       
       String suffix = matcher.group(3);
       
-      GrouperExternalSystemAttribute grouperExternalSystemAttribute = new GrouperExternalSystemAttribute();
+      if (attributesFromBaseConfig.containsKey(suffix)) {
+        GrouperExternalSystemAttribute attribute = attributesFromBaseConfig.get(suffix);
+        attribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+      } else {
+        GrouperExternalSystemAttribute grouperExternalSystemAttribute = new GrouperExternalSystemAttribute();
 
-      grouperExternalSystemAttribute.setFullPropertyName(propertyName);
-      grouperExternalSystemAttribute.setGrouperExternalSystem(this);
-      
-      result.put(suffix, grouperExternalSystemAttribute);
-      
-      grouperExternalSystemAttribute.setConfigSuffix(suffix);
-
-      ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
-      configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
-      configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
-      grouperExternalSystemAttribute.setConfigItemMetadata(configItemMetadata);
-      grouperExternalSystemAttribute.setType(configItemMetadata.getValueType());
-      grouperExternalSystemAttribute.setFormElement(ConfigItemFormElement.TEXT);
-      grouperExternalSystemAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+        grouperExternalSystemAttribute.setFullPropertyName(propertyName);
+        grouperExternalSystemAttribute.setGrouperExternalSystem(this);
+        
+        result.put(suffix, grouperExternalSystemAttribute);
+        
+        grouperExternalSystemAttribute.setConfigSuffix(suffix);
+        
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
+        configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
+        grouperExternalSystemAttribute.setConfigItemMetadata(configItemMetadata);
+        grouperExternalSystemAttribute.setType(configItemMetadata.getValueType());
+        grouperExternalSystemAttribute.setFormElement(ConfigItemFormElement.TEXT);
+        grouperExternalSystemAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+      }
       
     }
     
@@ -620,7 +625,7 @@ public abstract class GrouperExternalSystem {
       }
     }
     
-    Map<String, GrouperExternalSystemAttribute> extraAttributes = retrieveExtraAttributes();
+    Map<String, GrouperExternalSystemAttribute> extraAttributes = retrieveExtraAttributes(result);
     
     result.putAll(extraAttributes);
     

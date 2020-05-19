@@ -1,11 +1,19 @@
 package edu.internet2.middleware.grouper.app.daemon;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperDaemonConfigAttribute {
   
@@ -45,6 +53,26 @@ public class GrouperDaemonConfigAttribute {
    * full property name
    */
   private String fullPropertyName;
+  
+  /**
+   * does this attribute store expression language 
+   */
+  private boolean expressionLanguage;
+  
+  /**
+   * does this attribute store password
+   */
+  private boolean password;
+  
+  /**
+   * value when this attribute stores expression language
+   */
+  private String expressionLanguageScript;
+  
+  /**
+   * first one is the value and the second one is the label  
+   */
+  private List<MultiKey> dropdownValuesAndLabels;
 
   
   public GrouperDaemonConfiguration getGrouperDaemonConfiguration() {
@@ -172,6 +200,112 @@ public class GrouperDaemonConfigAttribute {
       return this.getConfigItemMetadata().getComment();
     }
     return description;
+  }
+
+
+  
+  public boolean isExpressionLanguage() {
+    return expressionLanguage;
+  }
+
+
+  
+  public void setExpressionLanguage(boolean expressionLanguage) {
+    this.expressionLanguage = expressionLanguage;
+  }
+
+
+  
+  public boolean isPassword() {
+    return password;
+  }
+
+
+  
+  public void setPassword(boolean password) {
+    this.password = password;
+  }
+
+
+  
+  public String getExpressionLanguageScript() {
+    return expressionLanguageScript;
+  }
+
+
+  
+  public void setExpressionLanguageScript(String expressionLanguageScript) {
+    this.expressionLanguageScript = expressionLanguageScript;
+  }
+
+
+  
+  public List<MultiKey> getDropdownValuesAndLabels() {
+    return dropdownValuesAndLabels;
+  }
+
+
+  
+  public void setDropdownValuesAndLabels(List<MultiKey> dropdownValuesAndLabels) {
+    this.dropdownValuesAndLabels = dropdownValuesAndLabels;
+  }
+  
+  /**
+   * get the value or the expression language evaluation
+   * @return the value
+   */
+  public String getValueOrExpressionEvaluation() {
+    String value = null;
+    
+    if (this.isExpressionLanguage()) {
+      value = this.getExpressionLanguageScript() != null? this.getExpressionLanguageScript(): null;
+    } else if (this.getValue() != null) {
+      value = this.getValue();
+    }
+    return value;
+  }
+  
+  public boolean isHasValue() {
+    return (!this.isExpressionLanguage() && !StringUtils.isBlank(this.getValue()))
+        || (this.isExpressionLanguage() && !StringUtils.isBlank(this.getExpressionLanguageScript()));
+  }
+  
+  /**
+   * get the html id for the field 
+   * @return
+   */
+  public String getHtmlForElementIdHandle() {
+    return "#config_" + this.getConfigSuffix() + "_id";
+  }
+  
+  /**
+   * @return get evaluated value for validation
+   */
+  public String getEvaluatedValueForValidation() throws UnsupportedOperationException {
+    
+    if (!this.expressionLanguage) {
+      return this.value;
+    }
+    
+    // if script and certain type (e.g. env var), then validate
+    //${java.lang.System.getenv().get('JAVA_HOME')}
+    Pattern pattern = Pattern.compile("^\\$\\{java\\.lang\\.System\\.getenv\\(\\)\\.get\\('([\\w]+)'\\)\\}");
+    boolean evaluate = false;
+    if (pattern.matcher(this.expressionLanguageScript).matches()) {
+      evaluate = true;
+    }
+    
+    if (evaluate) {
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+
+      variableMap.put("grouperUtil", new GrouperUtilElSafe());
+      
+      String value = GrouperUtil.substituteExpressionLanguage(this.expressionLanguageScript, variableMap, true, true, true);
+
+      return value;
+    }
+    
+    throw new UnsupportedOperationException();
   }
   
 

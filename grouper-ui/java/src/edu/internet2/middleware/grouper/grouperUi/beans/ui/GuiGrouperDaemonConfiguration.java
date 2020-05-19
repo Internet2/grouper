@@ -9,6 +9,10 @@ public class GuiGrouperDaemonConfiguration {
   
   private GrouperDaemonConfiguration grouperDaemonConfiguration;
   
+  private String jobName;
+  
+  private boolean enabled = true;
+  
   private GuiGrouperDaemonConfiguration(GrouperDaemonConfiguration grouperDaemonConfiguration) {
     this.grouperDaemonConfiguration = grouperDaemonConfiguration;
   }
@@ -33,4 +37,25 @@ public class GuiGrouperDaemonConfiguration {
     
   }
 
+  
+  public String getJobName() {
+    return jobName;
+  }
+
+  
+  public void setJobName(String jobName) {
+    this.jobName = jobName;
+  }
+
+  
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+  
+  
 }

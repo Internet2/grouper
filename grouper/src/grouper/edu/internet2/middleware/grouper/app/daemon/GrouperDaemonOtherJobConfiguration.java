@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.daemon;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 // generic other job to add just classname and cron
@@ -31,7 +31,10 @@ public class GrouperDaemonOtherJobConfiguration extends GrouperDaemonConfigurati
     return true;
   }
 
-
+  @Override
+  public String getDaemonJobPrefix() {
+    return GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX;
+  }
   
   @Override
   public String getPropertySuffixThatIdentifiesThisDaemon() {

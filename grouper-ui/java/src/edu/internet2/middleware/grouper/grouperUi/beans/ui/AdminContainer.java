@@ -481,7 +481,7 @@ public class AdminContainer {
   
   
   private GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration;
-  
+
   
   public GuiGrouperDaemonConfiguration getGuiGrouperDaemonConfiguration() {
     return guiGrouperDaemonConfiguration;
@@ -495,6 +495,17 @@ public class AdminContainer {
 
   public List<GrouperDaemonConfiguration> getAllGrouperDaemonTypesConfiguration() {
     return GrouperDaemonConfiguration.retrieveAllDaemonTypesConfiguration();
+  }
+
+  private boolean grouperDaemonLoader;
+  
+  public void setGrouperDaemonLoader(boolean grouperDaemonLoader) {
+    this.grouperDaemonLoader = grouperDaemonLoader;
+  }
+
+  
+  public boolean isGrouperDaemonLoader() {
+    return grouperDaemonLoader;
   }
   
 }

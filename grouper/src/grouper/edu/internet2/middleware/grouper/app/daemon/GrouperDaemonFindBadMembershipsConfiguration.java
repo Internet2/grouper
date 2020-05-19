@@ -4,6 +4,13 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDaemonFindBadMembershipsConfiguration extends GrouperDaemonConfiguration {
   
+  public static void main(String[] args) {
+    String prefix = "otherJob.findBadMemberships.";
+    String[] splits = prefix.split("\\.");
+    String val = splits[splits.length - 1];
+    System.out.println(val);
+  }
+  
   @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
