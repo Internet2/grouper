@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -284,6 +285,7 @@ public class UiV2Configure {
 
           guiResponseJs.addAction(GuiScreenAction.newMessage((added[0] != null && error[0] == null) ? GuiMessageType.success : ((error[0] == null || !error[0]) ? GuiMessageType.info : GuiMessageType.error), message.toString()));
           ConfigPropertiesCascadeBase.clearCache();
+          GrouperUiApiTextConfig.clearCache();
 
           return result;
         }
@@ -810,6 +812,8 @@ public class UiV2Configure {
       }
       
       ConfigPropertiesCascadeBase.clearCache();
+      GrouperUiApiTextConfig.clearCache();
+
     } finally {
       if (newlyAssignedUseStaticRequestContainer && !fromUi) {
         GrouperRequestContainer.assignUseStaticRequestContainer(false);
@@ -869,6 +873,7 @@ public class UiV2Configure {
     
     // get the latest and greatest
     ConfigPropertiesCascadeBase.clearCache();
+    GrouperUiApiTextConfig.clearCache();
     
     ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
     
@@ -926,6 +931,10 @@ public class UiV2Configure {
     configurationContainer.setGuiConfigFile(guiConfigFile);
     
     boolean addedRemainingConfigSection = false;
+    
+    if (!configFileName.isUseBaseForConfigFileMetadata()) {
+      return;
+    }
     
     Set<String> propertyNames = configPropertiesCascadeBase.propertyNames();
     

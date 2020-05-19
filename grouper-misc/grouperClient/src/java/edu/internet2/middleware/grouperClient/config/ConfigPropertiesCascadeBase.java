@@ -873,12 +873,22 @@ public abstract class ConfigPropertiesCascadeBase {
    * config files from least specific to more specific
    */
   private List<ConfigFile> configFiles = null;
-  
+
   /**
    * get the config object from config files
    * @return the config object
    */
   protected ConfigPropertiesCascadeBase retrieveFromConfigFiles() {
+    return this.retrieveFromConfigFiles(true);
+  }
+
+  /**
+   * get the config object from config files.  You should call the method that gets these from cache, 
+   * probably shouldnt call this method except for config in UI reasons
+   * @param includeBaseConfig true if we include base config
+   * @return the config object
+   */
+  public ConfigPropertiesCascadeBase retrieveFromConfigFiles(boolean includeBaseConfig) {
     
     //lets get the config hierarchy...
     //properties from override first
@@ -944,8 +954,17 @@ public abstract class ConfigPropertiesCascadeBase {
 
     result.configFiles = new ArrayList<ConfigFile>();
 
+    boolean isFirst = true;
+    
     for (String overrideConfigString : overrideConfigStringList) {
       
+      if (!includeBaseConfig && isFirst && overrideConfigString.toLowerCase().contains("base")) {
+        
+        isFirst = false;
+        continue;
+        
+      }
+      isFirst = false;
       ConfigFile configFile = new ConfigFile(overrideConfigString);
       result.configFiles.add(configFile);
       

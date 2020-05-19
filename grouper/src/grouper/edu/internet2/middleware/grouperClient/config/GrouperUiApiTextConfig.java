@@ -166,7 +166,27 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
   public GrouperUiApiTextConfig() {
     
   }
-  
+
+  /**
+   * text config for this user's locale
+   * @return the config for this user's locale
+   */
+  public static GrouperUiApiTextConfig retrieveTextConfigEnUs() {
+    
+    return retrieveText(Locale.US);
+    
+  }
+
+  /**
+   * text config for this user's locale
+   * @return the config for this user's locale
+   */
+  public static GrouperUiApiTextConfig retrieveTextConfigFrFr() {
+    
+    return retrieveText(Locale.FRANCE);
+    
+  }
+
   /**
    * text config for this user's locale
    * @return the config for this user's locale
@@ -211,7 +231,7 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
 
     TextBundleBean textBundleBean = retrieveTextBundleBean(locale);
     
-    final String theMainConfigClasspath = textBundleBean.getFileNamePrefix() + ".properties";
+    final String theMainConfigClasspath = StringUtils.replace(textBundleBean.getFileNamePrefix(), "textNg.", "text.") + ".properties";
     
     // replace to textNg to accomodate moving config to API
     final String theMainExampleConfigClasspath = StringUtils.replace(textBundleBean.getFileNamePrefix(), "text.", "textNg.") + ".base.properties";
@@ -337,6 +357,7 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
       }
       
       configObject = retrieveFromConfigFiles();
+      
       configFileCache.put(this.languageCountry, configObject);
       
     } else {
@@ -363,6 +384,14 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
     return configObject;
   }
   
+  @Override
+  protected ConfigPropertiesCascadeBase retrieveFromConfigFiles() {
+    ConfigPropertiesCascadeBase configObject = super.retrieveFromConfigFiles();
+    ((GrouperUiApiTextConfig)configObject).languageCountry = this.languageCountry;
+    ((GrouperUiApiTextConfig)configObject).mainConfigClasspath = this.mainConfigClasspath;
+    ((GrouperUiApiTextConfig)configObject).mainExampleConfigClasspath = this.mainExampleConfigClasspath;
+    return configObject;
+  }
   /**
    * init and return the tooltip keys
    * @return the list of keys

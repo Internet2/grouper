@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -496,6 +497,10 @@ public class DbConfigEngine {
     for (ConfigFileName current : ConfigFileName.values()) {
       
       if (current == configFileName) {
+        continue;
+      }
+      
+      if (current == ConfigFileName.GROUPER_TEXT_FR_FR_PROPERTIES && !GrouperConfig.retrieveConfig().textBundleFromLanguageAndCountry().containsKey("fr_fr")) {
         continue;
       }
       

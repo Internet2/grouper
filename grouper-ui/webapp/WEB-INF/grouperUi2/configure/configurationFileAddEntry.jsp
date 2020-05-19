@@ -46,6 +46,10 @@
                         <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_CLIENT_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_CLIENT_PROPERTIES">grouper.client.properties</option>
                         <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_LOADER_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_LOADER_PROPERTIES">grouper-loader.properties</option>
                         <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_PROPERTIES">grouper.properties</option>
+                        <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_TEXT_EN_US_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_TEXT_EN_US_PROPERTIES">grouper.text.en.us.properties</option>
+                        <c:if test="${ grouperRequestContainer.configurationContainer.hasFrench }">
+                          <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_TEXT_FR_FR_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_TEXT_FR_FR_PROPERTIES">grouper.text.fr.fr.properties</option>
+                        </c:if>
                         <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_UI_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_UI_PROPERTIES">grouper-ui.properties</option>
                         <option ${grouperRequestContainer.configurationContainer.configFileName == 'GROUPER_WS_PROPERTIES' ? 'selected="selected"' : '' } value="GROUPER_WS_PROPERTIES">grouper-ws.properties</option>
                         <option ${grouperRequestContainer.configurationContainer.configFileName == 'SUBJECT_PROPERTIES' ? 'selected="selected"' : '' } value="SUBJECT_PROPERTIES">subject.properties</option>

@@ -16,6 +16,9 @@
 
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +33,8 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 
@@ -122,6 +127,38 @@ public enum ConfigFileName {
     @Override
     public ConfigPropertiesCascadeBase getConfig() {
       return SubjectConfig.retrieveConfig();
+    }
+    
+  }, 
+  /**
+   * grouper.text.en.us.properties
+   */
+  GROUPER_TEXT_EN_US_PROPERTIES("grouper.text.en.us.properties", "grouper.textNg.en.us.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return GrouperUiApiTextConfig.retrieveTextConfigEnUs();
+    }
+
+    @Override
+    public boolean isUseBaseForConfigFileMetadata() {
+      return false;
+    }
+    
+  },
+  /**
+   * grouper.text.fr.fr.properties
+   */
+  GROUPER_TEXT_FR_FR_PROPERTIES("grouper.text.fr.fr.properties", "grouper.textNg.fr.fr.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return GrouperUiApiTextConfig.retrieveTextConfigFrFr();
+    }
+
+    @Override
+    public boolean isUseBaseForConfigFileMetadata() {
+      return false;
     }
     
   };
@@ -236,15 +273,46 @@ public enum ConfigFileName {
   }
 
   /**
+   * true for everything but text configs
+   * @return if use base
+   */
+  public boolean isUseBaseForConfigFileMetadata() {
+    return true;
+  }
+  
+  /**
    * 
    * @return config file metadata
    */
   public ConfigFileMetadata configFileMetadata() {
-    String contents = this.fileContents();
-    if (StringUtils.isBlank(contents)) {
-      return null;
+    if (this.isUseBaseForConfigFileMetadata()) {
+      String contents = this.fileContents();
+      if (StringUtils.isBlank(contents)) {
+        return null;
+      }
+      ConfigFileMetadata configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(this, contents);
+      return configFileMetadata;
     }
-    ConfigFileMetadata configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(this, contents);
+    // lets just make metadata on whats in the database and non base config file
+    ConfigDatabaseLogic.clearCache();
+    ConfigPropertiesCascadeBase anotherBase = this.getConfig().retrieveFromConfigFiles(false);
+    Set<String> propertyNames = new TreeSet<String>(anotherBase.propertyNames());
+    
+    ConfigFileMetadata configFileMetadata = new ConfigFileMetadata();
+    configFileMetadata.setConfigFileName(this);
+    configFileMetadata.setConfigSectionMetadataList(new ArrayList<ConfigSectionMetadata>());
+    ConfigSectionMetadata configSectionMetadata = new ConfigSectionMetadata();
+    configFileMetadata.getConfigSectionMetadataList().add(configSectionMetadata);
+    for (String propertyName : propertyNames) {
+      if (propertyName.endsWith(".elConfig")) {
+        propertyName = GrouperUtil.stripSuffix(propertyName, ".elConfig");
+      }
+      ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+      configItemMetadata.setKey(propertyName);
+      configItemMetadata.setMetadataProcessedSuccessfully(true);
+      configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
+      configSectionMetadata.getConfigItemMetadataList().add(configItemMetadata);
+    }
     return configFileMetadata;
   }
   
