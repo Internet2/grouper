@@ -91,10 +91,15 @@ public abstract class GrouperDaemonConfiguration {
   
   public final static Set<String> grouperDaemonConfigClassNames = new LinkedHashSet<String>();
   static {
-    grouperDaemonConfigClassNames.add("edu.internet2.middleware.grouper.app.daemon.GrouperDaemonChangeLogTempToChangeLogConfiguration");
-    grouperDaemonConfigClassNames.add("edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobConfiguration");
-    grouperDaemonConfigClassNames.add("edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobLoaderIncrementalConfiguration");
-    grouperDaemonConfigClassNames.add("edu.internet2.middleware.grouper.app.daemon.GrouperDaemonFindBadMembershipsConfiguration");
+    grouperDaemonConfigClassNames.add(GrouperDaemonBuiltInMessaging.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogRecentMemberships.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogRules.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogSyncGroups.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogTempToChangeLogConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonFindBadMembershipsConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobLoaderIncrementalConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSchedulerCheckConfiguration.class.getName());
   }
   
   
@@ -202,39 +207,44 @@ public abstract class GrouperDaemonConfiguration {
     try {
       for (ConfigSectionMetadata configSectionMetadata: configSectionMetadataList) {
         for (ConfigItemMetadata configItemMetadata: configSectionMetadata.getConfigItemMetadataList()) {
-          
-          Matcher matcher = pattern.matcher(configItemMetadata.getKeyOrSampleKey());
-          if (!matcher.matches()) {
-            continue;
-          }
-          
-          String prefix = matcher.group(1);
-          String propertyName = null;
-          String suffix = null;
-                  
-          if(this.isMultiple()) { // multiple means config id will not be blank on an edit
 
-            if (StringUtils.isBlank(configIdThatIdentifiesThisDaemon)) {
-              throw new RuntimeException("Why is configIdThatIdentifiesThisDaemon blank??? " + this.getClass().getName());
-            }
-
-            String currentConfigId = matcher.group(2);
-
-            if (!StringUtils.equals(currentConfigId, configIdThatIdentifiesThisDaemon)) {
+          String propertyName = configItemMetadata.getKeyOrSampleKey();
+          String suffix = propertyName;
+          if (!this.retrieveExtraConfigKeys().contains(propertyName)) {
+            
+            Matcher matcher = pattern.matcher(configItemMetadata.getKeyOrSampleKey());
+            if (!matcher.matches()) {
               continue;
             }
             
-            suffix = matcher.group(3);
-            propertyName = prefix + "." + this.getConfigId() + "." + suffix;
-            
-          } else {
-            
-            if (!StringUtils.isBlank(configId)) {
-              throw new RuntimeException("Why is configId not blank??? " + this.getClass().getName());
+            String prefix = matcher.group(1);
+            suffix = null;
+                    
+            if(this.isMultiple()) { // multiple means config id will not be blank on an edit
+
+              if (StringUtils.isBlank(configIdThatIdentifiesThisDaemon)) {
+                throw new RuntimeException("Why is configIdThatIdentifiesThisDaemon blank??? " + this.getClass().getName());
+              }
+
+              String currentConfigId = matcher.group(2);
+
+              if (!StringUtils.equals(currentConfigId, configIdThatIdentifiesThisDaemon)) {
+                continue;
+              }
+              
+              suffix = matcher.group(3);
+              propertyName = prefix + "." + this.getConfigId() + "." + suffix;
+              
+            } else {
+              
+              if (!StringUtils.isBlank(configId)) {
+                throw new RuntimeException("Why is configId not blank??? " + this.getClass().getName());
+              }
+              suffix = matcher.group(2);
+              propertyName = configItemMetadata.getKeyOrSampleKey();
+              
             }
-            suffix = matcher.group(2);
-            propertyName = configItemMetadata.getKeyOrSampleKey();
-            
+
           }
           
           GrouperDaemonConfigAttribute grouperDaemonConfigAttribute = new GrouperDaemonConfigAttribute();
@@ -391,6 +401,14 @@ public abstract class GrouperDaemonConfiguration {
      
   }
   
+  /**
+   * extra configs that dont match the regex or prefix
+   */
+  protected Set<String> extraConfigKeys = new TreeSet<String>();
+
+  public Set<String> retrieveExtraConfigKeys() {
+    return extraConfigKeys;
+  }
   
   /**
    * get a set of config ids
