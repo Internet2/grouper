@@ -90,18 +90,33 @@ public abstract class GrouperDaemonConfiguration {
   }
   
   public final static Set<String> grouperDaemonConfigClassNames = new LinkedHashSet<String>();
-  static {
-    grouperDaemonConfigClassNames.add(GrouperDaemonBuiltInMessaging.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogRecentMemberships.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogRules.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogSyncGroups.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogTempToChangeLogConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonFindBadMembershipsConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobLoaderIncrementalConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSchedulerCheckConfiguration.class.getName());
-  }
   
+  static {
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobAttestationConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonBuiltInMessagingConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogRecentMembershipsConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogRulesConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogSyncGroupsConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogTempToChangeLogConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonCleanLogsConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDeprovisioningConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonEnabledDisabledConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobFindBadMembershipsConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobInstrumentationConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobLoaderIncrementalConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobObjectTypeConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobProvisioningConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobReportClearConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSchedulerCheckConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobUpgradeTasksConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobUsduConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobWorkflowConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobWorkflowReminderConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonReportClearConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonRulesConfiguration.class.getName());
+    
+  }
   
   /**
    * list of daemon types that can be configured

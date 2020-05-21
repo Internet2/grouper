@@ -2,29 +2,29 @@ package edu.internet2.middleware.grouper.app.daemon;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class GrouperDaemonOtherJobSchedulerCheckConfiguration extends GrouperDaemonConfiguration {
+public class GrouperDaemonOtherJobUpgradeTasksConfiguration extends GrouperDaemonConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
   }
 
-  //  # Find and fix scheduler issues class
+  //  # Run upgrade tasks
   //  # {valueType: "class", mustExtendClass: "edu.internet2.middleware.grouper.app.loader.OtherJobBase", mustImplementInterface: "org.quartz.Job"}
-  //  otherJob.schedulerCheckDaemon.class = edu.internet2.middleware.grouper.app.loader.GrouperDaemonSchedulerCheck
+  //  otherJob.upgradeTasks.class = edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob
   //
-  //  # Find and fix scheduler issues cron
+  //  # Run upgrade tasks cron
   //  # {valueType: "string"}
-  //  otherJob.schedulerCheckDaemon.quartzCron = 25 0/30 * * * ?
+  //  otherJob.upgradeTasks.quartzCron = 5 25 * * * ?
 
   @Override
   public String getConfigIdRegex() {
-    return "^(otherJob\\.schedulerCheckDaemon)\\.(.*)$";
+    return "^(otherJob\\.upgradeTasks)\\.(.*)$";
   }
 
   @Override
   public String getConfigItemPrefix() {
-    return "otherJob.schedulerCheckDaemon.";
+    return "otherJob.upgradeTasks.";
   }
 
   @Override
@@ -34,7 +34,7 @@ public class GrouperDaemonOtherJobSchedulerCheckConfiguration extends GrouperDae
 
   @Override
   public boolean matchesQuartzJobName(String jobName) {
-    return "OTHER_JOB_schedulerCheckDaemon".equals(jobName);
+    return "OTHER_JOB_upgradeTasks".equals(jobName);
   }
   
   

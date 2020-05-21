@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.daemon;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class GrouperDaemonFindBadMembershipsConfiguration extends GrouperDaemonConfiguration {
+public class GrouperDaemonOtherJobFindBadMembershipsConfiguration extends GrouperDaemonConfiguration {
   
   public static void main(String[] args) {
     String prefix = "otherJob.findBadMemberships.";

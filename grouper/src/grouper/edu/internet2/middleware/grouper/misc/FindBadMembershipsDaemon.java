@@ -30,7 +30,7 @@ import org.quartz.JobExecutionException;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
-import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonFindBadMembershipsConfiguration;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobFindBadMembershipsConfiguration;
 import edu.internet2.middleware.grouper.app.daemon.HasGrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
@@ -173,8 +173,7 @@ public class FindBadMembershipsDaemon implements Job, HasGrouperDaemonConfigurat
 
   @Override
   public GrouperDaemonConfiguration getGrouperDaemonConfiguration() {
-    return new GrouperDaemonFindBadMembershipsConfiguration();
+    return new GrouperDaemonOtherJobFindBadMembershipsConfiguration();
   }
-  
   
 }

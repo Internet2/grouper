@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.daemon;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class GrouperDaemonBuiltInMessaging extends GrouperDaemonConfiguration {
+public class GrouperDaemonBuiltInMessagingConfiguration extends GrouperDaemonConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {
@@ -23,7 +23,7 @@ public class GrouperDaemonBuiltInMessaging extends GrouperDaemonConfiguration {
 //  # {valueType: "integer", required: true}
 //  grouper.builtin.messaging.deleteProcessedMessagesMoreThanMinutesOld = 180
 
-  public GrouperDaemonBuiltInMessaging() {
+  public GrouperDaemonBuiltInMessagingConfiguration() {
     this.extraConfigKeys.add("grouper.builtin.messaging.deleteAllMessagesMoreThanHoursOld");
     this.extraConfigKeys.add("grouper.builtin.messaging.deleteProcessedMessagesMoreThanMinutesOld");
   }

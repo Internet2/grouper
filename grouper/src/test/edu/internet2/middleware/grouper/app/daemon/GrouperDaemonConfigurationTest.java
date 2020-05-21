@@ -23,7 +23,7 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     
     setupOtherFindBadMembershipDaemonConfiguration();
     
-    GrouperDaemonConfiguration configuration = new GrouperDaemonFindBadMembershipsConfiguration();
+    GrouperDaemonConfiguration configuration = new GrouperDaemonOtherJobFindBadMembershipsConfiguration();
     
     Map<String, GrouperDaemonConfigAttribute> attributes = configuration.retrieveAttributes();
     

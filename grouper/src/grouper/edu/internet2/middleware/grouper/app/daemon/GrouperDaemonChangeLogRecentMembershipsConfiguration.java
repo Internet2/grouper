@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.daemon;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class GrouperDaemonChangeLogRecentMemberships extends GrouperDaemonConfiguration {
+public class GrouperDaemonChangeLogRecentMembershipsConfiguration extends GrouperDaemonConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {
