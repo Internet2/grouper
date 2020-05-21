@@ -23,7 +23,7 @@ public class GrouperDaemonOtherJobConfiguration extends GrouperDaemonConfigurati
 
   @Override
   public String getConfigIdRegex() {
-    return "^(otherJob)\\.([^.]+)\\.(.*)$";
+    return "^(otherJob)\\.([^.]+)\\.(.+)$";
   }
 
   @Override
@@ -48,14 +48,7 @@ public class GrouperDaemonOtherJobConfiguration extends GrouperDaemonConfigurati
 
   @Override
   public boolean matchesQuartzJobName(String jobName) {
-
-    
-    
-    return false;
+    return jobName != null && jobName.startsWith(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX);
   }
-  
-  
-
-  
   
 }

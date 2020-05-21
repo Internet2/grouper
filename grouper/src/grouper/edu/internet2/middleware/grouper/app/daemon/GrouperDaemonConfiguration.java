@@ -92,28 +92,36 @@ public abstract class GrouperDaemonConfiguration {
   public final static Set<String> grouperDaemonConfigClassNames = new LinkedHashSet<String>();
   
   static {
-    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobAttestationConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonBuiltInMessagingConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogConsumerConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogEsbConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogEsbToMessagingConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogRecentMembershipsConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogRulesConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogSyncGroupsConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogTempToChangeLogConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogToMessagingConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonCleanLogsConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDeprovisioningConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonEnabledDisabledConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobFindBadMembershipsConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonMessagingListenerConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonMessagingListenerToChangeLogConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobAttestationConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobCsvReportConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDeprovisioningConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobFindBadMembershipsConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobInstrumentationConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobLoaderIncrementalConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobObjectTypeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobProvisioningConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobReportClearConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSchedulerCheckConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobTableSyncConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobUpgradeTasksConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobUsduConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobWorkflowConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobWorkflowReminderConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonReportClearConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobWsMessagingBridgeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonRulesConfiguration.class.getName());
     
   }
@@ -419,7 +427,7 @@ public abstract class GrouperDaemonConfiguration {
   /**
    * extra configs that dont match the regex or prefix
    */
-  protected Set<String> extraConfigKeys = new TreeSet<String>();
+  protected Set<String> extraConfigKeys = new LinkedHashSet<String>();
 
   public Set<String> retrieveExtraConfigKeys() {
     return extraConfigKeys;
@@ -677,6 +685,15 @@ public abstract class GrouperDaemonConfiguration {
       if (grouperDaemonConfig instanceof GrouperDaemonOtherJobConfiguration) {
         continue;
       }
+      if (grouperDaemonConfig instanceof GrouperDaemonChangeLogConsumerConfiguration) {
+        continue;
+      }
+      if (grouperDaemonConfig instanceof GrouperDaemonMessagingListenerConfiguration) {
+        continue;
+      }
+      if (grouperDaemonConfig instanceof GrouperDaemonChangeLogEsbConfiguration) {
+        continue;
+      }
       if (grouperDaemonConfig.matchesQuartzJobName(jobName)) {          
         if (result != null) {
           throw new RuntimeException(jobName + " matches "+ grouperDaemonConfig + " and also " + result);
@@ -688,12 +705,28 @@ public abstract class GrouperDaemonConfiguration {
     if (result != null) {
       return result;
     }
-    
+
+    GrouperDaemonMessagingListenerConfiguration grouperDaemonMessagingListenerConfiguration = new GrouperDaemonMessagingListenerConfiguration();
+    if (grouperDaemonMessagingListenerConfiguration.matchesQuartzJobName(jobName)) {
+      return grouperDaemonMessagingListenerConfiguration;
+    }
+
     GrouperDaemonOtherJobConfiguration grouperDaemonOtherJobConfiguration = new GrouperDaemonOtherJobConfiguration();
     if (grouperDaemonOtherJobConfiguration.matchesQuartzJobName(jobName)) {
       return grouperDaemonOtherJobConfiguration;
     }
-    
+
+    // note ESB needs to be above the generic change log below
+    GrouperDaemonChangeLogEsbConfiguration grouperDaemonChangeLogEsbConfiguration = new GrouperDaemonChangeLogEsbConfiguration();
+    if (grouperDaemonChangeLogEsbConfiguration.matchesQuartzJobName(jobName)) {
+      return grouperDaemonChangeLogEsbConfiguration;
+    }
+
+    GrouperDaemonChangeLogConsumerConfiguration grouperDaemonChangeLogConsumerConfiguration = new GrouperDaemonChangeLogConsumerConfiguration();
+    if (grouperDaemonChangeLogConsumerConfiguration.matchesQuartzJobName(jobName)) {
+      return grouperDaemonChangeLogConsumerConfiguration;
+    }
+
     throw new RuntimeException("Can't find daemon config for jobName "+jobName);
     
   }

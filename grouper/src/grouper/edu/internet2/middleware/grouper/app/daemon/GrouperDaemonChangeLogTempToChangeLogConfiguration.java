@@ -4,6 +4,17 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDaemonChangeLogTempToChangeLogConfiguration extends GrouperDaemonConfiguration {
 
+  public GrouperDaemonChangeLogTempToChangeLogConfiguration() {
+    this.extraConfigKeys.add("changeLog.includeFlattenedMemberships");
+    this.extraConfigKeys.add("changeLog.includeFlattenedPrivileges");
+    this.extraConfigKeys.add("changeLog.includeRolesWithPermissionChanges");
+    this.extraConfigKeys.add("changeLog.includeSubjectsWithPermissionChanges");
+    this.extraConfigKeys.add("changeLog.includeNonFlattenedMemberships");
+    this.extraConfigKeys.add("changeLog.includeNonFlattenedPrivileges");
+    this.extraConfigKeys.add("changeLog.tooManyChangeLogUpdatesSize");
+
+  }
+
   @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
