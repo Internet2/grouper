@@ -51,9 +51,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
-import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobLoaderIncrementalConfiguration;
-import edu.internet2.middleware.grouper.app.daemon.HasGrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -77,7 +74,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author shilen
  */
 @DisallowConcurrentExecution
-public class GrouperLoaderIncrementalJob implements Job, HasGrouperDaemonConfiguration {
+public class GrouperLoaderIncrementalJob implements Job {
   
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderIncrementalJob.class);
     
@@ -1234,13 +1231,5 @@ public class GrouperLoaderIncrementalJob implements Job, HasGrouperDaemonConfigu
       this.subjectValue = subjectValue;
     }
   }
-
-  @Override
-  public GrouperDaemonConfiguration getGrouperDaemonConfiguration() {
-    return new GrouperDaemonOtherJobLoaderIncrementalConfiguration();
-  }
-  
-  
-  
   
 }

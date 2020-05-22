@@ -33,6 +33,7 @@ import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -141,6 +142,8 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
    */
   private String overallStatus;
   
+  private boolean isMultiple;
+  
   /**
    * @param jobName
    */
@@ -151,6 +154,13 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
   
       this.setJobName(jobName);
+      
+      try {        
+        GrouperDaemonConfiguration grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
+        this.isMultiple = grouperDaemonConfig.isMultiple();
+      } catch (Exception e) {
+        // TODO: delete this block once all the children daemon config classes are there
+      }
       
       Date nextFireTime = null;
       Date prevFireTime = null;
@@ -644,4 +654,13 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   public void setOverallStatus(String overallStatus) {
     this.overallStatus = overallStatus;
   }
+
+  /**
+   * can there be multiple instances
+   * @return
+   */
+  public boolean isMultiple() {
+    return isMultiple;
+  }
+  
 }

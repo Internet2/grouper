@@ -15,9 +15,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
-import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobConfiguration;
-import edu.internet2.middleware.grouper.app.daemon.HasGrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -28,7 +25,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 @DisallowConcurrentExecution
-public class GrouperProvisioningJob extends OtherJobBase implements HasGrouperDaemonConfiguration {
+public class GrouperProvisioningJob extends OtherJobBase {
   
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
@@ -122,11 +119,6 @@ public class GrouperProvisioningJob extends OtherJobBase implements HasGrouperDa
       GrouperProvisioningService.copyConfigFromParent(grouperObject);
     }
     
-  }
-
-  @Override
-  public GrouperDaemonConfiguration getGrouperDaemonConfiguration() {
-    return new GrouperDaemonOtherJobConfiguration();
   }
 
 }

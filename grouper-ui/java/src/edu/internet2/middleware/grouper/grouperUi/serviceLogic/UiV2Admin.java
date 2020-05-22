@@ -712,6 +712,11 @@ public class UiV2Admin extends UiServiceLogicBase {
       }
       
       GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
+      
+      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      if (configToEdit.isMultiple()) {
+        configToEdit.setConfigId(configId);
+      }
         
       String previousJobName = request.getParameter("previousJobName");
       

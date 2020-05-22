@@ -33,8 +33,7 @@ public class GrouperDaemonOtherJobFindBadMembershipsConfiguration extends Groupe
 
   @Override
   public boolean matchesQuartzJobName(String jobName) {
-    // TODO Auto-generated method stub
-    return false;
+    return "OTHER_JOB_findBadMemberships".equals(jobName);
   }
   
   

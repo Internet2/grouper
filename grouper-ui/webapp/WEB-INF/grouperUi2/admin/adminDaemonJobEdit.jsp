@@ -39,13 +39,16 @@
 						    </td>
 						</tr>
 						
-						<tr>
-						  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="daemonConfigId">${textContainer.text['daemonConfigIdLabel']}</label></strong></td>
-						  <td>&nbsp;</td>
-						  <td>
-						    ${grouper:escapeHtml(guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId)}
-						  </td>
-						</tr>
+						<c:if test="${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.multiple == true}">
+							<tr>
+							  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="daemonConfigId">${textContainer.text['daemonConfigIdLabel']}</label></strong></td>
+							  <td>&nbsp;</td>
+							  <td>
+							    ${grouper:escapeHtml(guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId)}
+							  </td>
+							</tr>
+						</c:if>
+						
 						<tr>
 	                      <td style="vertical-align: top; white-space: nowrap;"><strong><label for="daemonTypeId">${textContainer.text['grouperDaemonConfigEnableLabel']}</label></strong></td>
 	                      <td>&nbsp;</td>
