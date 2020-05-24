@@ -14,6 +14,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.commons.logging.Log;
 import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
@@ -24,6 +25,7 @@ import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.persister.entity.AbstractEntityPersister;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
@@ -278,12 +280,22 @@ public class GrouperDdlDataMigration {
       result.append("Took: " + DurationFormatUtils.formatDuration(System.currentTimeMillis() - started[0], "HH:mm:ss.S") + "\n");
       
       return result.toString();
+    } catch (RuntimeException re) {
+      debugMap.put("state", "error");
+      re.printStackTrace();
+      LOG.error("error", re);
+      throw re;
     } finally {
       done[0] = true;
       statusThread.interrupt();
       GrouperUtil.threadJoin(statusThread);
+      System.out.println(GrouperUtil.mapToString(debugMap));
+      LOG.warn("Database migration output: " + GrouperUtil.mapToString(debugMap));
     }
   }
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperDdlDataMigration.class);
 
   /**
    * sync a table
@@ -371,6 +383,7 @@ public class GrouperDdlDataMigration {
         } catch (RuntimeException e) {
          runtimeException[0] = e;
          e.printStackTrace();
+         LOG.error("error", e);
          numberOfIndexesForWork[0] = -2;
         }
       }
