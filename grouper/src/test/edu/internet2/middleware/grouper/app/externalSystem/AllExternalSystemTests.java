@@ -11,7 +11,7 @@ public class AllExternalSystemTests extends TestCase {
     TestSuite suite = new TestSuite(AllExternalSystemTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperExternalSystemTest.class);
-    suite.addTestSuite(GrouperExternalSystemAttributeTest.class);
+    suite.addTestSuite(GrouperConfigurationModuleAttributeTest.class);
     //$JUnit-END$
     return suite;
   }

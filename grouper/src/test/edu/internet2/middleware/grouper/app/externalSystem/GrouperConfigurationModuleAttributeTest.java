@@ -1,22 +1,23 @@
 package edu.internet2.middleware.grouper.app.externalSystem;
 
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 
-public class GrouperExternalSystemAttributeTest extends GrouperTest {
+public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
   
   /**
    * @param name
    */
-  public GrouperExternalSystemAttributeTest(String name) {
+  public GrouperConfigurationModuleAttributeTest(String name) {
     super(name);
   }
   
   public void testGetValueOrExpressionEvaluation() {
     
     // expression script is returned when expression language is true
-    GrouperExternalSystemAttribute attribute = new GrouperExternalSystemAttribute();
+    GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
     attribute.setExpressionLanguage(true);
     attribute.setValue("abc");
     attribute.setExpressionLanguageScript("script");
