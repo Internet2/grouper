@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.daemon;
 
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -25,7 +26,7 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     
     GrouperDaemonConfiguration configuration = new GrouperDaemonOtherJobFindBadMembershipsConfiguration();
     
-    Map<String, GrouperDaemonConfigAttribute> attributes = configuration.retrieveAttributes();
+    Map<String, GrouperConfigurationModuleAttribute> attributes = configuration.retrieveAttributes();
     
     assertEquals(GrouperUtil.toStringForLog(attributes), 3, attributes.size());
     

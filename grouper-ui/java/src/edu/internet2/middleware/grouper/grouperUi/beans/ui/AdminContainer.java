@@ -13,7 +13,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
-import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
@@ -494,7 +493,7 @@ public class AdminContainer {
   }
 
   public List<GrouperDaemonConfiguration> getAllGrouperDaemonTypesConfiguration() {
-    return GrouperDaemonConfiguration.retrieveAllDaemonTypesConfiguration();
+    return GrouperDaemonConfiguration.retrieveAllModuleConfigurationTypes();
   }
 
   private boolean grouperDaemonLoader;

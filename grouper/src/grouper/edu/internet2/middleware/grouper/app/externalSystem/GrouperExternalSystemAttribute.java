@@ -145,31 +145,32 @@ public class GrouperExternalSystemAttribute {
    */
   public boolean isShow() {
     
-    {
-      Boolean showOverride = this.grouperExternalSystem.showAttributeOverride(this.configSuffix);
-      if (showOverride != null) {
-        return showOverride;
-      }
-    }
-    
-    String showEl = this.getConfigItemMetadata().getShowEl();
-    if (StringUtils.isBlank(showEl)) {
-      return true;
-    }
-    
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-
-    variableMap.put("grouperUtil", new GrouperUtilElSafe());
-    
-    for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
-      
-      variableMap.put(grouperExternalSystemAttribute.getConfigSuffix(), grouperExternalSystemAttribute.getObjectValueAllowInvalid());
-      
-    }
-
-    String showString = GrouperUtil.substituteExpressionLanguage(showEl, variableMap, true, true, true);
-    
-    return GrouperUtil.booleanValue(showString, true);
+//    {
+//      Boolean showOverride = this.grouperExternalSystem.showAttributeOverride(this.configSuffix);
+//      if (showOverride != null) {
+//        return showOverride;
+//      }
+//    }
+//    
+//    String showEl = this.getConfigItemMetadata().getShowEl();
+//    if (StringUtils.isBlank(showEl)) {
+//      return true;
+//    }
+//    
+//    Map<String, Object> variableMap = new HashMap<String, Object>();
+//
+//    variableMap.put("grouperUtil", new GrouperUtilElSafe());
+//    
+//    for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
+//      
+//      variableMap.put(grouperExternalSystemAttribute.getConfigSuffix(), grouperExternalSystemAttribute.getObjectValueAllowInvalid());
+//      
+//    }
+//
+//    String showString = GrouperUtil.substituteExpressionLanguage(showEl, variableMap, true, true, true);
+//    
+//    return GrouperUtil.booleanValue(showString, true);
+    return false;
   }
   
   /**

@@ -51,7 +51,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfigAttribute;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -646,7 +646,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       GrouperDaemonConfiguration configToDelete = null;
       
-      List<GrouperDaemonConfiguration> daemonTypesConfigurations = GrouperDaemonConfiguration.retrieveAllDaemonTypesConfiguration();
+      List<GrouperDaemonConfiguration> daemonTypesConfigurations = GrouperDaemonConfiguration.retrieveAllModuleConfigurationTypes();
       for (GrouperDaemonConfiguration config: daemonTypesConfigurations) {
         if (config.isMultiple()) {
           config.setConfigId(daemonId);
@@ -777,7 +777,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (StringUtils.isNotBlank(jobName)) {
         String daemonId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
         
-        List<GrouperDaemonConfiguration> daemonTypesConfigurations = GrouperDaemonConfiguration.retrieveAllDaemonTypesConfiguration();
+        List<GrouperDaemonConfiguration> daemonTypesConfigurations = GrouperDaemonConfiguration.retrieveAllModuleConfigurationTypes();
         for (GrouperDaemonConfiguration config: daemonTypesConfigurations) {
           if (config.isMultiple()) {
             config.setConfigId(daemonId);
@@ -853,9 +853,9 @@ public class UiV2Admin extends UiServiceLogicBase {
   
   private void populateDaemonConfigFromUi(HttpServletRequest request, GrouperDaemonConfiguration grouperDaemonConfig) {
     
-    Map<String, GrouperDaemonConfigAttribute> attributes = grouperDaemonConfig.retrieveAttributes();
+    Map<String, GrouperConfigurationModuleAttribute> attributes = grouperDaemonConfig.retrieveAttributes();
     
-    for (GrouperDaemonConfigAttribute attribute: attributes.values()) {
+    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
       String name = "config_"+attribute.getConfigSuffix();
       String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
       

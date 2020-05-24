@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
-import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystemAttribute;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -675,9 +675,9 @@ public class UiV2ExternalSystem {
   
   private void populateGrouperExternalSystemFromUi(final HttpServletRequest request, GrouperExternalSystem externalSystem) {
     
-    Map<String, GrouperExternalSystemAttribute> attributes = externalSystem.retrieveAttributes();
+    Map<String, GrouperConfigurationModuleAttribute> attributes = externalSystem.retrieveAttributes();
     
-    for (GrouperExternalSystemAttribute attribute: attributes.values()) {
+    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
       String name = "config_"+attribute.getConfigSuffix();
       String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
       

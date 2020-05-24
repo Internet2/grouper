@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
@@ -122,18 +123,18 @@ public class GrouperExternalSystemTest extends GrouperTest {
     
     grouperExternalSystemAzure.setConfigId("testAzure");
     
-    Map<String, GrouperExternalSystemAttribute> grouperExternalSystemAttributes = grouperExternalSystemAzure.retrieveAttributes();
+    Map<String, GrouperConfigurationModuleAttribute> grouperExternalSystemAttributes = grouperExternalSystemAzure.retrieveAttributes();
 
     assertEquals(12, GrouperUtil.length(grouperExternalSystemAttributes));
 
     {
-      GrouperExternalSystemAttribute loginEndpointAttribute = grouperExternalSystemAttributes.get("loginEndpoint");
+      GrouperConfigurationModuleAttribute loginEndpointAttribute = grouperExternalSystemAttributes.get("loginEndpoint");
       assertEquals("loginEndpoint", loginEndpointAttribute.getConfigSuffix());
       assertEquals(false, loginEndpointAttribute.isExpressionLanguage());
       assertEquals(ConfigItemFormElement.TEXT, loginEndpointAttribute.getFormElement());
     }
     {
-      GrouperExternalSystemAttribute clientSecretAttribute = grouperExternalSystemAttributes.get("client_secret");
+      GrouperConfigurationModuleAttribute clientSecretAttribute = grouperExternalSystemAttributes.get("client_secret");
       assertEquals("client_secret", clientSecretAttribute.getConfigSuffix());
       assertEquals(false, clientSecretAttribute.isExpressionLanguage());
       assertEquals(true, clientSecretAttribute.isPassword());
@@ -142,7 +143,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     
     
     {
-      GrouperExternalSystemAttribute directoryIdAttribute = grouperExternalSystemAttributes.get("DirectoryID");
+      GrouperConfigurationModuleAttribute directoryIdAttribute = grouperExternalSystemAttributes.get("DirectoryID");
       assertEquals("DirectoryID", directoryIdAttribute.getConfigSuffix());
       assertEquals(true, directoryIdAttribute.isExpressionLanguage());
       assertEquals("${'someDirectoryId'}", directoryIdAttribute.getExpressionLanguageScript());
@@ -150,7 +151,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     }
     
     {
-      GrouperExternalSystemAttribute enabledAttribute = grouperExternalSystemAttributes.get("enabled");
+      GrouperConfigurationModuleAttribute enabledAttribute = grouperExternalSystemAttributes.get("enabled");
       assertTrue(StringUtils.isBlank(enabledAttribute.getValue()));
       assertEquals("true", enabledAttribute.getDefaultValue());
       assertEquals(ConfigItemFormElement.DROPDOWN, enabledAttribute.getFormElement());
@@ -163,7 +164,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     
     grouperExternalSystemAzure.setConfigId("azureConnector2");
     
-    Map<String, GrouperExternalSystemAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    Map<String, GrouperConfigurationModuleAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
     
     suffixToAttribute.get("loginEndpoint").setValue("https://test.whatever.com");
     suffixToAttribute.get("DirectoryID").setExpressionLanguage(true);
@@ -254,7 +255,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     
     grouperExternalSystemAzure.setConfigId("azureConnector2");
     
-    Map<String, GrouperExternalSystemAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    Map<String, GrouperConfigurationModuleAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
 
     suffixToAttribute.get("enabled").setValue("false");
         
@@ -282,7 +283,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     
     grouperExternalSystemAzure.setConfigId("azureConnector2");
     
-    Map<String, GrouperExternalSystemAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    Map<String, GrouperConfigurationModuleAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
 
     suffixToAttribute.get("enabled").setValue("true");
     
@@ -323,7 +324,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     
     grouperExternalSystemAzure.setConfigId("testAzure");
     
-    Map<String, GrouperExternalSystemAttribute> grouperExternalSystemAttributes = grouperExternalSystemAzure.retrieveAttributes();
+    Map<String, GrouperConfigurationModuleAttribute> grouperExternalSystemAttributes = grouperExternalSystemAzure.retrieveAttributes();
     
     assertEquals("custom value", grouperExternalSystemAttributes.get("customProperty").getValue());
     
