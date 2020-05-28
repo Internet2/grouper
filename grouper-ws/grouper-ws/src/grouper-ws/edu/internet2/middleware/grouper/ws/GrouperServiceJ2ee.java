@@ -926,7 +926,7 @@ public class GrouperServiceJ2ee implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 
-    Map<String, Object> debugMap = null;
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     Long start = System.nanoTime();
     try {
 
