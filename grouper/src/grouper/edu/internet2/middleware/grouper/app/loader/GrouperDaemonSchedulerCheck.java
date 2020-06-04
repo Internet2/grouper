@@ -179,22 +179,24 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
     
     List<String> triggerNames = HibernateSession.bySqlStatic().listSelect(String.class, sql, GrouperUtil.toListObject(millis), HibUtils.listType(LongType.INSTANCE));
     
-    try {
-      Thread.sleep(11111);
-    } catch (InterruptedException e) {
-      // ignore
-    }
-    
-    // run again just to make sure there's not some race condition happening
-    List<String> triggerNames2 = HibernateSession.bySqlStatic().listSelect(String.class, sql, GrouperUtil.toListObject(millis), HibUtils.listType(LongType.INSTANCE));
-    
-    for (String triggerName : triggerNames) {      
-      if (triggerNames2.contains(triggerName)) {
-        LOG.info("Trigger with name=" + triggerName + " is not being fired.  Updating trigger state.");
-        badJobs.add(triggerName);
-        
-        HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and (trigger_state='BLOCKED' or trigger_state='ACQUIRED')",
-            GrouperUtil.toListObject(triggerName), HibUtils.listType(StringType.INSTANCE));
+    if (triggerNames.size() > 0) {
+      try {
+        Thread.sleep(11111);
+      } catch (InterruptedException e) {
+        // ignore
+      }
+      
+      // run again just to make sure there's not some race condition happening
+      List<String> triggerNames2 = HibernateSession.bySqlStatic().listSelect(String.class, sql, GrouperUtil.toListObject(millis), HibUtils.listType(LongType.INSTANCE));
+      
+      for (String triggerName : triggerNames) {      
+        if (triggerNames2.contains(triggerName)) {
+          LOG.info("Trigger with name=" + triggerName + " is not being fired.  Updating trigger state.");
+          badJobs.add(triggerName);
+          
+          HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and (trigger_state='BLOCKED' or trigger_state='ACQUIRED')",
+              GrouperUtil.toListObject(triggerName), HibUtils.listType(StringType.INSTANCE));
+        }
       }
     }
     
