@@ -160,35 +160,66 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
+    handleBlockedAndAcquiredStates(otherJobInput);
+    handleErrorState(otherJobInput);
+
+    LOG.info("GrouperDaemonSchedulerCheck finished successfully.");
+    return null;
+  }
+  
+  private void handleBlockedAndAcquiredStates(OtherJobInput otherJobInput) {
+
     List<String> badJobs = new ArrayList<String>();
         
-    List<String> firedTriggerNames = HibernateSession.bySqlStatic().listSelect(String.class, "select trigger_name from grouper_QZ_FIRED_TRIGGERS", null, null);
-
     Calendar calendar = GregorianCalendar.getInstance();
-    calendar.add(Calendar.MINUTE, -1);
+    calendar.add(Calendar.MINUTE, -5);
     long millis = calendar.getTimeInMillis();
 
-    List<String> triggerNames = HibernateSession.bySqlStatic().listSelect(String.class, "select trigger_name from grouper_QZ_TRIGGERS where trigger_state = 'BLOCKED' and next_fire_time < ?", 
-        GrouperUtil.toListObject(millis), HibUtils.listType(LongType.INSTANCE));
+    String sql = "select trigger_name from grouper_QZ_TRIGGERS where (trigger_state = 'BLOCKED' or trigger_state = 'ACQUIRED') and next_fire_time < ? and trigger_name not in (select trigger_name from grouper_QZ_FIRED_TRIGGERS)";
     
-    for (String triggerName : triggerNames) {
-      LOG.info("Found blocked trigger with name=" + triggerName + ".  Checking to see if it's being fired.");
-      
-      if (firedTriggerNames.contains(triggerName)) {
-        LOG.info("Trigger with name=" + triggerName + " is being fired so the block may be okay.");
-      } else {
+    List<String> triggerNames = HibernateSession.bySqlStatic().listSelect(String.class, sql, GrouperUtil.toListObject(millis), HibUtils.listType(LongType.INSTANCE));
+    
+    try {
+      Thread.sleep(11111);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    // run again just to make sure there's not some race condition happening
+    List<String> triggerNames2 = HibernateSession.bySqlStatic().listSelect(String.class, sql, GrouperUtil.toListObject(millis), HibUtils.listType(LongType.INSTANCE));
+    
+    for (String triggerName : triggerNames) {      
+      if (triggerNames2.contains(triggerName)) {
         LOG.info("Trigger with name=" + triggerName + " is not being fired.  Updating trigger state.");
         badJobs.add(triggerName);
         
-        HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and trigger_state='BLOCKED'",
+        HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and (trigger_state='BLOCKED' or trigger_state='ACQUIRED')",
             GrouperUtil.toListObject(triggerName), HibUtils.listType(StringType.INSTANCE));
       }
     }
     
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Fixed " + badJobs.size() + " jobs: " + badJobs.toString());
+    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Fixed " + badJobs.size() + " jobs stuck in BLOCKED or ACQUIRED states: " + badJobs.toString() + ". ");
     otherJobInput.getHib3GrouperLoaderLog().store();
+  }
+  
 
-    LOG.info("GrouperDaemonSchedulerCheck finished successfully.");
-    return null;
+  private void handleErrorState(OtherJobInput otherJobInput) {
+
+    List<String> badJobs = new ArrayList<String>();
+
+    String sql = "select trigger_name from grouper_QZ_TRIGGERS where trigger_state = 'ERROR'";
+    
+    List<String> triggerNames = HibernateSession.bySqlStatic().listSelect(String.class, sql, null, null);
+    
+    for (String triggerName : triggerNames) {      
+      LOG.info("Trigger with name=" + triggerName + " is not being fired.  Updating trigger state.");
+      badJobs.add(triggerName);
+        
+      HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and trigger_state='ERROR'",
+          GrouperUtil.toListObject(triggerName), HibUtils.listType(StringType.INSTANCE));
+    }
+    
+    otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed " + badJobs.size() + " jobs stuck in ERROR state: " + badJobs.toString() + ". ");
+    otherJobInput.getHib3GrouperLoaderLog().store();
   }
 }
