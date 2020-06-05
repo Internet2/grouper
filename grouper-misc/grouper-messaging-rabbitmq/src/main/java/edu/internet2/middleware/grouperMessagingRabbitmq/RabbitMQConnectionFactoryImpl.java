@@ -97,7 +97,7 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
             messagingSystemNameConnection.put(messagingSystemName, connection);
             
           } catch (Exception e) {
-            throw new RuntimeException("Error occurred while connecting to rabbitmq host: "+host+" for "+messagingSystemName);
+            throw new RuntimeException("Error occurred while connecting to rabbitmq host: "+host+" for "+messagingSystemName, e);
           }
         }
       
