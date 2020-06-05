@@ -25,7 +25,7 @@ public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
     assertEquals("script", value);
     
     // value is returned when expression language is not set or is false
-    attribute = new GrouperExternalSystemAttribute();
+    attribute = new GrouperConfigurationModuleAttribute();
     attribute.setValue("abc");
     attribute.setExpressionLanguageScript("script");
     value = attribute.getValueOrExpressionEvaluation();
@@ -35,7 +35,7 @@ public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
   
   public void testGetHtmlForElementIdHandle() {
     
-    GrouperExternalSystemAttribute attribute = new GrouperExternalSystemAttribute();
+    GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
     attribute.setConfigSuffix("testConfigSuffix");
     
     String htmlElementId = attribute.getHtmlForElementIdHandle();
@@ -46,7 +46,7 @@ public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
   
   public void testIsShow() {
     
-    GrouperExternalSystemAttribute attribute = new GrouperExternalSystemAttribute();
+    GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
     attribute.setConfigSuffix("azureConnector2");
     
     AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
@@ -61,13 +61,13 @@ public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
       }
     };
     
-    attribute.setGrouperExternalSystem(azureExtension);
+    attribute.setGrouperConfigModule(azureExtension);
     boolean isShow = attribute.isShow();
     assertEquals(true, isShow);
     
     
     // test when config item doesn't have showEL
-    attribute.setGrouperExternalSystem(grouperExternalSystemAzure);
+    attribute.setGrouperConfigModule(grouperExternalSystemAzure);
     
     ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
     configItemMetadata.setShowEl("");
@@ -82,9 +82,9 @@ public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
 //    #ldap.personLdap.minPoolSize =
     LdapGrouperExternalSystem ldapGrouperExternalSystem = new LdapGrouperExternalSystem();
     ldapGrouperExternalSystem.setConfigId("ldapConnector");
-    attribute = new GrouperExternalSystemAttribute();
+    attribute = new GrouperConfigurationModuleAttribute();
     attribute.setConfigSuffix("ldapConnector");
-    attribute.setGrouperExternalSystem(ldapGrouperExternalSystem);
+    attribute.setGrouperConfigModule(ldapGrouperExternalSystem);
     configItemMetadata = new ConfigItemMetadata();
     configItemMetadata.setShowEl("${customizePooling}");
     attribute.setConfigItemMetadata(configItemMetadata);

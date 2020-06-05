@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.daemon;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDaemonChangeLogSyncGroupsConfiguration extends GrouperDaemonConfiguration {
@@ -27,11 +28,26 @@ public class GrouperDaemonChangeLogSyncGroupsConfiguration extends GrouperDaemon
   public String getConfigItemPrefix() {
     return "changeLog.consumer.syncGroups.";
   }
+  
+  @Override
+  public String getDaemonJobPrefix() {
+    return GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX;
+  }
     
   @Override
   public boolean isMultiple() {
     return false;
   }
+  
+//  @Override
+//  public String getPropertySuffixThatIdentifiesThisDaemon() {
+//    return "class";
+//  }
+//
+//  @Override
+//  public String getPropertyValueThatIdentifiesThisDaemon() {
+//    return RuleConsumer.class.getName();
+//  }
 
   @Override
   public boolean matchesQuartzJobName(String jobName) {

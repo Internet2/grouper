@@ -29,6 +29,11 @@ public class GrouperDaemonRulesConfiguration extends GrouperDaemonConfiguration 
   }
 
   @Override
+  public String getDaemonJobPrefix() {
+    return "MAINTENANCE__";
+  }
+  
+  @Override
   public boolean matchesQuartzJobName(String jobName) {
     return "MAINTENANCE__rules".equals(jobName);
   }

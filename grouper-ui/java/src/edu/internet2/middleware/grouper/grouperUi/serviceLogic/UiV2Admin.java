@@ -427,7 +427,6 @@ public class UiV2Admin extends UiServiceLogicBase {
         guiPaging.setTotalRecordCount(guiDaemonJobs.size());
         guiDaemonJobs = GrouperUtil.batchList(guiDaemonJobs, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
         
-        
       } else {
       
         GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
@@ -472,7 +471,10 @@ public class UiV2Admin extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
     
-      //TODO add some sort of authorization
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
       
       String daemonConfigType = request.getParameter("daemonConfigType");
       String daemonConfigId = request.getParameter("daemonConfigId");
@@ -503,7 +505,17 @@ public class UiV2Admin extends UiServiceLogicBase {
         }
         
         grouperDaemonConfiguration.setConfigId(daemonConfigId);
-        populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+        
+        String previousDaemonConfigId = request.getParameter("previousDaemonConfigId");
+        String previousDaemonConfigType = request.getParameter("previousDaemonConfigType");
+        if (StringUtils.isBlank(previousDaemonConfigId) 
+            || !StringUtils.equals(daemonConfigType, previousDaemonConfigType)) {
+          // first time loading the screen or
+          // daemon config type changed
+          // let's get values from config files/database
+        } else {
+          populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+        }
   
         GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration = GuiGrouperDaemonConfiguration.convertFromGrouperDaemonConfiguration(grouperDaemonConfiguration);
         guiGrouperDaemonConfiguration.setEnabled(GrouperUtil.booleanValue(enable));
@@ -536,7 +548,10 @@ public class UiV2Admin extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
     
-      //TODO add some sort of authorization
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
       
       String daemonConfigType = request.getParameter("daemonConfigType");
       String daemonConfigId = request.getParameter("daemonConfigId");
@@ -553,65 +568,57 @@ public class UiV2Admin extends UiServiceLogicBase {
             TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigCreateErrorConfigTypeRequired")));
         return;
       }
+        
+      if (!GrouperDaemonConfiguration.grouperDaemonConfigClassNames.contains(daemonConfigType)) {  
+        throw new RuntimeException("Invalid daemonConfigType "+daemonConfigType);
+      }
+
+      Class<GrouperDaemonConfiguration> klass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(daemonConfigType);
+      GrouperDaemonConfiguration grouperDaemonConfiguration = (GrouperDaemonConfiguration) GrouperUtil.newInstance(klass);
       
-      
-      //TODO only multiple = true is allowed. no need for any if condition
-      // always ask for config id that means
-      if (StringUtils.isNotBlank(daemonConfigType)) {
-        
-        if (!GrouperDaemonConfiguration.grouperDaemonConfigClassNames.contains(daemonConfigType)) {  
-          throw new RuntimeException("Invalid daemonConfigType "+daemonConfigType);
-        }
-
-        Class<GrouperDaemonConfiguration> klass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(daemonConfigType);
-        GrouperDaemonConfiguration grouperDaemonConfiguration = (GrouperDaemonConfiguration) GrouperUtil.newInstance(klass);
-        
-        if (grouperDaemonConfiguration.isMultiple() && StringUtils.isNotBlank(daemonConfigId)) {
-          grouperDaemonConfiguration.setConfigId(daemonConfigId);
-        }
-        
-        if (grouperDaemonConfiguration.isMultiple() && 
-            (!StringUtils.equals(enable, "true") && !StringUtils.equals(enable, "false"))) {
-          throw new RuntimeException("enable value can be true or false only");
-        }
-        
-        populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
-        
-        StringBuilder message = new StringBuilder();
-        List<String> errorsToDisplay = new ArrayList<String>();
-        Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
-        
-        grouperDaemonConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
-        
-        if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
-
-          for (String errorToDisplay: errorsToDisplay) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
-          }
-          for (String validationKey: validationErrorsToDisplay.keySet()) {
-            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
-                validationErrorsToDisplay.get(validationKey)));
-          }
-
-          return;
-        }
-        
-        int changesMade = GrouperLoader.scheduleJobs();
-        if (grouperDaemonConfiguration.isMultiple() && enable.equals("false")) {
-          Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-          //TODO find out job prefix from the grouperDaemonConfiguration
-          String jobName = grouperDaemonConfiguration.getDaemonJobPrefix() + daemonConfigId;
-          JobKey jobKey = new JobKey(jobName);
-          scheduler.pauseJob(jobKey);
-        }
-        
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.daemonJobs')"));
-        
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigAddEditSuccess")));
-        
+      if (grouperDaemonConfiguration.isMultiple() && StringUtils.isNotBlank(daemonConfigId)) {
+        grouperDaemonConfiguration.setConfigId(daemonConfigId);
       }
       
+      if (grouperDaemonConfiguration.isMultiple() && 
+          (!StringUtils.equals(enable, "true") && !StringUtils.equals(enable, "false"))) {
+        throw new RuntimeException("enable value can be true or false only");
+      }
+      
+      populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      grouperDaemonConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+      }
+      
+      int changesMade = GrouperLoader.scheduleJobs();
+      if (grouperDaemonConfiguration.isMultiple() && enable.equals("false")) {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        String jobName = grouperDaemonConfiguration.getDaemonJobPrefix() + daemonConfigId;
+        JobKey jobKey = new JobKey(jobName);
+        scheduler.pauseJob(jobKey);
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.daemonJobs')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigAddEditSuccess")));
+            
       } catch (SchedulerException e) {
         throw new RuntimeException(e);
       } finally {
@@ -635,37 +642,24 @@ public class UiV2Admin extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
     
-      //TODO add some sort of authorization
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+      
       String jobName = request.getParameter("jobName");
       
       if (StringUtils.isBlank(jobName)) {
         throw new RuntimeException("jobName cannnot be blank");
       }
       
-      String daemonId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      GrouperDaemonConfiguration configToDelete = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
       
-      GrouperDaemonConfiguration configToDelete = null;
-      
-      List<GrouperDaemonConfiguration> daemonTypesConfigurations = GrouperDaemonConfiguration.retrieveAllModuleConfigurationTypes();
-      for (GrouperDaemonConfiguration config: daemonTypesConfigurations) {
-        if (config.isMultiple()) {
-          config.setConfigId(daemonId);
-        }
-        String configItemPrefix = config.getConfigItemPrefix();
-        
-        String[] splits = configItemPrefix.split("\\.");
-        String configId = splits[splits.length - 1];
-        if (StringUtils.equals(configId, daemonId)) {
-          configToDelete = config;
-          break;
-        }
+      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      if (configToDelete.isMultiple()) {
+        configToDelete.setConfigId(configId);
       }
       
-      if (configToDelete == null) {
-        throw new RuntimeException("could not find config to be deleted from job name "+jobName);
-      }
-      
-      configToDelete.setConfigId(daemonId);
       configToDelete.deleteConfig(true);
       
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
@@ -701,7 +695,10 @@ public class UiV2Admin extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      //TODO add some sort of authorization
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
       
       String jobName = request.getParameter("jobName");
       String enable = request.getParameter("daemonConfigEnable");
@@ -762,9 +759,12 @@ public class UiV2Admin extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
     
-      //TODO add some sort of authorization
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
       
-      String daemonConfigId = request.getParameter("daemonConfigId"); 
+      String daemonConfigId = request.getParameter("daemonConfigId");
       String jobName = request.getParameter("previousJobName");
       // String daemonConfigType = request.getParameter("daemonConfigType");
       
@@ -772,44 +772,18 @@ public class UiV2Admin extends UiServiceLogicBase {
         throw new RuntimeException("jobName cannnot be blank");
       }
       
-      GrouperDaemonConfiguration configToEdit = null;
+      GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
       
-      if (StringUtils.isNotBlank(jobName)) {
-        String daemonId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
-        
-        List<GrouperDaemonConfiguration> daemonTypesConfigurations = GrouperDaemonConfiguration.retrieveAllModuleConfigurationTypes();
-        for (GrouperDaemonConfiguration config: daemonTypesConfigurations) {
-          if (config.isMultiple()) {
-            config.setConfigId(daemonId);
-          }
-          String configItemPrefix = config.getConfigItemPrefix();
-          
-          String[] splits = configItemPrefix.split("\\.");
-          String configId = splits[splits.length - 1];
-          if (StringUtils.equals(configId, daemonId)) {
-            configToEdit = config;
-            break;
-          }
-        }
-        
-        if (configToEdit == null) {
-          throw new RuntimeException("could not find config to be deleted from job name "+jobName);
-        }
-        
-      }
-      
+      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
       if (configToEdit.isMultiple()) {
-        configToEdit.setConfigId(daemonConfigId);
+        configToEdit.setConfigId(configId);
       }
+      
       populateDaemonConfigFromUi(request, configToEdit);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
-      
-      if (configToEdit.isMultiple()) {
-        configToEdit.setConfigId(daemonConfigId);
-      }
       
       configToEdit.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
       

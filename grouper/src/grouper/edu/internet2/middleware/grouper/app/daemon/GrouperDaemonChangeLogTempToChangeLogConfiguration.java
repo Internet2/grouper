@@ -29,6 +29,11 @@ public class GrouperDaemonChangeLogTempToChangeLogConfiguration extends GrouperD
   public String getConfigItemPrefix() {
     return "changeLog.changeLogTempToChangeLog.";
   }
+  
+  @Override
+  public String getDaemonJobPrefix() {
+    return "CHANGE_LOG_";
+  }
     
   @Override
   public boolean isMultiple() {

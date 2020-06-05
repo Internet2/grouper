@@ -28,6 +28,11 @@ public class GrouperDaemonEnabledDisabledConfiguration extends GrouperDaemonConf
   public boolean isMultiple() {
     return false;
   }
+  
+  @Override
+  public String getDaemonJobPrefix() {
+    return "MAINTENANCE__";
+  }
 
   @Override
   public boolean matchesQuartzJobName(String jobName) {

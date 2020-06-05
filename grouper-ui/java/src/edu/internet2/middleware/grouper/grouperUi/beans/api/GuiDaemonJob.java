@@ -144,6 +144,33 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   
   private boolean isMultiple;
   
+  private boolean isLoader;
+  
+  public String getEditQueryParam() {
+    GrouperLoaderType loaderType = GrouperLoaderType.typeForThisName(jobName);
+   
+    if (loaderType == GrouperLoaderType.SQL_SIMPLE 
+        || loaderType == GrouperLoaderType.SQL_GROUP_LIST
+        || loaderType == GrouperLoaderType.LDAP_GROUP_LIST 
+        || loaderType == GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES 
+        || loaderType == GrouperLoaderType.LDAP_SIMPLE) {
+      
+      int uuidIndexStart = jobName.lastIndexOf("__");
+    
+      String grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+      return "groupId="+grouperLoaderGroupUuid;
+    }
+    
+    if (loaderType == GrouperLoaderType.ATTR_SQL_SIMPLE) {
+      int uuidIndexStart = jobName.lastIndexOf("__");
+      String grouperLoaderAttributeDefUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+      return "attributeDefId="+grouperLoaderAttributeDefUuid;
+    }
+    
+    throw new RuntimeException(jobName +" is not a loder job.");
+    
+  }
+  
   /**
    * @param jobName
    */
@@ -155,11 +182,17 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   
       this.setJobName(jobName);
       
-      try {        
+      GrouperLoaderType loaderType = GrouperLoaderType.typeForThisName(jobName);
+      if (loaderType != GrouperLoaderType.ATTR_SQL_SIMPLE
+          && loaderType != GrouperLoaderType.LDAP_GROUP_LIST
+          && loaderType != GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES
+          && loaderType != GrouperLoaderType.LDAP_SIMPLE
+          && loaderType != GrouperLoaderType.SQL_SIMPLE
+          && loaderType != GrouperLoaderType.SQL_GROUP_LIST) {
         GrouperDaemonConfiguration grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
         this.isMultiple = grouperDaemonConfig.isMultiple();
-      } catch (Exception e) {
-        // TODO: delete this block once all the children daemon config classes are there
+      } else {
+        this.isLoader = true;
       }
       
       Date nextFireTime = null;
@@ -656,11 +689,15 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   }
 
   /**
-   * can there be multiple instances
    * @return
    */
   public boolean isMultiple() {
     return isMultiple;
+  }
+
+  
+  public boolean isLoader() {
+    return isLoader;
   }
   
 }

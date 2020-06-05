@@ -87,7 +87,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonRulesConfiguration.class.getName());
     
   }
-  
+
   /**
    * list of daemon types that can be configured
    * @return
@@ -247,13 +247,17 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
             }
           }
           
-          grouperConfigModuleAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
-          grouperConfigModuleAttribute.setConfigItemMetadata(configItemMetadata);
+          String value = configPropertiesCascadeBase.propertyValueString(propertyName);
+          value = StringUtils.isBlank(value) ? configItemMetadata.getValue(): value;
+          value = StringUtils.isBlank(value) ? configItemMetadata.getSampleValue(): value;
+          grouperConfigModuleAttribute.setValue(value);
           
+          grouperConfigModuleAttribute.setConfigItemMetadata(configItemMetadata);
           grouperConfigModuleAttribute.setConfigSuffix(suffix);
           
           {
             grouperConfigModuleAttribute.setRequired(configItemMetadata.isRequired());
+            grouperConfigModuleAttribute.setReadOnly(configItemMetadata.isReadOnly());
             grouperConfigModuleAttribute.setType(configItemMetadata.getValueType());
             grouperConfigModuleAttribute.setDefaultValue(configItemMetadata.getDefaultValue());
             //grouperDaemonConfigAttribute.setFormElement(ConfigItemFormElement.TEXT);
@@ -262,13 +266,13 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
           if (GrouperUtil.length(configItemMetadata.getOptionValues()) > 0) {
             List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
             valuesAndLabels.add(new MultiKey("", ""));
-            for (String value : configItemMetadata.getOptionValues()) {
+            for (String optionValue : configItemMetadata.getOptionValues()) {
               
-              String label = GrouperTextContainer.textOrNull("externalSystem." 
-                  + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + "." + value + ".label");
-              label = StringUtils.defaultIfBlank(label, value);
+              String label = GrouperTextContainer.textOrNull("config."
+                  + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + "." + optionValue + ".label");
+              label = StringUtils.defaultIfBlank(label, optionValue);
               
-              MultiKey valueAndLabel = new MultiKey(value, label);
+              MultiKey valueAndLabel = new MultiKey(optionValue, label);
               valuesAndLabels.add(valueAndLabel);
             }
             grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
@@ -289,15 +293,15 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
                 List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
                 valuesAndLabels.add(new MultiKey("", ""));
                 
-                String trueLabel = GrouperTextContainer.textOrNull("externalSystem." 
+                String trueLabel = GrouperTextContainer.textOrNull("config." 
                     + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".trueLabel");
                 
-                trueLabel = GrouperUtil.defaultIfBlank(trueLabel, GrouperTextContainer.textOrNull("externalSystem.defaultTrueLabel"));
+                trueLabel = GrouperUtil.defaultIfBlank(trueLabel, GrouperTextContainer.textOrNull("config.defaultTrueLabel"));
 
-                String falseLabel = GrouperTextContainer.textOrNull("externalSystem." 
+                String falseLabel = GrouperTextContainer.textOrNull("config." 
                     + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".falseLabel");
                 
-                falseLabel = GrouperUtil.defaultIfBlank(falseLabel, GrouperTextContainer.textOrNull("externalSystem.defaultFalseLabel"));
+                falseLabel = GrouperUtil.defaultIfBlank(falseLabel, GrouperTextContainer.textOrNull("config.defaultFalseLabel"));
                 
                 valuesAndLabels.add(new MultiKey("true", trueLabel));
                 valuesAndLabels.add(new MultiKey("false", falseLabel));
@@ -401,95 +405,16 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
    * @param validationErrorsToDisplay
    */
   public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
-    
-    if (isInsert) {
-      if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
-        validationErrorsToDisplay.put("#daemonConfigId", GrouperTextContainer.textOrNull("grouperDaemonConfigurationValidationConfigIdUsed"));
+    super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    if (!isInsert && isMultiple()) {
+      if (!this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
+        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdDoesntExist"));
       }
-    } else {
-      if (this.isMultiple()) {
-        if (!this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
-          validationErrorsToDisplay.put("#daemonConfigId", GrouperTextContainer.textOrNull("grouperDaemonConfigurationValidationConfigIdDoesntExist"));
-        } 
-      }
-    }
-    
-    if (this.isMultiple()) {
       Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
       if (!configIdPattern.matcher(this.getConfigId()).matches()) {
-        validationErrorsToDisplay.put("#daemonConfigId", GrouperTextContainer.textOrNull("grouperDaemonConfigurationValidationConfigIdInvalid"));
+        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
       }
     }
-    
-    // first check if checked the el checkbox then make sure theres a script there
-    {
-      boolean foundElRequiredError = false;
-      for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
-        
-        if (grouperConfigModuleAttribute.isExpressionLanguage() && StringUtils.isBlank(grouperConfigModuleAttribute.getExpressionLanguageScript())) {
-          
-          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
-          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
-              GrouperTextContainer.textOrNull("grouperConfigurationValidationElRequired"));
-          GrouperTextContainer.resetThreadLocalVariableMap();
-          foundElRequiredError = true;
-        }
-        
-      }
-      if (foundElRequiredError) {
-        return;
-      }
-    }
-    
-    // types
-    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
-      
-      ConfigItemMetadataType configItemMetadataType = grouperConfigModuleAttribute.getConfigItemMetadata().getValueType();
-      
-      String value = null;
-      
-      try {
-        value = grouperConfigModuleAttribute.getEvaluatedValueForValidation();
-      } catch (UnsupportedOperationException uoe) {
-        // ignore, it will get validated in the post-save
-        continue;
-      }
-      
-      // required
-      if (StringUtils.isBlank(value)) {
-        if (grouperConfigModuleAttribute.getConfigItemMetadata().isRequired()) {
-
-          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
-          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
-              GrouperTextContainer.textOrNull("grouperConfigurationValidationRequired"));
-          GrouperTextContainer.resetThreadLocalVariableMap();
-          
-        }
-        
-        continue;
-      }
-      String[] valuesToValidate = null;
-      if (grouperConfigModuleAttribute.getConfigItemMetadata().isMultiple()) {
-        valuesToValidate = GrouperUtil.splitTrim(value, ",");
-      } else {
-        valuesToValidate = new String[] {value};
-      }
-
-      for (String theValue : valuesToValidate) {
-        
-        // validate types
-        String externalizedTextKey = configItemMetadataType.validate(theValue);
-        if (!StringUtils.isBlank(externalizedTextKey)) {
-          
-          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
-          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
-              GrouperTextContainer.textOrNull(externalizedTextKey));
-          GrouperTextContainer.resetThreadLocalVariableMap();
-          
-        }
-      }
-    }
-    
   }
   
   private static ExpirableCache<String, GrouperDaemonConfiguration> jobNameToGrouperDaemonConfigCache = new ExpirableCache<String, GrouperDaemonConfiguration>(10);
@@ -506,6 +431,14 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
       
       Class<GrouperDaemonConfiguration> grouperDaemonConfigurationClass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(className);
       GrouperDaemonConfiguration grouperDaemonConfig = GrouperUtil.newInstance(grouperDaemonConfigurationClass);
+      if (jobName.startsWith(grouperDaemonConfig.getDaemonJobPrefix())) {
+        if (grouperDaemonConfig.isMultiple()) {
+          String configId = GrouperUtil.stripPrefix(jobName, grouperDaemonConfig.getDaemonJobPrefix());
+          grouperDaemonConfig.setConfigId(configId);
+        }
+      } else {
+          continue;
+      }
       if (grouperDaemonConfig instanceof GrouperDaemonOtherJobConfiguration) {
         continue;
       }
@@ -532,12 +465,16 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     }
 
     GrouperDaemonMessagingListenerConfiguration grouperDaemonMessagingListenerConfiguration = new GrouperDaemonMessagingListenerConfiguration();
+    String configId = GrouperUtil.stripPrefix(jobName, grouperDaemonMessagingListenerConfiguration.getDaemonJobPrefix());
+    grouperDaemonMessagingListenerConfiguration.setConfigId(configId);
     if (grouperDaemonMessagingListenerConfiguration.matchesQuartzJobName(jobName)) {
       jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonMessagingListenerConfiguration);
       return grouperDaemonMessagingListenerConfiguration;
     }
 
     GrouperDaemonOtherJobConfiguration grouperDaemonOtherJobConfiguration = new GrouperDaemonOtherJobConfiguration();
+    configId = GrouperUtil.stripPrefix(jobName, grouperDaemonOtherJobConfiguration.getDaemonJobPrefix());
+    grouperDaemonOtherJobConfiguration.setConfigId(configId);
     if (grouperDaemonOtherJobConfiguration.matchesQuartzJobName(jobName)) {
       jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonOtherJobConfiguration);
       return grouperDaemonOtherJobConfiguration;
@@ -545,12 +482,16 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
 
     // note ESB needs to be above the generic change log below
     GrouperDaemonChangeLogEsbConfiguration grouperDaemonChangeLogEsbConfiguration = new GrouperDaemonChangeLogEsbConfiguration();
+    configId = GrouperUtil.stripPrefix(jobName, grouperDaemonChangeLogEsbConfiguration.getDaemonJobPrefix());
+    grouperDaemonChangeLogEsbConfiguration.setConfigId(configId);
     if (grouperDaemonChangeLogEsbConfiguration.matchesQuartzJobName(jobName)) {
       jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonChangeLogEsbConfiguration);
       return grouperDaemonChangeLogEsbConfiguration;
     }
 
     GrouperDaemonChangeLogConsumerConfiguration grouperDaemonChangeLogConsumerConfiguration = new GrouperDaemonChangeLogConsumerConfiguration();
+    configId = GrouperUtil.stripPrefix(jobName, grouperDaemonChangeLogConsumerConfiguration.getDaemonJobPrefix());
+    grouperDaemonChangeLogConsumerConfiguration.setConfigId(configId);
     if (grouperDaemonChangeLogConsumerConfiguration.matchesQuartzJobName(jobName)) {
       jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonChangeLogConsumerConfiguration);
       return grouperDaemonChangeLogConsumerConfiguration;

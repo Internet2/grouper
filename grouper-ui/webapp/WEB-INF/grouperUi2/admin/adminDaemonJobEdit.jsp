@@ -27,7 +27,6 @@
 			  	<form class="form-inline form-small form-filter" id="editDaemonFormId">
 			  		<input type="hidden" name="previousJobName" value="${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration.jobName}" />
 			  		<input type="hidden" name="jobName" value="${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration.jobName}" />
-			  		<input type="hidden" name="daemonConfigId" value="${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}" />
 					
 					<table class="table table-condensed table-striped">
               		  <tbody>
@@ -41,7 +40,7 @@
 						
 						<c:if test="${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.multiple == true}">
 							<tr>
-							  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="daemonConfigId">${textContainer.text['daemonConfigIdLabel']}</label></strong></td>
+							  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['daemonConfigIdLabel']}</label></strong></td>
 							  <td>&nbsp;</td>
 							  <td>
 							    ${grouper:escapeHtml(guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId)}
@@ -72,6 +71,7 @@
 			  					helperText="${attribute.description}"
 			  					helperTextDefaultValue="${attribute.defaultValue}"
 			  					required="${attribute.required}"
+			  					readOnly="${attribute.readOnly}"
 			  					shouldShow="true"
 			  					value="${attribute.valueOrExpressionEvaluation}"
 			  					hasExpressionLanguage="${attribute.expressionLanguage}"

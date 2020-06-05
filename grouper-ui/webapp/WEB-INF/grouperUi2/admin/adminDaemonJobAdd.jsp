@@ -29,11 +29,15 @@
                   <tbody>
 
 				    <tr>
-					  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="daemonConfigId">${textContainer.text['daemonConfigIdLabel']}</label></strong></td>
+					  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="configId">${textContainer.text['daemonConfigIdLabel']}</label></strong></td>
 					  <td>&nbsp;</td>
 					  <td>
+					    <input type="hidden" value="${grouper:escapeHtml(guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId)}"
+					       name="previousDaemonConfigId" id="previousDaemonConfigId" />
+					    <input type="hidden" value="${grouper:escapeHtml(guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name)}"
+					       name="previousDaemonConfigType" id="previousDaemonConfigType" />
 					    <input type="text" style="width: 30em" value="${grouper:escapeHtml(guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId)}"
-					       name="daemonConfigId" id="daemonConfigId" />
+					       name="daemonConfigId" id="configId" />
 					    <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
 					       data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
 					    <br />
@@ -95,10 +99,12 @@
 	  				
 			  				<grouper:configFormElement 
 			  					formElementType="${attribute.formElement}"
-			  					configId="${attribute.configSuffix}" label="${attribute.label}"
+			  					configId="${attribute.configSuffix}" 
+			  					label="${attribute.label}"
 			  					helperText="${attribute.description}"
 			  					helperTextDefaultValue="${attribute.defaultValue}"
 			  					required="${attribute.required}"
+			  					readOnly="${attribute.readOnly}"
 			  					shouldShow="true"
 			  					value="${attribute.valueOrExpressionEvaluation}"
 			  					hasExpressionLanguage="${attribute.expressionLanguage}"

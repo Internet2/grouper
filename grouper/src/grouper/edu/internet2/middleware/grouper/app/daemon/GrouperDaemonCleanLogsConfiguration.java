@@ -27,6 +27,11 @@ public class GrouperDaemonCleanLogsConfiguration extends GrouperDaemonConfigurat
   public boolean isMultiple() {
     return false;
   }
+  
+  @Override
+  public String getDaemonJobPrefix() {
+    return "MAINTENANCE_";
+  }
 
   @Override
   public boolean matchesQuartzJobName(String jobName) {

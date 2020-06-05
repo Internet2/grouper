@@ -76,7 +76,7 @@ public class GrouperDaemonChangeLogEsbConfiguration extends GrouperDaemonConfigu
   @Override
   public String getConfigItemPrefix() {
     if (StringUtils.isBlank(this.getConfigId())) {
-      throw new RuntimeException("Must have configId!");
+      throw new RuntimeException("Must have configId.");
     }
     return "changeLog.consumer." + this.getConfigId() + ".";
   }

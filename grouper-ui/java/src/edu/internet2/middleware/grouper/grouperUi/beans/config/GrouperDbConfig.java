@@ -11,9 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Configure;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 

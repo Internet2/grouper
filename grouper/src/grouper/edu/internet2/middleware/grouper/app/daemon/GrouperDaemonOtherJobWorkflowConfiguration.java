@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.daemon;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDaemonOtherJobWorkflowConfiguration extends GrouperDaemonConfiguration {
@@ -30,6 +31,11 @@ public class GrouperDaemonOtherJobWorkflowConfiguration extends GrouperDaemonCon
   @Override
   public boolean isMultiple() {
     return false;
+  }
+  
+  @Override
+  public String getDaemonJobPrefix() {
+    return GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX;
   }
 
   @Override

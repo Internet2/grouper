@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.changeLog.consumer.PrintChangeLogConsumer;
 
 public class GrouperDaemonChangeLogConsumerConfiguration extends GrouperDaemonConfiguration {
 
@@ -47,6 +48,16 @@ public class GrouperDaemonChangeLogConsumerConfiguration extends GrouperDaemonCo
   @Override
   public boolean isMultiple() {
     return true;
+  }
+  
+  @Override
+  public String getPropertySuffixThatIdentifiesThisDaemon() {
+    return "class";
+  }
+
+  @Override
+  public String getPropertyValueThatIdentifiesThisDaemon() {
+    return PrintChangeLogConsumer.class.getName();
   }
 
   @Override

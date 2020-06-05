@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.daemon;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDaemonOtherJobInstrumentationConfiguration extends GrouperDaemonConfiguration {
@@ -10,7 +11,7 @@ public class GrouperDaemonOtherJobInstrumentationConfiguration extends GrouperDa
   }
 
   //  # set this to enable the instrumentation
-  //  # {valueType: "class", mustExtendClass: "edu.internet2.middleware.grouper.app.loader.OtherJobBase"}
+  //  # {valueType: "class", readOnly:true, mustExtendClass: "edu.internet2.middleware.grouper.app.loader.OtherJobBase"}
   //  otherJob.tierInstrumentationDaemon.class = edu.internet2.middleware.grouper.instrumentation.TierInstrumentationDaemon
   //
   //  # cron string
@@ -34,6 +35,11 @@ public class GrouperDaemonOtherJobInstrumentationConfiguration extends GrouperDa
   @Override
   public boolean isMultiple() {
     return false;
+  }
+  
+  @Override
+  public String getDaemonJobPrefix() {
+    return GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX;
   }
 
   @Override

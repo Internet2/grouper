@@ -237,6 +237,7 @@ public class ConfigItemMetadata {
     this.showEl = null;
     this.formElement = null;
     this.optionValues = null;
+    this.readOnly = false;
     
     if (!StringUtils.isBlank(this.rawMetadataJson)) {
       
@@ -265,7 +266,11 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("required")) {
         this.required = jsonObject.getBoolean("required");
         jsonObject.remove("required");
-        
+      }
+      
+      if (jsonObject.containsKey("readOnly")) {
+        this.readOnly = jsonObject.getBoolean("readOnly");
+        jsonObject.remove("readOnly");
       }
       
       if (jsonObject.containsKey("requiresRestart")) {
@@ -606,5 +611,27 @@ public class ConfigItemMetadata {
     this.mustImplementInterface = mustImplementInterface1;
   }
 
+  /**
+   * is this property read only?
+   */
+  private boolean readOnly;
+
+  /**
+   * is this property read only?
+   * @return
+   */
+  public boolean isReadOnly() {
+    return this.readOnly;
+  }
+
+  /**
+   * is this property read only
+   * @param readOnly
+   */
+  public void setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
+  }
+  
+  
   
 }

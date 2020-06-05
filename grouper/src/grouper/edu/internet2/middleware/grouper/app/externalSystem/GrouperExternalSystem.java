@@ -55,14 +55,10 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
    */
   public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
-    if (isInsert) {
-      if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
-        validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
-      }
-    } else {
-      if (!this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
-        validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdDoesntExist"));
-      }
+    super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
+
+    if (!isInsert && !this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
+      validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdDoesntExist"));
     }
     
     Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
@@ -70,75 +66,6 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
       validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
     }
 
-    // first check if checked the el checkbox then make sure theres a script there
-    {
-      boolean foundElRequiredError = false;
-      for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
-        
-        if (grouperConfigModuleAttribute.isExpressionLanguage() && StringUtils.isBlank(grouperConfigModuleAttribute.getExpressionLanguageScript())) {
-          
-          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
-          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
-              GrouperTextContainer.textOrNull("grouperConfigurationValidationElRequired"));
-          GrouperTextContainer.resetThreadLocalVariableMap();
-          foundElRequiredError = true;
-        }
-        
-      }
-      if (foundElRequiredError) {
-        return;
-      }
-    }
-    
-    // types
-    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
-      
-      ConfigItemMetadataType configItemMetadataType = grouperConfigModuleAttribute.getConfigItemMetadata().getValueType();
-      
-      String value = null;
-      
-      try {
-        value = grouperConfigModuleAttribute.getEvaluatedValueForValidation();
-      } catch (UnsupportedOperationException uoe) {
-        // ignore, it will get validated in the post-save
-        continue;
-      }
-      
-      // required
-      if (StringUtils.isBlank(value)) {
-        if (grouperConfigModuleAttribute.getConfigItemMetadata().isRequired()) {
-
-          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
-          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
-              GrouperTextContainer.textOrNull("grouperConfigurationValidationRequired"));
-          GrouperTextContainer.resetThreadLocalVariableMap();
-          
-        }
-        
-        continue;
-      }
-      String[] valuesToValidate = null;
-      if (grouperConfigModuleAttribute.getConfigItemMetadata().isMultiple()) {
-        valuesToValidate = GrouperUtil.splitTrim(value, ",");
-      } else {
-        valuesToValidate = new String[] {value};
-      }
-
-      for (String theValue : valuesToValidate) {
-        
-        // validate types
-        String externalizedTextKey = configItemMetadataType.validate(theValue);
-        if (!StringUtils.isBlank(externalizedTextKey)) {
-          
-          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
-          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
-              GrouperTextContainer.textOrNull(externalizedTextKey));
-          GrouperTextContainer.resetThreadLocalVariableMap();
-          
-        }
-      }
-    }
-        
   }
   
   /**
@@ -482,7 +409,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
    * list of systems that can be configured
    * @return
    */
-  public List<GrouperExternalSystem> retrieveAllModuleConfigurationTypes() {
+  public static List<GrouperExternalSystem> retrieveAllModuleConfigurationTypes() {
     
     List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();
     

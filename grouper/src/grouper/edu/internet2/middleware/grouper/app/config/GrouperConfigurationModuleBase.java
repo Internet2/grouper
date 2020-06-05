@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -45,7 +46,119 @@ public abstract class GrouperConfigurationModuleBase {
     this.configId = configId;
   }
 
-  public abstract void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay);
+  public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    if (isInsert) {
+      if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
+        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
+      }
+    }
+    
+    // first check if checked the el checkbox then make sure theres a script there
+    {
+      boolean foundElRequiredError = false;
+      for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
+        
+        if (grouperConfigModuleAttribute.isExpressionLanguage() && StringUtils.isBlank(grouperConfigModuleAttribute.getExpressionLanguageScript())) {
+          
+          GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
+          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
+              GrouperTextContainer.textOrNull("grouperConfigurationValidationElRequired"));
+          GrouperTextContainer.resetThreadLocalVariableMap();
+          foundElRequiredError = true;
+        }
+        
+      }
+      if (foundElRequiredError) {
+        return;
+      }
+    }
+    
+    // types
+    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
+      
+      GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
+      try {
+        
+      ConfigItemMetadataType configItemMetadataType = grouperConfigModuleAttribute.getConfigItemMetadata().getValueType();
+      
+      String value = null;
+      
+      try {
+        value = grouperConfigModuleAttribute.getEvaluatedValueForValidation();
+      } catch (UnsupportedOperationException uoe) {
+        // ignore, it will get validated in the post-save
+        continue;
+      }
+      
+      // required
+      if (StringUtils.isBlank(value)) {
+        if (grouperConfigModuleAttribute.getConfigItemMetadata().isRequired()) {
+
+          
+          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
+              GrouperTextContainer.textOrNull("grouperConfigurationValidationRequired"));
+          
+        }
+        
+        continue;
+      }
+      String[] valuesToValidate = null;
+     
+      if (grouperConfigModuleAttribute.getConfigItemMetadata().isMultiple()) {
+        valuesToValidate = GrouperUtil.splitTrim(value, ",");
+      } else {
+        valuesToValidate = new String[] {value};
+      }
+
+      for (String theValue : valuesToValidate) {
+        
+        // validate types
+        String externalizedTextKey = configItemMetadataType.validate(theValue);
+        if (StringUtils.isNotBlank(externalizedTextKey)) {
+          
+          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
+              GrouperTextContainer.textOrNull(externalizedTextKey));
+          
+        } else {
+          String mustExtendClass = grouperConfigModuleAttribute.getConfigItemMetadata().getMustExtendClass();
+          if (StringUtils.isNotBlank(mustExtendClass)) {
+            
+            Class mustExtendKlass = GrouperUtil.forName(mustExtendClass);
+            Class childClass = GrouperUtil.forName(theValue);
+            
+            if (!mustExtendKlass.isAssignableFrom(childClass)) {
+              
+              String error = GrouperTextContainer.textOrNull("grouperConfigurationValidationDoesNotExtendClass");
+              error = error.replace("$$mustExtendClass$$", mustExtendClass);
+              
+              validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), error);
+            }
+          }
+          
+          String mustImplementInterface = grouperConfigModuleAttribute.getConfigItemMetadata().getMustImplementInterface();
+          if (StringUtils.isNotBlank(mustImplementInterface)) {
+            
+            Class mustImplementInterfaceClass = GrouperUtil.forName(mustImplementInterface);
+            Class childClass = GrouperUtil.forName(theValue);
+            
+            if (!mustImplementInterfaceClass.isAssignableFrom(childClass)) {
+              
+              String error = GrouperTextContainer.textOrNull("grouperConfigurationValidationDoesNotImplementInterface");
+              error = error.replace("$$mustImplementInterface$$", mustImplementInterface);
+              
+              validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), error);
+            }
+          }
+          
+          
+        }
+      }
+    } finally {
+      GrouperTextContainer.resetThreadLocalVariableMap();
+    }
+    }
+  }
   
   public abstract Map<String, GrouperConfigurationModuleAttribute> retrieveAttributes();
   
@@ -75,7 +188,6 @@ public abstract class GrouperConfigurationModuleBase {
   public void insertConfig(boolean fromUi, 
       StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
-    //TODO add validation
     validatePreSave(true, fromUi, errorsToDisplay, validationErrorsToDisplay);
 
     if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
@@ -129,37 +241,18 @@ public abstract class GrouperConfigurationModuleBase {
     
     for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
       
-      Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(this.getConfigFileName(), null, attribute.getFullPropertyName());
+      //DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().getConfigFileName(), attribute.getFullPropertyName() , fromUi, false);
+      
+      Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig()
+          .findAll(this.getConfigFileName(), null, attribute.getFullPropertyName());
       
       if (grouperConfigHibernates != null && grouperConfigHibernates.size() > 0) {
         for (GrouperConfigHibernate grouperConfigHibernate: grouperConfigHibernates) {
-          grouperConfigHibernate.setConfigValue("");
-          grouperConfigHibernate.saveOrUpdate();
+          DbConfigEngine.configurationFileItemDeleteHelper(grouperConfigHibernate, this.getConfigFileName(), fromUi);
         }
-      } else {
-        DbConfigEngine.configurationFileAddEditHelper2(this.getConfigFileName().getConfigFileName(), 
-            attribute.getFullPropertyName(), 
-            attribute.isExpressionLanguage() ? "true" : "false", 
-            "",
-            attribute.isPassword(), new StringBuilder(), new Boolean[] {false},
-            new Boolean[] {false}, fromUi, "Added from daemon config editor", new ArrayList<String>(), 
-            new HashMap<String, String>(), false);
       }
     }
     
-    Set<String> propertyNamesToDelete = new HashSet<String>();
-    if (!StringUtils.isBlank(this.getConfigId())) {
-      
-      Set<String> configKeys = this.retrieveConfigurationKeysByPrefix(this.getConfigItemPrefix());
-      
-      if (GrouperUtil.length(configKeys) > 0) {
-        propertyNamesToDelete.addAll(configKeys);
-      }
-    }
-    
-    for (String key : propertyNamesToDelete) {
-      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().getConfigFileName(), key , fromUi, false);
-    }
     ConfigPropertiesCascadeBase.clearCache();
     this.attributeCache = null;
   }
@@ -285,7 +378,7 @@ public abstract class GrouperConfigurationModuleBase {
    * @return
    */
   public String getTitle() {
-    String title = GrouperTextContainer.textOrNull("grouperConfigModule." + this.getClass().getSimpleName() + ".title");
+    String title = GrouperTextContainer.textOrNull("config." + this.getClass().getSimpleName() + ".title");
     if (StringUtils.isBlank(title)) {
       return this.getClass().getSimpleName();
     }
@@ -297,7 +390,7 @@ public abstract class GrouperConfigurationModuleBase {
    * @return
    */
   public String getDescription() {
-    String title = GrouperTextContainer.textOrNull("grouperConfigModule." + this.getClass().getSimpleName() + ".description");
+    String title = GrouperTextContainer.textOrNull("config." + this.getClass().getSimpleName() + ".description");
     if (StringUtils.isBlank(title)) {
       return this.getClass().getSimpleName();
     }

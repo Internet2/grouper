@@ -30,6 +30,11 @@ public class GrouperConfigurationModuleAttribute {
   private boolean required;
   
   /**
+   * is this attribute read only or not
+   */
+  private boolean readOnly;
+  
+  /**
    * value for the attribute
    */
   private String value;
@@ -105,6 +110,15 @@ public class GrouperConfigurationModuleAttribute {
   }
 
   
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
+  
+  public void setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
+  }
+
   public String getValue() {
     return value;
   }
@@ -181,8 +195,7 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getLabel() {
-    //TODO rename daemonConfig to something more generic or get it from the implementation class
-    String label = GrouperTextContainer.textOrNull("daemonConfig." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".label");
+    String label = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".label");
     if (StringUtils.isBlank(label)) {
       return this.getConfigSuffix();
     }
@@ -195,7 +208,7 @@ public class GrouperConfigurationModuleAttribute {
    */
   public String getDescription() {
     //TODO rename daemonConfig to something more generic or get it from the implementation class
-    String description = GrouperTextContainer.textOrNull("daemonConfig." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description");
+    String description = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description");
     if (StringUtils.isBlank(description)) {
       return this.getConfigItemMetadata().getComment();
     }

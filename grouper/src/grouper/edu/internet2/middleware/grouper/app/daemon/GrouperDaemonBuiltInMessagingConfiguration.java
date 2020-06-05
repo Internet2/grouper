@@ -12,7 +12,7 @@ public class GrouperDaemonBuiltInMessagingConfiguration extends GrouperDaemonCon
 //  #quartz cron-like schedule for grouper messaging daemon.
 //  #leave blank to disable this, the default is every hour, 10 minutes after the hour 
 //  #this daemon does cleanup on the builtin messaging table
-//  # {valueType: "string"}
+//  # {valueType: "cron"}
 //  changeLog.builtinMessagingDaemon.quartz.cron = 0 10 * * * ?
 //
 //  # after three days of not consuming messages, delete them, if -1, dont run this daemon
@@ -30,14 +30,19 @@ public class GrouperDaemonBuiltInMessagingConfiguration extends GrouperDaemonCon
       
   @Override
   public String getConfigIdRegex() {
-    return "^(changeLog\\.consumer\\.syncGroups)\\.(.*)$";
+    return "^(changeLog\\.builtinMessagingDaemon)\\.(.*)$";
   }
 
   @Override
   public String getConfigItemPrefix() {
-    return "changeLog.consumer.syncGroups.";
+    return "changeLog.builtinMessagingDaemon.";
   }
-    
+  
+  @Override
+  public String getDaemonJobPrefix() {
+    return "MAINTENANCE__";
+  }
+
   @Override
   public boolean isMultiple() {
     return false;

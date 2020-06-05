@@ -115,10 +115,8 @@ public class UiV2ExternalSystem {
         // first time loading the screen. let's get values from config files/database
         GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
-      }
-      
-      // change was made on the form
-      if (StringUtils.isNotBlank(previousExternalSystemConfigId)) {
+      } else {
+        // change was made on the form
         populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
         GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);

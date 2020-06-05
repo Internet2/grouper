@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.daemon;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDaemonChangeLogRecentMembershipsConfiguration extends GrouperDaemonConfiguration {
@@ -34,6 +35,11 @@ public class GrouperDaemonChangeLogRecentMembershipsConfiguration extends Groupe
   @Override
   public String getConfigItemPrefix() {
     return "changeLog.consumer.recentMemberships.";
+  }
+  
+  @Override
+  public String getDaemonJobPrefix() {
+    return GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX;
   }
     
   @Override

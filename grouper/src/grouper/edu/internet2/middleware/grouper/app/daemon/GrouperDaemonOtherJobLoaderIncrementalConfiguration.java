@@ -44,7 +44,7 @@ public class GrouperDaemonOtherJobLoaderIncrementalConfiguration extends Grouper
   public boolean isMultiple() {
     return true;
   }
-
+  
   @Override
   public boolean matchesQuartzJobName(String jobName) {
     if (jobName != null && jobName.startsWith(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX)) {

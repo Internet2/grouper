@@ -13,7 +13,7 @@ import junit.textui.TestRunner;
 public class GrouperDaemonConfigurationTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDaemonConfigurationTest("testRetrieveAttributes"));
+    TestRunner.run(new GrouperDaemonConfigurationTest("testRetrieveImplementationFromJobName"));
   }
   
   public GrouperDaemonConfigurationTest(String name) {
@@ -54,9 +54,26 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
 
     assertEquals(GrouperUtil.toStringForLog(attributes), 7, attributes.size());
     
-    
   }
   
+  public void testRetrieveImplementationFromJobName() {
+    
+    GrouperDaemonConfiguration grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_changeLogTempToChangeLog");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogTempToChangeLogConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MAINTENANCE__builtinMessagingDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonBuiltInMessagingConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_grouperRules");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogRulesConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_recentMemberships");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogRecentMembershipsConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_recentMemberships");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogRecentMembershipsConfiguration);
+    
+  }
   
   private static void setupOtherFindBadMembershipDaemonConfiguration() {
     
