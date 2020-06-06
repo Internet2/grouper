@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.cfg;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.cfg.dbConfig.AllDbConfigTests;
+import edu.internet2.middleware.grouper.cfg.text.AllConfigTextTests;
 
 
 /**
@@ -37,6 +38,7 @@ public class AllConfigTests {
     //$JUnit-END$
     
     suite.addTest(AllDbConfigTests.suite());
+    suite.addTest(AllConfigTextTests.suite());
 
     return suite;
   }

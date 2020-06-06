@@ -49,7 +49,7 @@ public class Authentication {
         if (basic.equalsIgnoreCase("Basic")) {
           
           String credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
-          int p = credentials.indexOf(":");
+          int p = credentials.lastIndexOf(":");
           if (p != -1) {
             String user = credentials.substring(0, p).trim();
             return user;
@@ -119,7 +119,8 @@ public class Authentication {
 
         if (basic.equalsIgnoreCase("Basic")) {
           String credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
-          int p = credentials.indexOf(":");
+          // last index of since the local entity might contain a colon
+          int p = credentials.lastIndexOf(":");
           if (p != -1) {
             String user = credentials.substring(0, p).trim();
             String password = credentials.substring(p + 1).trim();
@@ -162,7 +163,7 @@ public class Authentication {
         }
       }
     } catch (Exception e) {
-      LOG.error("Error authenticating");
+      LOG.error("Error authenticating", e);
       return false;
     }
     
@@ -173,6 +174,19 @@ public class Authentication {
   public void assignUserPassword(GrouperPasswordSave grouperPasswordSave) {
     
     try {
+      
+      if (StringUtils.isBlank(grouperPasswordSave.getUsername())) {
+        throw new RuntimeException("username is required");
+      }
+      if (StringUtils.isBlank(grouperPasswordSave.getThePassword())) {
+        throw new RuntimeException("password is required");
+      }
+      if (null == grouperPasswordSave.getApplication()) {
+        throw new RuntimeException("application is required");
+      }
+      if (grouperPasswordSave.getUsername().contains(":") && grouperPasswordSave.getThePassword().contains(":")) {
+        throw new RuntimeException("username and password cannot both contain a colon due to http basic auth");
+      }
       
       SecureRandom sr = new SecureRandom();
       byte[] salt = new byte[16];
@@ -196,14 +210,19 @@ public class Authentication {
       
       String encryptedPassword = Morph.encrypt(hashedPassword);
       
-      GrouperPassword grouperPassword = new GrouperPassword();
-      grouperPassword.setApplication(grouperPasswordSave.getApplication());
+      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword()
+          .findByUsernameApplication(grouperPasswordSave.getUsername(), grouperPasswordSave.getApplication().name());
+          
+      if (grouperPassword == null) {
+        grouperPassword = new GrouperPassword();
+        grouperPassword.setApplication(grouperPasswordSave.getApplication());
+        grouperPassword.setUsername(grouperPasswordSave.getUsername());
+      }
       grouperPassword.setEncryptionType(encryptionType);
       grouperPassword.setEntityType(grouperPasswordSave.getEntityType());
       grouperPassword.setThePassword(encryptedPassword);
       grouperPassword.setHashed(encryptionType == GrouperPassword.EncryptionType.SHA_256);
       grouperPassword.setTheSalt(hexSalt);
-      grouperPassword.setUsername(grouperPasswordSave.getUsername());
       grouperPassword.setLastEdited(Instant.now().toEpochMilli());
       
       GrouperDAOFactory.getFactory().getGrouperPassword().saveOrUpdate(grouperPassword);

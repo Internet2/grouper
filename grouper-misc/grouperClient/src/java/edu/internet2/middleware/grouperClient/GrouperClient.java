@@ -522,6 +522,7 @@ public class GrouperClient {
       System.err.println("Error with grouper client, check the logs: " + e.getMessage());
       log.fatal(e.getMessage(), e);
       if (exitOnError) {
+        e.printStackTrace();
         System.exit(1);
       }
       if (e instanceof RuntimeException) {

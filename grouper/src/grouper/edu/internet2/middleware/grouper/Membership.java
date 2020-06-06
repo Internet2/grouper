@@ -527,9 +527,11 @@ public class Membership extends GrouperAPI implements
   }
   
   /**
-   * e.g. if enabled or disabled is switching, delete this membership (and child objects)
+   * This shouldn't be used anymore
+   * delete this membership (and child objects)
    * and recommit it (which will not have the child objects or will have this time)
    */
+  @Deprecated
   public void deleteAndStore() {
     //TODO add auditing, maybe try to maintain context id, or create a new one
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
@@ -2371,12 +2373,31 @@ public class Membership extends GrouperAPI implements
           
           // change log
           addMembershipAddChangeLog();
+          
+          // enable attributes
+          Set<AttributeAssign> assignmentsToEnable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipId(this.immediateMembershipId);
+          
+          for (AttributeAssign assignmentToEnable : assignmentsToEnable) {
+            assignmentToEnable.setEnabled(assignmentToEnable.internal_isEnabledUsingTimestamps());
+            
+            if (assignmentToEnable.isEnabled()) {
+              assignmentToEnable.saveOrUpdate(false);
+            }
+          }          
         } else if (oldValue && !newValue) {
           // the membership is becoming disabled...
           this.processPostMembershipDelete(this.dbVersion().getMember());
           
           // change log
           dbVersion().addMembershipDeleteChangeLog(this.dbVersion().getMember());
+          
+          // disable attributes
+          Set<AttributeAssign> assignmentsToDisable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipId(this.immediateMembershipId);
+
+          for (AttributeAssign assignmentToDisable : assignmentsToDisable) {
+            assignmentToDisable.setEnabled(false);
+            assignmentToDisable.saveOrUpdate(false);
+          }
         }
       } else if (this.dbVersionDifferentFields().contains(FIELD_MEMBER_UUID) && this.enabled) {
         // set member to null
@@ -2525,7 +2546,8 @@ public class Membership extends GrouperAPI implements
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
           AuditControl.WILL_AUDIT, new HibernateHandler() {
         public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
-          membership.deleteAndStore();
+          membership.setEnabled(membership.internal_isEnabledUsingTimestamps());
+          GrouperDAOFactory.getFactory().getMembership().update(membership);
           
           if (membership.getField().isGroupListField() || membership.getField().isEntityListField()) {
 

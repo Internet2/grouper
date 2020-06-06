@@ -424,6 +424,9 @@ public class GrouperCheckConfig {
     checkResource("subject.properties");
     
     for (ConfigFileName configFileName : ConfigFileName.values()) {
+      if (!configFileName.isUseBaseForConfigFileMetadata()) {
+        continue;
+      }
       ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
       // i.e. the ui and ws will be null if running gsh alone
       if (configFileMetadata != null) {

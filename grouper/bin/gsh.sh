@@ -4,6 +4,31 @@ _ERROR_BAD_HOME_SET=80
 _ERROR_BAD_HOME_CALC=81
 _ERROR_BAD_CONF=82
 
+if [ -z "$GROUPER_GSH_CHECK_USER" ]
+  then
+    if [ -f /usr/local/bin/grouperEnv.sh ] 
+      then
+        . /usr/local/bin/grouperEnv.sh
+    fi
+fi
+
+if [ "$GROUPER_GSH_CHECK_USER" = "true"  ]
+  then
+    username=$(whoami)
+    if [ "$GROUPER_GSH_USER" != "$username"  ]
+      then
+        echo "ERROR: User is '$username' but should be '$GROUPER_GSH_USER'!  sudo -u $GROUPER_GSH_USER /bin/bash      and then run gsh.sh"
+        exit 1
+    fi
+    if [ -z "$JAVA_HOME" ] 
+      then
+        if [ -f /etc/bashrc ] 
+          then
+            . /etc/bashrc
+        fi
+    fi
+fi
+
 # Returns true if $1/dist/lib/grouper.jar exists
 isApiHome() {
 	# undefined is failure
@@ -109,9 +134,16 @@ if [ "$MEM_MAX" = "" ]; then
 fi
 
 if [ -n "$JAVA_HOME" ]; then
-	JAVA="$JAVA_HOME/bin/java"
+  JAVA="$JAVA_HOME/bin/java"
 else
-	JAVA=java
+  # if in container just use that
+  if [ -d /usr/lib/jvm/java-1.8.0-amazon-corretto ]; then
+    JAVA_HOME=/usr/lib/jvm/java-1.8.0-amazon-corretto
+    JAVA="$JAVA_HOME/bin/java"
+  else
+    JAVA=java
+
+  fi
 fi
 
 

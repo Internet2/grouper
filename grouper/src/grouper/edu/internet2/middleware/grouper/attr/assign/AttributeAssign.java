@@ -2050,8 +2050,25 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
     
-    super.onPostUpdate(hibernateSession);
+    if (this.isEnabled() && !this.dbVersion().isEnabled()) {
+      Set<AttributeAssign> assignmentsToEnable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignId(this.id);
+      for (AttributeAssign assignmentToEnable : assignmentsToEnable) {
+        assignmentToEnable.setEnabled(assignmentToEnable.internal_isEnabledUsingTimestamps());
+        
+        if (assignmentToEnable.isEnabled()) {
+          assignmentToEnable.saveOrUpdate(false);
+        }
+      }
+    } else if (!this.isEnabled() && this.dbVersion().isEnabled()) {      
+      Set<AttributeAssign> assignmentsToDisable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignId(this.id);
+      for (AttributeAssign assignmentToDisable : assignmentsToDisable) {
+        assignmentToDisable.setEnabled(false);
+        assignmentToDisable.saveOrUpdate(false);
+      }
+    }
     
+    super.onPostUpdate(hibernateSession);
+
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN, 
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_COMMIT_UPDATE, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class);
@@ -2073,7 +2090,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_UPDATE, HooksGroupTypeTupleBean.class,
           gtt, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_UPDATE, true, false);
 
-    }
+    }    
   }
 
   /**
@@ -2287,7 +2304,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
-    
+
     this.setLastUpdatedDb(System.currentTimeMillis());
     
     if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_ASSIGN_ACTION_ID)) {
@@ -2377,7 +2394,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName.name(), this.getAttributeDefName().getName(),
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), this.getAttributeAssignAction().getName(),
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.disallowed.name(), this.getDisallowedDb()).save();
-    }
+    }    
   }
 
   /**
@@ -2434,7 +2451,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
   
   /**
-   * e.g. if enabled or disabled is switching, delete this attribute assignment (and child objects)
+   * delete this attribute assignment (and child objects)
    * and recommit it (which will not have the child objects or will have this time)
    */
   public void deleteAndStore() {
@@ -2506,7 +2523,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAllEnabledDisabledMismatch();
     for (AttributeAssign attributeAssign : attributeAssigns) {
-      attributeAssign.deleteAndStore();
+      attributeAssign.setEnabled(attributeAssign.internal_isEnabledUsingTimestamps());
+      GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(attributeAssign);
     }
     return attributeAssigns.size();
   }

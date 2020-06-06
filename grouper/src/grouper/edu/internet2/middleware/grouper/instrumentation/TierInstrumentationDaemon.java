@@ -157,42 +157,6 @@ public class TierInstrumentationDaemon extends OtherJobBase {
     } else {
       String release = "NON_PACKAGE_" + GrouperVersion.grouperVersion();
       
-      Map<String, Set<Integer>> patchesInstalled = GrouperVersion.patchesInstalled();
-
-      List<String> patchStrings = new ArrayList<String>();
-      for (String engine : patchesInstalled.keySet()) {
-        String engineLabel = engine.substring(0, 1);
-        List<Integer> patchNumbers = new ArrayList<Integer>(patchesInstalled.get(engine));
-        Collections.sort(patchNumbers);
-        
-        if (patchNumbers.size() > 0) {
-          Integer maxConsecutive = null;
-          boolean othersAfter = false;
-          for (int i = 0; i < patchNumbers.size(); i++) {
-            if (i == patchNumbers.get(i)) {
-              maxConsecutive = i;
-            } else {
-              othersAfter = true;
-              break;
-            }
-          }
-          
-          if (maxConsecutive == null) {
-            patchStrings.add(engineLabel + "UnknownPatches");
-          } else {
-            if (othersAfter) {
-              patchStrings.add(engineLabel + maxConsecutive + "AndUnknownPatches");
-            } else {
-              patchStrings.add(engineLabel + maxConsecutive);
-            }
-          }
-        }
-      }
-          
-      if (patchStrings.size() > 0) {
-        release = release + "-" + String.join("-", patchStrings);
-      }
-      
       dataForTier.put("tbTIERRelease", release); 
     }
     

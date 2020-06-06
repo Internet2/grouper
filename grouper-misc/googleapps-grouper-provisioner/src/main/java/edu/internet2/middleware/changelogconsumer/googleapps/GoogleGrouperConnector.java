@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -125,15 +126,28 @@ public class GoogleGrouperConnector {
         } else {
             httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         }
+        
+        final GoogleCredential googleDirectoryCredential;
+        final GoogleCredential googleGroupssettingsCredential;
+        
+        if (!StringUtils.isBlank(properties.getServiceAccountPKCS12FilePath())) {
+          googleDirectoryCredential = GoogleAppsSdkUtils.getGoogleDirectoryCredential(
+                  properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),
+                  httpTransport, JSON_FACTORY, properties.getDirectoryScopes());
+  
+          googleGroupssettingsCredential = GoogleAppsSdkUtils.getGoogleGroupssettingsCredential(
+                  properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),
+                  httpTransport, JSON_FACTORY);
+        } else {
+          googleDirectoryCredential = GoogleAppsSdkUtils.getGoogleDirectoryCredential(
+              properties.getServiceAccountEmail(), properties.getServiceAccountPrivateKey(), properties.getServiceImpersonationUser(),
+              httpTransport, JSON_FACTORY, properties.getDirectoryScopes());
 
-        final GoogleCredential googleDirectoryCredential = GoogleAppsSdkUtils.getGoogleDirectoryCredential(
-                properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),
-                httpTransport, JSON_FACTORY);
-
-        final GoogleCredential googleGroupssettingsCredential = GoogleAppsSdkUtils.getGoogleGroupssettingsCredential(
-                properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),
-                httpTransport, JSON_FACTORY);
-
+          googleGroupssettingsCredential = GoogleAppsSdkUtils.getGoogleGroupssettingsCredential(
+              properties.getServiceAccountEmail(), properties.getServiceAccountPrivateKey(), properties.getServiceImpersonationUser(),
+              httpTransport, JSON_FACTORY);
+        }
+          
         directoryClient = new Directory.Builder(httpTransport, JSON_FACTORY, googleDirectoryCredential)
                 .setApplicationName("Google Apps Grouper Provisioner")
                 .build();
@@ -215,6 +229,10 @@ public class GoogleGrouperConnector {
         User user = GoogleCacheManager.googleUsers().get(userKey);
         if (user == null) {
             if (!userKey.endsWith(properties.getGoogleDomain())) {
+                if (!properties.getAddExternalUsersToGroups()) {
+                  return null;
+                }
+              
                 user = new User();
                 user.setPrimaryEmail(userKey);
                 return user;
@@ -264,7 +282,7 @@ public class GoogleGrouperConnector {
         final String subjectName = subject.getName();
         final String email = addressFormatter.qualifySubjectAddress(subject);
 
-        User newUser;
+        User newUser = null;
         if (properties.shouldProvisionUsers() && email.endsWith(properties.getGoogleDomain())) {
             LOG.debug("Google Apps Consumer '{}' - Creating organziation Google User {}.", consumerName, email);
 
@@ -287,7 +305,7 @@ public class GoogleGrouperConnector {
 
             newUser = GoogleAppsSdkUtils.addUser(directoryClient, newUser);
             GoogleCacheManager.googleUsers().put(newUser);
-        } else {
+        } else if (properties.getAddExternalUsersToGroups()) {
             LOG.debug("Google Apps Consumer '{}' - Creating a working non-Google user {}.", consumerName, email);
 
             newUser = new User();
@@ -372,6 +390,8 @@ public class GoogleGrouperConnector {
         }
 
         Set<edu.internet2.middleware.grouper.Member> members = grouperGroup.getMembers();
+        members.addAll(grouperGroup.getMembers(AccessPrivilege.ADMIN.getField()));
+        members.addAll(grouperGroup.getMembers(AccessPrivilege.UPDATE.getField()));
         for (edu.internet2.middleware.grouper.Member member : members) {
             LOG.debug("Google Apps Consumer '{}' - Adding all of the members for {}.", consumerName, groupKey);
 
@@ -667,8 +687,10 @@ public class GoogleGrouperConnector {
 
         if (user == null) {
             user = createGooUser(subject);
-            LOG.debug("Google Apps Consumer '{}' - Created user {}", consumerName, user);
-
+            
+            if (user != null) {
+              LOG.debug("Google Apps Consumer '{}' - Created user {}", consumerName, user);
+            }
         }
 
         Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName()));

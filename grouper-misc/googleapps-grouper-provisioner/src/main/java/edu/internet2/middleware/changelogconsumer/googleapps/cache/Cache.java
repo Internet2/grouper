@@ -40,6 +40,7 @@ public class Cache<T> {
 
     public void clear() {
         cache.clear();
+        cachePopulatedTime = null;
     }
 
     public void put(T item) {

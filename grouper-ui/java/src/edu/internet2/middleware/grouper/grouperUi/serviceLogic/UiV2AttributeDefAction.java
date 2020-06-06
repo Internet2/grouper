@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,25 +83,53 @@ public class UiV2AttributeDefAction {
       String[] actionsThatImply = request.getParameterValues("actionsThatImmediatelyImply[]");
       String[] actionImpliedBy = request.getParameterValues("actionsImpliedByImmediate[]");
       
+      if (actionsThatImply == null) {
+        actionsThatImply = new String[0];
+      }
+      
+      if (actionImpliedBy == null) {
+        actionImpliedBy = new String[0];
+      }
+      
       if (actionsThatImply != null) {
-        for (AttributeAssignAction attributeAssignActionThatImply:  attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionsThatImplyThis()) {        
-          attributeAssignActionThatImply.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(attributeAssignAction);
+        Set<String> existingActionNames = new HashSet<String>();
+        Set<String> newActionNames = new HashSet<String>();
+        CollectionUtils.addAll(newActionNames, actionsThatImply);
+        
+        for (AttributeAssignAction attributeAssignActionThatImply:  attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionsThatImplyThisImmediate()) {
+          if (newActionNames.contains(attributeAssignActionThatImply.getName())) {
+            existingActionNames.add(attributeAssignActionThatImply.getName());
+          } else {
+            attributeAssignActionThatImply.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(attributeAssignAction);
+          }
         }
         
-        for (String actionAddImply: actionsThatImply) {
-          AttributeAssignAction attributeAssignActionThatImplies = attributeDef.getAttributeDefActionDelegate().allowedAction(actionAddImply, true);
-          attributeAssignActionThatImplies.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignAction);        
+        for (String actionAddImply: newActionNames) {
+          if (!existingActionNames.contains(actionAddImply)) {
+            AttributeAssignAction attributeAssignActionThatImplies = attributeDef.getAttributeDefActionDelegate().allowedAction(actionAddImply, true);
+            attributeAssignActionThatImplies.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignAction);
+          }
         }
       }
       
       if (actionImpliedBy != null) {
-        for (AttributeAssignAction attributeAssignActionImpliedBy:  attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionsImpliedByThis()) {        
-          attributeAssignAction.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(attributeAssignActionImpliedBy);
+        Set<String> existingActionNames = new HashSet<String>();
+        Set<String> newActionNames = new HashSet<String>();
+        CollectionUtils.addAll(newActionNames, actionImpliedBy);
+        
+        for (AttributeAssignAction attributeAssignActionImpliedBy:  attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionsImpliedByThisImmediate()) {        
+          if (newActionNames.contains(attributeAssignActionImpliedBy.getName())) {
+            existingActionNames.add(attributeAssignActionImpliedBy.getName());
+          } else {
+            attributeAssignAction.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(attributeAssignActionImpliedBy);
+          }
         }
         
-        for (String actionImpliedByAdd: actionImpliedBy) {        
-          AttributeAssignAction attributeAssignActionThatImpliedBy = attributeDef.getAttributeDefActionDelegate().allowedAction(actionImpliedByAdd, true);        
-          attributeAssignAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignActionThatImpliedBy);
+        for (String actionImpliedByAdd: newActionNames) {
+          if (!existingActionNames.contains(actionImpliedByAdd)) {
+            AttributeAssignAction attributeAssignActionThatImpliedBy = attributeDef.getAttributeDefActionDelegate().allowedAction(actionImpliedByAdd, true);        
+            attributeAssignAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignActionThatImpliedBy);
+          }
         }
       }
       

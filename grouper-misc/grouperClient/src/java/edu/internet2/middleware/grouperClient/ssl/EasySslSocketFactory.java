@@ -166,10 +166,10 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.p
       if ((chain != null) && (chain.length == 1)) {
         X509Certificate certificate = chain[0];
 
-            certificate.checkValidity();
+            //certificate.checkValidity();
           }
 
-      this.standardTrustManager.checkClientTrusted(chain, authType);
+      //this.standardTrustManager.checkClientTrusted(chain, authType);
       }
     }
 

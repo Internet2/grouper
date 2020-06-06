@@ -376,23 +376,28 @@ public class UiV2Visualization {
     VisualizationContainer visualizationContainer = grouperRequestContainer.getVisualizationContainer();
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+    GrouperSession grouperSession = null;
 
-    visualizationHelper(loggedInSubject, request, visualizationContainer, false);
+    try {
 
-    Group group = (Group) visualizationContainer.getGrouperObject();
-    GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
-    groupContainer.setGuiGroup(new GuiGroup(group));
+      grouperSession = GrouperSession.start(loggedInSubject);
+      visualizationHelper(loggedInSubject, request, visualizationContainer, false);
 
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      Group group = (Group) visualizationContainer.getGrouperObject();
+      GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+      groupContainer.setGuiGroup(new GuiGroup(group));
 
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-      "/WEB-INF/grouperUi2/group/groupVisualization.jsp"));
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-    if (GrouperUiUtils.isMenuRefreshOnView()) {
-      guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, group) + ")"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+              "/WEB-INF/grouperUi2/group/groupVisualization.jsp"));
+
+      if (GrouperUiUtils.isMenuRefreshOnView()) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, group) + ")"));
+      }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
-
   }
 
   /**
@@ -407,21 +412,27 @@ public class UiV2Visualization {
     VisualizationContainer visualizationContainer = grouperRequestContainer.getVisualizationContainer();
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+    GrouperSession grouperSession = null;
 
-    visualizationHelper(loggedInSubject, request, visualizationContainer, false);
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
 
-    Stem stem = (Stem) visualizationContainer.getGrouperObject();
-    StemContainer stemContainer = grouperRequestContainer.getStemContainer();
-    stemContainer.setGuiStem(new GuiStem(stem));
+      visualizationHelper(loggedInSubject, request, visualizationContainer, false);
 
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      Stem stem = (Stem) visualizationContainer.getGrouperObject();
+      StemContainer stemContainer = grouperRequestContainer.getStemContainer();
+      stemContainer.setGuiStem(new GuiStem(stem));
 
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-      "/WEB-INF/grouperUi2/stem/stemVisualization.jsp"));
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-    if (GrouperUiUtils.isMenuRefreshOnView()) {
-      guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, stem) + ")"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+              "/WEB-INF/grouperUi2/stem/stemVisualization.jsp"));
+
+      if (GrouperUiUtils.isMenuRefreshOnView()) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, stem) + ")"));
+      }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
 
   }
@@ -438,25 +449,31 @@ public class UiV2Visualization {
     VisualizationContainer visualizationContainer = grouperRequestContainer.getVisualizationContainer();
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+    GrouperSession grouperSession = null;
 
-    visualizationHelper(loggedInSubject, request, visualizationContainer, false);
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
 
-    Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
-    
-    if (subject == null) {
-      return;
+      visualizationHelper(loggedInSubject, request, visualizationContainer, false);
+
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+
+      if (subject == null) {
+        return;
+      }
+
+      GrouperObjectSubjectWrapper subjectWrapped = (GrouperObjectSubjectWrapper) visualizationContainer.getGrouperObject();
+      subject = subjectWrapped.getSubject();
+      SubjectContainer subjectContainer = grouperRequestContainer.getSubjectContainer();
+      subjectContainer.setGuiSubject(new GuiSubject(subject));
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+              "/WEB-INF/grouperUi2/subject/subjectVisualization.jsp"));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
-    
-    GrouperObjectSubjectWrapper subjectWrapped = (GrouperObjectSubjectWrapper) visualizationContainer.getGrouperObject();
-    subject = subjectWrapped.getSubject();
-    SubjectContainer subjectContainer = grouperRequestContainer.getSubjectContainer();
-    subjectContainer.setGuiSubject(new GuiSubject(subject));
-
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-      "/WEB-INF/grouperUi2/subject/subjectVisualization.jsp"));
   }
 
   /**
@@ -470,71 +487,76 @@ public class UiV2Visualization {
     VisualizationContainer visualizationContainer = grouperRequestContainer.getVisualizationContainer();
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+    GrouperSession grouperSession = null;
 
-    visualizationHelper(loggedInSubject, request, visualizationContainer, true);
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      visualizationHelper(loggedInSubject, request, visualizationContainer, true);
 
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-    RelationGraph relationGraph = new RelationGraph()
-      .assignStartObject(visualizationContainer.getGrouperObject())
-      .assignParentLevels(visualizationContainer.getDrawNumParentsLevels())
-      .assignChildLevels(visualizationContainer.getDrawNumChildrenLevels())
-      .assignShowStems(visualizationContainer.isDrawShowStems())
-      .assignShowLoaderJobs(visualizationContainer.isDrawShowLoaders())
-      .assignShowProvisionTargets(visualizationContainer.isDrawShowProvisioners())
-      .assignShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts())
-      .assignShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts())
-      .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
-      .assignShowObjectTypes(visualizationContainer.isDrawShowObjectTypes())
-      .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
+      RelationGraph relationGraph = new RelationGraph()
+              .assignStartObject(visualizationContainer.getGrouperObject())
+              .assignParentLevels(visualizationContainer.getDrawNumParentsLevels())
+              .assignChildLevels(visualizationContainer.getDrawNumChildrenLevels())
+              .assignShowStems(visualizationContainer.isDrawShowStems())
+              .assignShowLoaderJobs(visualizationContainer.isDrawShowLoaders())
+              .assignShowProvisionTargets(visualizationContainer.isDrawShowProvisioners())
+              .assignShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts())
+              .assignShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts())
+              .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
+              .assignShowObjectTypes(visualizationContainer.isDrawShowObjectTypes())
+              .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
 
-    // filters on stems and groups (e.g., skip etc and the root folder by default).
-    // future enhancement to make this configurable?
-    String stemFilterRegexp = GrouperConfig.retrieveConfig().propertyValueString("visualization.skipFolderNamePatterns");
-    String groupFilterRegexp = GrouperConfig.retrieveConfig().propertyValueString("visualization.skipGroupNamePatterns");
-    if (!GrouperUtil.isBlank(stemFilterRegexp)) {
-      relationGraph.assignSkipFolderNamePatterns(GrouperUtil.splitTrimToSet(stemFilterRegexp, ";"));
+      // filters on stems and groups (e.g., skip etc and the root folder by default).
+      // future enhancement to make this configurable?
+      String stemFilterRegexp = GrouperConfig.retrieveConfig().propertyValueString("visualization.skipFolderNamePatterns");
+      String groupFilterRegexp = GrouperConfig.retrieveConfig().propertyValueString("visualization.skipGroupNamePatterns");
+      if (!GrouperUtil.isBlank(stemFilterRegexp)) {
+        relationGraph.assignSkipFolderNamePatterns(GrouperUtil.splitTrimToSet(stemFilterRegexp, ";"));
+      }
+      if (!GrouperUtil.isBlank(groupFilterRegexp)) {
+        relationGraph.assignSkipGroupNamePatterns(GrouperUtil.splitTrimToSet(groupFilterRegexp, ";"));
+      }
+
+      relationGraph.build();
+
+      VisualizationGraph graph = null;
+      String jsDrawFunctionName = null;
+
+      if ("text".equals(visualizationContainer.getDrawModule())) {
+        graph = buildToJsonText(relationGraph);
+        jsDrawFunctionName = "drawGraphModuleText()";
+      } else if ("d3".equals(visualizationContainer.getDrawModule())) {
+        graph = buildToJsonD3(relationGraph, visualizationContainer);
+        jsDrawFunctionName = "drawGraphModuleD3()";
+      } else {
+        throw new RuntimeException("Invalid visualization module: '" + visualizationContainer.getDrawModule() + "'");
+      }
+
+      graph.addStatistic("numEdges", String.valueOf(relationGraph.getEdges().size()));
+      graph.addStatistic("totalMemberCount", relationGraph.isShowAllMemberCounts() ? String.valueOf(relationGraph.getTotalMemberCount()) : "(not included)");
+      graph.addStatistic("directMemberCount", relationGraph.isShowDirectMemberCounts() ? String.valueOf(relationGraph.getDirectMemberCount()) : "(not included)");
+      graph.addStatistic("numNodes", String.valueOf(relationGraph.getNodes().size()));
+      graph.addStatistic("numLoaderJobs", String.valueOf(relationGraph.getNumLoaders()));
+      graph.addStatistic("numGroupsFromLoaders", String.valueOf(relationGraph.getNumGroupsFromLoaders()));
+      graph.addStatistic("numProvisioners", String.valueOf(relationGraph.getNumProvisioners()));
+      graph.addStatistic("numGroupsToProvisioners", String.valueOf(relationGraph.getNumGroupsToProvisioners()));
+      graph.addStatistic("numSkippedFolders", String.valueOf(relationGraph.getNumSkippedFolders()));
+      graph.addStatistic("numSkippedGroups", String.valueOf(relationGraph.getNumSkippedGroups()));
+
+      graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
+      graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
+      graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
+      graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
+
+      JSONObject jsonObject = JSONObject.fromObject(graph);
+
+      guiResponseJs.addAction(GuiScreenAction.newAssign("visualizationObject", jsonObject.toString()));
+      guiResponseJs.addAction(GuiScreenAction.newScript(jsDrawFunctionName));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
-    if (!GrouperUtil.isBlank(groupFilterRegexp)) {
-      relationGraph.assignSkipGroupNamePatterns(GrouperUtil.splitTrimToSet(groupFilterRegexp, ";"));
-    }
-
-    relationGraph.build();
-
-    VisualizationGraph graph = null;
-    String jsDrawFunctionName = null;
-
-    if ("text".equals(visualizationContainer.getDrawModule())) {
-      graph = buildToJsonText(relationGraph);
-      jsDrawFunctionName = "drawGraphModuleText()";
-    } else if ("d3".equals(visualizationContainer.getDrawModule())) {
-      graph = buildToJsonD3(relationGraph, visualizationContainer);
-      jsDrawFunctionName = "drawGraphModuleD3()";
-    } else {
-      throw new RuntimeException("Invalid visualization module: '" + visualizationContainer.getDrawModule() + "'");
-    }
-
-    graph.addStatistic("numEdges", String.valueOf(relationGraph.getEdges().size()));
-    graph.addStatistic("totalMemberCount", relationGraph.isShowAllMemberCounts() ? String.valueOf(relationGraph.getTotalMemberCount()) : "(not included)");
-    graph.addStatistic("directMemberCount", relationGraph.isShowDirectMemberCounts() ? String.valueOf(relationGraph.getDirectMemberCount()) : "(not included)");
-    graph.addStatistic("numNodes", String.valueOf(relationGraph.getNodes().size()));
-    graph.addStatistic("numLoaderJobs", String.valueOf(relationGraph.getNumLoaders()));
-    graph.addStatistic("numGroupsFromLoaders", String.valueOf(relationGraph.getNumGroupsFromLoaders()));
-    graph.addStatistic("numProvisioners", String.valueOf(relationGraph.getNumProvisioners()));
-    graph.addStatistic("numGroupsToProvisioners", String.valueOf(relationGraph.getNumGroupsToProvisioners()));
-    graph.addStatistic("numSkippedFolders", String.valueOf(relationGraph.getNumSkippedFolders()));
-    graph.addStatistic("numSkippedGroups", String.valueOf(relationGraph.getNumSkippedGroups()));
-
-    graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
-    graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
-    graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
-    graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
-
-    JSONObject jsonObject = JSONObject.fromObject(graph);
-
-    guiResponseJs.addAction(GuiScreenAction.newAssign("visualizationObject", jsonObject.toString()));
-    guiResponseJs.addAction(GuiScreenAction.newScript(jsDrawFunctionName));
   }
 
   private String getGrouperObjectDisplayExtension(GraphNode graphNode) {

@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1945,26 +1946,53 @@ public class UiV2AttributeDefName {
       String[] defNamesThatImply = request.getParameterValues("defNamesThatImmediatelyImply[]");
       String[] defNamesImpliedBy = request.getParameterValues("defNamesImpliedByImmediate[]");
       
+      if (defNamesThatImply == null) {
+        defNamesThatImply = new String[0];
+      }
+      
+      if (defNamesImpliedBy == null) {
+        defNamesImpliedBy = new String[0];
+      }
+      
       if (defNamesThatImply != null) {
-        for (AttributeDefName attributeDefNameThatImply:  attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesThatImplyThis()) {   
-          attributeDefNameThatImply.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefName);
+        Set<String> existingAttributeDefNameIds = new HashSet<String>();
+        Set<String> newAttributeDefNameIds = new HashSet<String>();
+        CollectionUtils.addAll(newAttributeDefNameIds, defNamesThatImply);
+        
+        for (AttributeDefName attributeDefNameThatImply:  attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesThatImplyThisImmediate()) {
+          if (newAttributeDefNameIds.contains(attributeDefNameThatImply.getId())) {
+            existingAttributeDefNameIds.add(attributeDefNameThatImply.getId());
+          } else {
+            attributeDefNameThatImply.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefName);
+          }
         }
         
-        for (String attributeDefNameIdAddImply: defNamesThatImply) {
-          AttributeDefName attributeDefNameThatImply = AttributeDefNameFinder.findById(attributeDefNameIdAddImply, true);
-          attributeDefNameThatImply.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName);
+        for (String attributeDefNameIdAddImply: newAttributeDefNameIds) {
+          if (!existingAttributeDefNameIds.contains(attributeDefNameIdAddImply)) {
+            AttributeDefName attributeDefNameThatImply = AttributeDefNameFinder.findById(attributeDefNameIdAddImply, true);
+            attributeDefNameThatImply.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName);
+          }
         }
       }
       
       if (defNamesImpliedBy != null) {
+        Set<String> existingAttributeDefNameIds = new HashSet<String>();
+        Set<String> newAttributeDefNameIds = new HashSet<String>();
+        CollectionUtils.addAll(newAttributeDefNameIds, defNamesImpliedBy);
         
-        for (AttributeDefName attributeDefNameImpliedBy:  attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis()) {   
-          attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefNameImpliedBy);
+        for (AttributeDefName attributeDefNameImpliedBy:  attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThisImmediate()) {   
+          if (newAttributeDefNameIds.contains(attributeDefNameImpliedBy.getId())) {
+            existingAttributeDefNameIds.add(attributeDefNameImpliedBy.getId());
+          } else {
+            attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefNameImpliedBy);
+          }
         }
         
-        for (String attributeDefNameImpliedByAdd: defNamesImpliedBy) {        
-          AttributeDefName attributeDefNameImpliedBy = AttributeDefNameFinder.findById(attributeDefNameImpliedByAdd, true);
-          attributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefNameImpliedBy);
+        for (String attributeDefNameImpliedByAdd: newAttributeDefNameIds) {  
+          if (!existingAttributeDefNameIds.contains(attributeDefNameImpliedByAdd)) {
+            AttributeDefName attributeDefNameImpliedBy = AttributeDefNameFinder.findById(attributeDefNameImpliedByAdd, true);
+            attributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefNameImpliedBy);
+          }
         }
       }
       

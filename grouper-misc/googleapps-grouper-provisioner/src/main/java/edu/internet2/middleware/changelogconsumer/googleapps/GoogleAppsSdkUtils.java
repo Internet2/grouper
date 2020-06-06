@@ -22,17 +22,20 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.services.admin.directory.Directory;
 import com.google.api.services.admin.directory.DirectoryRequest;
-import com.google.api.services.admin.directory.DirectoryScopes;
 import com.google.api.services.admin.directory.model.*;
 import com.google.api.services.groupssettings.Groupssettings;
 import com.google.api.services.groupssettings.GroupssettingsRequest;
 import com.google.api.services.groupssettings.GroupssettingsScopes;
+
+import edu.internet2.middleware.changelogconsumer.googleapps.utils.GoogleAppsSyncProperties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,8 +50,6 @@ import java.util.Random;
 public class GoogleAppsSdkUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(GoogleAppsChangeLogConsumer.class);
-
-    private static final String[] directoryScope = {DirectoryScopes.ADMIN_DIRECTORY_USER, DirectoryScopes.ADMIN_DIRECTORY_GROUP};
 
     private static final String[] groupssettingsScope = {GroupssettingsScopes.APPS_GROUPS_SETTINGS};
 
@@ -69,15 +70,61 @@ public class GoogleAppsSdkUtils {
                                                                 String serviceAccountUser, HttpTransport httpTransport, JsonFactory jsonFactory)
             throws GeneralSecurityException, IOException {
 
+      return getGoogleDirectoryCredential(serviceAccountEmail, serviceAccountPKCS12FilePath, serviceAccountUser, httpTransport, jsonFactory, GoogleAppsSyncProperties.defaultDirectoryScopes);
+    }
+    
+    /**
+     * getGoogleDirectoryCredential creates a credential object that authenticates the REST API calls.
+     * @param serviceAccountEmail the application's account email address provided by Google
+     * @param serviceAccountPKCS12FilePath path of a private key (.p12) file provided by Google
+     * @param serviceAccountUser a impersonation user account
+     * @param httpTransport a httpTransport object
+     * @param jsonFactory a jsonFactory object
+     * @return a Google Credential
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static GoogleCredential getGoogleDirectoryCredential(String serviceAccountEmail, String serviceAccountPKCS12FilePath,
+                                                                String serviceAccountUser, HttpTransport httpTransport, JsonFactory jsonFactory,
+                                                                String[] directoryScopes)
+            throws GeneralSecurityException, IOException {
+
         return new GoogleCredential.Builder()
                 .setTransport(httpTransport)
                 .setJsonFactory(jsonFactory)
                 .setServiceAccountId(serviceAccountEmail)
-                .setServiceAccountScopes(Arrays.asList(directoryScope))
+                .setServiceAccountScopes(Arrays.asList(directoryScopes))
                 .setServiceAccountUser(serviceAccountUser)
                 .setServiceAccountPrivateKeyFromP12File(new File(serviceAccountPKCS12FilePath))
                 .build();
     }
+    
+    /**
+     * getGoogleDirectoryCredential creates a credential object that authenticates the REST API calls.
+     * @param serviceAccountEmail the application's account email address provided by Google
+     * @param serviceAccountPrivateKey private key provided by Google
+     * @param serviceAccountUser a impersonation user account
+     * @param httpTransport a httpTransport object
+     * @param jsonFactory a jsonFactory object
+     * @return a Google Credential
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static GoogleCredential getGoogleDirectoryCredential(String serviceAccountEmail, PrivateKey serviceAccountPrivateKey,
+                                                                String serviceAccountUser, HttpTransport httpTransport, JsonFactory jsonFactory,
+                                                                String[] directoryScopes)
+            throws GeneralSecurityException, IOException {
+
+        return new GoogleCredential.Builder()
+                .setTransport(httpTransport)
+                .setJsonFactory(jsonFactory)
+                .setServiceAccountId(serviceAccountEmail)
+                .setServiceAccountScopes(Arrays.asList(directoryScopes))
+                .setServiceAccountUser(serviceAccountUser)
+                .setServiceAccountPrivateKey(serviceAccountPrivateKey)
+                .build();
+    }
+
 
     /**
      * getGoogleDirectoryCredential creates a credential object that authenticates the REST API calls.
@@ -101,6 +148,31 @@ public class GoogleAppsSdkUtils {
                 .setServiceAccountScopes(Arrays.asList(groupssettingsScope))
                 .setServiceAccountUser(serviceAccountUser)
                 .setServiceAccountPrivateKeyFromP12File(new File(serviceAccountPKCS12FilePath))
+                .build();
+    }
+    
+    /**
+     * getGoogleDirectoryCredential creates a credential object that authenticates the REST API calls.
+     * @param serviceAccountEmail the application's account email address provided by Google
+     * @param serviceAccountPrivateKey private key provided by Google
+     * @param serviceAccountUser a impersonation user account
+     * @param httpTransport a httpTransport object
+     * @param jsonFactory a jsonFactory object
+     * @return a Google Credential
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static GoogleCredential getGoogleGroupssettingsCredential(String serviceAccountEmail, PrivateKey serviceAccountPrivateKey,
+                                                                String serviceAccountUser, HttpTransport httpTransport, JsonFactory jsonFactory)
+            throws GeneralSecurityException, IOException {
+
+        return new GoogleCredential.Builder()
+                .setTransport(httpTransport)
+                .setJsonFactory(jsonFactory)
+                .setServiceAccountId(serviceAccountEmail)
+                .setServiceAccountScopes(Arrays.asList(groupssettingsScope))
+                .setServiceAccountUser(serviceAccountUser)
+                .setServiceAccountPrivateKey(serviceAccountPrivateKey)
                 .build();
     }
 
@@ -632,5 +704,4 @@ public class GoogleAppsSdkUtils {
         }
 
     }
-
 }

@@ -1319,8 +1319,8 @@ public abstract class Provisioner
     // Save updated list of groups selected for provisioner
     selectedGroups.set(selectedGroups_now);
 
-    LOG.info("{}: Change deselected {} groups from provisioner", deselectedGroups.size());
-    LOG.info("{}: Change selected {} new groups for provisioner", newlySelectedGroups.size());
+    LOG.info("{}: Change deselected {} groups from provisioner", getDisplayName(), deselectedGroups.size());
+    LOG.info("{}: Change selected {} new groups for provisioner", getDisplayName(), newlySelectedGroups.size());
 
     for (GrouperGroupInfo group : deselectedGroups) {
       TSGroupClass tsGroup=null;
@@ -1331,12 +1331,12 @@ public abstract class Provisioner
           continue;
         }
       }
-      LOG.info("{}: Deleting group from target system because it is no longer selected for provisioning: {}", group);
+      LOG.info("{}: Deleting group from target system because it is no longer selected for provisioning: {}", getDisplayName(), group);
       deleteGroup(group, tsGroup);
     }
 
     for (GrouperGroupInfo group : newlySelectedGroups) {
-      LOG.info("{}: Scheduling full sync of group because it is now selected for provisioning: {}", group);
+      LOG.info("{}: Scheduling full sync of group because it is now selected for provisioning: {}", getDisplayName(), group);
 
       getFullSyncer().scheduleGroupForSync(
               FullSyncProvisioner.QUEUE_TYPE.CHANGELOG,
@@ -1769,7 +1769,7 @@ public abstract class Provisioner
       if ( shouldGroupBeProvisioned(grouperGroupInfo) )
         result.add(grouperGroupInfo);
     }
-    LOG.info("{}: There are {} groups selected for provisioning (found in %s)",
+    LOG.info("{}: There are {} groups selected for provisioning (found in {})",
         getDisplayName(), result.size(), PspUtils.formatElapsedTime(start, null));
 
     return result;

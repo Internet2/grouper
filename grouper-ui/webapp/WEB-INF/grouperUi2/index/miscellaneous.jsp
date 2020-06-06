@@ -57,12 +57,12 @@
                     	</c:if>
                       
                     </c:if>
-                    
+                   <%-- TODO  
                     <c:if test="${grouperRequestContainer.externalSystemContainer.canViewExternalSystems}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystems');" style="white-space: nowrap;">
                       	${textContainer.text['adminExternalSystemsLink'] }</a>
                     </c:if>
-                    
+                    --%>
                     <c:if test="${grouperRequestContainer.adminContainer.subjectApiDiagnosticsShow}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.subjectApiDiagnostics');" style="white-space: nowrap;"
                       >${textContainer.text['adminSubjectApiDiagnosticsLink'] }</a>

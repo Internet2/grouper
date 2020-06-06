@@ -136,9 +136,13 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testConnectionsLoaderAndClient"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderDisplayNameAndDescriptionNotManagedByLoader"));
   }
 
+  public void testLoaderExit() {
+    GrouperLoader.scheduleJobs();
+  }
+  
   /**
    * 
    */
@@ -1835,6 +1839,198 @@ public class GrouperLoaderTest extends GrouperTest {
     
   }
    
+  /**
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDisplayNameAndDescriptionManagedByLoader() throws Exception {
+    
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    
+    TestgrouperLoader groupsubj0 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(groupsubj0);
+
+    TestgrouperLoaderGroups groupMeta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord", 
+        "loader:group 3 system of record", "This is the third group");
+    testDataList.add(groupMeta);
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load this
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader1:owner1",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+      "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Group systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);
+    assertEquals("This is the third group", systemOfRecordGroup.getDescription());
+    assertEquals("loader:group 3 system of record", systemOfRecordGroup.getDisplayName());
+    assertEquals("group 3 system of record", systemOfRecordGroup.getDisplayExtension());
+    
+    systemOfRecordGroup.setDisplayExtension("something else display extension");
+    systemOfRecordGroup.setDescription("something else description");
+    systemOfRecordGroup.store();
+    
+    // update cache for loader
+    GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
+    assertEquals("This is the third group", systemOfRecordGroup.getDescription());
+    assertEquals("loader:group 3 system of record", systemOfRecordGroup.getDisplayName());
+    assertEquals("group 3 system of record", systemOfRecordGroup.getDisplayExtension());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDisplayNameAndDescriptionNotManagedByLoader() throws Exception {
+    
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    
+    TestgrouperLoader groupsubj0 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(groupsubj0);
+
+    TestgrouperLoaderGroups groupMeta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord", 
+        "loader:group 3 system of record", "This is the third group");
+    testDataList.add(groupMeta);
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load this
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader1:owner1",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+      "select group_name from testgrouper_loader_groups");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Group systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);
+    assertEquals("group3_systemOfRecord auto-created by grouperLoader", systemOfRecordGroup.getDescription());
+    assertEquals("loader:group3_systemOfRecord", systemOfRecordGroup.getDisplayName());
+    assertEquals("group3_systemOfRecord", systemOfRecordGroup.getDisplayExtension());
+    
+    systemOfRecordGroup.setDisplayExtension("something else display extension");
+    systemOfRecordGroup.setDescription("something else description");
+    systemOfRecordGroup.store();
+    
+    // update cache for loader
+    GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
+    assertEquals("something else description", systemOfRecordGroup.getDescription());
+    assertEquals("loader:something else display extension", systemOfRecordGroup.getDisplayName());
+    assertEquals("something else display extension", systemOfRecordGroup.getDisplayExtension());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDescriptionNotManagedByLoader() throws Exception {
+    
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    
+    TestgrouperLoader groupsubj0 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(groupsubj0);
+
+    TestgrouperLoaderGroups groupMeta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord", 
+        "loader:group 3 system of record", "This is the third group");
+    testDataList.add(groupMeta);
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load this
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader1:owner1",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+      "select group_name, group_display_name from testgrouper_loader_groups");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Group systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);
+    assertEquals("group 3 system of record auto-created by grouperLoader", systemOfRecordGroup.getDescription());
+    assertEquals("loader:group 3 system of record", systemOfRecordGroup.getDisplayName());
+    assertEquals("group 3 system of record", systemOfRecordGroup.getDisplayExtension());
+    
+    systemOfRecordGroup.setDisplayExtension("something else display extension");
+    systemOfRecordGroup.setDescription("something else description");
+    systemOfRecordGroup.store();
+    
+    // update cache for loader
+    GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
+    assertEquals("something else description", systemOfRecordGroup.getDescription());
+    assertEquals("loader:group 3 system of record", systemOfRecordGroup.getDisplayName());
+    assertEquals("group 3 system of record", systemOfRecordGroup.getDisplayExtension());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDisplayNameNotManagedByLoader() throws Exception {
+    
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    
+    TestgrouperLoader groupsubj0 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(groupsubj0);
+
+    TestgrouperLoaderGroups groupMeta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord", 
+        "loader:group 3 system of record", "This is the third group");
+    testDataList.add(groupMeta);
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load this
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader1:owner1",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+      "select group_name, group_description from testgrouper_loader_groups");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Group systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);
+    assertEquals("This is the third group", systemOfRecordGroup.getDescription());
+    assertEquals("loader:group3_systemOfRecord", systemOfRecordGroup.getDisplayName());
+    assertEquals("group3_systemOfRecord", systemOfRecordGroup.getDisplayExtension());
+    
+    systemOfRecordGroup.setDisplayExtension("something else display extension");
+    systemOfRecordGroup.setDescription("something else description");
+    systemOfRecordGroup.store();
+    
+    // update cache for loader
+    GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
+    assertEquals("This is the third group", systemOfRecordGroup.getDescription());
+    assertEquals("loader:something else display extension", systemOfRecordGroup.getDisplayName());
+    assertEquals("something else display extension", systemOfRecordGroup.getDisplayExtension());
+  }
+  
   
   /**
    * test the loader

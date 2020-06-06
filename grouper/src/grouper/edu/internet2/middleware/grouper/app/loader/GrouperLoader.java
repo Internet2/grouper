@@ -92,6 +92,21 @@ import edu.internet2.middleware.morphString.Morph;
 public class GrouperLoader {
 
   /**
+   * call this when exiting grouper if not the daemon which should stay running
+   */
+  public static void shutdownIfStarted() {
+    //stop quartz
+    try {
+      for (Scheduler scheduler : GrouperUtil.nonNull(GrouperLoader.schedulerFactory().getAllSchedulers())) {
+        scheduler.shutdown(false);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("error", e);
+    }
+
+  }
+  
+  /**
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperLoader.class);

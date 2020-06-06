@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -575,7 +576,7 @@ public class HibernateSessionTest extends GrouperTest {
     //disable
     Membership membership = parent.getImmediateMembership(Group.getDefaultList(), child.toSubject(), true, true);
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() - 10000));
-    membership.deleteAndStore();
+    GrouperDAOFactory.getFactory().getMembership().update(membership);
     
     currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_memberships_all_v");
@@ -593,7 +594,7 @@ public class HibernateSessionTest extends GrouperTest {
     //disable in future
     membership = parent.getImmediateMembership(Group.getDefaultList(), child.toSubject(), false, true);
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + 10000));
-    membership.deleteAndStore();
+    GrouperDAOFactory.getFactory().getMembership().update(membership);
     
     currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_memberships_all_v");
@@ -610,7 +611,7 @@ public class HibernateSessionTest extends GrouperTest {
     //not enabled
     membership.setDisabledTime(null);
     membership.setEnabledTime(new Timestamp(System.currentTimeMillis() + 10000));
-    membership.deleteAndStore();
+    GrouperDAOFactory.getFactory().getMembership().update(membership);
     
     currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_memberships_all_v");
@@ -627,7 +628,7 @@ public class HibernateSessionTest extends GrouperTest {
     //####################################################
     //enable in past
     membership.setEnabledTime(new Timestamp(System.currentTimeMillis() - 10000));
-    membership.deleteAndStore();
+    GrouperDAOFactory.getFactory().getMembership().update(membership);
     
     currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_memberships_all_v");

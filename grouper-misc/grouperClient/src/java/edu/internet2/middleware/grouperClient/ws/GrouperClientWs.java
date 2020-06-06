@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +31,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import edu.internet2.middleware.grouperClient.GrouperClientState;
 import edu.internet2.middleware.grouperClient.GrouperClientWsException;
@@ -39,6 +47,7 @@ import edu.internet2.middleware.grouperClient.failover.FailoverConfig;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogic;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogicBean;
+import edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -756,6 +765,44 @@ public class GrouperClientWs {
       SecureProtocolSocketFactory httpsSocketFactoryInstance = GrouperClientUtils.newInstance(httpsSocketFactoryClass);
       Protocol easyhttps = new Protocol("https", httpsSocketFactoryInstance, 443);
       Protocol.registerProtocol("https", easyhttps);
+      
+      if (httpsSocketFactoryInstance instanceof EasySslSocketFactory) {
+
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+
+          public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            return null;
+          }
+
+          public void checkClientTrusted(X509Certificate[] certs, String authType) {
+          }
+
+          public void checkServerTrusted(X509Certificate[] certs, String authType) {
+          }
+        }
+        };
+
+        try {
+          // Install the all-trusting trust manager
+          SSLContext sc = SSLContext.getInstance("SSL");
+          sc.init(null, trustAllCerts, new java.security.SecureRandom());
+          HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+  
+          // Create all-trusting host name verifier
+          HostnameVerifier allHostsValid = new HostnameVerifier() {
+  
+            public boolean verify(String hostname, SSLSession session) {
+              return true;
+            }
+          };
+  
+          // Install the all-trusting host verifier
+          HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+        } catch (Exception e) {
+          throw new RuntimeException("error", e);
+        }
+      }
     }
     
     HttpClient httpClient = new HttpClient();

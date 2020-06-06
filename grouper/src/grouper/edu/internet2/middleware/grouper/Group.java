@@ -6284,7 +6284,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       // these queries are best run post update to make sure internal_isEnabledUsingTimestamps is calculating correctly
       Set<Membership> membershipsToDisable = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndDepth(this.uuid, 0, true);
       membershipsToDisable.addAll(GrouperDAOFactory.getFactory().getMembership().findAllByMemberAndDepth(this.toMember().getUuid(), 0, true));
-      Set<String> immediateMembershipIdsToDisable = new LinkedHashSet<String>();
       for (Membership membershipToDisable : membershipsToDisable) {
         if (this.uuid.equals(membershipToDisable.getOwnerGroupId())) {
           // if this is an admin priv, skip
@@ -6296,21 +6295,13 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         }
         membershipToDisable.setEnabled(false);
         GrouperDAOFactory.getFactory().getMembership().update(membershipToDisable);
-        immediateMembershipIdsToDisable.add(membershipToDisable.getImmediateMembershipId());
       }
       
       // now lets deal with attribute assignments
       Set<AttributeAssign> assignmentsToDisable = new LinkedHashSet<AttributeAssign>();
       assignmentsToDisable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(this.uuid));
       assignmentsToDisable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMemberId(this.toMember().getUuid()));
-      assignmentsToDisable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipIds(immediateMembershipIdsToDisable));
-
-      Set<String> immediateAttributeAssignmentIdsToDisable = new LinkedHashSet<String>();
-      for (AttributeAssign assignmentToDisable : assignmentsToDisable) {
-        immediateAttributeAssignmentIdsToDisable.add(assignmentToDisable.getId());
-      }
       
-      assignmentsToDisable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignIds(immediateAttributeAssignmentIdsToDisable));
       for (AttributeAssign assignmentToDisable : assignmentsToDisable) {
         assignmentToDisable.setEnabled(false);
         assignmentToDisable.saveOrUpdate(false);
@@ -6385,7 +6376,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       // these queries are best run post update to make sure internal_isEnabledUsingTimestamps is calculating correctly
       Set<Membership> membershipsToEnable = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndDepth(this.uuid, 0, false);
       membershipsToEnable.addAll(GrouperDAOFactory.getFactory().getMembership().findAllByMemberAndDepth(this.toMember().getUuid(), 0, false));
-      Set<String> immediateMembershipIdsToEnable = new LinkedHashSet<String>();
       for (Membership membershipToEnable : membershipsToEnable) {
         if (this.uuid.equals(membershipToEnable.getOwnerGroupId())) {
           // if this is an admin priv, skip
@@ -6400,7 +6390,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         
         if (membershipToEnable.isEnabled()) {
           GrouperDAOFactory.getFactory().getMembership().update(membershipToEnable);
-          immediateMembershipIdsToEnable.add(membershipToEnable.getImmediateMembershipId());
         }
       }
       
@@ -6408,14 +6397,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       Set<AttributeAssign> assignmentsToEnable = new LinkedHashSet<AttributeAssign>();
       assignmentsToEnable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(this.uuid));
       assignmentsToEnable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMemberId(this.toMember().getUuid()));
-      assignmentsToEnable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipIds(immediateMembershipIdsToEnable));
-
-      Set<String> immediateAttributeAssignmentIdsToEnable = new LinkedHashSet<String>();
-      for (AttributeAssign assignmentToEnable : assignmentsToEnable) {
-        immediateAttributeAssignmentIdsToEnable.add(assignmentToEnable.getId());
-      }
       
-      assignmentsToEnable.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignIds(immediateAttributeAssignmentIdsToEnable));
       for (AttributeAssign assignmentToEnable : assignmentsToEnable) {
         assignmentToEnable.setEnabled(assignmentToEnable.internal_isEnabledUsingTimestamps());
         

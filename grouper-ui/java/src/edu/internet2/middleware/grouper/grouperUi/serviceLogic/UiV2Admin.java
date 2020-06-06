@@ -1624,7 +1624,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       Subject actAsSubject = null;
       { 
-        String actAsComboName = request.getParameter("actAsComboName");
+        String actAsComboName = StringUtils.trim(request.getParameter("actAsComboName"));
         if (!StringUtils.isBlank(actAsComboName)) {
           GrouperSession.stopQuietly(grouperSession);
           grouperSession = GrouperSession.startRootSession();
@@ -1646,10 +1646,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       //if there is an act as, use that, otherwise logged in
       grouperSession = GrouperSession.start(GrouperUtil.defaultIfNull(actAsSubject, loggedInSubject));
       
-      String sourceId = request.getParameter("subjectApiSourceIdName");
-      String subjectId = request.getParameter("subjectIdName");
-      String subjectIdentifier = request.getParameter("subjectIdentifierName");
-      String searchString = request.getParameter("searchStringName");
+      String sourceId = StringUtils.trim(request.getParameter("subjectApiSourceIdName"));
+      String subjectId = StringUtils.trim(request.getParameter("subjectIdName"));
+      String subjectIdentifier = StringUtils.trim(request.getParameter("subjectIdentifierName"));
+      String searchString = StringUtils.trim(request.getParameter("searchStringName"));
       
       StringBuilder subjectApiReport = new SubjectSourceDiagnostics().assignSourceId(sourceId)
           .assignSubjectId(subjectId).assignSubjectIdentifier(subjectIdentifier).assignSearchString(searchString)

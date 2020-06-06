@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -100,7 +101,7 @@ public class UiV2Configure {
         return false;
       }
       
-      String networks = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.configurationEditor.sourceIpAddresses");
+      String networks = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.configurationEditor.sourceIpAddresses", "127.0.0.1/32");
 
       if (debugMap != null) {
         debugMap.put("allowFromNetworks", networks);
@@ -284,6 +285,7 @@ public class UiV2Configure {
 
           guiResponseJs.addAction(GuiScreenAction.newMessage((added[0] != null && error[0] == null) ? GuiMessageType.success : ((error[0] == null || !error[0]) ? GuiMessageType.info : GuiMessageType.error), message.toString()));
           ConfigPropertiesCascadeBase.clearCache();
+          GrouperUiApiTextConfig.clearCache();
 
           return result;
         }
@@ -810,6 +812,8 @@ public class UiV2Configure {
       }
       
       ConfigPropertiesCascadeBase.clearCache();
+      GrouperUiApiTextConfig.clearCache();
+
     } finally {
       if (newlyAssignedUseStaticRequestContainer && !fromUi) {
         GrouperRequestContainer.assignUseStaticRequestContainer(false);
@@ -869,6 +873,7 @@ public class UiV2Configure {
     
     // get the latest and greatest
     ConfigPropertiesCascadeBase.clearCache();
+    GrouperUiApiTextConfig.clearCache();
     
     ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
     
@@ -927,6 +932,10 @@ public class UiV2Configure {
     
     boolean addedRemainingConfigSection = false;
     
+    if (!configFileName.isUseBaseForConfigFileMetadata()) {
+      return;
+    }
+    
     Set<String> propertyNames = configPropertiesCascadeBase.propertyNames();
     
     for (String propertyName : propertyNames) {
@@ -939,6 +948,11 @@ public class UiV2Configure {
       {
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setKey(propertyName);
+
+        GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateMap.get(configItemMetadata.getKeyOrSampleKey());
+        if (grouperConfigHibernate != null && grouperConfigHibernate.isConfigEncrypted()) {
+          guiConfigProperty.setEncryptedInDatabase(true);
+        }
         
         guiConfigProperty.setConfigItemMetadata(configItemMetadata);
       }

@@ -2037,8 +2037,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     StringBuilder sqlWhereClause = new StringBuilder(
     		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'imm_mem' and " +
-    		"aa.ownerMembershipId = ime.immediateMembershipId and ime.fieldId = '" + membersField.getUuid() + "' " +
-    				" and ime.enabledDb = 'T' ");
+    		"aa.ownerMembershipId = ime.immediateMembershipId and ime.fieldId = '" + membersField.getUuid() + "' ");
     
     queryByValueAddTablesWhereClause(byHqlStatic, sqlTables, sqlWhereClause, attributeDefValueType, theValue);
     

@@ -187,7 +187,7 @@ public class ConfigDatabaseLogic {
    * @param mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
    * @return the inputStream for this config's properties
    */
-  private static Map<String, String> retrieveConfigMap(String mainConfigFileName) {
+  public static Map<String, String> retrieveConfigMap(String mainConfigFileName) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 

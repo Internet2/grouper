@@ -15,8 +15,17 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps.utils;
 
+import com.google.api.services.admin.directory.DirectoryScopes;
 import com.google.api.services.groupssettings.model.Groups;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +40,7 @@ public class GoogleAppsSyncProperties {
     private static final String PARAMETER_NAMESPACE = "changeLog.consumer.";
 
     private String serviceAccountPKCS12FilePath;
+    private PrivateKey serviceAccountPrivateKey;
     private String serviceAccountEmail;
     private String serviceImpersonationUser;
 
@@ -51,6 +61,9 @@ public class GoogleAppsSyncProperties {
 
     /** Whether or not to provision users. */
     private boolean provisionUsers;
+    
+    /** Whether or not to add external users to groups. */
+    private boolean addExternalUsersToGroups;
 
     /** Whether or not to de-provision users. */
     private boolean deprovisionUsers;
@@ -90,6 +103,10 @@ public class GoogleAppsSyncProperties {
     /** Newly deleted objects aren't always removed ASAP, nor are newly created/updated object ready immediately */
     private int recentlyManipulatedQueueSize;
     private int recentlyManipulatedQueueDelay;
+    
+    private String[] directoryScopes;
+    
+    public static final String[] defaultDirectoryScopes = {DirectoryScopes.ADMIN_DIRECTORY_USER, DirectoryScopes.ADMIN_DIRECTORY_GROUP};
 
     /**
      * Host to use for proxy, if necessary
@@ -107,8 +124,30 @@ public class GoogleAppsSyncProperties {
         LOG.debug("Google Apps Consumer - Setting properties for {} consumer/provisioner.", consumerName);
 
         serviceAccountPKCS12FilePath =
-                GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(qualifiedParameterNamespace + "serviceAccountPKCS12FilePath");
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "serviceAccountPKCS12FilePath", null);
         LOG.debug("Google Apps Consumer - Setting Google serviceAccountPKCS12FilePath to {}", serviceAccountPKCS12FilePath);
+        
+        String serviceAccountPrivateKeyPEM = GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "serviceAccountPrivateKeyPEM", null);
+
+        if (StringUtils.isBlank(serviceAccountPKCS12FilePath) && StringUtils.isBlank(serviceAccountPrivateKeyPEM)) {
+          throw new RuntimeException("Must specify serviceAccountPKCS12FilePath or serviceAccountPrivateKeyPEM");
+        }
+        
+        if (StringUtils.isNotBlank(serviceAccountPKCS12FilePath) && StringUtils.isNotBlank(serviceAccountPrivateKeyPEM)) {
+          throw new RuntimeException("Must specify serviceAccountPKCS12FilePath or serviceAccountPrivateKeyPEM");
+        }
+        
+        if (!StringUtils.isBlank(serviceAccountPrivateKeyPEM)) {
+          serviceAccountPrivateKeyPEM = serviceAccountPrivateKeyPEM.replaceAll("\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
+          PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(serviceAccountPrivateKeyPEM));
+          KeyFactory kf;
+          try {
+            kf = KeyFactory.getInstance("RSA");
+            serviceAccountPrivateKey = kf.generatePrivate(keySpec);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
 
         serviceAccountEmail =
                 GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(qualifiedParameterNamespace + "serviceAccountEmail");
@@ -134,6 +173,10 @@ public class GoogleAppsSyncProperties {
                 GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "provisionUsers", false);
         LOG.debug("Google Apps Consumer - Setting provisionUser to {}", provisionUsers);
 
+        addExternalUsersToGroups =
+            GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "addExternalUsersToGroups", true);
+        LOG.debug("Google Apps Consumer - Setting addExternalUsersToGroups to {}", addExternalUsersToGroups);
+        
         deprovisionUsers =
                 GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "deprovisionUsers", false);
         LOG.debug("Google Apps Consumer - Setting deprovisionUser to {}", deprovisionUsers);
@@ -315,6 +358,13 @@ public class GoogleAppsSyncProperties {
         if (this.proxyHost != null && this.proxyPort != 0) {
             LOG.debug("Google Apps Consumer - Setting proxy to {}:{}", this.proxyHost, this.proxyPort);
         }
+        
+        String scopesOverride = GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "directoryScopes", null);
+        if (StringUtils.isBlank(scopesOverride)) {
+          this.directoryScopes = defaultDirectoryScopes;
+        } else {
+          this.directoryScopes = GrouperUtil.splitTrim(scopesOverride, ",");
+        }
     }
 
     public boolean isRetryOnError() {
@@ -351,6 +401,10 @@ public class GoogleAppsSyncProperties {
 
     public boolean shouldProvisionUsers() {
         return provisionUsers;
+    }
+    
+    public boolean getAddExternalUsersToGroups() {
+      return addExternalUsersToGroups;
     }
 
     public int getGoogleGroupCacheValidity() {
@@ -392,6 +446,10 @@ public class GoogleAppsSyncProperties {
     public String getServiceAccountPKCS12FilePath() {
         return serviceAccountPKCS12FilePath;
     }
+    
+    public PrivateKey getServiceAccountPrivateKey() {
+      return serviceAccountPrivateKey;
+    }
 
     public String getWhoCanManageJexl() {
         return whoCanManageJexl;
@@ -423,5 +481,9 @@ public class GoogleAppsSyncProperties {
 
     public int getProxyPort() {
         return proxyPort;
+    }
+
+    public String[] getDirectoryScopes() {
+      return directoryScopes;
     }
 }

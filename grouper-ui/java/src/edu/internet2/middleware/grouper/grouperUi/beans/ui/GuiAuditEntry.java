@@ -1092,6 +1092,10 @@ public class GuiAuditEntry {
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE) {
       memberIdName = "ownerMemberId";
     }
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_ADD || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE) {
+      memberIdName = "ownerMemberId";
+    }
     if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_ADD 
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_DELETE
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_UPDATE) {

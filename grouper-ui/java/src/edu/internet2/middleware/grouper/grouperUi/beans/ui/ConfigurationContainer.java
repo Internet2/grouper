@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigFile;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigProperty;
@@ -18,6 +19,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class ConfigurationContainer {
 
+  /**
+   * if we have french then show it on the screen
+   * @return if has french
+   */
+  public boolean isHasFrench() {
+    return GrouperConfig.retrieveConfig().textBundleFromLanguageAndCountry().containsKey("fr_fr");
+  }
+  
   /**
    * import count added properties
    */

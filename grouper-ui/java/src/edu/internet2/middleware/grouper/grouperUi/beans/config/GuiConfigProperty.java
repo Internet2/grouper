@@ -204,11 +204,15 @@ public class GuiConfigProperty {
     if (StringUtils.isBlank(propertyValue) || StringUtils.equals(propertyValue, TextContainer.retrieveFromRequest().getText().get("configurationColumnValueNotSet"))) {
       return null;
     }
+
+    // maybe this is still not a cron
+    if (!propertyValue.contains("*") || propertyValue.length() > 30) {
+      return null;
+    }
     
     try {
       return CronExpressionDescriptor.getDescription(propertyValue);
     } catch (Exception e) {
-      
       LOG.error("Cant parse cron string:" + propertyValue, e);
       
       return TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlCronDescriptionError");

@@ -18,6 +18,7 @@
  */
 package edu.internet2.middleware.grouperClient.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -63,6 +64,37 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  *
  */
 public class GcElUtilsSafe {
+
+  /**
+   * read from file if env var _FILE is there, or just read var
+   */
+  public static String processEnvVarOrFile(String envVarOrFileBase) {
+
+    if (isBlank(envVarOrFileBase)) {
+      throw new RuntimeException("env var is required");
+    }
+    
+    {
+      String envVarFile = envVarOrFileBase + "_FILE";
+      
+      String fileName = trim(System.getenv().get(envVarFile));
+      if (!isBlank(fileName)) {
+        
+        File theFile = new File(fileName);
+        try {
+          String fileContents = GrouperClientUtils.readFileIntoStringUtf8(theFile);
+          return fileContents;
+        } catch (RuntimeException re) {
+          GrouperClientUtils.injectInException(re, "error with env var: '" + envVarFile + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
+
+        }
+         
+      }
+    }
+    // this could be empty
+    return trim(System.getenv().get(envVarOrFileBase));
+  }
+  
 
   /**
    * get env var for a key

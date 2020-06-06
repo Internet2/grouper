@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.authentication;
 
 import edu.internet2.middleware.grouper.authentication.GrouperPassword.Application;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword.EncryptionType;
+import edu.internet2.middleware.grouper.j2ee.Authentication;
 
 public class GrouperPasswordSave {
   
@@ -14,6 +15,10 @@ public class GrouperPasswordSave {
   private String thePassword;
   
   private Application application;
+  
+  public void save() {
+    new Authentication().assignUserPassword(this);
+  }
   
   public GrouperPasswordSave assignUsername(String username) {
     this.username = username;
