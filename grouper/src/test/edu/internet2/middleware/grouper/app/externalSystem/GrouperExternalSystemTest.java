@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -29,8 +30,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
 
   public static void main(String[] args) {
     
-//    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzure"));
-    TestRunner.run(new GrouperExternalSystemTest("testRetrieveExtraAttributes"));
+    TestRunner.run(new GrouperExternalSystemTest("testExternalSystemAzure"));
   }
   
   /**
@@ -141,7 +141,6 @@ public class GrouperExternalSystemTest extends GrouperTest {
       assertEquals(ConfigItemFormElement.PASSWORD, clientSecretAttribute.getFormElement());
     }
     
-    
     {
       GrouperConfigurationModuleAttribute directoryIdAttribute = grouperExternalSystemAttributes.get("DirectoryID");
       assertEquals("DirectoryID", directoryIdAttribute.getConfigSuffix());
@@ -160,6 +159,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
 
   public void testExternalSystemAzureInsertEditDelete() {
 
+    GrouperSession.startRootSession();
     AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
     
     grouperExternalSystemAzure.setConfigId("azureConnector2");
@@ -170,32 +170,20 @@ public class GrouperExternalSystemTest extends GrouperTest {
     suffixToAttribute.get("DirectoryID").setExpressionLanguage(true);
     suffixToAttribute.get("DirectoryID").setExpressionLanguageScript("${'someDirectoryId'}");
     suffixToAttribute.get("client_secret").setValue("someSecret");
+    suffixToAttribute.get("client_id").setValue("someClientId");
     suffixToAttribute.get("graphEndpoint").setValue("myGraphEndpoint");
-
-    boolean fail = false;
-    try {
-      grouperExternalSystemAzure.deleteConfig(false);
-      fail = true;
-    } catch (RuntimeException re) {
-      // good
-    }
-    assertFalse("cant delete something not there", fail);
+    suffixToAttribute.get("groupLookupValueFormat").setValue("group lookup value format");
+    suffixToAttribute.get("resource").setValue("resource");
+    suffixToAttribute.get("requireSubjectAttribute").setValue("require subject attribute");
+    suffixToAttribute.get("subjectIdValueFormat").setValue("subject id value format");
+    suffixToAttribute.get("groupLookupAttribute").setValue("group lookup attribute");
+    suffixToAttribute.get("graphVersion").setValue("5.9");
 
     StringBuilder message = new StringBuilder();
     List<String> errorsToDisplay = new ArrayList<String>();
     Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
     
-    fail = false;
-    try {
-      grouperExternalSystemAzure.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
-      fail = true;
-    } catch (RuntimeException re) {
-      // good
-    }
-    assertFalse("cant edit something not there", fail);
-
     grouperExternalSystemAzure.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
-
     
     message.setLength(0);
     errorsToDisplay.clear();
@@ -213,7 +201,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     // lets test by adding, deleting editing
     
     suffixToAttribute.get("resource").setValue("myResource");
-    suffixToAttribute.get("loginEndpoint").setValue(null);
+    suffixToAttribute.get("loginEndpoint").setValue("loginEndpoint");
     suffixToAttribute.get("graphEndpoint").setValue("myGraphEndpoint1");
     
     grouperExternalSystemAzure.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
@@ -227,7 +215,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
     
     assertEquals("myResource", suffixToAttribute.get("resource").getValue());
-    assertNull(suffixToAttribute.get("loginEndpoint").getValue());
+    assertEquals("loginEndpoint", suffixToAttribute.get("loginEndpoint").getValue());
     assertEquals("myGraphEndpoint1", suffixToAttribute.get("graphEndpoint").getValue());
     
     // delete
@@ -251,6 +239,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
   
   public void testChangeStatus() {
     
+    GrouperSession.startRootSession();
     AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
     
     grouperExternalSystemAzure.setConfigId("azureConnector2");
@@ -315,6 +304,90 @@ public class GrouperExternalSystemTest extends GrouperTest {
     
     assertTrue(validationErrorsToDisplay.containsKey("#externalSystemConfigId"));
     
+  }
+  
+  public void testValidatePreSaveELScriptRequired() {
+    
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    
+    Map<String, GrouperConfigurationModuleAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    
+    suffixToAttribute.get("DirectoryID").setExpressionLanguage(true);
+    suffixToAttribute.get("DirectoryID").setExpressionLanguageScript(null);
+
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    grouperExternalSystemAzure.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    assertTrue(validationErrorsToDisplay.containsKey("#config_DirectoryID_id"));
+    assertEquals(validationErrorsToDisplay.get("#config_DirectoryID_id"), "Error: 'Directory ID' is selected for 'EL' (Expression Language) with a blank script.  The EL script is required.");
+        
+  }
+  
+  public void testValidatePreSaveRequiredValue() {
+    
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    
+    Map<String, GrouperConfigurationModuleAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    
+    suffixToAttribute.get("client_id").setValue(null);
+
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    grouperExternalSystemAzure.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    assertTrue(validationErrorsToDisplay.containsKey("#config_client_id_id"));
+    assertEquals(validationErrorsToDisplay.get("#config_client_id_id"), "Error: 'Client ID' is required");
+        
+  }
+  
+  public void testValidatePreSaveMustExtendClass() {
+    
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    
+    Map<String, GrouperConfigurationModuleAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    suffixToAttribute.get("client_id").setValue("java.lang.Long");
+    suffixToAttribute.get("client_id").getConfigItemMetadata().setMustExtendClass("java.lang.String");
+
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    grouperExternalSystemAzure.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    assertTrue(validationErrorsToDisplay.containsKey("#config_client_id_id"));
+    assertEquals(validationErrorsToDisplay.get("#config_client_id_id"), "Error: 'Client ID' does not extend java.lang.String");
+        
+  }
+  
+  public void testValidatePreSaveMustImplementInterface() {
+    
+    AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
+    
+    grouperExternalSystemAzure.setConfigId("azureConnector2");
+    Map<String, GrouperConfigurationModuleAttribute> suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
+    suffixToAttribute.get("client_id").setValue("java.lang.Long");
+    suffixToAttribute.get("client_id").getConfigItemMetadata().setMustImplementInterface("java.util.List");
+
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    grouperExternalSystemAzure.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    assertTrue(validationErrorsToDisplay.containsKey("#config_client_id_id"));
+    assertEquals(validationErrorsToDisplay.get("#config_client_id_id"), "Error: 'Client ID' does not implement java.util.List");
+        
   }
   
   public void testRetrieveExtraAttributes() {

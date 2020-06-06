@@ -70,8 +70,56 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_recentMemberships");
     assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogRecentMembershipsConfiguration);
     
-    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_recentMemberships");
-    assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogRecentMembershipsConfiguration);
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_syncGroups");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogSyncGroupsConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MAINTENANCE__enabledDisabled");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonEnabledDisabledConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MAINTENANCE__rules");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonRulesConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MAINTENANCE_cleanLogs");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonCleanLogsConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MESSAGE_LISTENER_rabbitListener");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonMessagingListenerConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_attestationDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobAttestationConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_deprovisioningDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobDeprovisioningConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_findBadMemberships");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobFindBadMembershipsConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_grouperObjectTypeDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobObjectTypeConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_grouperProvisioningDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobProvisioningConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_grouperReportClearDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobReportClearConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_grouperWorkflowDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobWorkflowConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_grouperWorkflowReminderDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobWorkflowReminderConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_schedulerCheckDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobSchedulerCheckConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_tierInstrumentationDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobInstrumentationConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_upgradeTasks");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobUpgradeTasksConfiguration);
+    
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_usduDaemon");
+    assertTrue(grouperDaemonConfig instanceof GrouperDaemonOtherJobUsduConfiguration);
     
   }
   

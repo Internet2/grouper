@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
-import edu.internet2.middleware.grouper.messaging.MessagingListenerPrint;
 
 public class GrouperDaemonMessagingListenerConfiguration extends GrouperDaemonConfiguration {
 

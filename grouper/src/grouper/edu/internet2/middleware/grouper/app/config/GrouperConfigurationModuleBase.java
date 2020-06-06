@@ -15,12 +15,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 public abstract class GrouperConfigurationModuleBase {
@@ -54,7 +57,7 @@ public abstract class GrouperConfigurationModuleBase {
       }
     }
     
-    // first check if checked the el checkbox then make sure theres a script there
+    // first check if checked the el checkbox then make sure there's a script there
     {
       boolean foundElRequiredError = false;
       for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
@@ -95,10 +98,8 @@ public abstract class GrouperConfigurationModuleBase {
       if (StringUtils.isBlank(value)) {
         if (grouperConfigModuleAttribute.getConfigItemMetadata().isRequired()) {
 
-          
           validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
               GrouperTextContainer.textOrNull("grouperConfigurationValidationRequired"));
-          
         }
         
         continue;
@@ -167,6 +168,103 @@ public abstract class GrouperConfigurationModuleBase {
   public abstract String getConfigItemPrefix();
   
   public abstract String getConfigIdRegex();
+  
+  
+  public GrouperConfigurationModuleAttribute buildConfigurationModuleAttribute(
+      String propertyName, String suffix, boolean useConfigItemMetadataValue,
+      ConfigItemMetadata configItemMetadata, ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
+    GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = new GrouperConfigurationModuleAttribute();
+    
+    grouperConfigModuleAttribute.setFullPropertyName(propertyName);
+    grouperConfigModuleAttribute.setGrouperConfigModule(this);
+    
+    {
+      boolean hasExpressionLanguage = configPropertiesCascadeBase.hasExpressionLanguage(propertyName);
+      grouperConfigModuleAttribute.setExpressionLanguage(hasExpressionLanguage);
+
+      if (hasExpressionLanguage) {
+        String rawExpressionLanguage = configPropertiesCascadeBase.rawExpressionLanguage(propertyName);
+        grouperConfigModuleAttribute.setExpressionLanguageScript(rawExpressionLanguage);
+      }
+    }
+    
+    String value = configPropertiesCascadeBase.propertyValueString(propertyName);
+    if (useConfigItemMetadataValue) {
+      value = StringUtils.isBlank(value) ? configItemMetadata.getValue(): value;
+      value = StringUtils.isBlank(value) ? configItemMetadata.getSampleValue(): value;
+    }
+    grouperConfigModuleAttribute.setValue(value);
+    
+    grouperConfigModuleAttribute.setConfigItemMetadata(configItemMetadata);
+    grouperConfigModuleAttribute.setConfigSuffix(suffix);
+    
+    {
+      grouperConfigModuleAttribute.setRequired(configItemMetadata.isRequired());
+      grouperConfigModuleAttribute.setReadOnly(configItemMetadata.isReadOnly());
+      grouperConfigModuleAttribute.setType(configItemMetadata.getValueType());
+      grouperConfigModuleAttribute.setDefaultValue(configItemMetadata.getDefaultValue());
+      grouperConfigModuleAttribute.setPassword(configItemMetadata.isSensitive());
+    }
+    
+    if (GrouperUtil.length(configItemMetadata.getOptionValues()) > 0) {
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+      valuesAndLabels.add(new MultiKey("", ""));
+      for (String optionValue : configItemMetadata.getOptionValues()) {
+        
+        String label = GrouperTextContainer.textOrNull("config."
+            + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + "." + optionValue + ".label");
+        label = StringUtils.defaultIfBlank(label, optionValue);
+        
+        MultiKey valueAndLabel = new MultiKey(optionValue, label);
+        valuesAndLabels.add(valueAndLabel);
+      }
+      grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
+    }
+    
+    if (grouperConfigModuleAttribute.isPassword()) {
+      grouperConfigModuleAttribute.setPassword(true);
+      grouperConfigModuleAttribute.setFormElement(ConfigItemFormElement.PASSWORD);
+    } else {
+      ConfigItemFormElement configItemFormElement = configItemMetadata.getFormElement();
+      if (configItemFormElement != null) {
+        grouperConfigModuleAttribute.setFormElement(configItemFormElement);
+      } else {
+        // boolean is a drop down
+        if (configItemMetadata.getValueType() == ConfigItemMetadataType.BOOLEAN) {
+          
+          grouperConfigModuleAttribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+  
+          if (GrouperUtil.length(grouperConfigModuleAttribute.getDropdownValuesAndLabels()) == 0) {
+            
+            List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+            valuesAndLabels.add(new MultiKey("", ""));
+            
+            String trueLabel = GrouperTextContainer.textOrNull("config." 
+                + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".trueLabel");
+            
+            trueLabel = GrouperUtil.defaultIfBlank(trueLabel, GrouperTextContainer.textOrNull("config.defaultTrueLabel"));
+  
+            String falseLabel = GrouperTextContainer.textOrNull("config." 
+                + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".falseLabel");
+            
+            falseLabel = GrouperUtil.defaultIfBlank(falseLabel, GrouperTextContainer.textOrNull("config.defaultFalseLabel"));
+            
+            valuesAndLabels.add(new MultiKey("true", trueLabel));
+            valuesAndLabels.add(new MultiKey("false", falseLabel));
+            grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
+          }
+        } else if (GrouperUtil.length(grouperConfigModuleAttribute.getValue()) > 100) {
+  
+          grouperConfigModuleAttribute.setFormElement(ConfigItemFormElement.TEXTAREA);
+  
+        } else {
+          grouperConfigModuleAttribute.setFormElement(ConfigItemFormElement.TEXT);
+        }
+      }
+    }
+    
+    return grouperConfigModuleAttribute;
+  }
   
   /**
    * 
@@ -241,10 +339,13 @@ public abstract class GrouperConfigurationModuleBase {
     
     for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
       
-      //DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().getConfigFileName(), attribute.getFullPropertyName() , fromUi, false);
+      String fullPropertyName = attribute.getFullPropertyName();
+      if (attribute.isExpressionLanguage()) {
+        fullPropertyName = fullPropertyName + ".elConfig";
+      }
       
       Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig()
-          .findAll(this.getConfigFileName(), null, attribute.getFullPropertyName());
+          .findAll(this.getConfigFileName(), null, fullPropertyName);
       
       if (grouperConfigHibernates != null && grouperConfigHibernates.size() > 0) {
         for (GrouperConfigHibernate grouperConfigHibernate: grouperConfigHibernates) {
