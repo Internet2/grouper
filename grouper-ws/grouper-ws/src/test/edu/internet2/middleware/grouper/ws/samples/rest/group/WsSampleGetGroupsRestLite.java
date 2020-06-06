@@ -54,7 +54,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
       GetMethod method = new GetMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/subjects/10021368/groups");
+            + "/subjects/GrouperSystem/groups");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -91,6 +91,8 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
         throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
             + ", " + resultMessage);
       }
+      
+      System.out.println("groups length is "+wsGetGroupsLiteResult.getWsGroups().length);
       
       System.out.println("Server version: " + wsGetGroupsLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode

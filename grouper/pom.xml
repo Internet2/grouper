@@ -334,6 +334,10 @@
             <groupId>org.ldaptive</groupId>
             <artifactId>ldaptive</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.redhogs.cronparser</groupId>
+            <artifactId>cron-parser-core</artifactId>
+        </dependency>
         <!-- for migrated subject module -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -384,11 +388,6 @@
         <dependency>
             <groupId>jug</groupId>
             <artifactId>jug</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.redhogs.cronparser</groupId>
-            <artifactId>cron-parser-core</artifactId>
             <scope>test</scope>
         </dependency>
 

@@ -39,6 +39,11 @@ public class ConfigFormElement extends SimpleTagSupport {
   private Boolean required = false;
   
   /**
+   * is the field read only
+   */
+  private Boolean readOnly = false;
+  
+  /**
    * helper text to display under the field
    */
   private String helperText;
@@ -185,6 +190,23 @@ public class ConfigFormElement extends SimpleTagSupport {
   public void setRequired(Boolean required) {
     this.required = required;
   }
+  
+  
+  /**
+   * is the field read only
+   * @return
+   */
+  public Boolean getReadOnly() {
+    return readOnly;
+  }
+
+  /**
+   * is the field read only
+   * @param readOnly
+   */
+  public void setReadOnly(Boolean readOnly) {
+    this.readOnly = readOnly;
+  }
 
   /**
    * helper text to display under the field
@@ -266,26 +288,36 @@ public class ConfigFormElement extends SimpleTagSupport {
     field.append("</label></strong></td>");
     
     field.append("<td style='vertical-align: top; white-space: nowrap;' >");
-    field.append("<input style='vertical-align: top; min-height: 10px; margin-right: 2px;' type='checkbox' ");
-    field.append("name='config_el_"+configId+"' ");
     
-    if (hasExpressionLanguage) {
-      field.append(" checked ");
+    if (!readOnly) {
+      field.append("<input style='vertical-align: top; min-height: 10px; margin-right: 2px;' type='checkbox' ");
+      field.append("name='config_el_"+configId+"' ");
+      
+      if (hasExpressionLanguage) {
+        field.append(" checked ");
+      }
+          
+      field.append("onchange=\""+ajaxCallback+"\"");
+      field.append("</input><span rel='tooltip' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "' style='border-bottom: 1px dotted #000;'>");
+      field.append(GrouperTextContainer.textOrNull("grouperConfigIsElLabel"));
+      field.append("</span>");
     }
-        
-    field.append("onchange=\""+ajaxCallback+"\"");
-    field.append("</input><span rel='tooltip' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "' style='border-bottom: 1px dotted #000;'>");
-    field.append(GrouperTextContainer.textOrNull("grouperConfigIsElLabel"));
-    field.append("</span></td>");
+    field.append("</td>");
     
     field.append("<td>");
     
     ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(formElementType, true);
     
+    String displayClass = "";
+    if (readOnly) {
+      field.append(GrouperUtil.escapeHtml(value, true));
+      displayClass = " display: none; ";
+    }
+    
     if (configItemFormElement == ConfigItemFormElement.TEXT) {
       
       field.append(
-          "<input style='width:30em;' type='text' id='config_"+configId+"_id' name='config_" + configId + "'");
+          "<input style='width:30em; "+ displayClass + "' type='text' id='config_"+configId+"_id' name='config_" + configId + "'");
       if (value != null) {
         field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
       }
@@ -295,7 +327,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     
     if (configItemFormElement == ConfigItemFormElement.TEXTAREA) {
             
-      field.append("<textarea style='width:30em;' cols='20' rows='3' id='config_"+configId+"_id' name='config_"
+      field.append("<textarea style='width:30em; "+ displayClass + "' cols='20' rows='3' id='config_"+configId+"_id' name='config_"
           + configId + "'>");
       if (value != null) {
         field.append(GrouperUtil.escapeHtml(value, true));
@@ -307,7 +339,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     if (configItemFormElement == ConfigItemFormElement.PASSWORD) {
       
       field.append(
-          "<input style='width:30em;' type='password' id='config_"+configId+"_id' name= 'config_" + configId + "'");
+          "<input style='width:30em; "+ displayClass + "' type='password' id='config_"+configId+"_id' name= 'config_" + configId + "'");
       if (value != null) {
         field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
       }
@@ -316,7 +348,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     
     if (configItemFormElement == ConfigItemFormElement.DROPDOWN) {
       
-      field.append("<select style='width:30em;' id='config_"+configId+"_id' name='config_"+configId+"' ");
+      field.append("<select style='width:30em; "+ displayClass + "' id='config_"+configId+"_id' name='config_"+configId+"' ");
       
       field.append("onchange=\""+ajaxCallback+"\"");
       field.append(">");
@@ -336,7 +368,7 @@ public class ConfigFormElement extends SimpleTagSupport {
       field.append("</select>");
     }
     
-    if (required) {
+    if (!readOnly && required) {
       field.append("<span class='requiredField' rel='tooltip' data-html='true' data-delay-show='200' data-placement='right'>*");
       field.append("</span>");
     }

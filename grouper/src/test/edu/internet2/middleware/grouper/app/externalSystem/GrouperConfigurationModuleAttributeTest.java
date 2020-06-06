@@ -1,22 +1,23 @@
 package edu.internet2.middleware.grouper.app.externalSystem;
 
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 
-public class GrouperExternalSystemAttributeTest extends GrouperTest {
+public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
   
   /**
    * @param name
    */
-  public GrouperExternalSystemAttributeTest(String name) {
+  public GrouperConfigurationModuleAttributeTest(String name) {
     super(name);
   }
   
   public void testGetValueOrExpressionEvaluation() {
     
     // expression script is returned when expression language is true
-    GrouperExternalSystemAttribute attribute = new GrouperExternalSystemAttribute();
+    GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
     attribute.setExpressionLanguage(true);
     attribute.setValue("abc");
     attribute.setExpressionLanguageScript("script");
@@ -24,7 +25,7 @@ public class GrouperExternalSystemAttributeTest extends GrouperTest {
     assertEquals("script", value);
     
     // value is returned when expression language is not set or is false
-    attribute = new GrouperExternalSystemAttribute();
+    attribute = new GrouperConfigurationModuleAttribute();
     attribute.setValue("abc");
     attribute.setExpressionLanguageScript("script");
     value = attribute.getValueOrExpressionEvaluation();
@@ -34,7 +35,7 @@ public class GrouperExternalSystemAttributeTest extends GrouperTest {
   
   public void testGetHtmlForElementIdHandle() {
     
-    GrouperExternalSystemAttribute attribute = new GrouperExternalSystemAttribute();
+    GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
     attribute.setConfigSuffix("testConfigSuffix");
     
     String htmlElementId = attribute.getHtmlForElementIdHandle();
@@ -45,7 +46,7 @@ public class GrouperExternalSystemAttributeTest extends GrouperTest {
   
   public void testIsShow() {
     
-    GrouperExternalSystemAttribute attribute = new GrouperExternalSystemAttribute();
+    GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
     attribute.setConfigSuffix("azureConnector2");
     
     AzureGrouperExternalSystem grouperExternalSystemAzure = new AzureGrouperExternalSystem();
@@ -60,13 +61,13 @@ public class GrouperExternalSystemAttributeTest extends GrouperTest {
       }
     };
     
-    attribute.setGrouperExternalSystem(azureExtension);
+    attribute.setGrouperConfigModule(azureExtension);
     boolean isShow = attribute.isShow();
     assertEquals(true, isShow);
     
     
     // test when config item doesn't have showEL
-    attribute.setGrouperExternalSystem(grouperExternalSystemAzure);
+    attribute.setGrouperConfigModule(grouperExternalSystemAzure);
     
     ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
     configItemMetadata.setShowEl("");
@@ -81,9 +82,9 @@ public class GrouperExternalSystemAttributeTest extends GrouperTest {
 //    #ldap.personLdap.minPoolSize =
     LdapGrouperExternalSystem ldapGrouperExternalSystem = new LdapGrouperExternalSystem();
     ldapGrouperExternalSystem.setConfigId("ldapConnector");
-    attribute = new GrouperExternalSystemAttribute();
+    attribute = new GrouperConfigurationModuleAttribute();
     attribute.setConfigSuffix("ldapConnector");
-    attribute.setGrouperExternalSystem(ldapGrouperExternalSystem);
+    attribute.setGrouperConfigModule(ldapGrouperExternalSystem);
     configItemMetadata = new ConfigItemMetadata();
     configItemMetadata.setShowEl("${customizePooling}");
     attribute.setConfigItemMetadata(configItemMetadata);

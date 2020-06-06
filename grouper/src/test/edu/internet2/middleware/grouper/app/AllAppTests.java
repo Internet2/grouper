@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.app;
 
 import edu.internet2.middleware.grouper.app.attestation.AllAttestationTests;
+import edu.internet2.middleware.grouper.app.daemon.AllDaemonTests;
 import edu.internet2.middleware.grouper.app.deprovisioning.AllDeprovisioningTests;
 import edu.internet2.middleware.grouper.app.externalSystem.AllExternalSystemTests;
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
@@ -68,6 +69,7 @@ public class AllAppTests {
     suite.addTest(AllServiceLifecycleTests.suite());
     suite.addTest(AllUsduTests.suite());
     suite.addTest(AllUpgradeTasksTests.suite());
+    suite.addTest(AllDaemonTests.suite());
     return suite;
   }
 

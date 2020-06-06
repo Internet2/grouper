@@ -225,6 +225,15 @@
     
     <attribute>
       <description>
+      	Is the field read only  
+      </description>
+      <name>readOnly</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
       	Is the field required  
       </description>
       <name>required</name>

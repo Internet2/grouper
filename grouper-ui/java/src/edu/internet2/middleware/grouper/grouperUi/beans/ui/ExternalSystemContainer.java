@@ -79,7 +79,7 @@ public class ExternalSystemContainer {
   }
 
   public List<GrouperExternalSystem> getAllExternalSystemTypes() {
-    return GrouperExternalSystem.retrieveAllGrouperExternalSystemTypes();
+    return GrouperExternalSystem.retrieveAllModuleConfigurationTypes();
   }
 
 }

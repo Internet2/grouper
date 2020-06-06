@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import org.quartz.CronScheduleBuilder;
+
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -13,6 +15,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import net.redhogs.cronparser.CronExpressionDescriptor;
 
 
 /**
@@ -353,6 +356,26 @@ public enum ConfigItemMetadataType {
       } catch (Exception e) {
         return "grouperConfigurationValidationInvalidClass";
       }
+    }
+
+  },
+  /** cron expression */
+  CRON {
+
+    @Override
+    public String getStringForUi() {
+      return "Cron expression";
+    }
+    
+    @Override
+    public String validate(String value) {
+      try {
+        CronScheduleBuilder.cronSchedule(value);
+        CronExpressionDescriptor.getDescription(value);
+      } catch (Exception e) {
+        return "grouperConfigurationValidationInvalidCron";
+      }
+      return null;
     }
 
   };
