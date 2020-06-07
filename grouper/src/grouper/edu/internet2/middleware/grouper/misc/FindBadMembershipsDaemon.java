@@ -28,7 +28,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import bsh.Interpreter;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
@@ -168,4 +167,5 @@ public class FindBadMembershipsDaemon implements Job {
       }
     }
   }
+  
 }

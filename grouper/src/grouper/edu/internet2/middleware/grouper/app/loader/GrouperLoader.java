@@ -1357,7 +1357,7 @@ public class GrouperLoader {
     //schedule daily anytime
     //6am daily: "0 0 6 * * ?"
     //every minute for testing: "0 * * * * ?"
-    String cronString = "0 0 6 * * ?";
+    String cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.cleanLogs.quartz.cron", "0 0 6 * * ?");
     
     //this is a low priority job
     int priority = 1;

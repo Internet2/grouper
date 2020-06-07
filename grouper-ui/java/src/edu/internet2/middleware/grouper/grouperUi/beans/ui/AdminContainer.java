@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
@@ -476,4 +477,34 @@ public class AdminContainer {
   public void setGuiJobHistoryNamesLikeFilter(String guiJobHistoryNamesLikeFilter) {
     this.guiJobHistoryNamesLikeFilter = guiJobHistoryNamesLikeFilter;
   }
+  
+  
+  private GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration;
+
+  
+  public GuiGrouperDaemonConfiguration getGuiGrouperDaemonConfiguration() {
+    return guiGrouperDaemonConfiguration;
+  }
+
+  
+  public void setGuiGrouperDaemonConfiguration(
+      GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration) {
+    this.guiGrouperDaemonConfiguration = guiGrouperDaemonConfiguration;
+  }
+
+  public List<GrouperDaemonConfiguration> getAllGrouperDaemonTypesConfiguration() {
+    return GrouperDaemonConfiguration.retrieveAllModuleConfigurationTypes();
+  }
+
+  private boolean grouperDaemonLoader;
+  
+  public void setGrouperDaemonLoader(boolean grouperDaemonLoader) {
+    this.grouperDaemonLoader = grouperDaemonLoader;
+  }
+
+  
+  public boolean isGrouperDaemonLoader() {
+    return grouperDaemonLoader;
+  }
+  
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 
 /**
@@ -67,11 +68,11 @@ public class GrouperExternalSystemSubSection {
    * return config suffix to attribute
    * @return map
    */
-  public Map<String, GrouperExternalSystemAttribute> getAttributes() {
-    Map<String, GrouperExternalSystemAttribute> results = new LinkedHashMap<String, GrouperExternalSystemAttribute>();
-    for (GrouperExternalSystemAttribute grouperExternalSystemAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
-      if (StringUtils.equals(this.getLabel(), grouperExternalSystemAttribute.getConfigItemMetadata().getSubSection())) {
-        results.put(grouperExternalSystemAttribute.getConfigSuffix(), grouperExternalSystemAttribute);
+  public Map<String, GrouperConfigurationModuleAttribute> getAttributes() {
+    Map<String, GrouperConfigurationModuleAttribute> results = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
+    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
+      if (StringUtils.equals(this.getLabel(), grouperConfigModuleAttribute.getConfigItemMetadata().getSubSection())) {
+        results.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute);
       }
     }
     return results;
@@ -81,7 +82,7 @@ public class GrouperExternalSystemSubSection {
    * get list of attributes for this subsection
    * @return
    */
-  public Collection<GrouperExternalSystemAttribute> getAttributesValues() {
+  public Collection<GrouperConfigurationModuleAttribute> getAttributesValues() {
     return this.getAttributes().values();
   }
   

@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
@@ -51,8 +51,11 @@ import org.quartz.impl.matchers.GroupMatcher;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
@@ -67,6 +70,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -423,7 +427,6 @@ public class UiV2Admin extends UiServiceLogicBase {
         guiPaging.setTotalRecordCount(guiDaemonJobs.size());
         guiDaemonJobs = GrouperUtil.batchList(guiDaemonJobs, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
         
-        
       } else {
       
         GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
@@ -449,6 +452,402 @@ public class UiV2Admin extends UiServiceLogicBase {
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
+  }
+  
+  /**
+   * show screen to add a new daemon 
+   * @param request
+   * @param response
+   */
+  public void addDaemon(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+    
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+      
+      String daemonConfigType = request.getParameter("daemonConfigType");
+      String daemonConfigId = request.getParameter("daemonConfigId");
+      String enable = request.getParameter("daemonConfigEnable");
+      
+      if (StringUtils.isNotBlank(daemonConfigType) && StringUtils.equals("loader", daemonConfigType)) {
+        adminContainer.setGrouperDaemonLoader(true);
+      }
+      
+      if (StringUtils.isNotBlank(daemonConfigType) && !StringUtils.equals("loader", daemonConfigType)) {
+
+        if (!GrouperDaemonConfiguration.grouperDaemonConfigClassNames.contains(daemonConfigType)) {
+          throw new RuntimeException("Invalid daemonConfigType "+daemonConfigType);
+        }
+        
+        if (StringUtils.isBlank(daemonConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#daemonConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigCreateErrorConfigIdRequired")));
+          return;
+        }
+
+        Class<GrouperDaemonConfiguration> klass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(daemonConfigType);
+        GrouperDaemonConfiguration grouperDaemonConfiguration = (GrouperDaemonConfiguration) GrouperUtil.newInstance(klass);
+        
+        if (!grouperDaemonConfiguration.isMultiple()) {
+          throw new RuntimeException("Configs can be added when multiple is set to true");
+        }
+        
+        grouperDaemonConfiguration.setConfigId(daemonConfigId);
+        
+        String previousDaemonConfigId = request.getParameter("previousDaemonConfigId");
+        String previousDaemonConfigType = request.getParameter("previousDaemonConfigType");
+        if (StringUtils.isBlank(previousDaemonConfigId) 
+            || !StringUtils.equals(daemonConfigType, previousDaemonConfigType)) {
+          // first time loading the screen or
+          // daemon config type changed
+          // let's get values from config files/database
+        } else {
+          populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+        }
+  
+        GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration = GuiGrouperDaemonConfiguration.convertFromGrouperDaemonConfiguration(grouperDaemonConfiguration);
+        guiGrouperDaemonConfiguration.setEnabled(GrouperUtil.booleanValue(enable));
+        adminContainer.setGuiGrouperDaemonConfiguration(guiGrouperDaemonConfiguration);
+        
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobAdd.jsp"));
+      
+      } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * submit daemon config
+   * @param request
+   * @param response
+   */
+  public void addDaemonSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+    
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+      
+      String daemonConfigType = request.getParameter("daemonConfigType");
+      String daemonConfigId = request.getParameter("daemonConfigId");
+      String enable = request.getParameter("daemonConfigEnable");
+      
+      if (StringUtils.isBlank(daemonConfigId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#daemonConfigId",
+            TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigCreateErrorConfigIdRequired")));
+        return;
+      }
+      
+      if (StringUtils.isBlank(daemonConfigType)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#daemonTypeId",
+            TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigCreateErrorConfigTypeRequired")));
+        return;
+      }
+        
+      if (!GrouperDaemonConfiguration.grouperDaemonConfigClassNames.contains(daemonConfigType)) {  
+        throw new RuntimeException("Invalid daemonConfigType "+daemonConfigType);
+      }
+
+      Class<GrouperDaemonConfiguration> klass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(daemonConfigType);
+      GrouperDaemonConfiguration grouperDaemonConfiguration = (GrouperDaemonConfiguration) GrouperUtil.newInstance(klass);
+      
+      if (grouperDaemonConfiguration.isMultiple() && StringUtils.isNotBlank(daemonConfigId)) {
+        grouperDaemonConfiguration.setConfigId(daemonConfigId);
+      }
+      
+      if (grouperDaemonConfiguration.isMultiple() && 
+          (!StringUtils.equals(enable, "true") && !StringUtils.equals(enable, "false"))) {
+        throw new RuntimeException("enable value can be true or false only");
+      }
+      
+      populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      grouperDaemonConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+      }
+      
+      int changesMade = GrouperLoader.scheduleJobs();
+      if (grouperDaemonConfiguration.isMultiple() && enable.equals("false")) {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        String jobName = grouperDaemonConfiguration.getDaemonJobPrefix() + daemonConfigId;
+        JobKey jobKey = new JobKey(jobName);
+        scheduler.pauseJob(jobKey);
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.daemonJobs')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigAddEditSuccess")));
+            
+      } catch (SchedulerException e) {
+        throw new RuntimeException(e);
+      } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * delete a daemon config
+   * @param request
+   * @param response
+   */
+  public void deleteDaemon(final HttpServletRequest request, final HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+    
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+      
+      String jobName = request.getParameter("jobName");
+      
+      if (StringUtils.isBlank(jobName)) {
+        throw new RuntimeException("jobName cannnot be blank");
+      }
+      
+      GrouperDaemonConfiguration configToDelete = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
+      
+      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      if (configToDelete.isMultiple()) {
+        configToDelete.setConfigId(configId);
+      }
+      
+      configToDelete.deleteConfig(true);
+      
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+      JobKey jobKey = new JobKey(jobName);
+      scheduler.deleteJob(jobKey);
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.daemonJobs')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigDeleteSuccess")));
+      
+      } catch(SchedulerException e) {
+        throw new RuntimeException("Error removing job from scheduler");
+      } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * show edit daemon config screen
+   * @param request
+   * @param response
+   */
+  public void editDaemon(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+      
+      String jobName = request.getParameter("jobName");
+      String enable = request.getParameter("daemonConfigEnable");
+      // String daemonConfigType = request.getParameter("daemonConfigType");
+      
+      if (StringUtils.isBlank(jobName)) {
+        throw new RuntimeException("jobName cannnot be blank");
+      }
+      
+      GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
+      
+      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      if (configToEdit.isMultiple()) {
+        configToEdit.setConfigId(configId);
+      }
+        
+      String previousJobName = request.getParameter("previousJobName");
+      
+      // change was made on the form
+      if (StringUtils.isNotBlank(previousJobName)) {
+        populateDaemonConfigFromUi(request, configToEdit);
+      }
+      
+      GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration = GuiGrouperDaemonConfiguration.convertFromGrouperDaemonConfiguration(configToEdit);
+      
+      if (StringUtils.isBlank(enable)) {
+        boolean isJobEnabled = new GuiDaemonJob(jobName).isShowMoreActionsDisable();
+        guiGrouperDaemonConfiguration.setEnabled(GrouperUtil.booleanValue(isJobEnabled));
+      } else {
+        guiGrouperDaemonConfiguration.setEnabled(GrouperUtil.booleanValue(enable));
+      }
+      
+      adminContainer.setGuiGrouperDaemonConfiguration(guiGrouperDaemonConfiguration);
+      
+      guiGrouperDaemonConfiguration.setJobName(jobName);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobEdit.jsp"));
+      
+      } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * submit daemon config
+   * @param request
+   * @param response
+   */
+  public void editDaemonSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+    
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+      
+      String daemonConfigId = request.getParameter("daemonConfigId");
+      String jobName = request.getParameter("previousJobName");
+      // String daemonConfigType = request.getParameter("daemonConfigType");
+      
+      if (StringUtils.isBlank(jobName)) {
+        throw new RuntimeException("jobName cannnot be blank");
+      }
+      
+      GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
+      
+      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      if (configToEdit.isMultiple()) {
+        configToEdit.setConfigId(configId);
+      }
+      
+      populateDaemonConfigFromUi(request, configToEdit);
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      configToEdit.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+      }
+      
+      int changesMade = GrouperLoader.scheduleJobs();
+      
+      String enable = request.getParameter("daemonConfigEnable");
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+      JobKey jobKey = new JobKey(jobName);
+      if ("false".equals(enable)) {
+        scheduler.pauseJob(jobKey);
+      } else {
+        scheduler.resumeJob(jobKey);
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.daemonJobs')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigAddEditSuccess")));
+      
+      
+      } catch (SchedulerException e) {
+        throw new RuntimeException("Error scheduling job");
+      } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  private void populateDaemonConfigFromUi(HttpServletRequest request, GrouperDaemonConfiguration grouperDaemonConfig) {
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = grouperDaemonConfig.retrieveAttributes();
+    
+    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
+      String name = "config_"+attribute.getConfigSuffix();
+      String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
+      
+      String elValue = request.getParameter(elCheckboxName);
+      
+      String value = request.getParameter(name);
+      
+      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on")) {
+        attribute.setExpressionLanguage(true);
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setExpressionLanguageScript(value);
+      } else {
+        attribute.setExpressionLanguage(false);
+        attribute.setValue(value);
+      }
+        
+    }
+    
   }
 
   public void jobHistoryChart(HttpServletRequest request, HttpServletResponse response) {
