@@ -7,7 +7,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -74,7 +73,7 @@ public class GrouperRecentMemberships {
       } else if (GrouperDdlUtils.isOracle()) {
         regexPart = " and REGEXP_LIKE (gaaagv_recentMemberships.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$') "
             + "and REGEXP_LIKE (gaaagv_includeEligible.value_string, '^(true|false)$') ";
-        minEndTimePart = "(1000000 * (((sysdate - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_recentMemberships.value_string AS number ))))";
+        minEndTimePart = "(1000000 * (((cast(current_timestamp at time zone 'UTC' as date) - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_recentMemberships.value_string AS number ))))";
       } else if (GrouperDdlUtils.isMysql()) {  
         regexPart = " and gaaagv_recentMemberships.value_string REGEXP '^[0-9]+$' and gaaagv_groupName.value_string REGEXP '^.+:.+$' "
             + "and gaaagv_includeEligible.value_string REGEXP '^(true|false)$' ";
@@ -91,13 +90,13 @@ public class GrouperRecentMemberships {
       query = "select distinct gaaagv_groupName.value_string group_name, gpm.subject_id, gpm.subject_source subject_source_id "
           + "from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf, "
           + "grouper_aval_asn_asn_group_v gaaagv_recentMemberships, grouper_aval_asn_asn_group_v gaaagv_groupName, grouper_aval_asn_asn_group_v gaaagv_includeEligible "
-          + "where gaaagv_recentMemberships.group_id = gaaagv_groupName.group_id and gaaagv_recentMemberships.group_id = gaaagv_includeEligible.group_id "
+          + "where gaaagv_recentMemberships.attribute_assign_id1 = gaaagv_groupName.attribute_assign_id1 and gaaagv_recentMemberships.attribute_assign_id1 = gaaagv_includeEligible.attribute_assign_id1 "
           + "and gaaagv_recentMemberships.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS + "' "
           + "and gaaagv_groupName.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME + "' "
           + "and gaaagv_includeEligible.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT + "' "
           + "and gpmship.MEMBER_ID = gpm.ID and gpm.subject_source != 'g:gsa' and gpgs.FIELD_ID = gpf.ID "
           + "and gpf.name = 'members' " + databasePart + " "
-          + "and gaaagv_groupName.group_name = gpg.name "
+          + "and gaaagv_groupName.group_id = gpg.source_id "
           + "and gpg.id = gpgs.owner_id "
           + "and gpmship.owner_id = gpgs.member_id "
           + "AND gpmship.field_id = gpgs.member_field_id " 
