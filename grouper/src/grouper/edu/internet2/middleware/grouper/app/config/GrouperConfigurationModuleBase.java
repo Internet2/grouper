@@ -19,9 +19,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -338,20 +336,8 @@ public abstract class GrouperConfigurationModuleBase {
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     
     for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
-      
       String fullPropertyName = attribute.getFullPropertyName();
-      if (attribute.isExpressionLanguage()) {
-        fullPropertyName = fullPropertyName + ".elConfig";
-      }
-      
-      Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig()
-          .findAll(this.getConfigFileName(), null, fullPropertyName);
-      
-      if (grouperConfigHibernates != null && grouperConfigHibernates.size() > 0) {
-        for (GrouperConfigHibernate grouperConfigHibernate: grouperConfigHibernates) {
-          DbConfigEngine.configurationFileItemDeleteHelper(grouperConfigHibernate, this.getConfigFileName(), fromUi);
-        }
-      }
+      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().name(), fullPropertyName, fromUi, true);
     }
     
     ConfigPropertiesCascadeBase.clearCache();
