@@ -118,6 +118,8 @@
     <property name="name" column="name"/>
     <property name="description" column="description"/>
 
+    <property name="subjectResolutionResolvableDb" column="subject_resolution_resolvable"/>
+    <property name="subjectResolutionDeletedDb" column="subject_resolution_deleted"/>
   </class>
 
 </hibernate-mapping>

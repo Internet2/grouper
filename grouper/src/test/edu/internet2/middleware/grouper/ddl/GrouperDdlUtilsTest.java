@@ -1046,4 +1046,66 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
   }
   
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_5static() {
+    
+    
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+
+    
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_hsql.sql
+    // get to 2.5
+    File scriptToGetTo2_5 = retrieveScriptFile("GrouperDdl_2_5_0_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_5, true, true);
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_members", "subject_resolution_deleted"));
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "subject_resolution_deleted"));
+    
+    scriptToGetTo2_5.delete();
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_5ddlUtils() {
+    
+    
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_hsql.sql
+    // get to 2.5
+    File scriptToGetTo2_5 = retrieveScriptFile("GrouperDdl_2_5_0_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_5, true, true);
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_members", "subject_resolution_deleted"));
+  
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true).assignDeepCheck(false)
+      .assignCompareFromDbVersion(true)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(true)
+      .assignUseDdlUtils(true)
+      .assignDropOnly(false)
+      .assignInstallDefaultGrouperData(false).assignPromptUser(false).runDdl();
+  
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "subject_resolution_deleted"));
+    
+    scriptToGetTo2_5.delete();
+    
+  }
 }

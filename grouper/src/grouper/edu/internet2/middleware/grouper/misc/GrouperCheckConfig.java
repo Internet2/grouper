@@ -1318,10 +1318,6 @@ public class GrouperCheckConfig {
         // try an attribute def dependent on an attribute def name
         subjectResolutionAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
         
-        checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE,
-            "false if this subject is currently unresolvable (as of last check)." + 
-            "If the subject is resolvable, remove subjectResolutionMarker and metadata", wasInCheckConfig);
-        
         checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED, 
             "yyyy/mm/dd If this subject has a date and is unresolveable, leave it. if this subject doesnt have a date, and is unresolvable, then set to currentDate.", wasInCheckConfig);
         
@@ -1330,9 +1326,6 @@ public class GrouperCheckConfig {
         
         checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED, 
             "yyyy/mm/dd the date this subject was last checked. When the USDU runs, if this subject is current unresolvable, then set to currentDate", wasInCheckConfig);
-        
-        checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_DELETED,
-            "true when all the memberships are removed", wasInCheckConfig);
         
         checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_DELETE_DATE,
             "yyyy/mm/dd when all the memberships are removed", wasInCheckConfig);

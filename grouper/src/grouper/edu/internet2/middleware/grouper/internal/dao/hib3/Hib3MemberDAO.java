@@ -44,7 +44,6 @@ import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
@@ -53,25 +52,20 @@ import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
-import edu.internet2.middleware.grouper.app.usdu.UsduService;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
-import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -80,7 +74,6 @@ import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -1360,5 +1353,21 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     return null;
   }
 
+  public Set<Member> getUnresolvableMembers(Boolean deleted) {
+    StringBuilder sql = new StringBuilder("select m from Member as m where m.subjectResolutionResolvableDb='F' ");
+
+    if (deleted != null && deleted) {
+      sql.append(" and m.subjectResolutionDeletedDb='T'");
+    }
+    
+    if (deleted != null && !deleted) {
+      sql.append(" and m.subjectResolutionDeletedDb='F'");
+    }
+    
+    return HibernateSession.byHqlStatic().createQuery(sql.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetUnresolvableMembers")
+        .listSet(Member.class);
+  }
 } 
 

@@ -32,7 +32,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -45,6 +47,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -145,6 +148,12 @@ public class UsduJob extends OtherJobBase {
     if (!UsduSettings.usduEnabled()) {
       LOG.info("usdu.enable is set to false. not going to run usdu daemon.");
       return null;
+    }
+    
+    AttributeDefName resolvableMembersAttr = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() + ":subjectResolutionResolvable", false);
+    if (resolvableMembersAttr != null) {
+      // flag for resolvable and deleted moving from attributes to member table.  if this isn't done yet, don't proceed.
+      throw new RuntimeException("Migration for subjectResolutionResolvable and subjectResolutionDeleted has not completed.  USDU will not run until that's done.  That migration is done automatically by the job OTHER_JOB_upgradeTasks.");
     }
     
     Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
@@ -360,11 +369,7 @@ public class UsduJob extends OtherJobBase {
    */
   private long clearMetadataFromNowResolvedMembers(GrouperSession grouperSession) {
    
-    Set<Member> members = new MemberFinder()
-      .assignAttributeCheckReadOnAttributeDef(false)
-      .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE)
-      .addAttributeValuesOnAssignment("false")
-      .findMembers();
+    Set<Member> members = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(false);
     
     long resolvableMembers = 0; 
     

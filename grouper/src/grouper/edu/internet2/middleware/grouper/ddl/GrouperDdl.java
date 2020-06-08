@@ -23,7 +23,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -58,7 +57,6 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
@@ -76,7 +74,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
@@ -2520,12 +2517,18 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.5.30";
+    }
+    
+    @Override
+    public boolean recreateViewsAndForeignKeys() {
+      return false;
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      GrouperDdl2_5_30.addSubjectResolutionColumns(database, ddlVersionBean);
     }
   },
   V34 {

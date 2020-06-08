@@ -10,14 +10,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -29,8 +28,8 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.subject.Source;
 
 /**
@@ -76,8 +75,7 @@ public class UsduService {
       attributeAssign = member.getAttributeDelegate().assignAttribute(UsduAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
     }
     
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), subjectResolutionAttributeValue.getSubjectResolutionResolvableString());
+    AttributeDefName attributeDefName = null;
     
     if (StringUtils.isNotBlank(subjectResolutionAttributeValue.getSubjectResolutionDateLastResolvedString())) {
       attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED, true);
@@ -90,15 +88,15 @@ public class UsduService {
     attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), subjectResolutionAttributeValue.getSubjectResolutionDateLastCheckedString());
     
-    // clear the rest
-    attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), org.apache.commons.lang3.BooleanUtils.toStringTrueFalse(false));
-        
+    // clear the rest        
     attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETE_DATE, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), null);
     
     attributeAssign.saveOrUpdate();
     
+    member.setSubjectResolutionResolvable(false);
+    member.setSubjectResolutionDeleted(false);
+    member.store();
   }
   
   /**
@@ -113,10 +111,7 @@ public class UsduService {
       attributeAssign = member.getAttributeDelegate().assignAttribute(UsduAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
     }
     
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), BooleanUtils.toStringTrueFalse(true));
-
-    attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETE_DATE, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETE_DATE, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), String.valueOf(new Date().getTime()));
     
     // clear the rest
@@ -126,11 +121,11 @@ public class UsduService {
     attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), null);
     
-    attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), null);
-    
     attributeAssign.saveOrUpdate();
     
+    member.setSubjectResolutionResolvable(false);
+    member.setSubjectResolutionDeleted(true);
+    member.store();
   }
   
   
@@ -182,20 +177,14 @@ public class UsduService {
     // select source_id, count(*) from grouper_aval_asn_asn_member_v where attribute_def_name_name1 = 'penn:etc:usdu:subjectResolutionMarker'
     // and attribute_def_name_name2 = 'penn:etc:usdu:subjectResolutionResolvable' and value_string = 'false' and enabled2 = 'T' group by source_id;
     
-    final String sqlUnresolvable = "select source_id, count(*) from grouper_aval_asn_asn_member_v "
-        + "where attribute_def_name_name1 = '" + UsduAttributeNames.retrieveAttributeDefNameBase().getName() + "' "
-        + "and attribute_def_name_name2 = '" + UsduSettings.usduStemName() + ":" + UsduAttributeNames.SUBJECT_RESOLUTION_DELETED + "' "
-        + "and (value_string is null or value_string = 'false') and enabled2 = 'T'  group by source_id";
+    final String sqlUnresolvable = "select subject_source as source_id, count(*) from grouper_members where subject_resolution_resolvable='F' group by subject_source";
     List<Object[]> sourceIdCountUnresolvables = HibernateSession.bySqlStatic().listSelect(Object[].class, sqlUnresolvable, null, null);
     
 
     // select source_id, count(*) from grouper_aval_asn_asn_member_v where attribute_def_name_name1 = 'penn:etc:usdu:subjectResolutionMarker'
     // and attribute_def_name_name2 = 'penn:etc:usdu:subjectResolutionDeleted' and value_string = 'true' and enabled2 = 'T' group by source_id;
     
-    final String sqlDeleted = "select source_id, count(*) from grouper_aval_asn_asn_member_v "
-        + "where attribute_def_name_name1 = '" + UsduAttributeNames.retrieveAttributeDefNameBase().getName() + "' "
-        + "and attribute_def_name_name2 = '" + UsduSettings.usduStemName() + ":" + UsduAttributeNames.SUBJECT_RESOLUTION_DELETED + "' "
-        + "and value_string = 'true' and enabled2 = 'T'  group by source_id";
+    final String sqlDeleted = "select subject_source as source_id, count(*) from grouper_members where subject_resolution_deleted='T' group by subject_source";
     List<Object[]> sourceIdCountDeleteds = HibernateSession.bySqlStatic().listSelect(Object[].class, sqlDeleted, null, null);
     
 
@@ -263,28 +252,11 @@ public class UsduService {
     Set<Member> unresolvedMembers = null;
     
     if (deleted == null) {
-      unresolvedMembers = new MemberFinder()
-        .assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(UsduAttributeNames.retrieveAttributeDefNameBase().getName())
-        .assignQueryOptions(queryOptions)
-        .findMembers();
-      
+      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(null);
     } else if (deleted) {
-      unresolvedMembers = new MemberFinder()
-        .assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED)
-        .addAttributeValuesOnAssignment("true")
-        .assignQueryOptions(queryOptions)
-        .findMembers();
-       
+      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(true);
     } else {
-      unresolvedMembers = new MemberFinder()
-        .assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED)
-        .addAttributeValuesOnAssignment("false")
-        .assignQueryOptions(queryOptions)
-        .findMembers();
-      
+      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(false);
     }
 
 // dont do two queries since it messes up paging
@@ -368,11 +340,11 @@ public class UsduService {
     SubjectResolutionAttributeValue result = new SubjectResolutionAttributeValue();
     result.setMember(member);
 
-    result.setSubjectResolutionResolvableString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE, nameOfAttributeDefNameToValue));
+    result.setSubjectResolutionResolvableString(BooleanUtils.toStringTrueFalse(member.isSubjectResolutionResolvable()));
     result.setSubjectResolutionDateLastResolvedString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED, nameOfAttributeDefNameToValue));
     result.setSubjectResolutionDaysUnresolvedString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DAYS_UNRESOLVED, nameOfAttributeDefNameToValue));
     result.setSubjectResolutionDateLastCheckedString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED, nameOfAttributeDefNameToValue));
-    result.setSubjectResolutionDeletedString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED, nameOfAttributeDefNameToValue));
+    result.setSubjectResolutionDeletedString(BooleanUtils.toStringTrueFalse(member.isSubjectResolutionDeleted()));
     result.setSubjectResolutionDateDeleteString(buildSubjectResolutionValue(attributeValueDelegate, UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETE_DATE, nameOfAttributeDefNameToValue));
 
     return result;

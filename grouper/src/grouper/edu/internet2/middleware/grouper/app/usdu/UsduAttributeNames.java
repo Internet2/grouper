@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -28,12 +27,6 @@ public class UsduAttributeNames {
    * attribute definition for name value pairs assigned to assignment on members
    */
   public static final String SUBJECT_RESOLUTION_VALUE_DEF = "subjectResolutionValueDef";
-
-  /**
-   * false if this subject is currently unresolvable (as of last check). If the subject is resolvable,
-   *  remove subjectResolutionMarker and metadata
-   */
-  public static final String SUBJECT_RESOLUTION_RESOLVABLE = "subjectResolutionResolvable";
   
   /**
    * date subject was last resolved
@@ -49,11 +42,6 @@ public class UsduAttributeNames {
    * yyyy/mm/dd the date this subject was last checked. When the USDU runs, if this subject is current unresolvable, then set to currentDate
    */
   public static final String SUBJECT_RESOLUTION_LAST_CHECKED = "subjectResolutionLastChecked";
-  
-  /**
-   * set to true when member is removed from all the groups/stems/etc
-   */
-  public static final String SUBJECT_RESOLUTION_DELETED = "subjectResolutionDeleted";
   
   /**
    * yyyy/mm/dd the date this subject was removed from all the groups/stems/etc

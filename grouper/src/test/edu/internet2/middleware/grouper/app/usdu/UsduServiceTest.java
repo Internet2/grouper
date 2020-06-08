@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 
 public class UsduServiceTest extends GrouperTest {
   
@@ -77,7 +76,7 @@ public class UsduServiceTest extends GrouperTest {
     
   }
   
-  public void testSaveOrUpldateSubjectResolutionAttributeValue() {
+  public void testSaveOrUpdateSubjectResolutionAttributeValue() {
     
     //Given
     GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
@@ -92,7 +91,7 @@ public class UsduServiceTest extends GrouperTest {
     subjectResolutionAttributeValue.setSubjectResolutionDateLastCheckedString(dateFormat.format(lastChecked));
     subjectResolutionAttributeValue.setSubjectResolutionDateLastResolvedString(dateFormat.format(lastResolved));
     subjectResolutionAttributeValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(daysUnresolved));
-    subjectResolutionAttributeValue.setSubjectResolutionResolvableString("true");
+    subjectResolutionAttributeValue.setSubjectResolutionResolvableString("false");
     
     //When
     UsduService.markMemberAsUnresolved(subjectResolutionAttributeValue, member);
@@ -103,7 +102,7 @@ public class UsduServiceTest extends GrouperTest {
     .findAttributeAssignValuesResult();
 
     SubjectResolutionAttributeValue attributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
-    assertEquals("true", attributeValue.getSubjectResolutionResolvableString());
+    assertEquals("false", attributeValue.getSubjectResolutionResolvableString());
     assertEquals(String.valueOf(daysUnresolved), attributeValue.getSubjectResolutionDaysUnresolvedString());
     assertEquals(dateFormat.format(lastResolved),attributeValue.getSubjectResolutionDateLastResolvedString());
     assertEquals(dateFormat.format(lastChecked),attributeValue.getSubjectResolutionDateLastCheckedString());
@@ -137,7 +136,7 @@ public class UsduServiceTest extends GrouperTest {
       .findAttributeAssignValuesResult();
   
     SubjectResolutionAttributeValue attributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
-    assertNull(attributeValue.getSubjectResolutionResolvableString());
+    assertEquals("false", attributeValue.getSubjectResolutionResolvableString());
     //assertNull(attributeValue.getSubjectResolutionDaysUnresolved());
     assertEquals(dateFormat.format(lastResolved),attributeValue.getSubjectResolutionDateLastResolvedString());
     assertNull(attributeValue.getSubjectResolutionDateLastCheckedString());
@@ -152,11 +151,8 @@ public class UsduServiceTest extends GrouperTest {
     String lastCheckedString = dateFormat.format(lastChecked);
     
     AttributeAssign attributeAssign = member.getAttributeDelegate().assignAttribute(UsduAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
-    
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() +":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), BooleanUtils.toStringTrueFalse(true));
-    
-    attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED, true);
+        
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), lastResolvedString);
     
     attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DAYS_UNRESOLVED, true);
@@ -167,6 +163,8 @@ public class UsduServiceTest extends GrouperTest {
     
     attributeAssign.saveOrUpdate();
     
+    member.setSubjectResolutionResolvable(true);
+    member.store();
   }
 
 

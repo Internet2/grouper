@@ -238,6 +238,8 @@ public class XmlExportMember {
     member.setSubjectTypeId(this.subjectType);
     member.setUuid(this.uuid);
     member.setSubjectIdentifier0(this.subjectIdentifier0);
+    member.setSubjectResolutionResolvable(GrouperUtil.booleanValue(this.subjectResolutionResolvable, false));
+    member.setSubjectResolutionDeleted(GrouperUtil.booleanValue(this.subjectResolutionDeleted, false));
     member.setSortString0(this.sortString0);
     member.setSortString1(this.sortString1);
     member.setSortString2(this.sortString2);
@@ -316,6 +318,12 @@ public class XmlExportMember {
   
   /** subjectIdentifier0 */
   private String subjectIdentifier0;
+  
+  /** subjectResolutionResolvable */
+  private String subjectResolutionResolvable;
+  
+  /** subjectResolutionDeleted */
+  private String subjectResolutionDeleted;
   
   /** string that can be used to sort results */
   private String sortString0;
@@ -486,6 +494,34 @@ public class XmlExportMember {
 
   
   
+  /**
+   * @returnsubjectResolutionResolvable
+   */
+  public String getSubjectResolutionResolvable() {
+    return subjectResolutionResolvable;
+  }
+
+  /**
+   * @param subjectResolutionResolvable
+   */
+  public void setSubjectResolutionResolvable(String subjectResolutionResolvable) {
+    this.subjectResolutionResolvable = subjectResolutionResolvable;
+  }
+
+  /**
+   * @return subjectResolutionDeleted
+   */
+  public String getSubjectResolutionDeleted() {
+    return subjectResolutionDeleted;
+  }
+
+  /**
+   * @param subjectResolutionDeleted
+   */
+  public void setSubjectResolutionDeleted(String subjectResolutionDeleted) {
+    this.subjectResolutionDeleted = subjectResolutionDeleted;
+  }
+
   /**
    * @return the sortString0
    */

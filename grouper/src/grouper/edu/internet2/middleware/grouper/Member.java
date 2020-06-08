@@ -219,6 +219,12 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** subjectIdentifier0 */
   public static final String COLUMN_SUBJECT_IDENTIFIER0 = "subject_identifier0";
   
+  /** subjectResolutionResolvable */
+  public static final String COLUMN_SUBJECT_RESOLUTION_RESOLVABLE = "subject_resolution_resolvable";
+
+  /** subjectResolutionDeleted */
+  public static final String COLUMN_SUBJECT_RESOLUTION_DELETED = "subject_resolution_deleted";
+  
   /** sortString0 */
   public static final String COLUMN_SORT_STRING0 = "sort_string0";
 
@@ -286,6 +292,12 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
   /** constant for field name for: subjectIdentifier0 */
   public static final String FIELD_SUBJECT_IDENTIFIER0 = "subjectIdentifier0";
+
+  /** constant for field name for: subjectResolutionResolvable */
+  public static final String FIELD_SUBJECT_RESOLUTION_RESOLVABLE = "subjectResolutionResolvable";
+  
+  /** constant for field name for: subjectResolutionDeleted */
+  public static final String FIELD_SUBJECT_RESOLUTION_DELETED = "subjectResolutionDeleted";
   
   /** constant for field name for: sortString0 */
   public static final String FIELD_SORT_STRING0 = "sortString0";
@@ -330,7 +342,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID,
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
-      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0);
+      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_RESOLVABLE, 
+      FIELD_SUBJECT_RESOLUTION_DELETED);
 
   /**
    * fields which are included in clone method
@@ -340,7 +353,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID,
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
-      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0);
+      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_RESOLVABLE,
+      FIELD_SUBJECT_RESOLUTION_DELETED);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -370,6 +384,12 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   
   /** subject identfier */
   private String subjectIdentifier0;
+  
+  /** false if no longer resolvable */
+  private boolean subjectResolutionResolvable;
+  
+  /** true if marked as deleted */
+  private boolean subjectResolutionDeleted;
   
   /** string that can be used to sort results */
   private String sortString0;
@@ -3968,6 +3988,12 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     if (!StringUtils.equals(this.subjectIdentifier0, other.subjectIdentifier0)) {
       return true;
     }
+    if (this.subjectResolutionDeleted != other.subjectResolutionDeleted) {
+      return true;
+    }
+    if (this.subjectResolutionResolvable != other.subjectResolutionResolvable) {
+      return true;
+    }
     if (!StringUtils.equals(this.sortString0, other.sortString0)) {
       return true;
     }
@@ -4032,6 +4058,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     existingRecord.subjectSourceID = this.subjectSourceID;
     existingRecord.subjectTypeID = this.subjectTypeID;
     existingRecord.subjectIdentifier0 = this.subjectIdentifier0;
+    existingRecord.subjectResolutionDeleted = this.subjectResolutionDeleted;
+    existingRecord.subjectResolutionResolvable = this.subjectResolutionResolvable;
     existingRecord.sortString0 = this.sortString0;
     existingRecord.sortString1 = this.sortString1;
     existingRecord.sortString2 = this.sortString2;
@@ -4103,6 +4131,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     xmlExportMember.setUuid(this.getUuid());
     
     xmlExportMember.setSubjectIdentifier0(this.getSubjectIdentifier0());
+    xmlExportMember.setSubjectResolutionResolvable(this.getSubjectResolutionResolvableDb());
+    xmlExportMember.setSubjectResolutionDeleted(this.getSubjectResolutionDeletedDb());
     xmlExportMember.setSortString0(this.getSortString0());
     xmlExportMember.setSortString1(this.getSortString1());
     xmlExportMember.setSortString2(this.getSortString2());
@@ -4162,7 +4192,62 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.subjectIdentifier0 = subjectIdentifier0;
   }
   
+  /**
+   * @return T if resolvable
+   */
+  public String getSubjectResolutionResolvableDb() {
+    return this.subjectResolutionResolvable ? "T" : "F";
+  }
+
+  /**
+   * @param subjectResolutionResolvable
+   */
+  public void setSubjectResolutionResolvableDb(String subjectResolutionResolvable) {
+    this.subjectResolutionResolvable = GrouperUtil.booleanValue(subjectResolutionResolvable);
+  }
+
+  /**
+   * @return T if deleted
+   */
+  public String getSubjectResolutionDeletedDb() {
+    return this.subjectResolutionDeleted ? "T" : "F";
+  }
+
+  /**
+   * @param subjectResolutionDeleted
+   */
+  public void setSubjectResolutionDeletedDb(String subjectResolutionDeleted) {
+    this.subjectResolutionDeleted = GrouperUtil.booleanValue(subjectResolutionDeleted);
+  }
   
+  /**
+   * @return true if resolvable
+   */
+  public boolean isSubjectResolutionResolvable() {
+    return subjectResolutionResolvable;
+  }
+
+  /**
+   * @param subjectResolutionResolvable
+   */
+  public void setSubjectResolutionResolvable(boolean subjectResolutionResolvable) {
+    this.subjectResolutionResolvable = subjectResolutionResolvable;
+  }
+
+  /**
+   * @return true if deleted
+   */
+  public boolean isSubjectResolutionDeleted() {
+    return subjectResolutionDeleted;
+  }
+
+  /**
+   * @param subjectResolutionDeleted
+   */
+  public void setSubjectResolutionDeleted(boolean subjectResolutionDeleted) {
+    this.subjectResolutionDeleted = subjectResolutionDeleted;
+  }
+
   /**
    * @return the sortString0
    */

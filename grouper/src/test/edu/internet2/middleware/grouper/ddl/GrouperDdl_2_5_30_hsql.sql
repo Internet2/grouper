@@ -1,4 +1,3 @@
-
 CREATE TABLE grouper_ddl
 (
     id VARCHAR(40) NOT NULL,
@@ -10,7 +9,6 @@ CREATE TABLE grouper_ddl
 );
 
 CREATE UNIQUE INDEX grouper_ddl_object_name_idx ON grouper_ddl (object_name);
-
 
 CREATE TABLE grouper_composites
 (
@@ -1311,42 +1309,6 @@ CREATE TABLE grouper_table_index
 
 CREATE UNIQUE INDEX table_index_type_idx ON grouper_table_index (type);
 
-CREATE TABLE grouper_loader_log
-(
-    id VARCHAR(40) NOT NULL,
-    job_name VARCHAR(512),
-    status VARCHAR(20),
-    started_time TIMESTAMP,
-    ended_time TIMESTAMP,
-    millis INTEGER,
-    millis_get_data INTEGER,
-    millis_load_data INTEGER,
-    job_type VARCHAR(128),
-    job_schedule_type VARCHAR(128),
-    job_description VARCHAR(4000),
-    job_message VARCHAR(4000),
-    host VARCHAR(128),
-    group_uuid VARCHAR(40),
-    job_schedule_quartz_cron VARCHAR(128),
-    job_schedule_interval_seconds INTEGER,
-    last_updated TIMESTAMP,
-    unresolvable_subject_count INTEGER,
-    insert_count INTEGER,
-    update_count INTEGER,
-    delete_count INTEGER,
-    total_count INTEGER,
-    parent_job_name VARCHAR(512),
-    parent_job_id VARCHAR(40),
-    and_group_names VARCHAR(512),
-    job_schedule_priority INTEGER,
-    context_id VARCHAR(40),
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX grouper_loader_job_name_idx ON grouper_loader_log (job_name, status, ended_time);
-
-CREATE INDEX loader_context_idx ON grouper_loader_log (context_id);
-
 CREATE TABLE grouper_message
 (
     id VARCHAR(40) NOT NULL,
@@ -1573,6 +1535,42 @@ CREATE INDEX grpconfig_last_updated_idx ON grouper_config (last_updated);
 
 CREATE UNIQUE INDEX grpconfig_unique_idx ON grouper_config (config_file_name, config_file_hierarchy, config_key, config_sequence);
 
+CREATE TABLE grouper_loader_log
+(
+    id VARCHAR(40) NOT NULL,
+    job_name VARCHAR(512),
+    status VARCHAR(20),
+    started_time TIMESTAMP,
+    ended_time TIMESTAMP,
+    millis INTEGER,
+    millis_get_data INTEGER,
+    millis_load_data INTEGER,
+    job_type VARCHAR(128),
+    job_schedule_type VARCHAR(128),
+    job_description VARCHAR(4000),
+    job_message VARCHAR(4000),
+    host VARCHAR(128),
+    group_uuid VARCHAR(40),
+    job_schedule_quartz_cron VARCHAR(128),
+    job_schedule_interval_seconds INTEGER,
+    last_updated TIMESTAMP,
+    unresolvable_subject_count INTEGER,
+    insert_count INTEGER,
+    update_count INTEGER,
+    delete_count INTEGER,
+    total_count INTEGER,
+    parent_job_name VARCHAR(512),
+    parent_job_id VARCHAR(40),
+    and_group_names VARCHAR(512),
+    job_schedule_priority INTEGER,
+    context_id VARCHAR(40),
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX grouper_loader_job_name_idx ON grouper_loader_log (job_name, status, ended_time);
+
+CREATE INDEX loader_context_idx ON grouper_loader_log (context_id);
+
 CREATE TABLE grouper_password
 (
     id VARCHAR(40) NOT NULL,
@@ -1787,6 +1785,18 @@ CREATE TABLE grouper_sync_log
 CREATE INDEX grouper_sync_log_sy_idx ON grouper_sync_log (grouper_sync_id, sync_timestamp);
 
 CREATE INDEX grouper_sync_log_ow_idx ON grouper_sync_log (grouper_sync_owner_id, sync_timestamp);
+
+CREATE TABLE grouper_ddl_worker
+(
+    id VARCHAR(40) NOT NULL,
+    grouper VARCHAR(40) NOT NULL,
+    worker_uuid VARCHAR(40) NOT NULL,
+    heartbeat TIMESTAMP,
+    last_updated TIMESTAMP NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX grouper_ddl_worker_grp_idx ON grouper_ddl_worker (grouper);
 
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
@@ -2111,6 +2121,8 @@ ALTER TABLE grouper_sync_membership
 
 ALTER TABLE grouper_sync_log
     ADD CONSTRAINT grouper_sync_log_sy_fk FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync (id);
+update grouper_attribute_def set attribute_def_type = 'service' where attribute_def_type = 'domain';
+commit;
 
 CREATE VIEW grouper_groups_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, TYPE_OF_GROUP, GROUP_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.type_of_group, gg.id as group_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ;
 
@@ -2232,4 +2244,41 @@ CREATE VIEW grouper_service_role_v (service_role, group_name, name_of_service_de
 
 
 SET DATABASE TRANSACTION CONTROL MVCC;
+
+
+
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values ('9c310774f8b842fe918140dff1cf3092', 'Grouper', 32, '2020/03/30 04:27:18', 
+'2020/03/30 04:27:18: upgrade Grouper from V0 to V32, ');
+commit;
+
+CREATE TABLE subject
+(
+    subjectId VARCHAR(255) NOT NULL,
+    subjectTypeId VARCHAR(32) NOT NULL,
+    name VARCHAR(255),
+    PRIMARY KEY (subjectId)
+);
+
+CREATE TABLE subjectattribute
+(
+    subjectId VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    value VARCHAR(255) NOT NULL,
+    searchValue VARCHAR(255),
+    PRIMARY KEY (subjectId, name, value)
+);
+
+CREATE INDEX searchattribute_value_idx ON subjectattribute (value);
+
+CREATE UNIQUE INDEX searchattribute_id_name_idx ON subjectattribute (subjectId, name);
+
+CREATE INDEX searchattribute_name_idx ON subjectattribute (name);
+
+ALTER TABLE subjectattribute
+    ADD CONSTRAINT fk_subjectattr_subjectid FOREIGN KEY (subjectId) REFERENCES subject (subjectId);
+
+
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values ('abac3f5109f44b9fb71dcac7f2ce83f3', 'Subject', 1, '2020/03/30 04:27:18', 
+'2020/03/30 04:27:18: upgrade Subject from V0 to V1, ');
+commit;
 

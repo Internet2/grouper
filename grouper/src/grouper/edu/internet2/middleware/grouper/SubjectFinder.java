@@ -1689,9 +1689,11 @@ public class SubjectFinder {
 
     // Grab the subjects from the members found in database
     for ( Member matchingMember : matchingMembers ) {
-      Subject matchingSubject = matchingMember.getSubject();
+      if (matchingMember.isSubjectResolutionResolvable()) {
+        Subject matchingSubject = matchingMember.getSubject();
 
-      result.put(matchingSubject.getId(), matchingSubject);
+        result.put(matchingSubject.getId(), matchingSubject);
+      }
     }
 
     // See what Subjects were not found in database
