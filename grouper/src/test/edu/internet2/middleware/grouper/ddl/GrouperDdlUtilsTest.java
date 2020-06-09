@@ -69,7 +69,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
 
@@ -302,13 +302,13 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
   @Override
   protected void setupConfigs() {
-    // do a normal startup
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "2.5.*");
+
   }
 
   @Override
   protected void setupInitDb() {
-    
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "2.5.*");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion.elConfig", "2.5.*");
   }
 
   /**

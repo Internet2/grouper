@@ -386,10 +386,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   private String subjectIdentifier0;
   
   /** false if no longer resolvable */
-  private boolean subjectResolutionResolvable;
+  private boolean subjectResolutionResolvable = true;
   
   /** true if marked as deleted */
-  private boolean subjectResolutionDeleted;
+  private boolean subjectResolutionDeleted = false;
   
   /** string that can be used to sort results */
   private String sortString0;
