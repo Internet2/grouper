@@ -252,11 +252,11 @@ public class UsduService {
     Set<Member> unresolvedMembers = null;
     
     if (deleted == null) {
-      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(null);
+      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(queryOptions, null);
     } else if (deleted) {
-      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(true);
+      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(queryOptions, true);
     } else {
-      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(false);
+      unresolvedMembers = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(queryOptions, false);
     }
 
 // dont do two queries since it messes up paging

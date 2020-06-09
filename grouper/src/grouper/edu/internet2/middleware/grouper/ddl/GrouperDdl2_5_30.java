@@ -76,7 +76,7 @@ public class GrouperDdl2_5_30 {
     }
 
     // just do nothing if there is no upgrade.  i.e. the database already has this
-    if (!buildingFromScratch(ddlVersionBean) && GrouperDdlUtils.isPostgres() && ddlVersionBean.getBuildingFromVersion() < GrouperDdl.V32.getVersion()) {
+    if (!buildingFromScratch(ddlVersionBean) && GrouperDdlUtils.isPostgres() && ddlVersionBean.getBuildingFromVersion() < GrouperDdl.V33.getVersion()) {
       
       // this will recreate the grouper_groups table in postgres on an existing installation if you dont do this
       ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_members ADD COLUMN subject_resolution_resolvable VARCHAR(1);\n");

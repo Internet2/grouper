@@ -133,6 +133,8 @@ CREATE TABLE grouper_members
     name VARCHAR(2048) NULL,
     description VARCHAR(2048) NULL,
     context_id VARCHAR(40) NULL,
+    subject_resolution_deleted VARCHAR(1) DEFAULT 'F' NOT NULL,
+    subject_resolution_resolvable VARCHAR(1) DEFAULT 'T' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -157,6 +159,10 @@ CREATE INDEX member_sort_string4_idx ON grouper_members (sort_string4);
 CREATE INDEX member_context_idx ON grouper_members (context_id);
 
 CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0);
+
+CREATE INDEX member_resolvable_idx ON grouper_members (subject_resolution_resolvable);
+
+CREATE INDEX member_deleted_idx ON grouper_members (subject_resolution_deleted);
 
 CREATE TABLE grouper_memberships
 (

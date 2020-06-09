@@ -343,12 +343,13 @@ public interface MemberDAO extends GrouperDAO {
       String idOfAttributeDefName2, Object attributeValue2, Set<Object> attributeValuesOnAssignment2);
 
   /**
+   * @param queryOptions
    * @param deleted 
    *   true - return unresolvable members that are deleted
    *   false - return unresolvable members that are not deleted
    *   null - return all unresolvable members
    * @return unresolvable members
    */
-  public Set<Member> getUnresolvableMembers(Boolean deleted);
+  public Set<Member> getUnresolvableMembers(QueryOptions queryOptions, Boolean deleted);
 } 
 

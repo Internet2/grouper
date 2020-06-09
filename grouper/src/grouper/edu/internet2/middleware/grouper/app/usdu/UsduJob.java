@@ -24,7 +24,6 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -369,13 +368,17 @@ public class UsduJob extends OtherJobBase {
    */
   private long clearMetadataFromNowResolvedMembers(GrouperSession grouperSession) {
    
-    Set<Member> members = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(false);
+    Set<Member> members = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(null, false);
     
     long resolvableMembers = 0; 
     
     for (Member member: members) {
       if (USDU.isMemberResolvable(grouperSession, member)) {
         UsduService.deleteAttributeAssign(member);
+        
+        member.setSubjectResolutionResolvable(true);
+        member.store();
+        
         resolvableMembers++;
       }
     }

@@ -1353,7 +1353,14 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     return null;
   }
 
-  public Set<Member> getUnresolvableMembers(Boolean deleted) {
+  public Set<Member> getUnresolvableMembers(QueryOptions queryOptions, Boolean deleted) {
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("id");
+    }
+
     StringBuilder sql = new StringBuilder("select m from Member as m where m.subjectResolutionResolvableDb='F' ");
 
     if (deleted != null && deleted) {
@@ -1363,10 +1370,15 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     if (deleted != null && !deleted) {
       sql.append(" and m.subjectResolutionDeletedDb='F'");
     }
+
+    if (queryOptions != null) {
+      massageMemberSortFields(queryOptions.getQuerySort());
+    }
     
     return HibernateSession.byHqlStatic().createQuery(sql.toString())
         .setCacheable(false)
         .setCacheRegion(KLASS + ".GetUnresolvableMembers")
+        .options(queryOptions)
         .listSet(Member.class);
   }
 } 
