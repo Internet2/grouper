@@ -42,7 +42,7 @@ echo $(date) "Built site (exit $?)"
 
 # Signal to webprod3 that the process is finished
 
-echo $pid > /var/grouper-docs/var/grouper-docs.WRI
+echo $$ > /var/grouper-docs/var/grouper-docs.WRI
 date >> /var/grouper-docs/var/grouper-docs.WRI
 
 
