@@ -313,8 +313,8 @@ public class UsduService {
   
         if (!StringUtils.isBlank(subjectResolutionAttributeValue.getSubjectResolutionDateLastResolvedString())) {
           Date lastResolvedDate = subjectResolutionAttributeValue.getSubjectResolutionDateLastResolved();
-          int daysBetween = (int)(System.currentTimeMillis() - lastResolvedDate.getTime()) / (1000 * 60 * 60 * 24);
-          subjectResolutionAttributeValue.setSubjectResolutionDaysUnresolvedString(Integer.toString(daysBetween));
+          long daysBetween = (System.currentTimeMillis() - lastResolvedDate.getTime()) / (1000 * 60 * 60 * 24L);
+          subjectResolutionAttributeValue.setSubjectResolutionDaysUnresolvedString(Long.toString(daysBetween));
         }
         
         unresolvedSubjects.add(subjectResolutionAttributeValue);
