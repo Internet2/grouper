@@ -368,7 +368,7 @@ public class UsduJob extends OtherJobBase {
    */
   private long clearMetadataFromNowResolvedMembers(GrouperSession grouperSession) {
    
-    Set<Member> members = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(null, false);
+    Set<Member> members = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(null, null);
     
     long resolvableMembers = 0; 
     
@@ -376,6 +376,7 @@ public class UsduJob extends OtherJobBase {
       if (USDU.isMemberResolvable(grouperSession, member)) {
         UsduService.deleteAttributeAssign(member);
         
+        member.setSubjectResolutionDeleted(false);
         member.setSubjectResolutionResolvable(true);
         member.store();
         
