@@ -224,6 +224,31 @@ public class ConfigItemMetadata {
   public void setShowEl(String showEl) {
     this.showEl = showEl;
   }
+  
+  /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is required or not
+   */
+  private String requiredEl;
+  
+
+  /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is required or not
+   * @return
+   */
+  public String getRequiredEl() {
+    return requiredEl;
+  }
+
+  /**
+   * if this is set, put in an expression language that can depend on other attribute suffixes
+   * to see if an item is required or not
+   * @param requiredEl
+   */
+  public void setRequiredEl(String requiredEl) {
+    this.requiredEl = requiredEl;
+  }
 
   /**
    * 
@@ -241,8 +266,11 @@ public class ConfigItemMetadata {
     this.valueType = null;
     this.subSection = null;
     this.showEl = null;
+    this.requiredEl = null;
     this.formElement = null;
     this.optionValues = null;
+    this.optionValuesFromClass = null;
+    this.checkboxValuesFromClass = null;
     this.readOnly = false;
     
     if (!StringUtils.isBlank(this.rawMetadataJson)) {
@@ -262,6 +290,16 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("mustImplementInterface")) {
         this.mustImplementInterface = jsonObject.getString("mustImplementInterface");
         jsonObject.remove("mustImplementInterface");
+      }
+      
+      if (jsonObject.containsKey("optionValuesFromClass")) {
+        this.optionValuesFromClass = jsonObject.getString("optionValuesFromClass");
+        jsonObject.remove("optionValuesFromClass");
+      }
+      
+      if (jsonObject.containsKey("checkboxValuesFromClass")) {
+        this.checkboxValuesFromClass = jsonObject.getString("checkboxValuesFromClass");
+        jsonObject.remove("checkboxValuesFromClass");
       }
       
       if (jsonObject.containsKey("regex")) {
@@ -312,6 +350,11 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("showEl")) {
         this.showEl = jsonObject.getString("showEl");
         jsonObject.remove("showEl");
+      }
+      
+      if (jsonObject.containsKey("requiredEl")) {
+        this.requiredEl = jsonObject.getString("requiredEl");
+        jsonObject.remove("requiredEl");
       }
       
       if (jsonObject.containsKey("formElement")) {
@@ -636,6 +679,47 @@ public class ConfigItemMetadata {
    */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
+  }
+  
+  /**
+   * option values from class for dropdowns
+   */
+  private String optionValuesFromClass;
+
+  /**
+   * @return option values from class for dropdowns
+   */
+  public String getOptionValuesFromClass() {
+    return optionValuesFromClass;
+  }
+
+  /**
+   * option values from class for dropdowns
+   * @param optionValuesFromClass
+   */
+  public void setOptionValuesFromClass(String optionValuesFromClass) {
+    this.optionValuesFromClass = optionValuesFromClass;
+  }
+  
+  /**
+   * checkbox values, labels, and checked for checkboxes 
+   */
+  private String checkboxValuesFromClass;
+
+  /**
+   * checkbox values, labels, and checked for checkboxes
+   * @return
+   */
+  public String getCheckboxValuesFromClass() {
+    return checkboxValuesFromClass;
+  }
+
+  /**
+   * checkbox values, labels, and checked for checkboxes
+   * @param checkboxValuesFromClass
+   */
+  public void setCheckboxValuesFromClass(String checkboxValuesFromClass) {
+    this.checkboxValuesFromClass = checkboxValuesFromClass;
   }
   
   

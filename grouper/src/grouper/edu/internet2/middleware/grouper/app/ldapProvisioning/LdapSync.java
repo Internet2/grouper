@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -22,7 +23,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 /**
  * sync a table
  */
-public class LdapSync {
+public class LdapSync extends GrouperProvisioner {
 
   /**
    * if this is paused

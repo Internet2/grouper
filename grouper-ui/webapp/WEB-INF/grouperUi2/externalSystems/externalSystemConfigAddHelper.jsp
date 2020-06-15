@@ -62,6 +62,7 @@
   					hasExpressionLanguage="${attribute.expressionLanguage}"
   					ajaxCallback="ajax('../app/UiV2ExternalSystem.addExternalSystem?externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}', {formIds: 'externalSystemConfigDetails'}); return false;"
   					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
+  					checkboxAttributes="${attribute.checkboxAttributes}"
   				/>
   				
   			</c:forEach>

@@ -14,11 +14,13 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
+import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -171,7 +173,9 @@ public abstract class GrouperConfigurationModuleBase {
   public GrouperConfigurationModuleAttribute buildConfigurationModuleAttribute(
       String propertyName, String suffix, boolean useConfigItemMetadataValue,
       ConfigItemMetadata configItemMetadata, ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
+    
     GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = new GrouperConfigurationModuleAttribute();
+    grouperConfigModuleAttribute.setConfigItemMetadata(configItemMetadata);
     
     grouperConfigModuleAttribute.setFullPropertyName(propertyName);
     grouperConfigModuleAttribute.setGrouperConfigModule(this);
@@ -193,30 +197,51 @@ public abstract class GrouperConfigurationModuleBase {
     }
     grouperConfigModuleAttribute.setValue(value);
     
-    grouperConfigModuleAttribute.setConfigItemMetadata(configItemMetadata);
     grouperConfigModuleAttribute.setConfigSuffix(suffix);
     
     {
-      grouperConfigModuleAttribute.setRequired(configItemMetadata.isRequired());
       grouperConfigModuleAttribute.setReadOnly(configItemMetadata.isReadOnly());
       grouperConfigModuleAttribute.setType(configItemMetadata.getValueType());
       grouperConfigModuleAttribute.setDefaultValue(configItemMetadata.getDefaultValue());
       grouperConfigModuleAttribute.setPassword(configItemMetadata.isSensitive());
     }
     
-    if (GrouperUtil.length(configItemMetadata.getOptionValues()) > 0) {
-      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
-      valuesAndLabels.add(new MultiKey("", ""));
-      for (String optionValue : configItemMetadata.getOptionValues()) {
-        
-        String label = GrouperTextContainer.textOrNull("config."
-            + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + "." + optionValue + ".label");
-        label = StringUtils.defaultIfBlank(label, optionValue);
-        
-        MultiKey valueAndLabel = new MultiKey(optionValue, label);
-        valuesAndLabels.add(valueAndLabel);
+    if (configItemMetadata.getFormElement() == ConfigItemFormElement.DROPDOWN) {
+      
+      if (GrouperUtil.length(configItemMetadata.getOptionValues()) > 0) {
+        List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+        valuesAndLabels.add(new MultiKey("", ""));
+        for (String optionValue : configItemMetadata.getOptionValues()) {
+          
+          String label = GrouperTextContainer.textOrNull("config."
+              + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + "." + optionValue + ".label");
+          label = StringUtils.defaultIfBlank(label, optionValue);
+          
+          MultiKey valueAndLabel = new MultiKey(optionValue, label);
+          valuesAndLabels.add(valueAndLabel);
+        }
+        grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
       }
-      grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
+      
+      if (StringUtils.isNotBlank(configItemMetadata.getOptionValuesFromClass())) {
+        
+        String optionValueFromClassString = configItemMetadata.getOptionValuesFromClass();
+        Class<OptionValueDriver> klass = GrouperUtil.forName(optionValueFromClassString);
+        OptionValueDriver driver = GrouperUtil.newInstance(klass);
+        List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+        valuesAndLabels.add(new MultiKey("", ""));
+        valuesAndLabels.addAll(driver.retrieveKeysAndLabels());
+        grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
+        
+      }
+    }
+    
+    if (configItemMetadata.getFormElement() == ConfigItemFormElement.CHECKBOX) {
+      String checkboxValueFromClassString = configItemMetadata.getCheckboxValuesFromClass();
+      Class<CheckboxValueDriver> klass = GrouperUtil.forName(checkboxValueFromClassString);
+      CheckboxValueDriver driver = GrouperUtil.newInstance(klass);
+      List<MultiKey> checkboxAttributes = driver.retrieveCheckboxAttributes();
+      grouperConfigModuleAttribute.setCheckboxAttributes(checkboxAttributes); 
     }
     
     if (grouperConfigModuleAttribute.isPassword()) {

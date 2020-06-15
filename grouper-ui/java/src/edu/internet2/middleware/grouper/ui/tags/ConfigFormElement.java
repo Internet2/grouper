@@ -63,6 +63,12 @@ public class ConfigFormElement extends SimpleTagSupport {
    */
   private List<MultiKey> valuesAndLabels;
   
+  
+  /**
+   * only applicable to checkboxes
+   */
+  private List<MultiKey> checkboxAttributes;
+  
   /**
    * ajaxCallback for onchange etc
    */
@@ -92,6 +98,22 @@ public class ConfigFormElement extends SimpleTagSupport {
    */
   public void setValuesAndLabels(List<MultiKey> valuesAndLabels) {
     this.valuesAndLabels = valuesAndLabels;
+  }
+
+  /**
+   * only applicable to checkboxes
+   * @return
+   */
+  public List<MultiKey> getCheckboxAttributes() {
+    return checkboxAttributes;
+  }
+
+  /**
+   * only applicable to checkboxes
+   * @param checkboxAttributes
+   */
+  public void setCheckboxAttributes(List<MultiKey> checkboxAttributes) {
+    this.checkboxAttributes = checkboxAttributes;
   }
 
   /**
@@ -366,6 +388,30 @@ public class ConfigFormElement extends SimpleTagSupport {
       }
       
       field.append("</select>");
+    }
+    
+    if (configItemFormElement == ConfigItemFormElement.CHECKBOX) {
+      
+      for (MultiKey multiKey: checkboxAttributes) {
+        
+        String value = (String) multiKey.getKey(0);
+        String label = (String) multiKey.getKey(1);
+        boolean checked = (boolean) multiKey.getKey(2);
+        
+        field.append("<input type='checkbox' style='"+ displayClass + "' id='"+value+"_id' name='config_"+configId+"' ");
+        if (value != null) {
+          field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
+        }
+        if (checked) {
+          field.append(" checked ");
+        }
+        field.append("></input>");
+        field.append("&nbsp; &nbsp; <label for '"+value+"_id'>");
+        field.append(label);
+        field.append("</label>");
+        field.append("<br>");
+      }
+      
     }
     
     if (!readOnly && required) {

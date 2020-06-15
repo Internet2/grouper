@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.externalSystem;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -21,11 +23,13 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
+import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
-public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBase {
+public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBase implements OptionValueDriver {
   
   /**
    * return list of error messages
@@ -362,4 +366,30 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     
     return result;
   }
+
+  @Override
+  public List<MultiKey> retrieveKeysAndLabels() {
+    
+    List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
+    
+    List<GrouperExternalSystem> externalSystems = this.listAllExternalSystemsOfThisType();
+    
+    for (GrouperExternalSystem externalSystem: externalSystems) {
+      
+      String configId = externalSystem.getConfigId();
+      keysAndLabels.add(new MultiKey(configId, configId));
+    }
+    
+    Collections.sort(keysAndLabels, new Comparator<MultiKey>() {
+
+      @Override
+      public int compare(MultiKey o1, MultiKey o2) {
+        return ((String)o1.getKey(0)).compareTo((String)o2.getKey(0));
+      }
+    });
+    
+    return keysAndLabels;
+  }
+  
+  
 }

@@ -4,7 +4,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public enum ConfigItemFormElement {
 
-  TEXT, TEXTAREA, PASSWORD, DROPDOWN;
+  TEXT, TEXTAREA, PASSWORD, DROPDOWN, CHECKBOX;
 
   /**
    * do a case-insensitive matching

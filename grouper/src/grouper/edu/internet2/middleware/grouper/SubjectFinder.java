@@ -34,10 +34,13 @@ package edu.internet2.middleware.grouper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,9 +48,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
 import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
@@ -86,7 +91,7 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  * @author  blair christensen.
  * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
  */
-public class SubjectFinder {
+public class SubjectFinder implements CheckboxValueDriver {
 
   /**
    * subject id to search for
@@ -1033,6 +1038,34 @@ public class SubjectFinder {
    */
   public static Set<Source> getSources() {
     return getResolver().getSources();
+  }
+  
+  @Override
+  public List<MultiKey> retrieveCheckboxAttributes() {
+    
+    List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
+    
+    Set<Source> sources = getSources();
+
+    Set<String> sourceIdsToNotAutoSelect = new HashSet<String>();
+    sourceIdsToNotAutoSelect.add(InternalSourceAdapter.ID);
+    sourceIdsToNotAutoSelect.add(GrouperSourceAdapter.groupSourceId());
+    sourceIdsToNotAutoSelect.add(ExternalSubject.sourceId());
+    
+    for (Source source: sources) {
+      boolean autoSelect = !sourceIdsToNotAutoSelect.contains(source.getId());
+      keysAndLabels.add(new MultiKey(source.getId(), source.getName(), autoSelect));
+    }
+    
+    Collections.sort(keysAndLabels, new Comparator<MultiKey>() {
+
+      @Override
+      public int compare(MultiKey o1, MultiKey o2) {
+        return ((String)o1.getKey(0)).compareTo((String)o2.getKey(0));
+      }
+    });
+    
+    return keysAndLabels;
   }
 
   /**
